@@ -245,7 +245,7 @@ Marked settlement step 3 and pr-head companion mode keep the `ls-remote` exit-2 
 
 The only paid or external action is the eval runner: `node eval/run.mjs <target> <sample>` with the repo's configured replay models and judge, on the eight samples named under Tests, at most three runs per sample across seed, rows, repairs and finish (24 runs). No target-wide or cross-target sweep runs.
 
-Per-run call bound: the approved figure is ten model calls per run (four replays, two judgments, and one confirmation replay plus one judgment for each of two cells). The runner does not hold a run to that figure: `judge()` in `eval/run.mjs` retries a failed or malformed judge reply once, confirmation judgments included, so a cold run can reach fourteen calls. Enforcing ten needs a change to `eval/run.mjs`, which this spec does not own. No eval run starts until the user approves the actual bound of fourteen calls per run (Open questions); until then the ten-call figure stands and the runs wait. A run is never allowed to exceed the approved figure silently.
+Per-run call bound: fourteen model calls, including the runner's retry of a failed or malformed judge reply and confirmation judgments. The user's spec approval includes the selected evals at this documented bound, reaffirmed after the redundant approval stop. Keep the eight-sample and three-runs-per-sample limits above across the whole flow; no additional per-step approval is required.
 
 Design approval authorizes these runs within the approved bounds with no per-step prompt. The loop treats any paid or external action without a clause here as unreachable; adding one needs separate explicit authorization.
 
@@ -303,4 +303,4 @@ The materiality bar is `reference/documentation-impact.md`.
 
 ## Open questions
 
-- Eval call bound. Probe: council read of `eval/run.mjs:138-151,335-359` and `eval/lib/run.test.mjs:429-445`. Outcome: the runner cannot hold a run to the approved ten calls; a cold run can reach fourteen (judge retry, confirmation judgments included). Settles: Design "Actions" per-run bound, and with it whether the 24 authorized runs may start. Settlement: the user approves fourteen calls per run at the gate, or the first plan task that runs an eval asks before any run; changing `eval/run.mjs` to enforce ten is not in this spec's scope.
+None. The user reaffirmed that spec approval includes the evals; Design "Actions" records their fourteen-call bound.
