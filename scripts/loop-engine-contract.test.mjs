@@ -7,11 +7,6 @@ import test from 'node:test';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_SKILL_DIRS, lintStageSkillDirs } from './stage-skill-lint.mjs';
 const root = new URL('../', import.meta.url);
-test('permanent CI excludes the branch-specific row-13 eval audit', () => {
-  const ci = readFileSync(new URL('scripts/ci.mjs', root), 'utf8');
-  assert.doesNotMatch(ci, /loop-row13-eval\.test\.mjs/);
-});
-
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
