@@ -26,7 +26,7 @@ Pick one:
 3. [ ] Ignore - leave them as they are
 ```
 
-Show only the run record's picks, in order, renumbered from 1. Mark exactly one row `[recommended]` and its box `[x]`; leave other boxes `[ ]`. Derive the Fix promise from `delivery`:
+Show only the run record's picks, in order, renumbered from 1. Mark exactly one row `[recommended]`; keep every box `[ ]` while awaiting the human's pick. Derive the Fix promise from `delivery`:
 
 | Delivery | Fix row says |
 |---|---|

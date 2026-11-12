@@ -1,7 +1,7 @@
 {
   "sample": "pr-card-no-ticket",
   "arm": "candidate",
-  "skillSha": "9a4ce8deb2754939090069f99d584b5303ad42130d1e9936d44d26898fa458d6",
+  "skillSha": "2d60b2c5c1a2d771b1492aec68cf0429b2af241996695494737475b9108a95d7",
   "inputSha": "9f51fe9862ae89a7f7a7196543339d54c733364427f605dd3e58c8b51453f625",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 unused imports in the widget files are never used\n\n### What was found\nAn import is a line at the top of a file that brings in code from elsewhere. This pull request adds 2 imports whose names are never used: one at `src/widgets/render.ts` line 2 and one at `src/widgets/format.ts` line 3. Both are in lines this pull request changed.\n\n### Why it matters\nThe housekeeping base rules, in their Code section, say to remove imports, variables and modules that nothing uses. Unused lines make a reader look for a use that doesn't exist.\n\n### What happens if you accept\nThose two import lines are deleted and nothing else changes. You get one commit with that removal, pushed to this pull request's branch, `feature/widget-colors`. No automatic test covers this change. The check only read the files.\n\nPick one:\n1. [x] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
-      "words": 167,
-      "wallMs": 8373,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 unused import lines in the widget files can go\n\n### What was found\nTwo lines that bring in a name from another file are never used. They are at src/widgets/render.ts line 2 and src/widgets/format.ts line 3. Both are in lines this pull request changed.\n\n### Why it matters\nThe project's rule is to remove imported names, variables and modules that nothing uses. Unused lines make a file harder to read and suggest a dependency that does not exist. The rule comes from the Code section of the housekeeping base rules.\n\n### What happens if you accept\nBoth import lines are deleted, and nothing else in either file changes. You get one new commit on the pull request's branch, feature/widget-colors, which is pushed to the existing pull request.\n\nPick one:\n1. [ ] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
+      "words": 157,
+      "wallMs": 7060,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. Two unused imports in widget files are not used\n\n### What was found\n`src/widgets/render.ts:2` and `src/widgets/format.ts:3` each bring in a name that the file never uses. Both imports are in lines changed by this PR.\n\n### Why it matters\nThe Code rule in the housekeeping base rules says to remove unused imports, variables and modules with no caller. These two imports serve no purpose in their files.\n\n### What happens if you accept\nRemove the two unused import lines. You receive one commit pushed to the existing PR branch. This check is based on reading the files; no command to test the change is attached.\n\nPick one:\n1. [x] Fix [recommended] - Make one commit for this class and push it to the existing PR branch.\n2. [ ] Ignore - leave them as they are\n",
-      "words": 135,
-      "wallMs": 5869,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. Two unused imports in widget files are not used\n\n### What was found\n`src/widgets/render.ts:2` and `src/widgets/format.ts:3` each import a name that is never used in that file. Both imports are in lines changed by this PR.\n\n### Why it matters\nThe housekeeping base rules, Code section, require removing unused imports, variables and modules with no caller. These imports add code without serving a purpose. No repository rule overrides this check.\n\n### What happens if you accept\nRemove the two unused imports, make one commit for this class, and push it to the existing PR branch. Review will check that the unused imports are gone; no test command is attached to this read-based check.\n\nPick one:\n1. [ ] Fix [recommended] - Make one commit for this class and push it to the existing PR branch.\n2. [ ] Ignore - leave them as they are\n",
+      "words": 142,
+      "wallMs": 6249,
       "mechanical": {
         "marker": "holds"
       }
@@ -36,11 +36,11 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "29e5603c683a283db01c4363537a400c2ab03df6f9d2fe75e30ff7ec0a2f36a7",
+      "factsSha": "04979f25fa72fbdfc6f8e6989c4df4e33f9bd0887c2ffd8a61a037d47f497d2e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5773a70cac8035756a0473eba75fe88d133401ce40c76302a361837e2483a0d9",
+      "intentSha": "c997e47d003a78cb56989d3d8ad624da0a4abb71f81269ce1bf9b53807a7c9e4",
       "baselineOutputSha": "875989db04c64913143fb8f3d91ad8b519e71fd22c29e752cc3b3e4354ed372d",
-      "candidateOutputSha": "5f1b6e409060bc37f6e74d1ca0371f4e9dbcda5412b04a46711c84601cd650de",
+      "candidateOutputSha": "777c4469b4c44314bf527b09eb90f27b856517cb0ed4a8b855afb3f0ef043f32",
       "facts": {
         "two-picks": {
           "before": "holds",
@@ -64,8 +64,8 @@
         },
         "no-execution": {
           "before": "holds",
-          "after": "fails",
-          "label": "regression"
+          "after": "holds",
+          "label": "held"
         },
         "marker": {
           "before": "holds",
@@ -73,59 +73,16 @@
           "label": "held"
         }
       },
-      "feedback": "After keeps the two-choice list, the one-commit-to-the-existing-PR-branch promise, the recommended Fix without a regression command, and findings limited to the two selected imports, but it pre-checks the Fix option (`1. [x] Fix`) while the run state says no pick has been recorded; a careful reader sees a checkbox list with one box ticked and concludes the card has already been answered, which breaks the 'unanswered card' requirement even though no execution is claimed. Use plain numbered rows with the `[recommended]` tag only (as Before did), or use empty boxes for both options, so the recommendation is a label rather than a recorded answer. Two smaller drifts worth tightening: 'This pull request adds 2 imports' overstates the run state (the lines are in changed ranges, not necessarily added by the PR), so say 'two imports in lines this pull request changed'; and 'Those two import lines are deleted' under 'What happens if you accept' is fine as a conditional but reads safer as 'would be deleted' to keep the card clearly pre-execution.",
-      "wallMs": 19145,
-      "verdict": "regressed",
-      "confirmation": {
-        "status": "ok",
-        "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 import lines in the widget files bring in code that is never used\n\n### What was found\nTwo lines that bring in code from another file are never used afterward: one at `src/widgets/render.ts` line 2 and one at `src/widgets/format.ts` line 3. Both lines are in the parts of these files that pull request #42 changes.\n\n### Why it matters\nThe housekeeping base rules for code say to remove unused imports, unused variables and modules that nothing calls. Leftover lines like these make readers think the file depends on code that it does not use.\n\n### What happens if you accept\nThe two unused lines are deleted. The change goes into one commit, which is pushed to the pull request's branch, `feature/widget-colors`. No other lines change. This check works by reading the code, so no test is attached to confirm the change.\n\nPick one:\n1. [x] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
-        "words": 172,
-        "wallMs": 9128,
-        "mechanical": {
-          "marker": "holds"
-        },
-        "judgeWallMs": 19151,
-        "facts": {
-          "two-picks": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "same-pr-commit": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "fix-available": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "selected-only": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          },
-          "no-execution": {
-            "before": "holds",
-            "after": "fails",
-            "label": "regression"
-          },
-          "marker": {
-            "before": "holds",
-            "after": "holds",
-            "label": "held"
-          }
-        },
-        "feedback": "After keeps the two-choice list, the explicit same-PR-branch commit promise (now stated directly on the Fix row, which is an improvement), the single recommended mark, and the finding scope limited to the two changed-range imports. The one regression is the checkbox rendering of the picks: \"1. [x] Fix\" reads as a pick that has already been recorded, which contradicts the run state (no pick recorded, nothing executed) and makes the card look answered even though the surrounding text is conditional (\"What happens if you accept\", \"Pick one:\"). Drop the [x]/[ ] markers and keep the plain numbered list with \"[recommended]\" as the only annotation, e.g. \"1. Fix - make one commit for this class and push it to the existing PR branch [recommended]\" / \"2. Ignore - leave them as they are\"; that preserves the plain-language headings and per-row delivery promise of After while keeping the card visibly unanswered as Before was."
-      }
+      "feedback": "No fact moved. After keeps exactly two numbered picks (Fix, Ignore) with no Ticket entry, puts the one-commit-to-the-existing-PR-branch promise directly in the Fix row, keeps both boxes empty with the recommendation carried only by the [recommended] label, lists only the two unused imports in the changed ranges of src/widgets/render.ts and src/widgets/format.ts, and stays an unanswered card with nothing claimed executed. The one thing After drops versus Before is the explicit verification statement (read-only check, no regression command attached, quoted lines verified, worktree clean and dry-run passed); none of the listed facts depend on it, but if you want the PR card to stay fully self-describing alongside the new directory-walk cards, consider keeping a short 'Verification' line under 'What happens if you accept' so the reader can see why Fix is offered without a regression command. Otherwise the After wording delivers the Change for the PR path without altering any fact.",
+      "wallMs": 13075,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "29e5603c683a283db01c4363537a400c2ab03df6f9d2fe75e30ff7ec0a2f36a7",
+      "factsSha": "04979f25fa72fbdfc6f8e6989c4df4e33f9bd0887c2ffd8a61a037d47f497d2e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5773a70cac8035756a0473eba75fe88d133401ce40c76302a361837e2483a0d9",
+      "intentSha": "c997e47d003a78cb56989d3d8ad624da0a4abb71f81269ce1bf9b53807a7c9e4",
       "baselineOutputSha": "a40bd91a34b4102cb0134cf1c1bff8ece52f66f7d75326e32dfb7d6f1c1067b3",
-      "candidateOutputSha": "dea11f51eea89055051844fbeb248367acce85b88aa5f82c2d10a001c1cbfa70",
+      "candidateOutputSha": "67bdd2cad15a7e277a08ebc6a476be525654ca7dad8de505543e90e18524c7e0",
       "facts": {
         "two-picks": {
           "before": "holds",
@@ -158,10 +115,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After keeps every fact Before kept and additionally repairs same-pr-commit: Before's Fix row only said \"Remove both imports\" with a detached \"Delivery is commit-and-push\" note that never named the target branch or promised a single commit, whereas After's Fix row states \"Make one commit for this class and push it to the existing PR branch\" and the acceptance section repeats it. Two cautions in After: the pre-ticked \"[x] Fix\" marker could be read by some readers as a recorded pick, so a plain \"(recommended)\" tag without a checked box would make the unanswered state unambiguous; and Before's lettered A)/B) options only loosely satisfy \"numbered\", so After's switch to 1./2. is a genuine improvement worth keeping. Also consider restating \"Nothing has been changed yet\" explicitly, as Before did, to lock in no-execution.",
-      "wallMs": 17153,
+      "feedback": "No fact that Before kept was lost in After; After actually gained same-pr-commit, because its Fix row now states explicitly 'Make one commit for this class and push it to the existing PR branch', whereas Before only said 'Delivery is commit-and-push' in the proposed-fix paragraph and the Fix row itself was just 'Remove both imports', so a careful reader could not tell whether that meant one commit on the existing PR branch or something else. Both outputs offer exactly Fix and Ignore with no Ticket (Before uses A)/B) letters rather than numbers, which is a minor wording risk against 'numbered'; After's 1./2. is safer). The one thing to watch in After is the header 'gauntlet: gate=housekeeping/card recommended=1': paired with the empty [ ] boxes it reads as a recommendation rather than a recorded pick, but it is the only place a reader might wonder whether a choice was logged; keeping the recommendation marker solely on the pick label ('Fix [recommended]') and omitting it from the gate line would remove that ambiguity while still delivering the Change's human-only, empty-box, label-only-recommendation card.",
+      "wallMs": 19898,
       "verdict": "improved"
     }
   },
-  "repoSha": "cf819a7356936a77ad3e04da13f59757a0d7dd7c"
+  "repoSha": "9f55ff36d80f0b724759235827b1cb6875cdb0f5"
 }

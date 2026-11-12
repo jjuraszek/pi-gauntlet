@@ -43,6 +43,10 @@ test("pr-card-no-ticket: admit only a clean remote-head PR tree and promise one 
   for (const model of MODELS.replay) {
     assert.ok(cellReusable(candidate, model, identity), `${model}: stale or failed candidate`);
     const output = candidate.outputs[model];
+    const picks = output.text.split("\n").filter((line) => /^\d+\. \[/.test(line));
+    assert.equal(picks.length, 2, `${model}: exactly two card rows`);
+    assert.ok(picks.every((line) => /^\d+\. \[ \]/.test(line)), `${model}: unanswered choices keep empty boxes`);
+    assert.equal(picks.filter((line) => line.includes("[recommended]")).length, 1, `${model}: label one recommendation without recording a pick`);
     assert.ok(Object.values(runMechanical(facts, output.text)).every((result) => result === "holds"), `${model}: mechanical facts`);
     const judged = candidate.judge[model];
     assert.ok(judgmentCurrent(judged, {
