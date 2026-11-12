@@ -1,6 +1,8 @@
-for: 88741d62aafef5ee340579cc1419bf371115e7e4eeaab2d2063fcee7314a8a20
+for: 880967481d5b8a9940c6c4f5cf7b32a1949a9fecbb60b0ad3369bd0f56b6ec93
 
 ## Change
+
+Locate companion task checkouts by the recorded branch through the shared leg resolver, including omitted or literal recorded home values. Keep the session's home checkout and home-owned plan. Resolve all four task path kinds and baseline commands in the located companion; a missing branch stops planning without a guessed checkout. The leg-checkout-by-branch sample covers these routes with supplied git observations; every candidate fact must hold. Only this selected sample is replayed for this change, not the whole target.
 
 Declare each removed file as Delete in exactly one task, not Modify, even while the file still exists. Show Delete in the task template as literal-path write ownership without an existence requirement. The removal-lists-delete sample exercises fresh plan authoring; its checker half is the removal-only fixture in extensions/lib/plan-check.test.ts. Expect Delete ownership and the absence of Modify to move from fails to holds; keep the scoped test and measured baseline unchanged.
 
@@ -27,6 +29,10 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+- leg-checkout-by-branch/branch-lookup: fails -> holds - Select and validate the companion checkout by recorded branch.
+- leg-checkout-by-branch/path-roots: fails -> holds - Resolve all four task path kinds in the located checkout.
+- leg-checkout-by-branch/recorded-home: fails -> holds - Treat recorded home as a contract, not a lookup path.
+- leg-checkout-by-branch/missing: fails -> holds - Stop plan writing on a missing branch rather than guessing.
 - removal-lists-delete/delete-owner: fails -> holds - Declare the removed file as Delete in one task.
 - removal-lists-delete/no-modify: fails -> holds - Do not also declare the removed file as Modify.
 - baseline-menu-aftermath/repeated-evidence-stop: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change

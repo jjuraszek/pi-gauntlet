@@ -10,6 +10,7 @@ This target tests the parent side of the plan phase: one fresh `plan-writer` dis
 
 | Sample | Must hold |
 |---|---|
+| leg-checkout-by-branch | Resolve all four task path kinds and baseline commands in the companion found by branch; keep the home plan and stop when no tree holds the branch. Bundles the full writing-plans skill and shared leg reference; covers omitted and literal recorded home. |
 | all-singleton-plan | Three singleton waves without Solo lines pass the parent check; ordered tracker initialization leads directly to execution without mode selection. |
 | fresh-child-authors-plan | Exactly one `plan-writer` dispatch with `context: "fresh"`, `async: false`, the acceptance line, and the three paths in its task; `plan_check` run by the parent after the reply; the plan read once; `plan_tracker` init with the three titles in wave order; no scout dispatch and no plan body text. |
 | parent-fail-redispatches-once | After `PLAN WRITTEN` and a parent wave-file-disjointness FAIL naming tasks 1 and 2 modifying src/shared.ts at line 40, one re-dispatch carrying the verbatim FAIL lines as a `Findings:` block; no parent write or edit of the plan; the second identical FAIL stops for the human with the FAIL lines and no `plan_tracker` init. |

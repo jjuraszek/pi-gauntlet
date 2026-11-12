@@ -42,7 +42,20 @@ test('replacement samples and retired protocol inventory', () => {
 test('planning and wave dispatch bind task roots and Rules to admitted legs', () => {
   const writer = readFileSync(new URL('../skills/writing-plans/SKILL.md', import.meta.url), 'utf8');
   const contract = readFileSync(new URL('../skills/writing-plans/reference/plan-contract.md', import.meta.url), 'utf8');
-  for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown', 'home:', 'NAME']) assert.ok(contract.includes(token), token);
+  for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown']) assert.ok(contract.includes(token), token);
+  for (const [name, text] of [['plan contract', contract], ['plan skill', writer]]) {
+    assert.match(text, /brainstorming\/reference\/legs\.md#locate-a-leg-tree/, `${name}: branch-location citation`);
+    assert.doesNotMatch(text, /recorded `home:` with shared `NAME`/, `${name}: retired path formula`);
+    assert.match(text, /Stop plan writing on a failed lookup and report its reason/, `${name}: failed lookup`);
+  }
+  const record = JSON.parse(readFileSync(new URL('../eval/writing-plans/results/leg-checkout-by-branch/candidate.json', import.meta.url), 'utf8'));
+  assert.equal(Object.keys(record.outputs).length, 2);
+  for (const [model, output] of Object.entries(record.outputs)) {
+    assert.equal(output.status, 'ok', model);
+    const facts = record.judge[model].facts;
+    assert.deepEqual(Object.keys(facts).sort(), ['baseline', 'branch-lookup', 'home-plan', 'missing', 'path-roots', 'recorded-home']);
+    for (const [fact, result] of Object.entries(facts)) assert.equal(result.after, 'holds', `${model}: ${fact}`);
+  }
   for (const token of ['Rules: root only - paths unresolved', 'owning checkout', 'tree-equivalence', 'per-leg']) assert.ok(writer.includes(token), token);
   const taskTemplate = writer.split('## Task Structure')[1].split('## Spec Coverage Table')[0];
   for (const [name, text] of [['plan contract', contract], ['task template', taskTemplate]]) {
