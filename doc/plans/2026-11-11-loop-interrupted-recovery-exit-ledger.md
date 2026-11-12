@@ -3,7 +3,7 @@
 base: 9dc95a5b124c06eb70dac4a7b4ec4c758970fa85
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -14,7 +14,7 @@ allowance: 10
 | 4 | done | 0 | timeout -k 30 10 node -e '[["skills/loop-implementation/reference/interrupted-recovery.md", "For seed leave every row cell and decision unchanged, commit `loop: repair seed` with `seed interrupted: <reason>` in the body, refresh and apply the seed count"], ["skills/loop-implementation/SKILL.md", "Count seed attempts as `loop: repair seed` commits since ledger base, including interrupted and validation-miss repairs"]].forEach(([file, text]) => require("node:assert/strict").ok(require("node:fs").readFileSync(file, "utf8").includes(text), text))'; exit 0; seed repair preserves rows and spends one seed count |
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-verification-repair.test.mjs; 3 passed; 0 failed; interrupted verification preserves rows and the reserved repair |
 | 6 | done | 1 | timeout -k 30 30 node --test scripts/loop-companion-recovery.test.mjs; 3 passed; 0 failed; companion-only cleanup preserves home repair and clean-result admission |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 30 node scripts/brief-contract-lint.test.mjs; brief-contract lint fixtures pass; attribution stops preserved and confirmed interruptions repair before migration; selected model replay remains for row 13 |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
 | 10 | open | 0 | |
@@ -30,3 +30,4 @@ row 3 done | Checked that mismatched jobs are skipped and lingering jobs or file
 row 4 done | Checked that interrupted seeds use the same recovery, preserve every row and count one repair against the seed allowance. | nothing new to build on
 row 5 done | Migrated verification repair cleanup and fixtures; 3 contract tests pass, model replay awaits companion/resume migration. | Reuse interrupted-recovery.md's failure pass and verify-repair-count snapshots 2-5 for coordinated and resume recovery.
 row 6 done | Migrated companion recovery and fixtures; 3 contract tests pass, model replay awaits reconstruction migration. | Reuse coordinated-legs.md and companion-interrupted-recovery A-F for resume; scripts/loop-companion-recovery.test.mjs checks cleanup and admission separately.
+row 7 done | Migrated resume recovery and three fixtures; brief-contract assertions pass, with model replay deferred to row 13. | Reuse reconstruction.md and interrupted-ownership, migration-recovery and ledger-tracker-recovery fixtures for selected model replay.

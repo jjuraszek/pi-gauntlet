@@ -1,4 +1,5 @@
 bundle+: skills/loop-implementation/SKILL.md
+bundle+: skills/loop-implementation/reference/interrupted-recovery.md
 bundle+: skills/brainstorming/reference/amendment-surface.md
 
 # Input
@@ -21,7 +22,7 @@ No parent admission, repair or approved ledger mutation follows that child. Reco
 | C: two commits | Same terminal ledger and attributed child commit as A, followed by an unrelated code-only commit. Tree clean. Two new home commits follow the body's pre-dispatch SHA; live HEAD is not the attributed child commit. |
 | D: no child commit | HEAD remains aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. The ledger contains iterations:4 and pending: 1 \| home \| aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa as the parent's only uncommitted changes. |
 
-For A-D, show phase restoration, recovery, task projection and continuation/stop in order, preserving consumed iterations. Name the source of the tuple and before-image, and the commit range validated. Explain which pre-dispatch cells must return before projection for B/C, without reverting child code or commits.
+For A-D, show phase restoration, recovery, task projection and continuation/stop in order, preserving consumed iterations. Name the source of the tuple and before-image, and the commit range validated. Explain the repair cells projected for B/C after resetting child code and commits to the recovered tuple SHA. No checkout provenance or launch history is available, no jobs file exists, and reset/clean plus the repair commit succeed in B-D.
 
 E: A legacy implement brief has No plan active., valid Ledger and Last decision fields. Clean ledger, no tuple, iterations4, allowance4; row1 failed attempts1, row2 done attempts1. The latest ledger change is the parent's admitted loop: repair row 1 commit, after the child return. Show restore without init or replaying that settled child and the observed task statuses. No settings lookup or reseed.
 
