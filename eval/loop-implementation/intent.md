@@ -2,6 +2,8 @@ for: 4def0aceb60c24ff468abfeeeb535de6b1158933cbae004c1938a48a141f595c
 
 ## Change
 
+Recover interrupted numbered-row returns unconditionally under options 4 and 5, then check allowance after one repair attempt. Migrate interrupted-child-redispatch A-D and add H for Request aborted, an empty return and no jobs file at allowance 10. Skip mismatched jobs without signaling and continue after lingering jobs or files. The selected deterministic check is scripts/loop-engine-contract.test.mjs beside its siblings; no model replay runs in this iteration. The parent must run interrupted-child-redispatch after its companion/resume facts migrate; existing result records are not evidence for these changed facts.
+
 Route each admitted failed return once, including companion admission and unrouted returns on resume. Treat a committed human answer or applied cut as answering that return so unchanged evidence cannot re-fire its marker before the next dispatch; retain unanswered stops and route new returns independently. Extend and run only unreachable-cut for immediate and resumed retry, rows raises and bound amendments, keeping action authorization separate from row allowance. This sample covers narrated routing, not live dispatch; preserve all other sample records.
 
 Migrate superseded fixture assertions in tracker-verify, scaled-cap-grant, last-attempt-model-boundary, tracker-boundary, human-stop-counts and decision-repair: allowance bounds verification repairs, rule3 passes stagnation hints through rule4, and admitted amendments reset windows. Migrate gate-line-first, allowance-10-escalate-after, spent-row-escalation and multi-row-return to the ownership-safe recovery-incomplete stop: project saved cells without overwriting an unadmitted ledger. Select only these ten model samples and preserve other records. Keep leg-iteration with its reason recorded in the case: attribution and valid interrupted admission are unchanged, and its invalid return lacks cleanup provenance. The contract test selectors stay intact while their obsolete once-per-flow assertions track the shared allowance. This is partial coverage, not a target-wide pass.
@@ -18,7 +20,7 @@ Bound exit-verification repairs by the shared allowance across legs, reserving e
 
 Replace below-allowance stagnation stops with row-local hints through target selection and escalation. Pending human retry hints win; admitted amend/cut commits reset both windows for all rows, while retries reset only their row and allowance raises reset neither. Preserve counters and spent escalation. Require intermediate implement reports to continue to the next ordered action in the same turn, ending only at a Human stop header. Select stagnation-and-retry, amend-resets-windows and same-turn-continuation for this change; these text replays prove narrated routing, not live orchestration.
 
-Recover interrupted home, seed and companion returns only with exclusive checkout/write provenance and OS process start identity plus command and group-leader checks. Preserve unattributed changes and reused processes at recovery incomplete. Completed recovery consumes one row attempt or seed repair count and returns to allowance checks, retaining consumed iterations and escalation. Select interrupted-child-redispatch for owned cleanup, unsafe identity/provenance counterexamples, companion/resume and seed budgets; no other sample is rerun here. These text replays prove narrated decisions, not live signal or reset execution. The baseline lacks automatic recovery and fails the owned, row-budget, interruptions, companion-resume and seed facts.
+Use interrupted-child-redispatch for narrated cleanup, repair accounting and same-turn continuation, not live signal or reset execution. Its home cases recover without checkout proof, skip mismatched processes and check allowance after repair; its companion/resume facts remain for the companion and restore rows to migrate.
 
 Add row-history-guidance for the driver dispatch and separate child continuation over two target failures and an interleaved foreign-row failure. Require the child to reject the older prohibited approach, order its own history, preserve guidance polarity and treat the marker as spent history. Keep history out of the driver payload and child diagnostics out of the driver. Run only this sample here; preserve earlier sample evidence. Supply an explicit missing escaped-backslash test case so the child continuation's test extension is observable rather than an unspecified addition. These partial text replays cover narrated choices, not live dispatch or parser execution.
 
@@ -120,11 +122,12 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - amend-resets-windows/new-window: fails -> holds - New empty pairs produce hints instead of human stops.
 - amend-resets-windows/threshold: fails -> holds - Validation hints continue through the normal escalation threshold.
 - amend-resets-windows/isolation: fails -> holds - Keep hints on their rows and preserve windows after allowance raises.
-- interrupted-child-redispatch/owned: fails -> holds - Recover only proven-owned processes and checkout writes in the required order.
+- interrupted-child-redispatch/owned: fails -> holds - Signal matching listed jobs, reset/clean and repair without checkout proof or a human turn.
 - interrupted-child-redispatch/row-budget: fails -> holds - Completed recovery consumes one attempt before ordered-table continuation.
-- interrupted-child-redispatch/identity: fails -> holds - Unresolved identity or cleanup uses recovery incomplete without signaling a reused process.
-- interrupted-child-redispatch/provenance: fails -> holds - Missing ownership evidence preserves work at recovery incomplete.
-- interrupted-child-redispatch/interruptions: fails -> holds - Recover interrupted returns rather than unconditionally asking for discard.
+- interrupted-child-redispatch/identity: fails -> holds - Skip mismatched jobs without signaling and continue recovery even after an unsuccessful KILL.
+- interrupted-child-redispatch/provenance: fails -> holds - Recover without write or launch proof, treating an absent jobs file as no jobs.
+- interrupted-child-redispatch/interruptions: fails -> holds - Recover every interrupted return shape and continue despite residual files.
+- interrupted-child-redispatch/aborted: fails -> holds - Repair Request aborted and its empty return/no-jobs case before checking exhaustion at allowance 10.
 - interrupted-child-redispatch/companion-resume: fails -> holds - Recover the companion at its boundary and write the home repair once.
 - interrupted-child-redispatch/seed: fails -> holds - Seed repairs spend the shared allowance without changing row attempts.
 - row-history-guidance/ruled-out: fails -> holds - Reject approach X using the older failed line even when latest guidance omits it.
