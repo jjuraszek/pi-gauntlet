@@ -313,28 +313,53 @@ test("settings errors appear once per chained call", async () => {
   assert.equal(warning.split("gauntlet settings load error").length - 1, 1, warning);
 });
 
-test("coordinated linked worktree verification uses its primary's custom policy", async () => {
-  const h = harness();
-  const git = (...args: string[]) => execFileSync("git", ["-C", h.dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-  git("init", "-b", "main");
-  git("-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "-m", "base");
-  const worktree = join(h.dir, "linked-feature");
-  git("worktree", "add", "-b", "feature", worktree);
-  mkdirSync(join(h.dir, ".pi"));
-  writeFileSync(join(h.dir, ".pi/settings.json"), JSON.stringify({ piGauntlet: { verifyBeforeShip: { testCommands: ["custom-check"] } } }));
-  git("remote", "add", "origin", "https://example.invalid/team/companion.git");
-  const spec = join(h.dir, "spec.md");
-  writeFileSync(spec, "## Legs\n### Leg: team/home\n### Leg: team/companion\nbranch: feature\nhome: linked-<name>\n");
-  await h.emitEvent("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: spec } });
-  for (const [id, command, warns] of [["default", "npm test", true], ["custom", "custom-check", false]] as const) {
-    await h.emitEvent("tool_call", bashCall(id, `(cd ${worktree} && ${command})`));
-    await h.emitEvent("tool_result", bashResult(id));
-    await h.emitEvent("tool_call", bashCall("ship", `git -C ${worktree} push`));
-    const warning = warningOf(await h.emitEvent("tool_result", bashResult("ship")));
-    if (warns) assert.match(warning ?? "", /custom-check/);
-    else assert.equal(warning, undefined);
-  }
-});
+for (const { name, home, state } of [
+  { name: "no home", home: "", state: "member" },
+  { name: "literal home", home: "home: ../sib-worktrees/slug\n", state: "member" },
+  { name: "mismatching home pattern", home: "home: linked-<name>\n", state: "member" },
+  { name: "another branch at the recorded home", home: "home: ../sib-worktrees/<name>\n", state: "other" },
+  { name: "detached HEAD at the recorded home", home: "home: ../sib-worktrees/<name>\n", state: "detached" },
+  { name: "duplicate branch checkouts", home: "", state: "duplicate" },
+]) {
+  test(`coordinated linked worktree policy follows branch membership: ${name}`, async () => {
+    const h = harness();
+    const primary = join(h.dir, "sib");
+    mkdirSync(primary);
+    const git = (...args: string[]) => execFileSync("git", ["-C", primary, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    git("init", "-b", "main");
+    git("-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "--allow-empty", "-m", "base");
+    const branch = "user/slug";
+    const worktree = join(h.dir, "sib-worktrees", state === "other" || state === "detached" ? "user-slug" : "slug");
+    git("worktree", "add", "-b", state === "other" ? "other" : branch, worktree);
+    if (state === "detached") git("-C", worktree, "checkout", "--detach");
+    const targets = [worktree];
+    if (state === "duplicate") {
+      targets.push(join(h.dir, "sib-worktrees", "duplicate"));
+      git("worktree", "add", "--force", targets[1], branch);
+    }
+    for (const [root, command] of [[primary, "primary-check"], ...targets.map(target => [target, "local-check"])]) {
+      mkdirSync(join(root, ".pi"));
+      writeFileSync(join(root, ".pi/settings.json"), JSON.stringify({ piGauntlet: { verifyBeforeShip: { testCommands: [command] } } }));
+    }
+    git("remote", "add", "origin", "https://example.invalid/team/sib.git");
+    const spec = join(h.dir, "spec.md");
+    writeFileSync(spec, `## Legs\n### Leg: team/home\n### Leg: team/sib\nbranch: ${branch}\n${home}`);
+    await h.emitEvent("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: spec } });
+    const member = state === "member" || state === "duplicate";
+    const accepted = member ? "primary-check" : "local-check";
+    const rejected = member ? "local-check" : "primary-check";
+    for (const target of targets) {
+      for (const [command, warns] of [[rejected, true], [accepted, false]] as const) {
+        await h.emitEvent("tool_call", bashCall("test", `(cd ${target} && ${command})`));
+        await h.emitEvent("tool_result", bashResult("test"));
+        await h.emitEvent("tool_call", bashCall("ship", `git -C ${target} push`));
+        const warning = warningOf(await h.emitEvent("tool_result", bashResult("ship")));
+        if (warns) assert.ok(warning?.includes(accepted), warning);
+        else assert.equal(warning, undefined);
+      }
+    }
+  });
+}
 
 test("real linked worktree evidence stays separate from primary post-squash verification", async () => {
   const h = harness();

@@ -1,6 +1,8 @@
 for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
 
 ## Change
+Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
+
 Route interrupted home and companion pending returns through the loop driver's ownership-fenced recovery below allowance. Replace discard-only recovery only when retained checkout provenance and owned-job exit evidence permit cleanup; missing evidence preserves changes at recovery incomplete. Keep attribution ambiguity and unrecoverable before-images as stops. The selected interrupted-ownership sample covers owned home and companion recovery and an unrelated-write stop; this is narrated, partial coverage, not live process recovery proof. Correct its synthetic stop-header assertion to dispatch index i=7, not consumed iterations=8, matching the driver's unchanged pre-bump index contract; preserve all ownership and counter facts. Earlier blanket dirty/zero-commit stop expectations below are superseded only for proven owned interruptions.
 
 telemetry-branch-seed for: 976cc8cc5f2a17edf3f607fd299e935bd1cc9e08c6bcc5575f012b262ff2695c
@@ -115,7 +117,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 - legs-home-mismatch/stop: fails -> holds - Enforce the new coordinated-flow must-hold fact: Each stops before tracker writes, naming repo-b and expected/observed full tuple or branch; mismatch is not tolerated as informational HEAD drift.
 - legs-membership/stop: fails -> holds - Enforce the new coordinated-flow must-hold fact: Reports reordered/missing/extra leg and both ordered lists in each case before any tracker write; never silently edits membership.
-- legs-missing/stop: fails -> holds - Enforce the new coordinated-flow must-hold fact: Resolves missing path from recorded home and shared NAME, then stops naming repo-b before tracker writes; does not invent a tree, receipt or approval.
+- legs-missing/stop: fails -> holds - Replace recorded-home derivation with the declared primary's branch lookup and an empty-lookup stop naming repo and branch, without recreation, receipt or approval.
 - legs-ok/drift: fails -> holds - Enforce the new coordinated-flow must-hold fact: Announces repo-b HEAD and dirty drift without stopping; keeps task snapshot, approval/grant checks and legal armed plan_check restoration; dispatches W2 in companion checkout with its Rules, never defaults to home.
 - legs-receipt/admit: fails -> holds - Enforce the new coordinated-flow must-hold fact: A validates live receipt before admitting missing companion and stripped plan, recovers commands from recorded contract, restores through brainstorm start/skip, plan start/skip, implement skip to verify, without plan_check stamp invention or plan repair.
 - legs-receipt/verify: fails -> holds - Enforce the new coordinated-flow must-hold fact: Revalidates unlanded home with recorded contracts/scoped original ACs and fresh conformance; B/C/D stop, preserve receipts and do not infer delivery from copied files or missing plan.

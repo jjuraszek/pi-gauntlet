@@ -380,11 +380,11 @@ If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `
 
 **Only runs for the Squash-merge and Discard options (3 and 5).** The PR, draft PR, and Keep options always preserve the worktree.
 
-Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply the recorded cleanup authority from the Step 1 reference. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section as the cleanup contract (keys written like `## cleanup` items: `using-git-worktrees/SKILL.md` Step 1a).
+Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply [recorded cleanup ownership](reference/legs.md#recorded-cleanup-ownership) before the keyed path below. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section as the cleanup contract (keys written like `## cleanup` items: `using-git-worktrees/SKILL.md` Step 1a).
 
 **Keyed contract** - the section has at least one of `- home:`, `- create:`, `- destroy:`:
 
-1. Resolve `home:` against `$PRIMARY` (absent -> `$PRIMARY/.worktrees/<name>`; an absolute value is used as-is). `<name>` must appear exactly once, inside one path segment that may carry a literal prefix or suffix; otherwise stop and name the line.
+1. Resolve `home:` against `$PRIMARY` (absent in legacy overrides only -> `$PRIMARY/.worktrees/<name>`; an absolute value is used as-is). `<name>` must appear exactly once, inside one path segment that may carry a literal prefix or suffix; otherwise stop and name the line.
 2. Ownership match: canonicalize both sides (`realpath`) and compare `$WORKTREE` to the resolved pattern, treating the `<name>` segment as `<prefix>*<suffix>` where `*` matches the remainder of that one segment. The text `*` matched is `NAME` - the creation identifier (`jacek/fix-x` was created as `jacek-fix-x`; `home: ../acme-mono-<name>` recovers `fix-x` from `acme-mono-fix-x`). A pattern that cannot isolate one segment -> stop and report.
 3. Match and `destroy:` set -> run it from `$PRIMARY` with `<name>` -> `'NAME'` and `<branch>` -> `'$FEATURE'`, each value one single-quoted shell word (`'...'`, an embedded `'` escaped), any other `<token>` resolved from context or asked once, never executed raw. Non-zero exit -> print its output, keep the branch, end this step; never fall back to `git worktree remove --force`. On success, run no `git worktree remove` or `prune`; continue to `git -C "$PRIMARY" branch -D "$FEATURE"`.
 4. Match and no `destroy:` -> `git -C "$PRIMARY" worktree remove "$WORKTREE"` then `git -C "$PRIMARY" worktree prune`; after success, continue to `git -C "$PRIMARY" branch -D "$FEATURE"`.
@@ -442,7 +442,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 
 **Cleaning up harness-owned worktrees**
 - **Problem:** Removing a worktree the harness created causes phantom state
-- **Fix:** Only clean up worktrees that match the `home:` pattern of `## using-git-worktrees`, or - on the legacy path - under `.worktrees/`, `~/.worktrees/<project>/`, or paths produced by a project-native worktree script
+- **Fix:** Apply [recorded cleanup ownership](reference/legs.md#recorded-cleanup-ownership) for specs with `## Legs`; otherwise use Step 6's overrides or legacy ownership proof
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work
@@ -488,8 +488,8 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Get typed confirmation for Option 5 (Discard)
 - Clean up worktree for Options 3 & 5 (Squash-merge, Discard) only
 - Target `$PRIMARY` with `git -C` for merge, worktree removal, and branch deletion
-- Run `git -C "$PRIMARY" worktree prune` after removal
-- Match `$WORKTREE` against the `home:` pattern of `## using-git-worktrees` before removing anything when the keyed contract is active
+- Run `git -C "$PRIMARY" worktree prune` only after owned built-in removal
+- Match `$WORKTREE` against `home:` for recorded blocks that have it; apply Step 6's default only to legacy overrides
 - Surface the closure / conformance verdict as its own section before the options menu
 
 ## Project overrides

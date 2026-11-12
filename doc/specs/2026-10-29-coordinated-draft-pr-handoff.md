@@ -1,5 +1,7 @@
 # Option 6 on a coordinated spec: one home draft PR, every companion branch pushed, re-gate re-provisions the legs
 
+> **Superseded by:** [doc/specs/2026-11-11-leg-trees-located-not-recorded.md](./2026-11-11-leg-trees-located-not-recorded.md) - branch preservation after publication in "Publish option 6 on a coordinated spec" and the push-from-the-option-6-machine recovery in "Re-gate re-settles companions" only
+
 **Goal:** Make the User Review Gate's option 6 work for a spec with N>1 `## Legs` by pushing every companion branch and opening exactly one draft PR on home, let `brainstorming #N` on that PR recreate every companion worktree from `origin/<branch>` on any machine, and let the header-linked finish ship the run as N ready PRs - without changing how a list of N open PRs is admitted or reworked.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** waves

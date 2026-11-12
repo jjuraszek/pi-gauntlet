@@ -1,0 +1,6 @@
+- script: judged: repo-script records create and destroy but no home line; create is script/worktree create pkg-x <name> --branch <branch> and destroy is script/worktree destroy pkg-x <name>, with no expanded name or folder in either template.
+- native: judged: repo-native records treebox create <name> --branch <branch> and treebox destroy <name>, with no home line or produced folder.
+- declared: judged: repo-keyed retains its declared home/create/destroy contract and repo-default retains the owned built-in .worktrees/<name> home/create/destroy contract.
+- host: judged: repo-host records neither home nor destroy and is identified as host-owned rather than assigned a built-in cleanup contract.
+- tokens: judged: Fresh create uses shared NAME feature-parser-fix and explicit shared branch feature/parser-fix; destroy uses the located tree's folder basename (renamed-parser-fix for the given script tree), not the shared NAME.
+- locate: judged: A later stage finds repo-script by the unique linked worktree block with branch refs/heads/feature/parser-fix in the primary's git worktree list --porcelain, excludes the primary block, and checks the selected checkout's path and common-dir identity rather than deriving a path from home or storing the script-produced path.

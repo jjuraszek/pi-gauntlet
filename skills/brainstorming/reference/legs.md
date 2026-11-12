@@ -51,16 +51,32 @@ Keep flow policy (council, grants, tracker, response channels, finish choice and
 home flow guards) under home `.pi/settings.json#piGauntlet` and home overrides.
 Never use `gauntlet_setting` for companions or add a `piGauntlet.*` key.
 
-Record portable templates, not expanded absolute paths:
+### Record portable templates
 
-- Create: retain the leg's `## using-git-worktrees` keyed `home:`/`create:` contract,
-  native tool, discovered wrapper, or owned built-in. Resolve other wrapper tokens
-  from that leg's touched top-level directory; zero or several candidates ask once
-  for that leg. Retain the resolved portable value, not a machine path.
-- Destroy: prefer the `## cleanup` worktree line, then `destroy:`, then owned
-  built-in removal matching `home:`. Include configured
-  `subagents.worktreeTeardownHook` with pi-cohort's existing semantics. Never
-  bypass a wrapper with `git worktree remove`; unmatched homes remain host-owned.
+Record only the contract fields authorized by the creator; never record a produced path:
+
+| Creator | Recorded fields |
+|---|---|
+| Keyed `## using-git-worktrees` contract | Retain `home:`, `create:`, `destroy:`, including the keyed `.worktrees/<name>` default for omitted `home:`. |
+| Owned built-in | Retain `.worktrees/<name>` as `home:`, with built-in `create:` and `destroy:`. |
+| Native tool or discovered script, tree created by this flow | Record `create:` and `destroy:`; omit `home:`. |
+| Tree the session was already inside, no keyed contract | Omit `home:` and `destroy:`; retain host ownership. |
+
+- Create: retain the keyed contract, native tool, discovered wrapper, or owned
+  built-in command. Render discovered-script commands from the primary with the
+  script's repo-relative path, `<name>` for shared NAME (branch with `/` replaced
+  by `-`), and an explicit `<branch>` argument. Use that same NAME at continuation.
+  Resolve other wrapper tokens from that leg's touched top-level directory; zero
+  or several candidates ask once for that leg. Keep portable values, not machine
+  paths, user names, or expanded folders. Require Step 4's branch read-back before
+  recording a block; a script unable to take the branch gets no block on mismatch.
+- Destroy: for a flow-created or keyed tree prefer the `## cleanup` worktree line,
+  then `destroy:`, then owned built-in removal matching `home:`. Render native and
+  script commands from the primary with portable tokens and the script's
+  repo-relative path; set `<name>` at execution to the located tree's folder
+  basename, not shared NAME. Include configured `subagents.worktreeTeardownHook`
+  with pi-cohort's existing semantics. Never bypass a wrapper with `git worktree
+  remove`; keep unmatched homes host-owned.
 - Directories: resolve `flowGuards.specDirs` with the existing default
   `doc/specs`, `docs/specs`; derive plan directories with `planDirsFor`.
   Never read `planDirs` as settings input. Choose the leg's spec directory by the
@@ -75,6 +91,34 @@ Invoke using-git-worktrees once per member with explicit `$ROOT` = primary and
 Carry every `Worktree ready at <path>` result, home
 first. On any failure stop naming repo and branch and list already-created legs;
 leave them preserved, never auto-remove them.
+
+## Locate a leg tree
+
+Keep the home leg at the session's home worktree. For a companion, read
+`git -C <leg primary> worktree list --porcelain` and select the linked block
+carrying `branch refs/heads/<recorded branch>`; exclude the first (primary) block.
+Locate by branch regardless of a recorded `home:`; never expand `home:` or shared
+NAME into a lookup path or record the returned path in the spec.
+
+Validate the selected path: require it to exist, its checkout toplevel to equal
+its realpath, the checkout to differ from the primary, and its canonical
+`--git-common-dir` to equal the primary's. Treat a listed block as retained
+administration, not proof of a live checkout.
+
+| Result | Action |
+|---|---|
+| Exactly one matching block, identity passes | Use its `worktree` path for all later admission, plan paths, and provisioning reuse. |
+| No matching block | Stop: `cannot resolve worktree for <repo>: no worktree holds <branch>`. Only continuation provisioning may proceed by creating a tree. |
+| Several matching blocks | Stop: `cannot resolve worktree for <repo>: <n> worktrees hold <branch>`. |
+| Selected path fails identity | Stop: `cannot resolve worktree for <repo>: <path> is not a checkout`. |
+
+For cleanup lookup failures, run no destroy command and delete no branch for
+that leg; report the repo, branch and reason without an invented path, then
+continue with remaining legs. Apply this rule to plan writing, finishing,
+draft-PR cleanup and continuation, and resume's absent companion locations.
+Use it also when loop-implementation seed or authorized restore and bare-worktree
+gauntlet-resume capture companion paths without a brief `legs:` location.
+Keep receipt admission of missing delivered trees unchanged.
 
 ## Gather rules
 
@@ -116,6 +160,9 @@ Rules: pkg-x/AGENTS.md
 scope: AC 1, AC 3
 design: <owned paths, observable outcomes, and clauses binding this leg>
 ```
+
+For a no-`home:` variant, apply the creator-specific omissions in
+[Record portable templates](#record-portable-templates) to this template.
 
 ### Scope grammar and validation
 

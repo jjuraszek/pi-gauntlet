@@ -2718,8 +2718,8 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   const repo = `team/${name}`;
   const cloneUrl = `git@example.test:${repo}.git`;
   execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
-  const branch = "feature/legs";
-  const companionRoot = join(companion, pattern.replace("<name>", "feature-legs"));
+  const branch = "user/slug";
+  let companionRoot = join(companion, pattern.replace("<name>", "user-slug"));
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
@@ -2801,6 +2801,22 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     for (const spy of spies) spy.mock.restore();
     syncBuiltinESMExports();
   }
+  const specPath = join(primary, "doc/specs/spec.md");
+  const originalSpec = readFileSync(specPath, "utf8");
+  const scriptHome = join(companion, "..", `${name}-worktrees`);
+  tempDirs.push(scriptHome);
+  mkdirSync(scriptHome);
+  const scriptRoot = join(scriptHome, "slug");
+  execFileSync("git", ["worktree", "move", companionRoot, scriptRoot], { cwd: companion, stdio: "pipe" });
+  companionRoot = scriptRoot;
+  for (const home of [undefined, `../${name}-worktrees/slug`, ".worktrees/<name>"]) {
+    await t.test(`script-placed companion with home ${home ?? "absent"}`, async () => {
+      writeFileSync(specPath, originalSpec.replace(`contract: home: ${pattern}`, home ? `contract:\n- home: ${home}` : "contract:"));
+      const result = await tool.execute("script-placed", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
+      assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
+    });
+  }
+  writeFileSync(specPath, originalSpec);
   const originalPlan = readFileSync(planPath, "utf8");
   const foreignSpec = join(companionRoot, "foreign-spec.md");
   writeFileSync(foreignSpec, readFileSync(join(primary, "doc/specs/spec.md")));
@@ -2816,6 +2832,66 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   const missing = await tool.execute("legs-missing-root", { planPath }, undefined, undefined, h.ctx) as { details: { findings: { check: string }[] } };
   assert.ok(missing.details.findings.some(f => f.check === "input"));
 });
+
+for (const state of ["unlinked", "primary", "detached", "not a checkout", "foreign linked checkout", "duplicate", "missing branch", "lookup failed"] as const) {
+  test(`plan_check rejects companion branch lookup: ${state}`, async () => {
+    const primary = gitPrimary().primary;
+    const companion = gitPrimary().primary;
+    const name = companion.split("/").at(-1)!;
+    const repo = `team/${name}`;
+    const branch = "user/slug";
+    const companionRoot = join(companion, ".worktrees", "slug");
+    const git = (...args: string[]) => execFileSync("git", ["-C", companion, ...args], { stdio: "pipe" });
+    git("config", "remote.origin.url", `https://example.test/${repo}.git`);
+    git("branch", branch);
+    if (state === "primary") git("checkout", branch);
+    if (state === "detached") git("worktree", "add", "--detach", companionRoot, branch);
+    if (state === "not a checkout" || state === "foreign linked checkout" || state === "duplicate") {
+      git("worktree", "add", companionRoot, branch);
+      if (state === "duplicate") git("worktree", "add", "--force", `${companionRoot}-other`, branch);
+      else {
+        rmSync(companionRoot, { recursive: true });
+        if (state === "foreign linked checkout") {
+          execFileSync("git", ["-C", primary, "worktree", "add", "--detach", companionRoot], { stdio: "pipe" });
+        } else mkdirSync(companionRoot);
+      }
+    }
+    mkdirSync(join(primary, ".pi"), { recursive: true });
+    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:${repo}.git\n`);
+    const { planPath } = writePlanFixture(primary, {
+      mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\n${state === "missing branch" ? "" : `branch: ${branch}\n`}contract:\n`,
+      mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
+    });
+    const h = harness({ cwd: primary });
+    await h.emit("session_start");
+    const tool = h.tools.find(t => t.name === "plan_check")!;
+    const original = childProcess.execFileSync;
+    const spy = state === "lookup failed" ? mock.method(childProcess, "execFileSync", (...args: any[]) => {
+      if (args[0] === "git" && args[2]?.cwd === companion && JSON.stringify(args[1]) === JSON.stringify(["worktree", "list", "--porcelain", "-z"])) {
+        throw Object.assign(new Error("worktree listing failed"), { status: 128 });
+      }
+      return (original as Function)(...args);
+    }) : undefined;
+    if (spy) syncBuiltinESMExports();
+    let result: { details: { status: string; findings: { check: string; reason: string }[] } };
+    try {
+      result = await tool.execute(state, { planPath }, undefined, undefined, h.ctx) as typeof result;
+    } finally {
+      if (spy) {
+        spy.mock.restore();
+        syncBuiltinESMExports();
+      }
+    }
+    const reason = state === "duplicate" ? `2 worktrees hold ${branch}`
+      : state === "not a checkout" || state === "foreign linked checkout" ? `${companionRoot} is not a checkout`
+      : state === "lookup failed" ? `worktree lookup failed for ${branch}`
+      : `no worktree holds ${branch}`;
+    assert.equal(result.details.status, "fail");
+    assert.deepEqual(result.details.findings.map(({ check, reason }) => ({ check, reason })), [
+      { check: "input", reason: state === "missing branch" ? `invalid recorded branch for ${repo.toLowerCase()}` : `cannot resolve worktree for ${repo.toLowerCase()}: ${reason}` },
+    ]);
+  });
+}
 
 for (const length of [32767, 32768, 32769]) {
   test(`plan_check complete manifest JS length ${length} bounds stamping`, async () => {

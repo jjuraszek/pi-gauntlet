@@ -1,0 +1,120 @@
+{
+  "sample": "leg-checkout-by-branch",
+  "arm": "candidate",
+  "skillSha": "f1f33ec83a7ce67d86119d83b4007b4dc421993cc8053516d925a11134cfc0be",
+  "inputSha": "27397e4f2bd6818ff9eb70fc15c1e679ce88abe8bdd105e6f1402aa2f10d32d0",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Plan-writer narration\n\n1. **Read the home spec's `## Legs`.** Members are team/home and team/widget. Home stays at the session worktree `/workspace/home/active`, and the plan is home-owned.\n2. **Locate the companion tree:** `git -C /workspace/widget worktree list --porcelain`.\n   - I exclude the first (primary) block, `/workspace/widget`.\n   - I select the one linked block on `branch refs/heads/feature/settings`, which is `/workspace/tree-pool/settings-73`. `other-12` holds a different branch.\n3. **Validate that tree:**\n   - The path exists.\n   - Its realpath and checkout toplevel both equal the path.\n   - It is not the primary.\n   - Its canonical `--git-common-dir` is `/workspace/widget/.git`, which matches the primary.\n   - Identity passes. I never expand `home:` or `feature-settings` into a lookup path.\n4. **Recon at `/workspace/tree-pool/settings-73` only:**\n   - `src/settings.ts` re-exports `src/legacy.ts`.\n   - `src/validate.ts` is absent.\n   - `tests/settings.test.mjs` uses node:test.\n   - Home source supplies no companion evidence.\n5. **Rules re-walk.** I walk `src/` and `tests/` under the widget leg. Only root `AGENTS.md` applies: no formatter, and `npm test` is the full verification. No extra `Rules:` are needed.\n6. **Baseline, per leg:**\n   - Home: `git -C /workspace/home/active rev-parse --short HEAD` returns aaaaaaa. Status is clean.\n   - Widget: `git -C /workspace/tree-pool/settings-73 rev-parse --short HEAD` returns 2222222. Status is clean.\n   - The test command anchors the existing test file, with no created anchor and no introduced selector. I run it unchanged: `(cd \"/workspace/tree-pool/settings-73\" && node --test tests/settings.test.mjs)`.\n   - Result: exit 0, 2 tests, 0 failures. HEAD and status are unchanged afterwards, so the bullet is `pass`.\n7. **Write the plan** to `/workspace/home/active/doc/plans/settings.md`.\n8. **Check it:** `plan_check({ planPath: \"/workspace/home/active/doc/plans/settings.md\" })`. I fix any findings and re-run. The reply below assumes a clean result.\n\n## Plan fragment (case A)\n\n```markdown\n# Settings Validator Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Replace widget's legacy settings export with a string-only `isSetting(value)` validator.\n\n**Architecture:** New `src/validate.ts` in team/widget; `src/settings.ts` re-exports it; `src/legacy.ts` removed.\n\n**Tech Stack:** TypeScript, node:test\n\n**Spec:** `doc/specs/settings.md`\n\n**Verification:** `npm test`\n\n**Baseline team/home:** aaaaaaa\n**Baseline team/widget:** 2222222\n\nBaseline provenance: team/home aaaaaaa clean, nothing admitted; team/widget 2222222 at /workspace/tree-pool/settings-73 clean, nothing admitted.\n\n## Files\n\n**Create:** `src/validate.ts` (team/widget)\n**Modify:** `src/settings.ts` (team/widget), `tests/settings.test.mjs` (team/widget)\n**Delete:** `src/legacy.ts` (team/widget)\n\n## Wave 1 — Validator\n\n### Task 1: Settings validator\nLeg: team/widget\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/settings.md § \"Design\" L5, § \"Acceptance criteria\" L8\n\n**Files:**\n- Create: `src/validate.ts`\n- Modify: `src/settings.ts`\n- Modify: `tests/settings.test.mjs`\n- Delete: `src/legacy.ts`\n- Test: `tests/settings.test.mjs`\n\n**Tests:**\n- `node --test tests/settings.test.mjs`\n- baseline: 2222222 pass\n- via: `isSetting(value)`\n\n- [ ] **Step 1: Write the failing test** — in `tests/settings.test.mjs`, import `isSetting` from `src/settings.ts`; assert `isSetting(\"a\") === true` and `isSetting(1) === false`.\n- [ ] **Step 2: Run, confirm failure** — Run: `node --test tests/settings.test.mjs`. Expected: FAIL, `isSetting` not exported.\n- [ ] **Step 3: Implement**\n  ```ts\n  // src/validate.ts\n  export function isSetting(value: unknown): value is string {\n    return typeof value === \"string\";\n  }\n  ```\n  - Replace `src/settings.ts` with `export { isSetting } from \"./validate.ts\";`.\n  - Delete `src/legacy.ts`.\n  - Remove the `legacySetting` assertions from the test file.\n- [ ] **Step 4: Run, confirm pass** — Run: `node --test tests/settings.test.mjs`. Expected: PASS.\n- [ ] **Step 5: Format & lint** — AGENTS.md documents no formatter or linter, so there is no command to run.\n- [ ] **Step 6: Commit**\n  ```bash\n  git add src/validate.ts src/settings.ts tests/settings.test.mjs\n  git rm src/legacy.ts\n  git commit -m \"Add settings validator, remove legacy module\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L5 | create validate.ts, re-export, delete legacy, extend tests | Task 1 |\n| § \"Acceptance criteria\" L8 | validator exposed, no legacy module | Task 1 |\n```\n\n## Case B\n\nThe added `home: trees/fixed-slot` does not change anything. Lookup is by branch regardless of a recorded `home:`, and I never expand `home:` into a path. The same block, `/workspace/tree-pool/settings-73`, is selected and passes identity. Baseline evidence and the plan are identical to case A. The nonexistent `trees/fixed-slot` folder is never probed.\n\n## Case C\n\nThere is no linked block holding `refs/heads/feature/settings`, so I stop with: `cannot resolve worktree for team/widget: no worktree holds feature/settings`.\n\n- I write no plan, run no baseline, and create no tree.\n- I do not guess a checkout from `feature-settings` or the primary.\n- I report that reason to the parent.\n- Only continuation provisioning may create the missing tree.\n\nPLAN WRITTEN /workspace/home/active/doc/plans/settings.md\n",
+      "words": 631,
+      "wallMs": 32803,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Simulated lookup and resolution\n\nThese are narrated calls using the supplied observations, not live executions or file writes.\n\n1. Keep the home checkout at `/workspace/home/active`. Read the approved spec and its settled membership; do not derive a checkout from either member’s `home:` template.\n\n2. Locate the companion by calling:\n   ```bash\n   git -C /workspace/widget worktree list --porcelain\n   ```\n   Exclude the primary block. Select the sole linked block with `branch refs/heads/feature/settings`: `/workspace/tree-pool/settings-73`.\n\n3. Validate that selected checkout:\n   ```bash\n   realpath /workspace/tree-pool/settings-73\n   git -C /workspace/tree-pool/settings-73 rev-parse --show-toplevel\n   git -C /workspace/tree-pool/settings-73 rev-parse --git-common-dir\n   ```\n   The supplied results establish that the directory exists, is its own realpath and checkout toplevel, differs from the primary, and shares the primary’s canonical Git common directory.\n\n4. Read the companion spec at:\n   `/workspace/tree-pool/settings-73/doc/specs/settings.md`.\n   Its Home tuple matches the approved home spec.\n\n5. Resolve every task path against `/workspace/tree-pool/settings-73`, not the home checkout. Read the supplied companion source and test recon there. Walk root and touched-directory rules; the supplied rules result is only `AGENTS.md`, with no formatter.\n\n6. Inventory both checkouts:\n   ```bash\n   git -C /workspace/home/active rev-parse --short HEAD\n   git -C /workspace/home/active status --porcelain --untracked-files=all\n   git -C /workspace/tree-pool/settings-73 rev-parse --short HEAD\n   git -C /workspace/tree-pool/settings-73 status --porcelain --untracked-files=all\n   ```\n   Observed revisions are `aaaaaaa` and `2222222`; both inventories are clean.\n\n7. The task’s existing test anchor is not created by this task, so execute its unchanged baseline command:\n   ```bash\n   (cd /workspace/tree-pool/settings-73 && node --test tests/settings.test.mjs)\n   ```\n   Supplied evidence: exit 0, two tests, zero failures. Repeat companion status and revision calls: unchanged and clean. Record `pass`, not `skipped`, at companion revision `2222222`.\n\n## A — simulated plan fragment\n\n# Settings Validator Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Replace the companion’s legacy settings export with a string validator.\n\n**Architecture:** Implement the validator in the companion and expose it through its existing settings entrypoint. Remove the legacy module.\n\n**Tech Stack:** TypeScript; Node.js `node:test`.\n\n**Spec:** `doc/specs/settings.md`\n\n**Verification:** team/home: `npm test`; team/widget: `npm test`\n\nBaseline team/home: aaaaaaa  \nBaseline team/widget: 2222222\n\nBaseline provenance: Both initial inventories were clean; no dirty paths were admitted. Companion scoped tests executed at `2222222`, exit 0, two tests, zero failures; subsequent inventory and HEAD were unchanged.\n\n## Files\n\nPaths below belong to team/widget.\n\n**Create:**\n- `src/validate.ts`\n\n**Modify:**\n- `src/settings.ts`\n- `tests/settings.test.mjs`\n\n**Delete:**\n- `src/legacy.ts`\n\n## Wave 1 — Companion validator\n\n### Task 1: Replace the legacy settings export\nLeg: team/widget\n\nRules: AGENTS.md\n\n**TDD scenario:** Modifying tested code — run existing tests first.\n\n**Spec:** doc/specs/settings.md § \"Design\" L5, § \"Acceptance criteria\" L8\n\n**Files:**\n- Create: `src/validate.ts`\n- Modify: `src/settings.ts`\n- Delete: `src/legacy.ts`\n- Modify: `tests/settings.test.mjs`\n- Test: `tests/settings.test.mjs`\n\n**Tests:**\n- `node --test tests/settings.test.mjs`\n- baseline: 2222222 pass\n- via: `isSetting(value)` re-exported from `src/settings.ts`\n\n- [ ] **Step 1: Confirm existing tests pass.**\n\n  Run: `node --test tests/settings.test.mjs`  \n  Expected: existing tests pass.\n\n- [ ] **Step 2: Extend the existing settings tests.**\n\n  Import `isSetting` from `../src/settings.ts`. Assert that `\"\"` and `\"enabled\"` return true; `42`, `null`, `undefined`, `false`, `{}`, and `[]` return false. Assert that `src/legacy.ts` does not exist. Replace assertions requiring the removed legacy export.\n\n- [ ] **Step 3: Confirm the extended tests fail.**\n\n  Run: `node --test tests/settings.test.mjs`  \n  Expected: failure because the validator export is absent.\n\n- [ ] **Step 4: Implement the replacement.**\n\n  Create `src/validate.ts`:\n  ```typescript\n  export function isSetting(value: unknown): value is string {\n    return typeof value === \"string\";\n  }\n  ```\n\n  Replace `src/settings.ts` contents:\n  ```typescript\n  export { isSetting } from \"./validate.ts\";\n  ```\n\n  Delete `src/legacy.ts`.\n\n- [ ] **Step 5: Confirm scoped tests pass and inspect formatting.**\n\n  Run: `node --test tests/settings.test.mjs`  \n  Expected: all tests pass. No formatter or lint command is documented; preserve repository style.\n\n- [ ] **Step 6: Commit.**\n\n  ```bash\n  git add src/validate.ts src/settings.ts src/legacy.ts tests/settings.test.mjs\n  git commit -m \"Replace legacy settings export with string validator\"\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L5 | Create validator, re-export it, delete legacy module, extend tests | Task 1 |\n| § \"Acceptance criteria\" L8 | Companion exposes validator and legacy module is absent | Task 1 |\n\n## B and C\n\n**B:** Nothing changes. Locate by recorded branch, not `home: trees/fixed-slot`; its nonexistent folder does not invalidate the matching linked checkout.\n\n**C:** The listing has no matching linked block. Stop with `cannot resolve worktree for team/widget: no worktree holds feature/settings`. Create no plan, invent no path, and record no baseline. Provisioning belongs to continuation, not plan writing.\n",
+      "words": 655,
+      "wallMs": 37291,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d2b34c8e42a6aaf90942d95cd04736304f0b2189bac05b32ea7806fc4c4380fa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2070532f0485294849e540a4f2eac305ef6f250e01002f51061df47c965672f1",
+      "baselineOutputSha": "f77e8c16864804fa09513b2d371378d354eac204c1d98b720aa73a43576e6b79",
+      "candidateOutputSha": "0661a3d3b49bf380383b442a7d10b4cc7017534512e4c1090c4353d727c3b111",
+      "facts": {
+        "branch-lookup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "path-roots": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home-plan": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "baseline": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "recorded-home": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After keeps every fact Before held (branch selection with identity checks, all four path kinds rooted at settings-73, home-owned plan with Leg before Files, companion baseline 2222222 with npm test only in the header) and moves the two facts Before failed: B now treats `home: trees/fixed-slot` as contract text rather than a lookup path and reuses the branch-located checkout instead of raising an Open Question, and C stops with the exact `cannot resolve worktree for team/widget: no worktree holds feature/settings` message, no plan, no baseline, no created tree, where Before wrote a blocked plan and replied OPEN QUESTIONS. Two wording nits to tighten: the single trailing `PLAN WRITTEN ...` line sits directly under the Case C section, so a reader could momentarily attribute it to C — label it as the case-A reply or place it after the A fragment; and the A provenance line dropped the scoped command result (`node --test tests/settings.test.mjs` exit 0, 2 tests, 0 failures, tree/HEAD unchanged) that Before carried in the plan header, which the narration covers but the plan text itself should also record for the baseline fact to be self-evident from the fragment alone.",
+      "wallMs": 23464,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d2b34c8e42a6aaf90942d95cd04736304f0b2189bac05b32ea7806fc4c4380fa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2070532f0485294849e540a4f2eac305ef6f250e01002f51061df47c965672f1",
+      "baselineOutputSha": "db31aa7386fb949db2685bfd07ea4e41d9254de9b8de650baf8dff93d60074a9",
+      "candidateOutputSha": "43fbbb022885d6941545b27b9b21d1c03784dbc564094cfba592a7f315b1be97",
+      "facts": {
+        "branch-lookup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "path-roots": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "home-plan": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "baseline": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "recorded-home": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "missing": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After improves on Before by emitting the exact stop message for C (`cannot resolve worktree for team/widget: no worktree holds feature/settings`) with no plan, path or baseline, which is what moved `missing` to holds; Before only said to stop for the human without the required diagnostic. After also states explicitly (step 5) that every task path kind is resolved against /workspace/tree-pool/settings-73, which is clearer than Before's implicit 'companion-owned paths'. One regression risk in After: it never names the plan location — Before's 'Keep planning artifacts in home' line and the closing `PLAN WRITTEN /workspace/home/active/doc/plans/settings.md` reply were dropped, so `home-plan` holds only by implication (home checkout kept, home spec cited, Leg before Files, no relocation). To keep every fact robust, restore an explicit line such as 'Plan written at /workspace/home/active/doc/plans/settings.md; the plan stays home-owned and cites the home doc/specs/settings.md' alongside the new companion-resolution and stop-message wording.",
+      "wallMs": 20592,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "52c1abe5818d5543cf47e67d3b8b5f4acc0a684e"
+}

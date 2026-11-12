@@ -114,7 +114,7 @@ If you can't list the files, the spec isn't ready: amend or redraw per brainstor
 
 ## Leg routing
 
-Read the home spec's `## Legs` and [the leg contract](../brainstorming/reference/legs.md) before recon. Keep the plan and `**Spec:**` header home-owned. Resolve each member's checkout from its declared primary and recorded `home:` with shared `NAME`; admit task ownership through `plan_check`, never from `design:` prose. Follow [plan-contract.md](reference/plan-contract.md#legs-leg-unknown) for `Leg:`, per-leg baselines and path keys. Repair unknown task legs in the plan, not spec membership.
+Read the home spec's `## Legs` and [the leg contract](../brainstorming/reference/legs.md) before recon. Keep the plan and `**Spec:**` header home-owned. Keep home's checkout at the session's home worktree and resolve companions through [Locate a leg tree](../brainstorming/reference/legs.md#locate-a-leg-tree); admit task ownership through `plan_check`, never from `design:` prose. Stop plan writing on a failed lookup and report its reason; create no plan against a guessed checkout. Follow [plan-contract.md](reference/plan-contract.md#legs-leg-unknown) for `Leg:`, per-leg baselines and path keys. Repair unknown task legs in the plan, not spec membership.
 
 Re-walk every task's `Files:` using Gather rules in the leg contract. Append extra task `Rules:` and resolve `Rules: root only - paths unresolved`; retain missing-link evidence. Split mixed waves into consecutive single-leg waves without violating dependencies.
 
