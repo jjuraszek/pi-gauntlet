@@ -3,7 +3,7 @@
 base: 92eb7a087670521a6117c5e39c06066de0a5bbc7
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,6 +22,7 @@ allowance: 10
 | 12 | open | 0 | |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
-| 15 | open | 0 | |
+| 15 | open | 0 | timeout -k 30 10 python3 -c 'assert "disable-model-invocation: true" in __import__("pathlib").Path("skills/housekeeping/SKILL.md").read_text().split("---", 2)[1].splitlines() and "./skills/housekeeping" in __import__("json").loads(__import__("pathlib").Path(".claude-plugin/marketplace.json").read_text())["plugins"][0]["skills"]'; exit 1: skills/housekeeping/SKILL.md is missing; static registration check only, runtime loading untested; no paid or external action launched, no jobs file created |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1
