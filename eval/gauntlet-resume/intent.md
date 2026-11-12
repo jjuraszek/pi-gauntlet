@@ -1,8 +1,10 @@
-for: 6963fc45e9490eabf4038350e811869ebdab247db0854feaf25db5d90bf44481
+for: 5f6a032e9f524051d433bb5146618036179c6911ea79815b703e170c57993fa0
 
 ## Change
 Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
 
+
+Recover companion attribution and home-boundary failures from a recoverable tuple by resetting companion and home, then repairing only home. Before accepting an ambiguous no-tuple return as interrupted, disclose every affected commit and dirty path and that the answer authorizes their discard. Selected row-13 samples exercise these paths; other saved records remain partial historical coverage.
 Route confirmed interrupted home and companion returns through the loop driver's unconditional recovery before allowance checks or migration. Recover even with unrelated writes, missing checkout provenance or absent launch history; keep attribution ambiguity and unrecoverable before-images as separate stops. Migrate interrupted-ownership, migration-recovery B/D and ledger-tracker-recovery B/C/D to reset/clean at the tuple SHA, a single failed-attempt repair with the consumed iteration, then refresh and the ordered table. Clean tuple-free legacy ledgers migrate after recovery. Add the common interrupted-recovery procedure to each selected sample's bundle. Deterministic brief-contract assertions cover these narrated contracts; selected model replay remains for row 13, and retained model records do not prove the changed facts.
 
 telemetry-branch-seed for: 976cc8cc5f2a17edf3f607fd299e935bd1cc9e08c6bcc5575f012b262ff2695c

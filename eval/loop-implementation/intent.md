@@ -1,6 +1,8 @@
-for: 6303dbad31876ef347491ae88cc6eaea170bc1bc1695043af8930ae97e318182
+for: 4ec8863ae63fdd762fa2e37883e61c593d5c7c7995e3536670e678c95a6420fc
 
 ## Change
+
+Recover wrong companion attribution, unexpected home dirt and home movement with resets in companion and home when the tuple and before-image are recoverable. Under amend permission return a re-bound verify row through ordinary dispatch without a second authorization; exhausted rows still stop at rule 2. Forbid invented stops and authorization rulings in hints. Selected row-13 replays cover these changes and the affected assemblies; retained other samples are not current coverage.
 
 Recover every interrupted return without a proof demand or human turn, including absent jobs files and unknown launch history. Attempt cleanup, leave unidentified jobs unsignaled, charge one failed attempt or one seed/verify repair, clear pending and continue through the ordinary allowance checks. Migrate allowance-10-escalate-after, commit-boundary, exit-repair-capability, exit-verification-escalates, multi-row-return, seed-retry, seed-interrupted-count, spent-row-escalation, tracker-boundary and legacy-cap to this rule. Preserve the no-pending dirty-tree authorization stop, row attribution, spent escalation and consumed iterations. These selected fixtures require fresh baselines and candidate judgments under the registered successor judge; retained results for other samples are not current coverage.
 

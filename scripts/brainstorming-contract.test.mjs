@@ -508,6 +508,8 @@ test('round-two design names actions without requiring a flow-wide count', () =>
     'across seed, rows, repairs and finish', 'without per-step permission prompts',
     'treat any stated count as advisory', 'action the spec does not name as unreachable',
     'require separate explicit authorization to add it to Design',
+    'Never block a named action for a missing or exhausted count',
+    'never write a hold that makes a named action wait for a later approval',
   ]) assert.ok(roundTwo.includes(clause), clause);
   assert.doesNotMatch(roundTwo, /inputs and count|within those bounds|runner\/input\/count/);
   const sample = 'eval/brainstorming/samples/design-names-paid-actions/';
@@ -518,6 +520,7 @@ test('round-two design names actions without requiring a flow-wide count', () =>
   assert.doesNotMatch(expected, /^- flow-bound:/m);
   assert.match(expected, /^- named-runs: judged:.*count is absent.*advisory/m);
   assert.match(expected, /^- unnamed-unreachable: judged:.*action the spec does not name/m);
+  assert.match(expected, /^- no-deferral: judged:/m);
 });
 
 test('red flags stop approaches that skip the framing question or the holds-statement', () => {

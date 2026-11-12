@@ -557,7 +557,6 @@ try {
     R("scripts/loop-dirty-tree-stop.test.mjs"),
     R("scripts/loop-implementer-actions.test.mjs"),
     R("scripts/loop-implementer-process.test.mjs"),
-    R("scripts/loop-row13-eval.test.mjs"),
     R("scripts/loop-unreachable-cut.test.mjs"),
     R("scripts/loop-verification-repair.test.mjs"),
   ], { stdio: "pipe" });

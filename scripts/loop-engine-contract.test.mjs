@@ -7,6 +7,11 @@ import test from 'node:test';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_SKILL_DIRS, lintStageSkillDirs } from './stage-skill-lint.mjs';
 const root = new URL('../', import.meta.url);
+test('permanent CI excludes the branch-specific row-13 eval audit', () => {
+  const ci = readFileSync(new URL('scripts/ci.mjs', root), 'utf8');
+  assert.doesNotMatch(ci, /loop-row13-eval\.test\.mjs/);
+});
+
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
@@ -350,6 +355,8 @@ test('terminal home results admit clean returns and repair interrupted returns w
   assert.doesNotMatch(dispatch, /provenance|exclusive ownership/);
   const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
   assert.doesNotMatch(human, /recovery.incomplete|interrupted-dispatch.*stops|discard.*interrupted/);
+  assert.match(human, /Never invent a stop, a menu, an option or an approval the spec's gate did not ask for/);
+  assert.match(human, /never write a ruling on what the spec authorizes into a task's `hint:` field/);
   assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
   assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
   assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
@@ -403,7 +410,9 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
   assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
   assert.match(after, /Gn tasks.*same tracker/);
-  assert.match(after, /Stopped: row <n> reopened by amendment during verify/);
+  assert.match(after, /Without amend permission, refresh and stop with `Stopped: row <n> reopened by amendment during verify`/);
+  assert.match(after, /Under amend permission, continue without a second authorization/);
+  assert.match(after, /including exhausted-row rule 2/);
   assert.match(after, /authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*refresh.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);

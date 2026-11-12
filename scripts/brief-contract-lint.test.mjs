@@ -4,6 +4,12 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { CONTRACT_FILE, CITING_SKILLS, lintBriefGrammar, readSkillFiles } from "./brief-contract-lint.mjs";
 
+const recoveryText = readFileSync(new URL('../skills/gauntlet-resume/reference/reconstruction.md', import.meta.url), 'utf8');
+const disclosure = recoveryText.split('Without either, history alone')[1].split('| Confirmed admission state |')[0];
+assert.match(disclosure, /List the commits in `<pre-dispatch HEAD>\.\.HEAD` and every dirty path/);
+assert.match(disclosure, /answering `interrupted` discards those commits and dirty files through `reset --hard <pre-dispatch HEAD>` and `clean -fd`/);
+assert.doesNotMatch(recoveryText, /not discard permission/);
+
 const contract = [
   "# Handoff brief contract",
   "## Process state",
@@ -175,7 +181,8 @@ for (const [name, pattern] of [
   ["settled continuation", /Confirmed settled.*preserve the current ledger.*normal restore/i],
 ]) assert.match(recovery, pattern, name);
 assert.match(recovery, /read-only admission-evidence check.*before phase\/task restoration/);
-assert.match(ledgerRestore, /unrecoverable attribution or before-image.*stop before refresh/i);
+assert.match(ledgerRestore, /Stop before refresh only when the tuple or before-image is unrecoverable/);
+assert.match(ledgerRestore, /wrong attribution, unexpected home dirt and home movement as interrupted boundaries/);
 assert.match(actualContract, /legacy ledger brief without task rows[^\n]*omits init[^\n]*ordered recovery\/migration boundary/i);
 assert.match(actualContract, /Never send a ledger task list through task-plan repair/);
 assert.match(actualContract, /For every ledger brief apply the shared allowance boundary[^\n]+before dispatch or verification/);

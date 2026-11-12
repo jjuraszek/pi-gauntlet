@@ -11,7 +11,7 @@ test('companion interruptions use the common recovery before clean-return admiss
   for (const token of [
     'three-step rule and failure pass',
     "selected companion's base and pre-bump iteration jobs file",
-    'Reset and clean only the selected companion to its `HEAD_BEFORE`',
+    'Reset and clean the selected companion to its `HEAD_BEFORE` and home to the saved home HEAD',
     'write the repair commit only in home',
     'companion HEAD for the reset check and the saved home HEAD for the ledger-only commit boundary',
     'Restore the saved home ledger with consumed iterations',
@@ -25,7 +25,7 @@ test('companion interruptions use the common recovery before clean-return admiss
 test('clean companion results retain attribution and row admission checks', () => {
   for (const token of [
     'unchanged home HEAD and expected-only home dirt',
-    'preserve pending and stop on unrelated movement or attribution mismatch',
+    'Route wrong attribution, unexpected home dirt and home movement through common interrupted recovery',
     "'pending mismatch'", "'iteration mismatch'", "'foreign row'", "'attempt mismatch'",
     "'seed counts mismatch'", "'changed cut or closed row'", "'unmatched decision'",
     'post-boundary result-validation misses', 'clear `pending:` and preserve the consumed iteration',
