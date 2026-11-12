@@ -3,7 +3,7 @@
 base: 9dc95a5b124c06eb70dac4a7b4ec4c758970fa85
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -19,7 +19,7 @@ allowance: 10
 | 9 | done | 1 | timeout -k 30 30 node --test scripts/loop-implementer-actions.test.mjs; 6 passed; 0 failed; selected model replay remains for row 13 |
 | 10 | done | 1 | timeout -k 30 60 node --test scripts/loop-unreachable-cut.test.mjs; 3 passed; 0 failed; model replay deferred to row 13 |
 | 11 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 59 passed; 0 failed; model replay deferred to row 13 |
-| 12 | open | 0 | |
+| 12 | done | 1 | timeout -k 30 10 python3 -c 'assert all(all(token in text for token in ("one failed attempt", "unconditional", "whole flow", "runner and inputs", "Option 4", "Option 5", "Run cannot start", "async handle", "Dirty tree with no dispatch pending", "missing-history", "seed repairs reach allowance", "Verification repairs", "Conformance fix-round cap", "redraw", "reopened")) and not any(token in text for token in ("recovery incomplete", "ownership-fenced", "unproven recovery", "flow-wide count", "bound spent:", "ran " + chr(60) + "action", "spent named-action bounds", "runner, inputs and count")) for text in (__import__("pathlib").Path(path).read_text() for path in ("README.md", "doc/gate-contract.md", "doc/configuration.md", "doc/implement-engines.md"))) and all(token in __import__("pathlib").Path("CHANGELOG.md").read_text().split("## Unreleased\n", 1)[1].split("\n## ", 1)[0] for token in ("one failed attempt", "whole flow")), "loop docs retain legacy recovery or action rules, or omit current stops"'; 4 loop documentation surfaces and Unreleased notes passed; legacy recovery and action-spend rules absent |
 | 13 | open | 0 | |
 
 ## Decisions
@@ -35,3 +35,4 @@ row 8 done | Added the no-pending dirty-tree stop and typed-discard continuation
 row 9 done | Removed worker action accounting and authorized every needed named action despite counts or approval holds; six contract checks pass, with model replay deferred to row 13. | Reuse agents/loop-implementer.md and the silence-bound-and-unreachable, seed-evidence-carry and seed-recovery fixtures for selected model replay.
 row 10 done | Removed spent-bound stops and action-record requirements; three selective checks pass, with model replay deferred to row 13. | Reuse scripts/loop-unreachable-cut.test.mjs and the migrated unreachable-cut fixture for routing checks and selected model replay.
 row 11 done | Made round-two action naming authorize the whole flow without count bounds; 59 contract tests pass, with model replay deferred to row 13. | Reuse scripts/brainstorming-contract.test.mjs and design-names-paid-actions with its refreshed intent for selected model replay.
+row 12 done | Updated four documentation surfaces and Unreleased notes for unconditional recovery, named-action approval and option-specific stops; doc assertions pass. | Reuse doc/configuration.md#loop-stop-boundaries to check selected eval samples against option 4/5 behavior.
