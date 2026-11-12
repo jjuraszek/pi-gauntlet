@@ -3,7 +3,7 @@
 base: 92eb7a087670521a6117c5e39c06066de0a5bbc7
 verification: npm test
 checks: commands
-iterations: 12
+iterations: 13
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,7 +22,7 @@ allowance: 10
 | 12 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("After all fix jobs", "/skill:shape-ticket", "create mode, one class at a time", "card text and item list", "approval of that ticket\u0027s exact text", "cancelled ticket as not filed"))'; six ticket handoff and cancellation clauses pass after assertion RED; documentation conformance only, no live ticket or tracker write |
 | 13 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("On `FIX_FIRST` or a first failing search or command", "Allow one repair only", "amend the class commit, keeping one commit for this class", "a second non-`SHIP`", "a failing search or command after repair", "Remove its unpushed worktree and branch", "Reset its worktree to the pre-class commit", "Restore the class\u0027s changed files from the pre-class expected copies and delete files the class created", "report an index change with its paths, do not repair the index", "Keep one failed job from stopping other jobs", "left open with its reason"))'; one-repair cap, delivery-specific undo and independent-job continuation clauses pass; documentation conformance only, no live repair or undo |
 | 14 | done | 0 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/SKILL.md").read_text().split("## 5. Report",1)[1].split("## Red Flags",1)[0] for s in ("Shared files:", "every path changed by two or more", "commits pushed", "files edited in place", "tickets filed and not filed", "ignored and not-decided classes", "open classes with reasons", "files not checked or not reviewed with reasons", "checks not run with reasons", "rule sources read", "prs,commits,edited,tickets,not-filed,ignored,not-decided,open", "Schedule no merge order."))'; all report lists and counter order present; documentation conformance only, no live report replay |
-| 15 | open | 0 | timeout -k 30 10 python3 -c 'assert "disable-model-invocation: true" in __import__("pathlib").Path("skills/housekeeping/SKILL.md").read_text().split("---", 2)[1].splitlines() and "./skills/housekeeping" in __import__("json").loads(__import__("pathlib").Path(".claude-plugin/marketplace.json").read_text())["plugins"][0]["skills"]'; exit 1: skills/housekeeping/SKILL.md is missing; static registration check only, runtime loading untested; no paid or external action launched, no jobs file created |
+| 15 | done | 1 | timeout -k 30 300 node scripts/claude-plugin-smoke.test.mjs; 4 scenarios passed, seven skills and zero pi agents; human-only frontmatter asserted; no paid or external action launched, all loader children reaped, no jobs file created |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
@@ -42,3 +42,4 @@ row 8 done | Verified precedence; bound spent: eval base-rule-wins (1 of 3); ran
 row 9 done | Verified card shape; bound spent: eval pr-card-no-ticket (3 of 3); ran eval pr-card-no-ticket (3 of 3); no PR/push/ticket launched. | Reuse eval/housekeeping/card-shape.test.mjs for local replay; action-only jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-9.jobs.
 row 10 done | Added pick echo; bound spent: eval pick-recorded-no-exec (1 of 3); ran eval pick-recorded-no-exec (1 of 3); bound spent: eval pick-recorded-no-exec (2 of 3); ran eval pick-recorded-no-exec (2 of 3). | Reuse eval/housekeeping/pick-recorded-no-exec.test.mjs locally; jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-10.jobs.
 row 11 done | Proved Fix withholding and Ticket recommendation; bound spent: eval withheld-fix-ticket (1 of 3); ran eval withheld-fix-ticket (1 of 3). | Reuse eval/housekeeping/withheld-fix-ticket.test.mjs to check saved cards without model calls.
+row 15 done | Listed human-only housekeeping for Claude Code and documented its gates; fresh-install and cached-upgrade smoke checks pass. | Reuse scripts/claude-plugin-smoke.test.mjs to check seven loaded skills and human-only frontmatter without model calls.

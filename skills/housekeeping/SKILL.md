@@ -53,7 +53,7 @@ Read whichever of `<run>/results.md`, `<run>/decisions.md` and `<run>/run.md` ex
 
 Start the message with `gauntlet: stuck` followed by the reason for a stop. Start the message with `gauntlet: done empty` for an empty selection. Start the message with `gauntlet: done clean` for no findings. Start the message with `gauntlet: done stopped` after `stop`.
 
-For Fix completion, start the message with `gauntlet: done prs=1` as the dynamic-form example; substitute the actual nonzero counters. Use comma-joined `key=count` pairs without spaces, in this order: `prs,commits,edited,tickets,not-filed,ignored,not-decided,open`. Count classes. Use `stuck` instead of `done` when `open` is nonzero, including a rejected push. Treat not-filed, ignored and not-decided as decisions, not failures.
+Start the message with `gauntlet: done prs=1` for Fix completion as the dynamic-form example; substitute the actual nonzero counters. Use comma-joined `key=count` pairs without spaces, in this order: `prs,commits,edited,tickets,not-filed,ignored,not-decided,open`. Count classes. Use `stuck` instead of `done` when `open` is nonzero, including a rejected push. Treat not-filed, ignored and not-decided as decisions, not failures.
 
 List PRs and, under `Shared files:`, every path changed by two or more of them; commits pushed; files edited in place; tickets filed and not filed; ignored and not-decided classes; open classes with reasons; files not checked or not reviewed with reasons; checks not run with reasons; rule sources read. Schedule no merge order. For an empty selection, list only not-checked files from the run record. Name the run folder on every stop after Select created it; keep its decisions.
 
