@@ -2833,7 +2833,7 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   assert.ok(missing.details.findings.some(f => f.check === "input"));
 });
 
-for (const state of ["unlinked", "primary", "detached", "not a checkout", "foreign linked checkout", "duplicate", "missing branch"] as const) {
+for (const state of ["unlinked", "primary", "detached", "not a checkout", "foreign linked checkout", "duplicate", "missing branch", "lookup failed"] as const) {
   test(`plan_check rejects companion branch lookup: ${state}`, async () => {
     const primary = gitPrimary().primary;
     const companion = gitPrimary().primary;
@@ -2865,11 +2865,26 @@ for (const state of ["unlinked", "primary", "detached", "not a checkout", "forei
     const h = harness({ cwd: primary });
     await h.emit("session_start");
     const tool = h.tools.find(t => t.name === "plan_check")!;
-    const result = await tool.execute(state, { planPath }, undefined, undefined, h.ctx) as {
-      details: { status: string; findings: { check: string; reason: string }[] };
-    };
+    const original = childProcess.execFileSync;
+    const spy = state === "lookup failed" ? mock.method(childProcess, "execFileSync", (...args: any[]) => {
+      if (args[0] === "git" && args[2]?.cwd === companion && JSON.stringify(args[1]) === JSON.stringify(["worktree", "list", "--porcelain", "-z"])) {
+        throw Object.assign(new Error("worktree listing failed"), { status: 128 });
+      }
+      return (original as Function)(...args);
+    }) : undefined;
+    if (spy) syncBuiltinESMExports();
+    let result: { details: { status: string; findings: { check: string; reason: string }[] } };
+    try {
+      result = await tool.execute(state, { planPath }, undefined, undefined, h.ctx) as typeof result;
+    } finally {
+      if (spy) {
+        spy.mock.restore();
+        syncBuiltinESMExports();
+      }
+    }
     const reason = state === "duplicate" ? `2 worktrees hold ${branch}`
       : state === "not a checkout" || state === "foreign linked checkout" ? `${companionRoot} is not a checkout`
+      : state === "lookup failed" ? `worktree lookup failed for ${branch}`
       : `no worktree holds ${branch}`;
     assert.equal(result.details.status, "fail");
     assert.deepEqual(result.details.findings.map(({ check, reason }) => ({ check, reason })), [
