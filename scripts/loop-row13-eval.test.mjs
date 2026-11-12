@@ -35,6 +35,7 @@ const MIGRATED_SAMPLES = [
   ['loop-implementation', 'exit-repair-capability'],
   ['loop-implementation', 'exit-verification-escalates'],
   ['loop-implementation', 'human-stop-counts'],
+  ['loop-implementation', 'leg-iteration'],
   ['loop-implementation', 'multi-row-return'],
   ['loop-implementation', 'row-budget-actions'],
   ['loop-implementation', 'seed-retry'],
@@ -62,12 +63,12 @@ test('row 13 eval prerequisites and structural/hygiene checks pass', () => {
   assert.deepEqual(scanTree(evalRoot, { denylists }), []);
 });
 
-test('all 24 selected row 13 eval samples have fresh baselines, reusable candidates, and passing judgments', () => {
+test('all 25 selected row 13 eval samples have fresh baselines, reusable candidates, and passing judgments', () => {
   const baseRef = execFileSync('git', ['-C', root, 'merge-base', 'HEAD', 'origin/main'], { encoding: 'utf8' }).trim();
   const baseRead = baseReader(root, baseRef);
   const treeRead = treeReader(root);
 
-  assert.equal(ALL_ROW13_SAMPLES.length, 24);
+  assert.equal(ALL_ROW13_SAMPLES.length, 25);
 
   for (const [targetName, sample] of ALL_ROW13_SAMPLES) {
     const targetDir = join(evalRoot, targetName);
