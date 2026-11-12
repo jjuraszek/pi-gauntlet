@@ -78,7 +78,15 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
 
+Extend only spec-pr-publish-legs success and cleanup coverage for remote-gated local branch deletion in companion-first/home-last order. Replace its old branch-retention expectations and add H2-H7 supplied observations for unequal remotes, host ownership, nonzero destroy read-back, guarded no-home scripts and missing branch lookup. Reuse spec-pr.md's Draft-PR cleanup procedure; keep unrelated facts, target settings and historical evidence unchanged. The sample's narration budget becomes 2100 words within the existing 2200 target cap to cover seven cleanup checkpoints. Run this sample only against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved records support local checks, not live forge execution or target-wide coverage.
+
 ## Expected to move
+- spec-pr-publish-legs/success: fails -> holds - Delete local branches only after equal live remote/tree/local SHAs and tree removal; keep remotes.
+- spec-pr-publish-legs/cleanup: fails -> holds - Refuse unguarded deletion but continue all remaining leg cleanups and delete safe local refs.
+- spec-pr-publish-legs/cleanup-remote: fails -> holds - Preserve unequal-remote and host-owned trees and branches without blocking other legs.
+- spec-pr-publish-legs/cleanup-readback: fails -> holds - Report actual tree/ref state after nonzero destruction and delete only a remaining pinned ref.
+- spec-pr-publish-legs/cleanup-script: fails -> holds - Locate no-home scripts by branch and destroy with the located folder basename behind the gate.
+- spec-pr-publish-legs/cleanup-lookup: fails -> holds - Report failed lookup without an invented path or destructive action and continue cleanup.
 - multi-repo-script-placed-leg/script: fails -> holds - Record the discovered script templates without a fabricated home.
 - multi-repo-script-placed-leg/native: fails -> holds - Keep native creation and removal without recording its output folder.
 - multi-repo-script-placed-leg/host: fails -> holds - Preserve pre-existing host ownership without an invented removal contract.
