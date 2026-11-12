@@ -1,0 +1,120 @@
+{
+  "sample": "multi-repo-script-placed-leg",
+  "arm": "candidate",
+  "skillSha": "b075c961e3d7746446001ec477c111f007c2048b94dadbc8a7ecb4d49e0682bf",
+  "inputSha": "692842814d2b800c926c80bc1ed87d46b16c377acfa4b7fa0c2df54c1b004832",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Legs contract lines\n\nThese blocks record what each creator actually did. They contain no machine paths: every created path (`/work/trees/renamed-parser-fix`, `/work/native/slot-17`, and the keyed and default tree paths) stays in working state only.\n\n```markdown\n## Legs\n\n### Leg: repo-keyed\nbranch: feature/parser-fix\ncontract:\n- create: git worktree add <home> -b <branch>\n- destroy: git worktree remove <home>\n- home: .trees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test, run in this leg's worktree\nRules: AGENTS.md\n\n### Leg: repo-default\nbranch: feature/parser-fix\ncontract:\n- create: git worktree add <home> -b <branch>\n- destroy: git worktree remove <home> && git worktree prune\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test, run in this leg's worktree\nRules: AGENTS.md\n\n### Leg: repo-script\nbranch: feature/parser-fix\ncontract:\n- create: script/worktree create pkg-x <name> --branch <branch>\n- destroy: script/worktree destroy pkg-x <name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test, run in this leg's worktree\nRules: AGENTS.md\n\n### Leg: repo-native\nbranch: feature/parser-fix\ncontract:\n- create: treebox create <name> --branch <branch>\n- destroy: treebox destroy <name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test, run in this leg's worktree\nRules: AGENTS.md\n\n### Leg: repo-host\nbranch: feature/parser-fix\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test, run in this leg's worktree\nRules: AGENTS.md\n```\n\nEach block's `scope:` and `design:` lines come unchanged from the approved coordinated design. The blocks above show only the contract-bearing lines this step writes.\n\n## Why each leg records what it does\n\n- **repo-keyed:** The declared keyed contract is kept as written: `home:`, `create:` and `destroy:`. There is no `## cleanup` worktree line, so the declared `destroy:` applies.\n- **repo-default:** The owned built-in is recorded with `home: .worktrees/<name>` and the built-in create and removal commands.\n- **repo-script:** A discovered wrapper created this tree, so the block records `create:` and `destroy:` and omits `home:`.\n  - The command is written with the script's repo-relative path, run from the primary.\n  - `pkg-x` is a resolved portable value, taken from the single touched top-level directory. It is not a machine path.\n  - The branch read-back passed, so the block is allowed.\n- **repo-native:** The native tool created this tree, so the block records `create:` and `destroy:` and omits `home:`. The reported `slot-17` path is never recorded.\n- **repo-host:** The session was already inside this tree and no keyed contract exists.\n  - `home:` and `destroy:` are omitted, and the host keeps ownership.\n  - No creator ran, so there is no `create:` command to record either.\n  - Finishing never removes this tree.\n\n## What the `<name>` token means\n\n- **When creating a fresh tree** (including continuation provisioning), `<name>` is the shared NAME, `feature-parser-fix`. That is the branch `feature/parser-fix` with `/` replaced by `-`.\n  - The keyed and default legs expand `<home>` from `home:` with that NAME.\n  - The script and native creators receive it as their name argument.\n- **When destroying a tree,** `<name>` is the folder basename of the tree that was located, not the shared NAME. The script and native tools pick their own folder names, so the shared NAME would point at the wrong folder:\n  - repo-script: `script/worktree destroy pkg-x renamed-parser-fix`\n  - repo-native: `treebox destroy slot-17`\n  - For the keyed and default legs, `<home>` is likewise the located tree, never a path rebuilt from `home:` plus the shared NAME.\n- **Destruction never goes around a wrapper.** The script and native legs are never removed with a plain `git worktree remove`.\n\n## How a later stage finds repo-script after another rename\n\nThe tree is found by its branch, never by a path or name:\n\n1. Run `git -C <repo-script primary> worktree list --porcelain`.\n2. Skip the first block, which is the primary.\n3. Select the linked block carrying `branch refs/heads/feature/parser-fix`.\n4. Validate that block:\n   - the path exists;\n   - its checkout toplevel equals its realpath;\n   - it differs from the primary;\n   - its canonical `--git-common-dir` equals the primary's.\n5. Use that block's `worktree` path for all later work. Its current basename becomes `<name>` in `script/worktree destroy pkg-x <name>`.\n\nIf the folder is renamed again without changing its branch, this lookup still finds it, and `<name>` picks up the new basename automatically. Neither `home:` nor the shared NAME is ever expanded into a lookup path.\n\nIf the lookup does not find exactly one valid tree, it stops with one of these messages:\n\n- no matching block: `cannot resolve worktree for repo-script: no worktree holds feature/parser-fix`\n- several matching blocks: `... 2 worktrees hold feature/parser-fix` (with the actual count)\n- the selected path fails validation: `... <path> is not a checkout`\n\nDuring cleanup, any of these failures means no destroy command runs and no branch is deleted for repo-script. The report names the repo, branch and reason, and cleanup continues with the other legs.\n",
+      "words": 727,
+      "wallMs": 27572,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Leg: repo-keyed\nbranch: feature/parser-fix\ncontract:\n- create: git worktree add <home> -b <branch>\n- destroy: git worktree remove <home>\n- home: .trees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\n\n### Leg: repo-default\nbranch: feature/parser-fix\ncontract:\n- create: git worktree add <home> -b <branch>\n- destroy: git worktree remove <home> && git worktree prune\n- home: .worktrees/<name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\n\n### Leg: repo-script\nbranch: feature/parser-fix\ncontract:\n- create: script/worktree create pkg-x <name> --branch <branch>\n- destroy: script/worktree destroy pkg-x <name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\n\n### Leg: repo-native\nbranch: feature/parser-fix\ncontract:\n- create: treebox create <name> --branch <branch>\n- destroy: treebox destroy <name>\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\n\n### Leg: repo-host\nbranch: feature/parser-fix\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\n\n**Token values and ownership**\n\n- For fresh creation, `<branch>` is `feature/parser-fix` and `<name>` is the shared NAME, `feature-parser-fix`. Run creation commands from the owning primary; resolve `<home>` using that leg’s recorded home template.\n- For later destruction, `<name>` is the **located tree’s current folder basename**, not necessarily the shared NAME. Use each recorded destroy command; do not bypass the script or native tool with `git worktree remove`.\n- Script and native contracts deliberately omit `home:`: their creators choose the resulting folder. The host-owned leg has no recorded creator, home template, or destroy command; this flow does not claim cleanup ownership.\n\n**Finding repo-script after another rename**\n\nRead the owning primary’s `git worktree list --porcelain` and select the linked, non-primary block on `refs/heads/feature/parser-fix`. Locate it by branch, not by expanding a template or remembering the old folder. Require exactly one match, an existing checkout whose toplevel equals its realpath, a checkout distinct from the primary, and a matching canonical Git common directory. Use that validated location, and its current folder basename for the wrapper’s destruction `<name>`. Stop if lookup or identity validation fails.\n",
+      "words": 301,
+      "wallMs": 15630,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7d0417ce48fc06b4ade4afae429752b3b752d9a07087f3ecd1b510de9ab8e1fc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cfc504497fddd06c32532b5031716865e7ebc7d8f88f91be8f32558552896208",
+      "baselineOutputSha": "3d56cbb2f83c6c8b4663bf3dee949da81fb039db3d13a4c43afcbc1eb9508c06",
+      "candidateOutputSha": "eff3783bdd037a380aeaf72afdd789f663113a3c9dd12b9a3fe6027448cbb35d",
+      "facts": {
+        "script": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "native": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "declared": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "host": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "tokens": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "locate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers every intended move and loses nothing Before kept. Before failed script and native by writing a `home:` line (\"chosen by script/worktree; locate by branch...\") into the committed block, failed host by recording `destroy: none ...` and `home: host-owned ...` lines where the fact requires those lines to be absent, failed tokens by stating destruction keeps the shared NAME and that the basename is never substituted, and failed locate by never excluding the primary block from the porcelain list. After fixes all four: script and native blocks carry only `create:`/`destroy:` with the exact templates, repo-host carries no `create:`/`destroy:`/`home:` and the prose names it host-owned, destruction explicitly uses the located basename (`renamed-parser-fix`, `slot-17`), and the lookup skips the primary block, checks toplevel/realpath and `--git-common-dir`, and refuses to expand `home:` or the shared NAME into a lookup path. Both keyed and default blocks retain their declared and built-in home/create/destroy contracts in both outputs. One minor caution for future wording: After moves the \"run from the primary\" note out of the template into prose, which keeps the templates clean; keep it that way rather than reintroducing suffixes on the contract lines, and keep machine paths confined to the explanatory prose rather than the fenced block, as After already does.",
+      "wallMs": 19813,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7d0417ce48fc06b4ade4afae429752b3b752d9a07087f3ecd1b510de9ab8e1fc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cfc504497fddd06c32532b5031716865e7ebc7d8f88f91be8f32558552896208",
+      "baselineOutputSha": "d00d2b6591f404f69db0a39c3a46879c85ace8b842322ce22019d73e8815e771",
+      "candidateOutputSha": "53abe08d94d9070b3a8f0f57622b68cd8c4eac0fc7397ebcda05a997c39664fa",
+      "facts": {
+        "script": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "native": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "declared": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "host": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "tokens": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "locate": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After delivers the Change cleanly: repo-script and repo-native drop their fabricated `home:` lines while keeping the portable create/destroy templates with no expanded name or folder; repo-host loses both home and destroy and is explicitly described as host-owned with no cleanup claim; repo-keyed and repo-default keep their declared/built-in homes; the token note now separates the shared NAME for creation from the located tree's current basename for destruction (Before had explicitly asserted the opposite); and the lookup paragraph names `git worktree list --porcelain`, the non-primary linked block on `refs/heads/feature/parser-fix`, a single-match requirement, and toplevel/common-dir identity checks rather than template expansion or a remembered path. Nothing Before held was lost. Two small tightenings would make the wording more robust against stricter judges: state the concrete destruction basename for the supplied script tree (`renamed-parser-fix`) once in the tokens note rather than leaving it implied, and keep repo-default's destroy line to the plain built-in `git worktree remove <home>` (or note the `&& git worktree prune` suffix as the owned built-in's exact text) so the \"retains the built-in contract\" fact cannot be read as altered.",
+      "wallMs": 20533,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "99a7dc41f46228960b9fc80f18037f71ecf8a8d7"
+}
