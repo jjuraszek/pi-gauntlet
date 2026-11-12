@@ -1,0 +1,114 @@
+{
+  "sample": "withheld-fix-ticket",
+  "arm": "candidate",
+  "skillSha": "d5433a6e95d53cf84753af09d7e6941926c545097ce1f38a63d1bc064788040c",
+  "inputSha": "60cbaa420608740796adc3ff2420c11f8dbf050a6c1fa0d5172698558c9d0f09",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. 1 field name in src/api/profile.ts breaks the naming rule\n\n### What was found\nThe service sends data back to outside apps. One field name in that data is written `displayName` instead of `display_name`. It is at line 18 of src/api/profile.ts: `return { displayName: profile.name };`. No other card touches this file.\n\n### Why it matters\nThe project rule says field names in data sent back to outside apps use lowercase words joined by underscores. The rule is in AGENTS.md, API naming.\n\n### What happens if you accept\nThe fix would rename `displayName` to `display_name`. Apps that read `displayName` today would stop finding it. That breaks what the service promises to those apps, so this run cannot make the fix. Picking Ticket changes nothing now. You approve the ticket's exact wording before it is filed, and it records the rename as a planned change.\n\nPick one:\n1. [ ] Fix - unavailable: the rename would break apps that read the current name\n2. [ ] Ticket - file one ticket listing them and change nothing now [recommended]\n3. [ ] Ignore - leave them as they are\n",
+      "words": 178,
+      "wallMs": 12260,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. One public response field in src/api/profile.ts uses the wrong name\n\n### What was found\nAt `src/api/profile.ts:18`, the response uses `displayName` instead of `display_name`. No other card shares this file.\n\n### Why it matters\nThe API naming rule in `AGENTS.md` requires public JSON response fields to use lowercase words separated by underscores. Existing clients consume `displayName`, so renaming it would change the public contract.\n\n### What happens if you accept\nFix is unavailable because the proposed rename changes a public contract. Choosing Ticket would request one ticket describing the mismatch and leave the code unchanged; filing still requires separate exact-text approval.\n\nPick one:\n1. [ ] Fix - unavailable: renaming the field changes the public contract used by existing clients\n2. [ ] Ticket [recommended] - file one ticket listing the mismatch and change nothing now\n3. [ ] Ignore - leave it as it is\n",
+      "words": 139,
+      "wallMs": 8799,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6d755da48729fb1d7c4b878a5a443bf3382e1d6fdd462bf575dc7033a992847a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "a85a880117475b8c28a763b02e36e6015eb93a40a4735db6fd3b8ac914ffd5e0",
+      "candidateOutputSha": "260776f8a635a95dd51d5ed3324f49e86f17364b6603db2c3ad1cca8083bbd27",
+      "facts": {
+        "fix-unavailable": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ticket-recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "contract-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before: the Fix row now explicitly says unavailable with an everyday reason (apps reading displayName would stop finding it), the three numbered choices keep empty boxes with Ticket marked only by its [recommended] label, the contract reason cites AGENTS.md without leaning on the missing regression command, and the Ticket text states that picking it changes nothing now and the wording is approved before filing. Nothing regressed. Two small wording nits worth tidying: the Ticket and Ignore rows say 'them' although there is a single field, so use 'file one ticket for this rename' and 'leave the field as it is'; and the 'What happens if you accept' heading reads oddly when the first sentence immediately says the fix cannot be made, so a heading like 'What each pick does' would match the body better while keeping every fact intact.",
+      "wallMs": 14303,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6d755da48729fb1d7c4b878a5a443bf3382e1d6fdd462bf575dc7033a992847a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "8b7b2ab12851f3cb9e9bae3368067d01c3bea4d8541d963b30ab468d85cec844",
+      "candidateOutputSha": "4d9a3112cdf998ed631179fda5122efeea27e5bde77fd663f2fb1e4b28d50356",
+      "facts": {
+        "fix-unavailable": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ticket-recommended": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "contract-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After improves on Before by marking Fix unavailable with an everyday reason tied to the public contract, keeping all three boxes empty with Ticket flagged only by its label, and citing AGENTS.md without leaning on the missing regression command. The one thing After weakened is the explicit no-execution statement: Before had a plain 'No changes have been made.' line, whereas After only implies it through 'leave the code unchanged' and 'filing still requires separate exact-text approval'. To keep no-execution unambiguous while delivering the Change, restore a single explicit sentence near the top or bottom of the card such as 'Nothing has been edited, committed, pushed, filed or opened; picks are recorded and executed only after the walk finishes', and keep the rest of After's wording as is.",
+      "wallMs": 13575,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "dd9776b3238d31c8cf241473e8f1d009437df2ae"
+}

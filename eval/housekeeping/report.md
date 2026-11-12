@@ -1,8 +1,8 @@
-# eval report: housekeeping (partial run: pick-recorded-no-exec)
+# eval report: housekeeping (partial run: withheld-fix-ticket)
 
 for: 4eb17cdb0146510585270518720619a722625aa3b0868472d3bd64b81a351a77
 
-wall: 20s
+wall: 30s
 
 ## Change
 
@@ -12,12 +12,12 @@ Introduce a human-only housekeeping walk whose run record fixes selection and de
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| pick-recorded-no-exec | anthropic/claude-opus-5-5 | improved | 11685 | recorded-pick: fails -> holds (intended change); next-card: holds -> holds (held); next-picks: holds -> holds (held); no-execution: fails -> holds (intended change); marker: holds -> holds (held) |
-| pick-recorded-no-exec | github-copilot/gpt-6.1-sol | improved | 12628 | recorded-pick: fails -> holds (intended change); next-card: holds -> holds (held); next-picks: fails -> holds (unplanned improvement); no-execution: fails -> holds (intended change); marker: fails -> holds (unplanned improvement) |
+| withheld-fix-ticket | anthropic/claude-opus-5-5 | improved | 14303 | fix-unavailable: fails -> holds (unplanned improvement); ticket-recommended: holds -> holds (held); contract-reason: holds -> holds (held); no-execution: holds -> holds (held); marker: holds -> holds (held) |
+| withheld-fix-ticket | github-copilot/gpt-6.1-sol | improved | 13575 | fix-unavailable: fails -> holds (unplanned improvement); ticket-recommended: holds -> holds (held); contract-reason: holds -> holds (held); no-execution: holds -> holds (held); marker: holds -> holds (held) |
 
 ## Feedback
 
-- pick-recorded-no-exec / anthropic/claude-opus-5-5: After delivers both intended moves: the opening line names the class, the Fix pick and the full /tmp/housekeeping.fixture-pick/decisions.md path, and 'Nothing has run yet… The walk is still open' separates recording from execution, where Before only said 'Nothing has been edited yet' with no decisions path. Nothing that Before kept regressed: card 2 of 2 is shown once, with empty boxes for Fix, Ticket and Ignore in that order and a single [recommended] label. Two small tightenings would make the acknowledgement more robust: name the finding as well as the class ('code-unused: the unused import in src/widgets/render.ts') so a reader can tie it to card 1, and enumerate the no-execution claim explicitly ('no tracked edit, commit, push, PR, ticket or fix job has run') rather than relying on 'Nothing has run yet' plus only edit and PR as examples.
-- pick-recorded-no-exec / github-copilot/gpt-6.1-sol: After delivers the Change: the lead-in records the pick and the decisions path in the supplied run folder, states nothing has executed and the walk is open, then shows only card 2 of 2 with Fix/Ticket/Ignore in order, empty boxes and a single label-only recommendation. Nothing regressed relative to Before (Before already failed recorded-pick and no-execution by omission, and failed next-picks by offering no recommendation at all). Two tightenings would make the held facts less dependent on reader inference: name the class in the acknowledgment ("Recorded Fix for card 1, code-unused (unused import in src/widgets/render.ts:2), in /tmp/.../decisions.md") rather than just "card 1", and spell out the no-execution claim as "no tracked edit, commit, push, PR, ticket or fix job has run" so the enumeration in the fact is matched literally instead of by the blanket "Nothing has executed".
+- withheld-fix-ticket / anthropic/claude-opus-5-5: After improves on Before: the Fix row now explicitly says unavailable with an everyday reason (apps reading displayName would stop finding it), the three numbered choices keep empty boxes with Ticket marked only by its [recommended] label, the contract reason cites AGENTS.md without leaning on the missing regression command, and the Ticket text states that picking it changes nothing now and the wording is approved before filing. Nothing regressed. Two small wording nits worth tidying: the Ticket and Ignore rows say 'them' although there is a single field, so use 'file one ticket for this rename' and 'leave the field as it is'; and the 'What happens if you accept' heading reads oddly when the first sentence immediately says the fix cannot be made, so a heading like 'What each pick does' would match the body better while keeping every fact intact.
+- withheld-fix-ticket / github-copilot/gpt-6.1-sol: After improves on Before by marking Fix unavailable with an everyday reason tied to the public contract, keeping all three boxes empty with Ticket flagged only by its label, and citing AGENTS.md without leaning on the missing regression command. The one thing After weakened is the explicit no-execution statement: Before had a plain 'No changes have been made.' line, whereas After only implies it through 'leave the code unchanged' and 'filing still requires separate exact-text approval'. To keep no-execution unambiguous while delivering the Change, restore a single explicit sentence near the top or bottom of the card such as 'Nothing has been edited, committed, pushed, filed or opened; picks are recorded and executed only after the walk finishes', and keep the rest of After's wording as is.
 
 exit: 0
