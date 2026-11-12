@@ -3,7 +3,7 @@
 base: 92eb7a087670521a6117c5e39c06066de0a5bbc7
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -11,7 +11,7 @@ allowance: 10
 | 1 | done | 1 | timeout -k 30 10 node --test eval/housekeeping/directory.test.mjs; 1 passed, 2 replay models satisfy all directory card facts; bound spent: eval directory-three-picks (1 of 3), ran eval directory-three-picks (1 of 3); selection conformance read only, no live Git or delivery actions |
 | 2 | done | 1 | timeout -k 30 10 python3 -c 'assert all(s in __import__("pathlib").Path("skills/housekeeping/reference/fix.md").read_text() for s in ("only after the last card is answered or `go`", "one new worktree per Fix-picked class", "housekeeping/\u003crun id\u003e-\u003cn\u003e", "recorded `commit`", "one at a time before the first batch", "Leave the primary checkout\u0027s tracked files unchanged", "push the branch without force", "gh pr create", "against the default branch", "card\u0027s title", "git worktree remove", "git worktree prune", "keep the branch", "compare URL", "rejected push keeps the commits in the worktree"))'; 15 directory-delivery clauses pass after missing-file RED; documentation conformance only, no live Git or delivery action; no paid or external action launched, no jobs file created |
 | 3 | done | 0 | timeout -k 30 10 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in ss) for p,ss in [("skills/housekeeping/reference/select.md", ("None", "uncommitted", "Primary checkout, default branch checked out.", "Modified, staged and untracked files.", "git check-ignore --no-index", "fix, ignore", "`in-place`")), ("skills/housekeeping/reference/card.md", ("Show only the run record\u0027s picks", "Edit the selected files in place, with no commit or push.")), ("skills/housekeeping/reference/fix.md", ("for `in-place`, edit only selected files", "For `in-place`, never commit or run a command that changes the index.", "Keep the edits, with no commit and no push.", "Run `commit-push` and `in-place` classes one after another"))])'; no-argument selection, two-pick cards and index-preserving in-place delivery clauses pass; documentation conformance only, no live in-place fix |
-| 4 | open | 0 | |
+| 4 | done | 1 | timeout -k 30 10 node --test eval/housekeeping/feature-branch-stop.test.mjs; 1 passed, 2 replay models satisfy all five stop facts and directory/no-argument admission clauses pass; bound spent: eval feature-branch-stop (1 of 3), ran eval feature-branch-stop (1 of 3); no live PR, push or ticket action, eval exited 0 and both process groups absent |
 | 5 | open | 0 | |
 | 6 | done | 0 | timeout -k 30 10 python3 -c 'assert all(all(s in __import__("pathlib").Path(p).read_text() for s in ss) for p,ss in [("skills/housekeeping/reference/check.md", ("REVIEW.md", "AGENTS.md", "CLAUDE.md", "every directory on the path to each selected file", "ARCHITECTURE.md", "README.md", "Follow these references one hop only", "Record sources read.", "With no repo sources, run base rules alone.")), ("skills/housekeeping/reference/card.md", ("the rule in everyday words and its source file",)), ("skills/housekeeping/SKILL.md", ("rule sources read",))])'; source discovery, optional defaults, card citations and source inventory present; documentation conformance only, no live checks |
 | 7 | open | 0 | |
@@ -33,3 +33,4 @@ row 2 done | Added per-class worktrees, one-commit fixes and pushed PR delivery;
 row 3 done | Confirmed no-argument selection, Fix/Ignore cards and in-place fixes without index changes, commits or pushes by documentation assertion. | nothing new to build on
 row 13 done | Confirmed one-repair rejection handling, delivery-specific undo and continuation of independent jobs by documentation assertion. | nothing new to build on
 row 12 done | Added serial shape-ticket handoffs with exact-text approval and cancelled-ticket reporting; no tracker action launched. | Reuse the ticket handoff in skills/housekeeping/reference/fix.md after fix jobs; results retain ticket links and not-filed reasons.
+row 4 done | Verified feature-branch stops; bound spent: eval feature-branch-stop (1 of 3); ran eval feature-branch-stop (1 of 3); no PR, push or ticket launched. | Reuse eval/housekeeping/feature-branch-stop.test.mjs for local replay; spend-only jobs: ${TMPDIR:-/tmp}/loop-92eb7a087670521a6117c5e39c06066de0a5bbc7-3.jobs.

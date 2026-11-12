@@ -1,0 +1,5 @@
+- stop-before-check: judged: The response stops the run before checking files; it does not offer a card, report findings, claim checks ran or propose continuing the directory run on this branch.
+- branch-reason: judged: The response names the feature-branch admission failure: the directory run requires the default branch in the primary checkout, but a feature branch is checked out.
+- pr-input: judged: The response names the PR input as the way to check feature-branch work, with a housekeeping PR invocation rather than only a request to switch branches.
+- run-folder: judged: The response names /tmp/housekeeping.admission as the run folder retained after the stop.
+- marker: mechanical: matches /^gauntlet: stuck [^\n]+/
