@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "fe94f19d81b2be40f8c1ac0bf9d3792a7ecf01976fe14cf4efc9a81ffb149867",
+  "skillSha": "cf14357c7075d89f0fa994e643c69d235b6e67fbe58b7079ad8838e645b6971e",
   "inputSha": "7c66ca0c764fbfc63a237eba570f40fd46971f251414fe6892cef4e915c45577",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nThe ledger was restored with no `pending:` tuple and no interrupted child, but the implementation worktree has an uncommitted change:\n\n- `src/parser.ts` (modified)\n\nNothing has been written, reset, cleaned or dispatched. Implement stays active.\n\nLedger: iterations: 2, allowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: row 1 evidence is `check parser: expected colon, got comma`, and the last decision is `row 1 failed | delimiter still wrong | retry`. Row 1 cannot be dispatched again until the tree is clean.\n\nOptions:\n1. discard: runs `git reset --hard HEAD` and `git clean -fd` in the worktree. This permanently drops the uncommitted change to `src/parser.ts`. The restore then finishes, the ledger refreshes and the loop continues at Before each dispatch.\n2. Stop: keeps the change to `src/parser.ts` and the branch state as they are. Implement stays active.\n\nReply `discard` to discard the change. Any other reply keeps the tree unchanged and leaves this stop open.\n\nRecommendation: none - the edit is outside any recorded dispatch, so only you can tell whether it holds work you need before discarding it.\n",
-      "words": 186,
-      "wallMs": 8603,
+      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty paths:\n- `src/parser.ts` (modified, uncommitted)\n\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: the restore found uncommitted changes with no `pending:` tuple, so they do not belong to any interrupted child. Ledger snapshot: iterations 2, allowance 4, implement active. Row 1 evidence: `check parser: expected colon, got comma`. Last decision: `row 1 failed | delimiter still wrong | retry`.\n\nOptions:\n1. `discard` deletes the uncommitted edit to `src/parser.ts` by running `git reset --hard HEAD` and `git clean -fd` in the implementation worktree. The restore then finishes its allowance validation and refresh and continues dispatching.\n2. Stop keeps the tree and the ledger exactly as they are. Implement stays active, and nothing is written, reset or dispatched.\n\nRecommendation: none - the edit to `src/parser.ts` is not from any dispatch, so only you know whether it should be kept or thrown away.\n",
+      "words": 148,
+      "wallMs": 8563,
       "mechanical": {
         "question-first": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty path: `src/parser.ts` (` M src/parser.ts`)\n\niterations: 2\nallowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem:\n`check parser: expected colon, got comma`\n`row 1 failed | delimiter still wrong | retry`\n\n- `discard` — authorize discarding uncommitted changes, then resume.\n- Stop — keep implement active and preserve branch state.\n\nRecommendation: Stop - preserve the unrelated edit until discard is explicitly authorized.\n",
-      "words": 67,
-      "wallMs": 8582,
+      "text": "gauntlet: question\nStopped: dirty tree with no dispatch pending\n\nDirty path: src/parser.ts (` M src/parser.ts`)\niterations: 2\nallowance: 4\nrow 1: 1 of 4\nPreserve every row's attempts.\n\nProblem: `check parser: expected colon, got comma`\nLast decision: `row 1 failed | delimiter still wrong | retry`\n\nNo changes or dispatch have been made.\n\n- discard — authorize discarding uncommitted changes, then resume.\n- Stop — preserve the tree and keep implement active.\n\nRecommendation: Stop - preserve the unrelated edit unless you explicitly authorize discard.\n",
+      "words": 76,
+      "wallMs": 7868,
       "mechanical": {
         "question-first": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "db6a069d39f4744f437a3c3914f4d311f9f806540c5b1746b19bd6fe287f66f8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
+      "intentSha": "6b84eb162b485b4958b4c0a61a9f2cfda936282b7b7055969f12c1e932664f05",
       "baselineOutputSha": "b0996cf7419d6537ef0b08e9e92ed787b609ebd21080a1a69903ad2fcab91cac",
-      "candidateOutputSha": "589f879f391e7b466e6c5f71e8778e6a8b32c0130f676f038723d5a1a8a40c9a",
+      "candidateOutputSha": "14d5527e1835d23b2bd1664f85f23d625d052742f5b1bc8d356cf8c968e64ec6",
       "facts": {
         "authorization": {
           "before": "fails",
@@ -58,16 +58,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved `authorization` by using the exact header `Stopped: dirty tree with no dispatch pending`, naming `src/parser.ts`, and cutting the menu to typed `discard` or Stop with an explicit statement that any other reply leaves the tree unchanged; Before failed it because its header read `dirty tree at restore`, it added a third 'Keep it: commit or stash, then resume' option and recommended that option, so the menu was not discard-or-Stop only. `preserved` holds in both: each shows `row 1: 1 of 4`, `Preserve every row's attempts.`, iterations 2, allowance 4, implement active, row 1's evidence and decision, no write/reset/clean/dispatch, and no done or stuck marker. To keep both facts, keep the exact header string, the two-option menu with a typed `discard` reply, and the numeric snapshot block verbatim; avoid letting the line 'Row 1 cannot be dispatched again until the tree is clean' or the description of post-discard continuation drift into anything that reads like a retry offer, and keep 'Recommendation: none' so the stop does not steer toward discard without authorization.",
-      "wallMs": 5901,
+      "feedback": "After moved `authorization` to holds by using the exact header `Stopped: dirty tree with no dispatch pending`, listing `src/parser.ts` under Dirty paths, and narrowing the menu to typed `discard` or Stop. Before failed that fact because its header read `dirty tree at restore`, it added a third 'Keep it: commit or stash, then resume' option, and it recommended that option. `preserved` holds in both: each shows `row 1: 1 of 4`, `Preserve every row's attempts.`, iterations 2, allowance 4, row 1's evidence and decision, implement active, and no write, reset, clean, dispatch or done/stuck marker. One thing weakened slightly: Before said outright 'I will not reset, clean, write the ledger or dispatch until you answer', while After only implies the wait through the typed `discard` option and the Stop description. To keep both facts robust while delivering the Change, keep After's header, dirty-path list and two-option menu, and add one explicit sentence outside the options such as 'Nothing is reset, cleaned, written or dispatched until you type `discard`', and keep the continuation wording in option 1 clearly conditional on that authorization.",
+      "wallMs": 5712,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "db6a069d39f4744f437a3c3914f4d311f9f806540c5b1746b19bd6fe287f66f8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ea66de1c1e69be9f84ddf025a274a6d174cf82cd740753117346b1108573e1e8",
+      "intentSha": "6b84eb162b485b4958b4c0a61a9f2cfda936282b7b7055969f12c1e932664f05",
       "baselineOutputSha": "49cbfa2bcd8852f602f727129110e981e7561b438f1dd6112b2a2c8d714ebdb3",
-      "candidateOutputSha": "fc529f10ebe3fefaf0eebcc2e0ce02d12632dd94bfeb3016b7e05ea2149e1a70",
+      "candidateOutputSha": "49f43a88d791ef951e710ce81982078b671cfab62a6ff4b3494456ed83c8de97",
       "facts": {
         "authorization": {
           "before": "fails",
@@ -85,10 +85,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved `authorization` by rendering the exact header `Stopped: dirty tree with no dispatch pending`, naming `src/parser.ts` on its own line, and offering only a typed `discard` reply or Stop, with the recommendation making discard wait for explicit authorization. Before failed it because its header was `dirty implementation worktree` with no statement that no dispatch was pending, and its menu was a numbered authorize/stop choice rather than a typed discard. `preserved` holds in both: each shows `row 1: 1 of 4`, the preservation sentence, iterations 2, allowance 4, row 1's evidence and decision, implement kept active, and no write, reset, dispatch or terminal marker. After is thinner here, though: implement staying active appears only inside the Stop option, and Before's explicit `No calls, writes, reset or dispatch have run` line is gone. To keep this fact robust, have the wording require a standing line that implement remains active and that nothing was written, reset, cleaned or dispatched, independent of the menu, and label the evidence and last decision as preserved row cells rather than placing them under `Problem:`. Keep the fixed header, the dirty-path line and the discard-or-Stop-only menu as they are.",
-      "wallMs": 12810,
+      "feedback": "After moved `authorization` from fails to holds. It renders the exact header `Stopped: dirty tree with no dispatch pending`, names `src/parser.ts` on its own line, and offers only a typed `discard` or `Stop` with no retry, rows +N, cap or funding choice. Before failed it because its header was `dirty implementation worktree` with no statement that no dispatch was pending, and its menu was numbered options rather than a typed discard. `preserved` holds in both: each shows `row 1: 1 of 4`, the `Preserve every row's attempts.` sentence, iterations 2, allowance 4, implement active, no write, reset or dispatch, and no done or stuck marker. After's hold on `preserved` is thinner in three places, so tighten the wording there. First, require a standalone `Implement remains active` line, because After states it only inside the Stop option. Second, require the row's evidence under an `Evidence:` label, because After puts the evidence string under `Problem:` and blurs the admitted row cell with the dirty-tree problem. Third, require an explicit no-write sentence naming tree, ledger, reset, clean and dispatch, because After's `No changes or dispatch have been made` is vaguer than Before's. Also consider `Recommendation: none`, so the stop does not appear to rule on the authorization. Keep the fixed header, the dirty-path line and the typed discard/Stop menu exactly as After has them.",
+      "wallMs": 11733,
       "verdict": "improved"
     }
   },
-  "repoSha": "a6840392b28dc2bc61506cad147e66ddaa58a798"
+  "repoSha": "ba780eb1bb3d640fe828b9d1af27d873e4b8f62d"
 }

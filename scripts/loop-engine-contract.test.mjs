@@ -199,7 +199,7 @@ test('automatic exit verification repair is once per flow under both options', (
     'Problem: escalationLoop.implModel unavailable', 'without a bump or marker',
     'bump iterations once', 'Save the home ledger and home/failing-leg HEADs',
     'preserving attempts, mapping, allowance and prior decisions',
-    'On killed, error, non-DONE, dirty, zero/multiple-commit or invalid repair returns',
+    'On killed, error, non-DONE, dirty, zero/multiple-commit, wrong-attribution or invalid repair returns',
     'apply ## Interrupted recovery steps 1-2 to the failing checkout at its saved HEAD',
     'empty `loop: repair verification` marker in home (no repair code)',
     'A non-empty `status --porcelain` after reset blocks neither the marker nor the rerun',
@@ -330,10 +330,14 @@ test('terminal home results admit clean returns and repair interrupted returns w
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0]
     + readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-  assert.match(validation, /Route dispatch errors, non-DONE, killed, dirty and zero\/multiple-commit returns through ## Interrupted recovery/);
+  const boundary = driver.split('\n## Validate the return\n')[1].split('\n2. ')[0];
+  const resultValidation = driver.split('\n## Validate the return\n')[1].split('\n2. ')[1].split('\n## Unreachable returns\n')[0];
+  assert.match(boundary, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1.*row and seed alike/);
+  assert.match(boundary, /Route dispatch errors, non-DONE, killed, dirty, zero\/multiple-commit and wrong-attribution returns through ## Interrupted recovery/);
+  assert.doesNotMatch(resultValidation, /attribution|commit body's first two lines/);
   const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-  for (const reason of ['dispatch error', 'non-DONE', 'silence kill', 'dirty tree', 'zero/multiple commits']) {
-    assert.ok(recovery.includes(reason), reason);
+  for (const reason of ['dispatch error', 'non-DONE', 'silence kill', 'dirty tree', 'zero/multiple commits', 'wrong attribution']) {
+    assert.ok(recovery.split('\n1. ')[0].includes(reason), reason);
   }
   for (const token of ['approval options 4 and 5 alike', 'Recovery itself is unconditional',
     'matching start identity and command', 'PGID equal to the pid', 'wait at most 10 s',
@@ -346,6 +350,7 @@ test('terminal home results admit clean returns and repair interrupted returns w
     'Commit `loop: repair row <n>`, refresh and return to the ordered table in the same turn']) {
     assert.ok(recovery.includes(token), token);
   }
+  assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
   assert.match(recovery, /still alive after KILL.*do not block recovery/);
   assert.match(recovery, /files remain after reset.*next return is validated as usual/);
   assert.doesNotMatch(recovery, /recovery incomplete|provenance|action-spend|bound spent:|only below|discard authorization/);
