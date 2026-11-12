@@ -243,9 +243,9 @@ Marked settlement step 3 and pr-head companion mode keep the `ls-remote` exit-2 
 
 ### Actions
 
-The only paid or external action is the eval runner: `node eval/run.mjs <target> <sample>` with the repo's configured replay models and judge, on the eight samples named under Tests, at most three runs per sample across seed, rows, repairs and finish (24 runs). No target-wide or cross-target sweep runs.
+The only paid or external action is the eval runner: `node eval/run.mjs <target> <sample>` with the repo's configured replay models and judge, on the eight samples named under Tests, at most three runs per sample across seed, rows, repairs and finish, except `brainstorming/spec-pr-regate-legs`, which has five (26 runs). No target-wide or cross-target sweep runs.
 
-Per-run call bound: fourteen model calls, including the runner's retry of a failed or malformed judge reply and confirmation judgments. The user's spec approval includes the selected evals at this documented bound, reaffirmed after the redundant approval stop. Keep the eight-sample and three-runs-per-sample limits above across the whole flow; no additional per-step approval is required.
+Per-run call bound: fourteen model calls, including the runner's retry of a failed or malformed judge reply and confirmation judgments. The user's spec approval includes the selected evals at this documented bound, reaffirmed after the redundant approval stop. Keep the eight-sample and per-sample run limits above across the whole flow; no additional per-step approval is required. The user raised `brainstorming/spec-pr-regate-legs` from three runs to five after its third run left the continuation gate's worktree inventory incomplete in one replayed response.
 
 Design approval authorizes these runs within the approved bounds with no per-step prompt. The loop treats any paid or external action without a clause here as unreachable; adding one needs separate explicit authorization.
 
