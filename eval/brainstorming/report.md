@@ -1,8 +1,8 @@
-# eval report: brainstorming (partial run: spec-pr-regate-legs)
+# eval report: brainstorming (partial run: design-names-paid-actions; preserved spec-pr-regate-legs run)
 
-for: b6e834c8d722123f091398aa0ffaaf8338db7519ee68b9b49d03f5f21e9b4680
+for: d8e64ffbdafb005b3b4268552f48480acf5d54d5eed0644e6f5351bcc07e9c63
 
-wall: 156s
+wall: 43s
 
 ## Change
 
@@ -18,7 +18,7 @@ Name the owning Workflow-stage proof class in the drafting integrity table. Leav
 Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
 
 
-Establish each paid/external action's runner, inputs and count for the whole flow across seed, rows, repairs and finish in round-two Design. Approval authorizes only those bounded named actions without per-step prompts; an action lacking that clause is unreachable in the loop and adding it requires explicit authorization. Extend design-names-paid-actions to establish one invocation of each verified runner across the flow, not restate fixture-supplied per-call request/cost limits. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
+Name each paid/external action's runner and inputs in round-two Design; spec approval authorizes every needed run across seed, rows, repairs and finish without per-step prompts. Require no flow-wide count and treat any stated count as advisory; only unnamed actions remain unreachable and need explicit authorization to add to Design. Migrate design-names-paid-actions from flow-bound to named-runs while preserving the runner's per-invocation limits and the pending design-approval gate. The selective structural check covers the clause and fixture; model replay is deferred to ledger row 13. Preserve other sample results and accepted variance; this is not model or target-wide evidence.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -90,6 +90,12 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
+## Preserved selected run: spec-pr-regate-legs
+
+for: b6e834c8d722123f091398aa0ffaaf8338db7519ee68b9b49d03f5f21e9b4680
+
+wall: 156s
+
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
@@ -101,5 +107,23 @@ Require an explicit canonical-primary comparison and full observed ready reports
 
 - spec-pr-regate-legs / anthropic/claude-opus-5-5: After moves missing-remote, script-create and absent-home-drift from fails to holds without losing anything Before kept: Before's MISSING legend baked unconditional push advice into the stop line and its (2)/(3) endings never stated the restore-from-a-clone text, its unsupported-script stop used a different sentence (`supports only fresh -b creation; no existing-branch creator`), and its recorded-home drift line printed `resolved (absent)` with parentheses; After prints the bare `origin/spec-export is missing in acme/codec` stop, gates push on the R7 file-scoped log, emits the exact `cannot provision acme/helper: script/worktree cannot check out existing branch spec-export` and `resolved absent` lines, and keeps the canonical-primary comparison, both full ready reports with observed merges, the home-then-helper inventory and all E preservation/recovery proofs. Two small hardenings would make After more robust to a stricter reader: print a `Preserved created legs:` home line under G's unsupported-script stop (Before had it, After only says no write occurs), and spell out the full `git -C /work/codec ls-remote --exit-code --heads origin refs/heads/spec-export failed (exit 128): fatal: unable to access origin` text in E's race case instead of the `…` ellipsis so the member-and-command error is verbatim there too; the helper provisioning step could also say 'wrapper -b skipped' in prose rather than relying solely on the report's skip line.
 - spec-pr-regate-legs / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: B now prints the bare `origin/spec-export is missing in acme/codec` stop, gates the push offer on the file-scoped `git -C /work/codec log -1 --format=%H refs/heads/spec-export -- doc/specs/export.md` result, gives recoveries 2 and 3 the required no-local-branch/restore-from-a-clone/regenerate-nothing ending, and surfaces exit 128 as a member-plus-command failure; G now compares the recorded create against the discovered `script/worktree create <name> --branch <branch>` template, locates `/work/helper-trees/export` by linked branch, and prints the exact `cannot provision acme/helper: script/worktree cannot check out existing branch spec-export` stop, which Before lacked (Before's B stop carried unconditional push advice and recovery 2/3 lacked the prescribed wording; Before's G omitted the template comparison and the unsupported-script stop text). No fact Before kept was lost in After's text: A still counts the two original-head blocks before provisioning, compares canonical `/work/helper` with `/work/widget`, renders both ready reports with `merge: 8888888`/`merge: 4444444`, and the `Withheld` line; absent-home-drift already held in Before and still holds. The one fragility worth tightening is that After pushes the `ROOT=/work/helper BRANCH=spec-export REMOTE_BRANCH=existing` invocation and the `git show 1111…:doc/specs/export.md` read into the shared legend rather than restating them in A — a replay model that treats the legend as background could drop the explicit single invocation or the same-git-show count, which is exactly where remote-only would regress; keep those two lines inline in A5 and A1 (as Before did) while retaining After's legend, and keep the E6 race pointing at B's new recovery-2 ending rather than the old push text.
+exit: 0
 
+## Latest selected run: design-names-paid-actions
+
+for: d8e64ffbdafb005b3b4268552f48480acf5d54d5eed0644e6f5351bcc07e9c63
+
+wall: 43s
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| design-names-paid-actions | anthropic/claude-opus-5-5 | improved | 18180 | paid: holds -> holds (intended but unchanged); external: holds -> holds (intended but unchanged); approval: fails -> holds (intended change); bounded: holds -> holds (intended but unchanged); named-runs: fails -> holds (intended change); unnamed-unreachable: holds -> holds (intended but unchanged); gate: holds -> holds (intended but unchanged) |
+| design-names-paid-actions | github-copilot/gpt-6.1-sol | improved | 7905 | paid: holds -> holds (intended but unchanged); external: holds -> holds (intended but unchanged); approval: holds -> holds (intended but unchanged); bounded: holds -> holds (intended but unchanged); named-runs: fails -> holds (intended change); unnamed-unreachable: holds -> holds (intended but unchanged); gate: holds -> holds (intended but unchanged) |
+
+## Feedback
+
+- design-names-paid-actions / anthropic/claude-opus-5-5: After moved `approval` and `named-runs` by dropping the count-as-clause wording. Before made authorization conditional on a flow-wide count: "If the flow-wide count is left out, the clause is incomplete", fresh runs were covered "only while the stated count has runs left", and option B left both actions unreachable. After instead says approval covers both named actions across seed, rows, repairs and finish with no per-step prompt, that a fresh run reuses the same runner and inputs, that a stated count is advisory, and that `--max-cost 2` is a per-invocation runner input rather than a count. `paid` and `external` hold in both, since Before's Design already named the exact runners, fixtures, the $2 per-invocation ceiling and the same-sandbox lifecycle; the expected fails -> holds is not visible in the text. `unnamed-unreachable` also holds in both as written, because Before does say an action the spec does not name is unreachable and needs separate authorization, though it blurs this with "does not fully name" and the missing count; After's cleaner sentence tying unreachability only to unnamed actions is the wording to keep. `bounded` and `gate` are kept, but After dropped Before's explicit "nothing has been run"; restoring a short line like that would make the gate fact robust. Stating outright that each invocation sends six paid requests would likewise harden `paid`, since both outputs only imply it through the six-prompt input.
+- design-names-paid-actions / github-copilot/gpt-6.1-sol: The After wording moved named-runs from fails to holds: Before proposed a one-invocation whole-flow limit for each action, said failed invocations consume the allowance, and required renewed authorization to amend the count before a fresh run, whereas After says a later attempt may rerun either action within the named boundaries, that the absent flow-wide count implies no one-run limit or total $2 budget, and that a stated count is advisory while the six prompts and $2 per-invocation ceiling stay binding. No fact that Before kept was lost: both outputs name the exact runners and inputs in Design, state that spec approval covers seed, rows, repairs and finish without per-step prompts, keep production rollout and other-sandbox deletion outside the approval pending explicit authorization, and end on an approval question without claiming execution. Two places are thinner than Before and worth firming up: After says 'An action absent from Design is unreachable: the loop stops that work' without the words 'paid or external', and the sentence that a later need for rollout or another sandbox's deletion does not create authorization is carried only by 'not infer permission from this approval'. Keeping the phrasing 'the loop treats a needed paid or external action the spec does not name as unreachable' and stating outright that a later need does not itself authorize the action would secure unnamed-unreachable and bounded, while the explicit 'no count required, stated count advisory, per-invocation limits binding' sentence should stay exactly as is to deliver the Change.
 exit: 0

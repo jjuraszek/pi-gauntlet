@@ -16,8 +16,8 @@ Show admitted cells, refresh, next target and previous decision. Also state whet
 
 3. Use snapshot 1 as the base for each independent invalid return: (a) row 2 changes to failed, with a matching failed line; (b) row 5 changes to done instead of row 2, with a matching row 5 line; (c) row 3 evidence is changed with a new row 3 done line instead of row 2; (d) row 4 changes to done with a matching line instead of row 2; (e) row 2 attempts becomes 1; (f) row 2 evidence is empty; (g) row 2 done has no new line; (h) unchanged row 6 gains a done line; (i) row 2 has two new lines. State acceptance or miss for every variant and the concrete common parent repair, including restored rows, attempts, decisions, iterations, pending and previous decision.
 
-4. Snapshot 1's row changes are present on disk but the tree is dirty (one code edit) or the child added two commits. Show the recovery-incomplete stop and human discard/reset authorization boundary, including how the extra's unadmitted terminal state is excluded from the displayed saved-row projection.
+4. Snapshot 1's row changes are present on disk but the tree is dirty (one code edit) or the child added two commits. Show automatic interrupted recovery without a human turn, including how the extra's unadmitted terminal state is restored to its saved row while only the target receives a failed attempt.
 
 For every snapshot explicitly give the post-return tool trace. No worker command has run in this replay: all worker evidence above is supplied. Include whether you run any row check, gate check or verification command now, and when an earlier done row's regression will first surface.
 
-Snapshot4 has no ownership manifest or affirmative process-exit evidence. Preserve the unadmitted working ledger as well as all code changes and commits.
+Snapshot4 has no ownership manifest, jobs file or affirmative process-exit evidence. Show cleanup attempts, unsignaled unidentified jobs, one repair and the next target without a proof demand.

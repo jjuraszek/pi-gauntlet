@@ -1,6 +1,8 @@
-for: 4def0aceb60c24ff468abfeeeb535de6b1158933cbae004c1938a48a141f595c
+for: 3700aa68c6f26f762776dcbb06b19e557e5ce4423ce720fc5191e35551f68f73
 
 ## Change
+
+Recover every interrupted return without a proof demand or human turn, including absent jobs files and unknown launch history. Attempt cleanup, leave unidentified jobs unsignaled, charge one failed attempt or one seed/verify repair, clear pending and continue through the ordinary allowance checks. Migrate allowance-10-escalate-after, commit-boundary, exit-repair-capability, exit-verification-escalates, multi-row-return, seed-retry, seed-interrupted-count, spent-row-escalation, tracker-boundary and legacy-cap to this rule. Preserve the no-pending dirty-tree authorization stop, row attribution, spent escalation and consumed iterations. These selected fixtures require fresh baselines and candidate judgments under the registered successor judge; retained results for other samples are not current coverage.
 
 Keep unrelated dirty work behind a typed discard with no pending dispatch. Render the dirty paths and preserved row counts, and resume the suspended fresh-entry or restore sequence only after authorization. Migrate gate-line-first, human-stop-counts and row-budget-actions; pending two-commit and empty returns recover automatically instead of asking for discard. Extend row-budget-actions for authorized discard at fresh entry and implement/verify restore. The selective deterministic check is scripts/loop-dirty-tree-stop.test.mjs beside its siblings. Model replay of these three samples is deferred to ledger row 13; existing records do not attest the changed facts.
 
@@ -8,11 +10,11 @@ Apply the common interrupted-recovery rule to companion returns before clean-res
 
 Recover interrupted verification repairs through the same jobs/reset rule, using the failing leg's job identity and resetting home for companions. Migrate `verify-repair-count` snapshots 2-3 for absent history, mismatched jobs, leftover dirt and extra home changes; add snapshot 5 for allowance-bounded reset/marker failures. Preserve row cells and the consumed iteration in one home marker, then rerun without a human pause. The selective deterministic check is `scripts/loop-verification-repair.test.mjs`; model replay of `verify-repair-count` awaits companion/resume migration, and existing result records do not prove the changed facts.
 
-Recover interrupted numbered-row returns unconditionally under options 4 and 5, then check allowance after one repair attempt. Migrate interrupted-child-redispatch A-D and add H for Request aborted, an empty return and no jobs file at allowance 10. Skip mismatched jobs without signaling and continue after lingering jobs or files. The selected deterministic check is scripts/loop-engine-contract.test.mjs beside its siblings; no model replay runs in this iteration. The parent must run interrupted-child-redispatch after its companion/resume facts migrate; existing result records are not evidence for these changed facts.
+Recover interrupted numbered-row returns unconditionally under options 4 and 5, then check allowance after one repair attempt. In interrupted-child-redispatch, A-F cover proof-free home, companion and seed recovery; G covers Request aborted with an empty return and no jobs file; H covers failed reset and repair; I covers a named paid action approved with a bare 5. Skip mismatched jobs without signaling, recover missing companion provenance and retain the missing-before-image admission stop. Never dispatch from an unrestored HEAD.
 
 Route only genuine unreachable evidence through the amendment surface; let obsolete spent-bound text follow ordinary failed-attempt dispatch under both options. Remove action-accounting dispatch and admission hooks and the action-spend resource from the driver and eval bundle. Migrate unreachable-cut for repeated named actions, clean returns without copied records and answered unreachable stops; recover its unadmitted dirty branch before routing evidence. The selective deterministic check is scripts/loop-unreachable-cut.test.mjs beside its siblings. Model replay of unreachable-cut is deferred to ledger row 13; existing records do not attest the changed facts. This sample covers narrated routing, not live dispatch.
 
-Migrate superseded fixture assertions in tracker-verify, scaled-cap-grant, last-attempt-model-boundary, tracker-boundary, human-stop-counts and decision-repair: allowance bounds verification repairs, rule3 passes stagnation hints through rule4, and admitted amendments reset windows. Migrate gate-line-first, allowance-10-escalate-after, spent-row-escalation and multi-row-return to the ownership-safe recovery-incomplete stop: project saved cells without overwriting an unadmitted ledger. Select only these ten model samples and preserve other records. Keep leg-iteration with its reason recorded in the case: attribution and valid interrupted admission are unchanged, and its invalid return lacks cleanup provenance. The contract test selectors stay intact while their obsolete once-per-flow assertions track the shared allowance. This is partial coverage, not a target-wide pass.
+Migrate superseded fixture assertions in tracker-verify, scaled-cap-grant, last-attempt-model-boundary, tracker-boundary, human-stop-counts and decision-repair: allowance bounds verification repairs, rule3 passes stagnation hints through rule4, and admitted amendments reset windows. Migrate gate-line-first to the no-pending dirty-tree stop and allowance-10-escalate-after, spent-row-escalation and multi-row-return to automatic interrupted recovery with one failed attempt and restored non-target cells. Select only these ten model samples and preserve other records. Keep leg-iteration with its reason recorded in the case: attribution and valid interrupted admission are unchanged, and its invalid return lacks cleanup provenance. The contract test selectors stay intact while their obsolete once-per-flow assertions track the shared allowance. This is partial coverage, not a target-wide pass.
 
 Named-sample audit: the seven other existing samples named in the spec already carry migrated facts: commit-boundary (owned recovery), exit-verification-escalates (shared repair count), row-budget-actions (malformed replies), exit-repair-capability (bounded repair and recovery), cap-and-exit-verification (allowance rather than a total cap), gate-set-failure (repair exhaustion), and seed-retry (seed repair allowance). Together with the ten selected migrations and kept leg-iteration case above, this accounts for all 18 named existing samples. Keep the previous records for these seven; this audit is not a new replay claim.
 
@@ -26,13 +28,13 @@ Bound exit-verification repairs by the shared allowance across legs, reserving e
 
 Replace below-allowance stagnation stops with row-local hints through target selection and escalation. Pending human retry hints win; admitted amend/cut commits reset both windows for all rows, while retries reset only their row and allowance raises reset neither. Preserve counters and spent escalation. Require intermediate implement reports to continue to the next ordered action in the same turn, ending only at a Human stop header. Select stagnation-and-retry, amend-resets-windows and same-turn-continuation for this change; these text replays prove narrated routing, not live orchestration.
 
-Use interrupted-child-redispatch for narrated cleanup, repair accounting and same-turn continuation, not live signal or reset execution. Its home cases recover without checkout proof, skip mismatched processes and check allowance after repair; its companion/resume facts remain for the companion and restore rows to migrate.
+Use interrupted-child-redispatch for narrated cleanup, repair accounting and same-turn continuation, not live signal or reset execution. Its home and companion cases recover without checkout proof, skip mismatched processes and check allowance after repair. Only same-input, same-judge record pairs establish the changed facts; stale judgments remain historical evidence, not a pass.
 
 Add row-history-guidance for the driver dispatch and separate child continuation over two target failures and an interleaved foreign-row failure. Require the child to reject the older prohibited approach, order its own history, preserve guidance polarity and treat the marker as spent history. Keep history out of the driver payload and child diagnostics out of the driver. Run only this sample here; preserve earlier sample evidence. Supply an explicit missing escaped-backslash test case so the child continuation's test extension is observable rather than an unspecified addition. These partial text replays cover narrated choices, not live dispatch or parser execution.
 
 The bundled child persona reads its target row's complete ordered history, preserves failed-guidance polarity, excludes other rows and treats escalation as spent history rather than current model identity. The driver payload stays unchanged. This iteration selects only loop-implementer/row-history-guidance for child behavior; preserve this target's existing results without claiming a fresh driver replay.
 
-Keep early escalated recovery within the remaining allowance: an unresolved recovery projects saved attempts without changing the ledger; completed interrupted recovery and an admitted miss each consume exactly one attempt before ordered checks. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
+Keep early escalated recovery within the remaining allowance: interrupted recovery and an admitted miss each consume exactly one attempt before ordered checks without a proof demand or human turn. Add allowance-10-escalate-after for attempts 1-10, held settings, both recovery paths and spent identity after grants/resume; update spent-row-escalation's unspent expectation to immediate threshold escalation. Run only these two samples here. These partial text replays cover narrated routing and recovery, not live model dispatch.
 
 Capture escalateAfter once at Entry or fresh-session restore and escalate the first unspent dispatch at or above min(escalateAfter, effective allowance - 1). Keep the allowance authoritative on restore and share the threshold read with legacy migration. Extend last-attempt-model-boundary for clamping and past-threshold catch-up; run only it, escalated-row-attempt and legacy-cap here. These partial text replays cover narrated threshold dispatch and restore, not live model routing or the remaining history and post-escalation samples.
 
@@ -41,7 +43,7 @@ Complete seed-retry conformance using the existing seed-retry sample's first mis
 
 Select ordinary work after a surviving validated seed and its decision, including partial seeds with empty evidence cells. Use the ledger at HEAD and committed seed identity, preserving legacy full-coverage seeds and selecting seed after an authorized reset regardless of the consumed dispatch count. Add seed-selection for home partial/legacy/reset and coordinated seeded-flag continuations. Run only seed-selection in this iteration; these synthetic traces cover narrated selection, not live dispatch or admission. Keep closed admission and retry samples unchanged.
 
-Repair admitted seed validation misses through the shared seed repair-count allowance across home and companion paths. Restore rows and decisions, retain consumed iterations, clear pending and recover the concrete miss hint from history. Use seed-retry for repeated misses, successful-window reset, repair-to-retry resume and provenance-gated interrupted recovery; preserve partial-seed evidence.
+Repair admitted seed validation misses through the shared seed repair-count allowance across home and companion paths. Restore rows and decisions, retain consumed iterations, clear pending and recover the concrete miss hint from history. Use seed-retry for repeated misses, successful-window reset, repair-to-retry resume and proof-free interrupted recovery; preserve partial-seed evidence.
 
 Admit a seed return with evidence on at least one non-cut row, including a complete companion row set with empty evidence on unreached open rows. Preserve unreached cells, zero attempts and cut dispositions; count returned evidenced rows and baseline closures, rejecting zero evidence and invented counts. Add partial-seed for home and companion admission only. Run only partial-seed here; these text replays cover narrated admission, not live dispatch, retry or next-target selection. Deterministic fixtures exercise the companion recipe beside its existing siblings.
 
@@ -65,7 +67,7 @@ Remove total-cap checks, cap grants and loop funding from the home and coordinat
 
 Automatically repair exit-verification failures below allowance under options 4 and 5, without amend permission or an iteration cap. Preserve clean/single-commit admission, one consumed count per dispatch, pending-to-marker attribution and failing-checkout reruns across interruptions and resume. Use exit-repair-capability for model fallback, missing capability, reservation recovery, allowance exhaustion and bounded repair commands; keep named-sample coverage without target-wide sweeps.
 
-Keep row escalation spent across retry, rows +N and resume, omitting the model override on all later authorized attempts. Preserve attempts at unresolved recovery stops; completed recovery and admitted validation misses each consume an attempt and stop at allowance. Add spent-row-escalation for both paths, unrecoverable identity, new final attempts after grants and unspent missing-model/migrated rows. Run this sample for row 4; the parent owns the final full-target run.
+Keep row escalation spent across retry, rows +N and resume, omitting the model override on all later authorized attempts. Interrupted recovery and admitted validation misses each consume an attempt and stop at allowance; missing provenance never creates a separate stop. Add spent-row-escalation for both paths, unrecoverable identity, new final attempts after grants and unspent missing-model/migrated rows. Run this sample for row 4; the parent owns the final full-target run.
 
 Escalate the last allowed numbered-row attempt automatically under approval options 4 and 5, within the allowance rather than after exhaustion. Use the settings tool's resolved model including its main-loop fallback; stop without a decision, counter bump or dispatch when the tool/model is unavailable. Rewrite escalated-row-attempt for option-4/5 parity, fallback and exhaustion, retaining its amendment checks. Add last-attempt-model-boundary for missing capabilities, allowance1, stagnation precedence and ordinary/seed dispatch. Run these samples now; the parent owns full-target runs after the remaining ledger rows.
 
@@ -75,7 +77,7 @@ Seed fresh home and coordinated ledgers with one unscaled allowance from setting
 
 Preserve the exact home pending tuple and bumped ledger iteration in row and seed commit bodies, reusing the companion attribution prefix while clearing the ledger tuple. Validate those fields before terminal projection. Extend tracker-boundary with both home commit shapes and their consumed counts; preserve all existing facts. The paired gauntlet-resume recovery sample starts after the child commit with no captured tuple and checks admission before refresh. Parent verify owns model runs, assembly-hash updates and result records.
 
-Derive the loop task view through path-only ledger refreshes after implement start, before dispatch and after admitted loop commits. Persist home and companion pending tuples and admit clean single-commit returns before projecting terminal results. At unsafe recovery stops project saved cells without overwriting or refreshing unadmitted work. Let refresh complete implement; run the gate set and allowance-bounded escalated repairs at verify step 1. Keep verify failure menus restricted, normal Gn tasks on the same tracker, and an explicitly authorized re-bound row return on the ledger path with verify still active.
+Derive the loop task view through path-only ledger refreshes after implement start, before dispatch and after admitted loop commits. Persist home and companion pending tuples and admit clean single-commit returns before projecting terminal results. Restore saved cells and repair interrupted returns before refreshing, without projecting unadmitted terminal claims. Let refresh complete implement; run the gate set and allowance-bounded escalated repairs at verify step 1. Keep verify failure menus restricted, normal Gn tasks on the same tracker, and an explicitly authorized re-bound row return on the ledger path with verify still active.
 
 Route ledger-engine amend preparation through the ordinary path without plan-writer, an Amend-prepare: block or plan_check; the driver's next refresh projects amended statuses. Preserve section 5 apply and every existing fact except the two replacements named below. Add tracker-refresh, tracker-boundary and tracker-verify synthetic samples for seed/baseline projection, out-of-order closure, retry/cut, immediate and resumed rejected returns, per-leg verification, Gn retention and re-bound authorization. Raw status mappings belong in expected facts and supplied tool observations, not in the driver. No model result is attested here.
 Prefix every human stop, including discard/reset authorization, with gauntlet: question while preserving ledger state and the authorization boundary. Request the supplied numeric ledger snapshot in the rendered stop to make preservation observable without reading a rejected child's ledger.
@@ -93,7 +95,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - seed-interrupted-count/exhaustion: fails -> holds - Stop at seed allowance and preserve counts across retries and raises.
 - seed-interrupted-count/one: fails -> holds - An interrupted seed consumes the sole repair at allowance 1.
 - seed-interrupted-count/resume: fails -> holds - Recover seed count and reason from history without re-seeding a validated partial seed.
-- seed-interrupted-count/ownership: fails -> holds - Preserve state and budget on unresolved provenance or background history.
+- seed-interrupted-count/ownership: fails -> holds - Attempt cleanup and count one seed repair without provenance, a jobs file or a human turn.
 - companion-interrupted-recovery/owned: fails -> holds - Signal matching listed jobs and reset only the companion without checkout-ownership proof.
 - companion-interrupted-recovery/repair: fails -> holds - Repair only home row cells and redispatch with spent escalation preserved.
 - companion-interrupted-recovery/resume: fails -> holds - Recover the companion tuple once before the dirty-tree stop.
@@ -103,7 +105,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - companion-interrupted-recovery/seed: fails -> holds - Repair a companion seed only in home without changing row cells or foreign seed flags.
 - seed-retry/stop: fails -> holds - A second seed repair below allowance permits a third dispatch.
 - seed-retry/companion: fails -> holds - Count home companion seed markers against the same allowance.
-- seed-retry/boundary: fails -> holds - Automatic owned recovery and unsafe provenance stops remain distinct.
+- seed-retry/boundary: fails -> holds - Repair dirty, zero-commit and multiple-commit seeds without provenance or launch proof.
 - unreachable-cut/cut: fails -> holds - Route eligible evidence to the exact disposition and Out of scope entry before another attempt.
 - unreachable-cut/audit: fails -> holds - Apply one audited home cut and continue with unchanged counters and spent escalation.
 - unreachable-cut/closure: fails -> holds - Carry the cut in closure as deviates, never venue proof or done.
@@ -136,14 +138,15 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - interrupted-child-redispatch/identity: fails -> holds - Skip mismatched jobs without signaling and continue recovery even after an unsuccessful KILL.
 - interrupted-child-redispatch/provenance: fails -> holds - Recover without write or launch proof, treating an absent jobs file as no jobs.
 - interrupted-child-redispatch/interruptions: fails -> holds - Recover every interrupted return shape and continue despite residual files.
-- interrupted-child-redispatch/aborted: fails -> holds - Repair Request aborted and its empty return/no-jobs case before checking exhaustion at allowance 10.
-- interrupted-child-redispatch/companion-resume: fails -> holds - Recover the companion at its boundary and write the home repair once.
+- interrupted-child-redispatch/aborted: fails -> holds - Repair G's Request aborted with its actual error reason and redispatch below allowance without a question.
+- interrupted-child-redispatch/git-failure: fails -> holds - Repeat failed reset and repair under the same allowance without dispatching from an unrestored HEAD or claiming an unlanded repair.
+- interrupted-child-redispatch/companion-resume: fails -> holds - Reset companion and home to their saved boundaries and write the home repair once without a provenance gate.
 - interrupted-child-redispatch/seed: fails -> holds - Seed repairs spend the shared allowance without changing row attempts.
 - row-history-guidance/ruled-out: fails -> holds - Reject approach X using the older failed line even when latest guidance omits it.
 - row-history-guidance/ordered-history: fails -> holds - Read all target history oldest first before choosing an approach.
 - allowance-10-escalate-after/sequence: fails -> holds - Escalate attempt4 once and run attempts5-10 on the worker before exhaustion.
 - allowance-10-escalate-after/held: fails -> holds - Retain the captured threshold through an in-session settings edit.
-- allowance-10-escalate-after/rejection: fails -> holds - Project saved attempts at an unsafe recovery stop without a restore write, refresh or new budget.
+- allowance-10-escalate-after/rejection: fails -> holds - Charge one interrupted attempt and redispatch below allowance with spent escalation preserved.
 - allowance-10-escalate-after/admitted-miss: fails -> holds - Consume one attempt and continue on the worker below allowance, stopping only at the boundary.
 - last-attempt-model-boundary/threshold: fails -> holds - Clamp the held setting and escalate past-threshold unspent rows without a settings refresh.
 - seed-selection/partial: fails -> holds - Continue ordinary work after a validated partial seed without filling unreached evidence cells first.
@@ -156,7 +159,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - companion-multi-row/recovery: fails -> holds - Recover the multi-row result once using the same read-only admission recipe.
 - multi-row-return/admission: fails -> holds - Admit optional same-leg extras without attempts increments or a second declaration channel.
 - multi-row-return/failed-target: fails -> holds - Admit failed-target extras and retain target retry guidance without policing worker order.
-- multi-row-return/boundary: fails -> holds - Project saved target and extra cells at an unsafe recovery stop without overwriting or refreshing unadmitted state.
+- multi-row-return/boundary: fails -> holds - Restore every unadmitted extra and charge only the target before refresh and continuation.
 - exit-verification-escalates/continuation: fails -> holds - Verify still-unexecuted companion pairs after the failing checkout's successful repair rerun.
 - repairs-rerun-gate-set-only/child-checkout: fails -> holds - Test the child's isolated repaired tree with child-local logs before parent integration gates.
 - tracker-refresh/seed: fails -> holds - All-cut completion runs no full command and emits the gate-set empty line after starting verify.
@@ -195,7 +198,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - funding/contract: fails -> holds - Ignore legacy funding, add retry/shared raises and never rearm escalation or reset windows through a shared raise.
 - legacy-cap/legacy: fails -> holds - The driver refuses missing allowance; resume captures the threshold once without re-resolving an existing allowance.
 - legacy-cap/grant: fails -> holds - Resume replaces cap with settings-derived allowance in one commit without resetting attempts.
-- legacy-cap/dirty: fails -> holds - Missing restore settings stops with the escalation-threshold diagnostic; dirty trees still block migration without writes.
+- legacy-cap/dirty: fails -> holds - Missing settings stops; pending interrupted returns recover before clean-tree migration while no-pending dirt still requires discard authorization.
 - allowance-entry-carrier/reply: fails -> holds - Consume the exact approving-turn carrier and print the reply echo at seeding.
 - allowance-entry-carrier/setting: fails -> holds - Fall back to the setting and print its source when the carrier is absent.
 - allowance-entry-carrier/coordinated: fails -> holds - Share the same resolved value and echo across coordinated entry.
@@ -207,9 +210,9 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - human-stop-counts/exit-stop: fails -> holds - A closed-row verification stop retains the preservation sentence and restricted menu without invented counts.
 - human-stop-counts/durable-counts: fails -> holds - Decisions own retry increments and rendering never mutates counters or the table.
 - tracker-boundary/stops: fails -> holds - Stop at allowance and continue below it with the fixed stagnation hint and a durable dispatch reservation.
-- tracker-boundary/admission: fails -> holds - Preserve unadmitted work and refuse unsafe cleanup when ownership or process-exit evidence is missing.
-- tracker-boundary/immediate: fails -> holds - Immediate recovery-incomplete stops display saved attempts without overwriting or refreshing rejected terminal claims.
-- tracker-boundary/resume: fails -> holds - Reconstruct saved counts from dispatch history and retain discard-only authorization without overwriting the unadmitted ledger.
+- tracker-boundary/admission: fails -> holds - Restore unadmitted cells and charge one interrupted target attempt before terminal projection.
+- tracker-boundary/immediate: fails -> holds - Recover and redispatch without ownership proof or a human turn.
+- tracker-boundary/resume: fails -> holds - Reconstruct saved cells and recover exactly once before refresh and continuation.
 - row-budget-actions/retry: fails -> holds - The exact reply grants one attempt above the effective allowance without resetting counters or escalation.
 - row-budget-actions/raise: fails -> holds - Anchored rows grants serialize optional words and raise the shared header across legs in one commit.
 - row-budget-actions/invalid: fails -> holds - Both the first and later malformed replies leave ledger bytes and the stop unchanged.
@@ -223,7 +226,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - retired-budgets/legacy-route: fails -> holds - A legacy ledger routes to resume instead of cap funding or verification.
 - spent-row-escalation/grants: fails -> holds - Retry and shared raises never rearm spent escalation, including at the new last attempt.
 - spent-row-escalation/resume: fails -> holds - Recover durable spent identity on resume and treat unrecoverable identity as spent.
-- spent-row-escalation/rejection: fails -> holds - Unsafe recovery preserves the ledger and spent escalation; completed recovery consumes an attempt and stops at allowance4.
+- spent-row-escalation/rejection: fails -> holds - Interrupted recovery charges one attempt, preserves spent escalation and stops at allowance4 without a cleanup question.
 - spent-row-escalation/admitted-miss: fails -> holds - An admitted miss consumes the last attempt and stops rather than receiving a free redispatch.
 - spent-row-escalation/unspent: fails -> holds - A raised allowance does not postpone an unspent threshold dispatch; its following attempt uses the worker.
 - effective-allowance/arithmetic: fails -> holds - Count retries rather than historical ceilings or other budgets.
@@ -240,7 +243,8 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - gate-line-first/authorization: fails -> holds - Name the dirty paths and offer discard or Stop only without budget choices.
 - scaled-cap-grant/entry: fails -> holds - Seed one reply- or settings-derived allowance, including all-cut ledgers, without a cap.
 - cap-and-exit-verification/contract: fails -> holds - Run the closed-row gate set at verify step 1 with at most 20 failure log lines, verify active and implement complete, with amend/stop only after repair is spent.
-- commit-boundary/seed-recovery: fails -> holds - Preserve owned seed recovery and consumed iterations; one repair at allowance 1 stops without charging row attempts.
+- commit-boundary/seed-recovery: fails -> holds - Recover seeds without a proof demand or human turn; one repair at allowance1 stops without charging row attempts.
+- commit-boundary/contract: fails -> holds - Treat missing provenance and async handles as interrupted returns and write one repair without polling or joining.
 
 - leg-iteration/seed: fails -> holds - Enforce the new coordinated-flow must-hold fact: Expands shared ACs into original-AC/membership ordered rows, preserves cut disposition, records one base/seed flag per leg and Leg mapping; allowance4 without cap, seeds repo-a then repo-b only, never seeds wholly cut repo-c.
 - leg-iteration/dispatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: Bumps iterations once to 3 and durably writes pending: 2 | repo-b | bbbbbbb before dispatch; passes repo-b cwd, own base, mapped AC, Leg/Rules, iteration/pending and absolute home spec/ledger.
@@ -257,7 +261,7 @@ Supply row 1's attempts value in the allowance snapshot so its existing fact is 
 - last-attempt-model-boundary/ordinary: fails -> holds - Ordinary attempts and seed do not enter the last-attempt model path.
 - escalated-row-attempt/amend: fails -> holds - Named amendments use section 5 and return to ordered checks; repeated row evidence waits with Recommendation none.
 - exit-verification-escalates/repair: fails -> holds - Repair within allowance under both options using attributed pending reservations and home markers, scoped gate reruns and unchanged rows.
-- exit-verification-escalates/boundaries: fails -> holds - Recover owned interrupted repairs, count markers and pending once across legs and preserve uncertain ownership at recovery incomplete.
+- exit-verification-escalates/boundaries: fails -> holds - Recover interrupted repairs without ownership proof, count pending and markers once and continue below allowance.
 - exit-repair-capability/automatic: fails -> holds - Resolve the fallback model and repair below allowance under both options despite a high iterations count.
 - exit-repair-capability/missing: fails -> holds - A missing capability stops without consuming count or identity and may be resolved later.
 - exit-repair-capability/spent: fails -> holds - Recover the pending reservation without double-counting and stop only when repair count reaches allowance.
