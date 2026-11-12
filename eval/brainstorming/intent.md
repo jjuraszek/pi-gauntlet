@@ -1,4 +1,4 @@
-for: b6e834c8d722123f091398aa0ffaaf8338db7519ee68b9b49d03f5f21e9b4680
+for: d8e64ffbdafb005b3b4268552f48480acf5d54d5eed0644e6f5351bcc07e9c63
 
 ## Change
 
@@ -14,7 +14,7 @@ Name the owning Workflow-stage proof class in the drafting integrity table. Leav
 Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
 
 
-Establish each paid/external action's runner, inputs and count for the whole flow across seed, rows, repairs and finish in round-two Design. Approval authorizes only those bounded named actions without per-step prompts; an action lacking that clause is unreachable in the loop and adding it requires explicit authorization. Extend design-names-paid-actions to establish one invocation of each verified runner across the flow, not restate fixture-supplied per-call request/cost limits. Run only this selected sample; preserve other sample results and all existing accepted variance. This replay proves narrated authorization boundaries, not live external operations or target-wide coverage.
+Name each paid/external action's runner and inputs in round-two Design; spec approval authorizes every needed run across seed, rows, repairs and finish without per-step prompts. Require no flow-wide count and treat any stated count as advisory; only unnamed actions remain unreachable and need explicit authorization to add to Design. Migrate design-names-paid-actions from flow-bound to named-runs while preserving the runner's per-invocation limits and the pending design-approval gate. The selective structural check covers the clause and fixture; model replay is deferred to ledger row 13. Preserve other sample results and accepted variance; this is not model or target-wide evidence.
 
 Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
 
@@ -128,9 +128,9 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
 - workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
 - workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
-- design-names-paid-actions/flow-bound: fails -> holds - Propose runner/input-specific counts covering seed, rows, repairs and finish, with saved-result reuse.
-- design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action without the approved clause.
-- design-names-paid-actions/paid: fails -> holds - Name paid request count and spending limit in Design.
+- design-names-paid-actions/named-runs: fails -> holds - Permit needed runs of named actions after spec approval without requiring a count or treating a stated count as a bound.
+- design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action the spec does not name, not for a missing count.
+- design-names-paid-actions/paid: fails -> holds - Name paid request count and per-invocation spending limit in Design.
 - design-names-paid-actions/external: fails -> holds - Name the bounded remote sandbox lifecycle in Design.
 - design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
 - design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.

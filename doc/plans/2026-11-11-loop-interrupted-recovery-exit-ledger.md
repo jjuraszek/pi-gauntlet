@@ -3,7 +3,7 @@
 base: 9dc95a5b124c06eb70dac4a7b4ec4c758970fa85
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -18,7 +18,7 @@ allowance: 10
 | 8 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs; 5 passed; 0 failed; selected model replay remains for row 13 |
 | 9 | done | 1 | timeout -k 30 30 node --test scripts/loop-implementer-actions.test.mjs; 6 passed; 0 failed; selected model replay remains for row 13 |
 | 10 | done | 1 | timeout -k 30 60 node --test scripts/loop-unreachable-cut.test.mjs; 3 passed; 0 failed; model replay deferred to row 13 |
-| 11 | open | 0 | |
+| 11 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 59 passed; 0 failed; model replay deferred to row 13 |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
 
@@ -34,3 +34,4 @@ row 7 done | Migrated resume recovery and three fixtures; brief-contract asserti
 row 8 done | Added the no-pending dirty-tree stop and typed-discard continuation; five contract checks pass, with model replay deferred to row 13. | Reuse scripts/loop-dirty-tree-stop.test.mjs and the gate-line-first, human-stop-counts and row-budget-actions fixtures for selective checks and replay.
 row 9 done | Removed worker action accounting and authorized every needed named action despite counts or approval holds; six contract checks pass, with model replay deferred to row 13. | Reuse agents/loop-implementer.md and the silence-bound-and-unreachable, seed-evidence-carry and seed-recovery fixtures for selected model replay.
 row 10 done | Removed spent-bound stops and action-record requirements; three selective checks pass, with model replay deferred to row 13. | Reuse scripts/loop-unreachable-cut.test.mjs and the migrated unreachable-cut fixture for routing checks and selected model replay.
+row 11 done | Made round-two action naming authorize the whole flow without count bounds; 59 contract tests pass, with model replay deferred to row 13. | Reuse scripts/brainstorming-contract.test.mjs and design-names-paid-actions with its refreshed intent for selected model replay.

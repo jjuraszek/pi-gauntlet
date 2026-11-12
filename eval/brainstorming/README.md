@@ -28,6 +28,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `side-question-return` | Answer the side question, retain the selected resolver, and ask the unresolved reset-behavior question in the same response. |
 | `ticket-repair-return` | Use the supplied repaired criterion and resume the unresolved reset-behavior question without another repair approval. |
 | `design-approval-return` | Present substantive round two after round-one approval and stop at round two's approval request. |
+| `design-names-paid-actions` | Name paid/external runners and inputs in round two; spec approval authorizes every needed run across the flow, with omitted or advisory counts, while unnamed actions remain unreachable and execution waits for approval. |
 | `clarification-keeps-gate` | Answer the settings-file clarification while leaving round-one approval pending. |
 | `explicit-pause` | Honor the explicit pause without advancing the questionary or design. |
 | `shared-helper-option` | In a tool-free next response, name the shared helper and its gap, order each approach's `Removes:` before `Adds:`, and recommend reuse without a caller-side copy; this is not evidence of actual spec writes. |
