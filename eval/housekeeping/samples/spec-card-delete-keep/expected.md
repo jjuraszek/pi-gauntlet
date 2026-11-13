@@ -1,0 +1,6 @@
+- two-picks: judged: Exactly two numbered choices appear, Delete then Keep, with no Ticket, Fix or Ignore choice; both boxes stay empty and Delete alone is labeled recommended.
+- delete-delivery: judged: The Delete row says the listed specs are removed and promises one commit for this class pushed to the existing PR branch, not a new PR or an in-place edit.
+- superseded-reason: judged: The card identifies the one spec doc/specs/retired-widget.md, explains its own banner says another spec fully replaces it, and cites the housekeeping base rules.
+- history-and-readers: judged: The card says no file outside the spec folders names the listed spec and git history retains the deleted text.
+- no-execution: judged: The reply presents an unanswered card without claiming a deletion, commit or push has happened.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=1\n/

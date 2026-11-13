@@ -1,0 +1,124 @@
+{
+  "sample": "spec-card-delete-keep",
+  "arm": "candidate",
+  "skillSha": "0b1de4d8293e4898bd398a7efd7cc8adf78b2631e6243fd56191a584a9c4d57d",
+  "inputSha": "0feeec6cb9d1da0219bb6640e06639b8b831e84f8ccfac31596f3384332566c7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 1 design document in doc/specs has been fully replaced by a newer one\n\n### What was found\nOne design document, `doc/specs/retired-widget.md`. Line 3 of its title block says `doc/specs/widget.md` fully replaces it. The run record does not show whether line 3 is among the lines this pull request changed.\n\n### Why it matters\nA design document whose own opening banner says another document fully replaces it should be removed, so that readers find only the current design. This rule is in the housekeeping base rules, `reference/base-rules.md`, under Specs.\n\n### What happens if you accept\n`doc/specs/retired-widget.md` is deleted in one commit pushed to the branch of pull request #42. No tracked file outside the spec and plan folders mentions it. Its replacement, `doc/specs/widget.md`, names it from inside the spec folder. Git history keeps the deleted text.\n\nPick one:\n1. [ ] Delete - remove the listed specs; make one commit for this class and push it to the existing PR branch [recommended]\n2. [ ] Keep - leave them in the spec folder\n",
+      "words": 169,
+      "wallMs": 10853,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n### 1 of 1. One spec in doc/specs says it is fully replaced\n\n### What was found\n`doc/specs/retired-widget.md:3` has a banner stating that `doc/specs/widget.md` fully replaces it.\n\n### Why it matters\nThe housekeeping base rules identify specs whose own banners say another spec fully replaces them as candidates for removal (`housekeeping reference/base-rules.md`, Specs).\n\n### What happens if you accept\nThe listed spec is deleted, then one commit for this class is made and pushed to the existing PR branch. No file outside the spec and plan dirs mentions it. Its successor mentions it inside `doc/specs`. Git history keeps the deleted text.\n\nPick one:\n1. [ ] Delete - remove the listed spec; make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Keep - leave it in the spec folder.\n",
+      "words": 131,
+      "wallMs": 4973,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "027fc237c8efc8646e57a9cf4685100d3580cc4f13ec20b4f650402f5412def3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "baselineOutputSha": "dd5bf31389456ab813f602130c030fe91305282b033eee7614d12711fda6a8b0",
+      "candidateOutputSha": "54511fcd7455f7b57c575c449f35822a367531c17c0d762549626e59e260690b",
+      "facts": {
+        "two-picks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "delete-delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "superseded-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history-and-readers": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Three facts moved from fails to holds even though none were expected to move, and no fact that Before kept was lost. The After wording replaced the generic Fix/Ignore choices with Delete then Keep, which moved two-picks. Its Delete row now says the listed specs are removed and repeats the one-commit, existing-PR-branch delivery, which moved delete-delivery. Adding 'Git history keeps the deleted text' beside the outside-readers statement moved history-and-readers; Before had the outside-readers half but never mentioned git history. Superseded-reason and no-execution hold in both, since each card names the spec, attributes the full replacement to its own line 3, cites reference/base-rules.md under Specs, and leaves both boxes empty with no claim of work done. To keep this, retain the explicit Delete row wording, the two disclosure sentences (no outside tracked file names it; git history keeps the text), and the base-rules citation. One thing to consider is the new sentence 'The run record does not show whether line 3 is among the lines this pull request changed'. It breaks no fact, but it adds hedging the Change does not ask for, and it replaced Before's clearer note that the file is not among the PR's selected changed files; dropping it or restoring the earlier note would be cleaner. If these improvements were intended, the 'Expected to move' list should name two-picks, delete-delivery and history-and-readers.",
+      "wallMs": 9027,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "027fc237c8efc8646e57a9cf4685100d3580cc4f13ec20b4f650402f5412def3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "baselineOutputSha": "243caa8280edf4619d899b5ac1e108e78743f022e8bf77f9223236d820781dd4",
+      "candidateOutputSha": "b83683ffa54f0603c936c7a9c8d1eea07128621982824e1e1603aeb5c8e00de0",
+      "facts": {
+        "two-picks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "delete-delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "superseded-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history-and-readers": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After lost nothing that Before held, but three facts moved from fails to holds although none were listed as expected to move. The new Delete/Keep labels (replacing Fix/Ignore) moved two-picks. The Delete row's 'remove the listed spec; make one commit for this class and push it to the existing PR branch' moved delete-delivery, because Before's Fix row named the commit and push but not the removal. The added sentence 'Git history keeps the deleted text' moved history-and-readers, because Before disclosed the outside-reader check but never mentioned history. If these moves are intended, update the Expected to move list. To keep the facts holding, keep the two rows in Delete-then-Keep order with empty boxes and [recommended] only on Delete, keep the removal and the commit-push delivery together in the Delete row, and keep the banner explanation, the base-rules citation, the outside-reader sentence and the git-history sentence. One small wording risk: After says 'outside the spec and plan dirs' where the fact says 'spec folders', so keep the explicit statement that no outside file names the listed spec so that it still reads as satisfied.",
+      "wallMs": 8844,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f9798a6d7fb3c5af4ba4edbc3d0ca61f0f78db55"
+}

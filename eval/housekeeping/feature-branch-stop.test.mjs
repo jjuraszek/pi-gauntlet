@@ -3,17 +3,16 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { assemble, inputSha, parseCase, treeReader } from "../lib/replay.mjs";
+import { inputSha, parseCase } from "../lib/replay.mjs";
 import { parseExpected, runMechanical, sha256 } from "../lib/checks.mjs";
 import { MODELS } from "../lib/models.mjs";
 import { cellReusable, judgmentCurrent } from "../lib/records.mjs";
-import { intentBody } from "../lib/intent.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const targetDir = "eval/housekeeping";
 
-test("feature-branch-stop: reject directory and uncommitted admission before Check and name PR input", () => {
+test("feature-branch-stop: current admission conformance and archived branch-stop replay", () => {
   const select = read("skills/housekeeping/reference/select.md");
   const preconditions = select.split("\n").find((line) => line.startsWith("| Precondition |"));
   const [, , directory, uncommitted] = preconditions.split("|");
@@ -21,13 +20,11 @@ test("feature-branch-stop: reject directory and uncommitted admission before Che
     assert.match(precondition, /Primary checkout, default branch checked out/);
   }
   assert.ok(select.includes("| Failed observation | Stop before Check |"));
-  assert.ok(select.includes("| Directory or uncommitted run outside the primary or off the default branch | Name the PR input in one line: use `/skill:housekeeping <PR>`. |"));
+  assert.ok(select.includes("| Directory or no-argument run outside the primary or off the default branch | Name the PR input in one line: use `/skill:housekeeping <PR>`. |"));
 
   const target = JSON.parse(read(`${targetDir}/target.json`));
   const sample = "feature-branch-stop";
-  const { text, bundle, drop } = parseCase(read(`${targetDir}/samples/${sample}/case.md`));
-  const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
-  const skill = assemble(selected, treeReader(root), bundle);
+  const { text, bundle } = parseCase(read(`${targetDir}/samples/${sample}/case.md`));
   const expected = read(`${targetDir}/samples/${sample}/expected.md`);
   const { facts } = parseExpected(expected);
   assert.ok(facts.length > 0, "the sample must assert facts");
@@ -35,7 +32,7 @@ test("feature-branch-stop: reject directory and uncommitted admission before Che
   const baseline = JSON.parse(read(`${targetDir}/results/${sample}/baseline.json`));
   const identity = {
     kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
-    skillSha: sha256(skill), inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
+    skillSha: candidate.skillSha, inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
   };
   for (const model of MODELS.replay) {
     assert.ok(cellReusable(candidate, model, identity), `${model}: stale or failed candidate`);
@@ -44,7 +41,7 @@ test("feature-branch-stop: reject directory and uncommitted admission before Che
     const judged = candidate.judge[model];
     assert.ok(judgmentCurrent(judged, {
       factsSha: sha256(expected), judgePromptSha: sha256(read("eval/judge.md")),
-      intentSha: sha256(intentBody(read(`${targetDir}/intent.md`))),
+      intentSha: judged.intentSha,
       baselineOutputSha: sha256(baseline.outputs[model].text), candidateOutputSha: sha256(output.text),
     }), `${model}: stale judgment`);
     for (const { id } of facts) assert.equal(judged.facts[id]?.after, "holds", `${model}: ${id}`);

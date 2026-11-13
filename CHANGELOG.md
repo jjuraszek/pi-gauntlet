@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty. Fully superseded specs get a Delete-or-Keep card in every run, without a Ticket pick or hotfix-bounds gate; outside references recommend Keep. With no argument, checkout changes select uncommitted files and disclose commits ahead of the unfetched local ref; a clean checkout selects unpushed changes after fetching, with stops for divergent history, remote containment and squash receipts.
+
 ## v8.5.0 - 2026-11-13
 
 - Add human-only `housekeeping` on pi and Claude Code: check a directory, uncommitted files, or a PR against repo rules, then choose fixes, directory-only tickets, or ignored classes before any work runs. Directory fixes open one PR per class, uncommitted fixes stay in place, and PR fixes are pushed to the existing branch. Extend checks through `## housekeeping` in the overrides file.

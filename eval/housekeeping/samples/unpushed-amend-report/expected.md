@@ -1,0 +1,5 @@
+- marker: mechanical: matches /^gauntlet: done amended=2\r?\n/
+- before-after: judged: The report names the last unpushed commit before the fold (1111111111111111111111111111111111111111) and after it (2222222222222222222222222222222222222222), allowing unambiguous abbreviations.
+- no-push: judged: The report explicitly says nothing was pushed and does not claim a PR, ticket or remote write.
+- class-count: judged: The report describes two fixed classes folded into the last unpushed commit, not two new commits left on top. No classes remain open, either stated or implied by the done marker.
+- spec-count: judged: The report states that zero specs were searched for the superseded banner only.
