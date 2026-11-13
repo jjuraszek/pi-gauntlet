@@ -29,19 +29,19 @@ Compare the tree with expected state before touching it:
 | Delivery | Required match |
 |---|---|
 | `pr-per-class`, `commit-push` | Expected HEAD and clean status. |
-| `in-place` | Selected files' contents, existence and modes, plus the recorded index listing. |
+| `in-place` | Expected copies of `files` and `specs`: contents, existence and modes, plus the recorded index listing. |
 
 On a mismatch, leave the class open, record the changed paths and touch nothing. Give one fix helper the rule and source, the listed items excluding the human's exceptions, the human's instruction, and the verification mode with its search or command. Include this whole duty:
 
-> Edit only the listed items' files inside the target tree; for `in-place`, edit only selected files. Add a test only when the rule or human instruction asks for one. For a commit delivery, commit exactly once. For `in-place`, never commit or run a command that changes the index. Run no push, PR or ticket operation. Write the changed paths and evidence to the named output file. End with `DONE` or `BLOCKED: <what is missing>`.
+> For `spec-superseded`, delete only the accepted `specs` paths and edit no file. Leave mentions of deleted specs in other files, telemetry records and index rows unchanged. For every other class, edit only the listed items' files inside the target tree; for `in-place`, edit only selected files. Add a test only when the rule or human instruction asks for one. For a commit delivery, commit exactly once. For `in-place`, never commit or run a command that changes the index. Run no push, PR or ticket operation. Write the changed paths and evidence to the named output file. End with `DONE` or `BLOCKED: <what is missing>`.
 
-Validate the output and diff against the allowed files. For a commit delivery require exactly one class commit after the pre-class HEAD and a clean tree. For `in-place`, compare the index listing byte for byte with the recorded one.
+Validate the output and diff against the allowed files. For `spec-superseded`, the allowed files are exactly the accepted `specs` paths and the only allowed change is their deletion. For every other class, treat a diff touching a spec-dir or plan-dir path as an edit outside allowed files. For a commit delivery require exactly one class commit after the pre-class HEAD and a clean tree. For `in-place`, compare the index listing byte for byte with the recorded one.
 
 ### 2. Verify and review
 
-Run the class's `derived` search or documented `command`; a `read` class runs nothing here. Apply [Check's command placement, setup and time limit](check.md#run-without-changing-root) to the job tree. Rebuild a command snapshot from the job's current HEAD and current selected-file contents, modes and missing paths, not Select's old copies. Record unavailable checks with their reasons, never as passes.
+For `spec-superseded`, repeat the derived search over only the accepted paths and pass only when none exists. For other classes, run the class's `derived` search or documented `command`; a `read` class runs nothing here. Apply [Check's command placement, setup and time limit](check.md#run-without-changing-root) to the job tree. Rebuild a command snapshot from the job's current HEAD and current selected-file contents, modes and missing paths, not Select's old copies. Record unavailable checks with their reasons, never as passes.
 
-Dispatch one review helper over the class commit, or for `in-place` the diff from the pre-class expected copies to current files. Supply the rule and source, items, human instruction and verification results. With `bounds: on`, include the six [hotfix predicates](../../chase-bug/hotfix.md#eligibility-predicates) as review items. Include this whole duty:
+Dispatch one review helper over the class commit, or for `in-place` the diff from the pre-class expected copies to current files. Supply the rule and source, items, human instruction and verification results. For other classes with `bounds: on`, include the six [hotfix predicates](../../chase-bug/hotfix.md#eligibility-predicates) as review items. Include this whole duty:
 
 > Review only the class's change against its supplied rule and items. For a `read` class, re-read the rule over the changed files. Edit nothing and run nothing that writes. Write findings to the named output file. End with `SHIP`, `FIX_FIRST` or `REJECT` and the findings supporting it.
 
