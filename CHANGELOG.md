@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty.
+- Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty. Fully superseded specs get a Delete-or-Keep card in every run, without a Ticket pick or hotfix-bounds gate; outside references recommend Keep.
 
 ## v8.5.0 - 2026-11-13
 

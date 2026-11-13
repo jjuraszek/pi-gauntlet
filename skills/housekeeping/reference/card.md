@@ -26,17 +26,27 @@ Pick one:
 3. [ ] Ignore - leave them as they are
 ```
 
-Show only the run record's picks, in order, renumbered from 1. Mark exactly one row `[recommended]`; keep every box `[ ]` while awaiting the human's pick. Derive the Fix promise from `delivery`:
+Show only the run record's picks, in order, renumbered from 1. For `spec-superseded`, replace the picks in every run with exactly these two rows:
+
+```text
+1. [ ] Delete - remove the listed specs; <delivery from the table below>
+2. [ ] Keep - leave them in the spec folder
+```
+
+Record Delete as `fix` and Keep as `ignore`; use those labels for this class's recommendations and replies. For this class, give the count and up to three example paths in What was found. In Why it matters, say each spec's own banner states another spec fully replaces it and cite the housekeeping base rules. In What happens if you accept, say the listed files are deleted and how that lands, name up to three files outside the spec and plan dirs that mention them or say none do, and say git history keeps the deleted text. For a Keep recommendation, state that those files sit outside the spec and plan dirs and are the reason to keep the specs.
+
+Mark exactly one row `[recommended]`; keep every box `[ ]` while awaiting the human's pick. Derive the Fix promise from `delivery`; for Delete, state the removal of the accepted specs first, then the same delivery promise:
 
 | Delivery | Fix row says |
 |---|---|
 | `pr-per-class` | Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. |
 | `in-place` | Edit the selected files in place, with no commit or push. |
 | `commit-push` | Make one commit for this class and push it to the existing PR branch. |
+| `amend` | Make one commit for this class on the default branch in the primary checkout, fold the kept fixes into the last unpushed commit after the last class, and push nothing. |
 
 ## Availability and recommendation
 
-With `bounds: on`, evaluate the six [hotfix eligibility predicates](../../chase-bug/hotfix.md#eligibility-predicates) once from the card's facts, opening no file to investigate the class. A failed safety invariant (1-3) makes Fix unavailable: show `Fix - unavailable: <everyday reason>`, and reject that pick. Use predicates 4-6 only to steer the recommendation; a `read` class has no regression command, which is a recommendation fact, not a reason to withhold Fix. With `bounds: off`, keep Fix available.
+For `spec-superseded`, keep Delete available without evaluating hotfix predicates. For other classes with `bounds: on`, evaluate the six [hotfix eligibility predicates](../../chase-bug/hotfix.md#eligibility-predicates) once from the card's facts, opening no file to investigate the class. A failed safety invariant (1-3) makes Fix unavailable: show `Fix - unavailable: <everyday reason>`, and reject that pick. Use predicates 4-6 only to steer the recommendation; a `read` class has no regression command, which is a recommendation fact, not a reason to withhold Fix. With `bounds: off`, keep Fix available.
 
 Recommend by the first matching row:
 
@@ -44,6 +54,7 @@ Recommend by the first matching row:
 |---|---|
 | Rule source in doubt | Ignore |
 | Fix unavailable | Ticket when offered, otherwise Ignore |
+| `spec-superseded` class and a file outside the spec and plan dirs names a listed spec | Keep |
 | Mechanical fix and every item settled by the rule text | Fix |
 | Fix needs a design choice and Ticket is offered | Ticket |
 | Otherwise | Fix |
@@ -56,7 +67,7 @@ Keep `<run>/decisions.md` outside the repo. Record the class, pick, excluded ite
 |---|---|
 | An available row number | Record its pick, then show the next card. |
 | `<n> except 1 3` | Record the pick and leave those numbered items unchanged. |
-| Available Fix number followed by text | Record Fix with that text verbatim as this class's instruction; show the next card. |
+| Available Fix (Delete on the spec card) number followed by text | Record Fix with that text verbatim as this class's instruction; show the next card. |
 | `list` | Show the full numbered item list; keep this card open. |
 | `go` | End the walk; execute only recorded picks; carry unanswered classes as not decided. |
 | `stop` | End per Report with nothing executed; keep the decisions file and name the run folder. |

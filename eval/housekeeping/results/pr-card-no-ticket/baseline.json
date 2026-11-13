@@ -1,7 +1,7 @@
 {
   "sample": "pr-card-no-ticket",
   "arm": "baseline",
-  "skillSha": "80d49adbb420b3994da9ddef2e6242bc8d5a9d2479a6a45bd02fc96880e1bfd9",
+  "skillSha": "5b92bcec8c1edc909c01a0c135241d940fce66e2e61d10ef2cfa8c887c5c1e52",
   "inputSha": "9f51fe9862ae89a7f7a7196543339d54c733364427f605dd3e58c8b51453f625",
   "kind": "text",
   "assembly": "headed",
@@ -11,28 +11,28 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n**Card 1 of 1: code-unused**\n\nRule: remove unused imports, variables and modules with no caller. The source is the housekeeping base rules (Code section), with no overrides. The rules come from the merge-base commit.\n\nFindings: two unused imports, both inside lines this PR changed:\n- `src/widgets/render.ts:2` imports a name that the file never uses.\n- `src/widgets/format.ts:3` imports a name that the file never uses.\n\nProposed fix: delete those two import lines and leave the rest of each file unchanged.\n\nVerification: the check reads the code only, and no regression command is attached. Each quoted import line exists, and neither imported name appears elsewhere in its file.\n\nDelivery: one commit in the worktree on `feature/widget-colors`, pushed to the PR's branch. The worktree is clean, matches the remote head, and the push dry-run passed.\n\nPick one:\n1. fix [recommended]\n2. ignore\n",
-      "words": 140,
-      "wallMs": 9128,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 lines in the widget files load code that is never used\n\n### What was found\nEach of these files has one line at the top that brings in a name from other code, and that name is never used in the file:\n\n- src/widgets/render.ts, line 2\n- src/widgets/format.ts, line 3\n\nThis pull request changed both lines.\n\n### Why it matters\nHousekeeping's built-in code rules say to remove code that nothing uses. That includes these loading lines, unused values, and modules that nothing calls. Lines like these make a reader think the file depends on code it does not use.\n\n### What happens if you accept\nBoth lines are deleted. Nothing else in either file changes. The deletion becomes one commit, which is pushed to this pull request's existing branch, feature/widget-colors. No separate test runs for this change.\n\nPick one:\n1. [ ] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
+      "words": 165,
+      "wallMs": 7813,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card\n### Card 1 — Unused imports\n\nTwo unused imports occur in PR-changed lines:\n- `src/widgets/render.ts:2`\n- `src/widgets/format.ts:3`\n\nBoth import lines exist, and neither imported name is used in its file.\n\n**Rule:** Remove unused imports, variables and modules with no caller.\n**Source:** Housekeeping base rules, Code; no overrides.\n**Check:** `code-unused` — read verification; no regression command attached.\n\n**Proposed fix:** Remove both unused imports. Delivery is commit-and-push. Nothing has been changed yet.\n\nPick one:\nA) **fix** — Remove both imports.\nB) **ignore** — Leave both imports unchanged.\n\nRecommendation: A — both imports are confirmed unused.\n",
-      "words": 87,
-      "wallMs": 11494,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n### 1 of 1. Two unused imports in widget files are unnecessary\n\n### What was found\n`src/widgets/render.ts:2` and `src/widgets/format.ts:3` each import a name that the file never uses. Both lines are in the PR’s changed line ranges.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing unused imports, variables and modules with no caller. These imports add names the files do not need.\n\n### What happens if you accept\nRemove the two unused import lines, make one commit for this class, and push it to the existing PR branch. No regression command is attached to this read-only check.\n\nPick one:\n1. [ ] Fix — Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore — Leave them as they are.\n",
+      "words": 125,
+      "wallMs": 4604,
       "mechanical": {
-        "marker": "fails"
+        "marker": "holds"
       }
     }
   },
-  "repoSha": "cf819a7356936a77ad3e04da13f59757a0d7dd7c"
+  "repoSha": "f9798a6d7fb3c5af4ba4edbc3d0ca61f0f78db55"
 }

@@ -1,0 +1,7 @@
+- two-picks: judged: Exactly two numbered choices appear, Delete then Keep, with no Ticket, Fix or Ignore choice; both boxes stay empty and Keep alone is labeled recommended.
+- named-reader: judged: The card names README.md as a file outside the spec folders that mentions doc/specs/retired-widget.md and uses that fact to recommend Keep.
+- delete-delivery: judged: Delete remains available; its row promises to remove the listed specs in a separate worktree and open a pushed PR for this class without changing the primary checkout's tracked files.
+- superseded-reason: judged: The card explains the spec's own banner says another spec fully replaces it and cites the housekeeping base rules.
+- history: judged: The card says git history retains the deleted text.
+- no-execution: judged: The reply presents an unanswered card without claiming any deletion, commit or PR has happened.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=2\n/

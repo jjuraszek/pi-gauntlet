@@ -1,0 +1,134 @@
+{
+  "sample": "spec-card-named-keep",
+  "arm": "candidate",
+  "skillSha": "88bf76022a07fe6d05cda657c070a94b9eb2a4d61b83d3a6e845330a487141d9",
+  "inputSha": "efc5030c467754c7d0e6682b6be39fc3a9f4846d30a6e1e7685fd0a9e86820de",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. 1 spec in doc/specs says a newer spec fully replaces it\n\n### What was found\nOne spec is affected: `doc/specs/retired-widget.md`. A note in its title block, on line 3, says `doc/specs/widget.md` fully replaces it. No other card involves this file.\n\n### Why it matters\nA design document whose own note says another document fully replaces it is out of date and can mislead readers. The housekeeping rules for specs flag such documents for removal, in `reference/base-rules.md`.\n\n### What happens if you accept\n`doc/specs/retired-widget.md` is deleted in a separate working copy of the repository. You receive one pull request against the default branch, already pushed. Your main copy's tracked files stay unchanged. Git history keeps the deleted text. `README.md` also mentions this spec. That file sits outside the spec and plan folders, so it would point to a missing document. That outside mention is the reason to keep the spec.\n\nPick one:\n1. [ ] Delete - remove the listed specs; build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Keep - leave them in the spec folder [recommended]\n",
+      "words": 192,
+      "wallMs": 12437,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### 1 of 1. One spec in doc/specs says it is fully replaced\n\n### What was found\nThe banner in `doc/specs/retired-widget.md` at line 3 says `doc/specs/widget.md` fully replaces it.\n\n### Why it matters\nThe housekeeping base rules identify specs whose own banners state that another spec fully replaces them as candidates for removal, in `housekeeping reference/base-rules.md`, Specs. However, `README.md` still names this spec. That file sits outside the spec and plan dirs and is the reason to recommend Keep.\n\n### What happens if you accept\nDelete removes `doc/specs/retired-widget.md` in its own worktree and opens its own pushed PR against the default branch, leaving the primary checkout’s tracked files unchanged. `README.md` is the only tracked file outside the spec and plan dirs that mentions it. Git history keeps the deleted text.\n\nPick one:\n1. [ ] Delete - Remove the listed spec; build this class in its own worktree and open its own pushed PR against the default branch; leave the primary’s tracked files unchanged.\n2. [ ] Keep - Leave it in the spec folder. [recommended]\n",
+      "words": 169,
+      "wallMs": 5697,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5d1a18802746d4a6b0cf761dabde3923510182fdc958d42529d89b1a2949c0a6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "baselineOutputSha": "675b9b11a6a08c6f09fcf53442a81a185501ca72c1a42be84687f711510b0774",
+      "candidateOutputSha": "8fdf02743b8ab23b50c0cfe1b12bfbfee7a0e8143fc9cb48831b0802505f3c2c",
+      "facts": {
+        "two-picks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "named-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "delete-delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "superseded-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After satisfies every fact, and no fact that Before held was lost. The moves all come from the new card shape: replacing Fix/Ticket/Ignore with exactly Delete then Keep (empty boxes, Keep alone marked recommended) moved two-picks; the sentences stating that README.md sits outside the spec and plan folders, mentions the spec, and is the reason to keep it moved named-reader (Before named README.md but used it to recommend Ticket, not Keep); the Delete row's wording about removing the listed specs in its own worktree with a pushed PR and unchanged primary tracked files moved delete-delivery (Before had only a Fix row with no Delete choice); and 'Git history keeps the deleted text' moved history. Note the author listed nothing as expected to move, yet four facts flipped from fails to holds, so the expectation list looks out of date rather than the wording being wrong. To keep this stable, retain the explicit banner explanation plus the `reference/base-rules.md` citation, keep the card phrased as future/conditional ('is deleted ... if you accept') so it never reads as executed, and consider restoring Before's mention that the successor spec inside doc/specs also names the file, which After dropped without affecting any listed fact.",
+      "wallMs": 6318,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5d1a18802746d4a6b0cf761dabde3923510182fdc958d42529d89b1a2949c0a6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "baselineOutputSha": "bc7893e22a05eee8369dd33f5d836329599e01b23f55a06c62c5d2c2321a50b7",
+      "candidateOutputSha": "4323c2479ad4fecd75b6e2f18f8ddef32de7b9c1fe3299b4a9d830a1377ebe17",
+      "facts": {
+        "two-picks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "named-reader": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "delete-delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "superseded-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "history": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps both facts Before held (superseded-reason and no-execution) and moves four from fails to holds, although the Expected to move list names none. Before showed the generic Fix/Ticket/Ignore card with Ticket recommended, so it failed two-picks, named-reader and delete-delivery, and it never mentioned git history. After's Delete-then-Keep card moves two-picks, and its sentence that README.md sits outside the spec and plan dirs and is the reason to recommend Keep moves named-reader. Its Delete row, which removes the listed spec in its own worktree with its own pushed PR and leaves the primary's tracked files unchanged, moves delete-delivery, and \"Git history keeps the deleted text\" moves history. No wording change is needed to preserve what Before kept. To hold these gains, keep the explicit banner sentence with the base-rules Specs citation, the README-to-Keep link, the full delivery wording in the Delete row, and the git history sentence. If no movement was truly expected, the Expected to move list should be updated to name these four facts, since all four moves follow directly from the Change.",
+      "wallMs": 8967,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f9798a6d7fb3c5af4ba4edbc3d0ca61f0f78db55"
+}

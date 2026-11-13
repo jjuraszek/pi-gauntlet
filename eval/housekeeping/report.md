@@ -1,39 +1,23 @@
-# eval report: housekeeping (partial run: withheld-fix-ticket)
+# eval report: housekeeping (partial run: spec-card-named-keep)
 
-for: 80b3101046bddff77d082c019042255e72cc23dee994127dc7e3d447f60ed4fd
+for: c0178fd15dcd179d1673149c6ae71c8125ca05d61ae43ea52a5d9401ad3faed7
 
-wall: 27s
-
-## Evidence coverage
-
-The `for:` hash and timing above belong to the archived `withheld-fix-ticket` capture, not a current-assembly run. The current bundle-free assembly is `0d9169f7371261893503531709c827c6339d6a0c4321189d6180a4f900fc21fd`; its intent is re-bound to that hash with no change to the intent body.
-
-| sample | saved evidence against current sample assembly |
-|---|---|
-| directory-three-picks | Archived |
-| feature-branch-stop | Current; excludes `card.md` |
-| overrides-rule-cited | Archived |
-| withheld-fix-ticket | Archived |
-| base-rule-wins | Archived; invocation bound exhausted |
-| pick-recorded-no-exec | Archived; invocation bound exhausted |
-| pr-card-no-ticket | Archived; invocation bound exhausted |
-
-Archived tests validate the saved source/model/input provenance and assembly hashes, successful replies, mechanical facts and judgments against their retained intent/output hashes; they do not claim a current-source replay. Current-source assertions remain, including the invalid-reply mapping in `card.md` and `doc/gate-contract.md`: repeat the full card with one line naming valid replies, keep it open, record no pick and do not advance the walk. The invalid-reply rendering is conformance-read-only, not model-replayed. No paid action was launched and no saved reply or judgment was edited. Coverage remains sample-scoped and partial.
+wall: 19s
 
 ## Change
 
-Introduce a human-only housekeeping walk whose run record fixes selection and delivery. Directory cards offer Fix, Ticket and Ignore, promise a separate pull request per fixed class and wait for the walk to finish before execution. Selection excludes ignored paths and uncommitted directory files; only validated findings reach a card. The selected replays cover card checkpoints, not live selection or delivery. Keep every unanswered card box empty and mark the recommendation only with its label, so the PR card does not imply a recorded choice. For an overrides-sourced rule, cite both its file and `## housekeeping` in the card's explanation. After a successful pick write while another card is unanswered, acknowledge the class, pick and decisions path before the next card, and state that nothing has executed and the walk is still open.
+Separate specs from content checks and skip plan folders. Offer fully superseded specs in one Delete-or-Keep card in every run, with no Ticket choice or hotfix eligibility test. Recommend Keep when a tracked file outside the spec and plan dirs names a spec, otherwise Delete. State the deletion and the run's delivery, disclose outside readers and retain the text in git history. Keep ordinary directory and PR cards unchanged. Selected replays cover card checkpoints, not live selection, banner searches or deletion.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| withheld-fix-ticket | anthropic/claude-opus-5-5 | improved | 16139 | fix-unavailable: fails -> holds (unplanned improvement); ticket-recommended: holds -> holds (held); contract-reason: holds -> holds (held); no-execution: holds -> holds (held); marker: holds -> holds (held) |
-| withheld-fix-ticket | github-copilot/gpt-6.1-sol | improved | 14748 | fix-unavailable: fails -> holds (unplanned improvement); ticket-recommended: holds -> holds (held); contract-reason: holds -> holds (held); no-execution: holds -> holds (held); marker: holds -> holds (held) |
+| spec-card-named-keep | anthropic/claude-opus-5-5 | improved | 6318 | two-picks: fails -> holds (unplanned improvement); named-reader: fails -> holds (unplanned improvement); delete-delivery: fails -> holds (unplanned improvement); superseded-reason: holds -> holds (held); history: fails -> holds (unplanned improvement); no-execution: holds -> holds (held); marker: holds -> holds (held) |
+| spec-card-named-keep | github-copilot/gpt-6.1-sol | improved | 8967 | two-picks: fails -> holds (unplanned improvement); named-reader: fails -> holds (unplanned improvement); delete-delivery: fails -> holds (unplanned improvement); superseded-reason: holds -> holds (held); history: fails -> holds (unplanned improvement); no-execution: holds -> holds (held); marker: holds -> holds (held) |
 
 ## Feedback
 
-- withheld-fix-ticket / anthropic/claude-opus-5-5: After keeps every fact Before kept and additionally fixes fix-unavailable: the numbered Fix row now says "unavailable" with an everyday reason (programs that read `displayName` would stop finding it) instead of offering the rename as a live option, and the body no longer leans on the missing regression command as the thing that blocks Fix. The empty `[ ]` boxes with `[recommended]` as a bare label keep the card unanswered, and "You approve the ticket's exact text separately before it is filed" makes clear nothing has been filed. Two wording nits worth tightening so the card reads as describing this run rather than a template: the Ticket and Ignore rows say "listing them" and "leave them as they are" although there is exactly one finding, and the heading "1 name in the profile reply" reads awkwardly - something like "Ticket - file one ticket for this rename and change nothing now" / "Ignore - leave the field as it is" would match the singular finding without changing any fact.
-- withheld-fix-ticket / github-copilot/gpt-6.1-sol: After improves on Before: the numbered Fix row now says unavailable with the everyday reason (changing the public API contract that existing clients rely on) rather than offering the rename as a live option, while still citing AGENTS.md, keeping all three boxes empty, marking Ticket only by its label, and not leaning on the missing regression command as the reason Fix is withheld. Nothing Before kept was lost. One thing to tighten: Before carried an explicit 'No changes have been made.' line, whereas After only implies it through 'leaving the code unchanged' and 'change nothing now'; adding a short explicit sentence such as 'Nothing has been edited, committed, pushed or filed; the walk is still open' would make no-execution unambiguous and also sets up the post-pick acknowledgement the Change asks for.
+- spec-card-named-keep / anthropic/claude-opus-5-5: After satisfies every fact, and no fact that Before held was lost. The moves all come from the new card shape: replacing Fix/Ticket/Ignore with exactly Delete then Keep (empty boxes, Keep alone marked recommended) moved two-picks; the sentences stating that README.md sits outside the spec and plan folders, mentions the spec, and is the reason to keep it moved named-reader (Before named README.md but used it to recommend Ticket, not Keep); the Delete row's wording about removing the listed specs in its own worktree with a pushed PR and unchanged primary tracked files moved delete-delivery (Before had only a Fix row with no Delete choice); and 'Git history keeps the deleted text' moved history. Note the author listed nothing as expected to move, yet four facts flipped from fails to holds, so the expectation list looks out of date rather than the wording being wrong. To keep this stable, retain the explicit banner explanation plus the `reference/base-rules.md` citation, keep the card phrased as future/conditional ('is deleted ... if you accept') so it never reads as executed, and consider restoring Before's mention that the successor spec inside doc/specs also names the file, which After dropped without affecting any listed fact.
+- spec-card-named-keep / github-copilot/gpt-6.1-sol: After keeps both facts Before held (superseded-reason and no-execution) and moves four from fails to holds, although the Expected to move list names none. Before showed the generic Fix/Ticket/Ignore card with Ticket recommended, so it failed two-picks, named-reader and delete-delivery, and it never mentioned git history. After's Delete-then-Keep card moves two-picks, and its sentence that README.md sits outside the spec and plan dirs and is the reason to recommend Keep moves named-reader. Its Delete row, which removes the listed spec in its own worktree with its own pushed PR and leaves the primary's tracked files unchanged, moves delete-delivery, and "Git history keeps the deleted text" moves history. No wording change is needed to preserve what Before kept. To hold these gains, keep the explicit banner sentence with the base-rules Specs citation, the README-to-Keep link, the full delivery wording in the Delete row, and the git history sentence. If no movement was truly expected, the Expected to move list should be updated to name these four facts, since all four moves follow directly from the Change.
 
 exit: 0

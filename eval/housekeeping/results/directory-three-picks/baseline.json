@@ -1,7 +1,7 @@
 {
   "sample": "directory-three-picks",
   "arm": "baseline",
-  "skillSha": "80d49adbb420b3994da9ddef2e6242bc8d5a9d2479a6a45bd02fc96880e1bfd9",
+  "skillSha": "5b92bcec8c1edc909c01a0c135241d940fce66e2e61d10ef2cfa8c887c5c1e52",
   "inputSha": "500d60d72bbddc9874e927b51513f5c7bb0067facc03c10bd7e8ac7a6ca82a94",
   "kind": "text",
   "assembly": "headed",
@@ -11,28 +11,28 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n**Card 1 of 1: unused imports (code-unused)**\n\nTwo files in `src/widgets` import a name that the file never uses:\n\n- `src/widgets/render.ts:2`\n- `src/widgets/format.ts:3`\n\nBoth import lines are present, and neither imported name appears anywhere else in its file.\n\n**Rule:** Remove unused imports, variables, and modules that nothing calls. This comes from the housekeeping base rules (Code section), with no overrides. The check works by reading the code.\n\n**Proposed fix:** Delete the two import lines. The change:\n\n- Touches existing code only.\n- Leaves dependencies, stored data, public interfaces, and configuration shape unchanged.\n- Can be undone by reverting one commit.\n\nNo test command comes with this check, so the fix is confirmed by reading the code rather than by running tests. Fixing opens one pull request for this issue type.\n\nPick one:\n1. Fix: remove both imports [recommended]\n2. Ticket: record the issue for later\n3. Ignore: skip this issue type\n",
-      "words": 149,
-      "wallMs": 8463,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 unused import lines in src/widgets bring in names nothing uses\n\n### What was found\nTwo import lines (lines that pull a name in from another file) bring in a name that the file never uses:\n\n- src/widgets/render.ts, line 2\n- src/widgets/format.ts, line 3\n\nNo other card touches these two files.\n\n### Why it matters\nThe housekeeping base rules, in their Code section, say to remove imports, variables and modules that nothing uses. Unused lines like these make readers think the file depends on something it does not.\n\n### What happens if you accept\nBoth lines are deleted and nothing else changes. You get one new pull request against the default branch. Undoing it means reverting one commit. No test command comes with this check.\n\nPick one:\n1. [ ] Fix - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. [recommended]\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 172,
+      "wallMs": 8279,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card\n### Card 1 of 1 — Unused imports\n\n**Check:** `code-unused`  \n**Rule:** Remove unused imports, variables and modules with no caller.  \n**Source:** Housekeeping base rules, Code; no overrides.\n\nTwo import lines exist, but neither imported name is used in its file:\n- `src/widgets/render.ts:2`\n- `src/widgets/format.ts:3`\n\n**Proposed fix:** Remove both imports. This changes existing code only, with no dependency, stored-data, public-interface or configuration-shape changes. Reverting one commit undoes the fix. No other issue class shares these files.\n\n**Verification:** Read check complete; no regression command is attached. The expected-state comparison passed. No source file, index entry or HEAD changed, and no action has been executed.\n\nPick one:\n1. **Fix** — Remove both imports, with delivery as one PR for this issue class.\n2. **Ticket** — Record the issue for later work.\n3. **Ignore** — Leave this issue class unchanged.\n",
-      "words": 131,
-      "wallMs": 11477,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n### 1 of 1. Two imports in widget files are unused\n\n### What was found\nOne unused import appears at `src/widgets/render.ts:2` and another at `src/widgets/format.ts:3`. Neither imported name is used in its file. No other card shares these files.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing unused imports, variables and modules with no caller. These two imports serve no purpose in their files.\n\n### What happens if you accept\nRemove the two import lines in a separate worktree and open one pushed pull request against the default branch. The primary checkout’s tracked files stay unchanged. Verification is by reading the files; no regression command is attached to this check.\n\nPick one:\n1. [ ] Fix [recommended] - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 158,
+      "wallMs": 4393,
       "mechanical": {
-        "marker": "fails"
+        "marker": "holds"
       }
     }
   },
-  "repoSha": "d18c18bef8eac3ab762d311451fadf7be5ec2787"
+  "repoSha": "f9798a6d7fb3c5af4ba4edbc3d0ca61f0f78db55"
 }
