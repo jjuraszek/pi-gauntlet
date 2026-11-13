@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty. Fully superseded specs get a Delete-or-Keep card in every run, without a Ticket pick or hotfix-bounds gate; outside references recommend Keep. With no argument, checkout changes select uncommitted files and disclose commits ahead of the unfetched local ref; a clean checkout selects unpushed changes after fetching, with stops for divergent history, remote containment and squash receipts.
+- pi-cohort peer floor raised to 8.1.0.
 
 ## v8.5.0 - 2026-11-13
 
