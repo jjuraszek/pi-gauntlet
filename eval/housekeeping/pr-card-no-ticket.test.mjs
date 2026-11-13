@@ -24,6 +24,17 @@ test("pr-card-no-ticket: admit only a clean remote-head PR tree and promise one 
   assert.ok(fix.includes("| `commit-push` | Use one job in `root`, with Fix-picked classes in card order. | One commit per class. |"));
   assert.ok(fix.includes("For a commit delivery require exactly one class commit after the pre-class HEAD and a clean tree."));
   assert.ok(fix.includes("| `commit-push` | Push the kept commits once to the recorded PR head branch, without force. |"));
+  assert.ok(!fix.includes("the job's absolute target tree, expected HEAD"), "dispatch must not reuse the kept-state HEAD after a class commits");
+  for (const instruction of [
+    "For commit deliveries, pass the pre-class HEAD to the initial fix, the validated class commit's HEAD to review and repair, and the validated amended HEAD to re-review.",
+    "Apply [Fix's output and diff checks](#1-fix) after repair too.",
+    "For `in-place`, pass the unchanged pre-class HEAD to every helper.",
+    "Keep the pre-class state as the admission and undo baseline, separate from these per-helper HEADs.",
+    "Save its pre-class state before dispatch; advance expected state only after a kept class.",
+    "Keep a class only with `SHIP`, passing required checks and a valid allowed-file diff.",
+    "Advance the expected copies and expected HEAD to that kept state; never advance the recorded index for `in-place`.",
+    "Reset its worktree to the pre-class commit, preserving earlier kept class commits.",
+  ]) assert.ok(fix.includes(instruction), instruction);
 
   const target = JSON.parse(read(`${targetDir}/target.json`));
   const sample = "pr-card-no-ticket";
