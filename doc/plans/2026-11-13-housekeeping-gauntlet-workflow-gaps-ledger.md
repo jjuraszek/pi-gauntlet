@@ -3,7 +3,7 @@
 base: 08cd3d462bbc9c4a270c837a5294f4c81f7f764d
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -19,8 +19,8 @@ allowance: 10
 | 9 | done | 1 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; source assertions cover single status observation and unfetched ahead-count disclosure |
 | 10 | done | 0 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; unpushed range, admission, receipt refusal and run fields asserted; conformance read only, no live selection |
 | 11 | done | 0 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; unpushed-remote-ahead-stop baseline seeded and candidate improved on both models; source assertions cover zero-ahead and four stop predicates |
-| 12 | open | 0 | |
-| 13 | open | 0 | |
+| 12 | done | 1 | timeout -k 30 120 node --test eval/housekeeping/unpushed-amend-report.test.mjs; 6 passed, 0 failed; scratch folds preserve parents/message/tree and restore class commits on hook failure; unpushed-amend-report replay and cached-output rejudgment pass both models |
+| 13 | done | 0 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; retained ancestry-stop replay names both commits and refuses Check and amend; source assertions cover remote-containment refusal |
 
 ## Decisions
 
@@ -36,3 +36,5 @@ row 8 done | Restricted Delete to accepted specs, verified their absence, protec
 row 9 done | Split no-argument runs by one pinned status observation and report uncommitted runs' local ahead counts without fetching. | Extend eval/housekeeping/unpushed-remote-ahead-stop.test.mjs for admission checks; Select records the chosen input once.
 row 10 done | Added unpushed admission, range selection and Fix/Ignore picks with amend delivery. | Reuse reference/select.md's unpushed column and read-only receipt check when implementing the fold.
 row 11 done | Added zero-ahead completion and four unpushed safety stops, with a passing remote-ahead replay on both models. | Reuse unpushed-remote-ahead-stop.test.mjs for local conformance and its retained sample results for admission-stop evidence.
+row 12 done | Added sequential amend delivery, guarded folding and failure restoration, with amended class counts and a no-push report. | Reuse reference/fix.md's fold sequence and unpushed-amend-report.test.mjs scratch Git fixtures and saved report replay.
+row 13 done | Confirmed ancestry and remote-containment stops prevent checking or amending, with retained ancestry-stop replies naming both commits. | nothing new to build on
