@@ -2,13 +2,12 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { wordCount } from "../lib/checks.mjs";
-import { MODELS } from "../lib/models.mjs";
 import "./pr-card-no-ticket.test.mjs";
 
 const candidate = JSON.parse(readFileSync(new URL("./results/pr-card-no-ticket/candidate.json", import.meta.url), "utf8"));
 
 test("card shape: one counted title, three prose sections and at most 180 words before the picks", () => {
-  for (const model of MODELS.replay) {
+  for (const model of candidate.models.replay) {
     const text = candidate.outputs[model].text;
     const parts = text.split("\nPick one:\n");
     assert.equal(parts.length, 2, `${model}: exactly one card and pick list`);

@@ -5,7 +5,6 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { assemble, inputSha, parseCase } from "../lib/replay.mjs";
 import { parseExpected, runMechanical, sha256 } from "../lib/checks.mjs";
-import { MODELS } from "../lib/models.mjs";
 import { cellReusable, judgmentCurrent } from "../lib/records.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
@@ -45,24 +44,31 @@ test("pr-card-no-ticket: admit only a clean remote-head PR tree and promise one 
   assert.ok(facts.length > 0, "the sample must assert facts");
   const candidate = JSON.parse(read(`${targetDir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${targetDir}/results/${sample}/baseline.json`));
+  const models = candidate.models;
+  assert.deepEqual(baseline.models, models, "baseline and candidate model identity");
+  assert.ok(Array.isArray(models.replay) && models.replay.length > 0, "recorded replay models");
+  for (const model of models.replay) assert.match(model, /^\S+\/\S+$/, "recorded replay model identity");
+  assert.match(models.judge, /^\S+\/\S+$/, "recorded judge identity");
+  assert.match(models.thinking, /^\S+$/, "recorded thinking level");
+  assert.deepEqual(Object.keys(candidate.judge).sort(), [...models.replay].sort(), "judgments cover recorded models");
   // Archived provenance is checked for consistency, not rebuilt from historical Git objects.
   t.diagnostic(`Archived PR replies from ${candidate.repoSha} are stale-to-HEAD evidence, not a current-source replay (saved skillSha ${candidate.skillSha}; current ${sha256(assemble(selected, read, bundle))}).`);
   const identity = {
-    kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
+    kind: target.kind, assembly: target.assembly, thinking: models.thinking,
     inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
   };
   for (const record of [baseline, candidate]) {
     assert.equal(record.sample, sample);
     assert.match(record.repoSha, /^[a-f0-9]{40}$/, `${record.arm}: recorded source commit`);
     assert.match(record.skillSha, /^[a-f0-9]{64}$/, `${record.arm}: recorded assembly hash`);
-    assert.deepEqual(record.models, MODELS, `${record.arm}: recorded model identity`);
-    assert.equal(record.thinking, MODELS.thinking);
+    assert.deepEqual(Object.keys(record.outputs).sort(), [...models.replay].sort(), `${record.arm}: outputs cover recorded models`);
+    assert.equal(record.thinking, models.thinking);
   }
   assert.equal(baseline.arm, "baseline");
   assert.equal(candidate.arm, "candidate");
-  const recordedIntentSha = candidate.judge[MODELS.replay[0]].intentSha;
+  const recordedIntentSha = candidate.judge[models.replay[0]].intentSha;
   assert.match(recordedIntentSha, /^[a-f0-9]{64}$/, "recorded intent hash");
-  for (const model of MODELS.replay) {
+  for (const model of models.replay) {
     for (const record of [baseline, candidate]) {
       assert.ok(cellReusable(record, model, { ...identity, skillSha: record.skillSha }), `${model}: inconsistent or failed ${record.arm}`);
     }
