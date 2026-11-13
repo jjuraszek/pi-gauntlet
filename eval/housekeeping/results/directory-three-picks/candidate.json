@@ -1,0 +1,114 @@
+{
+  "sample": "directory-three-picks",
+  "arm": "candidate",
+  "skillSha": "4ee3db96d997b52cf869ebb25125800cc4ece69cf419f3eada910170f7ad9747",
+  "inputSha": "500d60d72bbddc9874e927b51513f5c7bb0067facc03c10bd7e8ac7a6ca82a94",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 unused imports in src/widgets are never used\n\n### What was found\nTwo lines near the top of a file bring in a name from elsewhere in the code, called imports, but nothing in that file uses the name. They are at `src/widgets/render.ts` line 2 and `src/widgets/format.ts` line 3. No other card touches these files.\n\n### Why it matters\nThe housekeeping base rules, in their Code section, say to remove brought-in names, variables and modules that nothing uses. Unused lines like these make readers think the file depends on code it doesn't.\n\n### What happens if you accept\nThose two lines are deleted and nothing else changes. You get one pull request with that change against the default branch, and your main checkout stays as it is. Undoing it means reverting one commit.\n\nPick one:\n1. [ ] Fix - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged. [recommended]\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 182,
+      "wallMs": 8531,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. Two imports in widget files are unused\n\n### What was found\nOne unused import appears at `src/widgets/render.ts:2` and another at `src/widgets/format.ts:3`. Neither imported name is used in its file. No other card shares these files.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing unused imports, variables and modules with no caller. These imports add code that serves no purpose.\n\n### What happens if you accept\nRemove the two import lines in a separate worktree and open one pushed PR against the default branch. The primary checkout’s tracked files stay unchanged. The change affects no stored data, public interface, configuration shape or dependencies, and reverting one commit undoes it. This read check has no attached regression command.\n\nPick one:\n1. [ ] Fix [recommended] - Build this class in its own worktree and open its own pushed PR against the default branch; leave the primary's tracked files unchanged.\n2. [ ] Ticket - file one ticket listing them and change nothing now\n3. [ ] Ignore - leave them as they are\n",
+      "words": 168,
+      "wallMs": 6406,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "34419e2b1950ecf97dd9b29469768cbbca14a1bf8f7ca18b0adac2739a356fbe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "96e46fb409fafcf0fe4e1282dd7ac75855833dc3efc450bcbe6e51f32d73566b",
+      "candidateOutputSha": "eb2494ffd03011ae8bf1d1a872614c2ba4bc5211e89c93fd072d8cdaa7257018",
+      "facts": {
+        "three-picks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "own-pr": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "selected-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally satisfies own-pr: Before only said \"Fixing opens one pull request for this issue type\" in the paragraph above the list while its Fix row read just \"Fix: remove both imports\", whereas After's Fix row itself states the class gets \"its own worktree and ... its own pushed PR against the default branch\". The empty [ ] boxes with the [recommended] label keep the card clearly unanswered, and the findings stay limited to render.ts:2 and format.ts:3 with no excluded files surfaced. Two small wording cleanups would not move any fact: the heading \"2 unused imports ... are never used\" is redundant (\"2 unused imports in src/widgets\" suffices), and \"Build this class in its own worktree\" is internal jargon for a human-only card — \"Fix - open its own pull request for this class against the default branch; your checkout stays unchanged\" delivers the same per-class PR promise more plainly.",
+      "wallMs": 15468,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "34419e2b1950ecf97dd9b29469768cbbca14a1bf8f7ca18b0adac2739a356fbe",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "892585f14a2aa342280a1984902aaa40e76a81eb35a291d93053e90495ba1d97",
+      "candidateOutputSha": "1e7ab09e12267e767f10fae2c100384e27b1e52d5e0b96ff3e5f1374881e860d",
+      "facts": {
+        "three-picks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "own-pr": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-execution": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "selected-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Nothing moved on this case: After keeps the three numbered picks in Fix/Ticket/Ignore order, the Fix row now says explicitly \"open its own pushed PR\" (a slight improvement over Before's \"one PR for this issue class\"), the boxes stay empty with the recommendation carried only by the `[recommended]` label and the `recommended=1` header, and the findings name only render.ts:2 and format.ts:3 with no mention of draft.ts, cache.ts, old.ts or src/admin/render.ts. The only wording to watch is the \"What happens if you accept\" section, which describes the worktree/PR flow in the imperative (\"Remove the two import lines... open one pushed PR\"); it reads as conditional under that heading, but prefixing it with \"If you pick Fix, the walk will later...\" would make it unmistakable that nothing has run yet, matching Before's explicit \"no action has been executed\" line while still delivering the Change's separate-PR promise.",
+      "wallMs": 8933,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d93ce3cd1d2d8e0f2171a2f8ac634de1217d44ce"
+}

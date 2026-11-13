@@ -1,0 +1,7 @@
+- two-picks: judged: The card offers exactly two numbered choices in order, Fix and Ignore, with no Ticket choice.
+- same-pr-commit: judged: The Fix row promises one commit for this issue class pushed to the existing PR branch, not a new PR, new per-class branch or uncommitted in-place edit.
+- fix-available: judged: Fix is available despite the absence of a regression command, and exactly one of the two picks is labeled recommended while both choice boxes stay empty.
+- selected-only: judged: The findings describe only the two unused imports in src/widgets/render.ts and src/widgets/format.ts, in the PR's changed line ranges; excluded files are not presented as checked findings.
+- no-execution: judged: The response presents an unanswered card, without claiming any edits, commits, pushes, new PRs or tickets have been executed.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=[12]\n/
+- card-prose: judged: The response is one self-contained card whose title gives a count, plain noun, place and plain predicate; What was found, Why it matters and What happens if you accept each use everyday prose, and the last section states the literal change and the pushed commit the human receives.

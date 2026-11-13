@@ -1,0 +1,38 @@
+{
+  "sample": "withheld-fix-ticket",
+  "arm": "baseline",
+  "skillSha": "80d49adbb420b3994da9ddef2e6242bc8d5a9d2479a6a45bd02fc96880e1bfd9",
+  "inputSha": "60cbaa420608740796adc3ff2420c11f8dbf050a6c1fa0d5172698558c9d0f09",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n**Card 1 of 1: response field naming in `src/api/profile.ts`**\n\nThe profile endpoint returns a field named `displayName`. The project rule requires snake_case for public JSON response fields, so it should be `display_name`. The rule and finding have been checked and are valid.\n\n- **Where:** `src/api/profile.ts:18`\n- **Current line:** `return { displayName: profile.name };`\n- **Check:** `repo-response-names` (read check). The rule comes from AGENTS.md, API naming, with no overrides.\n\n**Proposed fix:** Rename the returned field from `displayName` to `display_name`.\n\n**Risk:** Existing clients read `displayName`, so this rename would break the public API for them. It doesn't change stored data or add files or dependencies, and reverting one commit would undo it. This read check has no regression test command, so nothing would automatically confirm that clients still work after the change.\n\nPick one:\n1. Fix: rename the field now, on this issue class's pull request.\n2. Ticket: record the issue so a planned API change can handle the rename and the client migration. [recommended]\n3. Ignore: leave the field as it is.\n",
+      "words": 169,
+      "wallMs": 7714,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=2\n\n### Card 1 — Public response field naming\n\n**Finding:** `src/api/profile.ts:18` returns `displayName`, but public JSON response fields must use snake_case.\n\n```ts\nreturn { displayName: profile.name };\n```\n\n**Rule:** `repo-response-names` — AGENTS.md, API naming. No overrides apply; the rule and finding are validated.\n\n**Proposed fix:** Rename the response field to `display_name`.\n\n**Impact:** Existing clients consume `displayName`, so this fix changes the public API contract. It changes no stored schema and adds no files or dependencies. Reverting one commit would undo it. This read check has no attached regression command.\n\nNo changes have been made.\n\nPick one:\n\n1. **Fix** — Apply the field rename, accepting the public API contract change.\n2. **Ticket [recommended]** — Record the violation and compatibility impact for follow-up.\n3. **Ignore** — Leave this issue unchanged.\n\n**Recommendation:** 2 — Ticket, because renaming the field would break the response contract used by existing clients.\n",
+      "words": 137,
+      "wallMs": 16012,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "repoSha": "dd9776b3238d31c8cf241473e8f1d009437df2ae"
+}

@@ -1,0 +1,5 @@
+- fix-unavailable: judged: The numbered Fix row explicitly says unavailable and gives an everyday reason tied to changing the public API or breaking clients that consume displayName; it does not offer an available fix or substitute an unrelated edit.
+- ticket-recommended: judged: The card offers exactly three numbered choices in order, Fix, Ticket, Ignore, and marks Ticket as the only recommendation. Every box remains empty; the recommendation is only a label.
+- contract-reason: judged: The card explains that renaming displayName to display_name changes the public response contract, cites AGENTS.md, and does not treat the absent regression command as the safety invariant that withholds Fix.
+- no-execution: judged: The reply remains an unanswered card and claims no source edit, commit, push, PR or ticket creation; it does not imply that recommending Ticket has already approved or filed it.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=2\n/

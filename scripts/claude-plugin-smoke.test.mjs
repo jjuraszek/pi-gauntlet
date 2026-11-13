@@ -10,8 +10,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const claude = process.env.CLAUDE_BIN || join(root, "node_modules/.bin/claude");
 const scratch = mkdtempSync(join(tmpdir(), "gauntlet-claude-smoke-"));
 console.log(`Claude plugin smoke artifacts: ${scratch}`);
-const expectedSkills = ["shape-ticket", "gatekeep-pr", "check-delivery", "chase-bug", "linear", "forge-skill"]
+const expectedSkills = ["shape-ticket", "gatekeep-pr", "check-delivery", "chase-bug", "linear", "forge-skill", "housekeeping"]
   .map((name) => `gauntlet:${name}`).sort();
+const housekeepingFrontmatter = readFileSync(join(root, "skills/housekeeping/SKILL.md"), "utf8").split("---")[1];
+assert.match(housekeepingFrontmatter, /^disable-model-invocation: true$/m, "housekeeping must remain human-only");
 const candidateMarketplace = JSON.parse(readFileSync(join(root, ".claude-plugin/marketplace.json"), "utf8"));
 const manifestPath = join(root, ".claude-plugin/plugin.json");
 const candidateManifest = existsSync(manifestPath) ? JSON.parse(readFileSync(manifestPath, "utf8")) : null;
@@ -128,7 +130,7 @@ fresh.configure("candidate", "1.0.1");
 fresh.install();
 assertPortable(await fresh.inventory("candidate"));
 assert.equal(fresh.installed().version, "1.0.1", "versionless manifest must use marketplace version");
-console.log("PASS: fresh Git-marketplace install loads zero pi agents and exactly six portable skills");
+console.log("PASS: fresh Git-marketplace install loads zero pi agents and exactly seven portable skills");
 
 const upgrade = fixture("upgrade");
 upgrade.configure("baseline", "1.0.0");

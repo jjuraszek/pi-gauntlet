@@ -1,0 +1,114 @@
+{
+  "sample": "feature-branch-stop",
+  "arm": "candidate",
+  "skillSha": "aefcbf819b702621868ada769e71d379525254fe32d917e8f45c88b96a96bfd4",
+  "inputSha": "7e20c98efb79fe48467fe434d30fd86abb4e111d353b0bf87d7b12f745825e64",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck directory run needs the default branch `main` checked out in the primary checkout, but `feature/widget-colors` is checked out\n\nTo check this branch's changes, open a PR for it and run `/skill:housekeeping <PR>`.\n\n- **Not checked:** no files under `src/widgets` were checked. The run stopped at admission, before selection.\n- **Checks not run:** none ran. Admission failed before Check.\n- **Rule sources read:** none.\n- **Changes:** nothing was edited, staged, committed, pushed, filed or opened.\n\nRun folder: `/tmp/housekeeping.admission`\n",
+      "words": 75,
+      "wallMs": 5531,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck directory runs require the default branch `main`; the primary checkout is on `feature/widget-colors`.\n\nUse `/skill:housekeeping <PR>`.\n\nRun folder: `/tmp/housekeeping.admission`. No files checked or changed.\n",
+      "words": 26,
+      "wallMs": 5350,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "75d90413789770dd79ed622bbe4a3bea2542497f820c0598f3ff2d94193dfe22",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "9c2a93bad75131183b9a33411b372a4bdb3febc4f4fff4d49e48aea421b4a4cd",
+      "candidateOutputSha": "d3c821e926fc96f65971f61fe98caf2bfeb72ca1a3d9a7740040fa522bfd0a37",
+      "facts": {
+        "stop-before-check": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "branch-reason": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "pr-input": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "run-folder": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After keeps everything Before kept (the run folder) and additionally satisfies the three facts Before missed: Before offered option 2, running the directory walk on feature/widget-colors as-is, which both fails stop-before-check and shows it never stated the admission requirement; After states the rule explicitly (directory run needs main in the primary checkout, feature/widget-colors is checked out), points to the PR input with a concrete `/skill:housekeeping <PR>` invocation, and lists only not-checked/not-run/nothing-changed status plus the run folder without proposing any continuation. The one wording wart is the leading `gauntlet: stuck` fragment, which reads like a leaked internal tag rather than a user-facing heading; a cleaner opener such as 'Housekeeping stopped at admission: the directory run needs `main` checked out in the primary checkout, but `feature/widget-colors` is checked out' would deliver the same facts without the noise. No fact regressed in After.",
+      "wallMs": 10396,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "75d90413789770dd79ed622bbe4a3bea2542497f820c0598f3ff2d94193dfe22",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac50329983fd67dc94080524abff7fa1b6fa9782eec257a2c637df59c353e2c",
+      "baselineOutputSha": "d03c1e7e721dff0209788b4224ad7cd86b4b2b2d137c63f7f59519ae08dff2ba",
+      "candidateOutputSha": "2c8ad81b4ec4af7eb76195f4e1c0d11967f8af2c8ad8b0a570409ba3e1aa5185",
+      "facts": {
+        "stop-before-check": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "branch-reason": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pr-input": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "run-folder": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After keeps every fact Before kept and additionally delivers the PR-input route and the retained run folder, so nothing regressed on this case. The one weakness in After is the opening token 'gauntlet: stuck directory runs require…', which reads as a leaked internal label or a typo and slightly obscures the admission reason; a reader still gets that the directory run requires `main` and the primary is on `feature/widget-colors`, but the wording should instead state the failure plainly, e.g. 'Stopped before checking: directory runs require the default branch `main` in the primary checkout, but `feature/widget-colors` is checked out.' Also, make the PR line explicit about intent so the pr-input fact is unmistakable rather than inferred: 'To housekeep the work on this feature branch, open a PR for it and run `/skill:housekeeping <PR>`.' Keep the run-folder line and the 'No files checked or changed' sentence as they are; do not reintroduce Before's offer to switch branches and continue, since that is only a request to switch rather than the PR route.",
+      "wallMs": 14571,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d93ce3cd1d2d8e0f2171a2f8ac634de1217d44ce"
+}

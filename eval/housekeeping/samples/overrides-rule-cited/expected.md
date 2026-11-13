@@ -1,0 +1,5 @@
+- override-finding: judged: The card identifies the trailing period in the docs/setup.md heading as the finding and explains the repo rule to end Markdown headings without a period, rather than substituting an unrelated base-rule issue.
+- section-cited: judged: The card's rule explanation names .pi/gauntlet-overrides.md and its housekeeping section as the source of the rule, not the base rules or a generic repository policy.
+- source-file: mechanical: contains ".pi/gauntlet-overrides.md"
+- no-execution: judged: The reply presents an unanswered card, with no claim that the heading was edited or a commit, pull request or ticket was created.
+- marker: mechanical: matches /^gauntlet: gate=housekeeping\/card recommended=[1-3]\n/

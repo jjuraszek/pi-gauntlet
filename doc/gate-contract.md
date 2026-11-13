@@ -57,6 +57,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | chase-bug/verdict-menu | gate | skills/chase-bug/SKILL.md | ### 4. Verdict menu | N. rows |
 | chase-bug/verdict-menu | gate | skills/chase-bug/reference/verdict-report.md | ## Golden examples - step-4 gates only | N. rows; templates=3 |
 | chase-bug/response-to-origin | gate | skills/chase-bug/SKILL.md | ### 5. Response to origin | N. rows |
+| housekeeping/card | gate | skills/housekeeping/reference/card.md | ## Card template | N. rows |
 | check-delivery/confirmation-gate | gate | skills/check-delivery/SKILL.md | ## Confirmation gate and the batched write | N. rows |
 | check-delivery/confirmation-gate | gate | skills/check-delivery/reference/batch.md | ## Turns | N. rows |
 | check-delivery/set-recovery | gate | skills/check-delivery/reference/batch.md | ## Turns | N. rows |
@@ -111,11 +112,18 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | chase-bug | Response sent | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done responded |
 | chase-bug | Unaddressable origin: rendered summary | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done summary |
 | chase-bug | Copy-paste draft is last act, including push failure | skills/chase-bug/SKILL.md § ### 5. Response to origin | gauntlet: done draft |
+| housekeeping | Empty file selection | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: done empty |
+| housekeeping | No surviving findings | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: done clean |
+| housekeeping | Human stopped the card walk; nothing executed | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: done stopped |
+| housekeeping | Fix finished with no open classes; dynamic counters | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: done prs=1 |
+| housekeeping | Invalid input, failed precondition, unexpected Check mutation or Fix ending with open classes | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: stuck |
 | gauntlet-resume | No handoff briefs; argument stop routes (including missing bare-name worktree routed to entry check 2) | skills/gauntlet-resume/SKILL.md § ## Arguments | gauntlet: stuck |
 | gauntlet-resume | Entry-check failure | skills/gauntlet-resume/SKILL.md § ## Entry checks | gauntlet: stuck |
 | gauntlet-resume | Ledger plan_check FAIL | skills/gauntlet-resume/reference/reconstruction.md § ## Spec with ledger | gauntlet: stuck |
 | gauntlet-handoff | Step 7: brief written | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: done brief-written |
 | gauntlet-handoff | --out and --key exclusivity STOP | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: stuck |
+
+Housekeeping's [Report](../skills/housekeeping/SKILL.md#5-report) uses nonzero `key=count` class counters, comma-joined without spaces, in this fixed order: `prs,commits,edited,tickets,not-filed,ignored,not-decided,open`. Fix completion uses `done` unless `open` is nonzero, including a rejected push; then it uses `stuck` with the same ordered counters. `not-filed`, `ignored` and `not-decided` are human decisions, not failures. Its card marker's `recommended=<n>` names the recommended pick, not the card number; intermediate picks continue the walk without a terminal marker.
 
 Shape-ticket emits one batch settlement line after the last ticket, also for a singleton. Emit nonzero `<key>=<count>` counters, comma-joined without spaces, in this fixed order: `written,closed,declined,dropped,no-op,stopped,unfetched,close-failed,close-by-hand`. Use `done` unless any `unfetched`, `close-failed`, or `close-by-hand` count is nonzero; then use `stuck` with those same ordered counters. `declined` and `dropped` are human decisions, not failures. `stopped` means an integrity stop left without recovery values when the run ended; `gauntlet: done stopped=1` is valid. An active hard-stop recovery ask is still `question`, never a batch ending.
 
@@ -138,6 +146,8 @@ Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: re
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
 | item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
 | free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `retry <n> \| <hint>` or `rows +N` for loop row stops, or `yes`/`no` for the named confirmations. |
+
+Housekeeping's [card reply owner](../skills/housekeeping/reference/card.md#replies) accepts an available row number to record the pick and show the next card; `<n> except 1 3` leaves those numbered items unchanged. An available Fix number followed by text records that text verbatim as the class's fix instruction. `list` shows the full numbered item list and keeps the card open. `go` ends the walk and executes only picks recorded so far; unanswered classes remain not decided. `stop` ends the run with nothing executed, keeps the decisions file and names the run folder. An unavailable pick, unknown item or unrecognized reply repeats the full card with one line naming the valid replies; the card stays open without recording a pick or advancing the walk. Nothing executes during the walk; execution starts after the last answer or `go`.
 
 Check-delivery's set-recovery gate takes `1` (retry), `2` (skip), or `stop`. An AC-conflict retry opens a separate reading question taking free text or `skip`; an empty reply also skips. Only a nonempty reading redispatches the ticket. `stop` at either set gate settles the current ticket without a write and skips the unrendered roster.
 

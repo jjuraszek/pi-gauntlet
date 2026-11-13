@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add human-only `housekeeping` on pi and Claude Code: check a directory, uncommitted files, or a PR against repo rules, then choose fixes, directory-only tickets, or ignored classes before any work runs. Directory fixes open one PR per class, uncommitted fixes stay in place, and PR fixes are pushed to the existing branch. Extend checks through `## housekeeping` in the overrides file.
+
 ## v8.4.11 - 2026-11-12
 
 - Loop interrupted returns recover unconditionally as one failed attempt under either approval option: job identity checks fence signals, not reset or repair. Pending companion and resumed returns share the same recovery; only a dirty tree with no pending dispatch asks for discard. Git recovery failures consume the existing allowance rather than opening a new stop.

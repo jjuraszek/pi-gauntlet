@@ -1,0 +1,38 @@
+{
+  "sample": "pick-recorded-no-exec",
+  "arm": "baseline",
+  "skillSha": "80d49adbb420b3994da9ddef2e6242bc8d5a9d2479a6a45bd02fc96880e1bfd9",
+  "inputSha": "b372a0b01f453a930ba407ba7315338ffdaddcb95864c548465b87e3ffa4257c",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-1",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\nCard 1 decision saved: fix the unused import in `src/widgets/render.ts`. Nothing has been edited yet.\n\n**Card 2 of 2: leftover debug output (code-debug)**\n\n`src/widgets/format.ts:18` still contains a debug print line:\n\n`console.log(\"format trace\", value)`\n\n**Rule:** Remove leftover debug statements. This comes from the housekeeping base rules (Code section), with no overrides. It was checked by reading the file.\n\n**Proposed fix:** Delete only this one line. The change touches existing code only. It leaves dependencies, stored data, the public interface and configuration unchanged, and one revert undoes it. No test command is attached to this check.\n\nPick one:\n1. Fix [recommended]\n2. Ticket\n3. Ignore\n",
+      "words": 106,
+      "wallMs": 7539,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=housekeeping/card\n## Card 2 of 2 — code-debug\n\n**Finding:** One leftover debug statement at `src/widgets/format.ts:18`:\n\n```ts\nconsole.log(\"format trace\", value)\n```\n\n**Rule:** Remove leftover debug statements.  \n**Source:** Housekeeping base rules, Code. No overrides.  \n**Verification:** Read check; no regression command attached.\n\n**Proposed fix:** Remove only this debug statement. This changes existing code only, with no dependency, stored-data, public-interface or configuration-shape changes. It can be undone by reverting one commit.\n\nPick one:\n1. Fix\n2. Ticket\n3. Ignore\n",
+      "words": 73,
+      "wallMs": 7538,
+      "mechanical": {
+        "marker": "fails"
+      }
+    }
+  },
+  "repoSha": "52bc6495f08e94fbcdae6bc6ea1d67db6db9825e"
+}
