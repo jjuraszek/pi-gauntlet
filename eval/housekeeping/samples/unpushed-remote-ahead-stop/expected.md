@@ -1,0 +1,5 @@
+- marker: mechanical: matches /^gauntlet: stuck [^\n]+/
+- commits: judged: The response identifies both HEAD 1111111111111111111111111111111111111111 and origin/main 2222222222222222222222222222222222222222, allowing unambiguous abbreviated hashes.
+- ancestry-reason: judged: The response explains that origin/main is not an ancestor of HEAD, so this unpushed run stops before checking or amending a commit the remote has moved past.
+- no-card: judged: The response presents no card, no Fix/Ignore choices and no claim that checks or writes ran; it does not end as empty or propose continuing this run.
+- run-folder: judged: The response names /tmp/housekeeping.remote-ahead as the retained run folder.

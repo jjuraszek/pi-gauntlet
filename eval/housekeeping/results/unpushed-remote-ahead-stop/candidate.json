@@ -1,0 +1,114 @@
+{
+  "sample": "unpushed-remote-ahead-stop",
+  "arm": "candidate",
+  "skillSha": "e0474a856fd52d15f8e1cdc25f5eeaf08ba1d1383e9302b41820be05472b72e2",
+  "inputSha": "20f5d1d43298d9f4403a5980d712d4429bcb63a68b6ea19b865f2d621b777e5f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: stuck unpushed run: origin/main is not an ancestor of HEAD\n\nSelect stopped before Check. The selected input was **unpushed**: no argument was given, and `git status --porcelain --untracked-files=normal` exited 0 with no output. HEAD is 2 commits ahead of `origin/main`, but `origin/main` is not an ancestor of HEAD, so the branches have diverged:\n\n- HEAD: `1111111111111111111111111111111111111111`\n- origin/main: `2222222222222222222222222222222222222222`\n\nAn unpushed run delivers by amending HEAD, and an amend must not rewrite a commit the remote has moved past. Reconcile local `main` with `origin/main`, then run `/skill:housekeeping` again.\n\n**Results**\n- PRs, commits pushed, files edited in place: none.\n- Tickets filed or not filed: none.\n- Ignored, not-decided or open classes: none.\n- Not checked: every candidate in `origin/main..HEAD`, because the run stopped at admission.\n- Checks not run: all of them, because the run stopped at admission.\n- Rule sources read: none.\n\nNothing was edited, staged, committed, reset, pushed, filed or opened.\n\nRun folder: `/tmp/housekeeping.remote-ahead`\n",
+      "words": 149,
+      "wallMs": 6629,
+      "mechanical": {
+        "marker": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck origin/main is not an ancestor of HEAD; an amend must not rewrite a commit the remote has moved past.\n\n- HEAD: `1111111111111111111111111111111111111111`\n- origin/main: `2222222222222222222222222222222222222222`\n- No files checked; nothing changed.\n- Run folder: `/tmp/housekeeping.remote-ahead`\n",
+      "words": 33,
+      "wallMs": 3065,
+      "mechanical": {
+        "marker": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "40a2c6901eaf9faa12311fd45d8235979ca0a29837c83dff2e61e09200882dd5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "99e341304570097af0d116c618939d4a3167ab7383ba6c89824e310ce8b9e6d5",
+      "baselineOutputSha": "d45ad8754a92a92480b75697ef9a2117553117fc06be5d8b87fdf212fc6c8e85",
+      "candidateOutputSha": "b7bf757c730013093bbcf6540b2c379bcabb9ef95f6c89fc572045c5b39483dd",
+      "facts": {
+        "commits": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ancestry-reason": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-card": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "run-folder": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Three facts moved from fails to holds even though none were expected to move, and no fact that Before kept was lost. Before treated the clean checkout as an empty uncommitted run (\"done empty\", \"no files to check\"), so it named neither hash, gave no ancestry reason and ended as empty. After's split of no-argument runs after the single status observation routes a clean checkout to unpushed selection, and its divergent-ancestry refusal produces the stuck stop. That stop names both full hashes, says origin/main is not an ancestor of HEAD, explains that an amend must not rewrite a commit the remote has moved past, presents no card or Fix/Ignore choice, and states that no checks or writes ran. The run folder is named in both outputs. To keep this, preserve the wording that makes the refusal state both commit ids, the ancestry reason tied to amend delivery, and the run folder line. Two small tightenings would help: have the stop call the run folder retained explicitly, and keep the \"reconcile, then run again\" advice clearly phrased as a new run so it is never read as continuing this one. The Results block is mostly \"none\" lines for a run that stopped at admission and could be shortened for this stop without affecting any fact.",
+      "wallMs": 8451,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "40a2c6901eaf9faa12311fd45d8235979ca0a29837c83dff2e61e09200882dd5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "99e341304570097af0d116c618939d4a3167ab7383ba6c89824e310ce8b9e6d5",
+      "baselineOutputSha": "b7d6ed1d3d661b48fee74b446b7e600bb1e71627393ebaf3c20067fcf34df0f5",
+      "candidateOutputSha": "74a0a40d3f6698a47ded5614a6dd67b14408445c17d41e3f1e8a87e29f1e1017",
+      "facts": {
+        "commits": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ancestry-reason": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-card": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "run-folder": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "marker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "Before emitted only `gauntlet: done empty`, which names neither commit, gives no ancestry reason, omits the run folder, and ends as empty, so all four facts fail there. After moves all four to holds: the `stuck` line states that origin/main is not an ancestor of HEAD and that an amend must not rewrite a commit the remote has moved past, the bullets give both full hashes, 'No files checked; nothing changed' avoids any claim of checks or writes with no card or Fix/Ignore choices, and the run folder is named. Although nothing was listed as expected to move, these movements are all improvements and follow from the Change's divergent-ancestry refusal for unpushed selection. To keep this, retain the wording that requires the divergent stop to report both hashes, the ancestry reason, the no-checks/no-writes statement and the run folder path; consider making it explicit that the stop concerns the unpushed selection (e.g. 'unpushed run stops before checking or amending') and that the run folder is retained, so the ancestry-reason and run-folder facts hold without relying on reader inference.",
+      "wallMs": 5592,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8a4cc73b310ae090e99e810c033d8074b6b1dd94"
+}

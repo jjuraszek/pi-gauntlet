@@ -3,7 +3,7 @@
 base: 08cd3d462bbc9c4a270c837a5294f4c81f7f764d
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,9 +16,9 @@ allowance: 10
 | 6 | done | 0 | timeout -k 30 60 node --test eval/housekeeping/spec-card-delete-keep.test.mjs; 6 passed, 0 failed; named-reader replay recommends Keep on both pinned models; reader lookup is a conformance read, not a live search |
 | 7 | done | 0 | timeout -k 30 60 node --test eval/housekeeping/spec-card-named-keep.test.mjs; 1 passed, 0 failed; both empty-selection shortcuts and Report require both lists empty; conformance read only, no live selection |
 | 8 | done | 1 | timeout -k 30 60 node --test eval/housekeeping/unpushed-amend-report.test.mjs; 1 passed, 0 failed; accepted-path deletion, absence verification and index preservation asserted; conformance read only, no live deletion or fold |
-| 9 | open | 0 | |
-| 10 | open | 0 | |
-| 11 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; source assertions cover single status observation and unfetched ahead-count disclosure |
+| 10 | done | 0 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; unpushed range, admission, receipt refusal and run fields asserted; conformance read only, no live selection |
+| 11 | done | 0 | timeout -k 30 30 node --test eval/housekeeping/unpushed-remote-ahead-stop.test.mjs; 4 passed, 0 failed; unpushed-remote-ahead-stop baseline seeded and candidate improved on both models; source assertions cover zero-ahead and four stop predicates |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
 
@@ -33,3 +33,6 @@ row 4 done | Added Delete/Keep cards in every run, delivery promises, ungated De
 row 5 done | Confirmed only the exact fully-superseded banner in a spec's own title block creates a finding. | nothing new to build on
 row 6 done | Confirmed both saved named-reader cards recommend Keep because README.md outside the spec and plan folders names the retired spec. | nothing new to build on
 row 8 done | Restricted Delete to accepted specs, verified their absence, protected the in-place index and kept deletion review on the spec rule. | Extend eval/housekeeping/unpushed-amend-report.test.mjs for fold behavior; reuse reference/fix.md's spec-only deletion checks.
+row 9 done | Split no-argument runs by one pinned status observation and report uncommitted runs' local ahead counts without fetching. | Extend eval/housekeeping/unpushed-remote-ahead-stop.test.mjs for admission checks; Select records the chosen input once.
+row 10 done | Added unpushed admission, range selection and Fix/Ignore picks with amend delivery. | Reuse reference/select.md's unpushed column and read-only receipt check when implementing the fold.
+row 11 done | Added zero-ahead completion and four unpushed safety stops, with a passing remote-ahead replay on both models. | Reuse unpushed-remote-ahead-stop.test.mjs for local conformance and its retained sample results for admission-stop evidence.
