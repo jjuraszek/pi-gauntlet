@@ -1,5 +1,7 @@
 # Housekeeping skill: check a directory, uncommitted work, or a PR against the repo's rules and a fixed base
 
+> **Superseded by:** [doc/specs/2026-11-13-housekeeping-gauntlet-workflow-gaps.md](./2026-11-13-housekeeping-gauntlet-workflow-gaps.md) - the candidate filter and no-argument input in "2. Select", the main-checkout boundary in "1. Shape", the "reads no `piGauntlet.*` setting" sentence in Design, the per-run pick rows in "4. Decide", the delivery list in "5. Fix", the counter list in "6. Report", and the Out-of-scope line on unpushed commits
+
 **Goal:** Ship one human-only, Markdown-only skill, `housekeeping`, also listed for Claude Code, that selects files from one of three inputs, checks them against the repo's own rule files plus a fixed base, walks the human through one card per issue class (fix, ticket, ignore), records the picks outside the repo, and only then executes them: one pushed PR per class for a directory, commits pushed to the PR for a PR, in-place uncommitted edits for uncommitted work.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
