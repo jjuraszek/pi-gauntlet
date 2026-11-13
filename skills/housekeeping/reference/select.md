@@ -42,11 +42,13 @@ End each stop per Report.
 
 ## Selection
 
-Use one filter for all three candidate sets. Drop every path matching an ignore rule, including tracked paths, using `git check-ignore --no-index`. Drop deleted paths. For a rename keep its new path and skip its old path. Preserve path boundaries: a directory selects its descendants, not a sibling with the same prefix. Use Git's path-safe listings for paths containing whitespace.
+Use one filter for every input's candidate set. Drop every path matching an ignore rule, including tracked paths, using `git check-ignore --no-index`. Drop deleted paths. For a rename keep its new path and skip its old path. Preserve path boundaries: a directory selects its descendants, not a sibling with the same prefix. Use Git's path-safe listings for paths containing whitespace. Exclude symlinks and binary files before the split below.
 
-Sort the remaining paths, exclude symlinks and binary files, then take at most `budget` files into `files`. Set `budget` to the argument's number, else the overrides `## housekeeping` value, else 200. List files past the budget, symlinks, binary files, and directory candidates with uncommitted changes in `not-checked`, each with its reason. Ignored and deleted paths are skipped, not checked.
+Resolve dirs once from the session checkout with `gauntlet_setting({ key: "flowGuards" })`: use its `specDirs` and `planDirs`; on a harness without that tool, use spec dirs `doc/specs`, `docs/specs` and plan dirs `doc/plans`, `docs/plans`. Record the dirs in `<run>/run.md` and carry every returned `errors` entry into Report's rule-sources list. For a PR, use the same session value, not a settings file at the merge-base. Match a dir's components as a contiguous run in the path's components, so `services/x/doc/specs/a.md` is in `doc/specs`.
 
-Record `commit` as HEAD of `root` at Select. Record changed line ranges per selected file for a change-based selection. Keep `files`, `not-checked`, the worktree home and the push target in `<run>/run.md`. An empty `files` list skips Check, Decide and Fix and goes to Report.
+Skip each candidate in a plan dir before populating either list. Put each surviving candidate in a spec dir in `specs`, sorted, outside `budget`; keep it out of `files`. Sort the remaining paths and take at most `budget` into `files`. Set `budget` to the argument's number, else the overrides `## housekeeping` value, else 200; read no other selection setting from the overrides file. Apply rule-source path skips at Check, not here. List files past the budget, symlinks, binary files, and directory candidates with uncommitted changes in `not-checked`, each with its reason. Skip ignored, deleted and plan-dir paths without checking them.
+
+Record `commit` as HEAD of `root` at Select. Record changed line ranges per selected file for a change-based selection. Keep `files`, `specs`, `not-checked`, the worktree home and the push target in `<run>/run.md`. With both `files` and `specs` empty, skip Check, Decide and Fix and go to Report. With non-empty `specs` and empty `files`, go to Check.
 
 ## Worktree sequence
 
@@ -61,4 +63,4 @@ Commit nothing on the primary, ask no setup question, and never run the override
 
 ## Expected state
 
-Write `<run>/expected/` beside the record: copies of every selected file with its mode, the candidate paths that do not exist, `git ls-files --stage` and `git status --porcelain` from `root`. Preserve contents, not just HEAD and status, so a second edit to an already-dirty file is visible. Check compares this state before Decide; Fix compares it before each class and advances the copies only after a kept class. Never advance the index listing for `delivery: in-place`.
+Write `<run>/expected/` beside the record: copies of every `files` and `specs` file with its mode, the candidate paths that do not exist, `git ls-files --stage` and `git status --porcelain` from `root`. Preserve contents, not just HEAD and status, so a second edit to an already-dirty file is visible. Check compares this state before Decide; Fix compares it before each class and advances the copies only after a kept class. Never advance the index listing for `delivery: in-place`.

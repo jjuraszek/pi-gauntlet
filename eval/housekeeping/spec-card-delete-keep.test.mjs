@@ -16,10 +16,24 @@ test("AC 1 conformance: split spec candidates from files and exclude content rul
     "Content checks must operate on files, not specs");
   assert.match(check, /`specs` against that row alone/,
     "Specs must receive only the spec-superseded check");
+  assert.ok(read("reference/base-rules.md").includes("| spec-superseded | Specs | Remove a spec whose title block carries a fully-superseded banner. |"),
+    "The spec-only route must name a defined base rule");
   assert.match(check, /no repo or overrides rule compiles against the Specs kind/i,
     "Repo and overrides content rules must not compile for specs");
   assert.match(check, /helpers receive no `specs` path/i,
     "Content-check helpers must not receive spec candidates");
+  assert.match(selection, /contiguous run[\s\S]*services\/x\/doc\/specs\/a\.md/,
+    "The spec-dir split must use component membership, including nested paths");
+  assert.match(selection, /sorted, outside `budget`/,
+    "Specs must not consume the content-file budget");
+  assert.match(select, /copies of every `files` and `specs` file with its mode/,
+    "Expected state must protect spec contents and modes too");
+  assert.match(check, /For a content command[\s\S]*documented scoped form[\s\S]*leaves out the spec and plan dirs/,
+    "Content commands must exclude spec and plan dirs, not just read helpers");
+  assert.match(check, /no documented form excludes the spec and plan folders/,
+    "An unscopable content command must be listed as not run");
+  assert.match(check, /Drop at validation any finding of a row other than `spec-superseded` whose item sits in a spec or plan dir/,
+    "Validation must reject content findings that escape the selection fence");
 });
 
 test("AC 2 conformance: skip plan-dir candidates before populating either list", () => {

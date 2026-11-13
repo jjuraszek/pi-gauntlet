@@ -578,9 +578,11 @@ rule sources from the working tree for directory and uncommitted runs, and from 
 merge-base commit for a PR run, never the PR head. Unlike gatekeep-pr, its fixed
 [base rules](skills/housekeeping/reference/base-rules.md) win over conflicting repo
 rules: `REVIEW.md` can add rules, scope rules to paths or skip paths, but cannot
-remove or weaken a base rule. Housekeeping records the overridden repo rule's file
-and heading and names it on the card; with no repo rule sources, the base rules run
-alone. See [the check contract](skills/housekeeping/reference/check.md).
+remove or weaken a base rule. Content rules and commands exclude the resolved spec
+and plan folders: specs receive only the `spec-superseded` base rule, while plan
+files are skipped. A path skip applies to that spec rule too. Housekeeping records
+the overridden repo rule's file and heading and names it on the card; with no repo
+rule sources, the base rules run alone. See [the check contract](skills/housekeeping/reference/check.md).
 
 For gatekeep-pr, `REVIEW.md` is a diff over the baseline, not a full rewrite. Starter template:
 
@@ -655,7 +657,7 @@ The conformance gate's model, the spec council's roster, and the phase-tracker's
 | `loopEngine.escalateAfter` | phase-tracker | `3` (floor `1`) | pre-dispatch threshold; escalated attempt index is value + 1, clamped to the last allowed attempt - [detail](./doc/configuration.md#setting-and-command-resolution) |
 | `phaseModels.plan` / `.implement` / `.verify` / `.ship` | phase-tracker | unset (no switch) | `provider/id[:level]` applied persistently at that phase's start - [detail](./doc/configuration.md#phase-models) |
 | `flowGuards.enforce` | phase-tracker | `true` | phase gates on/off - [detail](./doc/configuration.md#phase-tracker) |
-| `flowGuards.specDirs` | phase-tracker, plan-tracker; telemetry and spec-index consumers | `["doc/specs", "docs/specs"]` | where specs and sibling plans live - [detail](./doc/configuration.md#phase-tracker) |
+| `flowGuards.specDirs` | phase-tracker, plan-tracker; telemetry, spec-index and housekeeping consumers | `["doc/specs", "docs/specs"]` | where specs and sibling plans live - [detail](./doc/configuration.md#phase-tracker) |
 | `verifyBeforeShip.testCommands` | verify-before-ship | the `DEFAULT_TEST_COMMANDS` patterns in `extensions/lib/gauntlet-settings.ts` (make, npm, pnpm, yarn, pytest, rspec, cargo, go) | patterns that count as a test run - [detail](./doc/configuration.md#verify-before-ship) |
 | `verifyBeforeShip.warningReference` | verify-before-ship | unset | pointer shown with the warning - [detail](./doc/configuration.md#verify-before-ship) |
 | `telemetry.enabled` | telemetry | `true` | record each flow - [detail](./doc/configuration.md#telemetry) |

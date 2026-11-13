@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty.
+
 ## v8.5.0 - 2026-11-13
 
 - Add human-only `housekeeping` on pi and Claude Code: check a directory, uncommitted files, or a PR against repo rules, then choose fixes, directory-only tickets, or ignored classes before any work runs. Directory fixes open one PR per class, uncommitted fixes stay in place, and PR fixes are pushed to the existing branch. Extend checks through `## housekeeping` in the overrides file.

@@ -24,11 +24,11 @@ On Claude Code, use the harness's subagent tool with the same whole duty prompt.
 
 ## 1. Select
 
-Read reference/select.md. Resolve the argument, admit the checkout and write `<run>/run.md` plus `<run>/expected/`. An empty selection goes directly to Report.
+Read reference/select.md. Resolve the argument, admit the checkout and write `<run>/run.md` plus `<run>/expected/`. Go directly to Report only with both `files` and `specs` empty.
 
 ## 2. Check
 
-Read reference/check.md. Read `<run>/run.md` and `<run>/expected/`; compile `<run>/checks.md`, check only selected files, and write validated findings to `<run>/findings.md`. Compare `root` with expected state before Decide; a difference stops with changed paths and reverts nothing. With no surviving findings, go to Report.
+Read reference/check.md. Read `<run>/run.md` and `<run>/expected/`; compile and run `<run>/checks.md` per that reference, and write validated findings to `<run>/findings.md`. Compare `root` with expected state before Decide; a difference stops with changed paths and reverts nothing. With no surviving findings, go to Report.
 
 ## 3. Decide
 
@@ -45,7 +45,7 @@ Read whichever of `<run>/results.md`, `<run>/decisions.md` and `<run>/run.md` ex
 | Ending | First line |
 |---|---|
 | Invalid argument, failed precondition or unexpected change after Check | `gauntlet: stuck <reason>` |
-| Empty selection | `gauntlet: done empty` |
+| Both `files` and `specs` empty | `gauntlet: done empty` |
 | No surviving findings | `gauntlet: done clean` |
 | Human stopped the walk | `gauntlet: done stopped` |
 | Fix finished, no open class | `gauntlet: done <counters>` |

@@ -20,5 +20,6 @@ Use these fixed rules as check data; each id names one issue class.
 | doc-history | Docs | Keep current-state docs free of planned-work and history text, and remove superseded docs with no reader. |
 | doc-comment | Docs | Keep comments free of code restatement, task context and references to removed things. |
 | doc-conflict | Docs | State a rule at its owner rather than duplicating it in disagreeing places. |
+| spec-superseded | Specs | Remove a spec whose title block carries a fully-superseded banner. |
 | instruction-reference | Skills, commands, prompts | Name only paths, commands, tools and skills that exist. |
 | instruction-frontmatter | Skills, commands, prompts | Include a name and description in frontmatter. |
