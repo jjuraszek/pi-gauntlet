@@ -4,6 +4,15 @@ import test from "node:test";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
+test("AC 5 conformance: apply source path skips before searching title blocks for fully superseded banners", () => {
+  const check = read("skills/housekeeping/reference/check.md");
+  assert.match(check, /For `spec-superseded`, apply path skips from the `rules-from` sources before searching `specs`\./,
+    "Check must apply source path skips before the spec banner search so skipped specs reach no card");
+  assert.ok(check.includes('^> \\*\\*Superseded by:\\*\\* \\[.*\\]\\(.*\\) - fully$'));
+  assert.match(check, /between the H1 and the first `## ` heading or code fence/);
+  assert.match(check, /Record each hit as one `line` finding quoting the banner/);
+});
+
 test("AC 7 conformance: specs-only selections continue to Check instead of ending empty", () => {
   const select = read("skills/housekeeping/reference/select.md");
   const skill = read("skills/housekeeping/SKILL.md");

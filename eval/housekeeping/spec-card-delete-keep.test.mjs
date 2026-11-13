@@ -50,9 +50,6 @@ test("AC 4 conformance: one Delete/Keep card overrides every run's picks", () =>
   assert.match(card, /For `spec-superseded`, keep Delete available without evaluating hotfix predicates/);
   assert.match(card, /Fix \(Delete on the spec card\) number followed by text/);
   assert.match(card, /\| `amend` \| Make one commit for this class on the default branch in the primary checkout, fold the kept fixes into the last unpushed commit after the last class, and push nothing\. \|/);
-  assert.ok(check.includes('^> \\*\\*Superseded by:\\*\\* \\[.*\\]\\(.*\\) - fully$'));
-  assert.match(check, /between the H1 and the first `## ` heading or code fence/);
-  assert.match(check, /Record each hit as one `line` finding quoting the banner/);
 });
 
 for (const [sample, recommended] of [["spec-card-delete-keep", 1], ["spec-card-named-keep", 2]]) {
