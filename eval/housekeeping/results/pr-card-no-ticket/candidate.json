@@ -1,7 +1,7 @@
 {
   "sample": "pr-card-no-ticket",
   "arm": "candidate",
-  "skillSha": "0b1de4d8293e4898bd398a7efd7cc8adf78b2631e6243fd56191a584a9c4d57d",
+  "skillSha": "7f0cc062b18315a93c270b83c75e827866b3d6263b700ef10d6c08911044b250",
   "inputSha": "9f51fe9862ae89a7f7a7196543339d54c733364427f605dd3e58c8b51453f625",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 import lines in src/widgets bring in code that is never used\n\n### What was found\nTwo files changed by this pull request each have one import line, a line at the top of a file that brings in code from another file, whose imported name is never used in that file:\n\n- src/widgets/render.ts, line 2\n- src/widgets/format.ts, line 3\n\nBoth lines are inside the parts of the files that this pull request changed.\n\n### Why it matters\nThe housekeeping base rules, in their Code section, say to remove imported names, variables and modules that nothing uses. Leftover imports make readers look for a use that does not exist.\n\n### What happens if you accept\nThe two import lines are deleted and nothing else changes. You get one commit with both removals, pushed to the pull request's branch, feature/widget-colors. No test is attached to this check, so the result is confirmed by rereading the two files.\n\nPick one:\n1. [ ] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
-      "words": 183,
-      "wallMs": 8737,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. 2 unused imports in src/widgets are never used\n\n### What was found\nTwo files each have an import that nothing in the file uses. An import is a line near the top of a file that brings in a name from another file. Both lines are in parts this pull request changed:\n- src/widgets/render.ts, line 2\n- src/widgets/format.ts, line 3\n\n### Why it matters\nThe housekeeping base rules for code say to remove imports, variables and modules that nothing uses. An import nothing uses makes the file look like it depends on something it does not, and adds clutter for the next reader.\n\n### What happens if you accept\nThose two import lines are deleted and nothing else in either file changes. You get one commit with both removals, pushed to the pull request's existing branch, feature/widget-colors. No new pull request is opened.\n\nPick one:\n1. [ ] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
+      "words": 170,
+      "wallMs": 7436,
       "mechanical": {
         "marker": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=housekeeping/card recommended=1\n\n### 1 of 1. Two unused imports in the widget files are unnecessary\n\n### What was found\nTwo imports bring in names that neither file uses: `src/widgets/render.ts:2` and `src/widgets/format.ts:3`. Both are in lines changed by this PR.\n\n### Why it matters\nThe housekeeping base rules, Code, require removing unused imports, variables and modules with no caller. These two imports serve no purpose in their files.\n\n### What happens if you accept\nRemove the two unused import lines, make one commit for this class, and push it to the existing PR branch. No regression command is attached to this read-only check.\n\nPick one:\n1. [ ] Fix - Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore - leave them as they are\n",
-      "words": 125,
-      "wallMs": 3802,
+      "text": "gauntlet: gate=housekeeping/card recommended=1\n### 1 of 1. Two unused imports in widget files are not needed\n\n### What was found\nTwo lines bring in names that neither file uses: `src/widgets/render.ts:2` and `src/widgets/format.ts:3`. Both lines are in the PR’s changed line ranges.\n\n### Why it matters\nThe housekeeping base rules, Code section, require removing unused imports, variables and modules with no caller. These two imports serve no purpose in their files.\n\n### What happens if you accept\nRemove the two unused import lines, make one commit for this class, and push it to the existing PR branch. Verification is by reading the files; no test command is attached to this check.\n\nPick one:\n1. [ ] Fix — Make one commit for this class and push it to the existing PR branch. [recommended]\n2. [ ] Ignore — Leave them as they are.\n",
+      "words": 132,
+      "wallMs": 4383,
       "mechanical": {
         "marker": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "862828df019b995374ad70fb979abbf7ef177e6e744505e21205534d4bd29b12",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "intentSha": "4d0cb48bf68711f7974254c10371481f6aa3f673b826bd14ac610ac6681ca9c9",
       "baselineOutputSha": "94139405af22557622d119ab1ae890ba5505a2407618a920f31b1527ff588e22",
-      "candidateOutputSha": "e42b73e48af3518f7308e7f02d4ace26d8aa319387cbb3719eb84dc1f1f52bed",
+      "candidateOutputSha": "7f2f044df82d533dce3b093f33663d8ba849edb75c71ee65a3b1433c9661c185",
       "facts": {
         "two-picks": {
           "before": "holds",
@@ -78,16 +78,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: the After card still offers exactly Fix then Ignore with empty boxes and a single recommended label on Fix, promises one commit pushed to the existing PR branch feature/widget-colors, limits findings to the two unused imports in src/widgets/render.ts and src/widgets/format.ts within the PR's changed ranges, claims no execution, and keeps a count/noun/place/predicate title with plain-prose sections ending in the literal deletion and the pushed commit. This matches the Change's intent that ordinary PR cards stay unchanged. Small differences are harmless: After uses the word 'import' but defines it inline, and adds that the result is confirmed by rereading the files, which is consistent with the read verification mode and phrased as a future step rather than something done. To stay safe, keep the inline gloss whenever a term like 'import' appears, keep the future/conditional tense in the last section so it never reads as executed work, and keep the Fix row's explicit 'existing PR branch' wording so the same-PR commit promise does not depend on the prose section alone.",
-      "wallMs": 5561,
+      "feedback": "No fact moved: After still shows one unanswered card with Fix and Ignore in order, empty boxes, a single recommended pick, findings limited to the two changed import lines, and a last section stating the literal deletion and the one commit pushed to feature/widget-colors, which matches the Change's intent to leave ordinary PR cards untouched. Two small wording points are worth tightening to keep card-prose safe: the After title '2 unused imports in src/widgets are never used' is redundant (unused ... never used) and leans on the term 'import' before it is defined, whereas Before's '2 lines in the widget files load code that is never used' used a plainer noun and predicate; and After dropped Before's sentence that no separate test runs for this change, which was a useful disclosure for a read check with no regression command. Keeping the plain title form and that disclosure, while retaining After's 'No new pull request is opened' line, would preserve everything Before held.",
+      "wallMs": 5382,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "862828df019b995374ad70fb979abbf7ef177e6e744505e21205534d4bd29b12",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d6b1f6b15afb110d3d86a1e0c13507ee2b6bfcede29111a9e7ec1c6cb57f2fb4",
+      "intentSha": "4d0cb48bf68711f7974254c10371481f6aa3f673b826bd14ac610ac6681ca9c9",
       "baselineOutputSha": "c824aeddffaeaf1d33962c867fd959aeacd9edcdca35916f9e463c6ba5ef2301",
-      "candidateOutputSha": "849ad421663118c47bf4d8eecb9c06af56a1a999afd1b73bc55bea8692e2abfd",
+      "candidateOutputSha": "9116bd7ffee4a81c8fa938bf15855cc735cef60e16f23903d4844f340facbd73",
       "facts": {
         "two-picks": {
           "before": "holds",
@@ -125,10 +125,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: the After card for this ordinary PR case still offers exactly Fix then Ignore with no Ticket choice, keeps Fix available and solely recommended with both boxes empty despite no regression command, promises one commit pushed to the existing PR branch, confines findings to the two unused imports in the PR's changed lines, claims no execution, and keeps the count/noun/place/predicate title with plain-prose sections ending in the literal change and pushed commit. The differences from Before are cosmetic (a blank line after the gauntlet line, slightly reworded found/why sentences, hyphens instead of em dashes, and a lowercase, unpunctuated Ignore row), which matches the Change's intent to leave ordinary directory and PR cards unchanged. To keep this stable, keep the superseded-spec Delete-or-Keep wording scoped strictly to spec cards so it cannot leak a Delete/Keep choice or drop the commit-and-push sentence from ordinary cards, and consider making the Ignore row's capitalisation and punctuation consistent with the Fix row to avoid incidental drift.",
-      "wallMs": 5676,
+      "feedback": "No fact moved, which matches the expectation that none should: After keeps the same title shape (count, plain noun, place, plain predicate), the same three everyday-prose sections, the same two numbered picks in Fix-then-Ignore order with empty boxes and a single recommended label on Fix, and the same promise of one commit for the class pushed to the existing PR branch, with no claim of anything executed. The differences are cosmetic rewordings (\"not needed\" for \"unnecessary\", \"bring in names\" for \"import a name\", \"Verification is by reading the files; no test command is attached\" for \"No regression command is attached to this read-only check\"), and they read slightly plainer without losing the literal change or the pushed commit. To keep this stable while delivering the spec-deletion and unpushed-fold changes, keep the new Delete-or-Keep card and amend-delivery wording scoped strictly to superseded-spec cards and no-argument clean-checkout runs, and state explicitly that ordinary PR cards keep the Fix/Ignore picks, the single recommended label, the commit-push Fix row naming the existing PR branch, and Fix availability when no regression command is attached to a read check.",
+      "wallMs": 5786,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "f9798a6d7fb3c5af4ba4edbc3d0ca61f0f78db55"
+  "repoSha": "daa8dfeab1b2a0478dad1e463b2f4ae93ca72c05"
 }
