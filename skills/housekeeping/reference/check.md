@@ -25,7 +25,7 @@ Resolve a documented command from overrides `## housekeeping`, then `## verifica
 
 ## Run without changing root
 
-Run derived checks read-only in `root`. For `spec-superseded`, apply path skips from the `rules-from` sources before searching `specs`. Match `^> \*\*Superseded by:\*\* \[.*\]\(.*\) - fully$` between the H1 and the first `## ` heading or code fence. Record each hit as one `line` finding quoting the banner; match neither partial-scope banners nor a repo's own banner syntax. For each hit, search tracked files at `root` for the spec's basename (`a.md` for `doc/specs/a.md`, not its repo-relative path) as a fixed string. Count only files outside both the spec dirs and the plan dirs and record their paths with the finding.
+Run derived checks read-only in `root`. For `spec-superseded`, apply path skips from the `rules-from` sources before searching `specs`. Match `^> \*\*Superseded by:\*\* \[.*\]\(.*\) - fully$` between the H1 and the first `## ` heading or code fence. Record each hit as one `line` finding quoting the banner; match neither partial-scope banners nor a repo's own banner syntax. For each hit, search tracked files at `root` for the spec's basename (`<file>` for `doc/specs/<file>`, not its repo-relative path) as a fixed string. Count only files outside both the spec dirs and the plan dirs and record their paths with the finding.
 
 Run a command there only when `## housekeeping` declares it leaves the checkout unchanged. Otherwise create a detached worktree at `<run>/snapshot` from `commit`; run the repo-documented fresh-checkout setup when present, overlay expected-state copies and modes, and remove recorded missing paths. Execute the command in that selected-state snapshot. Remove it at Report.
 
