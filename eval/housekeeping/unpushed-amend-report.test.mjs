@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -47,7 +47,7 @@ test("AC 8 conformance: Delete authorizes only accepted spec deletions through t
 
 const local = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
-test("AC 12 conformance: amend is a sequential commit delivery with checked fold and recovery", () => {
+test("AC 12/13 conformance: amend is a sequential commit delivery with checked fold and recovery", () => {
   const fix = read("reference/fix.md");
   const spine = read("SKILL.md");
   for (const pattern of [
@@ -64,7 +64,8 @@ test("AC 12 conformance: amend is a sequential commit delivery with checked fold
     /new HEAD's complete ordered parent list to equal `commit`'s, its message to equal `commit`'s, its tree to equal the recorded pre-fold tree, and a clean status/,
     /Only then advance expected HEAD/,
     /step 3 difference resets nothing, folds nothing and reverts nothing/,
-    /record every kept class as left open with the reason/,
+    /On a non-empty step 2 \(a remote ref or a receipt\), failed fetch, step 3 difference or failed step 4 or 5, keep the class commits:/,
+    /record every kept class as left open with the reason \(remote ref, receipt file, fetch error, changed paths or commits, commit output or differing tree\), and continue to Report/,
     /After a successful fold, compare the primary with the post-fold expected HEAD and a clean status, not with Select's snapshot/,
     /Push nothing in any case/,
   ]) assert.match(fix, pattern);
@@ -74,6 +75,9 @@ test("AC 12 conformance: amend is a sequential commit delivery with checked fold
     assert.ok(text.includes("prs,commits,amended,edited,tickets,not-filed,ignored,not-decided,open"));
   }
   assert.match(spine, /Count classes folded into the last unpushed commit under `amended`/);
+  assert.match(spine, /\| Fix finished, at least one open class \| `gauntlet: stuck <counters>` \|/);
+  assert.match(spine, /Count classes\./);
+  assert.match(spine, /Use `stuck` instead of `done` when `open` is nonzero/);
   assert.match(spine, /last unpushed commit before and after the fold and state that nothing was pushed/);
   assert.match(spine, /number of `specs` searched for the banner only/);
 });
@@ -82,8 +86,9 @@ const bounded = (command, args, options = {}) => execFileSync("timeout", ["-k", 
   encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], ...options,
 }).trim();
 
-function scratchFold(scenario) {
+function scratchFold(scenario, t) {
   const scratch = bounded("mktemp", ["-d", join(tmpdir(), "housekeeping-fold.XXXXXX")]);
+  t.after(() => rmSync(scratch, { recursive: true, force: true }));
   const root = join(scratch, "root");
   const origin = join(scratch, "origin.git");
   const env = { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1",
@@ -120,10 +125,14 @@ function scratchFold(scenario) {
   const parents = git("show", "-s", "--format=%P", commit);
   assert.equal(parents.split(" ").length, scenario === "merge" ? 2 : 1);
   const message = git("cat-file", "commit", commit).split("\n\n").slice(1).join("\n\n");
+  assert.equal(git("branch", "-r", "--contains", commit), "");
   commitFile("first.txt", "fixed first\n", "Fix class one");
   commitFile("last.txt", "fixed last\n", "Fix class two");
   const preFold = git("rev-parse", "HEAD");
   const tree = git("rev-parse", "HEAD^{tree}");
+  const classCommits = git("rev-list", `${commit}..HEAD`);
+  assert.equal(classCommits.split("\n").length, 2);
+  if (scenario === "remote-ref") git("update-ref", "refs/remotes/origin/reached-during-walk", commit);
   const remoteRefs = () => bounded("git", ["--git-dir", origin, "show-ref"], { env });
   const refs = remoteRefs();
   const fix = read("reference/fix.md");
@@ -132,7 +141,17 @@ function scratchFold(scenario) {
     return literal.replace("<default>", "trunk").replace("<pre-fold HEAD>", preFold).replace("<commit>", commit).split(" ").slice(1);
   };
   git(...command("git fetch origin <default>"));
-  assert.equal(git(...command("git branch -r --contains <commit>")), "");
+  const containingRefs = git(...command("git branch -r --contains <commit>"));
+  if (scenario === "remote-ref") {
+    assert.equal(containingRefs, "origin/reached-during-walk");
+    assert.equal(git("rev-parse", "HEAD"), preFold);
+    assert.equal(git("rev-parse", "HEAD^{tree}"), tree);
+    assert.equal(git("rev-list", `${commit}..HEAD`), classCommits);
+    assert.equal(git("status", "--porcelain"), "");
+    assert.equal(remoteRefs(), refs);
+    return;
+  }
+  assert.equal(containingRefs, "");
   assert.equal(git("branch", "--show-current"), "trunk");
   assert.equal(git("rev-parse", "HEAD"), preFold);
   assert.equal(git("status", "--porcelain"), "");
@@ -157,8 +176,8 @@ function scratchFold(scenario) {
   assert.equal(remoteRefs(), refs);
 }
 
-for (const scenario of ["linear", "merge", "hook-failure"]) {
-  test(`AC 12 executed fold: ${scenario}`, () => scratchFold(scenario));
+for (const scenario of ["linear", "merge", "hook-failure", "remote-ref"]) {
+  test(`AC ${scenario === "remote-ref" ? 13 : 12} executed fold: ${scenario}`, (t) => scratchFold(scenario, t));
 }
 
 test("AC 12 replay: two folded classes report amended=2 and no push", () => {
