@@ -46,3 +46,14 @@ This is a new free-text spec, not a PR subject. The pre-summary phase_tracker({ 
 ## User reply
 
 1
+
+## Independent recommendation checks
+
+After the initial gate and its reply, evaluate these independent gate observations with the same acceptance row and no user reply. None is a create-only retry view. Give only each case ID, the first-line gate marker, the selected row's sentence with its tag, and its Recommended line; do not repeat the briefing, flags, or unselected rows.
+
+| Case | Status observation | Rendered choices |
+|---|---|---|
+| unknown | Context: unknown | 1, 2, 3, 4 |
+| boundary | Context: 25.0% of window | 1, 2, 3, 4 |
+| low | Context: 12.4% of window | 1, 2, 3, 4 |
+| withheld | Context: 80.0% of window | 1, 2, 3; row 4 is withheld because this is PR #42 |

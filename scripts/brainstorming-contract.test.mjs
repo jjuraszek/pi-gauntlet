@@ -249,6 +249,17 @@ test('high context recommends a rendered draft PR with a fresh-session reason', 
   assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- context: judged:.*25\.1.*fresh session.*hallucination/m);
 });
 
+test('low, unknown or withheld draft context restricts the recommendation to engines', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  assert.match(text, /Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4/);
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  for (const observation of ['Context: unknown', 'Context: 25.0% of window', 'Context: 12.4% of window', 'Context: 80.0% of window']) {
+    assert.ok(fixture.includes(observation), observation);
+  }
+  assert.match(fixture, /row 4 is withheld/);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- engine-only: judged:.*unknown.*25\.0.*12\.4.*withheld.*1 or 2/m);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];
