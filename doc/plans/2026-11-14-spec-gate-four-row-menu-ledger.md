@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 12
+iterations: 13
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -21,7 +21,7 @@ allowance: 10
 | 11 | done | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 250 passed, 0 failed; known and unknown context stay out of details, TUI results and the widget |
 | 12 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-plan-approval.test.mjs; 2 passed; node eval/run.mjs brainstorming engine-waves improved on 2 models, plan-default held on both; selected sample only |
 | 13 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-loop-approval.test.mjs; 2 passed; node eval/run.mjs brainstorming loop-gate proves loop on both models; other sample facts still fail and need migration |
-| 14 | open | 0 | |
+| 14 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-stop-approval.test.mjs; 2 passed; node eval/run.mjs spec-gate flag-replies improved on 2 models, both opt-out facts held; selected opt-out cases only |
 | 15 | open | 0 | |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
@@ -50,3 +50,4 @@ row 10 done | Verified that absent, undefined, null-token and nonpositive-window
 row 11 done | Verified that known and unknown context readings leave details, TUI results and the phase widget unchanged. | Reuse the status context UI-isolation cases in extensions/phase-tracker.test.ts to prevent context leakage into tracker details or UI.
 row 12 done | Made plain approval 1 persist the default standing grant and waves before the verified commit-to-planning handoff. | Reuse scripts/brainstorming-plan-approval.test.mjs and engine-waves/plan-default to check the header and handoff order.
 row 13 done | Made plain approval 2 persist the default grant and loop before the verified handoff, using the settings allowance. | Reuse scripts/brainstorming-loop-approval.test.mjs and loop-gate/loop to check the header and ordered handoff.
+row 14 done | Made --amends-stop persist none with waves on row 1 and loop on row 2 before the verified handoff. | Extend eval/spec-gate/samples/flag-replies for reply cases and reuse scripts/brainstorming-stop-approval.test.mjs for opt-out persistence.
