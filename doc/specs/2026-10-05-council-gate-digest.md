@@ -1,5 +1,7 @@
 # Council gate digest: stats line and on-demand dispositions
 
+> **Superseded by:** [doc/specs/2026-11-14-spec-gate-four-row-menu.md](./2026-11-14-spec-gate-four-row-menu.md) - the `3 - show council dispositions` row label and the three-row menu in "Gate render" only (the `Council:` stats line, the audit transport, and row 3's behavior stay)
+
 **Goal:** The brainstorming user review gate shows one council stats line instead of the per-cluster audit, with the full audit available on demand as a third menu row; telemetry keeps recording the audit by reading it from the spec commit command.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Supersedes:** `doc/specs/2026-10-04-spec-summary-briefing.md` - its Out-of-scope exclusion "Changing the council audit rendering or the gate's adjacent-lines template beyond the one rename"; the briefing cap and the summarizer persona are untouched.
