@@ -6,11 +6,11 @@ Resolve home `gauntlet_setting({ key: "flowGuards" })` and use its `specDirs`. F
 
 Keep shape separate from approval. Read the added spec with `git show <head>:<spec path>`; match `^\*\*Engine:\*\*[ \t]+deferred[ \t]*$` only in the header before the first `## `. Use that marker plus shape for re-gating. Use shape alone for publication. Ignore draft status, labels, PR body, telemetry, and audit presence as classification proof. Route a list of N>1 PRs through rework; count carried Legs separately.
 
-## Publish option 6
+## Publish row 4
 
-Decode the reply before writes. A hidden `6` gets the clarifying question naming rendered choices. A funded `6` is malformed: re-present, write nothing. `3` plus `6` prints the audit and re-presents without approval; `6` plus a change request revises and re-presents.
+Decode the reply before writes using [User Review Gate](spec-finalization.md#user-review-gate)'s rejected-reply checks. A hidden `4` gets the clarifying question naming rendered choices. Any flag on `4` is malformed: re-present, write nothing. `3` plus `4` prints the audit and re-presents without approval; `4` plus a change request revises and re-presents.
 
-On clean `6`, edit home only: `**Amend-grant:** none` and exactly one `**Engine:** deferred` directly below it. A 6 never grants. Stage the spec with `git -C <worktree> add -- <spec path>`, then `git -C <worktree> commit --amend --no-edit -q`; verify both lines through `git -C <worktree> show HEAD:<spec path>`. Stop on failure.
+On clean `4`, edit home only: `**Amend-grant:** none` and exactly one `**Engine:** deferred` directly below it. Row 4 never grants. Stage the spec with `git -C <worktree> add -- <spec path>`, then `git -C <worktree> commit --amend --no-edit -q`; verify both lines through `git -C <worktree> show HEAD:<spec path>`. Stop on failure.
 
 Read the committed home spec's `## Legs` in [legs.md](legs.md) order. Carry Worktree First paths; treat recorded repo, branch, contract, spec-dir, home and create as authoritative. Keep the one-block and legacy recipe below verbatim (one push/PR/cleanup, no companion prefixes). For N>1 run the coordinated passes below instead of executing the home recipe immediately: they invoke its preflight last, then its push/create after companion publication, and replace its output/cleanup ordering. Keep companion files unchanged.
 
@@ -22,7 +22,7 @@ git -C <worktree> fetch origin "$DEFAULT"
 git -C <worktree> diff --name-status origin/$DEFAULT...HEAD
 ```
 
-Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 6. Keep implementation approvals available.
+Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 4. Keep implementation approvals available.
 
 Push, then create with explicit head/base and the spec H1 as title. Pass the summary verbatim through the quoted heredoc shown below, including its literal delimiter in narrated commands. Run gh against the worktree repository:
 
@@ -35,12 +35,23 @@ EOF
 
 | Observation | Action |
 |---|---|
-| Push rejected | Print git output; retain amended spec and checkout; re-present with 6 retryable. |
-| Create fails after push | Print error and pushed branch. Keep brainstorm incomplete and checkout intact. Offer only `6 - retry opening the draft PR` and `Withheld: implementation approvals - the handoff commit is published; an approval would amend it`. |
-| Retry 6 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
-| Create succeeds | Print URL before completing brainstorm; then perform ownership-based cleanup below. |
+| Push rejected | Print git output; retain amended spec and checkout; re-present with 4 retryable. |
+| Create fails after push | Print error and pushed branch. Keep brainstorm incomplete and checkout intact. Render the create-only retry view below. |
+| Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
+| Create succeeds | Print URL, then ``Continue: start a fresh session, then run `/skill:brainstorming #<N>`.`` with the returned PR number before completing brainstorm; then perform ownership-based cleanup below. |
 
-After URL output call `phase_tracker({ action: "complete", phase: "brainstorm" })`, then run [Draft-PR cleanup](#draft-pr-cleanup) once for home. Start no plan or loop, produce no handoff brief, and leave telemetry unchanged.
+Render the create-only retry view at every context reading, including 25% or lower and `Context: unknown`:
+
+```text
+gauntlet: gate=brainstorming/user-review-gate recommended=4
+4 - retry opening the draft PR [recommended]
+Withheld: implementation approvals - the handoff commit is published; an approval would amend it
+Recommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.
+```
+
+Accept `4` or its label as the create-only retry. For bare `approve`, first print `Taking "approve" as option 4 - retry opening the draft PR`, then take the same retry with no amend and no push. Reject every other reply with one clarifying question naming rendered row 4 and write nothing; engine replies `1` and `2` remain unavailable.
+
+After URL and Continue output call `phase_tracker({ action: "complete", phase: "brainstorm" })`, then run [Draft-PR cleanup](#draft-pr-cleanup) once for home. Start no plan or loop, produce no handoff brief, and leave telemetry unchanged.
 
 ### Draft-PR cleanup
 
@@ -69,7 +80,7 @@ Finish preflight for every companion in declared order, then home, before any pu
 
 1. Resolve each companion's default with `DEFAULT=$(gh repo view <owner/name> --json defaultBranchRef -q .defaultBranchRef.name)` (positional repo, not `-R`); require nonempty. Run `git -C <companion worktree> fetch origin "$DEFAULT"` and `git -C <companion worktree> diff --name-status origin/$DEFAULT...HEAD`. Apply the shared predicate with that member's own dirs and recorded added file.
 2. Discover remote publication with `git -C <companion worktree> ls-remote --exit-code --heads origin <branch>`. Exit 2 means absent: attempt no branch fetch. Exit 0 means present: fetch `origin <branch>`, then read full `origin/<branch>` and HEAD SHAs for publication. Any other exit is a command failure, never absence; ignore stale tracking refs as discovery proof.
-3. Run home's default/fetch/shape recipe last. On any shape failure print the member, offending name-status lines and `origin/<default>`, retain every amended spec and checkout, and redraw with `Withheld: draft PR - <repo> diff against origin/<default> is not spec-only (<paths>)` replacing 6; keep implementation approvals. On gh/default/fetch/ls-remote failure stop naming member and command output. Nothing has been pushed on either preflight failure.
+3. Run home's default/fetch/shape recipe last. On any shape failure print the member, offending name-status lines and `origin/<default>`, retain every amended spec and checkout, and redraw with `Withheld: draft PR - <repo> diff against origin/<default> is not spec-only (<paths>)` replacing 4; keep implementation approvals. On gh/default/fetch/ls-remote failure stop naming member and command output. Nothing has been pushed on either preflight failure.
 
 Publish companions in declared order from the preflight observations:
 
@@ -77,8 +88,8 @@ Publish companions in declared order from the preflight observations:
 |---|---|
 | Absent | `git -C <companion worktree> push -u origin <branch>`; record published member. |
 | Present, full remote SHA equals HEAD | Skip with `<repo>: already published`; include it in the published inventory. |
-| Present, different full SHA | Print repo, both full SHAs and already-published members; retain every checkout and list paths; re-present 6 retryable after by-hand resolution. Never force or reconcile. |
-| Push rejected | Print member and git output, already-published members and retained paths; re-present 6 retryable. Retry both passes; equality skips completed companions. |
+| Present, different full SHA | Print repo, both full SHAs and already-published members; retain every checkout and list paths; re-present 4 retryable after by-hand resolution. Never force or reconcile. |
+| Push rejected | Print member and git output, already-published members and retained paths; re-present 4 retryable. Retry both passes; equality skips completed companions. |
 
 Then run home's existing push/create recipe. Home push/create failures keep its failure rows and also list published companions; never roll back. After home create failure freeze the published handoff commit: the create-only retry above does not amend or push any member or rerun publication passes. On success print `pushed: <repo> origin/<branch>` for each companion before the single home URL, then complete brainstorm.
 

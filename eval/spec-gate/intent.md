@@ -1,11 +1,14 @@
-for: 79afc0f5c110971d06844fd5471d71317081534b924178ff79c7efe677fbc998
+for: f54e2413a44940d93f3077bc7e0258a5a1ad01754ef51232252b28c1b492ef98
 
 ## Change
 
-On reply `3`, read the council audit from the spec commit and print it verbatim, then reuse the rendered four-row gate, including its flag lines, recommendation tag, marker and reason. Reuse the context and settings observations instead of reading them again or recomputing the recommendation. Record no approval or grant and change neither the spec nor its commit.
+Route row 4 to spec-only draft-PR publication with Amend-grant none and Engine deferred. Preserve the default-branch diff proof, non-force push, draft creation, URL-before-completion order and ownership-based cleanup. Print the fresh-session Continue line after the URL. On create failure, recommend only retry row 4 regardless of context; bare approve echoes and retries create without another amend or push, while engine digits get one question and no writes.
 
-Update row-3-reply's six-row fact to the four-row contract and add a snapshot-reuse fact. Supply a low-context observation while keeping the existing ticket row, briefing, audit and shared settings result. Run only `spec-gate/row-3-reply` against base `855e872a42f9cac7a795704f3e0b383b182950ab`. This text replay proves rendering and narrated read/no-write behavior, not live git or tracker effects. Preserve all other sample records; the report is partial, not a target-wide pass.
+Keep row 4 available on a zero-row gate by omitting row 2 and its flags. Update option-6-handoff to row-4 replies and add low/unknown-context retry and Continue facts while retaining its zero-row, single-member subject and cleanup variants. Run only spec-gate/option-6-handoff against base 855e872a42f9cac7a795704f3e0b383b182950ab. This replay checks narrated calls, not live publication or cleanup. Preserve every other sample record; coverage is partial.
 
 ## Expected to move
-- row-3-reply/f2: fails -> holds - Re-present the four-row menu with its recommendation and flag lines unchanged.
-- row-3-reply/reuse: fails -> holds - Reuse the rendered recommendation without refreshing status or settings.
+- option-6-handoff/menu: fails -> holds - A zero-row gate offers 1, 3 and 4 with no loop allowance line.
+- option-6-handoff/persistence: fails -> holds - Row 4 selects deferred publication, not loop implementation.
+- option-6-handoff/publication: fails -> holds - Row 4 publishes only after the spec-only proof.
+- option-6-handoff/retry-menu: fails -> holds - The create-only retry keeps row 4 recommended and accepts bare approve.
+- option-6-handoff/continue: fails -> holds - The URL is followed by the fresh-session continuation instruction.

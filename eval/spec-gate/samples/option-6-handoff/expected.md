@@ -1,14 +1,16 @@
 anonymized: true
-- menu: judged: Success renders initial zero-row gate with 1,2,3,6 and no loop rows 4/5, then accepts bare 6.
-- persistence: judged: Success writes Amend-grant none with Engine deferred directly below, stages and amends no-edit, and checks both lines in git show HEAD before publication; 6 grants nothing.
+- menu: judged: Success renders initial zero-row gate with 1,3,4 and no loop row or allowance line, then accepts bare 4.
+- persistence: judged: Success writes Amend-grant none with Engine deferred directly below, stages and amends no-edit, and checks both lines in git show HEAD before publication; 4 grants nothing.
 - publication: judged: Success resolves default main once and fetches/proves the sole added spec against origin/main before push, never staging; then push -u origin spec-export precedes gh pr create --draft with explicit head/base, H1 title and quoted-heredoc summary body.
 - single-member: judged: Exactly one recorded Leg keeps the existing one push, one home draft PR and one cleanup recipe; no companion loop or pushed: prefix line.
 - completion: judged: Success prints the PR URL before complete brainstorm, verifies live branch and equal remote/tree/local SHA, then removes/prunes the owned tree and conditionally deletes refs/heads/spec-export at the pinned SHA, reporting acme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export; no plan/loop or brief starts.
-- replies: judged: Funded is malformed and writes nothing; Change revises and re-presents without approval; Audit prints audit and re-presents without approval.
+- replies: judged: Flagged is malformed and writes nothing; Change revises and re-presents without approval; Audit prints audit and re-presents without approval.
 - invalid: judged: Both invalid diffs print offending name-status paths and origin/main, retain amended commit/checkout, withhold draft PR row and allow implementation approvals, without push.
-- rejection: judged: Rejected push reports permission denied, retains commit/checkout and retryable 6 without create/completion.
-- create-failure: judged: Create failure reports GraphQL error and pushed branch, leaves brainstorm incomplete/checkout intact and only retry 6 plus withheld implementation approvals.
+- rejection: judged: Rejected push reports permission denied, retains commit/checkout and retryable 4 without create/completion.
+- create-failure: judged: Create failure reports GraphQL error and pushed branch, leaves brainstorm incomplete/checkout intact and only retry 4 plus withheld implementation approvals.
 - retry: judged: Equality retry refreshes/proves equality and creates only without amend/push; moved retry reports both full supplied SHAs and stops without push/create/completion.
+- retry-menu: judged: Both low-context and unknown-context create-only retry gates show only row 4 tagged [recommended], a recommended=4 marker and a Recommended: 4 reason; bare approve echoes Taking "approve" as option 4 - retry opening the draft PR and creates only, while independent replies 1 and 2 each get one question naming row 4 and no writes.
+- continue: judged: Success prints Continue: start a fresh session, then run `/skill:brainstorming #42`. immediately after the PR URL and before brainstorm completion.
 - cleanup: judged: Safe keep-branch wrapper is followed by gated ref deletion without native removal; guarded branch-deleting wrapper runs and read-back confirms removal with no second deletion; unguarded wrapper is refused. Host-owned and locked-removal variants keep both with per-repo path/reason reports and the host checkout's another-path recovery warning.
 - remote-gate: judged: Differing remote and missing remote keep both tree and branch and report the observed SHA mismatch or origin/spec-export is missing; no destroy or ref deletion runs.
 - moved-ref: judged: After removal a branch advanced from the pinned SHA remains, reported as removed tree with branch spec-export kept because it moved to the supplied new SHA; no unconditional branch deletion runs.
