@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
+import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
+import { intentBody } from '../eval/lib/intent.mjs';
+import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const reference = 'skills/finishing-a-development-branch/reference/commit-message.md';
@@ -53,6 +57,66 @@ for (const path of sites) {
     }
     const links = [...text.matchAll(/\]\(([^)#]+)(?:#[^)]*)?\)/g)].map((match) => resolve(root, dirname(path), match[1]));
     assert.ok(links.includes(resolve(root, reference)), `${path} has no resolving commit-message.md citation`);
+  });
+}
+
+test('spec, consent, housekeeping and citation-repair commits delegate wording', () => {
+  const spec = read('skills/brainstorming/reference/spec-finalization.md');
+  assert.match(spec.slice(spec.indexOf('Then commit the spec'), spec.indexOf('Evaluate the summary')), /commit-message\.md/);
+  assert.match(spec, /same subject as the home spec commit/);
+  const consent = read('skills/brainstorming/reference/amendment-surface.md').split('## Implement-local maintenance boundaries')[0];
+  assert.match(consent, /commit-message\.md/);
+  assert.doesNotMatch(consent, /printf 'grant:|batch's `amend:` commit/);
+  const fix = read('skills/housekeeping/reference/fix.md');
+  assert.match(fix, /wording: <absolute path>/);
+  assert.match(fix, /ticket: <reference or none>/);
+  assert.match(fix, /card's title/);
+  const repair = read('skills/gauntlet-resume/reference/brief-contract.md').split('### Citation repair')[1];
+  assert.match(repair, /commit-message\.md/);
+  assert.doesNotMatch(repair, /commit[^\n]+-m "resume:|subject is not `amend:`/);
+});
+
+test('worktree ignore commit uses the shared bookkeeping sentence', () => {
+  const text = read('skills/using-git-worktrees/SKILL.md').split('### 2b.')[1].split('### 2c.')[0];
+  assert.match(text, /commit-message\.md/);
+  assert.match(text, /commit -m "\$IGNORE_SUBJECT"/);
+  assert.doesNotMatch(text, /commit -m "Ignore \.worktrees\//);
+});
+
+for (const [targetName, sample] of [
+  ['brainstorming', 'spec-and-grant-message'],
+  ['housekeeping', 'commit-subject'],
+  ['using-git-worktrees', 'ignore-subject'],
+  ['gauntlet-resume', 'plan-citation-subject'],
+]) {
+  test(`${targetName}/${sample} saved replies hold every current message fact`, () => {
+    const dir = `eval/${targetName}`;
+    const target = JSON.parse(read(`${dir}/target.json`));
+    const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+    const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
+    const expected = read(`${dir}/samples/${sample}/expected.md`);
+    const { facts } = parseExpected(expected);
+    assert.ok(facts.length > 0);
+    const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
+    const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
+    assert.deepEqual(candidate.models, baseline.models);
+    assert.ok(candidate.models.replay.length > 0);
+    for (const model of candidate.models.replay) {
+      assert.ok(cellReusable(candidate, model, {
+        skillSha: sha256(assemble(selected, read, bundle)),
+        inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
+        kind: target.kind, assembly: target.assembly, thinking: candidate.models.thinking,
+      }), `${model}: missing or stale candidate output`);
+      const judgment = candidate.judge[model];
+      assert.ok(judgmentCurrent(judgment, {
+        factsSha: sha256(expected), judgePromptSha: sha256(read('eval/judge.md')),
+        intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
+        baselineOutputSha: sha256(baseline.outputs[model].text),
+        candidateOutputSha: sha256(candidate.outputs[model].text),
+      }), `${model}: stale judgment`);
+      for (const { id } of facts) assert.equal(judgment.facts[id]?.after, 'holds', `${model}: ${id}`);
+      assert.ok(['improved', 'unchanged'].includes(judgment.verdict), `${model}: ${judgment.verdict}`);
+    }
   });
 }
 

@@ -1,28 +1,14 @@
-# eval report: gauntlet-resume (partial run: migration-recovery; preserved legs-missing run)
+# eval report: gauntlet-resume (partial run: plan-citation-subject)
 
-for: cd53b26c37f6101ee86719d7bf51f1c6be0a1411cd89042ea2872ff4f06b6f79
+for: efc91978f1ec956a827cc637a1dd4aed50958cd420fd4388f7e17b76b54b7205
 
-wall: 92s
-
-## Preserved selected run context: legs-missing
-
-## Coverage
-
-Only `legs-missing` ran, once against base `4dcd1f4c71da8f2ee56a8491727e40233ca4733f`: four replay calls, two judge calls, no confirmation calls. All four candidate facts hold in both model cells. The synthetic observations cover an empty lookup, a found script-placed tree, a found tree with a wrong Home tuple, and an explicit path with a wrong common directory; this is narrated admission evidence, not live restoration or a target-wide pass.
-
-Earlier [telemetry-branch-seed](results/telemetry-branch-seed/candidate.json) and [interrupted-ownership](results/interrupted-ownership/candidate.json) records are preserved and were not rerun. Their earlier partial outcomes remain: telemetry has five candidate facts holding in both cells; interrupted-ownership's ownership fact fails in both cells. This run makes no new claim about those samples.
-
-for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
-
-wall: 48s
+wall: 32s
 
 ## Change
 
+Compose citation-repair messages with the shared bookkeeping recipe. Keep path-scoped commits only for initially tracked clean plans; preserve dirty/untracked repairs for the next task commit and keep the saved task snapshot. Run only plan-citation-subject for this change; narrated composition and continuation are partial coverage, not live restoration or a target-wide pass. Preserve earlier sample records.
 Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
 
-## Latest selected run intent: migration-recovery
-
-## Change
 
 Defer migration and final validation only through the missing-history or dirty-tree stops; render a retained pending row only at a missing-history stop. Preserve unconditional repair and the existing exhaustion stops.
 
@@ -80,41 +66,29 @@ Add deferred-spec-stop with sample-local entry-check instructions and an explici
 Cover home-bound coordinated admission, informational HEAD/dirt drift, membership/branch/header/repository stops, missing-tree live receipts, stripped-plan retry and companion-seed refusal before tracker mutation. These are intended fact movements, not observed model results.
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
-## Preserved selected run: legs-missing
+## Preserved selected evidence
 
-for: a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269
+Only plan-citation-subject was checked for this edit. Earlier candidate records and judgments remain unchanged; none establishes current-bundle coverage or live restoration.
 
-wall: 48s
+| Sample | Prior result in both model cells | Evidence |
+|---|---|---|
+| migration-recovery | improved, all seven facts hold; bundle cd53b26c37f6101ee86719d7bf51f1c6be0a1411cd89042ea2872ff4f06b6f79 | [saved replies and judgments](results/migration-recovery/candidate.json) |
+| legs-missing | improved, all four facts hold; bundle a5ab1c893f4c9175ba9bfbed8a13cfe8d561b8ebf02291dd0eafa45289694269 | [saved replies and judgments](results/legs-missing/candidate.json) |
+| telemetry-branch-seed | five candidate facts hold | [saved replies and judgments](results/telemetry-branch-seed/candidate.json) |
+| interrupted-ownership | ownership fact fails | [saved replies and judgments](results/interrupted-ownership/candidate.json) |
 
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| legs-missing | anthropic/claude-opus-5-5 | improved | 15940 | stop: fails -> holds (intended change); found: holds -> holds (held); mismatch: holds -> holds (held); explicit: holds -> holds (held) |
-| legs-missing | github-copilot/gpt-6.1-sol | improved | 15312 | stop: fails -> holds (intended change); found: holds -> holds (held); mismatch: holds -> holds (held); explicit: holds -> holds (held) |
-
-## Feedback
-
-- legs-missing / anthropic/claude-opus-5-5: After moves only the intended fact: Variant A now stops with the exact wording `cannot resolve worktree for repo-b: no worktree holds feature/shared-change`, explicitly states that the empty lookup authorizes no recreation, receipt or approval, and refuses to expand `home: .worktrees/<name>` into a path, whereas Before both used a different stop message and printed a `Derivation:` line that expanded the recorded home pattern into `/work/repo-b/.worktrees/feature-shared-change` (even while claiming not to probe it), which a careful reader counts as expanding the recorded home into a fallback path. The found, mismatch and explicit facts hold in both outputs: After keeps the lookup-selected `/work/repo-b-trees/river-shared` for the common-dir, live-branch and Home-tuple checks, stops C with both expected and observed tuples and calls it a stop rather than drift, and stops D naming `/work/repo-b/.git` versus `/work/impostor/.git` without substituting the other checkout. Nothing regressed; keep the current After wording, in particular the explicit 'I do not expand' / 'I do not probe' lines and the verbatim stop header in A, since any reintroduction of a derived-path line (even annotated as non-authoritative) would flip `stop` back to fails.
-- legs-missing / github-copilot/gpt-6.1-sol: After moved only the stop fact, and in the intended direction: Before's Run A read the worktree list but then expanded the recorded home pattern into a concrete fallback path (/work/repo-b/.worktrees/feature-shared-change) inside its stop message and used a different stop phrasing, so a careful reader would not say it stopped with 'cannot resolve worktree for repo-b: no worktree holds feature/shared-change' without deriving a home path. After prints that exact stop, explicitly states the empty lookup authorizes no recreation, receipt or approval, and refuses to expand .worktrees/<name>. Runs B, C and D are unchanged in substance between the two outputs — branch-location lookup in the declared primary, full common-dir/branch/Home checks on the found tree, a tuple-mismatch stop naming repo-b with both expected and observed tuples, and an explicit-path common-dir stop naming /work/repo-b/.git versus /work/impostor/.git without substituting river-shared — so no fact regressed. To keep this, retain After's A wording verbatim (lookup then the bare 'cannot resolve worktree' stop, no recorded-home mention beyond the refusal to expand it) and keep B/C/D's check chains and stop messages as they are.
-
-exit: 0
-## Latest selected run: migration-recovery
-
-for: cd53b26c37f6101ee86719d7bf51f1c6be0a1411cd89042ea2872ff4f06b6f79
-
-wall: 92s
+The legs-missing record retains its single run against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f: four replay calls, two judge calls and no confirmation calls. Its supplied observations cover empty lookup, a found script-placed tree, a wrong Home tuple and an explicit path with a wrong common directory.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| migration-recovery | anthropic/claude-opus-5-5 | improved | 23481 | home: holds -> holds (intended but unchanged); dirty: fails -> holds (intended change); companion: holds -> holds (intended but unchanged); interrupted: fails -> holds (intended change); ambiguity: fails -> holds (intended change); attribution: fails -> holds (intended change); exhausted: holds -> holds (intended but unchanged) |
-| migration-recovery | github-copilot/gpt-6.1-sol | improved | 14942 | home: holds -> holds (intended but unchanged); dirty: fails -> holds (intended change); companion: holds -> holds (intended but unchanged); interrupted: fails -> holds (intended change); ambiguity: fails -> holds (intended change); attribution: fails -> holds (intended change); exhausted: holds -> holds (intended but unchanged) |
+| plan-citation-subject | anthropic/claude-opus-5-5 | improved | 10424 | wording: fails -> holds (intended change); scoped: holds -> holds (held); continuation: holds -> holds (held) |
+| plan-citation-subject | github-copilot/gpt-6.1-sol | improved | 6949 | wording: fails -> holds (intended change); scoped: holds -> holds (held); continuation: holds -> holds (held) |
 
 ## Feedback
 
-- migration-recovery / anthropic/claude-opus-5-5: The After wording moved dirty, interrupted, attribution and ambiguity from fails to holds, and kept home, companion and exhausted. B, D and G now run reset/clean at the tuple SHA with no provenance, jobs-file or launch-history gate, write one `loop: repair row 1` at iterations 4 with row 1 failed attempts 1 and no pending, and only then make the header-only `loop: migrate allowance` commit, validate, refresh once and redispatch below allowance; Before stopped B and D as 'recovery incomplete' with a discard menu and hedged G with an unreset 'ordinary repair' and a possible stop. E moved because the printed question now lists the commits in P..HEAD and the dirty paths and warns that `interrupted` authorizes `reset --hard P` and `clean -fd`. Two places are fragile. First, B holds only narrowly: it says the human 'answered interrupted to the disclosed reset/clean question' and calls the tuple 'absent' with a 'later dirty change', which reads as though the confirmed-interruption path passed through E's no-tuple discard question. State outright that a confirmed interruption goes straight to unconditional recovery with no discard question, and keep the disclosure wording to the ambiguous no-tuple case. Second, 'other rows/decisions unchanged' in B and G and 'no repeated attempt or iteration bump' in C are only implied by 'written from BI' and the shared sequence; say them explicitly in those rows. In F, the 'Commit scope: None' cell sits beside 'Migration: Yes'; name the `loop: migrate allowance` commit there so the header-only commit is unambiguous.
-- migration-recovery / github-copilot/gpt-6.1-sol: After moved four facts from fails to holds and lost none. The dirty and interrupted facts moved because the wording now routes confirmed interrupted home and companion returns through unconditional reset/clean at the tuple SHA, without requiring checkout provenance or launch history. B and D therefore narrate a single home-only `loop: repair row 1` (iterations 4, row 1 failed, attempts 1, pending removed), then the header-only migration, validation, one refresh and continuation with no human turn, where Before stopped on 'checkout ownership unproven'. The attribution fact moved because wrong home attribution with a recoverable on-disk tuple and before-image is now treated as an interrupted boundary rather than an attribution stop. The ambiguity fact moved because the E question now lists every commit in P..HEAD and every dirty path, and warns that answering interrupted discards them through reset --hard and clean -fd; Before named only the candidate SHA and live HEAD. The home, companion and exhausted facts held in both. To keep them, retain the explicit ordering of recovery against the unmigrated ledger before migration, the 'only the header replacement' commit scope, the home-first result recording before the separate migration commit in C, the 'exactly once' refresh, and the rule 2 stop with effective 4 + 2 = 6 that ignores audit ceilings and cap history. Two things are only implied and could be stated outright to make these facts more robust: that B, D and G continue 'below allowance' (attempts 1 of 4), and that A admits 'without another iteration bump'.
+- plan-citation-subject / anthropic/claude-opus-5-5: The After wording moved `wording` from fails to holds, as intended. Before composed `resume: plan citation repair - 2 findings`, which carries a `resume:` prefix and finding metadata. After reads the shared commit-message reference, takes the fixed "Plan citation repair" row verbatim as the entire subject `Repair 2 plan citations`, and explicitly declines to append ticket #241. `scoped` held in both: each runs `git -C /workspace/app add -- <plan>` and a commit with a trailing plan pathspec, supplies a full message (`-m` in Before, `-F -` on stdin in After), and leaves the staged `src/config.mjs` edit staged and uncommitted. `continuation` also held in both: each returns to the originating restore at `skip plan R` only after the commit succeeds, inits `plan_tracker` from the saved snapshot (Task 1 complete, Task 2 in_progress) rather than a fresh-plan list, and for both untracked and staged-only dirty plans makes no `git add` and no commit, stating the repair stays in the working copy for the next task commit. Nothing regressed. To keep it that way, retain the explicit instruction to read the commit-message reference, the "entire subject verbatim, no ticket" clause, the explicit plan pathspec on both add and commit, the "saved snapshot verbatim, never a fresh-plan list" phrasing, and the explicit working-copy statement for the two dirty/untracked variants. One optional tightening is to say outright that continuation happens only after the commit succeeds, since After currently conveys this by ordering and "The add and commit both succeed" rather than as a stated condition.
+- plan-citation-subject / github-copilot/gpt-6.1-sol: The After wording moved `wording` from fails to holds: it now reads the shared commit-message reference (`/package/skills/finishing-a-development-branch/reference/commit-message.md`) and supplies exactly `Repair 2 plan citations` as the entire subject, explicitly declining to append `#241`, where Before used `resume: plan citation repair - 2 findings` with a resume prefix and finding metadata and never read the reference. `scoped` holds in both: each stages and commits only the plan with explicit pathspecs under `git -C /workspace/app`, supplies a complete message, and leaves the staged `src/config.mjs` edit out (Before used absolute pathspecs and `-m`, After uses repo-relative pathspecs and `-F -` on stdin; both are acceptable). `continuation` holds in both: the tracker calls follow the successful commit, Task 1 complete and Task 2 in_progress are restored from the saved snapshot rather than a fresh plan, and for untracked and staged-only dirty plans both run no `git add` and no repair commit and leave the repair in the working copy for the next task commit. To keep these stable, keep the explicit 'read the shared reference, then the fixed sentence is the whole subject, no ticket suffix' statement, keep the path-scoped add/commit with the message supplied in full, and keep the alternate-state block's explicit 'no `git add` and no repair commit' plus the working-copy line; consider stating outright that continuation happens only after the commit succeeds, and that the `plan_tracker` init is a restore of the saved snapshot, since the word `init` next to 'Do not initialize a fresh task list' could be read as a contradiction by a stricter reader.
 
 exit: 0

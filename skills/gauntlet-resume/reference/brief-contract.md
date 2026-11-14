@@ -253,13 +253,13 @@ Every other `check` (`input`, `placeholder-scan`, `header-entrypoint`, `header-h
 
 Loop: write every classified edit, re-run `plan_check({ planPath })`, classify any new finding the same way; at most 3 rounds.
 
-PASS with the plan tracked and clean before the loop -> commit the plan alone:
+PASS with the plan tracked and clean before the loop -> read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md), take the entire subject verbatim from its Plan citation repair row, and commit the plan alone with that message on stdin:
 
 ```bash
-git -C <worktree> add -- <plan path> && git -C <worktree> commit -q -m "resume: plan citation repair - <n> findings" -- <plan path>
+git -C <worktree> add -- <plan path> && git -C <worktree> commit -q -F - -- <plan path>
 ```
 
-The subject is not `amend:`, so `finishing-a-development-branch` Step 4's digest ignores it; a failed commit stops with git's output. PASS with the plan untracked or dirty before the loop -> leave the repair in the working copy; it lands with the next task commit. Then continue the originating route: the call table from `skip plan R`, or reconstruction step 3.
+A failed commit stops with git's output. PASS with the plan untracked or dirty before the loop -> leave the repair in the working copy; it lands with the next task commit. Then continue the originating route: the call table from `skip plan R`, or reconstruction step 3.
 
 Stop (a finding with no row, or a finding surviving the third round): when a round wrote the plan, restore its pre-loop bytes (`git -C <worktree> checkout -- <plan path>` when tracked and clean, else the saved copy) - a stop before the first write runs no git command; print the findings (a dead `Modify:` row prefixed with its owning task, e.g. `Task 5:`), leave `plan` in_progress with no `init`, and print one line:
 

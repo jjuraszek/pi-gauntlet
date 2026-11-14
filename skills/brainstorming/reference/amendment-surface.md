@@ -30,13 +30,13 @@ A grant is the spec's `**Amend-grant:**` line read through the shared predicate;
 | Revocation (`revoke auto-apply amends`, `stop auto-applying amends`, or the same intent in other words) | `edit` the value to `none` |
 | Hand-edited line | not an event; the next batch boundary re-reads it and the value found is the current consent |
 
-**Persisting a consent change.** If HEAD's copy of the spec already carries the new value, commit nothing. Otherwise, when the spec file has no other uncommitted change, commit that one file with the message on stdin:
+**Persisting a consent change.** If HEAD's copy of the spec already carries the new value, commit nothing. Otherwise, when the spec file has no other uncommitted change, read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md), compose its Consent change bookkeeping message, and commit that one file with the message on stdin:
 
 ```bash
-printf 'grant: %s\n' "<new value>" | git -C <abs worktree path> commit -q -F - -- <spec path>
+git -C <abs worktree path> commit -q -F - -- <spec path>
 ```
 
-When the spec file is mid-batch (uncommitted amend edits), the consent edit rides in that batch's `amend:` commit and the footer acknowledgment says so. Either way, verify `git -C <abs worktree path> show HEAD:<spec path>` satisfies the predicate with the new value; otherwise stop and report. After the line exists, every later change is a same-line value edit; a grant given in a resumed session is an ordinary mid-flow grant.
+When the spec file is mid-batch (uncommitted amend edits), the consent edit rides in that batch's amendment commit and the footer acknowledgment says so. Either way, verify `git -C <abs worktree path> show HEAD:<spec path>` satisfies the predicate with the new value; otherwise stop and report. After the line exists, every later change is a same-line value edit; a grant given in a resumed session is an ordinary mid-flow grant.
 
 ## Implement-local maintenance boundaries
 
