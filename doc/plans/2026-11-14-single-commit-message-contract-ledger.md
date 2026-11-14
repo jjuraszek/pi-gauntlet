@@ -3,12 +3,12 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | failed | 3 | timeout -k 30 30 node --test scripts/commit-message-contract.test.mjs; 16 passed, 15 failed: loop worker lacks wording input and 14 sites lack citations; four selected model replays hold all facts in both model cells |
+| 1 | failed | 4 | iteration 4: interrupted - dispatch error: bash failed (exit 1) |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
