@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve, dirname, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
@@ -88,6 +90,9 @@ for (const [targetName, sample] of [
   ['housekeeping', 'commit-subject'],
   ['using-git-worktrees', 'ignore-subject'],
   ['gauntlet-resume', 'plan-citation-subject'],
+  ['loop-implementer', 'home-plain-commit'],
+  ['loop-implementer', 'companion-return-file'],
+  ['loop-implementation', 'returned-line-admission'],
 ]) {
   test(`${targetName}/${sample} saved replies hold every current message fact`, () => {
     const dir = `eval/${targetName}`;
@@ -119,6 +124,72 @@ for (const [targetName, sample] of [
     }
   });
 }
+
+test('loop worker and dispatcher carry wording and ledger-held home attribution', () => {
+  const worker = read('agents/loop-implementer.md');
+  const driver = read('skills/loop-implementation/SKILL.md');
+  assert.match(worker, /wording:.*absolute path/);
+  assert.match(worker, /ticket:/);
+  assert.match(worker, /return:.*absolute path/);
+  assert.match(worker, /returned:/);
+  assert.doesNotMatch(worker, /subject `loop:|commit-body path|companion commit body|separate body lines/);
+  assert.match(driver, /wording: <absolute path>/);
+  assert.match(driver, /ticket: <reference or none>/);
+  assert.match(driver, /returned: none/);
+  assert.match(driver, /ledger has no returned: line - resume through/);
+  assert.doesNotMatch(driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0], /commit bod|subject `loop:/);
+  assert.doesNotMatch(driver, /No committed tuple remains/);
+});
+
+test('companion admission reads attributed return files regardless of commit wording', () => {
+  const source = read('skills/loop-implementation/reference/coordinated-legs.md');
+  const script = source.match(/<!-- companion-return-shell -->\s*```bash\n([\s\S]*?)\n```/)[1];
+  assert.match(script, /"\$RETURN_FILE"/);
+  assert.doesNotMatch(script, /%B|subject/);
+  for (const [name, change, accepted] of [
+    ['plain subject', {}, true],
+    ['arbitrary subject', { subject: 'A human chose this message' }, true],
+    ['legacy label has no authority', { subject: 'loop: row 99 failed' }, true],
+    ['wrong tuple', { tuple: 'pending: 1 | other | aaaaaaa' }, false],
+    ['wrong consumed count', { iteration: 5 }, false],
+    ['missing file', { missing: true }, false],
+    ['foreign row', { row: 1 }, false],
+    ['unchanged attempts', { attempts: 0 }, false],
+    ['partial seed', { seed: true }, true],
+  ]) {
+    const dir = mkdtempSync(join(tmpdir(), 'commit-return-'));
+    const checkout = join(dir, 'companion');
+    mkdirSync(checkout);
+    const git = (...args) => execFileSync('git', ['-C', checkout, ...args], {
+      encoding: 'utf8', timeout: 10000,
+      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',
+        GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
+        GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid' },
+    }).trim();
+    git('init', '-q');
+    git('commit', '--allow-empty', '-qm', 'Start fixture');
+    const base = git('rev-parse', 'HEAD');
+    const target = change.seed ? 'seed' : '2';
+    const pending = `pending: ${target} | companion | ${base}`;
+    const ledger = `# Ledger - loop engine\niterations: 6\nallowance: 10\nreturned: none\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n| 2 | open | 0 | |\n| 3 | open | 0 | |\n\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | home |\n| 2 | 2 | companion |\n| 3 | 3 | companion |\n\n## Decisions\n`;
+    const saved = join(dir, 'home-ledger.md');
+    writeFileSync(saved, ledger);
+    const returnFile = join(git('rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet', 'returns', `${base}-6.md`);
+    mkdirSync(dirname(returnFile), { recursive: true });
+    const row = change.row ?? 2;
+    const rows = change.seed ? '| 2 | done | 0 | node --test totals.test.mjs; passed |\n| 3 | open | 0 | |' : `| ${row} | done | ${change.attempts ?? 1} | node --test totals.test.mjs; passed |`;
+    const decision = change.seed ? 'row 0 done | seeded 1 rows, closed 1 on baseline | row 3' : `row ${row} done | Count imported plants | Reuse totals.test.mjs`;
+    if (!change.missing) writeFileSync(returnFile, `${change.tuple ?? pending}\niteration: ${change.iteration ?? 6}\n\n${rows}\n\n${decision}\n`);
+    git('commit', '--allow-empty', '-qm', change.subject ?? 'Count imported plants');
+    const result = spawnSync('bash', ['-c', script], {
+      encoding: 'utf8', timeout: 10000,
+      env: { ...process.env, CHECKOUT: checkout, PENDING: pending, ITERATION: '6', SAVED_LEDGER: saved, RETURN_FILE: returnFile },
+    });
+    assert.equal(result.status === 0, accepted, `${name}: ${result.stderr}`);
+    if (accepted) assert.equal(JSON.parse(result.stdout).decision, decision, name);
+    assert.equal(readFileSync(saved, 'utf8'), ledger, 'admission never mutates home');
+  }
+});
 
 test('plan task, plan handoff and wave commit sites delegate wording without templates', () => {
   const plan = read('skills/writing-plans/SKILL.md');
