@@ -1,5 +1,7 @@
 # Loop engine: one dispatch may close several rows, seed may stop after one
 
+> **Superseded by:** [doc/specs/2026-11-14-single-commit-message-contract.md](./2026-11-14-single-commit-message-contract.md) - the "validated `loop: seed evidence` commit survives on the branch" predicate in the seed-selection acceptance row and its Driver restatement only
+
 **Goal:** Let a `loop-implementer` return close the target row plus any same-leg `open` rows it proved in the same session, declared only through the ledger diff and one decision line per changed row, and let seed record evidence for at least one non-cut row instead of all of them with one automatic retry on a seed miss - the parent stays a reader of the return, the tracker needs no change, and the worker owns ordering and the extras pick as prose guidance.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
