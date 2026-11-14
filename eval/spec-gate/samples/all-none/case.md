@@ -1,3 +1,14 @@
+Render the primary gate and handle its reply, then handle the two independent continuation snapshots below without rendering their gates again. Keep the entire response under 1200 words.
+
+## Primary gate observations
+
+The status call returned `Context: 16.0% of window`. This is a ticket subject with no existing PR. The committed spec contains these ticket acceptance rows:
+
+- [ ] Retrying a collection returns its existing receipt.
+  in-scope
+- [ ] A pending collection remains visibly pending.
+  in-scope
+
 ## Briefing
 
 Orchard coordinators use orchard-billing to collect monthly fees from growers, but a repeated collection request can currently charge the same invoice twice. Coordinators then reconcile receipts by hand while growers wait for a refund, and neither group can tell whether a retry is safe. The proposed change gives each collection request a stable receipt and makes retries return the original outcome instead of collecting again.
@@ -31,3 +42,15 @@ Rejected: none
 ## User reply
 
 approve
+
+## Independent continuation snapshots
+
+These are separate gates, not choices to combine. Each gate has already rendered its recommendation; handle the user's next reply using that snapshot. Do not render a second briefing, call tools, or reconsider the recommendation.
+
+### plan
+
+The gate marker ends in `recommended=1`. Rendered row 1 is `1 - plan engine: write a task plan, then implement it in reviewed waves. [recommended]`. Rows 2, 3, and 4 are also rendered, without a recommendation tag. The reason quotes the first bundled acceptance row. User reply: `approve`.
+
+### draft
+
+The gate marker ends in `recommended=4`. Rendered row 4 is `4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there. [recommended]`. Rows 1, 2, and 3 are also rendered, without a recommendation tag. The observed context percentage is 31.0%. User reply: `approve`.

@@ -217,6 +217,8 @@ Wait for the user. Resolve a rendered row from its digit, label, or `approve` ta
 | A flag with no row digit, row label, or `approve`; a budget token alone | Ask for a rendered row. |
 | `5`, `6`, another out-of-range digit, or a withheld row's digit or label | Name the rendered rows; never remap the selection. |
 
+For bare `approve`, resolve the recommended rendered row (1, 2, or 4) from the just-rendered gate; never recompute it from newer context or acceptance rows. Print `Taking "approve" as option <n> - <label>` with that row's number and label before applying its action, exactly as for its bare digit.
+
 After these checks, use the accepted mapping below. Accept `--fund-rounds=N` on row 1 with N matching `[1-9][0-9]*`; without `--amends-stop`, append `; fund N fix rounds` to `G` without removing the default amend permission. Keep `G` verbatim, including its final period (`approval.; fund N fix rounds`). On row 2, accept one `--allowance=N` flag with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings.
 
 | Reply | Action / written value |

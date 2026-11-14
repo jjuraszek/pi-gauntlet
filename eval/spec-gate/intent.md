@@ -1,13 +1,12 @@
-for: 37ebc5026080ed6a54d74babab22ee4ac95dea786c0311dcad6cedbef299be5c
+for: 8b65e167301569e59ea6977c0bb1e0099fe49fe3151238db6cdc6629af06ed8a
 
 ## Change
 
-Omit council row 3 and the Council counts line whenever no audit exists, on both the worker path and an aborted council path. Apply that omission independently of zero-row and PR-subject withholding without renumbering the remaining choices. A reply naming the hidden council row asks for a rendered choice without printing an audit or approving implementation.
+Resolve bare `approve` from the just-rendered recommendation and print `Taking "approve" as option <n> - <label>` before applying the selected row's bare-digit action. Retain the rendered recommendation rather than recomputing it. Plan and loop approvals inherit the default amendment grant; draft-PR approval publishes and stops instead of starting implementation.
 
-Extend worker-path with zero-worker, pr-worker, zero-pr-worker, and aborted-audit cases plus hidden-row replies. Run only spec-gate/worker-path against base 855e872a42f9cac7a795704f3e0b383b182950ab. This text replay checks narrated gates and actions, not live git operations. Preserve all other sample records; coverage is partial. Keep the deterministic contract beside its scripts/brainstorming-*.test.mjs siblings; paid replay remains outside CI.
+Extend all-none with grounded loop-gate observations and independent plan and draft-PR continuation snapshots. Run only spec-gate/all-none against base 855e872a42f9cac7a795704f3e0b383b182950ab. This text replay checks the echo and narrated actions, not live persistence or publication. Preserve other sample records; coverage is partial. Keep scripts/brainstorming-bare-approve.test.mjs beside its deterministic contract siblings; paid replay stays outside CI.
 
 ## Expected to move
-- worker-path/f3: fails -> holds - The worker gate keeps four-row numbering with only rows 1, 2, and 4 rendered.
-- worker-path/combined: fails -> holds - Worker, zero-row, and PR-subject omissions compose without restoring hidden rows or their flags.
-- worker-path/aborted: fails -> holds - An aborted council with no audit omits row 3 just like the worker path.
-- worker-path/hidden: fails -> holds - A withheld council digit clarifies the remaining choices without mutation or approval.
+- all-none/f5: fails -> holds - Bare approve follows recommended loop with an echo and the default grant rather than granting nothing.
+- all-none/plan: fails -> holds - A rendered plan recommendation resolves approve to row 1 with the echo and default grant.
+- all-none/draft: fails -> holds - A rendered draft-PR recommendation resolves approve to row 4 with the echo and publication stop.
