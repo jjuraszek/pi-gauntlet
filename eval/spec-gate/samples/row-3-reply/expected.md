@@ -1,5 +1,6 @@
 - f1: judged: In response to `3`, every Applied, Deferred, and Rejected audit line from the source critique pass return is printed verbatim without paraphrasing.
-- f2: judged: After printing the audit lines, the same gate is re-presented with the verbatim source briefing, the Council counts line, and exactly six numbered rows 1 through 6: approval, approval with auto-apply amends, showing council dispositions, loop engine, loop engine with auto-apply amends, and draft-PR handoff.
+- f2: judged: After printing the audit lines, the same gate is re-presented with the verbatim source briefing, the Council counts line, and exactly four numbered rows 1 through 4: plan engine, loop engine, council explanation, and draft PR. Its rows, per-engine flag lines, single recommendation tag, recommended= marker, and Recommended: reason line are identical to the initial gate.
 - f3: judged: The reply `3` records no approval and is not read as an auto-apply amends grant.
 - f4: judged: Handling the reply `3` neither edits the spec nor changes any commit.
 - f5: judged: The re-presented gate's Council counts line still states 11 applied, 0 deferred, and 0 rejected.
+- reuse: judged: Handling reply 3 reuses the rendered gate snapshot without a new status or settings call or a recomputed recommendation; any narrated read is only the committed audit. No summary is regenerated or read from the removed temp file.
