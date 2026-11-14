@@ -1,6 +1,8 @@
-for: 909e2578ff65d4757d4c9c0abdd94d599be2b87cc5a66055c41ac6d53135e020
+for: c5941b6814a0f6c8164d28ebbb390866a92df58bf8764ff7499be7c51b046042
 
 ## Change
+
+Migrate grant-budget-reply's funding approval to `1 --fund-rounds=3`, retaining its report-runner subject and token-only control. Persist the complete default grant, its terminal period included, plus `; fund 3 fix rounds` and Engine waves, preserve the audit and verify HEAD before completing brainstorm and planning. Run only grant-budget-reply for this edit against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve other sample records. This is partial narrated persistence coverage, not live git execution or a target-wide pass.
 
 Plain approval `2` now persists the default standing grant G with Engine loop, checks the amended commit before completing brainstorm, and invokes loop-implementation without writing-plans. Strengthen only loop-gate's plain-reply continuation to include the observed allowance 7 and absence of an override carrier. State the driver's plan skip and settings-write boundary explicitly in the handoff instead of leaving them implicit. Run loop-gate only; its other menu facts retain pre-migration wording and are not closure evidence for this row. Saved narration proves the selected continuation, not live Git execution or target-wide coverage.
 
@@ -227,7 +229,7 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
 - loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
-- grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
+- grant-budget-reply/funded-value: fails -> holds - Reply 1 --fund-rounds=3 persists the full default grant and funding suffix with waves, then checks HEAD before planning.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.
 - amendment-menu-render/f1: fails -> holds - Enforce the new amendment menu and reply grammar.

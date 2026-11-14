@@ -49,3 +49,4 @@ Treat the following as independent replies to the same gate, not a conversation 
 |---|---|
 | plan-stop | 1 --amends-stop |
 | loop-stop | 2 --amends-stop |
+| plan-funded | 1 --fund-rounds=3 |

@@ -203,7 +203,7 @@ If you believe the summary needs correcting, do **not** silently rewrite it - re
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. Interpret budget replies with this table before routing change requests. For 4/5, accept one optional `; allowance N` or `, allowance N` suffix with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings. On a malformed allowance suffix (zero, negative, non-numeric, unsafe, duplicate or trailing text), re-present the gate with exactly one clarifying question quoting it, then wait without writing; a second invalid reply leaves the gate waiting.
+Wait for the user. Interpret budget replies with this table before routing change requests. Accept `--fund-rounds=N` on row 1 with N matching `[1-9][0-9]*`; append `; fund N fix rounds` to `G` without removing the default amend permission. Keep `G` verbatim, including its final period (`approval.; fund N fix rounds`). For 4/5, accept one optional `; allowance N` or `, allowance N` suffix with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings. On a malformed allowance suffix (zero, negative, non-numeric, unsafe, duplicate or trailing text), re-present the gate with exactly one clarifying question quoting it, then wait without writing; a second invalid reply leaves the gate waiting.
 
 | Reply | Action / written value |
 |---|---|
@@ -212,7 +212,7 @@ Wait for the user. Interpret budget replies with this table before routing chang
 | bare `2` | approve; persist `G`; engine `loop`; use the settings allowance |
 | `2 --amends-stop` | approve; persist `none`; engine `loop`; use the settings allowance |
 | `2; fund 3 fix rounds` or `2, fund 3 fix rounds` | approve; persist that description plus `; fund 3 fix rounds`, not a change request |
-| `1` with a budget token | approve; persist `fund 3 fix rounds` alone for that token (budget-only) |
+| `1 --fund-rounds=N` | approve; persist `G; fund N fix rounds`; engine `waves` |
 | bare `4` or `5` | approve; persist `none` for 4 or the option-2 description above for 5; engine loop; use the settings allowance |
 | `4; allowance 6` / `4, allowance 6` or `5; allowance 6` / `5, allowance 6` | approve as the corresponding bare option; carry `run allowance: 6` to ledger seeding |
 | `4` or `5` with a funding token | Funding is waves-only: re-present the gate quoting the token; write nothing and wait for a valid approval |

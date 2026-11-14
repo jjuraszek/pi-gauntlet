@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 13
+iterations: 14
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,7 +22,7 @@ allowance: 10
 | 12 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-plan-approval.test.mjs; 2 passed; node eval/run.mjs brainstorming engine-waves improved on 2 models, plan-default held on both; selected sample only |
 | 13 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-loop-approval.test.mjs; 2 passed; node eval/run.mjs brainstorming loop-gate proves loop on both models; other sample facts still fail and need migration |
 | 14 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-stop-approval.test.mjs; 2 passed; node eval/run.mjs spec-gate flag-replies improved on 2 models, both opt-out facts held; selected opt-out cases only |
-| 15 | open | 0 | |
+| 15 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-funded-approval.test.mjs; 3 passed, 0 failed; node eval/run.mjs spec-gate flag-replies and brainstorming grant-budget-reply held 10/10 candidate facts on 2 models; selected samples only |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
@@ -51,3 +51,4 @@ row 11 done | Verified that known and unknown context readings leave details, TU
 row 12 done | Made plain approval 1 persist the default standing grant and waves before the verified commit-to-planning handoff. | Reuse scripts/brainstorming-plan-approval.test.mjs and engine-waves/plan-default to check the header and handoff order.
 row 13 done | Made plain approval 2 persist the default grant and loop before the verified handoff, using the settings allowance. | Reuse scripts/brainstorming-loop-approval.test.mjs and loop-gate/loop to check the header and ordered handoff.
 row 14 done | Made --amends-stop persist none with waves on row 1 and loop on row 2 before the verified handoff. | Extend eval/spec-gate/samples/flag-replies for reply cases and reuse scripts/brainstorming-stop-approval.test.mjs for opt-out persistence.
+row 15 done | Made 1 --fund-rounds=3 retain the full default grant, including its final period, before appending the funding token. | Extend scripts/brainstorming-funded-approval.test.mjs and the flag-replies and grant-budget-reply samples for funded approval cases.
