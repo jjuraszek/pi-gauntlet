@@ -43,7 +43,9 @@ This is a new ticket spec, not a PR subject. The summary was read successfully; 
 
 ## User reply
 
-Treat the following as independent replies to the same gate, not a conversation sequence. Render the gate once, then handle each reply separately using its case ID. Narrate the resulting header fields, commit and HEAD check, then the phase completion and next skill; do not use tools.
+replay: continuation
+
+The gate was rendered in the preceding turn; now handle these independent replies, not a conversation sequence. Output only a common approval recipe and case-ID continuations, with no briefing or gate menu. State the shared commit, HEAD check and phase-completion sequence once, then apply that sequence to each accepted case after its exact header fields, decoded amendment permission and separate funding value. Show each next skill's invocation literally after any carrier line. For rejected replies, render the response and state what changes. Keep the complete response under 1000 words. Do not use tools.
 
 | Case | Reply |
 |---|---|
@@ -52,3 +54,6 @@ Treat the following as independent replies to the same gate, not a conversation 
 | plan-funded | 1 --fund-rounds=3 |
 | plan-stop-funded | 1 --amends-stop --fund-rounds=3 |
 | loop-allowance | 2 --allowance=6 |
+| prose-stop | approve, stop on amends |
+| digit-stop | 1, stop on amends |
+| prose-funding | approve and fund 3 more rounds |

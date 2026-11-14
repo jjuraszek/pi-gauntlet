@@ -1,6 +1,8 @@
-for: c5941b6814a0f6c8164d28ebbb390866a92df58bf8764ff7499be7c51b046042
+for: 854a99f7c2db91fb94176e39e6c07186751ebcca7e45fd8895dc5f2a29e6c278
 
 ## Change
+
+Reject invalid gate replies before approval and spec-change handling. Migrate only loop-funded-reply to row-2 loop and row-1 plan flag grammar, preserving its funding rejection, opt-out, default grant, allowance carrier and waves controls. Replace comma-allowance acceptance with rejection, then add a table of malformed, duplicate, unknown, worded, old-suffix, wrong-row and withheld-row cases. Retain its bundle and 2200-word cap; narrate shared unchanged state once and one question per rejected input. Run only loop-funded-reply and spec-gate/flag-replies for this change against base 855e872a42f9cac7a795704f3e0b383b182950ab. These selected tool-free replays do not establish live writes or target-wide coverage; preserve all unrelated records.
 
 Migrate grant-budget-reply's funding approval to `1 --fund-rounds=3`, retaining its report-runner subject and token-only control. Persist the complete default grant, its terminal period included, plus `; fund 3 fix rounds` and Engine waves, preserve the audit and verify HEAD before completing brainstorm and planning. Run only grant-budget-reply for this edit against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve other sample records. This is partial narrated persistence coverage, not live git execution or a target-wide pass.
 
@@ -95,6 +97,10 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- loop-funded-reply/words: fails -> holds - Reject worded intent with its matching flag rather than grant or edit.
+- loop-funded-reply/suffixes: fails -> holds - Reject retired suffixes in favor of engine-specific flags.
+- loop-funded-reply/flags: fails -> holds - Reject cross-engine and non-engine flags after any selector.
+- loop-funded-reply/selection: fails -> holds - Ask for rendered rows without remapping an invalid or withheld selection.
 - engine-waves/plan-default: fails -> holds - Reply 1 grants by default and commits both fields before completing brainstorm and invoking writing-plans.
 - spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
 - spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.

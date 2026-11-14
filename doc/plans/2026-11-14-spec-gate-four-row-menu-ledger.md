@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 16
+iterations: 17
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -25,7 +25,7 @@ allowance: 10
 | 15 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-funded-approval.test.mjs; 3 passed, 0 failed; node eval/run.mjs spec-gate flag-replies and brainstorming grant-budget-reply held 10/10 candidate facts on 2 models; selected samples only |
 | 16 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-budget-only-approval.test.mjs; 2 passed, 0 failed; node eval/run.mjs spec-gate flag-replies held 8/8 candidate facts on 2 models; selected sample only |
 | 17 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-allowance-approval.test.mjs; 2 tests passed; loop-allowance held on both models with a literal carrier; flag-replies plan-stop-funded failed on one model |
-| 18 | open | 0 | |
+| 18 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-rejected-replies.test.mjs; 2 tests passed; node eval/run.mjs spec-gate flag-replies and brainstorming loop-funded-reply hold 34/34 candidate facts on 2 models; selected samples only, accepted carrier controls pass |
 | 19 | open | 0 | |
 | 20 | open | 0 | |
 | 21 | open | 0 | |
@@ -54,3 +54,4 @@ row 14 done | Made --amends-stop persist none with waves on row 1 and loop on ro
 row 15 done | Made 1 --fund-rounds=3 retain the full default grant, including its final period, before appending the funding token. | Extend scripts/brainstorming-funded-approval.test.mjs and the flag-replies and grant-budget-reply samples for funded approval cases.
 row 16 done | Made combined plan opt-out and funding flags persist only fund 3 fix rounds, preserving waves and the verified handoff. | Reuse scripts/brainstorming-budget-only-approval.test.mjs and flag-replies/plan-stop-funded for budget-only approval checks.
 row 17 done | Kept allowance out of specs and printed the loop-entry carrier; the shared replay misses budget-only narration on one model. | Reuse scripts/brainstorming-allowance-approval.test.mjs and flag-replies/loop-allowance to check literal carrier placement.
+row 18 done | Rejected invalid approval replies with one clarifying question and no file or commit changes. | Reuse scripts/brainstorming-rejected-replies.test.mjs and the flag-replies/loop-funded-reply matrices to validate reply routing.
