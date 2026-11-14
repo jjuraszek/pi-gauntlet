@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -15,7 +15,7 @@ allowance: 10
 | 5 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 63 passed; node eval/run.mjs spec-gate recommended-row engine-only held on both models; 17/18 candidate facts held after judgment-only refresh, retained flag-layout judge disagreement |
 | 6 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 64 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 20/20 candidate facts held; zero-row fallback and high-context precedence held |
 | 7 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 65 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 22/22 candidate facts held; bundled-row selection, cut exclusions and context precedence held |
-| 8 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 66 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 24/24 candidate facts held; unbundled fallback and single-observation facets held |
 | 9 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five numeric context cases; status ends with ship instead of the required Context percentage line |
 | 10 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five unavailable context cases; status ends with ship instead of Context: unknown |
 | 11 | open | 0 | |
@@ -44,3 +44,4 @@ row 4 done | Recommended row 4 above 25% with the observed percent and fresh-ses
 row 5 done | Restricted low, unknown, or withheld draft-PR recommendations to rendered engine rows. | Reuse eval/spec-gate/samples/recommended-row's context matrix and scripts/brainstorming-contract.test.mjs for engine-selection checks.
 row 6 done | Recommended the plan engine for zero acceptance rows unless context already recommends the draft PR. | Reuse eval/spec-gate/samples/recommended-row's zero-row matrix and scripts/brainstorming-contract.test.mjs for recommendation precedence checks.
 row 7 done | Recommended the plan engine for the first bundled in-scope or venue row, quoting its index and separate outcomes. | Reuse eval/spec-gate/samples/recommended-row's bundled cases and scripts/brainstorming-contract.test.mjs for disposition and context precedence checks.
+row 8 done | Recommended loop for unbundled acceptance rows with the exact fallback reason. | Reuse eval/spec-gate/samples/recommended-row's unbundled cases and scripts/brainstorming-contract.test.mjs to check single-observation facets and recommendation precedence.

@@ -293,6 +293,17 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
   assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-venue.*bundle-high/m);
 });
 
+test('unbundled acceptance rows recommend loop with the exact fallback reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const rule = 'When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`';
+  assert.ok(text.includes(rule), 'unbundled rows select loop with the prescribed reason');
+  assert.ok(text.indexOf(rule) > text.indexOf('When row 4 is not recommended and acceptance rows exist'), 'fallback follows context, zero-row and bundled-row assessment');
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  assert.ok(fixture.includes('| unbundled-facets | Context: unknown | C |'));
+  assert.match(fixture, /### Acceptance section C[\s\S]*The status line shows the receipt ID, total, and currency\.[\s\S]*The receipt identifier is stored in the request record\./);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- unbundled: judged:.*unknown.*boundary.*low.*withheld.*row 2.*no row bundles more than one outcome.*unbundled-facets/m);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];
