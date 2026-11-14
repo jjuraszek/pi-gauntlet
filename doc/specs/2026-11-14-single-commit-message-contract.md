@@ -367,7 +367,8 @@ Add:
 - the landed-message commit forms in finish Option 3, the gatekeep merge and the hotfix squash; `--title` and `--body` on the hotfix pull request;
 - the plan-file merge precondition and the squash-default note at finish Options 1 and 2 and the gatekeep merge;
 - `scripts/commit-subject-lint.mjs`, its test, and its `scripts/ci.mjs` entry;
-- the tests in Tests and the eval samples below.
+- the isolated tests in Tests and selected eval samples below;
+- the isolation policy in `eval/README.md` and its authoring pointer and sample-scoped run commands in `eval/_template/README.md`.
 
 No extension or bin source changes are planned: the ledger readers already skip unknown lines (claim 11). If a parser test in Tests fails, the fix lands in that reader and `npm run build:bins` regenerates the bundles.
 
@@ -375,7 +376,11 @@ No extension or bin source changes are planned: the ledger readers already skip 
 
 Existing samples: the 71 samples of claim 25 state the old labels or the commit-body block in `case.md` or `expected.md`. Reword each to the ledger contract in the same change (fixture ledgers gain `returned:`; expected facts name decision lines and return files). They are not rerun; the evidence names them as coverage not re-proven.
 
-New samples, one per changed behavior. Each target's `intent.md` gains the behavior it covers.
+The following table is a behavior coverage map, not a requirement to run eighteen model samples. Test each piece in isolation, with no end-to-end model eval. Use deterministic fixtures for executable parsers, counters, git recipes, return-file lifecycle and caller wiring. Use selected model samples only where interpreting the changed instructions or composing prose needs observation. Each target's `intent.md` names the behavior its selected sample covers; report any coverage moved to deterministic checks rather than claiming a model pass.
+
+For each selected model sample, record its entry boundary, fixed upstream state, inspected output and stop boundary in `case.md`. Start immediately before the changed decision and stop at its output: compose a message without implementing or delivering the change; decide admission without running the worker or the next attempt; decide recovery without continuing implementation. Keep variants to one decision axis and separate independent decisions. Preserve the table's behavioral obligations through isolated tests or samples; never relax the return, recovery, budget or migration contract to shorten a check.
+
+Update `eval/README.md` with this isolation-first policy, the deterministic-test/model-eval distinction, a concrete commit-message example and the requirement to justify each model call. Route sample authors there from `eval/_template/README.md`, and fix its baseline-seeding example to require an explicit sample selector. These documentation changes ship in this work. Do not change the eval runner or add a new enforcement subsystem. Preserve completed records; changed inputs invalidate their currency rather than retroactively proving the narrowed case. Do not rewrite all 71 legacy samples as a prerequisite to the current isolated check; handle only stale contract text required by a changed target's integrity, and disclose untested coverage.
 
 | Target / sample | Must hold |
 |---|---|
@@ -402,7 +407,7 @@ New samples, one per changed behavior. Each target's `intent.md` gains the behav
 
 | Action | Runner | Inputs |
 |---|---|---|
-| `node eval/run.mjs <target> <sample>` (model calls), and `node eval/run.mjs <target> <sample> --baseline-only` where a sample declares `bundle-` lines | the main loop, from the worktree root, bounded parallel per `eval/README.md` | the 18 new samples in the table above, rerun after wording fixes |
+| `node eval/run.mjs <target> <sample>` (model calls), and `node eval/run.mjs <target> <sample> --baseline-only` where a sample declares `bundle-` lines | the main loop or owning implementer, from the worktree root, bounded parallel per `eval/README.md` | explicitly selected isolated samples from the behavior map above; name the model-dependent fact before each call and rerun only affected cases after batched wording fixes; no end-to-end or target-wide replay |
 
 Approving this spec authorizes every named action for the whole flow across seed, rows, repairs and finish, without per-step permission prompts; any count is advisory. No other paid or external action is needed: no real pull request is opened or merged, and no repo setting is read outside fixtures.
 
@@ -434,8 +439,9 @@ Approving this spec authorizes every named action for the whole flow across seed
 
 ## Tests
 
-Each row names its target kind. "Runs" means the test extracts a named embedded script or git recipe from the skill text and executes it on a scratch repo; today only `scripts/loop-engine-contract.test.mjs` and `scripts/finish-verification.test.mjs` execute anything, and a file that gains a run gains its scratch-repo setup with it. "Text" means an assertion on skill, persona or doc wording. Driver prose has no executable form: it is covered by a text assertion plus the named eval sample, never by a claim that a test runs the driver.
+Each row names its target kind. "Runs" means the test extracts a named embedded script or git recipe from the skill text and executes it on a scratch repo; today only `scripts/loop-engine-contract.test.mjs` and `scripts/finish-verification.test.mjs` execute anything, and a file that gains a run gains its scratch-repo setup with it. "Text" means an assertion on skill, persona or doc wording. Driver prose has no executable form: an isolated model sample observes its decision on supplied state, and a text assertion checks its written contract; neither is a claim that a test runs the driver. The named samples below are coverage candidates subject to section 9's isolation and selection rules, not a mandatory model-run checklist. Test each executable piece independently; do not make a local wording or protocol assertion depend on replaying setup, implementation, review and delivery.
 
+- Eval authoring docs require one boundary, fixture upstream state, explicit stop and sample-selected commands - text/doc check: `eval/README.md` and `eval/_template/README.md`; no model call for documentation wording.
 - Reference cited by every commit site and no site keeps a template - text: `scripts/commit-message-contract.test.mjs` (new; the citation at each row of "Commit sites", including the conformance, convergence, minors, verification-produced, worktree-ignore and member-merge rows; the three docs of section 7)
 - Lint fails per label and passes on the tree - runs the lint: `scripts/commit-subject-lint.test.mjs` (new; six quoted fixtures, a fenced-code line starting with a label, the legacy-block exemption, the `reason` exemption)
 - Home worker commit shape - sample `loop-implementer/home-plain-commit`; text: persona assertions in `scripts/loop-engine-contract.test.mjs`, including both header-preservation sentences permitting `returned:`
@@ -464,7 +470,7 @@ Each row names its target kind. "Runs" means the test extracts a named embedded 
 
 ## Documentation impact
 - Feature / user-facing docs introduced: none
-- Materially amended existing docs: `doc/implement-engines.md` (communication contracts: ledger returns, the `returned:` line, decision-line kinds, the return file); `doc/configuration.md` (operations: ledger recovery, seed completion from the ledger, and the one-time conversion at resume); `README.md` (major procedures: the landed message on merges the framework runs, the squash-default note, the plan-file merge precondition); `CHANGELOG.md` `## Unreleased` (release discipline)
+- Materially amended existing docs: `doc/implement-engines.md` (communication contracts: ledger returns, the `returned:` line, decision-line kinds, the return file); `doc/configuration.md` (operations: ledger recovery, seed completion from the ledger, and the one-time conversion at resume); `README.md` (major procedures: the landed message on merges the framework runs, the squash-default note, the plan-file merge precondition); `CHANGELOG.md` `## Unreleased` (release discipline); `eval/README.md` (major procedures: isolation-first validation and no end-to-end model replay for local changes); `eval/_template/README.md` (sample-authoring route and explicit sample selection)
 - Derived / memory docs invalidated: `doc/gate-contract.md` (how verification repairs are counted and the stop texts that name commit labels)
 
 The materiality bar is `reference/documentation-impact.md`.
@@ -482,6 +488,7 @@ The materiality bar is `reference/documentation-impact.md`.
 - The squash-default note on hotfix and housekeeping pull requests.
 - `AGENTS.core.md` and the sibling repos: no cross-repo contract changes.
 - Rerunning the 71 reworded eval samples.
+- End-to-end model evals, including simulated multi-stage workflow replays; local behaviors use isolated tests or decision samples.
 
 ## Open questions
 

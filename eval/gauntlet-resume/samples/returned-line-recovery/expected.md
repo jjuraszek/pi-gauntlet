@@ -1,0 +1,1 @@
+- home: judged: Classifies the clean single home return as admissible from the committed returned tuple and iterations, using the ledger at S as its before-image without reading commit messages. Keeps iterations 3 and attempts 1 with no second increment, and stops at the decision without executing restoration.

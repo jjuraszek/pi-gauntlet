@@ -1,0 +1,1 @@
+- message: judged: Returns only one plain imperative subject of at most 72 characters, followed by a paragraph of at most three sentences and at most five outcome bullets describing the supplied completed change. Names the user-visible pagination fix without labels, code paths, invented results or an unbound ticket; emits no commands or delivery claim.

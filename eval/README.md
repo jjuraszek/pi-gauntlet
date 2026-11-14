@@ -30,6 +30,21 @@ A completed refresh exits `0` for improved or unchanged, or `1` for regressed, i
 
 When interpreting a dispute, distinguish a wrong or ambiguous fact/judge interpretation from intended variance. Correct an unclear fact or judge instruction, then judge again; refresh never widens intent. If a behavior change is genuinely accepted, record its exact fact and direction in `intent.md` as described below and rerun. A different refreshed verdict, a clean rerun, or repeated attempts alone do not justify accepting a deviation.
 
+## Isolate the behavior under test
+
+Test one component or decision boundary at a time. Do not use an end-to-end workflow replay to validate a local change. A small number of selected samples can still be too broad when each asks the model to run several workflow stages.
+
+- Prefer deterministic tests for parsers, counters, file lifecycle, git recipes and command construction. Use a model eval for behavior that depends on interpreting instructions or writing language; a text assertion proves an instruction exists, not that the model follows it.
+- Start a model sample immediately before the changed decision. Supply upstream results as fixed inputs, and stop at that decision's output. State the entry boundary, supplied state, output to inspect and stop boundary in `case.md`.
+- Keep `expected.md` facts inside that boundary. Do not require setup, implementation, review, shipping or cleanup merely to reach a commit-message check. Exercise adjacent stages independently with their own inputs.
+- Keep variants on one decision axis. Split a sample that mixes message composition, return admission, repair budgets and delivery into isolated cases rather than one process rehearsal.
+- Load only the owning instructions and required contracts, using supported heading slices and bundle selection. Preserve required dependencies; shrinking the prompt must not hide a rule the decision needs.
+- Reuse existing isolated evidence when it remains current. Do not add model runs per touched file or repeat a shared wording check through every caller; check caller wiring deterministically and eval genuinely different instruction behavior separately.
+
+For a commit-message change, supply a completed change summary and a bound ticket, request only the subject and body, and judge their wording. Test return-file admission separately with a saved tuple, a fixture result and one candidate commit. Neither check needs to implement a feature or merge a real pull request.
+
+Before a model call, name the behavior that requires a model and why a deterministic test does not cover it. Reject or narrow a sample with no clear stop boundary. Record isolated coverage and untested integration honestly; passing these checks is not end-to-end process proof.
+
 ## Iterating on a skill edit
 
 Run only explicitly selected behavior-relevant samples. Never run broad target-wide or cross-target model-eval sweeps, including at completion. Shared prompt files can make unrelated cells stale; staleness alone is not a reason to run them. `bundle-:` lines in `case.md` narrow each sample's assembled input, but do not replace behavioral sample selection.

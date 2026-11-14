@@ -1,6 +1,8 @@
-for: efc91978f1ec956a827cc637a1dd4aed50958cd420fd4388f7e17b76b54b7205
+for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
 
 ## Change
+
+Isolate returned-line-recovery to classifying one clean home return and legacy-ledger-conversion to eligibility by returned-header presence. Keep parser, count and Git execution proof in deterministic fixtures; a narrated decision proves none of them. Select no model replay for this source-wiring iteration. Retain broad recovery/conversion records as historical evidence with stale case hashes; the remaining Change paragraphs describe separate retained work.
 
 Compose citation-repair messages with the shared bookkeeping recipe. Keep path-scoped commits only for initially tracked clean plans; preserve dirty/untracked repairs for the next task commit and keep the saved task snapshot. Run only plan-citation-subject for this change; narrated composition and continuation are partial coverage, not live restoration or a target-wide pass. Preserve earlier sample records.
 Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
@@ -63,6 +65,8 @@ Cover home-bound coordinated admission, informational HEAD/dirt drift, membershi
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- returned-line-recovery/home: fails -> holds - Classify the supplied clean home return from ledger attribution and the before-image without reading messages or incrementing counts again. This hypothesis has no current isolated replay.
+- legacy-ledger-conversion/eligibility: fails -> holds - Select conversion and its shared sentence only when returned is absent; otherwise leave the supplied ledger untouched. This hypothesis has no current isolated replay.
 - plan-citation-subject/wording: fails -> holds - Replace the resume label with the fixed citation-repair sentence as the entire subject.
 - interrupted-ownership/home: fails -> holds - Recover a home interruption without checkout or launch proof, repair once with the consumed iteration and continue below allowance without a discard prompt.
 - interrupted-ownership/ownership: fails -> holds - Recover unconditionally despite unrelated writes, clear pending in the failed-attempt repair and continue below allowance without a human turn.

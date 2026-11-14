@@ -1,6 +1,6 @@
 # Adding an eval target or sample
 
-Copy this directory to `eval/<target>/` and edit in this order.
+Copy this directory to `eval/<target>/` and edit in this order. Apply [Isolate the behavior under test](../README.md#isolate-the-behavior-under-test) before authoring a sample: choose one decision, supply prior state, inspect its output and stop. Do not replay an end-to-end workflow to check a local change.
 
 | File | Fill with |
 |---|---|
@@ -14,4 +14,4 @@ Copy this directory to `eval/<target>/` and edit in this order.
 
 Anonymization is a hard rule: a sample may start from private material, but what lands here is anonymized or rewritten as simpler synthetic text, and never contains a secret, an absolute macOS home-directory path, or the repo owner's handle outside a URL or ticket ref. The driver refuses to run on a hit.
 
-Then `node eval/run.mjs <target> --baseline-only` seeds `results/<sample>/baseline.json` for the new sample(s) from the skill text at the merge-base with `origin/main` (or `--base <ref>`); commit them. Process and record schema: `eval/README.md`.
+Then `node eval/run.mjs <target> <sample> --baseline-only` seeds `results/<sample>/baseline.json` for the explicitly selected sample from the skill text at the merge-base with `origin/main` (or `--base <ref>`); commit it. Keep the sample selector on candidate runs too; never seed or replay the whole target to check one changed behavior. Process and record schema: `eval/README.md`.

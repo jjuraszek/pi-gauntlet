@@ -44,7 +44,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `maxIterationsPerRow` (default 4) as the ledger allowance. Resolve
    `gauntlet_setting({ key: "escalationLoop" })` and retain `implModel`;
    require it only at the escalated dispatch under Attempt budget. Any settings
-   error -> abort (pre-land). Nothing exists yet.
+   error -> abort (pre-land). Nothing exists yet. Read [commit-message.md](../finishing-a-development-branch/reference/commit-message.md); resolve its absolute path and the ticket named in the record once. Pass them as `wording:` and `ticket:` to every worker and use the reference for inline commits and landing.
 3. **Worktree.** From the primary checkout:
 
    ```bash
@@ -84,6 +84,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    checks: commands
    iterations: 0
    allowance: <maxIterationsPerRow>
+   returned: none
 
    | row | status | attempts | evidence |
    |---|---|---|---|
@@ -112,8 +113,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    first `target: seed`, then, only after admitting the seed, `target: 1`.
    Use `context: "fresh"` and `cwd: <WORKTREE>` for both. The record is the
    child's spec; its sole AC is row 1 and R2/R3 are invariants, not extra rows.
-   The child leaves the parent-owned ledger untouched and returns its row and
-   decision in its commit body under its Companion result commit contract.
+   Keep the parent-owned ledger untouched in the child. Use the persona's Outside-ledger result contract: write the row and decision to the supplied `return:` file before committing; keep protocol state out of the message.
 
    Resolve `Rules:` in the worktree: check `test -f <WORKTREE>/<path>` for
    `AGENTS.md`, then the overrides path located in step 2. Supply one line per
@@ -125,13 +125,13 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
    write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
-   tuple to the child, with the pre-bump `iteration: <i>`:
+   tuple to the child, with the pre-bump `iteration: <i>`. Resolve `git -C <WORKTREE> rev-parse --path-format=absolute --git-dir`, never the common dir. Set `return:` to `<checkout-git-dir>/gauntlet/returns/<HEAD_BEFORE>-<i + 1>.md`; create its parent directory and delete any stale file at that exact path before dispatch. Recompute the path from the pending tuple and consumed count on recovery; delete the file after admission, a miss or abort.
 
    ```text
    subagent({ agent: "loop-implementer", context: "fresh", async: false,
      cwd: <WORKTREE>, output: <absolute $TMPDIR path>, outputMode: "file-only",
      acceptance: { level: "none", reason: "the parent validates the commit and keeps the ledger" },
-     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-ledger-<slug>.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nSCOPED_TEST_COMMANDS: <commands>" })
+     task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-ledger-<slug>.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nwording: <absolute shared reference path>\nticket: <reference or none>\nreturn: <absolute checkout-local return file>\nSCOPED_TEST_COMMANDS: <commands>" })
    ```
 
    Use `previous decision: none` for seed, then the admitted seed decision for
@@ -141,7 +141,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    evidence command for row 1 is <evidence-command from the record>; run it and
    record it`. Add to either seed hint: `when seeding changes no tracked file,
    commit once with git -C <WORKTREE> commit --allow-empty carrying the same
-   subject and body`. Set the first row attempt's hint to `none`.
+   shared wording and attributed return file`. Set the first row attempt's hint to `none`.
 
    Insert this binding block verbatim into each task. Substitute literal step 3
    values for `<WORKTREE>` and `<PRIMARY_ROOT>`, never a `$VAR` for the child to
@@ -160,7 +160,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    carrying the full output before the child's completion guard runs.
    After each return, run `binding_check` before reading the decision or handling
    a dispatch error; a failed check -> `binding_abort`. Then apply these checks
-   in order, reading the commit rather than trusting the child's reply:
+   in order, reading the return file rather than the message or child's reply:
 
    **Boundary.** Run `git -C <WORKTREE> status --porcelain` and
    `git -C <WORKTREE> rev-list <HEAD_BEFORE>..HEAD --count`. Non-empty porcelain
@@ -168,9 +168,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    leave attempts unchanged and the ledger untouched. Never discard changes
    to make a return admissible.
 
-   **Commit body and evidence.** Require body lines 1-2, immediately after the
-   subject's blank separator, to equal the dispatched `pending:` tuple and
-   `iteration: <i + 1>`. Require a blank line, exactly one four-column row
+   **Return file and evidence.** Require the file's first two lines to equal the dispatched `pending:` tuple and `iteration: <i + 1>`. Require a blank line, exactly one four-column row
    without a header, then a blank line and the decision. In the evidence cell,
    require one runnable, selective evidence command up to the first unescaped
    semicolon, plus at most three semicolon-separated result lines. Require plain
@@ -180,8 +178,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    that exits nonzero when no test is selected; verify a filter's no-match exit
    once, otherwise require the file invocation.
 
-   **Seed admission (`target: seed`).** Require exactly one new commit with
-   subject `loop: seed evidence`, the body above, row
+   **Seed admission (`target: seed`).** Require exactly one new commit and the return file above, with row
    `| 1 | open | 0 | <evidence> |`, and the exact decision
    `row 0 done | seeded 1 rows, closed 0 on baseline | 1`. Inspect
    `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD` for tracked changes:
@@ -190,27 +187,26 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    |---|---|
    | Row status `done` | Abort (pre-land): `baseline already passes: repro not captured` |
    | Empty diff | Admit only when the evidence command equals the record's `evidence-command` or names a path present at `BASE_SHA`, proved by `git -C <WORKTREE> cat-file -e <BASE_SHA>:<path>`; otherwise treat as a seed miss |
-   | Zero commits, dispatch error without a commit, wrong subject, malformed body, row, counts, or decision, or any other seed miss | Abort (pre-land), no seed retry |
+   | Zero commits, dispatch error without a commit, missing or malformed return file, row, counts, or decision, or any other seed miss | Abort (pre-land), no seed retry |
    | All checks pass | Apply the admitted result below, then issue the first row attempt |
 
-   **Row admission (`target: 1`).** Require exactly one new commit with subject
-   `loop: row 1 done` or `loop: row 1 failed`, the body above, and row
+   **Row admission (`target: 1`).** Require exactly one new commit, the return file above, and row
    `| 1 | <status> | <attempts> | <evidence> |`. Require attempts = saved attempts + 1
-   and identical status in the subject, row, and decision. Match the decision to
+   and identical status in the row and decision. Inspect no subject for admission. Match the decision to
    `^row 1 (done|failed) \| .{1,200} \| .{1,200}$`. Inspect
    `git -C <WORKTREE> diff <HEAD_BEFORE>..HEAD`; a diff changing no tracked file
    is a validation miss (no progress).
 
    **Admitted result.** The parent writes the row, appends the decision to
-   `## Decisions`, clears `pending:`, and resets the consecutive-miss count.
+   `## Decisions`, sets `returned:` to the dispatched tuple, clears `pending:`, deletes the return file, and resets the consecutive-miss count.
    For row 1, `done` -> step 5; `failed` -> next attempt under Attempt budget,
    with the admitted decision as `previous decision`.
 
    **Validation miss (`target: 1` only).** Treat zero commits, a dispatch error
-   without a commit, malformed subject/body/row/decision, attempts not equal to
+   without a commit, missing or malformed return file/row/decision, attempts not equal to
    saved attempts + 1, status disagreement, or an empty row commit as a miss.
    Write row 1 `failed`, attempts = saved attempts + 1, and evidence
-   `attempt <n>: <concrete miss>`; clear `pending:` and use
+   `attempt <n>: <concrete miss>`; set `returned:` to the dispatched tuple, clear `pending:`, delete the return file and use
    `previous decision: none` for the next dispatch under Attempt budget.
    Count consecutive misses across row returns; the second consecutive miss ->
    abort (pre-land).
@@ -314,7 +310,7 @@ remaining, `REJECT`, or an invariant violation.
    -> abort (pre-land). `REJECT` or any invariant violation -> abort, no round.
    Dispatch failure or malformed output -> one redispatch, then abort.
 8. **Finish.** Branch on the record's `delivery-mode`: `squash` -> squash path;
-   `pr` -> PR path. Every command from `PRIMARY_ROOT`. Squash path, by state:
+   `pr` -> PR path. Compose the message through the shared Hotfix landing and Landed message rules, using the record's fault story and resolved ticket. Use its subject as the PR title and save its body to a temporary file. Every squash command runs from `PRIMARY_ROOT`; feed the complete message on stdin at the commit below. Squash path, by state:
 
    ```bash
    cd "$PRIMARY_ROOT"
@@ -323,7 +319,7 @@ remaining, `REJECT`, or an invariant violation.
    git checkout "$DEFAULT" || land_abort                            # pre-squash ends here
    git merge --squash "hotfix/<slug>" || { git reset --hard "$BASE_SHA"; land_abort; }
    git diff --cached --quiet && { git reset --hard "$BASE_SHA"; land_abort; }   # empty squash
-   git commit -m "fix: <slug>" -m "<fault story>" || { git reset --hard "$BASE_SHA"; land_abort; }
+   git commit -F - || { git reset --hard "$BASE_SHA"; land_abort; }
    [ "$(git rev-parse HEAD^{tree})" = "$(git rev-parse "hotfix/<slug>^{tree}")" ] \
      || { git reset --hard "$BASE_SHA"; land_abort; }              # proven; never reset after this line
    SHA=$(git rev-parse HEAD)
@@ -341,7 +337,7 @@ remaining, `REJECT`, or an invariant violation.
 
    PR path, cwd = the worktree: `git push -u origin hotfix/<slug>` - failure ->
    report branch + worktree path, no URL, preserve. `gh pr create --base <default>
-   --head hotfix/<slug>` - `gh` missing or failing after one retry -> report the
+   --head hotfix/<slug> --title "<composed subject>" --body-file <temporary body file>` - `gh` missing or failing after one retry -> report the
    pushed branch and compare URL. Worktree and branch preserved; print the closing
    line.
 9. **Cleanup evidence.** Squash exit and pre-land aborts: `git worktree list`

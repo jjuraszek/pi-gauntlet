@@ -1,29 +1,31 @@
-# eval report: gatekeep-pr (partial run: stop-draft-files)
+# eval report: gatekeep-pr (isolated source-wiring checks)
 
-for: 7d4df4559b7be03efbd989c26a94570d3e7963b230088fe76fb068200bb9eea5
+for: 692b9ffdad1ec862b1f14bc890e728c42c4f2a4de5ff03c35be0b39bedcda620
 
-wall: 63s
+## Current coverage
 
-## Change
+The selected local check passed: 52 tests, 0 failures, including all 23 inventoried citation sites. This is not a full-suite result.
 
-Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. P4's saved candidates retain these eight samples' outcomes. The current partial report covers only the authorized bypass-merge-pick-revoked judgment refresh: all five facts hold on both saved replies, with no replay; earlier P4/P5 reports remain in Git. Other saved results remain earlier evidence. P5 seeded stop-draft-files once and ran its first candidate replay. That replay's anthropic/claude-opus-5-5 closing messages omitted the not-posted reason for both replies at both checkpoints, although the judge marked retained as holds; github-copilot/gpt-6.1-sol supplied the reason. P7 selects only stop-draft-files for a fresh candidate replay after deleting the saved candidate, retaining the baseline and unchanged Teardown text and expected facts. Check each closing message's reply paths and explicit reasons directly, not just the judge labels.
+`timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs` selects the shared-reference citations, caller wording/return-file wiring, isolated sample structure, docs isolation rules and evidence-currency assertions. These are deterministic checks, not an executed gatekeep driver or live GitHub proof. No model calls were selected after isolation; no current model pass is claimed for either narrowed case.
 
-Render three unlabeled report parts: a two-sentence behavior-based change/scope opening, standing and concrete problems, then a separate recommendation above Pick one. Keep raw evidence and repair/sync usage behind show evidence; D2 obstacle consequences may name additional attempts. Align the replay wrapper with that report rather than requesting sync and verdict labels.
+| Narrowed sample | Entry and output | Stop | Model reason |
+|---|---|---|---|
+| merge-landed-message | Fixed completed outcomes -> composed subject and body | Before any settings read, policy choice or delivery | Prose composition needs language judgment, but is not required to prove caller wiring here |
+| fix-row-return-file | Supplied returned row -> admission classification, varying only file presence | Before any counter write, cleanup or next dispatch | Unselected instruction-interpretation candidate; executable checks belong in deterministic fixtures |
 
-Cover all seven action-row-one scenarios: pending progress, ruleset block, unchanged cap prerequisite, own source repair, another author's body-only deliver, author-only assess and a pending proposal with preserve contract recommended. Cover all thirteen post-menu-set-reply operations, including numeric unions, typed reply 2 versus row 2, invalid stop sets, failed-step continuation, nested release pause, queued-merge stop and retained not-run work. Preserve existing freshness and explicit-pick facts. Migrate stale supplied reports and action mappings in batch-failure-retry, batch-summary-queue, role-line-requested, no-arg-discovery-under-cap and menu-after-numbered-findings.
+## Historical evidence
 
-Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
+The unchanged records in `results/merge-landed-message/` and `results/fix-row-return-file/` used broader multi-boundary inputs. Their input hashes do not match the isolated cases. They remain historical evidence, not current passes or end-to-end validation. Unrelated records were not rerun.
 
-## Cells
+| historical sample | model | recorded verdict | judge ms |
+|---|---|---|---|
+| merge-landed-message | anthropic/claude-opus-5-5 | improved | 9124 |
+| merge-landed-message | github-copilot/gpt-6.1-sol | improved | 10316 |
+| fix-row-return-file | anthropic/claude-opus-5-5 | improved | 10687 |
+| fix-row-return-file | github-copilot/gpt-6.1-sol | improved | 10546 |
 
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| stop-draft-files | anthropic/claude-opus-5-5 | improved | 16243 | saved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); outcome: holds -> holds (held) |
-| stop-draft-files | github-copilot/gpt-6.1-sol | improved | 9014 | saved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); outcome: holds -> holds (held) |
+Historical commands used `timeout -k 30 3600 node eval/run.mjs gatekeep-pr <sample> --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`, selecting each named sample separately. They exited 0 in 122s and 187s respectively; each made four replays and two judgments. These outcomes do not cover the narrowed inputs.
 
-## Feedback
+## Remaining coverage
 
-- stop-draft-files / anthropic/claude-opus-5-5: After moves saved and retained from fails to holds: Before discarded both drafts with the record and its closing messages named no paths, while After explicitly runs mktemp and writes each exact body ("The retry limit is now three." / "The timeout test covers this case.") before either closing message, then names both paths with an explicit "was not posted because you stopped" reason at both checkpoints, retains those files in the survive list, and drops only other unapplied drafts. Outcome is unchanged: A ends with `done final`/final and B with `done merge-queued`/merge-queued, no replies are posted, the cleanup commands are listed but not run, and B does not run the wait read. One wording weakness worth tightening: After narrates the save as a single shared step and reuses the same two mktemp results for two independent checkpoints, which is tolerable here but reads as if one save served both runs; the Teardown text should direct the narration to perform the save inside each checkpoint (or state that each checkpoint's mktemp yields its own path) so the per-checkpoint claim of saved cannot be read as borrowed from the other. Keep the explicit reason sentence and the inline path on every reply row, and keep the coverage row stating that no text exists because no merge commit exists, which correctly avoids inventing a coverage body.
-- stop-draft-files / github-copilot/gpt-6.1-sol: After delivers the Change cleanly: both checkpoints now run explicit mktemp writes of the exact C1 and C2 bodies before deleting the record (step 2 precedes step 4), the closing messages quote each reply with its actual saved path and the explicit reason "was not posted because you selected stop", and teardown retains those two files while dropping the record, finding artifacts, description files, helper outputs and logs. That moves saved and retained from fails to holds, since Before wrote no files and its closing message named no reply paths or reasons. Outcome is preserved in both: A settles final, B merge-queued, with gauntlet: done markers, no reply or coverage post, no cleanup, no wait, no further menu, and no claimed landed merge or merge-commit coverage body. Nothing regressed; the only cosmetic drift is that After drops the fenced text block around the closing message, which does not affect any fact but could be restored for consistency with Before.
-
-exit: 0
+No new model composition or admission decision is proven. Merge flags, API policy, queue behavior, plan-file absence, counters and live delivery need their own deterministic fixtures or scoped review; no workflow replay substitutes for them.

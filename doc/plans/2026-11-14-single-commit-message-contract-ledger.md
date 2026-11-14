@@ -3,12 +3,12 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | failed | 6 | timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs; 33 passed, 7 failed; 7 gatekeep/hotfix/resume/conformance/worktree sites lack shared wording citations; spec-and-amendment-subjects, landed-message and digest-from-record-lines model evals pass on 2 models |
+| 1 | done | 7 | timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs; 52 passed, 0 failed including 23 citation sites and isolation docs; narrowed merge-landed-message, fix-row-return-file, hotfix-return-file, hotfix-plain-landing, returned-line-recovery, legacy-ledger-conversion; no model calls after isolation, broad records historical only, parser/count/conversion execution unproven |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -36,3 +36,4 @@ row 1 failed | Routed spec, consent, housekeeping, ignore and citation-repair wo
 row 1 escalated | implModel round | allowed attempts 10
 row 1 failed | Wired shared loop wording, ledger-held attribution, companion return files and repair decisions; 10 commit-site checks still fail. | Reuse the loop interfaces and fixtures; finish amendment batches and the 10 remaining commit sites instead of reworking the loop.
 row 1 failed | Routed amendment batches, finish landings, minors and digest records through shared wording; three named replays pass, but seven site checks fail. | Reuse the saved amendment and finish replays; wire gatekeep, hotfix, resume reconstruction, conformance and PR-head commit sites next.
+row 1 done | All 23 inventoried commit sites cite shared wording; 52 checks pass after six cases were isolated without more model calls. | Reuse scripts/commit-message-contract.test.mjs and the six isolated cases; broad replays are historical, and parser/count execution still needs separate coverage.

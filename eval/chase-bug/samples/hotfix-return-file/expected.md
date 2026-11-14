@@ -1,0 +1,1 @@
+- admission: judged: A admits the seed result from the file without treating the worker's DONE as row completion. B aborts pre-land with no seed retry because the required file is missing; the commit-body result cannot substitute. Emits only the decision and reason, without a row dispatch or cleanup simulation.

@@ -120,7 +120,6 @@ for (const [targetName, sample] of [
   ['finishing-a-development-branch', 'digest-from-record-lines'],
   ['housekeeping', 'commit-subject'],
   ['using-git-worktrees', 'ignore-subject'],
-  ['gauntlet-resume', 'plan-citation-subject'],
   ['loop-implementer', 'home-plain-commit'],
   ['loop-implementer', 'companion-return-file'],
   ['loop-implementation', 'returned-line-admission'],
@@ -221,6 +220,67 @@ test('companion admission reads attributed return files regardless of commit wor
     assert.equal(readFileSync(saved, 'utf8'), ledger, 'admission never mutates home');
   }
 });
+
+for (const [path, required, forbidden] of [
+  ['skills/gatekeep-pr/reference/fix-wave.md', [/wording:/, /ticket:/, /return:/, /--git-dir/, /return file/], /subject `loop:|commit.body|malformed subject/],
+  ['skills/gatekeep-pr/reference/post-selection-loop.md', [/--subject/, /--body-file/, /squash_merge_commit_message/, /--match-head-commit/, /rebase.*neither/], /(?:--squash|--merge) -m/],
+  ['skills/chase-bug/hotfix.md', [/wording:/, /ticket:/, /return:/, /--git-dir/, /commit -F -/, /--title/, /--body-file/], /subject `loop:|commit.body|malformed subject|commit -m "fix:/],
+  ['skills/gauntlet-resume/reference/reconstruction.md', [/legacy-commit-labels:begin/, /legacy-commit-labels:end/, /returned: none/, /repair seed/, /Returns conversion on resume/], null],
+  ['skills/verification-before-completion/reference/conformance-check.md', [/Conformance gap fix/, /Convergence repair/, /wording:/, /ticket:/, /record.*SHA/i], /commit(?:s| name| with the message)?[^\n]*`conformance fix|oldest `conformance fix`/],
+  ['skills/using-git-worktrees/reference/pr-head.md', [/Member pull request merge commit/, /merge --no-ff -F -/, /second parent/], /%H %P %s|canonical subject|merge PR #<N> head/],
+]) {
+  test(`${path} delegates commit wording without using messages as state`, () => {
+    const source = read(path);
+    for (const pattern of required) assert.match(source, pattern);
+    if (forbidden) assert.doesNotMatch(source, forbidden);
+    if (path.endsWith('/reconstruction.md')) {
+      const active = source.replace(/<!-- legacy-commit-labels:begin -->[\s\S]*?<!-- legacy-commit-labels:end -->/, '');
+      assert.doesNotMatch(active, /loop: (?:row|seed|migrate|repair)|commit bod|--format=%B/);
+      assert.match(active, /returned:.*pending:|pending:.*returned:/);
+    }
+  });
+}
+
+test('eval authoring docs require isolated boundaries and sample-selected commands', () => {
+  const guide = read('eval/README.md');
+  const template = read('eval/_template/README.md');
+  for (const literal of ['## Isolate the behavior under test', 'Prefer deterministic tests',
+    'entry boundary', 'stop boundary', 'one decision axis', 'Before a model call',
+    'completed change summary and a bound ticket', 'passing these checks is not end-to-end process proof']) {
+    assert.ok(guide.includes(literal), literal);
+  }
+  assert.match(template, /\]\(\.\.\/README\.md#isolate-the-behavior-under-test\)/);
+  assert.match(template, /node eval\/run\.mjs <target> <sample> --baseline-only/);
+  assert.doesNotMatch(template, /node eval\/run\.mjs <target> --baseline-only/);
+});
+
+for (const [targetName, sample, factId, historical] of [
+  ['gatekeep-pr', 'merge-landed-message', 'message', true],
+  ['gatekeep-pr', 'fix-row-return-file', 'admission', true],
+  ['chase-bug', 'hotfix-return-file', 'admission', true],
+  ['chase-bug', 'hotfix-plain-landing', 'message', false],
+  ['gauntlet-resume', 'returned-line-recovery', 'home', true],
+  ['gauntlet-resume', 'legacy-ledger-conversion', 'eligibility', true],
+]) {
+  test(`${targetName}/${sample} isolates one decision and separates historical evidence`, () => {
+    const dir = `eval/${targetName}`;
+    const { bundle, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+    for (const heading of ['Entry boundary', 'Fixed inputs', 'Decision axis', 'Output', 'Stop boundary', 'Validation']) {
+      assert.ok(text.includes(`## ${heading}\n`), heading);
+    }
+    const { facts } = parseExpected(read(`${dir}/samples/${sample}/expected.md`));
+    assert.deepEqual(facts.map(({ id }) => id), [factId]);
+    assert.match(text.split('## Stop boundary\n')[1].split('\n## ')[0], /Stop.*(?:output|decision|message)/);
+    assert.match(read(`${dir}/report.md`), /historical/i);
+    if (historical) {
+      for (const arm of ['baseline', 'candidate']) {
+        const record = JSON.parse(read(`${dir}/results/${sample}/${arm}.json`));
+        assert.notEqual(record.inputSha, inputSha(read(`${dir}/replay.md`), text, bundle), 'broad records must not be claimed as current isolated evidence');
+        assert.ok(Object.values(record.outputs).some(({ text }) => text.length > 0), 'retain completed replies');
+      }
+    }
+  });
+}
 
 test('plan task, plan handoff and wave commit sites delegate wording without templates', () => {
   const plan = read('skills/writing-plans/SKILL.md');

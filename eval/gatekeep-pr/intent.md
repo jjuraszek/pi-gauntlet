@@ -1,6 +1,8 @@
-for: 7d4df4559b7be03efbd989c26a94570d3e7963b230088fe76fb068200bb9eea5
+for: 692b9ffdad1ec862b1f14bc890e728c42c4f2a4de5ff03c35be0b39bedcda620
 
 ## Change
+
+Isolate merge-landed-message to message composition and fix-row-return-file to admission with file presence as its only variant axis. Keep caller wiring and fixed formats in deterministic checks. Select no model replay for this source-wiring iteration; retain prior broad records as historical evidence with stale case hashes. The remaining Change paragraphs describe separate retained work, not current coverage of these cases.
 
 Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. P4's saved candidates retain these eight samples' outcomes. The preceding partial report covered the authorized bypass-merge-pick-revoked judgment refresh: all five facts hold on both saved replies, with no replay; earlier P4/P5 reports remain in Git. Other saved results remain earlier evidence. P5 seeded stop-draft-files once and ran its first candidate replay. That replay's anthropic/claude-opus-5-5 closing messages omitted the not-posted reason for both replies at both checkpoints, although the judge marked retained as holds; github-copilot/gpt-6.1-sol supplied the reason. P7 reran only stop-draft-files once after deleting the saved candidate, retaining the baseline and unchanged Teardown text and expected facts (ran P7-replay (1 of 2)). Direct inspection of the newest replies confirms both saved bodies are retained and all four closing messages name both paths with explicit reasons: "because you stopped" on anthropic/claude-opus-5-5 and "because you selected stop" on github-copilot/gpt-6.1-sol. All three candidate facts read holds for both models at the current assembly. The partial report covers only this sample; this outcome note follows the saved judgments without rejudging the replies.
 
@@ -12,6 +14,8 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 
 ## Expected to move
 
+- merge-landed-message/message: fails -> holds - Compose only a plain landed message from supplied outcomes; no policy choice, settings read or delivery simulation. This hypothesis has no current isolated replay.
+- fix-row-return-file/admission: fails -> holds - Classify the present file as admissible and the absent file as a validation miss, without trusting message attribution or applying later accounting. This hypothesis has no current isolated replay.
 - batch-post-menu/standing: holds -> holds - Require one line per PR with the unchanged child standing sentence.
 - batch-post-menu/retirement: holds -> holds - Retirement carries no terminal marker or settlement row; settlement rows belong only to the parent's closing message.
 

@@ -127,7 +127,7 @@ All must hold before `merge` executes; a `merge` pick while one fails is refused
 - `merge_state_status` is not `UNKNOWN` or `unreadable`, and the pre-menu refresh succeeded (`### Pre-menu refresh`). For `BLOCKED`, require fresh `permissions.bypass_eligible == true`; lift only this merge-state withhold and keep every other precondition binding. Treat false or unreadable eligibility as no bypass. A non-`BLOCKED` value is never a verdict - it only leaves this row satisfied, and a `gh pr merge` refusal is reported verbatim
 - no retained, unreviewed comment delta (`### Re-render` step 4)
 - worktree tracked-clean and synced with the remote head (fixes pushed first)
-- the repo allows the resolved merge policy: read `gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge}'` and require the policy's flag (`squash` -> `allow_squash_merge`, `merge-commit` -> `allow_merge_commit`, `rebase` -> `allow_rebase_merge`) to be `true`; a `false` is a blocker on the `merge` pick, named as `merge policy <policy> is disabled on <owner>/<repo>`, never a `gh pr merge` failure
+- the repo allows the resolved merge policy: read `gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'` and require the policy's flag (`squash` -> `allow_squash_merge`, `merge-commit` -> `allow_merge_commit`, `rebase` -> `allow_rebase_merge`) to be `true`; a `false` is a blocker on the `merge` pick, named as `merge policy <policy> is disabled on <owner>/<repo>`, never a `gh pr merge` failure
 - the compare-and-swap below passes
 
 ### Compare-and-swap
@@ -155,6 +155,8 @@ Set `event` to `COMMENT` for `viewer.is_author` true, `REQUEST_CHANGES` otherwis
 After successful `gh pr review --approve`, persist approved_head as the assessed head before rendering the approved post menu once; on failure print the gh error without claiming approval.
 
 ### Merge course
+
+Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md). For squash and merge-commit, compose its Landed message from the carried spec or the PR title and description, using its Gatekeep ticket rule. Pass `--subject "<landed subject> (#<N>)"` and `--body-file <temporary body file>` to the merge command; put only the composed body, not the subject, in that file. For rebase pass neither message flag. Apply the reference's Squash-default note using `squash_merge_commit_message` from the Merge preconditions repository-settings read; print nothing for a failed read and never write settings. Keep these message flags on a merge-queue request too.
 
 `merge` executes as `gh pr merge --match-head-commit <assessed-sha>` with the flag of the resolved merge policy: `squash` -> `--squash`, `merge-commit` -> `--merge`, `rebase` -> `--rebase`. Push and merge are never one pick. Append `--admin` only on the bypass path: `merge_state_status == BLOCKED` and `permissions.bypass_eligible == true`, with every merge precondition satisfied. Omit `--admin` on every other path. This flag skips the merge queue; the bypass path merges directly, not through the merge queued template. In batch mode the parent reads `permissions.bypass_eligible` from the retained child record and applies this same predicate and refusal branch, without a new handoff field or batch compare-and-swap.
 
