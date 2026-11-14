@@ -192,7 +192,9 @@ Recommended: <recommended-row> - <reason>
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
-For zero `- [ ]` rows under `## Acceptance criteria`, omit row 2 and all its flag lines, including `--allowance=N`; render rows 1, 3, 4 (PR subject: 1, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance. Whenever rows exist, render the four-row template above. Keep the worker-path omission of option 3; do not invent a council audit.
+For zero `- [ ]` rows under `## Acceptance criteria`, omit row 2 and all its flag lines, including `--allowance=N`; render rows 1, 3, 4 (PR subject: 1, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance.
+
+Apply the withholding rules independently: on the worker path or when the council aborted before an audit existed, omit row 3 and the `Council:` line; combine this with the zero-row and PR-subject omissions and never renumber the remaining rows. Do not invent a council audit.
 
 On every PR subject omit row 4 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout; a hidden 4 gets the clarifying question naming rendered choices. Read [spec-pr.md](spec-pr.md) for row-4 reply decoding, publication, and marked-PR re-gating; its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe.
 

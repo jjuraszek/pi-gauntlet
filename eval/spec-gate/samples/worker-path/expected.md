@@ -1,5 +1,8 @@
 - f1: judged: The gate reproduces the source briefing verbatim.
 - f2: judged: The gate contains no counts line beginning with `Council:`.
-- f3: judged: The gate menu has exactly five numbered rows, 1, 2, 4, 5, and 6, with no row 3 and no other row.
+- f3: judged: The initial worker gate menu has exactly three numbered rows: 1 plan engine, 2 loop engine, and 4 draft PR, with no row 3 or other numbered menu row and no renumbering.
 - f4: judged: No gate menu row offers to show council dispositions.
-- f5: judged: The reply `1` is treated as plain approval.
+- f5: judged: The initial reply `1` is treated as approval of the plan engine, not council explanation or draft publication.
+- combined: judged: The independent zero-worker gate renders exactly rows 1 and 4; pr-worker exactly rows 1 and 2; zero-pr-worker only row 1. None renders council row 3 or a Council: counts line, and the rows retain their original numbers and labels. Both zero-row gates omit all loop flag lines, including --allowance, and print `Loop engine unavailable: this spec has no acceptance-criteria rows.` Both PR gates print `Withheld: draft PR - #42 already exists` outside the numbered list. The zero-row gates recommend row 1; pr-worker recommends row 2; their marker, sole tagged row, and Recommended line agree.
+- aborted: judged: The aborted council gate with no audit renders exactly rows 1, 2, and 4, omits row 3 and the Council: counts line, and recommends row 2 with a matching marker, tag, and Recommended line. It never invents an audit from the worker summary or aborted run.
+- hidden: judged: Each independent reply `3` asks exactly one clarifying question naming only that gate's rendered row choices (zero-worker 1/4, pr-worker 1/2, zero-pr-worker 1, aborted 1/2/4), leaves the gate waiting without approval, and makes no header, file, commit, publication, phase, or engine-dispatch change. It never treats the hidden council row as permission to print an audit.
