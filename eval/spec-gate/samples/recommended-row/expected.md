@@ -2,3 +2,5 @@
 - sentences: judged: Each numbered menu row contains one sentence, with no experimental label and no separate auto-apply-amends choice.
 - briefing: judged: The gate reproduces the supplied briefing verbatim before the commit line and menu.
 - drafted: judged: The gate reproduces the drafted acceptance row and its in-scope disposition under Drafted acceptance criteria (approval ratifies): before the numbered menu.
+- flags: judged: Row 1 lists --amends-stop and --fund-rounds=N beneath it as separate Markdown bullets; row 2 lists --amends-stop and --allowance=N beneath it as separate Markdown bullets; blank lines separate row groups; rows 3 and 4 list no flags.
+- defaults: judged: Each flag bullet has one sentence ending in its default: apply amendments and list them at finish while redraws always stop for --amends-stop, stop and ask after the escalated round for --fund-rounds=N, and 7 for --allowance=N from this gate's supplied loopEngine result, not the shared value 4.

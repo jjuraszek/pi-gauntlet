@@ -41,7 +41,7 @@ Drafted from the design, no ticket rows:
 
 ## Gate observations
 
-This is a new free-text spec, not a PR subject. The latest explicit phase_tracker status observation ends with `Context: 12%`. No engine preference has been stated.
+This is a new free-text spec, not a PR subject. The latest explicit phase_tracker status observation ends with `Context: 12%`. No engine preference has been stated. For this gate, gauntlet_setting({ key: "loopEngine" }) returned maxIterationsPerRow: 7, replacing the shared pre-read value of 4.
 
 ## User reply
 

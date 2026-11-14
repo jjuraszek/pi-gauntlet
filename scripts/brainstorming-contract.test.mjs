@@ -194,6 +194,28 @@ test('gate template renders four fixed one-sentence rows after the unchanged bri
   assert.ok(template.includes('Pick one:'));
 });
 
+test('gate flags stay under their engine with one sentence ending in the resolved default', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const template = text.match(/```\ngauntlet: gate=brainstorming\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
+  const rows = [...template.matchAll(/^(\d+) - [^\n]+\n((?:- `--[^\n]+\n)*)\n/gm)];
+  assert.equal(rows.length, 4, 'each row group ends with a blank line');
+  const amendDefault = 'apply it and list it at the finish gate; a redraw always stops';
+  const expected = [
+    [['--amends-stop', amendDefault], ['--fund-rounds=N', 'stop and ask there']],
+    [['--amends-stop', amendDefault], ['--allowance=N', '<n>']],
+    [], [],
+  ];
+  for (const [index, row] of rows.entries()) {
+    const flags = [...row[2].matchAll(/^- `(--\S+)`: (.+)$/gm)];
+    assert.deepEqual(flags.map(([, flag]) => flag), expected[index].map(([flag]) => flag), `row ${row[1]} flags`);
+    for (const [i, [, , explanation]] of flags.entries()) {
+      assert.match(explanation, /^[^.!?]+\.$/, 'one sentence per flag');
+      assert.ok(explanation.endsWith(`(default: ${expected[index][i][1]}).`), explanation);
+    }
+  }
+  assert.match(text, /Retain `maxIterationsPerRow` .* as `<n>` for the loop row's `--allowance=N` default/);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];

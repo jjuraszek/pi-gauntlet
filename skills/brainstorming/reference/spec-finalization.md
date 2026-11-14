@@ -137,7 +137,7 @@ If the council path ran, the body is its audit (`Coverage:` when present, then `
 
 Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
-Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for both loop options. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance.
+Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for the loop row's `--allowance=N` default. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance.
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (an exit-0 save error returns the save error plus a `Full reply preserved at` / `not preserved` pointer, no inline output), or the reference reports under ~500 bytes, or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) - skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim immediately after the gate marker. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
@@ -168,9 +168,17 @@ New predecessor candidates at spec-writing: <path> (<title>), ... - index rows a
 
 Pick one:
 1 - plan engine: write a task plan, then implement it in reviewed waves.
+- `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).
+- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).
+
 2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.
+- `--amends-stop`: stop for my review before the loop rewords or cuts a row it is stuck on (default: apply it and list it at the finish gate; a redraw always stops).
+- `--allowance=N`: attempts per row before the loop stops and asks (default: <n>).
+
 3 - council explanation: show the council audit, then return to this gate without approving.
+
 4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.
+
 Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round. Add "; allowance N" to 4 or 5 to set this run's per-row allowance.
 
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
