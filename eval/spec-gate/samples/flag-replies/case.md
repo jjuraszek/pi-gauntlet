@@ -51,3 +51,4 @@ Treat the following as independent replies to the same gate, not a conversation 
 | loop-stop | 2 --amends-stop |
 | plan-funded | 1 --fund-rounds=3 |
 | plan-stop-funded | 1 --amends-stop --fund-rounds=3 |
+| loop-allowance | 2 --allowance=6 |
