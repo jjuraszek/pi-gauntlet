@@ -618,6 +618,14 @@ try {
   else ok("pi-cohort peer and README floors match");
 }
 
+try {
+  execFileSync(process.execPath, [R("scripts/commit-subject-lint.mjs")], { cwd: root, stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/commit-subject-lint.test.mjs")], { stdio: "pipe" });
+  ok("commit-subject lint and fixtures pass");
+} catch (e) {
+  fail(`commit-subject lint or fixtures failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
+}
+
 // ---- no provider/model literals in skills, personas, extensions (#42) -----------
 try {
   execFileSync(process.execPath, [R("scripts/model-literal-lint.test.mjs")], { stdio: "pipe" });
