@@ -137,7 +137,7 @@ If the council path ran, the body is its audit (`Coverage:` when present, then `
 
 Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
-Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for the loop row's `--allowance=N` default. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance.
+Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for the loop row's `--allowance=N` default. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance. Beside this lookup, call `phase_tracker({ action: "status" })` once before the summary `Read`. Retain the numeric percentage from its `Context:` line; treat a missing `Context:` line, `Context: unknown`, or a failed call as unknown and never stop for a missing reading.
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (an exit-0 save error returns the save error plus a `Full reply preserved at` / `not preserved` pointer, no inline output), or the reference reports under ~500 bytes, or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) - skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim immediately after the gate marker. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
@@ -149,6 +149,8 @@ Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditi
 Follow the [first-line rule](menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
 
 Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[recommended]` at the end of that row's sentence, never to a flag line or row 3. Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number; give a concrete reason after the dash.
+
+Decide the recommendation before rendering, without printing the deliberation. For a numeric context reading strictly above 25, when row 4 is rendered, recommend row 4 before assessing acceptance rows. Compare the reading as a number; never floor it: 25.0 does not trigger this rule; 25.1 and 26.0 do. Use this reason line, substituting the observed percentage for `<P>` and keeping the literal `<N>` until publication: ``Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.``
 
 ```
 gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>

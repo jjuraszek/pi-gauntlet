@@ -228,6 +228,27 @@ test('gate recommendation ties one rendered row to the first-line marker and tra
   assert.ok(template.indexOf('Recommended:') < template.indexOf('Or tell me what to change'));
 });
 
+test('high context recommends a rendered draft PR with a fresh-session reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = text.slice(text.indexOf('## User Review Gate'));
+  const settingsAt = gate.indexOf('resolve `gauntlet_setting({ key: "loopEngine" })`');
+  const status = 'phase_tracker({ action: "status" })';
+  assert.equal(gate.split(status).length - 1, 1, 'one status call per gate');
+  const statusAt = gate.indexOf(status);
+  const readAt = gate.indexOf('2. **The `Read` itself');
+  assert.ok(settingsAt < statusAt && statusAt < readAt, 'status sits beside settings before the final summary Read');
+  for (const rule of [
+    'strictly above 25', 'row 4 is rendered', 'before assessing acceptance rows',
+    'Compare the reading as a number; never floor it',
+    '25.0 does not trigger this rule; 25.1 and 26.0 do',
+    'a missing `Context:` line, `Context: unknown`, or a failed call as unknown',
+    'never stop for a missing reading',
+    'Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.',
+  ]) assert.ok(gate.includes(rule), rule);
+  assert.match(read('eval/spec-gate/samples/recommended-row/case.md'), /Context: 25\.1% of window/);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- context: judged:.*25\.1.*fresh session.*hallucination/m);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];
