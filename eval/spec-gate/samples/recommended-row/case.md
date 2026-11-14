@@ -68,3 +68,35 @@ For each independent case below, replace the spec's acceptance section with `non
 | zero-low | Context: 12.0% of window | 1, 3, 4 |
 | zero-withheld | Context: 80.0% of window | 1, 3; row 4 is withheld because this is PR #42 |
 | zero-high | Context: 31.0% of window | 1, 3, 4 |
+
+## Bundled-row recommendation checks
+
+Evaluate each independent case using its replacement committed acceptance section below. Rendered choices are 1, 2, 3, 4; none is a create-only retry view and there is no user reply. Output only the case ID and its Recommended line, not another menu.
+
+| Case | Status observation | Acceptance section |
+|---|---|---|
+| bundle-in-scope | Context: 12.0% of window | A |
+| bundle-venue | Context: unknown | B |
+| bundle-high | Context: 31.0% of window | A |
+
+### Acceptance section A
+
+Ticket #42, checkbox list, rows verbatim:
+- [ ] Retries return the receipt and emit an audit event.
+  in-scope
+
+### Acceptance section B
+
+Ticket #42, checkbox list, rows verbatim:
+- [ ] Deploy the worker and publish the dashboard.
+  deviates: dashboard is outside this change
+- [ ] Provision backups and send daily reports.
+  deferred: next release
+- [ ] Export invoices and archive old receipts.
+  elsewhere: archive service
+- [ ] The status line shows the receipt ID, total, and currency.
+  in-scope
+- [ ] Retries return the receipt and enqueue a follow-up email.
+  venue: staging payment sandbox
+- [ ] Publish a receipt schema and add its migration command.
+  in-scope

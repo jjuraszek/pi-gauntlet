@@ -274,6 +274,25 @@ test('zero acceptance rows recommend the plan engine only after the draft-PR rul
   assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- zero-rows: judged:.*zero-unknown.*zero-low.*zero-withheld.*row 1.*zero-high.*row 4/m);
 });
 
+test('bundled acceptance rows recommend a plan with the first qualifying row and its outcomes', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const rule of [
+    'When row 4 is not recommended and acceptance rows exist',
+    "assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent",
+    'Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows',
+    'Treat two or more separately checkable outcomes in one row as bundled',
+    'Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome',
+    'Recommend row 1 for a bundled row',
+    'Use the first bundled row in section order, with its one-based index among all rows',
+    'Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.',
+  ]) assert.ok(text.includes(rule), rule);
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  for (const id of ['bundle-in-scope', 'bundle-venue', 'bundle-high']) {
+    assert.ok(fixture.includes(`| ${id} |`), id);
+  }
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-venue.*bundle-high/m);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];

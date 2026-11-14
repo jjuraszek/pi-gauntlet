@@ -1,14 +1,17 @@
-for: f93c8a1effc4ac8c03c1019d839a3c2061064db2bfc1d234a52d1f745c43fc2d
+for: 9ca5960c0304eb9c461287a12d615e4c54ad2599ce9cd02b5b02a01bc98716fb
 
 ## Change
 
 Recommend the rendered draft-PR row for a numeric context reading strictly above 25, before assessing acceptance rows. Compare the decimal reading without flooring and give the fresh-session instruction before `/skill:brainstorming #<N>`, explaining that this is less prone to hallucination. Read status beside the settings lookup before the final summary Read; missing readings never block the gate. Keep the four fixed labels, flags, resolved allowance default, and the single tag matched by the marker and reason.
 
-Outside the create-only retry view, restrict recommendations to rendered engine rows for unknown context, 25% or lower, or a withheld draft-PR row. Run only `recommended-row` against base `855e872a42f9cac7a795704f3e0b383b182950ab`: retain its initial 25.1% gate and add compact independent recommendation checks for unknown, 25.0%, 12.4%, and 80.0% with row 4 withheld. These checks prove exclusion of row 4, not which engine wins. Preserve the initial gate's recommendation-consistency, four-row, flag, non-default allowance, briefing and drafted-row facts. Bundled-row selection, actual withholding, create-only retry and reply grammar remain outside this partial run; preserve other sample results without claiming fresh coverage.
+Outside the create-only retry view, restrict recommendations to rendered engine rows for unknown context, 25% or lower, or a withheld draft-PR row. Run only `recommended-row` against base `855e872a42f9cac7a795704f3e0b383b182950ab`: retain its initial 25.1% gate and add compact independent recommendation checks for unknown, 25.0%, 12.4%, and 80.0% with row 4 withheld. These checks prove exclusion of row 4, not which engine wins. Preserve the initial gate's recommendation-consistency, four-row, flag, non-default allowance, briefing and drafted-row facts. Actual withholding, create-only retry and reply grammar remain outside this partial run; preserve other sample results without claiming fresh coverage.
 
 Recommend row 1 when the committed spec has no acceptance rows and row 4 is not recommended, with the reason that the loop engine has nothing to iterate. Extend only `recommended-row` with zero-row checks for unknown, low, high-withheld and high-rendered context; the last retains context priority. These compact checks receive the rendered choices and do not prove withholding or publication. Keep all other sample records.
 
+Recommend row 1 for the first bundled in-scope or venue acceptance row after context priority, quoting its text and one-based index among all rows and naming the separate outcomes. Extend only `recommended-row` with bundled in-scope, venue and high-context cases. Skip cut dispositions and treat multiple fields of one observation as one outcome. The selected replay proves supplied-observation recommendation text, not live gate execution or the unbundled engine fallback.
+
 ## Expected to move
+- recommended-row/bundled: fails -> holds - Quote the first eligible bundled row and name its outcomes, retaining high-context priority.
 - recommended-row/zero-rows: fails -> holds - Recommend the plan engine for zero rows unless high context already selects the rendered draft-PR row.
 - recommended-row/engine-only: fails -> holds - Exclude draft PR from recommendations at unknown, boundary, low and withheld observations.
 - recommended-row/context: fails -> holds - Recommend row 4 at 25.1% and tell the operator to start a fresh session before re-gating the draft PR there.
