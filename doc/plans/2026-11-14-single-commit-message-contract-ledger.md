@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -12,7 +12,7 @@ allowance: 10
 | 2 | done | 1 | timeout -k 30 120 node --test scripts/commit-subject-lint.test.mjs; 12 passed, 0 failed; six labels rejected, legacy and reason boundaries checked, repo scan clean; CI success and failure wiring tested in isolation, no model calls |
 | 3 | done | 1 | timeout -k 30 120 node --test scripts/loop-home-worker.test.mjs; 3 passed, 0 failed; reused two current home-plain-commit wording replies and ran their isolated Git publication boundaries; no new model calls or workflow replay, row implementation and driver admission outside coverage |
 | 4 | done | 1 | timeout -k 30 120 node --test scripts/loop-home-admission.test.mjs; 5 passed, 0 failed; two current saved replies cover valid, wrong and retained tuples with one spent attempt; Git read/reset recipes executed in isolation, admission and header validation are model/text coverage, no new model calls |
-| 5 | open | 0 | |
+| 5 | done | 1 | timeout -k 30 120 node --test scripts/loop-outside-return.test.mjs; 20 passed, 0 failed; production transport/parser and saved worker publication; eval/run.mjs gatekeep-pr/fix-row-file-observation, chase-bug/hotfix-seed-file-observation and hotfix-row-return-file passed on both models |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
@@ -40,3 +40,4 @@ row 1 done | All 23 inventoried commit sites cite shared wording; 52 checks pass
 row 2 done | Added subject-label lint and CI wiring; 12 isolated checks cover six labels, legacy/reason boundaries and the clean repo. | Reuse scripts/commit-subject-lint.mjs for scans and scripts/commit-subject-lint.test.mjs for fixtures and isolated CI wiring checks.
 row 3 done | Verified home commit wording and ledger-held attribution with two current saved replies and isolated Git publication fixtures. | Reuse scripts/loop-home-worker.test.mjs to check this publication boundary without model calls; admission and recovery remain untested.
 row 4 done | Confirmed ledger-based home admission using two current saved decision replies, written-contract assertions and isolated Git read/reset recipes. | Reuse scripts/loop-home-admission.test.mjs for local admission checks without model calls; it separates decision evidence from executable Git coverage.
+row 5 done | Added checkout-local return transport and fixed gatekeep/hotfix miss handling, external headers and teardown; 20 isolated checks pass. | Reuse skills/loop-implementation/reference/return-file.md and scripts/loop-outside-return.test.mjs for transport recipes, production admission fixtures and saved decision checks.

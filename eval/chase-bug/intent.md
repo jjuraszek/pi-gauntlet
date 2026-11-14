@@ -1,7 +1,7 @@
 for: 1e64e093a76ce24e3964c877bd202e248cd698ff9cb5298b26a1384d0e65da95
 
 ## Change
-Isolate hotfix-return-file to seed admission by file presence and hotfix-plain-landing to message composition from a fixed fault story. Check return-path and caller wiring deterministically; do not simulate row work or delivery. Select no model replay for this source-wiring iteration. Retain the prior broad seed-plus-row records, including their errors, as historical evidence, not a pass on the narrowed case.
+Select hotfix-seed-file-observation for seed admission and hotfix-row-return-file for row admission as independent snapshots. Vary matching, missing, unreadable and mismatched files; require seed abort versus one row miss, pending-only external state and removal of any remaining return before exit cleanup. Execute transport recipes separately in scripts/loop-outside-return.test.mjs. No row implementation, gate, reviewer or landing is replayed; hotfix-return-file and other samples retain historical evidence and coverage is partial.
 
 Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
 
@@ -11,6 +11,8 @@ The selected samples exercise report comprehension rather than sentence counting
 
 ## Expected to move
 - hotfix-return-file/admission: fails -> holds - Classify only seed admission: a matching file admits; an absent file aborts pre-land without a retry or a body-based fallback. This hypothesis has no current isolated replay.
+- hotfix-seed-file-observation/admission: fails -> holds - Admit a matching seed file or abort for missing, unreadable or mismatched files without spending a row attempt; clear pending on admission and delete remaining returns before exit cleanup.
+- hotfix-row-return-file/admission: fails -> holds - Admit a matching row file or record one validation miss with attempts +1 and no new header; the commit body cannot substitute.
 - hotfix-plain-landing/message: fails -> holds - Compose only a plain fault-naming subject and paragraph, placing the ticket in the body without outcome bullets, commands or delivery claims. This hypothesis has no current isolated replay.
 - server-cache-owner/cache-owner-named: fails -> holds - The translation table now asks whose stored copy the cache is instead of calling every cache the browser's.
 - plain-reader-first-use/first-use: fails -> holds - Replace unexplained investigation terms with everyday descriptions in every report body.

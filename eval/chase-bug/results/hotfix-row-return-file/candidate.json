@@ -1,0 +1,70 @@
+{
+  "sample": "hotfix-row-return-file",
+  "arm": "candidate",
+  "skillSha": "0f93e54526cb04d25547ffd374634f1e11e35c2cecf6215cb435fb5fe39a15bf",
+  "inputSha": "91515e6cb8a9ef7aaba0da7993e6504ed35bc2e29d23b11febc9a2d44016fba2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Hotfix step 4: row admission for target 1, variants A–D\n\n**Common basis.** Before this return, the ledger read `iterations: 1`, so the dispatch was bumped to `iterations: 2` (i = 1). The return file must therefore carry:\n- `pending: 1 | hotfix | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- `iteration: 2`\n\nThe boundary checks pass in every variant: DONE, binding, clean checkout, one source-changing commit and an unchanged external ledger. Admission is decided only by the checkout-local return file at `/workspace/root/.git/worktrees/plants/gauntlet/returns/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-2.md`.\n\n**The commit body never substitutes for the file.** Admission reads the return file, not the message or the child's reply. The legacy tuple/result block in the body of \"Reject blank plants\" is ignored in all four variants, and no subject or body is inspected for admission.\n\n**No header is added in any variant.** The parent writes no `returns:` or other header line into the hotfix ledger, and `iterations` stays at 2.\n\n---\n\n### A – Admitted result\n\n- **Classification:** row 1 admitted.\n- **Reason:**\n  - The tuple and `iteration: 2` match.\n  - There is one headerless four-column row, `| 1 | done | 1 | <evidence> |`.\n  - Attempts equal saved attempts plus one (0 + 1).\n  - The row status `done` matches the decision status.\n  - The decision matches `^row 1 (done|failed) \\| .{1,200} \\| .{1,200}$`.\n  - The evidence is one selective, runnable command that differs from `verification:`.\n  - The commit changes tracked files.\n- **Ledger row:** `| 1 | done | 1 | <evidence from file> |`.\n- **Decisions:** the file's decision line is appended to `## Decisions`.\n- **Pending:** `pending:` is cleared.\n- **Consecutive-miss count:** reset to 0.\n- **Return file:** deleted through the Return file deletion recipe.\n- **Next step:** `done` routes to step 5. That step is not run here.\n\n### B – File missing\n\n- **Classification:** row validation miss.\n- **Reason:** the return file is missing. The body's legacy block cannot stand in for it.\n- **Ledger row:** `| 1 | failed | 1 | attempt 1: return file missing |`.\n- **Decisions:** nothing is appended.\n- **Pending:** `pending:` is cleared.\n- **Consecutive-miss count:** 1. This is not yet the second consecutive miss, so there is no abort.\n- **Return file:** the deletion recipe runs, and there is nothing to remove.\n- **Next attempt:** uses `previous decision: none` under Attempt budget. 1 < 4, so one is permitted, but it is not dispatched here.\n\n### C – Read fails with EACCES\n\n- **Classification:** row validation miss (unreadable return file).\n  - This is not a pre-land abort. That abort covers only a failed path read, directory creation or stale-file deletion, and the path itself resolved.\n- **Reason:** the return file is unreadable (EACCES).\n- **Ledger row:** `| 1 | failed | 1 | attempt 1: return file unreadable (EACCES) |`.\n- **Decisions:** nothing is appended.\n- **Pending:** `pending:` is cleared.\n- **Consecutive-miss count:** 1.\n- **Return file:** deleted through the recipe.\n  - If that deletion fails, or the stale-file deletion before the next dispatch fails, the run aborts pre-land.\n- **Next attempt:** uses `previous decision: none`.\n\n### D – Wrong pending SHA\n\n- **Classification:** row validation miss (mismatched return file).\n- **Reason:** the first line's SHA does not equal the dispatched tuple's `aaaa…aaaa`. The rest of the file is not trusted.\n- **Ledger row:** `| 1 | failed | 1 | attempt 1: return file pending tuple mismatch (wrong SHA) |`.\n- **Decisions:** nothing is appended.\n- **Pending:** `pending:` is cleared.\n- **Consecutive-miss count:** 1.\n- **Return file:** deleted through the recipe.\n- **Next attempt:** uses `previous decision: none`.\n\n---\n\n**Stopping point.** I stop here, after classification. No repair dispatch, gate run, conformance check, review, cleanup or landing is performed.\n",
+      "words": 526,
+      "wallMs": 21099,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "These are **row-admission** outcomes (`target: 1`), not seed outcomes. The supplied binding and boundary checks pass in every variant.\n\n| Variant | Classification and reason | Prescribed row 1 | Pending state | Added header | Consecutive misses | Return-file disposition |\n|---|---|---|---|---|---|---|\n| **A** | **Admitted, done.** The file matches the dispatched tuple and iteration, reports attempts = 0 + 1, and supplies valid evidence and a matching bounded decision. | `done`, attempts **1**; retain the returned evidence | Clear `pending:` | None | **0** (reset) | Delete through the return-file deletion recipe after admission |\n| **B** | **Row validation miss.** The required return file is missing. | `failed`, attempts **1**; evidence: `attempt 1: missing return file` | Clear `pending:` | None | **1** | Apply the deletion recipe; an already-absent file requires no removal |\n| **C** | **Row validation miss.** The required return file is unreadable (`EACCES`). | `failed`, attempts **1**; evidence: `attempt 1: return file unreadable (EACCES)` | Clear `pending:` | None | **1** | Delete through the deletion recipe; a read failure alone does not establish whether deletion will succeed |\n| **D** | **Row validation miss.** The return file’s pending SHA does not match the dispatched tuple. | `failed`, attempts **1**; evidence: `attempt 1: return file pending SHA mismatch` | Clear `pending:` | None | **1** | Delete the mismatched return file through the deletion recipe |\n\n**Other immediate effects:**\n- **A:** Write the admitted row and append the returned decision to `## Decisions`. The return qualifies to proceed to step 5, but no gate is run here.\n- **B–D:** Record the failed row as above. The next dispatch’s `previous decision` would be `none`; no dispatch occurs here. One miss does not trigger the two-consecutive-miss abort.\n- In every variant, `iterations` remains **2** and allowance remains **4**.\n\n**The commit body never substitutes for the return file.** Neither its plausible legacy tuple/result block nor the subject establishes admission. These are prescribed classification effects, not claims that ledger writes or file deletion were executed.\n",
+      "words": 292,
+      "wallMs": 13450,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b0c6abc7463236e3255773f996d928955bc3e3550adaedaa965b45a13b772d06",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c9127845ea1a884a42f1d82d262f58bcd91c1f4369e803940f821f873dabc0",
+      "baselineOutputSha": "6aa09ce59d757a0744d0dfeac8389e136a1928232dad8c57ff0b7d850078786a",
+      "candidateOutputSha": "8d3e98e693a6478591fd813f288e6e9bf73b3f65f0e4f7678afbec3d4d9a8551",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved the admission fact by making the checkout-local return file the sole admission input for row admission: A is admitted as done with attempts 1, pending cleared, misses reset to 0, no header added and the file deleted, while B, C and D each become one row validation miss with failed status, attempts 1, pending cleared, no header, miss count 1, previous decision none and deletion of any remaining file, with C explicitly kept out of the pre-land abort class and the commit body explicitly ruled out as a substitute. Before failed because it treated the commit subject and body as the only contract, ignored the file, classified A as a miss and left the file untouched in every variant. Before kept nothing on this fact that After lost, so there is nothing to restore; to keep the result stable, preserve the explicit statements that admission reads only the return file, that an unreadable file is a row miss rather than a seed or pre-land abort, and that deletion of the remaining file runs in every variant. Two small tightenings would reduce risk: C's note about a later abort if deletion or stale-file deletion fails edges toward describing later work, so keep it clearly conditional or drop it, and A's 'routes to step 5' line should stay marked as not run so the stop boundary remains unambiguous.",
+      "wallMs": 5947,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b0c6abc7463236e3255773f996d928955bc3e3550adaedaa965b45a13b772d06",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c9127845ea1a884a42f1d82d262f58bcd91c1f4369e803940f821f873dabc0",
+      "baselineOutputSha": "6c8aa67e4b02a353f74f74d91373cb5e8aaf93b414b161ea01e31a1c75fe343a",
+      "candidateOutputSha": "ad5965a906ec8332d930b96e5617647cb4a23b6e632462b6ef62fa24b835a1f2",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the admission fact by treating the checkout-local return file as the row-admission input: A is admitted as done attempts 1 with pending cleared, misses reset to 0, no header and the file deleted, while B-D each record a single row validation miss (failed, attempts 1, pending cleared, no header, miss count 1, previous decision none, remaining file deleted) rather than a seed abort or an extra consumed attempt, and it states outright that the commit body never substitutes for the file. Before failed because it read the commit body/subject as the return contract, classified A as a miss on an invalid subject, left files untouched and declined to say the body cannot substitute. Before kept nothing that After lost, so no fact needs to be recovered; to keep this result stable, retain the explicit 'row-admission, not seed' framing, the per-variant miss evidence, the 'previous decision none' line and the flat non-substitution sentence. Two small tightenings would reduce risk of a stricter reading: in C, state plainly that any remaining file is deleted rather than hedging on whether deletion will succeed, and trim the mention of step 5 qualification in A so that nothing reads as simulating later work.",
+      "wallMs": 7371,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

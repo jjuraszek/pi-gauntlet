@@ -1,0 +1,34 @@
+{
+  "sample": "hotfix-row-return-file",
+  "arm": "baseline",
+  "skillSha": "e0ed29476f47b4637287b931429c13b55256feb56a421b994acd096eeff8d850",
+  "inputSha": "91515e6cb8a9ef7aaba0da7993e6504ed35bc2e29d23b11febc9a2d44016fba2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Row 1 admission, step 4 (`target: 1`), variants A-D\n\n## Governing rule\n\nThis version of the procedure has **no return-file transport**. Row admission reads the worktree commit itself (step 4: \"reading the commit rather than trusting the child's reply\"):\n\n- The subject must be `loop: row 1 done` or `loop: row 1 failed`.\n- Body lines 1-2 must equal `pending: 1 | hotfix | aaaa…aaaa` and `iteration: 2`.\n- The body must then hold one four-column row, a blank line, and the decision.\n\nThe file at `/workspace/root/.git/worktrees/plants/gauntlet/returns/aaaa…-2.md` is not an admission input. A \"DONE\" status and a `returned:` header are also not concepts this procedure checks or writes.\n\n**Does the commit body substitute for the file?** The question is inverted. The commit body is the only contract. No file can substitute for it, and no file can rescue it.\n\n## Decisive fact, identical in all variants\n\nThe commit subject is `Reject blank plants`. That subject is not `loop: row 1 done|failed`, which makes it a **malformed subject**, an explicit validation miss under \"Validation miss (`target: 1` only)\". The plausible legacy tuple/result block in the body cannot cure the subject. Boundary passed: the checkout is clean and there is exactly one new commit, so this is a miss, not a pre-land abort.\n\n## Classification\n\n| | File observation | Classification | Reason |\n|---|---|---|---|\n| A | Exact tuple, iteration 2, row 1 done, attempts 1, selective evidence, bounded decision | **Validation miss** | The file is ignored. The commit subject is malformed, and file content cannot admit `done`. |\n| B | Missing | **Validation miss** | The file is not required, so its absence is not the cause. The subject is malformed. |\n| C | Read fails with EACCES | **Validation miss** (not an abort) | No file read is prescribed, so a read error triggers no abort class. The subject is malformed. |\n| D | Readable, wrong pending SHA | **Validation miss** | The file's tuple is irrelevant, and the commit's own body tuple is not the deciding check here. The subject is malformed. |\n\n## Prescribed effects (same for A-D, described, not executed)\n\n- **Row 1 status:** `failed`.\n- **Attempts:** 1, which is the saved 0 + 1.\n- **Evidence:** `attempt 1: commit subject \"Reject blank plants\" is not loop: row 1 done/failed`.\n- **Ledger row:** `| 1 | failed | 1 | attempt 1: commit subject \"Reject blank plants\" is not loop: row 1 done/failed |`\n- **`## Decisions`:** nothing is appended, because only an admitted result appends a decision.\n- **Pending:** cleared from the ledger.\n- **Iterations:** stay at the pre-dispatch bumped value. There is no further change.\n- **Added header:** none. The procedure defines no `returned:` or similar header.\n- **Consecutive-miss count:** 1. That is not an abort, since only the second consecutive miss aborts pre-land.\n- **Next dispatch input:** `previous decision: none`.\n- **Budget:** attempts 1 < allowance 4, so a further `target: 1` attempt is permitted.\n  - 1 is not allowance - 1 (3), so no `implModel` escalation is required yet.\n- **Return file:** left untouched in every variant. It is not read as evidence, deleted, or moved, because the run touches no resource it did not create.\n- **Worktree commit:** stays. No discard, reset, or amend is made to force admission.\n\nStop: no repair dispatch, gate run, cleanup, review, or landing is performed.\n",
+      "words": 506,
+      "wallMs": 22348,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Under the supplied step-4 rules, **all four variants are row-validation misses**. Admission reads the **commit body**, not a checkout-local return file. The supplied subject, `Reject blank plants`, is invalid: target 1 requires `loop: row 1 done` or `loop: row 1 failed`.\n\n| Variant | Classification and reason | Prescribed row | Pending | Added header | Consecutive misses | Return-file disposition |\n|---|---|---|---|---|---|---|\n| A | Validation miss: invalid commit subject; valid file contents cannot cure it | `failed`, attempts `1` | Clear | None | `1` | Untouched; not an admission input |\n| B | Validation miss: invalid commit subject; missing file is not a separate failure under these rules | `failed`, attempts `1` | Clear | None | `1` | Remains absent |\n| C | Validation miss: invalid commit subject; file-read failure is not an admission criterion | `failed`, attempts `1` | Clear | None | `1` | Untouched; no read required |\n| D | Validation miss: invalid commit subject; the file’s wrong SHA is not evaluated | `failed`, attempts `1` | Clear | None | `1` | Untouched; not an admission input |\n\n**Immediate effects, not executed:** write row 1 as failed with evidence such as `attempt 1: invalid commit subject Reject blank plants`, clear `pending:`, and increment consecutive misses to 1. The consumed iteration remains 2. No admitted decision is appended; the next attempt would receive `previous decision: none`.\n\n**Does the commit body substitute for the file?** No substitution mechanism is specified. The commit body is the authoritative return contract; this procedure does not define return-file transport or a returned header. The plausible body cannot overcome the invalid subject.\n",
+      "words": 235,
+      "wallMs": 14935,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

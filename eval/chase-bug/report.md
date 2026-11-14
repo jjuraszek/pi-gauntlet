@@ -1,31 +1,37 @@
-# eval report: chase-bug (isolated source-wiring checks)
+# eval report: chase-bug (partial run: hotfix-row-return-file)
 
 for: 1e64e093a76ce24e3964c877bd202e248cd698ff9cb5298b26a1384d0e65da95
 
-## Current coverage
+wall: 8s
 
-The selected local check passed: 52 tests, 0 failures, including all 23 inventoried citation sites. This is not a full-suite result.
+## Change
 
-`timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs` selects the shared-reference citation, written hotfix return/landing wiring, isolated sample structure, docs isolation rules and evidence-currency assertions. These are deterministic source checks, not an executed hotfix flow. No model calls were selected after isolation; neither narrowed sample has a current model pass.
+Select hotfix-seed-file-observation for seed admission and hotfix-row-return-file for row admission as independent snapshots. Vary matching, missing, unreadable and mismatched files; require seed abort versus one row miss, pending-only external state and removal of any remaining return before exit cleanup. Execute transport recipes separately in scripts/loop-outside-return.test.mjs. No row implementation, gate, reviewer or landing is replayed; hotfix-return-file and other samples retain historical evidence and coverage is partial.
 
-| Narrowed sample | Entry and output | Stop | Model reason |
-|---|---|---|---|
-| hotfix-return-file | Supplied seed result -> admission classification, varying only file presence | Before a row attempt, counter write or cleanup | Unselected instruction-interpretation candidate; it cannot prove a parser or counters |
-| hotfix-plain-landing | Fixed fault story and ticket -> subject and paragraph | Before commit, PR creation or any other delivery step | Fault naming and prose composition need language judgment, but caller wiring is deterministic |
+Replace the three-sentence, under-80-word verdict budget with one shared sectioned report contract. Use optional Context, What is broken, Why it is broken, and How to fix it for real bugs or What happens next for negative verdicts. Keep reports standalone and concise, with literal fixes, role-named mechanisms, visible proof, and trailing citations. Apply the shape to verdicts, reporter drafts, terminal summaries, and post-hotfix responses. End the gate's third section with the recommended pick and one because-clause; omit picks from drafts, summaries, and the hotfix seed. Preserve gate markers, menu numbering and recommendation, returned-ticket truth, citation sources, response confirmation, and hotfix seed evidence without menu recommendations.
 
-## Historical evidence
+Translate investigation shorthand before first use in every report, including Context and recommendation reasons. Describe tests at the specificity the case supplies, using changed input and observed result only when recorded, state each component's everyday role before its first name in each report, and omit implementation citations unless the reader's next action requires opening them. Write the complete claim before appending its source or linked label at the sentence's end; name untested causes, unmeasured costs and unverified outcomes as unknown rather than inventing support. Ground every report claim and recommendation reason in supplied facts or their consequences, including who has missing input and how a test ran. The claims-supported facts in sectioned-report-order, prose-verdict-above-menu and nov3-replay reject restated mechanisms that change the recorded action, fix scopes narrower or wider than the case records, unsupported input ownership, invented test inputs or results, and citations before a complete role-named claim ends. Keep the summary's second tree walk to list files distinct from the first rule-violation check, and keep a fix recorded as small and safe at that size rather than inferring a one-comparison limit from a faulty location. Build Context from one repro line and the explanation that survived testing; add a line naming the specific unchecked fact only when one remains. Leave that line absent when nothing remains unchecked, and omit Context when it adds no evidence. The context-earns-place fact covers standalone-report, sectioned-report-order and nov3-replay as well as plain-reader-first-use; it rejects status such as "Nothing was blocked" even beside useful evidence. The plain-reader-first-use sample exercises this register and Context content in a real-bug gate, cannot-replicate draft and documented-rule not-a-bug summary.
 
-Keep `results/hotfix-return-file/` unchanged as historical evidence for the broader seed-plus-row input. Its input hashes are stale after isolation. `hotfix-plain-landing` was never run and has no result directory. Unrelated samples were not rerun.
+The selected samples exercise report comprehension rather than sentence counting. The removed exact-three-sentence and under-80-word facts are superseded by section, standalone, under-180-word, and concision checks; menu echoes and delivery wrappers remain outside the report. Evidence is partial and does not prove live triage, tracker writes, or hotfix execution.
 
-The broad hotfix-return-file command was `timeout -k 30 3600 node eval/run.mjs chase-bug hotfix-return-file --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. Its first completed run exited 1 after 110s because replies exceeded the 700-word cap; it made four replays and no judgments. The retained compact-input retry exited 1 after 106s with four replays and one judgment:
+## Cells
 
-| historical sample | model | recorded result |
-|---|---|---|
-| hotfix-return-file | anthropic/claude-opus-5-5 | Error: 722 words exceeded the 700-word cap |
-| hotfix-return-file | github-copilot/gpt-6.1-sol | Recorded improved, but dispatch still failed; admission held |
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| hotfix-row-return-file | anthropic/claude-opus-5-5 | improved | 5947 | admission: fails -> holds (intended change) |
+| hotfix-row-return-file | github-copilot/gpt-6.1-sol | improved | 7371 | admission: fails -> holds (intended change) |
 
-The retained judgment reports missing explicit stale-file removal and dispatched pre-bump iteration in that narration. Those failures are not relabeled as successes. Narrowing removes multi-stage narration, not a product requirement or the need for a deterministic check of the corresponding logic.
+## Feedback
 
-## Remaining coverage
+- hotfix-row-return-file / anthropic/claude-opus-5-5: The After wording moved the admission fact by making the checkout-local return file the sole admission input for row admission: A is admitted as done with attempts 1, pending cleared, misses reset to 0, no header added and the file deleted, while B, C and D each become one row validation miss with failed status, attempts 1, pending cleared, no header, miss count 1, previous decision none and deletion of any remaining file, with C explicitly kept out of the pre-land abort class and the commit body explicitly ruled out as a substitute. Before failed because it treated the commit subject and body as the only contract, ignored the file, classified A as a miss and left the file untouched in every variant. Before kept nothing on this fact that After lost, so there is nothing to restore; to keep the result stable, preserve the explicit statements that admission reads only the return file, that an unreadable file is a row miss rather than a seed or pre-land abort, and that deletion of the remaining file runs in every variant. Two small tightenings would reduce risk: C's note about a later abort if deletion or stale-file deletion fails edges toward describing later work, so keep it clearly conditional or drop it, and A's 'routes to step 5' line should stay marked as not run so the stop boundary remains unambiguous.
+- hotfix-row-return-file / github-copilot/gpt-6.1-sol: After moved the admission fact by treating the checkout-local return file as the row-admission input: A is admitted as done attempts 1 with pending cleared, misses reset to 0, no header and the file deleted, while B-D each record a single row validation miss (failed, attempts 1, pending cleared, no header, miss count 1, previous decision none, remaining file deleted) rather than a seed abort or an extra consumed attempt, and it states outright that the commit body never substitutes for the file. Before failed because it read the commit body/subject as the return contract, classified A as a miss on an invalid subject, left files untouched and declined to say the body cannot substitute. Before kept nothing that After lost, so no fact needs to be recovered; to keep this result stable, retain the explicit 'row-admission, not seed' framing, the per-variant miss evidence, the 'previous decision none' line and the flat non-substitution sentence. Two small tightenings would reduce risk of a stricter reading: in C, state plainly that any remaining file is deleted rather than hedging on whether deletion will succeed, and trim the mention of step 5 qualification in A so that nothing reads as simulating later work.
 
-Seed/row parser behavior, counter preservation, cleanup and delivery execution are not newly proven. Fault-story composition remains unrun. Use isolated executable fixtures for logic and a selected composition case only when that language behavior needs fresh evidence.
+## Return-file coverage and provenance
+
+Both replay models also hold `hotfix-seed-file-observation/admission` in `results/hotfix-seed-file-observation/candidate.json`: matching seed files admit, while missing, unreadable and mismatched files abort without seed retry or a spent row attempt. Row admission is the separate sample above; neither sample executes a worker, gate, review or landing.
+
+The seed observation was first evaluated under `hotfix-return-file`, then copied unchanged to its own sample ID and rejudged from cached replies. The original case and saved results were restored to preserve historical evidence. The row sample also reuses its first replies under the final intent. Current coverage is these two samples only, not a target-wide pass.
+
+`timeout -k 30 120 node --test scripts/loop-outside-return.test.mjs` checks six current decision replies and independently executes transport recipes, the companion parser and saved worker publication effects. Model judgments prove decisions, not runtime hotfix admission or cleanup.
+
+exit: 0

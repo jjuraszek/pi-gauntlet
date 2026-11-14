@@ -84,7 +84,6 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    checks: commands
    iterations: 0
    allowance: <maxIterationsPerRow>
-   returned: none
 
    | row | status | attempts | evidence |
    |---|---|---|---|
@@ -103,7 +102,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    mapping locally as `1 | 1 | hotfix`, without tracker tools or the loop driver's
    coordinated admission shell. Remove the ledger as the last action of every
    exit: after step 9's evidence on squash or PR exit, or after the abort class's
-   bash block and report. Leave the handoff record in place.
+   bash block and report. Remove any remaining return file through the [Return file deletion recipe](../loop-implementation/reference/return-file.md) before every exit's worktree cleanup, while its checkout-local git dir still exists; include binding aborts that retain the tree. Leave the handoff record in place.
 
    Run the project's dependency install inside the worktree. Every dispatch
    below: `cwd` = the worktree path, `output:` an absolute `$TMPDIR` path. Reuse
@@ -125,7 +124,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
    write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
-   tuple to the child, with the pre-bump `iteration: <i>`. Resolve `git -C <WORKTREE> rev-parse --path-format=absolute --git-dir`, never the common dir. Set `return:` to `<checkout-git-dir>/gauntlet/returns/<HEAD_BEFORE>-<i + 1>.md`; create its parent directory and delete any stale file at that exact path before dispatch. Recompute the path from the pending tuple and consumed count on recovery; delete the file after admission, a miss or abort.
+   tuple to the child, with the pre-bump `iteration: <i>`. Run the [Return file recipes](../loop-implementation/reference/return-file.md) with `CHECKOUT` = `WORKTREE`, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`; pass the prepared path as `return:`. Abort pre-land on a failed path read, directory creation or stale-file deletion. On recovery recompute the path without deleting it before admission; delete it through the same recipe after admission, a miss or abort.
 
    ```text
    subagent({ agent: "loop-implementer", context: "fresh", async: false,
@@ -168,7 +167,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    leave attempts unchanged and the ledger untouched. Never discard changes
    to make a return admissible.
 
-   **Return file and evidence.** Require the file's first two lines to equal the dispatched `pending:` tuple and `iteration: <i + 1>`. Require a blank line, exactly one four-column row
+   **Return file and evidence.** Treat a missing, unreadable or mismatched return file as a seed miss or row validation miss under the matching admission below. Require the file's first two lines to equal the dispatched `pending:` tuple and `iteration: <i + 1>`. Require a blank line, exactly one four-column row
    without a header, then a blank line and the decision. In the evidence cell,
    require one runnable, selective evidence command up to the first unescaped
    semicolon, plus at most three semicolon-separated result lines. Require plain
@@ -198,7 +197,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    is a validation miss (no progress).
 
    **Admitted result.** The parent writes the row, appends the decision to
-   `## Decisions`, sets `returned:` to the dispatched tuple, clears `pending:`, deletes the return file, and resets the consecutive-miss count.
+   `## Decisions`, clears `pending:`, deletes the return file, and resets the consecutive-miss count.
    For row 1, `done` -> step 5; `failed` -> next attempt under Attempt budget,
    with the admitted decision as `previous decision`.
 
@@ -206,7 +205,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    without a commit, missing or malformed return file/row/decision, attempts not equal to
    saved attempts + 1, status disagreement, or an empty row commit as a miss.
    Write row 1 `failed`, attempts = saved attempts + 1, and evidence
-   `attempt <n>: <concrete miss>`; set `returned:` to the dispatched tuple, clear `pending:`, delete the return file and use
+   `attempt <n>: <concrete miss>`; clear `pending:`, delete the return file and use
    `previous decision: none` for the next dispatch under Attempt budget.
    Count consecutive misses across row returns; the second consecutive miss ->
    abort (pre-land).

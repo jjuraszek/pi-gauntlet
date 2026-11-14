@@ -1,0 +1,34 @@
+{
+  "sample": "fix-row-file-observation",
+  "arm": "baseline",
+  "skillSha": "eedbf9f269f2d56aa30467d62a30aa28c8abe37ae8b025a87ed9e60942828f8e",
+  "inputSha": "82c0b2a36fc1bc002f7c83a6024822897b851783e136f1850d1aa0e23bb003a5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Admission decision for pi row 1, cases A-D\n\n## Authority\n\nThe **commit message is authoritative**, and the return file is not. The fix-wave Admission procedure says: \"On pi, read the commit, not the reply, after every return.\" That procedure checks only:\n- the branch (status and commit count),\n- the commit's subject and body,\n- the commit's evidence line,\n- the commit's diff.\n\nNo step reads a return file, so the return file cannot make a commit admissible or inadmissible. Varying the return file therefore does not change the outcome.\n\n## Shared admission walk (identical inputs in A-D)\n\n1. **Branch check passes.** The tree is clean and exactly one new commit exists after `HEAD_BEFORE` (`aaaa...aaaa`).\n2. **Subject check fails.** Admission requires the subject `loop: row 1 <done|failed>`. The subject is `A teammate chose this message`.\n   - Admission stops at the first malformed field.\n   - The plausible legacy tuple and row in the body cannot repair a bad subject.\n   - Steps 3 and 4 (evidence and diff) do not admit anything.\n\nThe result is a malformed-subject **validation miss**.\n\n## Per-case table\n\n| Case | Return-file observation | Classification | Reason |\n|---|---|---|---|\n| A | Readable, exact tuple, iteration 3, row 1 done, attempts 1, valid evidence and decision | Validation miss | Commit subject is not `loop: row 1 done`. A well-formed return file is not admission evidence. |\n| B | Absent | Validation miss | Same subject failure. A missing file is not a separate obstacle because Admission never requires one. |\n| C | Read fails with EACCES | Validation miss | Same subject failure. The unreadable file is not consulted, so it is neither a stop nor `stuck - run record unreadable`. That obstacle covers only the run record and the spec/ledger pair. |\n| D | Readable, tuple names `hotfix` | Validation miss | Same subject failure. The wrong-leg tuple sits in a non-authoritative file, so it adds no second classification. |\n\n## Prescribed admission effects (same for A-D, described only)\n\n- **Row 1 status:** `failed`.\n- **Attempts:** saved 0 + 1 = **1**, out of an allowance of 4.\n- **Evidence:** `attempt 1: commit subject \"A teammate chose this message\" is not \"loop: row 1 <done|failed>\"`.\n- **Pending:** cleared. The `pending: 1 | gatekeep | aaaa...aaaa` line is removed.\n- **Iterations:** stays `3`. It was already advanced before dispatch.\n- **Consecutive-miss count for row 1:** incremented to 1. A second consecutive miss would exhaust the row.\n- **Next attempt:** `previous decision: none`.\n- **Decisions section:** no decision line is appended. Only valid admitted results append one.\n- **Ledger header:** **none added.** The ledger format has no \"returned\" header, and Admission prescribes none.\n- **Round charge:** **none.** A validation miss charges no round, even though the commit changed source.\n- **The commit:** stays on the branch. The orchestrator never resets or checks out files outside Sync's recorded recovery.\n- **Return file:** ignored in place. It is not read as authority, not deleted, and not treated as residue. It lives under the git admin directory (`.git/worktrees/...`), so `git status --porcelain` does not report it.\n\nStopping here. Nothing is dispatched, edited, deleted, reviewed or pushed.\n",
+      "words": 474,
+      "wallMs": 19718,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The commit message is authoritative under the supplied Admission rules; a return file is not an admission source. All four snapshots fail because the subject is `A teammate chose this message`, not the required `loop: row 1 done`.\n\n| Case | Admission classification and reason | Prescribed ledger state | Added ledger header | Round charge | Return-file disposition |\n|---|---|---|---|---|---|\n| A | Validation miss: malformed commit subject. The correctly formatted file does not override it. | Row 1 becomes `failed`, attempts become **1**, evidence records the malformed subject, and `pending:` is cleared. | None | None | Leave the file untouched. |\n| B | Validation miss: malformed commit subject. File absence does not change the result. | Row 1 becomes `failed`, attempts become **1**, evidence records the malformed subject, and `pending:` is cleared. | None | None | No file to dispose of. |\n| C | Validation miss: malformed commit subject. The file's read-permission error does not change the result. | Row 1 becomes `failed`, attempts become **1**, evidence records the malformed subject, and `pending:` is cleared. | None | None | Leave the file untouched. |\n| D | Validation miss: malformed commit subject. The file's incorrect tuple does not change the result. | Row 1 becomes `failed`, attempts become **1**, evidence records the malformed subject, and `pending:` is cleared. | None | None | Leave the file untouched. |\n\nIn every case, increment the row's consecutive-validation-miss count once and prescribe `previous decision: none` for its next eligible attempt. The source-changing commit remains on the branch, but a validation miss charges no repair round. These are prescribed effects only; no action is executed.\n",
+      "words": 242,
+      "wallMs": 8916,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

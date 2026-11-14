@@ -1,0 +1,70 @@
+{
+  "sample": "fix-row-file-observation",
+  "arm": "candidate",
+  "skillSha": "3be9d48499e2ff5fcd0499e5fea8e7f982ddcd7507f16de2565ee08e2f24dc11",
+  "inputSha": "82c0b2a36fc1bc002f7c83a6024822897b851783e136f1850d1aa0e23bb003a5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Admission decision for pi fix row 1\n\n**What admission reads.** Only the return file at `/workspace/root/.git/worktrees/widgets/gauntlet/returns/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-3.md` decides admission.\n\n- The commit subject (\"A teammate chose this message\") is never read for attribution, admission or accounting.\n- The tuple and row inside the commit body are never read either.\n- A valid body can never replace a missing or invalid return file.\n\n**Shared state in every snapshot.**\n- Dispatch already wrote `iterations: 3` as i + 1, so iterations stays 3.\n- The checkout is clean and has exactly one new commit that changes tracked source.\n- The saved row 1 has attempts 0.\n- Admission adds no ledger header in any snapshot. It changes only row 1, `## Decisions` and `pending:`.\n\n## A: readable, exact tuple, iteration 3, done attempts 1, matching decision\n\n- **Classification:** admitted result.\n- **Reason:**\n  - The first two lines match the dispatched tuple `pending: 1 | gatekeep | aaaa...` and read `iteration: 3`.\n  - Then come a blank line, the four-column target row, a blank line and the matching decision line.\n  - Status `done` agrees between the row and the decision.\n  - Attempts equal the saved 0 + 1.\n  - The evidence is one runnable selective command with passing result lines.\n  - The diff changes tracked source.\n- **Attempts and pending:**\n  - Row 1 is written to the external ledger as `done`, attempts 1, with the returned evidence.\n  - The decision line is appended to `## Decisions`.\n  - `pending:` is cleared.\n  - The row's consecutive-miss count resets to 0.\n  - The row then waits for this round's pre-push reviewer.\n- **Header:** none added.\n- **Round charge:** one round. This is an admitted, ordinary, source-changing done result. It is charged once through the round checkpoint (counted true, counted_head recorded).\n- **Return file:** deleted through the return-file recipe after admission.\n\n## B: return file absent\n\n- **Classification:** validation miss.\n- **Reason:** the return file is missing.\n- **Attempts and pending:**\n  - Row 1 becomes `failed`, attempts 1 (saved 0 + 1).\n  - Its evidence reads `attempt 1: return file missing`.\n  - `pending:` is cleared.\n  - The consecutive-miss count goes to 1.\n  - The next attempt gets `previous decision: none`.\n- **Header:** none added.\n- **Round charge:** none, because a validation miss charges no round. The commit stays on the branch and is never discarded.\n- **Return file:** the deletion step runs through the recipe, but there is nothing to remove.\n\n## C: read fails with EACCES\n\n- **Classification:** validation miss.\n- **Reason:** the return file is unreadable (EACCES).\n- **Attempts and pending:** the same as B, but the evidence reads `attempt 1: return file unreadable (EACCES)`.\n- **Header:** none added.\n- **Round charge:** none. The commit stays on the branch.\n- **Return file:** deleted through the recipe. If that deletion fails, the next dispatch stops before it starts.\n\n## D: readable, tuple names hotfix instead of gatekeep\n\n- **Classification:** validation miss.\n- **Reason:** the tuple does not match the dispatched one. The file says `1 | hotfix | aaaa...`, but `1 | gatekeep | aaaa...` was dispatched. The plausible legacy tuple in the commit body cannot rescue this.\n- **Attempts and pending:** the same as B, but the evidence reads `attempt 1: return tuple mismatch (hotfix, expected gatekeep)`.\n- **Header:** none added.\n- **Round charge:** none. The commit stays on the branch.\n- **Return file:** deleted through the recipe.\n\nStopping here: nothing is dispatched, edited, deleted, reviewed or pushed.\n",
+      "words": 510,
+      "wallMs": 21666,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The checkout-local return file is authoritative. Neither the commit subject nor its legacy body can supply or replace the return record.\n\nThese are the prescribed admission effects only; none are executed.\n\n| Case | Classification and reason | Attempts and pending state | Added ledger header | Round charge | Return-file disposition |\n|---|---|---|---|---|---|\n| **A** | **Admit `done`.** The tuple, consumed iteration, row, evidence, and decision satisfy the return contract. | Set row 1 to `done`, attempts **1**; admit its evidence and append its decision. Clear `pending:` and reset the row's consecutive-validation-miss count. | None. | **Charge once** for the eligible source-changing commit, recording the round checkpoint so reconciliation cannot charge it again. | Delete the return file through the prescribed recipe after admission. |\n| **B** | **Validation miss.** The required return file is absent; the commit body is not a fallback. | Set row 1 to `failed`, attempts **1**; record evidence naming the missing return file. Clear `pending:` and increment the consecutive-validation-miss count. | None. | **No charge**, despite the source-changing commit. | No file exists to delete; complete the prescribed return-file cleanup. |\n| **C** | **Validation miss.** The return file is unreadable because reading it returns `EACCES`. | Set row 1 to `failed`, attempts **1**; record evidence naming the read failure. Clear `pending:` and increment the consecutive-validation-miss count. | None. | **No charge**, despite the source-changing commit. | Prescribe deletion through the return-file recipe after recording the miss; the read failure does not establish whether deletion succeeds. |\n| **D** | **Validation miss.** The returned tuple names `hotfix`, not the dispatched `gatekeep` tuple. | Set row 1 to `failed`, attempts **1**; record evidence naming the tuple mismatch. Clear `pending:` and increment the consecutive-validation-miss count. | None. | **No charge**, despite the source-changing commit. | Delete the mismatched return file through the prescribed recipe after recording the miss. |\n\nIn every case, retain the existing commit and leave ledger iterations at **3**. For B-D, any later attempt would receive `previous decision: none`; no later attempt is dispatched here.\n",
+      "words": 306,
+      "wallMs": 13619,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "58299f3727176d671fca55075e2aab913f83616edb228b86990c070798c465d0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "69e3868eab9f20961353eb62086093a68fcffadfd8817bcbfab65656f0e68812",
+      "baselineOutputSha": "91a2af3faa891c0baeb91a88134122afa093634511823f3c7b8b81018afde7ab",
+      "candidateOutputSha": "f328ecde5c586638060ef8d308819797ff06686bea39898629e62b411c0a6cad",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved the admission fact by making the checkout-local return file the sole admission authority: A is admitted with attempts 1, pending cleared, no header, one source-changing round charged and the file deleted, while B, C and D each record a single uncharged validation miss with failed status, attempts 1, cleared pending, no header and deletion of any remaining file, and the reply says explicitly that the commit body cannot replace a missing or invalid file. Before failed because it treated the commit message as authoritative, rejected A on the subject line and left the return file in place. Before held nothing that After lost, so there is nothing to restore. To keep the fact robust, keep the explicit sentence that neither the commit subject nor body is read for admission, keep the effects phrased as prescribed rather than performed (the closing 'nothing is dispatched, edited, deleted' line does this well), and consider trimming extras that go beyond immediate admission effects, such as 'the row then waits for this round's pre-push reviewer', the counted_head checkpoint detail and 'the next dispatch stops before it starts', since those lean toward later-step narration and could put the 'immediate effects only' clause at risk on another replay.",
+      "wallMs": 5664,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "58299f3727176d671fca55075e2aab913f83616edb228b86990c070798c465d0",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "69e3868eab9f20961353eb62086093a68fcffadfd8817bcbfab65656f0e68812",
+      "baselineOutputSha": "19f09cd0d7062ce6a077981fbabc100e522296ec13cc205b5425e837568ff610",
+      "candidateOutputSha": "e00113ea46c68c81386a99cb2d5b0c33d48c69ceec0d0147edca1291d927b370",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the admission fact by making the checkout-local return file the authoritative source: A is admitted as done with attempts 1, pending cleared, no header, one source-changing round charged and the file deleted, while B-D each record one uncharged validation miss with failed status, attempts 1, cleared pending, no header and deletion of any remaining file, and the text states outright that neither the commit subject nor the legacy body can supply or replace the return record. Before failed because it treated the commit message as authoritative, rejected A on the malformed subject, and left the files untouched. Before held nothing that After lost. To keep the fact firmly held, preserve the explicit 'commit body is not a fallback' sentence, the per-case deletion disposition (including B's 'no file exists to delete' and C's 'prescribe deletion' without claiming it succeeds), and the 'prescribed effects only; none are executed' framing; consider trimming extras such as the round checkpoint, consecutive-validation-miss count and 'previous decision: none' for a later attempt, since they edge toward later accounting and could be read as going beyond immediate admission effects.",
+      "wallMs": 4999,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

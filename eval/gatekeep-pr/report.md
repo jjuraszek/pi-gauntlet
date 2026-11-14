@@ -1,31 +1,37 @@
-# eval report: gatekeep-pr (isolated source-wiring checks)
+# eval report: gatekeep-pr (partial run: fix-row-file-observation)
 
-for: 692b9ffdad1ec862b1f14bc890e728c42c4f2a4de5ff03c35be0b39bedcda620
+for: c52bb780f8555ebff22ff3ace624f5fb4278e9448c145e0708bc9173a1b4760b
 
-## Current coverage
+wall: 28s
 
-The selected local check passed: 52 tests, 0 failures, including all 23 inventoried citation sites. This is not a full-suite result.
+## Change
 
-`timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs` selects the shared-reference citations, caller wording/return-file wiring, isolated sample structure, docs isolation rules and evidence-currency assertions. These are deterministic checks, not an executed gatekeep driver or live GitHub proof. No model calls were selected after isolation; no current model pass is claimed for either narrowed case.
+Select only fix-row-file-observation for the model-owned admission decision: readable matching, missing, unreadable and mismatched file observations, with immediate attempts, pending, round-charge and deletion effects. Keep the external ledger pending-only. Execute transport recipes and companion parsing separately in scripts/loop-outside-return.test.mjs; no worker, review, push or whole-wave replay runs. Preserve fix-row-return-file and other historical sample evidence; coverage is partial. The remaining Change paragraphs describe separate retained work.
 
-| Narrowed sample | Entry and output | Stop | Model reason |
-|---|---|---|---|
-| merge-landed-message | Fixed completed outcomes -> composed subject and body | Before any settings read, policy choice or delivery | Prose composition needs language judgment, but is not required to prove caller wiring here |
-| fix-row-return-file | Supplied returned row -> admission classification, varying only file presence | Before any counter write, cleanup or next dispatch | Unselected instruction-interpretation candidate; executable checks belong in deterministic fixtures |
+Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. P4's saved candidates retain these eight samples' outcomes. The preceding partial report covered the authorized bypass-merge-pick-revoked judgment refresh: all five facts hold on both saved replies, with no replay; earlier P4/P5 reports remain in Git. Other saved results remain earlier evidence. P5 seeded stop-draft-files once and ran its first candidate replay. That replay's anthropic/claude-opus-5-5 closing messages omitted the not-posted reason for both replies at both checkpoints, although the judge marked retained as holds; github-copilot/gpt-6.1-sol supplied the reason. P7 reran only stop-draft-files once after deleting the saved candidate, retaining the baseline and unchanged Teardown text and expected facts (ran P7-replay (1 of 2)). Direct inspection of the newest replies confirms both saved bodies are retained and all four closing messages name both paths with explicit reasons: "because you stopped" on anthropic/claude-opus-5-5 and "because you selected stop" on github-copilot/gpt-6.1-sol. All three candidate facts read holds for both models at the current assembly. The partial report covers only this sample; this outcome note follows the saved judgments without rejudging the replies.
 
-## Historical evidence
+Render three unlabeled report parts: a two-sentence behavior-based change/scope opening, standing and concrete problems, then a separate recommendation above Pick one. Keep raw evidence and repair/sync usage behind show evidence; D2 obstacle consequences may name additional attempts. Align the replay wrapper with that report rather than requesting sync and verdict labels.
 
-The unchanged records in `results/merge-landed-message/` and `results/fix-row-return-file/` used broader multi-boundary inputs. Their input hashes do not match the isolated cases. They remain historical evidence, not current passes or end-to-end validation. Unrelated records were not rerun.
+Cover all seven action-row-one scenarios: pending progress, ruleset block, unchanged cap prerequisite, own source repair, another author's body-only deliver, author-only assess and a pending proposal with preserve contract recommended. Cover all thirteen post-menu-set-reply operations, including numeric unions, typed reply 2 versus row 2, invalid stop sets, failed-step continuation, nested release pause, queued-merge stop and retained not-run work. Preserve existing freshness and explicit-pick facts. Migrate stale supplied reports and action mappings in batch-failure-retry, batch-summary-queue, role-line-requested, no-arg-discovery-under-cap and menu-after-numbered-findings.
 
-| historical sample | model | recorded verdict | judge ms |
-|---|---|---|---|
-| merge-landed-message | anthropic/claude-opus-5-5 | improved | 9124 |
-| merge-landed-message | github-copilot/gpt-6.1-sol | improved | 10316 |
-| fix-row-return-file | anthropic/claude-opus-5-5 | improved | 10687 |
-| fix-row-return-file | github-copilot/gpt-6.1-sol | improved | 10546 |
+Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
 
-Historical commands used `timeout -k 30 3600 node eval/run.mjs gatekeep-pr <sample> --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`, selecting each named sample separately. They exited 0 in 122s and 187s respectively; each made four replays and two judgments. These outcomes do not cover the narrowed inputs.
+## Cells
 
-## Remaining coverage
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| fix-row-file-observation | anthropic/claude-opus-5-5 | improved | 5664 | admission: fails -> holds (intended change) |
+| fix-row-file-observation | github-copilot/gpt-6.1-sol | improved | 4999 | admission: fails -> holds (intended change) |
 
-No new model composition or admission decision is proven. Merge flags, API policy, queue behavior, plan-file absence, counters and live delivery need their own deterministic fixtures or scoped review; no workflow replay substitutes for them.
+## Feedback
+
+- fix-row-file-observation / anthropic/claude-opus-5-5: The After wording moved the admission fact by making the checkout-local return file the sole admission authority: A is admitted with attempts 1, pending cleared, no header, one source-changing round charged and the file deleted, while B, C and D each record a single uncharged validation miss with failed status, attempts 1, cleared pending, no header and deletion of any remaining file, and the reply says explicitly that the commit body cannot replace a missing or invalid file. Before failed because it treated the commit message as authoritative, rejected A on the subject line and left the return file in place. Before held nothing that After lost, so there is nothing to restore. To keep the fact robust, keep the explicit sentence that neither the commit subject nor body is read for admission, keep the effects phrased as prescribed rather than performed (the closing 'nothing is dispatched, edited, deleted' line does this well), and consider trimming extras that go beyond immediate admission effects, such as 'the row then waits for this round's pre-push reviewer', the counted_head checkpoint detail and 'the next dispatch stops before it starts', since those lean toward later-step narration and could put the 'immediate effects only' clause at risk on another replay.
+- fix-row-file-observation / github-copilot/gpt-6.1-sol: After moved the admission fact by making the checkout-local return file the authoritative source: A is admitted as done with attempts 1, pending cleared, no header, one source-changing round charged and the file deleted, while B-D each record one uncharged validation miss with failed status, attempts 1, cleared pending, no header and deletion of any remaining file, and the text states outright that neither the commit subject nor the legacy body can supply or replace the return record. Before failed because it treated the commit message as authoritative, rejected A on the malformed subject, and left the files untouched. Before held nothing that After lost. To keep the fact firmly held, preserve the explicit 'commit body is not a fallback' sentence, the per-case deletion disposition (including B's 'no file exists to delete' and C's 'prescribe deletion' without claiming it succeeds), and the 'prescribed effects only; none are executed' framing; consider trimming extras such as the round checkpoint, consecutive-validation-miss count and 'previous decision: none' for a later attempt, since they edge toward later accounting and could be read as going beyond immediate admission effects.
+
+## Return-file coverage and provenance
+
+The observation case was first evaluated under `fix-row-return-file`, then copied to `fix-row-file-observation` to preserve the original case and its historical saved results. The final run reused the observation baseline and refreshed the candidate after the checkout-local Git-directory citation changed. Coverage is this isolated admission decision only, not a whole wave or target-wide pass.
+
+`timeout -k 30 120 node --test scripts/loop-outside-return.test.mjs` checks current decision identities and independently executes transport recipes, the companion parser and saved worker publication effects. The gatekeep replies classify supplied observations and prescribed immediate effects; they do not prove runtime gatekeep ledger mutation, review or push.
+
+exit: 0
