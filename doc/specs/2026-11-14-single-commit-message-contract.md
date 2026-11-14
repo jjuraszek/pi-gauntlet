@@ -104,7 +104,7 @@ contract:
 - home: .worktrees/<name>
 - spec-dir: doc/specs
 - plan-dir: doc/plans
-- verification: `npm test` (runs `scripts/ci.mjs`); `node eval/run.mjs <target> <sample>` for each sample named in Design "Eval samples"
+- verification: `npm test` (runs `scripts/ci.mjs`); `node eval/run.mjs <target> <sample>` only for explicitly selected isolated model-dependent checks under Design "Eval samples"; the behavior map is not a mandatory replay list
 Rules: AGENTS.md
 Rules: AGENTS.core.md
 Rules: README.md
@@ -374,7 +374,7 @@ No extension or bin source changes are planned: the ledger readers already skip 
 
 ### 9. Eval samples
 
-Existing samples: the 71 samples of claim 25 state the old labels or the commit-body block in `case.md` or `expected.md`. Reword each to the ledger contract in the same change (fixture ledgers gain `returned:`; expected facts name decision lines and return files). They are not rerun; the evidence names them as coverage not re-proven.
+Existing samples: the 71 samples of claim 25 state the old labels or the commit-body block in `case.md` or `expected.md`. Update only stale contract text needed by the changed target's integrity or the selected isolated check (fixture ledgers gain `returned:`; expected facts name decision lines and return files). Do not require a 71-sample rewrite or replay before a local check. Preserve existing records and name changed but unexecuted samples as coverage not re-proven.
 
 The following table is a behavior coverage map, not a requirement to run eighteen model samples. Test each piece in isolation, with no end-to-end model eval. Use deterministic fixtures for executable parsers, counters, git recipes, return-file lifecycle and caller wiring. Use selected model samples only where interpreting the changed instructions or composing prose needs observation. Each target's `intent.md` names the behavior its selected sample covers; report any coverage moved to deterministic checks rather than claiming a model pass.
 
