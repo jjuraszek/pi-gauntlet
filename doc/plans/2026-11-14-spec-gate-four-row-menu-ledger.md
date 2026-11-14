@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,8 +16,8 @@ allowance: 10
 | 6 | open | 0 | |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
-| 9 | open | 0 | |
-| 10 | open | 0 | |
+| 9 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five numeric context cases; status ends with ship instead of the required Context percentage line |
+| 10 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five unavailable context cases; status ends with ship instead of Context: unknown |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
@@ -36,3 +36,4 @@ allowance: 10
 | 26 | open | 0 | |
 
 ## Decisions
+row 0 done | seeded 2 rows, closed 0 on baseline | row 9
