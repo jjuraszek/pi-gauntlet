@@ -1,6 +1,8 @@
-for: cd2cf59834bb750531e8f55185b391eb2f67b117a4aea3abde4e3c96f577ea8d
+for: 05a0f80c50b9c3f545125b25a1b7ec24ec87467b820ab16875b45af32a1eaa47
 
 ## Change
+Compose squash messages and PR titles through the shared commit-message reference, including ticket placement and the read-only squash-default note. Keep companion squash Home lines path-free. Pass the same reference and ticket into the minors worker. Read amendment digest rows from all commit bodies rather than filtering subjects. Run only landed-message and digest-from-record-lines; require every candidate fact and preserve existing evidence. These fixture-based narrations are partial message-contract coverage, not live GitHub actions or a target-wide pass.
+
 Locate companions by recorded branch and apply recorded cleanup ownership before the keyed path. A script contract without home uses the located folder basename and reads back the tree and ref after any destroy exit; absent home and destroy retains host ownership. Preserve keyed name recovery, legacy overrides, confirmations and receipt failure handling. Add legs-script-placed-cleanup for selective narrated coverage only; leave all other sample evidence unchanged. Every new candidate fact must hold. Extend legs-script-placed-cleanup with a receipt-admitted missing companion at discard: print its lookup reason instead of a path, preserve its branch without destruction, and continue the other members' cleanup. Retain the sample's existing facts.
 
 Publish telemetry on its orphan branch rather than committing a product deliverable. Use full-tree verification skip proofs, and continue landing after an exit-0 publication warning. Add telemetry-branch-seal, update ledger-step-1's skip facts and spell out its retained per-command post-squash exit lines. Selected coverage: telemetry-branch-seal and ledger-step-1 only; existing sample evidence remains intact.
@@ -30,6 +32,13 @@ Add spec-pr-menu and deferred-spec-stop using sample-local full finishing and he
 Compose the header-linked N>1 finish with checkout-local coordinated verification and companion-first delivery. Reconcile live receipt draft status with ready/draft selection, seal home once with every companion URL, push/readify the existing home handle last and keep its body byte-for-byte. Extend spec-pr-menu with one-member and legacy controls and pr-subject-push with header/rework precedence. Keep target-wide assembly, word cap and historical accepted variance unchanged. New spec-pr-menu-legs facts must all hold; narrated fixtures and deterministic lint are not behavioral model evidence. Full-target verification belongs to the parent.
 
 ## Expected to move
+- landed-message/subject: fails -> holds - Derive the title and squash subject from one shared source with the bound ticket convention.
+- landed-message/shape: fails -> holds - Write a bounded user-outcome paragraph and combine acceptance outcomes into at most five bullets.
+- landed-message/delivery: fails -> holds - Commit the complete message and keep companion squash provenance path-free.
+- landed-message/note: fails -> holds - Print the shared note only on COMMIT_MESSAGES without writing settings.
+- landed-message/minors: fails -> holds - Dispatch shared wording and ticket inputs and derive the fix subject from the finding.
+- digest-from-record-lines/source: fails -> holds - Read all bodies without a subject filter.
+- digest-from-record-lines/digest: fails -> holds - Include granted and auto-apply audit rows from plain-subject commits only.
 - legs-script-placed-cleanup/locate: fails -> holds - Use the branch-selected tree, not a stale brief or recorded home.
 - legs-script-placed-cleanup/names: fails -> holds - A no-home script receives its located folder basename while keyed cleanup retains pattern recovery.
 - legs-script-placed-cleanup/readback: fails -> holds - Observe tree and ref after every destroy exit before deciding branch deletion.

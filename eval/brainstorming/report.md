@@ -1,15 +1,26 @@
-# eval report: brainstorming (partial run: spec-and-grant-message)
+# eval report: brainstorming (partial run: spec-and-amendment-subjects)
 
-for: c0f9cb4551f7733c34414d38db525d3077499fc424dd73d929adbf1c93fccf69
+for: 9e6ce55eb9025e4a284616304491e63bfb600b1bcb4520b1b09b075f57d2e877
 
-wall: 14s
-
-refresh: complete; sample: spec-and-grant-message; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
-audit: [candidate.json](results/spec-and-grant-message/candidate.json)
+wall: 72s
 
 ## Change
 
-Compose spec and companion subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council audit lines. Compose standalone consent changes from its fixed bookkeeping sentence. Run only spec-and-grant-message for these changes; the narrated checkpoint covers message composition and scoped persistence, not live git writes or the separate amendment-batch protocol. Preserve all earlier results as partial historical coverage.
+Compose spec, companion and amendment subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council and amendment audit lines. Consent changes use its fixed sentence with a body naming the new value. Ledger amendments record their boundary in Decisions, not the subject; selected spec dispositions use the same amendment recipe without another gate. Run only spec-and-amendment-subjects, which extends the spec-and-grant-message fixture with batch and disposition checkpoints; preserve that earlier sample and all its evidence. These narrated results prove message composition and scoped persistence, not live writes or target-wide coverage.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| spec-and-amendment-subjects | anthropic/claude-opus-5-5 | improved | 15650 | spec: fails -> holds (intended change); ticket: holds -> holds (held); audit: holds -> holds (held); consent: fails -> holds (intended change); amendment: fails -> holds (intended change); ledger: fails -> holds (intended change); disposition: fails -> holds (intended change) |
+| spec-and-amendment-subjects | github-copilot/gpt-6.1-sol | improved | 13934 | spec: fails -> holds (intended change); ticket: holds -> holds (held); audit: holds -> holds (held); consent: fails -> holds (intended change); amendment: fails -> holds (intended change); ledger: fails -> holds (intended change); disposition: fails -> holds (intended change) |
+
+## Feedback
+
+- spec-and-amendment-subjects / anthropic/claude-opus-5-5: After moved five facts by making each trace read /package/skills/finishing-a-development-branch/reference/commit-message.md and take its subject from that file: `Add the profile caching spec`, the fixed `Change the standing amendment consent` with one body sentence naming none, `Amend the spec for cache lifetime and 1 more`, and the same amendment recipe for the disposition. Before had used `spec:`, `grant: none`, `loop: amend` and `spec: Retain cache warming` and never recorded a ledger decision. Ticket and audit held in both, with Refs #241 in the bodies only, the five council lines verbatim, a quoted heredoc and home committed before the companion. Three holds are fragile and worth pinning in the wording. First, the output lowercases item titles in subjects (`cache lifetime`, `retain cache warming`); say whether the title is copied verbatim or sentence-cased, because the disposition fact names the title as `Retain cache warming`. Second, the ledger line came out as `amended | 2 items | Cache lifetime` and was introduced as "the ledger decision" rather than an append to the ledger's Decisions section; give the literal line format, including the `item(s)` token if it is literal, and name the section. Third, the consent trace decided the commit carries no ticket line at all; that satisfies the fact as written, but if a bound ticket should appear in the consent body under the refs convention, say so explicitly, otherwise the output will keep dropping it.
+- spec-and-amendment-subjects / github-copilot/gpt-6.1-sol: After moved five facts from fails to holds and lost none. Reading the shared commit-message reference at /package/skills/finishing-a-development-branch/reference/commit-message.md replaced the `spec:`, `grant:`, `loop: amend` and `amend:` subjects with `Add the Profile caching spec`, `Change the standing amendment consent` (plus a one-sentence body naming `none`), `Amend the spec for Cache lifetime and 1 more` and `Amend the spec for Retain cache warming`. The amendment boundary moved into a ledger decision instead of the subject, and the council audit, quoted heredoc, home-first ordering and `Refs #241` body placement that Before already had were kept. Three spots are thinner than they could be and worth pinning in the wording. First, the ledger decision is rendered `amended | 2 items | Cache lifetime` and described only as a 'batch decision'; state the literal form and that it is appended under the ledger's Decisions section, so a stricter reading of `2 item(s)` still passes. Second, the companion commit is narrated in prose without a command; require the same quoted-heredoc `git commit -F -` form as the home commit. Third, Trace D says to 'retain the human-selected disposition audit' without showing the body; require the full message so the audit lines and `Refs #241` are visible. In Trace B, also keep the body to the single value-naming sentence plus the ticket line, so no loop state can creep in.
+
+exit: 0
 
 ### Prior change context (not current replay authorization)
 
@@ -139,13 +150,6 @@ Facts are primary candidate facts. Exit is the sample command's exit code, share
 | drafted-ac-rows | anthropic/claude-opus-5-5 | improved | 5/5 | 0 |
 | drafted-ac-rows | github-copilot/gpt-6.1-sol | improved | 5/5 | 0 |
 
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| spec-and-grant-message | anthropic/claude-opus-5-5 | improved | 11984 | spec: fails -> holds (intended change); ticket: holds -> holds (intended but unchanged); audit: holds -> holds (held); consent: fails -> holds (intended change) |
-| spec-and-grant-message | github-copilot/gpt-6.1-sol | improved | 13322 | spec: fails -> holds (intended change); ticket: holds -> holds (intended but unchanged); audit: holds -> holds (held); consent: fails -> holds (intended change) |
-
 ## Prior commands and observed output (not rerun)
 
 Final runs used `node eval/run.mjs brainstorming <sample>` for exactly the samples below. Their baseline-only runs preceded candidate replay after each case edit. Independent spec-gate work ran concurrently; brainstorming samples never overlapped.
@@ -184,10 +188,3 @@ These rows are preserved evidence, not current coverage.
 |---|---|---|---|---|
 | spec-pr-regate | anthropic/claude-opus-5-5 | improved | 20996 | single-member: holds -> holds (held); classifier: holds -> holds (held); skips: holds -> holds (held); gate: fails -> holds (intended change); audit: fails -> holds (intended change); change: holds -> holds (held); approvals: fails -> holds (intended change); flags: fails -> holds (intended change); hidden: fails -> holds (held); unresolved: holds -> holds (held) |
 | spec-pr-regate | github-copilot/gpt-6.1-sol | improved | 23001 | single-member: holds -> holds (held); classifier: holds -> holds (held); skips: holds -> holds (held); gate: fails -> holds (intended change); audit: fails -> holds (intended change); change: holds -> holds (held); approvals: fails -> holds (intended change); flags: fails -> holds (intended change); hidden: fails -> holds (held); unresolved: holds -> holds (held) |
-
-## Feedback
-
-- spec-and-grant-message / anthropic/claude-opus-5-5: After moved `spec` and `consent` by routing both commits through a narrated read of /package/skills/finishing-a-development-branch/reference/commit-message.md: the home subject became `Add the profile caching spec` instead of `spec: Profile caching`, and the consent commit became the verbatim `Change the standing amendment consent` with `Refs #241` in the body instead of `grant: none`. `audit` held in both: the five council lines are unchanged in a quoted heredoc to `git commit -F -`, scoped to the spec, with home committed before the companion. `ticket` was expected to move but already holds in Before as the fact is written, because Before resolved #241 from the header, put `Refs #241` in both bodies and reused the home subject for the companion; if the old `spec:` prefix is meant to fail it, the fact needs to say so, since only `spec` currently checks the subject wording. To keep these results, keep the explicit resolved-path read of the shared reference in each trace, the 'same subject as the home spec commit' companion rule, the body-only ticket rule under the overrides `refs:` convention, the audit-verbatim-then-ticket body order, and the 'HEAD already carries the value, commit nothing' skip. Consider stating whether the topic keeps the H1's casing (`Profile caching` versus `profile caching`) so the subject is deterministic, and keep the consent heredoc body limited to the ticket line so no loop state can leak in.
-- spec-and-grant-message / github-copilot/gpt-6.1-sol: The After wording moved `spec` and `consent` by making the output narrate a read of `/package/skills/finishing-a-development-branch/reference/commit-message.md` and compose from it: `Add the Profile caching spec` replaced the prefixed `spec: cache profile lookups`, and `Change the standing amendment consent` replaced `grant: none`, with `Refs #241` in the body, the `git show HEAD:doc/specs/profile-cache.md` predicate check and the skip when HEAD already has `none` all intact. `ticket` did not move as expected, because Before already put `Refs #241` in both bodies and used one subject for home and companion; the only gain there is that After names the ticket as bound and applies the override explicitly, so if you want that fact to discriminate it must key on the header-sourced resolution or on the subject wording. `audit` held in both, but After runs `Refs #241` directly onto `Rejected: none` with no blank line, where Before separated them; say that the ticket line is its own trailer paragraph after one blank line following the unchanged audit block, so a stricter reader cannot take it for a sixth audit line. After also drops the audit from the companion body, which no fact requires, but state outright that the audit belongs to the home commit only so this is a rule rather than an accident. Keep the explicit home-before-companion ordering, the quoted heredoc to `git commit -F -` and the spec-only pathspec exactly as worded.
-
-exit: 0

@@ -1,8 +1,8 @@
-for: c0f9cb4551f7733c34414d38db525d3077499fc424dd73d929adbf1c93fccf69
+for: 9e6ce55eb9025e4a284616304491e63bfb600b1bcb4520b1b09b075f57d2e877
 
 ## Change
 
-Compose spec and companion subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council audit lines. Compose standalone consent changes from its fixed bookkeeping sentence. Run only spec-and-grant-message for these changes; the narrated checkpoint covers message composition and scoped persistence, not live git writes or the separate amendment-batch protocol. Preserve all earlier results as partial historical coverage.
+Compose spec, companion and amendment subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council and amendment audit lines. Consent changes use its fixed sentence with a body naming the new value. Ledger amendments record their boundary in Decisions, not the subject; selected spec dispositions use the same amendment recipe without another gate. Run only spec-and-amendment-subjects, which extends the spec-and-grant-message fixture with batch and disposition checkpoints; preserve that earlier sample and all its evidence. These narrated results prove message composition and scoped persistence, not live writes or target-wide coverage.
 
 ### Prior change context (not current replay authorization)
 
@@ -109,6 +109,11 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- spec-and-amendment-subjects/spec: fails -> holds - Read the shared spec recipe and preserve the council audit.
+- spec-and-amendment-subjects/consent: fails -> holds - Use the fixed consent subject and name its new value in a body sentence.
+- spec-and-amendment-subjects/amendment: fails -> holds - Derive batch wording from the first item title and retain every audit row.
+- spec-and-amendment-subjects/ledger: fails -> holds - Record the amendment boundary in the ledger instead of the subject.
+- spec-and-amendment-subjects/disposition: fails -> holds - Apply the shared amendment recipe to approved spec dispositions.
 - spec-and-grant-message/spec: fails -> holds - Read the shared recipe and name the spec without an internal label.
 - spec-and-grant-message/ticket: fails -> holds - Carry the header ticket to both spec commits in the project-prescribed body form.
 - spec-and-grant-message/consent: fails -> holds - Use the fixed consent subject without a grant prefix; keep any bound ticket in the body under the supplied convention.

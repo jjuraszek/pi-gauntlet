@@ -155,7 +155,7 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-Start the message with `gauntlet: gate=finishing-a-development-branch/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'` and take the `auto-apply` and `granted` records from those commit bodies. Render, then the options:
+Start the message with `gauntlet: gate=finishing-a-development-branch/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%B` and take only complete amendment audit rows (`handle | title | what | kind | reviewer | evidence`) whose kind is `auto-apply` or `granted`. Select by these body records, never by subject; commits without matching rows contribute nothing. Render, then the options:
 ```
 Amendments auto-applied (N):
 - <title> - <what changed>
@@ -220,7 +220,7 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 **Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
 
-**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`, retaining owning checkouts per [verification-set.md](reference/verification-set.md). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Commit `whole-diff minors fix` and return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
+**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`, retaining owning checkouts per [verification-set.md](reference/verification-set.md). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Read [commit-message.md](reference/commit-message.md), pass its resolved absolute path as `wording:` and its resolved `ticket:` in the task, and have the worker commit from its Whole-diff minors fix row. Return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
 
 ### Step 5: Execute Choice
 
@@ -299,7 +299,7 @@ On `1`, re-fetch state/head immediately before each `gh pr close <N> --comment "
 Rows 2-6, withheld/failed ancestry, withheld/rejected push, and failed body fetch/edit never offer closure; name untouched members with `Member PRs #13, #14 left open.` Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above.
 #### Option 1: Push and Create PR
 
-Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](reference/commit-message.md) for the Landed message subject and resolve its ticket rule. Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 # Push branch
@@ -308,7 +308,7 @@ git -C "$WORKTREE" push -u origin "$FEATURE"
 
 ```bash
 # Create PR
-(cd "$WORKTREE" && gh pr create --title "<title>" --body "$(cat <<'EOF'
+(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body "$(cat <<'EOF'
 ## Summary
 <2-3 bullets of what changed>
 
@@ -318,7 +318,7 @@ EOF
 )")
 ```
 
-For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan` and the rest of the body unchanged. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard. When the spec's `## Acceptance criteria` has at least one `venue:`, `deferred:`, or `elsewhere:` row, append this block after `## Test Plan`, listing those rows verbatim with their disposition, so the reader knows what `/skill:check-delivery` verifies before the prod deploy and what a follow-up or another repo owns. With no such rows the body ends at `## Test Plan`, byte-identical to today. Option 3's squash commit message is unchanged.
+For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan` and the rest of the body unchanged. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard. When the spec's `## Acceptance criteria` has at least one `venue:`, `deferred:`, or `elsewhere:` row, append this block after `## Test Plan`, listing those rows verbatim with their disposition, so the reader knows what `/skill:check-delivery` verifies before the prod deploy and what a follow-up or another repo owns. With no such rows, end the body at `## Test Plan`. Keep this disposition appendix out of Option 3's landed message.
 
 ```markdown
 ## Acceptance criteria
@@ -335,13 +335,13 @@ Run the strip-and-seal block above first (plan stripped, telemetry record sealed
 
 #### Option 3: Squash-merge to base
 
-Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](reference/commit-message.md) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule. Write it to an OS-temp file `LANDED_MESSAGE` before stripping the plan. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 git -C "$PRIMARY" checkout <base-branch>
 git -C "$PRIMARY" pull
 git -C "$PRIMARY" merge --squash "$FEATURE"
-git -C "$PRIMARY" commit -m "<imperative summary> (ref <ticket-id>)"
+git -C "$PRIMARY" commit -F "$LANDED_MESSAGE"
 # Non-ledger subjects only; for ledgers use the per-pair post-squash recipe below.
 (cd "$PRIMARY" && <the Step 1 set>)
 ```

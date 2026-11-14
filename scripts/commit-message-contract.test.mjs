@@ -78,6 +78,35 @@ test('spec, consent, housekeeping and citation-repair commits delegate wording',
   assert.doesNotMatch(repair, /commit[^\n]+-m "resume:|subject is not `amend:`/);
 });
 
+test('amendment batches and chosen spec dispositions use the shared message recipe', () => {
+  const amendment = read('skills/brainstorming/reference/amendment-surface.md');
+  const apply = amendment.split('## 5. Apply, aftermath, commit')[1].split('## Conformance entry')[0];
+  assert.match(apply, /commit-message\.md/);
+  assert.doesNotMatch(apply, /subject `loop:|^amend:|single `amend:`|subject marker/m);
+  assert.match(apply, /<handle> \| <title> \| <what> \|/);
+  assert.match(apply, /amended \| <cut row n, or N item\(s\)>/);
+  const disposition = read('skills/finishing-a-development-branch/reference/disposition-protocol.md');
+  assert.match(disposition.split('2. **Commit spec edits**')[1].split('\n3.')[0], /commit-message\.md/);
+});
+
+test('finish composes landed messages and reads amendment records without subject filters', () => {
+  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  const digest = finish.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
+  assert.match(digest, /--format=%B/);
+  assert.doesNotMatch(digest, /--grep|--extended-regexp/);
+  assert.match(finish, /--title "\$LANDED_SUBJECT"/);
+  assert.match(finish, /commit -F "\$LANDED_MESSAGE"/);
+  assert.match(finish, /Squash-default note/);
+  assert.doesNotMatch(finish, /commit -m "<imperative summary>|Commit `whole-diff minors fix`/);
+  const minors = finish.split('**Standalone extra reply')[1].split('### Step 5')[0];
+  assert.match(minors, /wording:/);
+  assert.match(minors, /ticket:/);
+  const legs = read('skills/finishing-a-development-branch/reference/legs.md');
+  assert.match(legs, /commit-message\.md/);
+  assert.match(legs, /Home: <repo> <shared branch>`/);
+  assert.ok(finish.includes('commit -m "Remove ephemeral plan doc"'));
+});
+
 test('worktree ignore commit uses the shared bookkeeping sentence', () => {
   const text = read('skills/using-git-worktrees/SKILL.md').split('### 2b.')[1].split('### 2c.')[0];
   assert.match(text, /commit-message\.md/);
@@ -86,7 +115,9 @@ test('worktree ignore commit uses the shared bookkeeping sentence', () => {
 });
 
 for (const [targetName, sample] of [
-  ['brainstorming', 'spec-and-grant-message'],
+  ['brainstorming', 'spec-and-amendment-subjects'],
+  ['finishing-a-development-branch', 'landed-message'],
+  ['finishing-a-development-branch', 'digest-from-record-lines'],
   ['housekeeping', 'commit-subject'],
   ['using-git-worktrees', 'ignore-subject'],
   ['gauntlet-resume', 'plan-citation-subject'],
