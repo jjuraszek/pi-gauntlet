@@ -1,6 +1,8 @@
-for: 854a99f7c2db91fb94176e39e6c07186751ebcca7e45fd8895dc5f2a29e6c278
+for: a7c5c9ea46691f4e1b07b5601a3d630e112af6dc694dd958b0dc88a931d171b9
 
 ## Change
+
+Withhold draft row 4 on every PR-subject gate, retaining rows 1/2/3 and the existing-PR disclosure. Keep the unmarked spec-only classifier on the same withheld row and implementation approvals 1/2. Migrate only pr-subject-gate: at Context: 26.0%, recommend the unbundled loop row 2 and clarify independent replies 4, draft PR, and 6 without mutation or remapping. Run only pr-subject-gate against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve all unrelated records. This selected tool-free replay proves narrated gating, not live GitHub operations or target-wide coverage.
 
 Reject invalid gate replies before approval and spec-change handling. Migrate only loop-funded-reply to row-2 loop and row-1 plan flag grammar, preserving its funding rejection, opt-out, default grant, allowance carrier and waves controls. Replace comma-allowance acceptance with rejection, then add a table of malformed, duplicate, unknown, worded, old-suffix, wrong-row and withheld-row cases. Retain its bundle and 2200-word cap; narrate shared unchanged state once and one question per rejected input. Run only loop-funded-reply and spec-gate/flag-replies for this change against base 855e872a42f9cac7a795704f3e0b383b182950ab. These selected tool-free replays do not establish live writes or target-wide coverage; preserve all unrelated records.
 
@@ -97,6 +99,9 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- pr-subject-gate/menu: fails -> holds - Render only rows 1/2/3 while withholding draft row 4.
+- pr-subject-gate/clarification: fails -> holds - Clarify hidden digit 4, draft PR label, and retired digit 6 without mutation or remapping.
+- pr-subject-gate/recommendation: fails -> holds - Recommend the rendered loop row despite high context when draft row 4 is withheld.
 - loop-funded-reply/words: fails -> holds - Reject worded intent with its matching flag rather than grant or edit.
 - loop-funded-reply/suffixes: fails -> holds - Reject retired suffixes in favor of engine-specific flags.
 - loop-funded-reply/flags: fails -> holds - Reject cross-engine and non-engine flags after any selector.

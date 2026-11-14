@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 19
+iterations: 20
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -28,7 +28,7 @@ allowance: 10
 | 18 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-rejected-replies.test.mjs; 2 tests passed; node eval/run.mjs spec-gate flag-replies and brainstorming loop-funded-reply hold 34/34 candidate facts on 2 models; selected samples only, accepted carrier controls pass |
 | 19 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-council-reply.test.mjs; 2 tests passed; node eval/run.mjs spec-gate row-3-reply improved on 2 models, 12/12 candidate facts held; selected sample only, audit and gate snapshot preserved |
 | 20 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-draft-publication.test.mjs; 2 tests passed; node eval/run.mjs spec-gate option-6-handoff held 30/30 candidate facts on 2 models; selected sample only, no live publication |
-| 21 | open | 0 | |
+| 21 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-pr-subject-gate.test.mjs; 2 passed; node eval/run.mjs brainstorming pr-subject-gate improved on 2 models with 8/8 candidate facts held; legacy scripts/brainstorming-contract.test.mjs:333-334 still asserts rows 6 and 1/2/3/6 and remains unchanged as a foreign selected test |
 | 22 | done | 0 | timeout -k 30 30 node --test scripts/brainstorming-draft-publication.test.mjs; 2 tests passed; both saved zero-row gates render 1, 3, 4 without allowance flags and explain the omitted loop row |
 | 23 | open | 0 | |
 | 24 | open | 0 | |
@@ -58,3 +58,4 @@ row 18 done | Rejected invalid approval replies with one clarifying question and
 row 19 done | Reply 3 prints the council audit verbatim and reuses the four-row gate without approval or grant. | Reuse scripts/brainstorming-council-reply.test.mjs and row-3-reply fixtures to check audit and gate-snapshot reuse.
 row 20 done | Reply 4 publishes a spec-only draft PR with deferred headers and a fresh-session continuation, with create-only retry on row 4. | Reuse scripts/brainstorming-draft-publication.test.mjs and option-6-handoff fixtures for deferred publication, zero-row reachability and retry checks.
 row 22 done | Zero-row gates omit loop row 2 and its flags, keep draft row 4 available, and print the loop-unavailable reason. | nothing new to build on
+row 21 done | PR-subject gates now withhold draft row 4, keep engine recommendations, and clarify hidden digits or labels without mutation. | Reuse scripts/brainstorming-pr-subject-gate.test.mjs and pr-subject-gate fixtures to check withheld selections and high-context engine fallback.
