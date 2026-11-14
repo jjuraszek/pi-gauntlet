@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 23
+iterations: 24
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -33,7 +33,7 @@ allowance: 10
 | 23 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-worker-gate.test.mjs; 2 passed; worker-path replay improved on both models; combined omissions and hidden row 3 verified |
 | 24 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-bare-approve.test.mjs; 2 passed, 0 failed; spec-gate/all-none replay: 14/14 candidate facts held on two models |
 | 25 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-pr-regate-approval.test.mjs; 2 passed, 0 failed; selected brainstorming/spec-pr-regate replay: 2 models, 20 facts hold |
-| 26 | open | 0 | |
+| 26 | done | 1 | timeout -k 30 30 python3 -c 'assert not (hits := [p for p in ("README.md", "doc/configuration.md", "doc/implement-engines.md", "doc/personas.md", "skills/brainstorming/reference/spec-finalization.md") if "experimental" in __import__("pathlib").Path(p).read_text().lower()]), hits'; 5 files pass; RED found labels in four docs, GREEN finds none |
 
 ## Decisions
 row 0 done | seeded 2 rows, closed 0 on baseline | row 9
@@ -62,3 +62,4 @@ row 21 done | PR-subject gates now withhold draft row 4, keep engine recommendat
 row 23 done | Gates without a council audit omit row 3 even when zero-row and PR-subject rules also withhold choices. | Reuse scripts/brainstorming-worker-gate.test.mjs and worker-path fixtures to check combined omissions and hidden-row clarification.
 row 24 done | Bare approve now echoes the rendered recommendation before following plan, loop, or draft-PR actions. | Reuse scripts/brainstorming-bare-approve.test.mjs and all-none fixtures to check all three recommendation continuations.
 row 25 done | Draft-PR re-gates now persist engine, decoded grant and normalized PR in a new commit for bare and flagged approvals. | Reuse scripts/brainstorming-pr-regate-approval.test.mjs and spec-pr-regate fixtures to check header persistence and allowance handoffs.
+row 26 done | Removed the experimental label from all four loop-engine guides and confirmed the gate stays label-free. | Reuse updated loop introductions in README.md and doc/configuration.md as wording examples; untouched paragraphs still contain legacy gate numbers.

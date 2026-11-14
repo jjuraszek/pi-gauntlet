@@ -1,6 +1,6 @@
 # Implement engines
 
-An implement engine turns an approved spec into a verified implementation. The default waves/task engine uses `writing-plans` and `subagent-driven-development`; the experimental loop engine uses `loop-implementation` and an acceptance-criteria ledger. Both enter the same phase guards and closing gates. See [Loop engine operations](configuration.md#loop-engine-operations) for operator choices and ledger details.
+An implement engine turns an approved spec into a verified implementation. The plan (waves/task) engine uses `writing-plans` and `subagent-driven-development`; the loop engine uses `loop-implementation` and an acceptance-criteria ledger. Both enter the same phase guards and closing gates. See [Loop engine operations](configuration.md#loop-engine-operations) for operator choices and ledger details.
 
 ## Admission and phase state
 
