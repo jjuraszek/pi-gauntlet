@@ -1,28 +1,12 @@
-for: 7bc1fb009a2943f8d94e71f12dc0000dcf8a89df0c067e31675422a95580e7ed
+for: 5a983260e5121c799f7db9f5629a6b3f8580b6367da11adcb23f196e0a2d5c90
 
 ## Change
 
-Render resolved per-row allowances on both loop options and limit funding to waves approvals. Retain gate rendering, audit and persistence facts; update handoff cleanup to the approved remote-pinned deletion contract. Preserve recovered model records without treating them as current verification. Run only the explicitly selected option-6-handoff sample for the cleanup change; never run full targets.
+Render the ordinary spec-approval menu as four fixed, one-sentence rows: plan engine, loop engine, council explanation, and draft PR. Keep the briefing, audit counts, scope cuts, and drafted acceptance rows unchanged. Store the granting sentence outside the menu so removing the separate grant choice does not erase it.
 
-Keep option-6-handoff an explicit one-recorded-Leg regression control while coordinated publication instructions expand: exactly one home push/PR/cleanup and no companion pushed: lines. Preserve menu, persistence and retry facts, including published-home create-only retry with no amend or push. Replace branch preservation with live-remote equality gating, read-back, guarded wrapper admission and pinned conditional deletion. Structural lint proves fixture shape, not behavior; the selected replay proves narrated ordering rather than live GitHub cleanup. No target configuration or accepted-failure change. Keep publication's quoted-heredoc fact unchanged; require the full create command in narration so a bare stdin block cannot hide the delimiter.
-Render every drafted acceptance row and disposition verbatim under Drafted acceptance criteria (approval ratifies): after Scope cuts: and before Council:, with five options. Ticket-row gates omit this block. The paired sample preserves verbatim briefing and audit counts and narrates reply-1 continuation; text replay proves supplied-observation rendering, not live gate execution.
-
-The Wave 1 edit to skills/brainstorming/reference/spec-finalization.md adds a Scope cuts line between the committed-to line and the Council line. Build it from deferred, deviates, and venue acceptance-criteria rows, excluding in-scope and elsewhere rows; render none when no cuts exist.
-
-Add option-6-handoff narrated publication coverage using sample-local spec-pr and finishing instructions. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`; this is setup-only evidence, not a before/after improvement claim. Every new candidate fact must hold, even if an aggregate verdict is unchanged. Existing scenarios retain their fact IDs and authorized directions, with three fact rewordings for row 6 (fixture sizing and stale menu counts, not a behavior change): full-council/f4 now asserts exactly six rows 1-6 (was three rows 1-3), worker-path/f3 asserts exactly five rows 1, 2, 4, 5, 6 with no row 3 (was exactly two rows), and row-3-reply/f2 asserts the re-presented gate carries exactly six rows 1-6 (was three rows). Each still rejects a missing or extra menu row. The gate's row count is a function of the spec's `## Acceptance criteria` rows (zero rows render 1, 2, 3, 6; any row adds 4/5), and those three `case.md` files never supplied that section, so the absent observation was unknown, not zero, and the old three-row and two-row facts were never proof of a zero-row gate. Each of the three cases now carries one explicit `## Spec acceptance criteria` section between `## Spec commit` and `## User reply`: a single verbatim ticket row (`Repeated collection requests return the original receipt.`, in-scope, ticket provenance), so rows exist, 4/5 render, the drafted block is omitted, and the briefing, critique return, audit counts, and reply stay untouched. option-6-handoff keeps its zero-row gate, with the not-fetched body spelled out as `none - ticket not fetched (tracker unreachable)` so the render carries a concrete reason instead of the `<reason>` template token. row-3-reply's supplied briefing is shortened to fit two verbatim renders, the audit, and two six-row menus under the word cap; its headings, actors, and the second render plus audit requirements are unchanged. Task 1's original-base deterministic red/green proof establishes the instruction change; these no-tool replays establish narrated ordering, not live git/GitHub/tracker behavior.
-
-Preserve the approval gate and recorded design state when finalization materializes coordinated members.
+Run only `recommended-row` for this menu-shape change against base `855e872a42f9cac7a795704f3e0b383b182950ab`. Its supplied context and engine observations form the fixture for recommendation coverage; the current assertions cover row shape and briefing preservation, not recommendation selection or reply routing. Update `full-council/f4` to the four-row shape without claiming a fresh run of that sample. Preserve other sample results as partial, stale coverage until their selected reruns.
 
 ## Expected to move
-- option-6-handoff/completion: fails -> holds - Delete the local branch only after remote equality and confirmed tree removal, using pinned update-ref.
-- option-6-handoff/cleanup: fails -> holds - Permit guarded wrapper deletion and report actual state; refuse unguarded deletion.
-- option-6-handoff/remote-gate: fails -> holds - Keep tree and branch when the live remote differs or is missing.
-- option-6-handoff/moved-ref: fails -> holds - Keep a branch that advances after the cleanup gate.
-- scope-cuts-listed/f1: fails -> holds - The gate includes the new Scope cuts line.
-- scope-cuts-listed/f2: fails -> holds - Only deferred and venue rows appear as cuts.
-- scope-cuts-listed/f3: fails -> holds - Scope cuts appears before Council and after the commit line.
-- scope-cuts-none/f1: fails -> holds - A spec containing only in-scope rows renders Scope cuts: none.
-- drafted-rows-block/drafted: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
-- drafted-rows-block/ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
-- drafted-rows-block/menu: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
-- drafted-rows-block/briefing: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- recommended-row/rows: fails -> holds - Replace the six-choice template with four fixed labels.
+- recommended-row/sentences: fails -> holds - Use one sentence per row without experimental or separate grant choices.
+- full-council/f4: fails -> holds - Render four one-sentence menu rows with the fixed engine, council, and draft labels.

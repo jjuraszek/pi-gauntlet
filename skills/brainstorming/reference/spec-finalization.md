@@ -166,18 +166,17 @@ Council: <A> applied, <D> deferred, <R> rejected
 <unresolved ambiguities; every `Missing from the spec` entry from the summary>
 New predecessor candidates at spec-writing: <path> (<title>), ... - index rows are a hint; code is the source and an absent row proves nothing.
 
-1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.
-2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
-3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.
-4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1; allowance <n> per row.
-5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant, allowance <n> per row.
-6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.
+Pick one:
+1 - plan engine: write a task plan, then implement it in reviewed waves.
+2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.
+3 - council explanation: show the council audit, then return to this gate without approving.
+4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.
 Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round. Add "; allowance N" to 4 or 5 to set this run's per-row allowance.
 
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
-For zero `- [ ]` rows under `## Acceptance criteria`, render only options 1, 2, 3, 6 (PR subject: 1, 2, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance. Whenever rows exist, render options 4/5. Keep the worker-path omission of option 3; do not invent a council audit.
+For zero `- [ ]` rows under `## Acceptance criteria`, render only options 1, 2, 3, 6 (PR subject: 1, 2, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance. Whenever rows exist, render the four-row template above. Keep the worker-path omission of option 3; do not invent a council audit.
 
 On every PR subject omit row 6 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout; a hidden 6 gets the clarifying question naming rendered choices. Read [spec-pr.md](spec-pr.md) for option-6 reply decoding, publication, and marked-PR re-gating; its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe.
 
@@ -200,6 +199,8 @@ Wait for the user. Interpret budget replies with this table before routing chang
 | waves approval prose with a funding token | approve; preserve the prose collapsed to one physical line |
 | budget token alone (`fund 3 fix rounds` or `allowance 6`) | re-present the gate asking for an approval option; write nothing |
 | waves funding token with malformed N, or allowance suffix on an option other than 4/5 | re-present the gate quoting the token; write nothing, never imply a change request |
+
+Use this granting sentence wherever the reply table calls for the option-2 description: `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.`
 
 For every value to persist, read [Standing grants](amendment-surface.md#standing-grants) and run Value decoding. Decode before `edit` or `--amend`; never persist a malformed token. Use the decoded table value in the approval persistence below, including waves budget-only approvals. Strip only an accepted loop allowance suffix before decoding the grant; keep the run allowance separate from `**Amend-grant:**`. In persistence narration, quote the exact resulting `**Amend-grant:**` value in full, including any funding suffix; never substitute an option name or "option-2 description plus suffix" for the persisted text.
 

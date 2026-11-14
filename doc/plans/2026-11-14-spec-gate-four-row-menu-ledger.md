@@ -3,12 +3,12 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 59 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 8/8 candidate facts held |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -37,3 +37,4 @@ allowance: 10
 
 ## Decisions
 row 0 done | seeded 2 rows, closed 0 on baseline | row 9
+row 1 done | Replaced the six-choice template with four fixed, one-sentence rows. | Extend eval/spec-gate/samples/recommended-row for recommendation cases and reuse scripts/brainstorming-contract.test.mjs for row-shape checks.

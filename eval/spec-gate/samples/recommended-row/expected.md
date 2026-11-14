@@ -1,0 +1,4 @@
+- rows: judged: The initial gate has exactly four numbered rows with fixed labels in order: 1 plan engine, 2 loop engine, 3 council explanation, 4 draft PR; reject missing, extra, or renumbered rows.
+- sentences: judged: Each numbered menu row contains one sentence, with no experimental label and no separate auto-apply-amends choice.
+- briefing: judged: The gate reproduces the supplied briefing verbatim before the commit line and menu.
+- drafted: judged: The gate reproduces the drafted acceptance row and its in-scope disposition under Drafted acceptance criteria (approval ratifies): before the numbered menu.
