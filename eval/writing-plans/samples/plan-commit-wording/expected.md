@@ -1,0 +1,4 @@
+- wording: judged: Uses the shared commit-message reference's plan recipe, `Add the implementation plan for Cache profile lookups` (sentence-case topic is also valid). The subject is at most 72 characters and has no plan: prefix, ticket, or file path.
+- ticket: judged: Resolves #241 from the approved spec header and puts `Refs #241` in the commit body, never in the subject.
+- scoped: judged: Checks plan-scoped status and stages and commits only doc/plans/cache.md with pathspecs, preserving the unrelated staged source. Supplies the composed message through stdin or an equivalently complete message input, not a bare unspecified message placeholder.
+- handoff: judged: On success completes plan, initializes the two ordered tracker tasks once, and invokes execution. A clean plan skips the commit; a failed status, add or commit stops before tracker initialization or dispatch.

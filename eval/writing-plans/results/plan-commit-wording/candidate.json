@@ -1,0 +1,100 @@
+{
+  "sample": "plan-commit-wording",
+  "arm": "candidate",
+  "skillSha": "239a8de8de7cc3aeb272bec84fa322039073214457b65784ef06d86dae33f142",
+  "inputSha": "43ea43f898ab9a21f5652cee733756050a11357c13e4af89b910f5ef9ae8aca6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Execution Handoff: commit the plan and start execution\n\nThe parent `plan_check` passed and the plan has been read once. The handoff begins with a plan-scoped status check on the home worktree.\n\n## 1. Plan-scoped status\n\n```\ngit -C \"/workspace/app\" status --porcelain -- \"doc/plans/cache.md\"\n```\n\nResult: `?? doc/plans/cache.md`. The output is nonempty, so the plan must be staged and committed.\n\n## 2. Compose the message\n\nI read the commit-message reference's Subject, Body and Word sources.\n\n- **Word source.** For a plan commit, the pattern is `Add the implementation plan for <spec H1, shortened to fit>`. The H1 `Cache profile lookups` fits as written. It is lowercased mid-sentence, which gives 53 characters.\n- **Ticket.** The spec header's `**Ticket:** #241` is carried as the bound ticket. The overrides `refs:` convention puts it in the commit body as `Refs #241`, so nothing is appended to the subject.\n- **Subject checks.** It is imperative and capitalized, has no trailing period, is under 72 characters, and contains no paths, identifiers or framework label.\n\n## 3. Stage and commit only the plan\n\n```\ngit -C \"/workspace/app\" add -- \"doc/plans/cache.md\"\n```\n\n```\ngit -C \"/workspace/app\" commit -F - -- \"doc/plans/cache.md\"\n```\n\nSupplied on stdin:\n\n```text\nAdd the implementation plan for cache profile lookups\n\nRefs #241\n```\n\nThe trailing `-- doc/plans/cache.md` limits the commit to that path. The already-staged, unrelated `src/config.mjs` therefore stays out of this commit and remains staged as it was. I do not stage, unstage, restore or discard it.\n\nBoth the add and the commit succeed.\n\n## 4. Mark the plan phase complete\n\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\n```\n\n## 5. Initialize the execution list once, in wave order\n\n```\nplan_tracker({ action: \"init\", tasks: [\"W1: Cache profile lookups\", \"W2: Invalidate stale profiles\"] })\n```\n\nI will not initialize this list again on continuation.\n\n## 6. Hand off to execution\n\nI auto-invoke `/skill:subagent-driven-development` in this session without asking for confirmation. The spec gate has already happened, and from here the executor owns the only pauses: in-flight `BLOCKED` / `NEEDS_CONTEXT` stops and the end gate.\n\n## How the other branches differ\n\n- **Clean plan (empty status output):** skip steps 2 and 3 entirely, with no add and no commit. Go straight to `phase_tracker` complete, the same `plan_tracker` init, and `/skill:subagent-driven-development`.\n- **Failed status, add or commit:** stop and report the failure.\n  - Do not call `phase_tracker` complete, do not initialize `plan_tracker`, and do not start execution.\n  - Never fall back to a broader add or commit that could sweep in `src/config.mjs` or other unrelated source.\n",
+      "words": 385,
+      "wallMs": 14977,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Check the plan-scoped status:\n   ```bash\n   git -C \"/workspace/app\" status --porcelain -- \"doc/plans/cache.md\"\n   ```\n   Result: `?? doc/plans/cache.md`. The plan needs committing. The unrelated staged edit at `src/config.mjs` must remain untouched.\n\n2. Read the supplied commit-message reference’s **Subject**, **Body**, and **Word sources** sections. Use the spec H1 for the plan subject and the bound ticket in the body, following the project’s `Refs #N` convention.\n\n3. Stage only the plan:\n   ```bash\n   git -C \"/workspace/app\" add -- \"doc/plans/cache.md\"\n   ```\n   Result: success.\n\n4. Commit only the plan on `profile-cache`, supplying this exact message on stdin:\n   ```bash\n   git -C \"/workspace/app\" commit -F - -- \"doc/plans/cache.md\" <<'MESSAGE'\n   Add the implementation plan for Cache profile lookups\n\n   Refs #241\n   MESSAGE\n   ```\n   Result: success. The path-scoped commit excludes the unrelated staged source edit.\n\n5. Mark planning complete:\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n6. Initialize the execution list once, in wave order:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Cache profile lookups\",\n       \"W2: Invalidate stale profiles\"\n     ]\n   })\n   ```\n\n7. Auto-invoke `/skill:subagent-driven-development` in this session without requesting confirmation.\n\n**Alternative branches:** If the plan-scoped status were empty, skip staging and committing, then complete the phase, initialize the tracker, and invoke execution. If the commit failed, stop and report the failure; do not complete the phase, initialize the tracker, or invoke execution. Do not discard or alter the unrelated staged edit.\n",
+      "words": 208,
+      "wallMs": 10595,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "57f15eaa8bcd07c330ea00eef09f24e52bc159af0f34b3978388f0afe2c8b1c3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8db912be007e01adc027ed3c5b9f3b22d62f61f58f1598af455fc0cc8a664460",
+      "baselineOutputSha": "ffc6ae92837085ebc5e6b635da2e78dffffee2da3e2c6b1020ed22b203bdf803",
+      "candidateOutputSha": "8f84259b4ba6b0d39530430a12915df589a317848bf9278897d7540ee8e551cc",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "scoped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved the wording fact by routing the subject through the shared commit-message reference's plan recipe: it produces `Add the implementation plan for cache profile lookups` (53 characters, no `plan:` prefix, ticket, or path) where Before used the local `plan: Cache profile lookups` form. The ticket fact did not move as expected because Before already resolved #241 from the spec header and put `Refs #241` in the body only, so it holds on both sides rather than going fails -> holds. Scoped and handoff are preserved: After still checks plan-scoped status, stages and commits with pathspecs, feeds the full message on stdin via `-F -`, leaves src/config.mjs staged, completes the plan phase, initializes the two W-tasks once in order, invokes subagent-driven-development, skips the commit on a clean plan, and stops before tracker init on a failed status, add or commit. To keep these stable, keep the explicit instruction that the message is supplied in full on stdin alongside the pathspec commit (After separates the command from the stdin text, which is fine but a heredoc would make it harder to drift into a bare placeholder), keep the clean-plan and failure branches spelled out, and consider stating whether the H1 keeps its original casing or is lowercased mid-sentence so the subject is deterministic across runs.",
+      "wallMs": 5780,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "57f15eaa8bcd07c330ea00eef09f24e52bc159af0f34b3978388f0afe2c8b1c3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "8db912be007e01adc027ed3c5b9f3b22d62f61f58f1598af455fc0cc8a664460",
+      "baselineOutputSha": "0fdd285a1232e6f6b79dbc385c70e7983ab78eb2e25c82b0ce709b8756895717",
+      "candidateOutputSha": "45e3757c0f386af26078626fd24845db7a516c91898700199569497ce17d926e",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scoped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved wording and ticket as intended: the commit now uses the shared plan recipe subject `Add the implementation plan for Cache profile lookups` (53 characters, no plan: prefix, ticket or path) and carries `Refs #241` in a body supplied on stdin via `commit -F -`, where Before used the local `plan: Cache profile lookups` subject with no body. Scoped and handoff held in both: plan-scoped status, pathspec-limited add and commit that leave the staged src/config.mjs alone, then phase complete, a single two-task tracker init in order, and direct execution invocation, with the clean-plan skip and the failed-commit stop stated. To keep these stable, keep the explicit pathspec on status, add and commit alongside the stdin heredoc, and keep the ordering sentence that places the commit before tracker initialization; consider making the stop branch name failed status and add as well as failed commit, since After only says 'if the commit failed' and the handoff fact covers all three failures, and consider stating explicitly that #241 comes from the approved spec header so the ticket source is unmistakable.",
+      "wallMs": 5816,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "1a9e31a86fa25c9a29dcf3f9fd9e17549e4c4483"
+}

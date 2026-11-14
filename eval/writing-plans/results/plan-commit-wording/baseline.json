@@ -1,0 +1,34 @@
+{
+  "sample": "plan-commit-wording",
+  "arm": "baseline",
+  "skillSha": "faaeb28ab125d3e0c5e3006788b1ac628022961dd82268721b458f53ab31e6ea",
+  "inputSha": "43ea43f898ab9a21f5652cee733756050a11357c13e4af89b910f5ef9ae8aca6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Execution Handoff: commit the plan, initialize the tracker, start execution\n\n**1. Plan-scoped status check**\n\n```\ngit -C \"/workspace/app\" status --porcelain -- \"doc/plans/cache.md\"\n```\n\nThe result is `?? doc/plans/cache.md`. The output is nonempty, so I stage and commit only the plan.\n\n**Decision on `src/config.mjs`:** this staged edit is unrelated source. I don't stage it, unstage it, restore it or discard it. The scoped add and the commit pathspec keep it out of this commit. With a pathspec, `git commit` commits only the named paths, so `src/config.mjs` stays staged after the commit.\n\n**2. Scoped staging**\n\n```\ngit -C \"/workspace/app\" add -- \"doc/plans/cache.md\"\n```\n\nThis succeeds.\n\n**3. Scoped commit**\n\n- **Subject:** `plan: <spec title>`, taken from the spec H1, which gives `plan: Cache profile lookups`.\n- **Body:** the overrides' issue-tracker convention puts `Refs #N` in commit bodies, and the spec header has `**Ticket:** #241`. So the body is `Refs #241`.\n- The message goes in on stdin. The pathspec still limits the commit to the plan.\n\n```\ngit -C \"/workspace/app\" commit -F - -- \"doc/plans/cache.md\" <<'EOF'\nplan: Cache profile lookups\n\nRefs #241\nEOF\n```\n\nThis succeeds. The plan is committed on `profile-cache`, not `main`. `src/config.mjs` is still staged and uncommitted.\n\n**4. Phase complete**\n\n```\nphase_tracker({ action: \"complete\", phase: \"plan\" })\n```\n\n**5. Tracker initialization**\n\nThis runs once, with every task in wave order, named `W<k>: <title>`:\n\n```\nplan_tracker({ action: \"init\", tasks: [\"W1: Cache profile lookups\", \"W2: Invalidate stale profiles\"] })\n```\n\n**6. Handoff**\n\nI auto-invoke `/skill:subagent-driven-development` in this session without waiting for confirmation. From here the only pauses belong to the executor: in-flight `BLOCKED` / `NEEDS_CONTEXT` stops, and the end gate.\n\n**Comparison with the other two branches**\n\n- **Clean plan:** if the scoped status returned empty output, I'd skip `add` and `commit` entirely. I'd go straight to step 4 (phase complete), then the tracker init and the handoff. `src/config.mjs` would be left staged and untouched in that case too.\n- **Failed commit:** if `status`, `add` or `commit` failed, I'd stop and report the failure. I wouldn't call `phase_tracker` complete, initialize `plan_tracker`, or invoke the executor. I'd also never fall back to a broader `git add` or a commit without the pathspec, because either could sweep in the staged `src/config.mjs`.\n",
+      "words": 343,
+      "wallMs": 16375,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. Check only the plan’s status:\n   ```bash\n   git -C \"/workspace/app\" status --porcelain -- \"doc/plans/cache.md\"\n   ```\n   Result: `?? doc/plans/cache.md`. The plan needs committing.\n\n2. Stage only the plan:\n   ```bash\n   git -C \"/workspace/app\" add -- \"doc/plans/cache.md\"\n   ```\n   Result: success. Do not stage or otherwise change `src/config.mjs`.\n\n3. Run the prescribed plan-only commit:\n   ```bash\n   git -C \"/workspace/app\" commit -m \"plan: Cache profile lookups\" -- \"doc/plans/cache.md\"\n   ```\n   Exact subject: `plan: Cache profile lookups`. No commit body or stdin input is supplied by this prescribed command. The unrelated staged source edit is excluded by the pathspec. The commit succeeds on `profile-cache`, not `main`.\n\n4. Mark planning complete:\n   ```text\n   phase_tracker({ action: \"complete\", phase: \"plan\" })\n   ```\n\n5. Initialize the execution list once:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       \"W1: Cache profile lookups\",\n       \"W2: Invalidate stale profiles\"\n     ]\n   })\n   ```\n\n6. Auto-invoke `/skill:subagent-driven-development` in this session without requesting confirmation.\n\n**Alternative branches:** If the plan-scoped status were empty, skip staging and committing, then complete the phase, initialize the tracker, and invoke execution. If the commit failed, stop and report the failure; do not complete the phase, initialize the tracker, or invoke execution.\n",
+      "words": 171,
+      "wallMs": 19085,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "1a9e31a86fa25c9a29dcf3f9fd9e17549e4c4483"
+}

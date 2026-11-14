@@ -1,0 +1,100 @@
+{
+  "sample": "wave-commit-wording",
+  "arm": "candidate",
+  "skillSha": "11c33e191257d02691231da5318a1b75ce1fd346480c876032c49b507a3f95bc",
+  "inputSha": "15a51c13a137b35bdd69dd73782514f7adbbfcde9731916549686e909b29904a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Committed originals and wave commit\n\n## 1. Committed originals at home (before the first wave)\n\nRun the scoped status check:\n\n```bash\ngit -C \"/workspace/app\" status --porcelain -- \"doc/plans/cache.md\" \"doc/specs/cache.md\"\n```\n\nThe output is nonempty, so commit the plan and spec. The message comes from the held spec H1, with no spec read in the parent. The overrides' `refs:` convention puts the held ticket in the body as `Refs #241`, not in the subject.\n\n```bash\ngit -C \"/workspace/app\" add -- \"doc/plans/cache.md\" \"doc/specs/cache.md\"\ngit -C \"/workspace/app\" commit -F - -- \"doc/plans/cache.md\" \"doc/specs/cache.md\" <<'MSG'\nAdd the implementation plan for cache profile lookups\n\nRefs #241\nMSG\n```\n\nThe pathspec limits this commit to the plan and spec. The unrelated staged `src/config.mjs` is not committed and stays in the index untouched. Both commands succeed, so dispatch may proceed.\n\n## 2. Wave commit (isolated wave: gate green, latest verdict SHIP)\n\nThe subject is one sentence built from the two accepted task headings. The ticket again goes in the body per `refs:`.\n\n```bash\nWAVE_BASE_SHA=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\ngit -C \"/workspace/app\" reset --soft \"$WAVE_BASE_SHA\" && \\\ngit -C \"/workspace/app\" add -A && \\\ngit -C \"/workspace/app\" commit -F - <<'MSG'\nCache profile lookups and invalidate stale cache entries\n\nRefs #241\nMSG\n```\n\n## 3. Tracker updates (only after the commit succeeds)\n\nMark both of the wave's task indices `complete` together, in increasing index order:\n\n```ts\nplan_tracker({ action: \"update\", index: <index of \"Cache profile lookups\">, status: \"complete\" })\nplan_tracker({ action: \"update\", index: <index of \"Invalidate stale profile cache\">, status: \"complete\" })\n```\n\nThe scenario gives no manifest `orchestrator` instruction for this wave, so nothing else runs at the completed-wave boundary.\n",
+      "words": 250,
+      "wallMs": 17307,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "```bash\ngit -C /workspace/app status --porcelain -- doc/plans/cache.md doc/specs/cache.md\ngit -C /workspace/app add -- doc/plans/cache.md doc/specs/cache.md\ngit -C /workspace/app commit -F - -- doc/plans/cache.md doc/specs/cache.md <<'EOF'\nAdd the implementation plan for Cache profile lookups\n\nRefs #241\nEOF\n```\n\n```bash\ngit -C /workspace/app reset --soft aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\ngit -C /workspace/app add -A &&\ngit -C /workspace/app commit -F - <<'EOF'\nCache profile lookups and invalidate stale profile cache\n\nRefs #241\nEOF\n```\n\nAfter the wave commit succeeds, update both existing tracker entries using their held manifest indices:\n\n```js\nplan_tracker({\n  action: \"update\",\n  index: cacheProfileLookupsTaskIndex,\n  status: \"complete\"\n});\nplan_tracker({\n  action: \"update\",\n  index: invalidateStaleProfileCacheTaskIndex,\n  status: \"complete\"\n});\n```\n",
+      "words": 92,
+      "wallMs": 9932,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "65f5872a7a39a8a8d9914e9df6a541271dbd8bb65b657b0399cdc044f670327d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "59862b34d1f477e45a341459db18c4183c0c6e26a1f2477b9280e58c1324c7b2",
+      "baselineOutputSha": "68266847640f9bc3eab664508e2607126063762bbe344b602207ef5c43a04a9e",
+      "candidateOutputSha": "6743b10f059980a5316f9b975d78645c7654fed9da9c4dfea028051b96dbdcc1",
+      "facts": {
+        "plan": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "wave": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is plan: After composes the entry commit subject from the held H1 through the plan recipe (`Add the implementation plan for cache profile lookups`) where Before used the `plan: Cache profile lookups` prefix form, and it keeps the scoped status/add/commit that leaves the staged `src/config.mjs` untouched. The wave and ticket facts were expected to move but already hold on Before's text: its subject `Cache profile lookups and invalidate stale entries` is a concrete, imperative, prefix-free sentence under 72 characters covering both headings, and both of its commits carry `Refs #241` in the body. After keeps these, with a slightly sharper subject (`...invalidate stale cache entries`) and without Before's redundant heading list in the body. Boundary holds in both: no parent source reads, `reset --soft` to the recorded WAVE_BASE_SHA only for the isolated wave, `add -A`, and tracker completion after the commit; After's explicit \"only after the commit succeeds\" is a helpful tightening. To keep all this stable, keep the wording that derives the plan subject from the held H1 with no parent spec read, that routes the ticket to the body under the `refs:` override, and that requires one filled-in sentence from the accepted headings. After drops Before's caution that `add -A` would sweep in a still-staged unrelated `src/config.mjs`; no fact here depends on it, but consider whether the wording should still address unrelated staged source at wave-commit time. Both outputs leave tracker indices as descriptive placeholders because the case gives no numbers; say so in the wording if you want them resolved from the held tracker.",
+      "wallMs": 13918,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "65f5872a7a39a8a8d9914e9df6a541271dbd8bb65b657b0399cdc044f670327d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "59862b34d1f477e45a341459db18c4183c0c6e26a1f2477b9280e58c1324c7b2",
+      "baselineOutputSha": "0a5ed0ab45f2056cb3bb512467c912c71735241a38860e5dd67d002438f9065c",
+      "candidateOutputSha": "efdc4e0964c5573143c0f128b19886a70219fbd7a4271870f5e8ec1e515afe19",
+      "facts": {
+        "plan": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "wave": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is plan: After replaces the `plan: Cache profile lookups` subject with `Add the implementation plan for Cache profile lookups`, composed from the held H1 via the plan recipe, while keeping status/add/commit scoped to doc/plans/cache.md and doc/specs/cache.md so the staged src/config.mjs is untouched. The wave and ticket facts were expected to move but already held in Before as the text reads: both outputs use the same 56-character imperative subject `Cache profile lookups and invalidate stale profile cache` built from both task headings with no prefix, path, or ticket, and both commits carry `Refs #241` in the body only; so the new wording did not demonstrably change those on this sample. Boundary holds in both: no parent source reads, reset --soft to the recorded WAVE_BASE_SHA only on the wave, `add -A`, then two tracker completions stated as happening after the wave commit succeeds, with no re-run or bypass of the test/review gates. To keep all of this stable, keep the wording that explicitly forbids a `plan:`-style prefix and names the plan recipe, keep the path-scoped commit pathspec, and keep the 'after the wave commit succeeds' ordering for tracker updates; consider having the instructions say to use the original task indices as held values (both outputs use symbolic index placeholders because the case gives no numbers, which is acceptable here but could read as unfilled if indices were supplied).",
+      "wallMs": 6647,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "1a9e31a86fa25c9a29dcf3f9fd9e17549e4c4483"
+}
