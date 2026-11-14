@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -19,7 +19,7 @@ allowance: 10
 | 9 | done | 1 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 248 passed, 0 failed; numeric context cases round up to one decimal and ignore pi percent |
 | 10 | done | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 248 passed, 0 failed; five unavailable-context cases return Context: unknown |
 | 11 | done | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 250 passed, 0 failed; known and unknown context stay out of details, TUI results and the widget |
-| 12 | open | 0 | |
+| 12 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-plan-approval.test.mjs; 2 passed; node eval/run.mjs brainstorming engine-waves improved on 2 models, plan-default held on both; selected sample only |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
 | 15 | open | 0 | |
@@ -48,3 +48,4 @@ row 8 done | Recommended loop for unbundled acceptance rows with the exact fallb
 row 9 done | Added the model-visible context percentage to phase_tracker status, rounded up to one decimal. | Reuse extensions/phase-tracker.ts status content and its seeded tests for gate context readings; doc/configuration.md documents the output.
 row 10 done | Verified that absent, undefined, null-token and nonpositive-window readings return Context: unknown. | nothing new to build on
 row 11 done | Verified that known and unknown context readings leave details, TUI results and the phase widget unchanged. | Reuse the status context UI-isolation cases in extensions/phase-tracker.test.ts to prevent context leakage into tracker details or UI.
+row 12 done | Made plain approval 1 persist the default standing grant and waves before the verified commit-to-planning handoff. | Reuse scripts/brainstorming-plan-approval.test.mjs and engine-waves/plan-default to check the header and handoff order.

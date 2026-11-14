@@ -1,4 +1,4 @@
-for: fcd1a45e3c4f4e3ad71d69fb6c8a84e2dcb2c023b28c2f88dbcab82e20892fe5
+for: b0ebb69871d57908198a376361c09deafef3c0734d0b5f02b706170ee521d93d
 
 ## Change
 
@@ -32,6 +32,8 @@ Publish N>1 committed spec handles in companion-first/home-last preflight and pu
 
 The first intent token merge-forward, after the leading PR-reference run, selects member-then-base merge provisioning and is stripped alone; later occurrences remain intent. The pr-subject-merge-forward sample exercises that override, nonleading/free-text controls and unchanged unmarked spec-only routing. Preserve original-head records and existing admission/relatedness controls. This fixture extension accepts no failed must-hold fact and performs no live forge actions. Fixture-only sync-mode coverage does not change the bundle-free assembly SHA 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124; preserve the unrelated aftermath-unchanged-command inconclusive evidence rather than treating a cached partial report as target-wide verification.
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
+
+Persist the default amendment grant and Engine waves on plain reply `1`, retain the council audit while amending, and verify both committed fields before completing brainstorm and invoking writing-plans. Strengthen only engine-waves trace A with the full header value, full narration, and ordered continuation; its plan-default fact proves the new plan approval. Run only engine-waves against base 855e872a42f9cac7a795704f3e0b383b182950ab. The remaining traces keep their existing coverage for later reply migrations; this selected narrated replay proves no live git or tracker operations and no target-wide coverage. Preserve other samples and prior accepted variance.
 
 Feed attributable plan-aftermath failures back into the same amendment batch, restore only an entirely eligible dirtied-source row, honor amend permission independently of funding, and stop at two applied retry items or repeated evidence. Add amendment-surface section 5 immediately after section 4 in the headed assembly, retaining wordCap 1400, the denylist and existing bundle drops (a path drop removes both slices). This changes whole-target assembly cost: parent verification reseeds the baseline with `node eval/run.mjs brainstorming --baseline-only`, then runs the full `node eval/run.mjs brainstorming` on both models and produces report/records; the four additions alone are not the replay scope. Keep replays outside task Tests because the runner CLI cannot satisfy its file-token contract; add no Replays contract or selective bundle machinery.
 
@@ -89,6 +91,7 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- engine-waves/plan-default: fails -> holds - Reply 1 grants by default and commits both fields before completing brainstorm and invoking writing-plans.
 - spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
 - spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
 - spec-pr-regate-legs/script-create: fails -> holds - Use existing-branch script creation or stop unsupported scripts before any write.
