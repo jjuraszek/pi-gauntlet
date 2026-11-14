@@ -148,8 +148,10 @@ Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditi
 
 Follow the [first-line rule](menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
 
+Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[recommended]` at the end of that row's sentence, never to a flag line or row 3. Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number; give a concrete reason after the dash.
+
 ```
-gauntlet: gate=brainstorming/user-review-gate
+gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>
 <spec-only summary read back from the temp file - pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
@@ -179,6 +181,7 @@ Pick one:
 
 4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.
 
+Recommended: <recommended-row> - <reason>
 Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round. Add "; allowance N" to 4 or 5 to set this run's per-row allowance.
 
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.

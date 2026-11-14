@@ -216,6 +216,18 @@ test('gate flags stay under their engine with one sentence ending in the resolve
   assert.match(text, /Retain `maxIterationsPerRow` .* as `<n>` for the loop row's `--allowance=N` default/);
 });
 
+test('gate recommendation ties one rendered row to the first-line marker and trailing reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const template = text.match(/```\n(gauntlet: gate=brainstorming\/user-review-gate[^\n]*\n[\s\S]*?)\n```/)[1];
+  assert.equal(template.split('\n')[0], 'gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>');
+  assert.match(text, /Choose exactly one rendered row from 1, 2, or 4 as the recommendation/);
+  assert.match(text, /Append `\[recommended\]` at the end of that row's sentence, never to a flag line or row 3/);
+  assert.match(text, /Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number/);
+  assert.match(template, /^Recommended: <recommended-row> - <reason>$/m);
+  assert.ok(template.indexOf('Recommended:') > template.indexOf('4 - draft PR:'));
+  assert.ok(template.indexOf('Recommended:') < template.indexOf('Or tell me what to change'));
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];

@@ -3,14 +3,14 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 59 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 8/8 candidate facts held |
 | 2 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 60 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 12/12 candidate facts held |
-| 3 | open | 0 | |
+| 3 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 61 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 14/14 candidate facts held |
 | 4 | open | 0 | |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
@@ -39,3 +39,4 @@ allowance: 10
 row 0 done | seeded 2 rows, closed 0 on baseline | row 9
 row 1 done | Replaced the six-choice template with four fixed, one-sentence rows. | Extend eval/spec-gate/samples/recommended-row for recommendation cases and reuse scripts/brainstorming-contract.test.mjs for row-shape checks.
 row 2 done | Added per-engine flag bullets with one-sentence defaults and the resolved loop allowance. | Reuse scripts/brainstorming-contract.test.mjs and eval/spec-gate/samples/recommended-row for flag layout and non-default allowance checks.
+row 3 done | Linked one rendered recommendation tag to the first-line marker and trailing reason. | Extend scripts/brainstorming-contract.test.mjs and eval/spec-gate/samples/recommended-row to check recommendation selection.
