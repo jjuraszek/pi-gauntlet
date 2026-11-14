@@ -1,21 +1,34 @@
-# eval report: gauntlet-resume (isolated source-wiring checks)
+# eval report: gauntlet-resume (partial run: returned-line-recovery)
 
 for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
 
-## Current coverage
+## Current isolated coverage
 
-The selected local check passed: 52 tests, 0 failures, including all 23 inventoried citation sites. This is not a full-suite result.
+`timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs` passes 5 tests with 0 failures. The test lives beside the existing home-admission and worker-history tests in `scripts/`. It executes the documented Git discovery, snapshot, status and full-dispatch-range reads in a scratch checkout. Pending dispatch dirt, a clean child, a later code-only commit, dirty paths and an unavailable before-image are separate observations. Source assertions cover count preservation and settled/ambiguous-history rules; they do not execute a resume driver or its ledger writes.
 
-`timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs` selects the shared-reference citation, written recovery rules, isolated sample structure, docs isolation rules and evidence-currency assertions. These are deterministic source checks, not execution of a resume or conversion driver. No model calls were selected after isolation; neither narrowed case has a current model pass.
+Only the model-dependent `returned-line-recovery` classification was replayed. It receives one clean home return with supplied passing admission checks, identifies the committed ledger's tuple and S before-image, preserves iterations 3 and attempts 1, and stops before restoration. No end-to-end resume, tracker refresh, mutation or ambiguous-history model scenario was run.
 
-| Narrowed sample | Entry and output | Stop | Model reason |
+| sample | model | verdict | judge ms | fact |
+|---|---|---|---|---|
+| returned-line-recovery | anthropic/claude-opus-5-5 | improved | 5743 | home: fails -> holds |
+| returned-line-recovery | github-copilot/gpt-6.1-sol | improved | 5325 | home: fails -> holds |
+
+The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume returned-line-recovery --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. It exited 0 in 23s: four replays, two judgments, no confirmations. The controller reaped the job; its group and controller exited before its jobs entry was removed.
+
+The exact new runner records are retained as `results/returned-line-recovery/baseline-isolated.json` and `candidate-isolated.json`. The local test verifies their current assembly, input, intent, fact and judgment hashes and reuses them without model calls. The older `baseline.json` and `candidate.json` remain byte-identical because the closed source-wiring check explicitly pins their historical input mismatch; these filenames do not hold the isolated replay. This preserves that check and the old evidence without cloning a sample or changing the runner.
+
+## Prior source-wiring evidence
+
+The earlier selected check was `timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs`: 52 tests passed, 0 failed, including all 23 inventoried citation sites. It checked shared-reference citations, written recovery rules, isolated sample structure, docs isolation rules and evidence currency. It did not execute a resume or conversion driver. It was not rerun in this iteration.
+
+| Narrowed sample | Entry and output | Stop | Coverage |
 |---|---|---|---|
-| returned-line-recovery | One supplied clean home return -> classification and authority | Before ledger mutation, migration or tracker restoration | Unselected interpretation of the documented admission boundary |
-| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Unselected interpretation of eligibility; parser/count logic needs executable fixtures |
+| returned-line-recovery | One supplied clean home return -> classification and authority | Before ledger mutation, migration or tracker restoration | Current isolated decision replay above |
+| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Still unselected; historical records have stale case hashes |
 
 ## Historical evidence
 
-Keep `results/returned-line-recovery/` and `results/legacy-ledger-conversion/` unchanged. Their broader recovery/conversion input hashes do not match these narrowed cases; their results are historical, not current or end-to-end proof. Unrelated records, including plan-citation-subject, were not rerun.
+The broad `results/returned-line-recovery/{baseline,candidate}.json` and `results/legacy-ledger-conversion/{baseline,candidate}.json` remain unchanged. Their input hashes do not match the narrowed cases; they are historical, not current or end-to-end proof. Unrelated records, including plan-citation-subject, were not rerun.
 
 | historical sample | model | recorded verdict | judge ms |
 |---|---|---|---|
@@ -28,4 +41,4 @@ Historical commands used `timeout -k 30 3600 node eval/run.mjs gauntlet-resume <
 
 ## Remaining coverage
 
-The spec's deterministic legacy-conversion script fixture, count preservation, idempotent execution, companion recovery, ambiguous history and verification-repair admission remain separate coverage obligations. Narrated eligibility or a source citation proves none of them.
+Executable resume admission and count-preserving recovery writes remain unproven here. Legacy conversion and its count preservation/idempotence, companion recovery and verification-repair admission are separate obligations. Narrated eligibility or a source citation proves none of them.

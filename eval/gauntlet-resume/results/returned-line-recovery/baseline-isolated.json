@@ -1,0 +1,34 @@
+{
+  "sample": "returned-line-recovery",
+  "arm": "baseline",
+  "skillSha": "a692042d88a5c872318199f783d270b893a804cf8ad0a25df634b9f7275a5ff3",
+  "inputSha": "33bb0d0e00f2a19ae676e39a0f084bfd9faa296e07b1c144ef7e26f0b9e253d2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Read calls (outcomes as given in the input, no tools run)**\n- `git -C /workspace/home log --format=%H -- doc/plans/plants-ledger.md`. The latest home child commit that changed the ledger is `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n- `git -C /workspace/home show -s --format=%B bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`. The subject is arbitrary and the body is empty.\n\n**Classification:** This is an unadmitted home return with missing attribution. Restore stops here, before any refresh, dispatch or verification.\n\n- **Commit:** `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- **Failed check:** commit-body attribution is missing. The first two lines of the body must carry the exact `pending:` tuple and the consumed `iteration:`, but the body is empty. Because no tuple can be recovered, this is not wrong attribution that could go to interrupted recovery without a human turn.\n\n**Source of the tuple and before-image:**\n- **Tuple:** The only valid source is the return commit's body. The ledger's `returned: 1 | home | aaaa…` header and the terminal row 1 `done` (attempts 1) do not count as attribution or as proof of admission. The rule forbids inferring admission from terminal rows, and the ledger header is not a recovery source.\n- **Before-image:** This would be read at the tuple's pre-dispatch SHA, not at `HEAD^`. Here `HEAD^` would be S, but with no recovered tuple there is no authorized SHA to read from, so no before-image is admitted.\n\n**Counts:** No further increment is needed or allowed. The committed iterations 3 (S had 2) and row 1 attempts 1 stay exactly as they are. There is no second iteration bump and no repeated attempt increment.\n\nStopped at the recovery decision. Nothing was mutated: no ledger write, no reset or clean, no migration, no tracker refresh, no dispatch.\n",
+      "words": 266,
+      "wallMs": 16968,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "- **Classification:** Stop: home return `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` has invalid attribution—an arbitrary subject and empty body.\n- **Tuple and before-image:** Recover the tuple and consumed iteration from the commit body’s first two lines, not the ledger’s `returned:` header. They are missing. The supplied before-image is `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:doc/plans/plants-ledger.md`, but it cannot replace the missing attribution.\n- **Counts:** No additional increment. Leave iterations at 3 and row 1 attempts at 1; make no mutations.\n",
+      "words": 66,
+      "wallMs": 5834,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "18f4c9cfeca924e74f54d48f293171b0cf1f5b72"
+}

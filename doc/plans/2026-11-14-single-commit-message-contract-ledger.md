@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 15
+iterations: 16
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,7 +16,7 @@ allowance: 10
 | 6 | done | 1 | timeout -k 30 120 node --test scripts/loop-verification-repair.test.mjs; 19 passed, 0 failed; pinned 12 bookkeeping subjects and repair/amendment decision wiring, refreshed stale verification assertions; text-contract coverage only, no driver execution or model calls |
 | 7 | done | 1 | timeout -k 30 120 node --test scripts/loop-repair-counts.test.mjs; 4 passed, 0 failed; ledger-repair-counts: 2 models hold 4 facts each; instruction/model coverage only, no executable counter or end-to-end replay |
 | 8 | done | 1 | timeout -k 30 120 node --test scripts/loop-worker-history.test.mjs; 6 passed, 0 failed; Git recipes cover two-worker, progress, repair and companion histories without counting decision-only parents; written hint rule checked, no driver execution or model calls |
-| 9 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs; 5 passed, 0 failed; Git reads and written rules checked, not executable resume; returned-line-recovery isolated replay passed in 2 model cells |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
@@ -44,3 +44,4 @@ row 5 done | Added checkout-local return transport and fixed gatekeep/hotfix mis
 row 6 done | Pinned 12 bookkeeping subjects and repair/amendment decision wiring; updated stale verification assertions, with 19 checks passing. | Reuse scripts/loop-verification-repair.test.mjs for isolated wording and ledger-decision checks; it does not execute the driver.
 row 7 done | Verified ledger-only seed and verification counts in isolated decisions; seed stops at 3 of 3 and pending verification counts once. | Reuse scripts/loop-repair-counts.test.mjs and ledger-repair-counts saved replies for instruction/model checks, not executable driver proof.
 row 8 done | Executed ledger-history Git recipes; decision-only commits stay out of worker history, including repaired and companion returns. | Reuse scripts/loop-worker-history.test.mjs for Git boundaries and written hint rules; it does not execute the driver.
+row 9 done | Checked ledger-held home resume with real Git reads and an isolated admission decision; executable driver behavior remains unproven. | Reuse scripts/loop-home-resume.test.mjs for written rules, Git boundaries and current returned-line-recovery evidence.
