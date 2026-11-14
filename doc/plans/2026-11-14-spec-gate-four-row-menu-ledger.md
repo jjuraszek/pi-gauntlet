@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -16,9 +16,9 @@ allowance: 10
 | 6 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 64 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 20/20 candidate facts held; zero-row fallback and high-context precedence held |
 | 7 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 65 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 22/22 candidate facts held; bundled-row selection, cut exclusions and context precedence held |
 | 8 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 66 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 24/24 candidate facts held; unbundled fallback and single-observation facets held |
-| 9 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five numeric context cases; status ends with ship instead of the required Context percentage line |
-| 10 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five unavailable context cases; status ends with ship instead of Context: unknown |
-| 11 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 248 passed, 0 failed; numeric context cases round up to one decimal and ignore pi percent |
+| 10 | done | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 248 passed, 0 failed; five unavailable-context cases return Context: unknown |
+| 11 | done | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 250 passed, 0 failed; known and unknown context stay out of details, TUI results and the widget |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
@@ -45,3 +45,6 @@ row 5 done | Restricted low, unknown, or withheld draft-PR recommendations to re
 row 6 done | Recommended the plan engine for zero acceptance rows unless context already recommends the draft PR. | Reuse eval/spec-gate/samples/recommended-row's zero-row matrix and scripts/brainstorming-contract.test.mjs for recommendation precedence checks.
 row 7 done | Recommended the plan engine for the first bundled in-scope or venue row, quoting its index and separate outcomes. | Reuse eval/spec-gate/samples/recommended-row's bundled cases and scripts/brainstorming-contract.test.mjs for disposition and context precedence checks.
 row 8 done | Recommended loop for unbundled acceptance rows with the exact fallback reason. | Reuse eval/spec-gate/samples/recommended-row's unbundled cases and scripts/brainstorming-contract.test.mjs to check single-observation facets and recommendation precedence.
+row 9 done | Added the model-visible context percentage to phase_tracker status, rounded up to one decimal. | Reuse extensions/phase-tracker.ts status content and its seeded tests for gate context readings; doc/configuration.md documents the output.
+row 10 done | Verified that absent, undefined, null-token and nonpositive-window readings return Context: unknown. | nothing new to build on
+row 11 done | Verified that known and unknown context readings leave details, TUI results and the phase widget unchanged. | Reuse the status context UI-isolation cases in extensions/phase-tracker.test.ts to prevent context leakage into tracker details or UI.

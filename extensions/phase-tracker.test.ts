@@ -609,6 +609,30 @@ for (const row of [
   });
 }
 
+for (const row of [
+  { name: "known", usage: { tokens: 1, contextWindow: 3, percent: 33 }, expected: "33.4% of window" },
+  { name: "unknown", usage: undefined, expected: "unknown" },
+]) {
+  test(`status context stays out of details, TUI and widget: ${row.name}`, async () => {
+    const state = phases({ brainstorm: "in_progress" });
+    const h = harness({ hasUI: true, branch: enteredBranch(state) });
+    Object.assign(h.ctx, { getContextUsage: () => row.usage });
+    await h.emit("session_start");
+    const widgetBefore = h.widgets.at(-1);
+    assert.match(widgetBefore!, /brainstorm/);
+    const tool = h.tools.find(t => t.name === "phase_tracker")! as any;
+    const result = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx);
+    assert.equal(result.content[0].text.split("\n").at(-1), `Context: ${row.expected}`);
+    assert.deepEqual(result.details, { action: "status", phases: state });
+    const rendered = tool.renderResult(result, {}, { fg: (_color: string, text: string) => text });
+    assert.match(rendered.text, /Phases:[\s\S]*brainstorm/);
+    assert.doesNotMatch(rendered.text, /Context:|of window/);
+    await h.emit("session_switch");
+    assert.equal(h.widgets.at(-1), widgetBefore);
+    for (const widget of h.widgets) assert.doesNotMatch(widget!, /Context:|of window/);
+  });
+}
+
 test("all-complete plan activity auto-completes an active implement phase", async () => {
   const h = harness({ branch: implementBranch() });
   await h.emit("session_start");

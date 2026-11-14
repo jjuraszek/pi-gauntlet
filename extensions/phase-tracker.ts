@@ -1312,8 +1312,12 @@ export default function (pi: ExtensionAPI) {
         }
 
         case "status": {
+          const usage = ctx.getContextUsage?.();
+          const context = usage && usage.tokens !== null && usage.contextWindow > 0
+            ? `${(Math.ceil(usage.tokens * 1000 / usage.contextWindow) / 10).toFixed(1)}% of window`
+            : "unknown";
           return {
-            content: [{ type: "text", text: formatStatus(phases) }],
+            content: [{ type: "text", text: `${formatStatus(phases)}\nContext: ${context}` }],
             details: { action: "status", phases: { ...phases } } as PhaseTrackerDetails,
           };
         }
