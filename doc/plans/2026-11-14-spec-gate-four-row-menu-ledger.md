@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -13,7 +13,7 @@ allowance: 10
 | 3 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 61 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 14/14 candidate facts held |
 | 4 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 62 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 16/16 candidate facts held |
 | 5 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 63 passed; node eval/run.mjs spec-gate recommended-row engine-only held on both models; 17/18 candidate facts held after judgment-only refresh, retained flag-layout judge disagreement |
-| 6 | open | 0 | |
+| 6 | done | 1 | timeout -k 30 120 node --test scripts/brainstorming-contract.test.mjs; 64 passed; node eval/run.mjs spec-gate recommended-row improved on 2 models, 20/20 candidate facts held; zero-row fallback and high-context precedence held |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
 | 9 | open | 0 | timeout -k 30 120 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; FAIL five numeric context cases; status ends with ship instead of the required Context percentage line |
@@ -42,3 +42,4 @@ row 2 done | Added per-engine flag bullets with one-sentence defaults and the re
 row 3 done | Linked one rendered recommendation tag to the first-line marker and trailing reason. | Extend scripts/brainstorming-contract.test.mjs and eval/spec-gate/samples/recommended-row to check recommendation selection.
 row 4 done | Recommended row 4 above 25% with the observed percent and fresh-session instruction. | Reuse scripts/brainstorming-contract.test.mjs and eval/spec-gate/samples/recommended-row for threshold and recommendation checks.
 row 5 done | Restricted low, unknown, or withheld draft-PR recommendations to rendered engine rows. | Reuse eval/spec-gate/samples/recommended-row's context matrix and scripts/brainstorming-contract.test.mjs for engine-selection checks.
+row 6 done | Recommended the plan engine for zero acceptance rows unless context already recommends the draft PR. | Reuse eval/spec-gate/samples/recommended-row's zero-row matrix and scripts/brainstorming-contract.test.mjs for recommendation precedence checks.

@@ -57,3 +57,14 @@ After the initial gate and its reply, evaluate these independent gate observatio
 | boundary | Context: 25.0% of window | 1, 2, 3, 4 |
 | low | Context: 12.4% of window | 1, 2, 3, 4 |
 | withheld | Context: 80.0% of window | 1, 2, 3; row 4 is withheld because this is PR #42 |
+
+## Zero-row recommendation checks
+
+For each independent case below, replace the spec's acceptance section with `none - ticket not fetched (tracker unreachable)`. No checkbox rows exist, the council audit is available, and none is a create-only retry view. Use the supplied rendered choices; give only the case ID, first-line gate marker, selected row's sentence with its tag, and Recommended line. There is no user reply.
+
+| Case | Status observation | Rendered choices |
+|---|---|---|
+| zero-unknown | Context: unknown | 1, 3, 4 |
+| zero-low | Context: 12.0% of window | 1, 3, 4 |
+| zero-withheld | Context: 80.0% of window | 1, 3; row 4 is withheld because this is PR #42 |
+| zero-high | Context: 31.0% of window | 1, 3, 4 |

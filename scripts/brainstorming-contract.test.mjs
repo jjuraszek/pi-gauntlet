@@ -260,6 +260,20 @@ test('low, unknown or withheld draft context restricts the recommendation to eng
   assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- engine-only: judged:.*unknown.*25\.0.*12\.4.*withheld.*1 or 2/m);
 });
 
+test('zero acceptance rows recommend the plan engine only after the draft-PR rule', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const rule = 'When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1';
+  assert.ok(text.includes(rule), 'zero rows select the plan engine');
+  assert.ok(text.indexOf(rule) > text.indexOf('For a numeric context reading strictly above 25'), 'context priority precedes the zero-row fallback');
+  assert.ok(text.includes('Recommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.'));
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  assert.ok(fixture.includes('none - ticket not fetched (tracker unreachable)'));
+  for (const id of ['zero-unknown', 'zero-low', 'zero-withheld', 'zero-high']) {
+    assert.ok(fixture.includes(`| ${id} |`), id);
+  }
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- zero-rows: judged:.*zero-unknown.*zero-low.*zero-withheld.*row 1.*zero-high.*row 4/m);
+});
+
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];

@@ -152,6 +152,8 @@ Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[
 
 Decide the recommendation before rendering, without printing the deliberation. For a numeric context reading strictly above 25, when row 4 is rendered, recommend row 4 before assessing acceptance rows. Compare the reading as a number; never floor it: 25.0 does not trigger this rule; 25.1 and 26.0 do. Use this reason line, substituting the observed percentage for `<P>` and keeping the literal `<N>` until publication: ``Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.`` Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4.
 
+When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1 with this reason: `Recommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.`
+
 ```
 gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>
 <spec-only summary read back from the temp file - pasted verbatim, unedited>
