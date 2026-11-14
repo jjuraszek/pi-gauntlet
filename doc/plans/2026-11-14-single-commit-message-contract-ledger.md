@@ -3,12 +3,12 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | open | 0 | timeout -k 30 10 test -f skills/finishing-a-development-branch/reference/commit-message.md; exit 1: shared commit-message reference is missing |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -28,3 +28,5 @@ allowance: 10
 | 18 | open | 0 | |
 
 ## Decisions
+
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1: add the shared reference and check its rules and commit-site citations
