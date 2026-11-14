@@ -3,12 +3,12 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | timeout -k 30 10 test -f skills/finishing-a-development-branch/reference/commit-message.md; exit 1: shared commit-message reference is missing |
+| 1 | failed | 1 | timeout -k 30 10 python3 -c 'assert "wording:" in __import__("pathlib").Path("agents/loop-implementer.md").read_text(), "loop worker still prescribes local subjects instead of the shared wording input"'; exit 1: worker citation and wording input are missing; shared reference added with five sections and fixed bookkeeping subjects; no model samples run |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -30,3 +30,4 @@ allowance: 10
 ## Decisions
 
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1: add the shared reference and check its rules and commit-site citations
+row 1 failed | Added the shared wording reference, but the worker still lacks its wording input and commit sites retain local templates. | Reuse commit-message.md; replace commit-site templates and pass wording/ticket inputs, then run the spec's selected evals.
