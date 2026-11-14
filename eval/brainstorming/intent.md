@@ -1,6 +1,8 @@
-for: b0ebb69871d57908198a376361c09deafef3c0734d0b5f02b706170ee521d93d
+for: 909e2578ff65d4757d4c9c0abdd94d599be2b87cc5a66055c41ac6d53135e020
 
 ## Change
+
+Plain approval `2` now persists the default standing grant G with Engine loop, checks the amended commit before completing brainstorm, and invokes loop-implementation without writing-plans. Strengthen only loop-gate's plain-reply continuation to include the observed allowance 7 and absence of an override carrier. State the driver's plan skip and settings-write boundary explicitly in the handoff instead of leaving them implicit. Run loop-gate only; its other menu facts retain pre-migration wording and are not closure evidence for this row. Saved narration proves the selected continuation, not live Git execution or target-wide coverage.
 
 Record leg contracts by creator, omitting home for script/native creation and omitting home/destroy for host-owned trees. Keep keyed and built-in homes, portable script commands with explicit branch, distinct create/destroy name tokens, and branch-based lookup with identity checks. Run only multi-repo-script-placed-leg for this change against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f, within the spec's three-run/fourteen-call-per-run bound. Its bundled legs reference carries the changed instructions. Remove the stale opening-message new-file marker because that file exists at this base. Preserve other sample records; this synthetic replay proves narrated contracts, not live creation or target-wide coverage.
 
@@ -209,7 +211,7 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - loop-gate/menu: fails -> holds - Render exact options 4/5 with resolved allowance7 and the run allowance suffix; offer funding only on 1/2.
 - loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
-- loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
+- loop-gate/loop: fails -> holds - Plain 2 persists G and loop, HEAD-checks both fields, then completes brainstorm and dispatches loop with the settings allowance.
 - loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
 - engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
