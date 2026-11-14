@@ -6,6 +6,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_SKILL_DIRS, lintStageSkillDirs } from './stage-skill-lint.mjs';
+import './loop-home-admission.test.mjs';
 const root = new URL('../', import.meta.url);
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
@@ -327,62 +328,6 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
   assert.match(reference, /That home-ledger commit.*`loop: record <repo> row <n>`.*parent commit, not a child `loop: row .*` commit: it never counts toward child-only empty-commit stagnation; only the companion.*own commits are counted at the boundary/);
   assert.doesNotMatch(driver, /plan_tracker\(.*(?:init|add|update)|phase_tracker\(\{ action: "complete", phase: "implement"/);
   assert.ok(driver.trimEnd().split('\n').length < 500);
-});
-
-test('terminal home results admit clean returns and repair interrupted returns without a human turn', () => {
-  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-  const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  const validation = driver.split('\n## Validate the return\n')[1].split('\n## Human stop\n')[0]
-    + readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-  const boundary = driver.split('\n## Validate the return\n')[1].split('\n2. ')[0];
-  const resultValidation = driver.split('\n## Validate the return\n')[1].split('\n2. ')[1].split('\n## Unreachable returns\n')[0];
-  assert.match(boundary, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1.*row and seed alike/);
-  assert.match(boundary, /Route dispatch errors, non-DONE, killed, dirty, zero\/multiple-commit and wrong-attribution returns through ## Interrupted recovery/);
-  assert.doesNotMatch(resultValidation, /attribution|commit body's first two lines/);
-  const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-  for (const reason of ['dispatch error', 'non-DONE', 'silence kill', 'dirty tree', 'zero/multiple commits', 'wrong attribution']) {
-    assert.ok(recovery.split('\n1. ')[0].includes(reason), reason);
-  }
-  for (const token of ['with or without amend permission', 'Recovery itself is unconditional',
-    'matching start identity and command', 'PGID equal to the pid', 'wait at most 10 s',
-    'recheck identity, command and group leader before each signal',
-    'skip that job and continue recovery', 'absent or empty jobs file means no jobs to terminate',
-    'Print `terminated <k> child jobs`', 'delete the jobs file',
-    'git -C "<worktree>" reset --hard HEAD_BEFORE', 'git -C "<worktree>" clean -fd',
-    '`iterations:` = saved +1', 'no `pending:`', 'attempts = saved attempts +1',
-    'evidence `iteration <i>: interrupted - <reason>`',
-    'Commit `loop: repair row <n>`, refresh and return to the ordered table in the same turn']) {
-    assert.ok(recovery.includes(token), token);
-  }
-  assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
-  assert.match(recovery, /still alive after KILL.*do not block recovery/);
-  assert.match(recovery, /files remain after reset.*next return is validated as usual/);
-  assert.doesNotMatch(recovery, /recovery incomplete|provenance|action-spend|bound spent:|only below|discard authorization/);
-  assert.ok(recovery.indexOf('1. ') < recovery.indexOf('reset --hard HEAD_BEFORE'));
-  assert.ok(recovery.indexOf('reset --hard HEAD_BEFORE') < recovery.indexOf('3. Write'));
-  const dispatch = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
-  assert.doesNotMatch(dispatch, /provenance|exclusive ownership/);
-  const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
-  assert.doesNotMatch(human, /recovery.incomplete|interrupted-dispatch.*stops|discard.*interrupted/);
-  assert.match(human, /Never invent a stop, a menu, an option or an approval the spec's gate did not ask for/);
-  assert.match(human, /never write a ruling on what the spec authorizes into a task's `hint:` field/);
-  assert.match(validation, /Never project terminal child results before clean\/exactly-one-commit admission/);
-  assert.match(validation, /`iterations` \+1 and removal of the dispatched `pending:` line.*reject every other header change/);
-  assert.match(validation, /Seed or ordinary.*committed tuple.*validation miss for the dispatched target after boundary admission, not a boundary rejection/);
-  assert.match(validation, /Count seed attempts as `loop: repair seed` commits since ledger base/);
-  assert.match(validation, /Dispatch seed while this count is below the ledger allowance/);
-  assert.match(validation, /seed: <k> of <allowance>/);
-  assert.match(validation, /A validated seed resets the validation-miss window, so ordinary dispatch starts clean/);
-  assert.doesNotMatch(validation, /second consecutive miss.*human stop|retry seed once/);
-  assert.match(validation, /Clear `pending:`.*commit `loop: repair row <n>`/);
-  assert.match(driver, /Retry, cut, amend, raise-allowance and escalate commits never clear the tuple/);
-  assert.match(persona, /Remove the `pending:` line from the ledger in your commit/);
-  assert.match(persona, /Preserve row identifiers, row text, ledger headers \(except removal of `pending:`\)/);
-  assert.match(persona, /Stage the seeded evidence changes and ledger.*remove `pending:`/);
-  assert.match(persona, /Save the exact `pending:` tuple and bumped `iterations:` count before editing/);
-  assert.match(persona, /For every home row or seed commit.*`pending:` tuple and consumed `iteration:`.*separate body lines/);
-  assert.match(persona, /ledger's bumped `iterations:` header, not the task's pre-bump `iteration`/);
-  assert.match(validation, /commit body's first two lines.*exact dispatched `pending:` tuple.*consumed `iteration:`.*saved iterations \+1/);
 });
 
 test('reconstruction routes interrupted recovery unconditionally before mutation or task projection', () => {
