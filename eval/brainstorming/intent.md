@@ -1,6 +1,8 @@
-for: a7c5c9ea46691f4e1b07b5601a3d630e112af6dc694dd958b0dc88a931d171b9
+for: e52a382ac514f9b538c6028dc3b67a9a3ee44db9f69a63e2b5bbc90877ccdaba
 
 ## Change
+
+On a marked draft-PR re-gate, accept plan 1 and loop 2 with the ordinary gate's flags, persist the decoded grant, selected engine and lowercase PR identity in a new commit, verify all three fields from HEAD, then continue through the selected engine. Keep the allowance carrier out of the spec and settings. Migrate only spec-pr-regate to the four-row menu and eight bare/flagged approval traces; retain audit, shape, change and unresolved-merge controls. Run only spec-pr-regate against base 855e872a42f9cac7a795704f3e0b383b182950ab. This tool-free replay proves narrated ordering, not live persistence or target-wide coverage. Preserve other records. The selective deterministic check lives beside its siblings in scripts/brainstorming-pr-regate-approval.test.mjs; model replay remains outside CI.
 
 Withhold draft row 4 on every PR-subject gate, retaining rows 1/2/3 and the existing-PR disclosure. Keep the unmarked spec-only classifier on the same withheld row and implementation approvals 1/2. Migrate only pr-subject-gate: at Context: 26.0%, recommend the unbundled loop row 2 and clarify independent replies 4, draft PR, and 6 without mutation or remapping. Run only pr-subject-gate against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve all unrelated records. This selected tool-free replay proves narrated gating, not live GitHub operations or target-wide coverage.
 
@@ -99,6 +101,11 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- spec-pr-regate/gate: fails -> holds - Use the four-row gate with draft row 4 withheld and loop 2 recommended.
+- spec-pr-regate/audit: fails -> holds - Preserve pinned audit while the zero-row gate omits loop 2.
+- spec-pr-regate/approvals: fails -> holds - Bare and flagged replies 1/2 select waves/loop and persist all three fields in a new commit before continuing.
+- spec-pr-regate/flags: fails -> holds - Decode opt-out and funding separately while keeping allowance out of persisted spec fields.
+- spec-pr-regate/hidden: fails -> holds - Clarify hidden 4 and retired 6 using rendered choices without mutation or remapping.
 - pr-subject-gate/menu: fails -> holds - Render only rows 1/2/3 while withholding draft row 4.
 - pr-subject-gate/clarification: fails -> holds - Clarify hidden digit 4, draft PR label, and retired digit 6 without mutation or remapping.
 - pr-subject-gate/recommendation: fails -> holds - Recommend the rendered loop row despite high context when draft row 4 is withheld.

@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 22
+iterations: 23
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -32,7 +32,7 @@ allowance: 10
 | 22 | done | 0 | timeout -k 30 30 node --test scripts/brainstorming-draft-publication.test.mjs; 2 tests passed; both saved zero-row gates render 1, 3, 4 without allowance flags and explain the omitted loop row |
 | 23 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-worker-gate.test.mjs; 2 passed; worker-path replay improved on both models; combined omissions and hidden row 3 verified |
 | 24 | done | 1 | timeout -k 30 60 node --test scripts/brainstorming-bare-approve.test.mjs; 2 passed, 0 failed; spec-gate/all-none replay: 14/14 candidate facts held on two models |
-| 25 | open | 0 | |
+| 25 | done | 1 | timeout -k 30 30 node --test scripts/brainstorming-pr-regate-approval.test.mjs; 2 passed, 0 failed; selected brainstorming/spec-pr-regate replay: 2 models, 20 facts hold |
 | 26 | open | 0 | |
 
 ## Decisions
@@ -61,3 +61,4 @@ row 22 done | Zero-row gates omit loop row 2 and its flags, keep draft row 4 ava
 row 21 done | PR-subject gates now withhold draft row 4, keep engine recommendations, and clarify hidden digits or labels without mutation. | Reuse scripts/brainstorming-pr-subject-gate.test.mjs and pr-subject-gate fixtures to check withheld selections and high-context engine fallback.
 row 23 done | Gates without a council audit omit row 3 even when zero-row and PR-subject rules also withhold choices. | Reuse scripts/brainstorming-worker-gate.test.mjs and worker-path fixtures to check combined omissions and hidden-row clarification.
 row 24 done | Bare approve now echoes the rendered recommendation before following plan, loop, or draft-PR actions. | Reuse scripts/brainstorming-bare-approve.test.mjs and all-none fixtures to check all three recommendation continuations.
+row 25 done | Draft-PR re-gates now persist engine, decoded grant and normalized PR in a new commit for bare and flagged approvals. | Reuse scripts/brainstorming-pr-regate-approval.test.mjs and spec-pr-regate fixtures to check header persistence and allowance handoffs.
