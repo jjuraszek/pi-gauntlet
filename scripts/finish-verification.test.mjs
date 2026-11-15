@@ -23,8 +23,10 @@ test("ledger finish preserves gate set, strip and amendment contracts", () => {
   assert.match(skill, /ledger.*post-squash.*verification-set\.md/);
   assert.match(verification, /\(cd "<leg primary>" && <command>\) > "\$LOG_DIR\/gate-<i>\.log" 2>&1/);
   assert.ok(skill.includes("<spec stem>-ledger.md"));
-  assert.match(skill, /--grep[^\n]*loop: cut row[^\n]*loop: amend/);
-  assert.match(skill, /take the `auto-apply` and `granted` records from those commit bodies/);
+  assert.ok(skill.includes('git -C "$WORKTREE" log <base-branch>..HEAD --format=%b'));
+  assert.ok(skill.includes('^- [^|]+ \\| [^|]+ \\| [^|]+ \\| (auto-apply|granted) \\| '));
+  assert.ok(skill.includes('Select by these body records, never by subject'));
+  assert.ok(skill.includes('commits without matching rows contribute nothing'));
 });
 
 for (const telemetry of [".git/gauntlet/telemetry"]) {
@@ -239,6 +241,15 @@ for (const [name, pattern] of [
 ]) {
   test(`PR-list finish: ${name}`, () => assert.match(skill, pattern));
 }
+
+test("PR absorption prose uses recorded thread-fix evidence without message searches", () => {
+  const row = skill.split('| Recorded `fix`,')[1]?.split('Run the existing strip-and-seal block')[0];
+  assert.ok(row, 'row-1 close-comment contract remains present');
+  assert.ok(row.includes('fixed in <sha7>'));
+  assert.ok(row.includes('actually recorded that fix SHA'));
+  assert.ok(row.includes('fixed (task "<title>" complete; no single commit names <thread id>)'));
+  assert.doesNotMatch(row, /--grep|git log/);
+});
 
 test("finish preserves rendered template whitespace and the skill line budget", () => {
   for (const fragment of [

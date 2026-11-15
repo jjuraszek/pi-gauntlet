@@ -72,20 +72,23 @@ test('admission preserves failed companion work and charges only ordinary source
   const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
   const admission = fixWave.split('\n### Admission\n')[1]?.split('\n## Review before push\n')[0];
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
-  const companion = persona.split('\n## Companion result commit\n')[1]?.split('\n## Boundaries\n')[0];
+  const companion = persona.split('\n## Outside-ledger result\n')[1]?.split('\n## Boundaries\n')[0];
   assert.ok(admission && companion);
-  // Pin the caller's admission checks to the unchanged companion wire contract.
-  for (const token of ['pending:', 'iteration:', 'loop: row <n> <status>', 'target first', 'attempts unchanged']) {
+  // Pin caller and persona prose to the outside-ledger return-file contract.
+  for (const token of ['pending:', 'iteration:', 'return file before committing', 'target first', 'attempts unchanged']) {
     assert.ok(companion.includes(token), `persona companion requires ${token}`);
   }
   assert.match(companion, /target, attempts \+1 and status done\/failed/);
-  assert.ok(admission.includes('loop: row <n> <done|failed>'), 'both done and failed are admitted subject statuses');
+  assert.ok(admission.includes('^row <k> (done|failed)'), 'both done and failed are admitted decision statuses');
+  assert.ok(admission.includes('Require no subject pattern or message attribution'));
+  assert.ok(admission.includes('read the return file, not the reply or commit message'));
+  assert.ok(companion.includes('never the return file'));
   for (const [workerRule, callerRule] of [
-    ['leave the home ledger untouched', 'writing its row and extras to the external ledger'],
-    ['table rows without a header', 'without a header'],
+    ['leave the external ledger untouched', 'writing its row and extras to the external ledger'],
+    ['rows without a header', 'without a header'],
     ['at most three semicolon-separated result lines', 'at most three result lines'],
     ['commit exactly once', 'exactly one new commit'],
-    ['check clean status', 'Require a clean tree'],
+    ['Check clean status', 'Require a clean tree'],
   ]) {
     assert.ok(companion.includes(workerRule), `persona result requires ${workerRule}`);
     assert.ok(admission.includes(callerRule), `caller admits ${callerRule}`);
@@ -107,11 +110,14 @@ test('shared context leaves solution and commit contracts to each harness tail',
   const fixWave = readFileSync(new URL('skills/gatekeep-pr/reference/fix-wave.md', root), 'utf8');
   const context = fixWave.split('\n### Shared worker context\n')[1].split('\n### Budgets\n')[0];
   const [shared, tails] = context.split('Append only the matching harness tail:');
-  assert.doesNotMatch(shared, /re-solve|apply the payload|commit|reply/i);
+  const block = shared.match(/```text\n([\s\S]*?)\n```/)[1];
+  assert.doesNotMatch(block, /re-solve|apply the payload|commit|reply/i);
+  assert.ok(shared.includes('Pass `wording: <absolute path>` and `ticket: <reference or none>`'));
   const pi = tails.split('| pi |')[1].split('\n')[0];
   const claude = tails.split('| Claude Code |')[1].split('\n')[0];
   assert.match(pi, /choose the fix/);
-  assert.match(pi, /commit and reply.*Companion result commit/);
+  assert.match(pi, /commit and reply.*Outside-ledger result/);
+  assert.ok(pi.includes('write the attributed result at `return:` before committing'));
   assert.match(claude, /Apply the course-authorized drafted payload/);
   assert.match(claude, /Commit once/);
   assert.match(claude, /return `open/);
@@ -125,7 +131,8 @@ test('pi file findings dispatch companion loop rows while sync keeps implementer
     'target: <row>', 'Leg: gatekeep', 'pending:',
     'iteration: <i>', 'spec: <absolute derived spec>', 'ledger: <absolute ledger>',
     'base: <MB>', 'previous decision:', 'mapped original AC:', 'SCOPED_TEST_COMMANDS:',
-    'HEAD_BEFORE', 'iteration: <i + 1>', 'Companion result commit',
+    'HEAD_BEFORE', 'iteration: <i + 1>', 'Outside-ledger result',
+    'return: <absolute checkout-local return file>',
   ]) assert.ok(wave.includes(token), `pi file-finding dispatch requires ${token}`);
   assert.match(wave, /`\.\.\/SKILL\.md` `## Harness notes`/);
   assert.doesNotMatch(wave, /For each file payload[^\n]*dispatch one fresh implementer/);

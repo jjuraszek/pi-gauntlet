@@ -107,7 +107,7 @@ Select the decoder before any tracker call: no `returned:` line -> Legacy pendin
 
 For an on-disk `pending:` tuple, use the loop driver's return admission and interrupted recovery with the pre-dispatch ledger at the tuple SHA (home) or the saved home snapshot (companion). For `pending: verify`, use After the loop step 1's repair contract: require the exact retained tuple and consumed count, unchanged row cells and all other protected ledger state in the single home commit, or the matching companion return file with unchanged home HEAD. An unrelated commit or a repair that changed a row is rejected, never recorded as a verification repair.
 
-With no `pending:`, read `returned:` from the committed home ledger. `none` leaves nothing to recover. A companion tuple is already settled: the home record commit proves admission; do not require its deleted return file or look up its SHA in home. A home tuple identifies the pre-dispatch SHA S. Read the ledger at S as the before-image and use the committed ledger's `iterations:` as the consumed count. Find the commit introducing that tuple with `git -C <worktree> log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>`, comparing each candidate's ledger to its first parent's. Require matching target/home identity and count = before-image iterations +1; stop on an unavailable before-image or malformed attribution. Read no commit message. A tuple introduced by a parent repair is settled when that ledger diff appends its matching repair decision; never replay it as a child return.
+With no `pending:`, read `returned:` from the committed home ledger. `none` leaves nothing to recover. A companion tuple is already settled: the home record commit proves admission; do not require its deleted return file or look up its SHA in home. A home tuple identifies the pre-dispatch SHA S. Read the ledger at S as the before-image. Find the commit introducing that tuple with `git -C <worktree> log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>`, comparing each candidate's ledger to its first parent's; use that introducing commit's ledger `iterations:` as the consumed count, never the live ledger's. Require matching target/home identity and count = before-image iterations +1; stop on an unavailable before-image or malformed attribution. Read no commit message. A tuple introduced by a parent repair is settled when that ledger diff appends its matching repair decision; never replay it as a child return. Classify settled evidence before comparing the live ledger to the original dispatch count: a later proven repair or approved ledger mutation may advance iterations while retaining the admitted tuple.
 
 For an unsuperseded home child return, apply the driver's Validate the return checks to the entire S..HEAD range, allowing only the consumed iteration, tuple removal and `returned:` replacement as header deltas. Admit a clean single return once with no second count or attempt increment. Prove a later repair or approved ledger mutation from its ledger diff, not a subject. A saved clean post-admission snapshot also settles it: require child ancestor of saved HEAD, saved HEAD ancestor of live HEAD, unchanged ledger since that saved HEAD, and matching canonical task names/statuses as defined in `brief-contract.md`.
 
@@ -120,12 +120,13 @@ At step 4.2, after pending recovery and allowance migration reach a clean tuple-
 <!-- legacy-commit-labels:begin -->
 ### Legacy repair markers
 
-Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD -- <ledger path>`, reads each matching repair's committed iterations, then writes the header and decisions together. Keep all subject decoding inside this legacy converter.
+Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD -- <ledger path>`, validates each matching repair's committed iterations and reads its body, then writes the header and decisions together. Use the body's first line with pipes escaped, or `converted` when empty, and retain `converted <sha7>` as provenance. Keep all subject decoding inside this legacy converter.
 
 #### Conversion recipe
 
 Run from the supplied home worktree after step 4.2 reaches a clean, tuple-free allowance ledger. Set `ledger_path` to its repo-relative path and `conversion_subject` to the shared Returns conversion on resume sentence. Require Python 3; on an unavailable interpreter stop before writing. Use this recipe for the conversion commit, not a second hand-written edit or commit. Stop on a failed command and retain its error and working state.
 
+<!-- ledger-conversion-shell -->
 ```bash
 python3 - "$ledger_path" "$conversion_subject" <<'PY'
 from pathlib import Path
@@ -165,7 +166,9 @@ for line in git("log", "--reverse", "--format=%H %s", base + "..HEAD", "--", pat
     count = field(snapshot, "iterations", r"0|[1-9][0-9]*")
     if int(count) > 9007199254740991:
         sys.exit("cannot convert ledger: unsafe iterations at " + sha)
-    decisions.append(markers[old_subject] + " | legacy | iteration " + count)
+    body = git("show", "-s", "--format=%b", sha).splitlines()
+    reason = (body[0] if body and body[0] else "converted").replace("|", r"\|")
+    decisions.append(markers[old_subject] + " | " + reason + " | converted " + sha[:7])
 if text.count("\n## Decisions\n") != 1:
     sys.exit("cannot convert ledger: missing or duplicate Decisions section")
 converted = re.sub(r"^allowance: " + allowance + r"$", r"\g<0>\nreturned: none", text, count=1, flags=re.M)
@@ -179,7 +182,15 @@ PY
 
 ### Legacy pending recovery
 
-For this decoder, apply the driver's row/decision and boundary checks with legacy attribution below instead of `returned:` or a return file; allow only the consumed iteration and pending removal header deltas. Use the legacy companion body's attributed rows when the tuple names a companion. Finish this recovery before Returns conversion; retain all ambiguous-history questions and before-image stops.
+For this decoder, apply the driver's row/decision and boundary checks with legacy attribution below instead of `returned:` or a return file; allow only the consumed iteration and pending removal header deltas. Use the legacy companion body's attributed rows when the tuple names a companion. After the unchanged-home and one-clean-companion-commit boundary passes, set `CHECKOUT`, `PENDING`, `ITERATION` and `SAVED_LEDGER` as `coordinated-legs.md` Companion commit admission requires, then run this adapter:
+
+<!-- legacy-companion-body-shell -->
+```bash
+RETURN_FILE=$(mktemp) || exit 1
+git -C "$CHECKOUT" show -s --format=%b HEAD > "$RETURN_FILE" || exit 1
+```
+
+Pass this temporary path as the fifth argument (`"$RETURN_FILE"`) to that reference's `companion-return-shell` recipe. Apply its row/seed checks unchanged to the extracted body; never search for a new-format return file during legacy recovery. Remove the temporary file after the home record or validation-miss repair. Finish this recovery before Returns conversion; retain all ambiguous-history questions and before-image stops.
 
 Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery. Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery before the row/seed paths below; preserve its reserved count and consumed iteration without a second marker or bump.
 

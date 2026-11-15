@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Commit subjects, squash subjects and PR titles use one plain imperative sentence without a label prefix, with an explanatory commit body. Loop attribution uses the ledger's `returned:` header or an outside-ledger return file; repair counters and window resets use ledger decisions. Resume converts legacy attribution once before using the ledger protocol.
+
 ## v8.6.0 - 2026-11-15
 
 - Replace the spec approval gate with four rows: `1` plan engine, `2` loop engine, `3` council explanation, and `4` draft-PR handoff. Mark exactly one row `[recommended]`: context reading above 25% recommends row `4` when available; otherwise zero acceptance rows or a bundled row recommends row `1`, and the default is row `2`. Bare `approve` takes the recommended row. The loop engine is no longer labeled experimental.

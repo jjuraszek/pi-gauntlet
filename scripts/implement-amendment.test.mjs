@@ -33,7 +33,7 @@ test('implement surface delegates through the gate and reconciles only after par
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   assert.match(text, /## 1\. Prepare - never apply yet\n\n\*\*Implement callers only, with a task plan:\*\*/);
   for (const marker of ['Implement callers only', 'Amend-prepare:', 'Amend-apply:', 'one-step chain', 'granted items verbatim', 'fresh manifest', 'pre-apply task numbers', 'passed: false', 'failLines', 'second failure', 'without reading the plan or spec', 'Planning callers keep', 'structured `concerns`/`question`']) assert.ok(text.includes(marker), marker);
-  for (const marker of ['**Value decoding**', 'malformed -> stop', '## 4. Human batch', 'In-flight:', 'One commit per batch:', 'never the plan-writer or implementer']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['**Value decoding**', 'malformed -> stop', '## 4. Human batch', 'In-flight:', 'compose one commit per batch from its Amendment commit row', 'never the plan-writer or implementer']) assert.ok(text.includes(marker), marker);
 });
 
 for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md']) {
@@ -81,7 +81,10 @@ test('handoff and implement entry establish originals with path-scoped staging',
   assert.match(handoff, /On empty output, skip staging and commit/);
   assert.match(handoff, /Stop on any status, staging or commit failure/);
   assert.match(handoff, /add -- "<home-relative plan path>"/);
-  assert.match(handoff, /commit -m "plan: <spec title>" -- "<home-relative plan path>"/);
+  assert.match(handoff, /commit -F - -- "<home-relative plan path>"/);
+  assert.ok(handoff.includes('compose the plan message from the spec H1 and bound ticket'));
+  assert.ok(handoff.includes('reference/commit-message.md'));
+  assert.ok(handoff.includes('supplying the composed message on stdin'));
   const sdd = read('skills/subagent-driven-development/SKILL.md');
   assert.match(sdd, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
   assert.match(sdd, /add -- "<home-relative plan path>" "<home-relative spec path>"/);

@@ -8,7 +8,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 import { intentBody } from '../eval/lib/intent.mjs';
 import { MODELS } from '../eval/lib/models.mjs';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
-import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
+import { judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
@@ -39,7 +39,7 @@ function fixture() {
   };
   commit('Create the legacy fixture');
   const convert = () => {
-    const recipe = reconstruction.match(/#### Conversion recipe\n[\s\S]*?```bash\n([\s\S]*?)\n```/);
+    const recipe = reconstruction.match(/<!-- ledger-conversion-shell -->\s*```bash\n([\s\S]*?)\n```/);
     assert.ok(recipe, 'resume must supply an executable legacy conversion recipe');
     return spawnSync('timeout', ['-k', '30', '30', 'bash', '-c', recipe[1]], {
       cwd, env, encoding: 'utf8', timeout: 65_000,
@@ -50,10 +50,19 @@ function fixture() {
 
 test('the shipped conversion recipe preserves legacy counts and commits exactly once', () => {
   const f = fixture();
-  const markers = ['loop: repair seed', 'loop: repair verification', 'loop: repair seed',
-    'loop: repair row 1', 'loop: repair verification', 'loop: repair verification extra', 'Keep unrelated ledger prose'];
-  for (const [index, marker] of markers.entries()) {
-    f.commit(marker, f.read().replace(/^iterations: \d+$/m, `iterations: ${index + 1}`));
+  const markers = [
+    ['loop: repair seed', 'Seed timed out | rerun locally\nDo not copy this second line', 'repair seed', 'Seed timed out \\| rerun locally'],
+    ['loop: repair verification', 'Fix the failing check', 'repair verification', 'Fix the failing check'],
+    ['loop: repair seed', '', 'repair seed', 'converted'],
+    ['loop: repair row 1', 'Not a seed or verification repair'],
+    ['loop: repair verification', '', 'repair verification', 'converted'],
+    ['loop: repair verification extra', 'Not an exact marker'],
+    ['Keep unrelated ledger prose', 'Not a repair'],
+  ];
+  const repairs = [];
+  for (const [index, [marker, body, kind, reason]] of markers.entries()) {
+    f.commit(marker + (body ? `\n\n${body}` : ''), f.read().replace(/^iterations: \d+$/m, `iterations: ${index + 1}`));
+    if (kind) repairs.push(`${kind} | ${reason} | converted ${f.git('rev-parse', '--short=7', 'HEAD')}`);
   }
   writeFileSync(join(f.cwd, 'unrelated.txt'), 'Not a ledger repair\n');
   f.git('add', '--', 'unrelated.txt');
@@ -63,8 +72,6 @@ test('the shipped conversion recipe preserves legacy counts and commits exactly 
   const result = f.convert();
   assert.equal(result.status, 0, result.stderr);
   const converted = f.read();
-  const repairs = ['repair seed | legacy | iteration 1', 'repair verification | legacy | iteration 2',
-    'repair seed | legacy | iteration 3', 'repair verification | legacy | iteration 5'];
   assert.equal(converted, before.replace('\nallowance: 4\n', '\nallowance: 4\nreturned: none\n') + repairs.join('\n') + '\n');
   assert.equal(converted.match(/^repair seed \|/gm)?.length, 2);
   assert.equal(converted.match(/^repair verification \|/gm)?.length, 2);
@@ -102,7 +109,36 @@ test('conversion refuses a dirty tree, pending tuple or unreadable repair snapsh
   }
 });
 
-test('current isolated replies select the recipe only for an unconverted ledger', async t => {
+test('legacy companion bodies feed the production five-argument admission shell', async t => {
+  const adapter = reconstruction.match(/<!-- legacy-companion-body-shell -->\s*```bash\n([\s\S]*?)\n```/);
+  assert.ok(adapter, 'legacy recovery must supply the body-to-file adapter');
+  const admission = read('skills/loop-implementation/reference/coordinated-legs.md')
+    .match(/<!-- companion-return-shell -->\s*```bash\n([\s\S]*?)\n```/)[1];
+  for (const target of ['1', 'seed']) await t.test(target, () => {
+    const f = fixture();
+    const before = f.git('rev-parse', 'HEAD');
+    const pending = `pending: ${target} | companion | ${before}`;
+    const rows = `| 1 | done | ${target === 'seed' ? 0 : 1} | Count plants; 1 passed |`;
+    const decision = target === 'seed'
+      ? 'row 0 done | seeded 1 rows, closed 1 on baseline | Keep the small fixture'
+      : 'row 1 done | Count plants | Keep the small fixture';
+    f.git('commit', '--allow-empty', '-qm', `loop: ${target === 'seed' ? 'seed evidence' : 'row 1 done'}\n\n${pending}\niteration: 1\n\n${rows}\n${decision}`);
+    const saved = join(mkdtempSync(join(tmpdir(), 'legacy-home-')), 'ledger.md');
+    writeFileSync(saved, `iterations: 1\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n\n## Leg mapping\n| row | AC | leg |\n|---|---|---|\n| 1 | 1 | companion |\n\n## Decisions\n`);
+    const result = spawnSync('timeout', ['-k', '30', '30', 'bash', '-ec', `${adapter[1]}\n${admission}`], {
+      cwd: f.cwd, encoding: 'utf8', timeout: 65_000,
+      env: { ...process.env, CHECKOUT: f.cwd, PENDING: pending, ITERATION: '1', SAVED_LEDGER: saved },
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const admitted = JSON.parse(result.stdout);
+    assert.equal(admitted.sha, f.git('rev-parse', 'HEAD'));
+    assert.deepEqual(admitted.rows, [rows]);
+    assert.deepEqual(admitted.decisions, [decision]);
+    assert.equal(f.git('status', '--porcelain'), '');
+  });
+});
+
+test('historical isolated replies select conversion only for an unconverted ledger', async t => {
   const dir = 'eval/gauntlet-resume';
   const sample = 'legacy-ledger-conversion';
   const target = JSON.parse(read(`${dir}/target.json`));
@@ -118,7 +154,13 @@ test('current isolated replies select the recipe only for an unconverted ledger'
   assert.deepEqual(candidate.models.replay, MODELS.replay);
   for (const model of MODELS.replay) {
     await t.test(model, () => {
-      assert.ok(cellReusable(candidate, model, identity), 'reply matches current instructions and isolated input');
+      assert.notEqual(candidate.skillSha, identity.skillSha, 'saved reply predates the recovery corrections');
+      assert.equal(candidate.inputSha, identity.inputSha, 'isolated sample input is unchanged');
+      assert.equal(candidate.kind, identity.kind);
+      assert.equal(candidate.assembly, identity.assembly);
+      assert.equal(candidate.models.thinking, identity.thinking);
+      assert.equal(candidate.outputs[model]?.status, 'ok');
+      assert.equal(baseline.outputs[model]?.status, 'ok');
       const judgment = candidate.judge[model];
       assert.ok(judgmentCurrent(judgment, {
         factsSha: sha256(read(`${dir}/samples/${sample}/expected.md`)),

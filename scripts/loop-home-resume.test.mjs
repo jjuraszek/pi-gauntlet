@@ -23,7 +23,8 @@ test('home resume written rules preserve the original boundary and consumed coun
     'With no `pending:`, read `returned:` from the committed home ledger',
     '`none` leaves nothing to recover',
     'Read the ledger at S as the before-image',
-    "use the committed ledger's `iterations:` as the consumed count",
+    "use that introducing commit's ledger `iterations:` as the consumed count, never the live ledger's",
+    'Classify settled evidence before comparing the live ledger to the original dispatch count',
     "comparing each candidate's ledger to its first parent's",
     'Require matching target/home identity and count = before-image iterations +1',
     'stop on an unavailable before-image or malformed attribution',
@@ -149,4 +150,19 @@ test('resume Git reads retain S as the before-image across later commits and dir
   assert.equal(discover(), child);
   assert.equal(snapshot(before), saved.trimEnd());
   assert.throws(() => git('show', `${'0'.repeat(40)}:${ledger}`), /fatal:/, 'missing before-image fails rather than implying admission');
+
+  git('reset', '--hard', child);
+  git('clean', '-fd');
+  let amended = returned;
+  const decisions = ['row 1 retry | Reset the window | Keep row history',
+    `repair verification | home ${child} | iteration 5 - Fix the check`];
+  for (const [index, decision] of decisions.entries()) {
+    amended = amended.replace(/^iterations: \d+$/m, `iterations: ${index + 4}`) + decision + '\n';
+    writeFileSync(join(checkout, ledger), amended);
+    git('add', '--', ledger);
+    git('commit', '-qm', 'Preserve the admitted return tuple');
+    assert.equal(discover(), child, 'later ledger mutations do not introduce the unchanged tuple');
+    assert.match(snapshot(child), /^iterations: 3$/m, 'consumed count belongs to the introducing commit');
+    assert.match(snapshot('HEAD'), new RegExp(`^iterations: ${index + 4}$`, 'm'));
+  }
 });
