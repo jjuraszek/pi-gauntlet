@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.7.0 - 2026-11-15
 
 - Commit subjects, squash subjects and PR titles use one plain imperative sentence without a label prefix, with an explanatory commit body. Loop attribution uses the ledger's `returned:` header or an outside-ledger return file; repair counters and window resets use ledger decisions. Resume converts legacy attribution once before using the ledger protocol.
 
