@@ -14,6 +14,7 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 
 ## Expected to move
 
+- merge-plan-file-withheld/lookup: fails -> holds - Preserve the failed tree-lookup error and both paired paths instead of inferring absence from an empty result or a deletion diff; no model replay is recorded.
 - merge-landed-message/message: fails -> holds - Compose only a plain landed message from supplied outcomes; no policy choice, settings read or delivery simulation. This hypothesis has no current isolated replay.
 - fix-row-return-file/admission: fails -> holds - Classify the present file as admissible and the absent file as a validation miss, without trusting message attribution or applying later accounting. This hypothesis has no current isolated replay.
 - fix-row-file-observation/admission: fails -> holds - Admit a matching file or record one uncharged validation miss for missing, unreadable or mismatched files; clear pending without adding a header and delete the file.
@@ -63,6 +64,10 @@ For batch-failure-retry, keep a successful child's final marker and concrete squ
 Validate bypass-merge-pick-revoked for the WRITE/MAINTAIN identity rule and menu-rows-omitted for ownership and recommendation. Regenerate selected saved results only for required freshness assertions, failing facts or facts that exercise edited text. Preserve unrelated results at their recorded skillSha; reports name final-text coverage and earlier branch revisions separately.
 
 D8 assembles the frozen baseline with menu slices migrated to menus.md and without the deleted decision-menu.md; that baseline no longer proves the original 11-template flow. Candidate wording and operations remain testable. Preserve verification, repair, sync, CI watch, merge preconditions, compare-and-swap, accounting and run-record authority.
+
+## Isolated plan-free head coverage
+
+Withhold merge while either exact artifact paired with the carried spec remains in the assessed tree, and preserve lookup errors instead of interpreting empty stdout as absence. The merge-plan-file-withheld sample exercises only a saved failed-lookup decision, not assessment or delivery; it has no model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-plan-free-head.test.mjs`: the test executes the embedded Plan-free head recipe against synthetic Git trees for added, unchanged and deleted artifacts, unrelated plans, custom and quoted paths, lookup failure and PR-only scope. Checkout and index decoys do not change tree results. This is isolated deterministic coverage; no live merge, model checklist or workflow replay runs. Preserve all existing sample results as earlier evidence.
 
 ## Isolated merge-message command coverage
 

@@ -82,6 +82,8 @@ Resolve every unmet merge prerequisite; retain failed prerequisites and append c
 | Refused lease or moved remote under local rewrite | Compare remote against repair.wave.sync.expected_remote_head and reset to repair.wave.sync.pre_head for a loop rewrite (entry sync without that checkpoint uses its own pre_head), assert exact HEAD and tracked-clean state, then `stuck - remote head moved`; assertion failure hard-stops. |
 | Sync failed | Restore and assert before `stuck - sync: <reason>`; failed assertion hard-stops. |
 | Disabled merge policy at readiness | Read existing repository policy flags; `merge policy <policy> is disabled on <owner>/<repo>`. |
+| Paired task artifact present at the assessed head | Keep one file blocker per path from `### Plan-free head`; draft removal through `findings.md` and repair only under delivery authority. |
+| Assessed-head tree lookup failed | Exit `stuck - tree lookup failed` with the path and actual lookup error from `### Plan-free head`; retain the failed prerequisite. |
 | PR state no longer OPEN | Render closed PR, not another iteration. |
 | Runtime guard refused dispatch | Surface `stuck - phase-tracker fix-round guard: <its reason>` verbatim; never bypass it. |
 | Missing credentials, unresolved fallback evidence or missing claim disposition/provenance | Exit with concrete missing evidence/input; preserve failed prerequisites. |
@@ -127,8 +129,37 @@ All must hold before `merge` executes; a `merge` pick while one fails is refused
 - `merge_state_status` is not `UNKNOWN` or `unreadable`, and the pre-menu refresh succeeded (`### Pre-menu refresh`). For `BLOCKED`, require fresh `permissions.bypass_eligible == true`; lift only this merge-state withhold and keep every other precondition binding. Treat false or unreadable eligibility as no bypass. A non-`BLOCKED` value is never a verdict - it only leaves this row satisfied, and a `gh pr merge` refusal is reported verbatim
 - no retained, unreviewed comment delta (`### Re-render` step 4)
 - worktree tracked-clean and synced with the remote head (fixes pushed first)
+- no paired task plan or loop ledger in the assessed head's tree; run `### Plan-free head`
 - the repo allows the resolved merge policy: read `gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'` and require the policy's flag (`squash` -> `allow_squash_merge`, `merge-commit` -> `allow_merge_commit`, `rebase` -> `allow_rebase_merge`) to be `true`; a `false` is a blocker on the `merge` pick, named as `merge policy <policy> is disabled on <owner>/<repo>`, never a `gh pr merge` failure
 - the compare-and-swap below passes
+
+### Plan-free head
+
+Set `SCOPE_SOURCE` from `scope.source`, `SPEC_PATH` from the carried `scope.path` (repo-relative), and `ASSESSED_SHA` from the assessed `headRefOid`. Run this Bash check from the PR worktree to inspect the sibling `plans` directory for the same-basename task plan and `<spec stem>-ledger.md`. Skip this precondition for a PR-only scope. Use the tree lookup, not the checkout or diff: a deletion in the diff is not evidence of presence at the head.
+
+```bash
+(
+  [ "$SCOPE_SOURCE" = spec ] || exit 0
+  PLAN_DIR="$(dirname "$(dirname "$SPEC_PATH")")/plans"
+  PLAN_DIR=${PLAN_DIR#./}
+  SPEC_FILE=${SPEC_PATH##*/}
+  PLAN_CHECK=0
+  for PLAN_PATH in "$PLAN_DIR/$SPEC_FILE" "$PLAN_DIR/${SPEC_FILE%.md}-ledger.md"; do
+    if TREE_ENTRY=$(git ls-tree --name-only "$ASSESSED_SHA" -- "$PLAN_PATH" 2>&1); then
+      if [ -n "$TREE_ENTRY" ]; then
+        printf '%s is a plan file finish removes before landing\n' "$PLAN_PATH"
+        PLAN_CHECK=1
+      fi
+    else
+      printf 'Tree lookup failed for %s: %s\n' "$PLAN_PATH" "$TREE_ENTRY"
+      PLAN_CHECK=1
+    fi
+  done
+  exit "$PLAN_CHECK"
+)
+```
+
+Exit 0 satisfies only this precondition. On a nonzero exit, withhold `merge`, name every reported path and preserve any lookup error; route through `### Exit check`. Re-evaluate on every assessed-head change before readiness or a merge pick. Keep a failed lookup separate from a successful empty result; only the latter proves absence.
 
 ### Compare-and-swap
 
