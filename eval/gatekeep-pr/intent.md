@@ -63,3 +63,7 @@ For batch-failure-retry, keep a successful child's final marker and concrete squ
 Validate bypass-merge-pick-revoked for the WRITE/MAINTAIN identity rule and menu-rows-omitted for ownership and recommendation. Regenerate selected saved results only for required freshness assertions, failing facts or facts that exercise edited text. Preserve unrelated results at their recorded skillSha; reports name final-text coverage and earlier branch revisions separately.
 
 D8 assembles the frozen baseline with menu slices migrated to menus.md and without the deleted decision-menu.md; that baseline no longer proves the original 11-template flow. Candidate wording and operations remain testable. Preserve verification, repair, sync, CI watch, merge preconditions, compare-and-swap, accounting and run-record authority.
+
+## Isolated merge-message command coverage
+
+The merge-command-quoting sample exercises one merge-commit command with an already composed subject and body; it executes nothing. It has no saved model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs`: the test executes only the three policy command templates with a capturing gh function, including optional admin arguments, quoted data and a body path with spaces. It reuses only the message examples from the historical merge-landed-message results, not their workflow claims or judgments. No new model call, real merge, GitHub behavior or workflow replay is covered.

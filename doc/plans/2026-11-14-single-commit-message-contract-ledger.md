@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 19
+iterations: 20
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -20,7 +20,7 @@ allowance: 10
 | 10 | done | 1 | timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs; 9 passed, 0 failed; shipped conversion recipe preserves counts and commits once; isolated legacy-ledger-conversion eval passes both model cells |
 | 11 | done | 1 | timeout -k 30 90 node --test scripts/finish-landed-message.test.mjs; 10 passed, 0 failed; saved message examples reused; isolated commit and PR argv checks, no model or workflow replay |
 | 12 | done | 1 | timeout -k 30 90 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; executed body-only Git recipe and record selector; saved renderings reused, no model or workflow replay |
-| 13 | open | 0 | |
+| 13 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs; 23 passed, 0 failed; isolated policy argv/stdin checks preserve message, head guard and optional admin flag; saved message examples only, no new model calls, real merges or workflow replay |
 | 14 | open | 0 | |
 | 15 | open | 0 | |
 | 16 | open | 0 | |
@@ -48,3 +48,4 @@ row 9 done | Checked ledger-held home resume with real Git reads and an isolated
 row 10 done | Added a one-commit legacy conversion recipe with preserved repair counts and an idempotent second call. | Reuse scripts/loop-legacy-conversion.test.mjs for the Git recipe and eligibility replay; prior resume eval hashes need refresh.
 row 11 done | Proved finish's squash and PR wording with saved message examples and isolated commit/title checks. | Reuse scripts/finish-landed-message.test.mjs for message shape, ticket placement and local caller checks; no workflow replay or fresh model run.
 row 12 done | Fixed finish's digest to scan body-only audit rows; isolated Git fixtures and saved rendering checks pass. | Reuse scripts/finish-amendment-digest.test.mjs for record selection, range and empty-digest controls; saved replies cover rendering only.
+row 13 done | Made gatekeep's three merge commands explicit; isolated argv/stdin checks preserve landed wording and omit message flags for rebase. | Reuse scripts/gatekeep-merge-message.test.mjs for command construction and saved message shapes; merge-command-quoting is an unrun single-command fixture.
