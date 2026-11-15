@@ -19,7 +19,8 @@ function fixture() {
   const env = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',
     GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
     GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid',
-    ledger_path: ledger, conversion_subject: subject };
+    CHECKOUT: cwd, ledger_path: ledger, conversion_subject: subject };
+  const primary = mkdtempSync(join(tmpdir(), 'loop-legacy-primary-'));
   const git = (...args) => execFileSync('timeout', ['-k', '30', '10', 'git', ...args], {
     cwd, env, encoding: 'utf8', timeout: 45_000, stdio: ['ignore', 'pipe', 'pipe'],
   }).trimEnd();
@@ -40,7 +41,7 @@ function fixture() {
     const recipe = reconstruction.match(/<!-- ledger-conversion-shell -->\s*```bash\n([\s\S]*?)\n```/);
     assert.ok(recipe, 'resume must supply an executable legacy conversion recipe');
     return spawnSync('timeout', ['-k', '30', '30', 'bash', '-c', recipe[1]], {
-      cwd, env, encoding: 'utf8', timeout: 65_000,
+      cwd: primary, env, encoding: 'utf8', timeout: 65_000,
     });
   };
   return { cwd, ledger, file, git, commit, convert, read: () => readFileSync(file, 'utf8') };
@@ -132,7 +133,7 @@ test('legacy companion bodies feed the production five-argument admission shell'
     const saved = join(mkdtempSync(join(tmpdir(), 'legacy-home-')), 'ledger.md');
     writeFileSync(saved, `iterations: 1\n${pending}\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n| 1 | open | 0 | |\n\n## Leg mapping\n| row | AC | leg |\n|---|---|---|\n| 1 | 1 | companion |\n\n## Decisions\n`);
     const result = spawnSync('timeout', ['-k', '30', '30', 'bash', '-ec', `${adapter[1]}\n${admission}`], {
-      cwd: f.cwd, encoding: 'utf8', timeout: 65_000,
+      cwd: mkdtempSync(join(tmpdir(), 'legacy-adapter-primary-')), encoding: 'utf8', timeout: 65_000,
       env: { ...process.env, CHECKOUT: f.cwd, PENDING: pending, ITERATION: '1', SAVED_LEDGER: saved },
     });
     assert.equal(result.status, 0, result.stderr);

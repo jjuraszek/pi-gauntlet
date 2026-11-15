@@ -1,6 +1,8 @@
-for: faa47f0c2124a36cc212addfab2bf037edfe0f38d1fcaecd0b3b9e025b256d3a
+for: 254ff066a00a829521bb76dffd775263c18ca7115ca0e8fa9dbc454ffeaa516a
 
 ## Change
+
+Extract empty-child stagnation to its required reference without changing its instructions. Include that reference in the replay assembly. Validate wiring and size deterministically only; preserve saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 Use shared wording at loop commit sites and pass its absolute path plus the resolved ticket to workers. Admit home returns through the ledger's returned/pending tuple and consumed iterations, and companion returns through a checkout-local file. Record repairs and count attempts in ledger decisions rather than commit messages. Select returned-line-admission only; retain other samples and result records without claiming current coverage.
 
 ## Expected to move

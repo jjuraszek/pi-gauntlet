@@ -38,7 +38,7 @@ test('normal and draft PR options and gatekeep reuse the same read-only note rul
   assert.match(pr, /Option 1's push and `gh pr create` commands with `--draft` added/);
   const reads = preconditions.match(/`gh api repos\/<owner>\/<repo> --jq '[^']+'`/g);
   assert.deepEqual(reads, ["`gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`"]);
-  assert.match(merge, /Read \[commit-message.md\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
+  assert.match(merge, /Read \[commit message\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
   assert.match(merge, /Apply the reference's Squash-default note using `squash_merge_commit_message` from the Merge preconditions repository-settings read; print nothing for a failed read and never write settings/);
   assert.doesNotMatch(merge, /gh api repos\//);
   assert.deepEqual(printedNotes(pr + merge), [], 'callers cite the note instead of duplicating its text');

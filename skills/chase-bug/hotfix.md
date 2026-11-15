@@ -44,7 +44,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `maxIterationsPerRow` (default 4) as the ledger allowance. Resolve
    `gauntlet_setting({ key: "escalationLoop" })` and retain `implModel`;
    require it only at the escalated dispatch under Attempt budget. Any settings
-   error -> abort (pre-land). Nothing exists yet. Read [commit-message.md](../finishing-a-development-branch/reference/commit-message.md); resolve its absolute path and the ticket named in the record once. Pass them as `wording:` and `ticket:` to every worker and use the reference for inline commits and landing.
+   error -> abort (pre-land). Nothing exists yet. Read [commit message](../finishing-a-development-branch/reference/commit-message.md); resolve its absolute path and the ticket named in the record once. Pass them as `wording:` and `ticket:` to every worker and use the reference for inline commits and landing.
 3. **Worktree.** From the primary checkout:
 
    ```bash

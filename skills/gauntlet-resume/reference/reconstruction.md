@@ -126,20 +126,23 @@ Use this decoder only for a ledger without `returned:`. After legacy pending rec
 
 Run from the supplied home worktree after step 4.2 reaches a clean, tuple-free allowance ledger. Set `ledger_path` to its repo-relative path and `conversion_subject` to the shared Returns conversion on resume sentence. Require Python 3; on an unavailable interpreter stop before writing. Use this recipe for the conversion commit, not a second hand-written edit or commit. Stop on a failed command and retain its error and working state.
 
+Set `CHECKOUT` to the resolved home worktree's absolute path and `ledger_path` to its repo-relative ledger path.
+
 <!-- ledger-conversion-shell -->
 ```bash
-python3 - "$ledger_path" "$conversion_subject" <<'PY'
+python3 - "$CHECKOUT" "$ledger_path" "$conversion_subject" <<'PY'
 from pathlib import Path
 import re
 import subprocess
 import sys
 
-path, subject = sys.argv[1:]
+checkout, path, subject = sys.argv[1:]
+ledger = Path(checkout) / path
 
 def git(*args, **kwargs):
-    return subprocess.check_output(["git", *args], text=True, **kwargs)
+    return subprocess.check_output(["git", "-C", checkout, *args], text=True, **kwargs)
 
-text = Path(path).read_bytes().decode("utf-8")
+text = ledger.read_bytes().decode("utf-8")
 header_text = text.split("\n|", 1)[0]
 if re.search(r"^returned:", header_text, re.M):
     sys.exit(0)
@@ -174,7 +177,7 @@ if text.count("\n## Decisions\n") != 1:
 converted = re.sub(r"^allowance: " + allowance + r"$", r"\g<0>\nreturned: none", text, count=1, flags=re.M)
 if decisions:
     converted += ("" if converted.endswith("\n") else "\n") + "\n".join(decisions) + "\n"
-Path(path).write_bytes(converted.encode("utf-8"))
+ledger.write_bytes(converted.encode("utf-8"))
 git("add", "--", path)
 git("commit", "-q", "-F", "-", "--", path, input=subject + "\n")
 PY

@@ -6,7 +6,8 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 const driver = readFileSync(new URL('../skills/loop-implementation/SKILL.md', import.meta.url), 'utf8');
-const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0];
+const stagnation = readFileSync(new URL('../skills/loop-implementation/reference/empty-child-stagnation.md', import.meta.url), 'utf8');
+const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0] + '\n' + stagnation;
 const ledgerPath = 'docs/ledger.md';
 const env = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',
   GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
@@ -37,7 +38,7 @@ function ledger({ returned = 'none', attempts = 1, status = 'failed', decision =
 // Execute the shipped recipes, not a JavaScript reimplementation of stagnation.
 // The instructions own selection and hint rendering; assertions below pin their rule.
 function recipe(checkout, text, values) {
-  assert.ok(driver.includes(`\`${text}\``), `missing production recipe: ${text}`);
+  assert.ok((driver + '\n' + stagnation).includes(`\`${text}\``), `missing production recipe: ${text}`);
   let command = text;
   for (const [token, value] of Object.entries(values)) command = command.replaceAll(token, value);
   assert.doesNotMatch(command, /<[^>]+>/, 'substitute every recipe input');

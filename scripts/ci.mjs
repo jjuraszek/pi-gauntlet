@@ -243,7 +243,7 @@ const tokenChecks = [
   // #27 gate removal / amendment path
   ["skills/brainstorming/SKILL.md", "## Amending an approved spec", true],
   ["skills/writing-plans/SKILL.md", "#amending-an-approved-spec", true],
-  ["skills/subagent-driven-development/SKILL.md", "#amending-an-approved-spec", true],
+  ["skills/subagent-driven-development/reference/prerequisites.md", "#amending-an-approved-spec", true],
   ["skills/finishing-a-development-branch/SKILL.md", "#amending-an-approved-spec", true],
   ["skills/brainstorming/SKILL.md", "Ask once whether the design replaces", false],
   ["skills/brainstorming/SKILL.md", "get approval after each", false],
@@ -421,7 +421,7 @@ if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass token
   if (resumeSkill.includes("restart pi in <worktree>")) {
     fail("gauntlet-resume: same-repo worktrees must not require restarting pi in the worktree");
   }
-  if (/\bgit (?!-C <worktree>)/.test(reconstruction)) {
+  if (/\bgit (?!-C (?:<worktree>|"\$CHECKOUT"))/.test(reconstruction)) {
     fail("gauntlet-resume reconstruction: git commands must target the resolved worktree with -C");
   }
   if (errors.length === resumeErrorsBefore) ok("gauntlet-resume targets same-repo worktrees by path");

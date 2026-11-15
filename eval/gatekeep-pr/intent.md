@@ -1,6 +1,8 @@
-for: c52bb780f8555ebff22ff3ace624f5fb4278e9448c145e0708bc9173a1b4760b
+for: e290cbf5e851ff41e2cfe209a36702d56efab8fca2d02ffbcf194e174d993a62
 
 ## Change
+
+Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
 Select only fix-row-file-observation for the model-owned admission decision: readable matching, missing, unreadable and mismatched file observations, with immediate attempts, pending, round-charge and deletion effects. Keep the external ledger pending-only. Execute transport recipes and companion parsing separately in scripts/loop-outside-return.test.mjs; no worker, review, push or whole-wave replay runs. Preserve fix-row-return-file and other historical sample evidence; coverage is partial. The remaining Change paragraphs describe separate retained work.
 

@@ -1,6 +1,8 @@
-for: edb53c7f1cca1b37f7b2bc5b59fbfda738a6d5db86c380ba7fa8336b9fb55546
+for: 4f6330598314c4b98b6a02af232c9264e75b4e2e20113fd9eb1866be96a3bd9e
 
 ## Change
+
+Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
 Keep merge preconditions, exact-head CI evidence and fresh viewer-relative bypass eligibility unchanged. Render the ordinary merge row as using your admin override when eligible, explain required checks passed in plain prose, and leave raw merge-state and review-decision fields under show evidence. Keep one merge row and no bypass row. The replay wrapper requests three unlabeled report parts rather than field labels or raw accounting.
 

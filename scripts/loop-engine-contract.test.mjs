@@ -10,6 +10,7 @@ import './loop-home-admission.test.mjs';
 const root = new URL('../', import.meta.url);
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const stagnation = readFileSync(new URL('skills/loop-implementation/reference/empty-child-stagnation.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const field of ['iteration', 'spec', 'ledger', 'base', 'target', 'previous decision', 'hint']) {
     assert.ok(driver.includes(`${field}:`), field);
@@ -34,7 +35,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
     'a cut row or a different selected target carries none',
     'Apply rule 2 before rule 3; a rule-3 hint dispatches through rule 4',
     'Two consecutive validation misses on a row set its rule-3 hint',
-  ]) assert.ok(driver.includes(token), token);
+  ]) assert.ok((driver + '\n' + stagnation).includes(token), token);
   assert.doesNotMatch(driver, /Only retry starts new windows|stagnation stops without dispatch|validation misses stop because/);
   const rule3 = driver.split('\n| 3 |')[1].split('\n')[0];
   assert.doesNotMatch(rule3, /Human stop/);

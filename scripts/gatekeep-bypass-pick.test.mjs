@@ -11,7 +11,12 @@ test('merge execution confines the flag to bypass and consumes refusals before s
   const merge = section('### Merge course', '### Re-render');
   assert.match(merge, /Append `--admin` only on the bypass path: `merge_state_status == BLOCKED` and `permissions.bypass_eligible == true`/);
   assert.match(merge, /Omit `--admin` on every other path/);
-  assert.match(merge, /`squash` -> `--squash`, `merge-commit` -> `--merge`, `rebase` -> `--rebase`/);
+  for (const [policy, flag] of [['squash', '--squash'], ['merge-commit', '--merge'], ['rebase', '--rebase']]) {
+    const row = merge.split('\n').find(line => line.startsWith(`| \`${policy}\` |`));
+    assert.ok(row, `${policy}: merge command row`);
+    const flags = row.match(/--(?:squash|merge|rebase)\b/g);
+    assert.deepEqual(flags, [flag], `${policy}: only its resolved merge flag`);
+  }
   assert.match(merge, /nonzero exit, print gh's error verbatim, consume the selection without retry/);
   assert.match(merge, /no second attempt with or without `--admin`/);
   assert.match(merge, /re-run `### Pre-menu refresh`/);

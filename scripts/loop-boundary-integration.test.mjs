@@ -27,7 +27,7 @@ test('verification repair dispatch carries blocking bounds and owned jobs into t
     assert.match(docs, /jobs.*pre-bump task iteration/);
     assert.doesNotMatch(docs, /repair child (?:records|writes|uses) no jobs file|repair child does not (?:record|write|use).*jobs/);
   }
-  assert.ok(Buffer.byteLength(driver) < 50_000);
+  assert.ok(Buffer.byteLength(driver) < 45_000);
   assert.ok(driver.split('\n').length < 500);
 });
 

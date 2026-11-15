@@ -101,17 +101,19 @@ test('wave commit roots every git command in the implementation worktree', () =>
   const implementation = fixture();
   const before = git(primary.repo, 'status', '--porcelain');
   const primaryHead = git(primary.repo, 'rev-parse', 'HEAD');
-  const recipe = wave.match(/\*\*Commit\.\*\*[^\n]*isolated waves `([^`]+)`/)[1];
+  const recipe = wave.match(/\*\*Commit\.\*\*[^\n]*For isolated waves run `([^`]+)`/)[1];
   const command = recipe.replaceAll('<worktree>', quote(implementation.repo))
-    .replaceAll('$WAVE_BASE_SHA', implementation.base)
-    .replaceAll('<message>', quote('wave commit'));
-  const result = spawnSync('bash', ['-e', '-c', command], { cwd: primary.repo, encoding: 'utf8' });
+    .replaceAll('$WAVE_BASE_SHA', implementation.base);
+  assert.match(command, /commit -F -$/);
+  const message = 'Repair the fixture wave\n\nKeep the staged task changes.\n';
+  const result = spawnSync('bash', ['-e', '-c', command], { cwd: primary.repo, input: message, encoding: 'utf8' });
   assert.equal(result.status, 0, result.stderr);
   assert.equal(git(primary.repo, 'rev-parse', 'HEAD'), primaryHead);
   assert.equal(git(primary.repo, 'status', '--porcelain'), before);
   assert.notEqual(git(implementation.repo, 'rev-parse', 'HEAD'), implementation.base);
   assert.equal(git(implementation.repo, 'status', '--porcelain'), '');
   assert.equal(git(implementation.repo, 'rev-parse', 'HEAD^'), implementation.base);
+  assert.equal(git(implementation.repo, 'show', '-s', '--format=%B', 'HEAD'), message.trimEnd());
 });
 
 function review(repo, base, head) {

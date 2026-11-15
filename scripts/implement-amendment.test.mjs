@@ -85,7 +85,7 @@ test('handoff and implement entry establish originals with path-scoped staging',
   assert.ok(handoff.includes('compose the plan message from the spec H1 and bound ticket'));
   assert.ok(handoff.includes('reference/commit-message.md'));
   assert.ok(handoff.includes('supplying the composed message on stdin'));
-  const sdd = read('skills/subagent-driven-development/SKILL.md');
+  const sdd = read('skills/subagent-driven-development/reference/prerequisites.md');
   assert.match(sdd, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
   assert.match(sdd, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
 });

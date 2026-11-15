@@ -80,7 +80,7 @@ Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the
 
 ### Shared worker context
 
-Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed.
+Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed.
 
 Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Mint a fresh output path per dispatch with `mktemp "${TMPDIR:-/tmp}/gatekeep-row.XXXXXX"`.
 

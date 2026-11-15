@@ -1,6 +1,8 @@
-for: 5f4ba13fe2e48a6a84a4aff74419395245b824f81823a65542df01b3cacc14d0
+for: 3c9f8b4f7a4f799b90da0244dd91699318fdff9a0a37ec120986dd4d2a0ab9f0
 
 ## Change
+
+Extract wave prerequisites to their required reference without changing their instructions. Include that reference in the replay assembly. Validate wiring and size deterministically only; preserve saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
 Compose committed-originals and accepted-wave messages through the shared commit-message reference using held spec metadata and manifest headings. Preserve scoped entry staging, delegated source reads, isolated reset semantics and completion after the wave commit. Keep wave-commit-wording/boundary passing.
 Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
