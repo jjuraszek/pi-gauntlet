@@ -1,0 +1,34 @@
+{
+  "sample": "status-context-line",
+  "arm": "baseline",
+  "skillSha": "ee91cd2631950ecf327b093b4c908d62745d99cd9e3749a2abbd561da781e06a",
+  "inputSha": "61c134a19726bdcc95c903925287e1afbd19007ac17012284c388aa4007b49c1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\n1. **Target.** `--key context-check` was given without `--out`, so the key is passed to cohort verbatim.\n2. **Cohort procedure.** I located pi-cohort through `pi list`, followed `<root>/skills/handoff/SKILL.md` with `--key context-check`, and pinned the snapshot to the run home `/work/app/.worktrees/context-check`. Cohort reported `Handoff written: /tmp/pi-handoff/context-check.md`.\n3. **Path.** I took the path from cohort's report. Line 1 is `# Handoff: Context check`, so the check passes.\n4. **No double section.** The file contains no `## Process state` line.\n5. **No hotfix.** `skills/chase-bug/hotfix.md` is not in context.\n6. **Append.** I read both trackers with `status` only and did not mutate them.\n   - A phase (`plan`) is `in_progress`, so the process-state section is appended.\n   - The run has a task plan, so the section uses `Active task`, set to the first `→` task.\n   - There is no PR, Rework record, rework base, loop ledger or coordinated block.\n   - Both status outputs are copied verbatim, including the `Context:` line.\n   - The append is one write:\n\n```bash\ncat >> \"/tmp/pi-handoff/context-check.md\" <<'EOF'\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\nContext: 26.0% of window\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\nEOF\n```\n\nThe cohort core above `## Skills loaded` is unchanged. A re-read of the file tail shows it ends with the gate-history line:\n\n```text\n## Skills loaded\n...\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\nContext: 26.0% of window\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\n```\n\n**Brief:** `/tmp/pi-handoff/context-check.md`\n\nThe brief records `worktree: yes /work/app/.worktrees/context-check`, so no override argument is needed. Resume with:\n\n```\n/skill:gauntlet-resume /tmp/pi-handoff/context-check.md\n```\n",
+      "words": 281,
+      "wallMs": 13407,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nPreserve cohort’s six core headings and append once to its reported file:\n\n```sh\ncat >> \"/tmp/pi-handoff/context-check.md\" <<'EOF'\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\nContext: 26.0% of window\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\nEOF\n```\n\nRe-read the tail to confirm it matches the appended block and ends with the gate-history line, with nothing after it.\n\nHandoff written: `/tmp/pi-handoff/context-check.md`\n\nResume with:\n```text\n/skill:gauntlet-resume /tmp/pi-handoff/context-check.md\n```\n",
+      "words": 93,
+      "wallMs": 7817,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "7bfb7b2c3d30f1dc101781018733678406bfd8a5"
+}

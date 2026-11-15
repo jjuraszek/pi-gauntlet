@@ -48,9 +48,11 @@ inline. `## Repo state` is matched by prefix: `## Repo state` or
 ## Producers
 
 `gauntlet-handoff` is the only writer of `## Process state`; it appends to the file
-cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Layout, byte-exact:
-one blank line, the heading on its own line, a blank line, the `phase_tracker status`
-output verbatim, a blank line, the `plan_tracker status` output verbatim, a blank line,
+cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Drop exactly the last
+line of the `phase_tracker status` output when it starts with `Context: `; copy the
+rest verbatim. Layout, byte-exact: one blank line, the heading on its own line, a
+blank line, that phase status, a blank line, the `plan_tracker status` output
+verbatim, a blank line,
 `Active task: <name|none>`, then, only for a PR subject, one or more consecutive
 `PR: <owner/repo#N>` / `Pre-rework head: <40-char sha>` pairs, one per record group,
 home first, in record order, then optional single `Rework base: <40-char sha>` after all PR pairs, then the optional coordinated block below, then the gate-history line after the last pair, rework-base line, or block -
@@ -188,7 +190,7 @@ a plan added after base pairs with it by basename. Zero specs -> stop; more than
 human picks. The consumer carries this path to its entry check 6 and its post-restore
 announcement without re-resolving it.
 
-Honor SKILL.md entry check 6's deferred stop before any process-state arming call below; carry the resolved spec path without re-discovery. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after option 6's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
+Honor SKILL.md entry check 6's deferred stop before any process-state arming call below; carry the resolved spec path without re-discovery. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after row 4's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
 
 | Active | Calls, in order |
 |---|---|
