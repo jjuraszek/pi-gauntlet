@@ -4,7 +4,6 @@ base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
 iterations: 28
-pending: verify | home | 8e7ef8d40be19a701980d6e6f78e74bbc62ea456
 allowance: 10
 
 | row | status | attempts | evidence |
