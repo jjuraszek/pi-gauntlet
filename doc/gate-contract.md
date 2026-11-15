@@ -24,6 +24,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | brainstorming/cut-question | question | skills/brainstorming/reference/ticket-acceptance.md | # Ticket Handling | X) options |
 | brainstorming/relatedness-before-provisioning | question | skills/brainstorming/reference/pr-subject.md | ## Relatedness before provisioning | X) options |
 | brainstorming/user-review-gate | gate | skills/brainstorming/reference/spec-finalization.md | ## User Review Gate | 1 - rows |
+| brainstorming/user-review-gate | gate | skills/brainstorming/reference/spec-pr.md | ## Publish row 4 | 4 - create-only retry |
 | brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## 4. Human batch - one menu | item-letter |
 | brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## Worked example | item-letter |
 | writing-plans/step-6-baseline-failure | question | skills/writing-plans/SKILL.md | ## Author the plan | X) options |

@@ -40,7 +40,7 @@ EOF
 | Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
 | Create succeeds | Print URL, then ``Continue: start a fresh session, then run `/skill:brainstorming #<N>`.`` with the returned PR number before completing brainstorm; then perform ownership-based cleanup below. |
 
-Render the create-only retry view at every context reading, including 25% or lower and `Context: unknown`:
+Render the create-only retry view per [menu-layout.md](menu-layout.md) at every context reading, including 25% or lower and `Context: unknown`:
 
 ```text
 gauntlet: gate=brainstorming/user-review-gate recommended=4
