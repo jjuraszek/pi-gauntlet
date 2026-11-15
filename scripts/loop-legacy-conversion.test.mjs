@@ -67,14 +67,22 @@ test('the shipped conversion recipe preserves legacy counts and commits exactly 
   writeFileSync(join(f.cwd, 'unrelated.txt'), 'Not a ledger repair\n');
   f.git('add', '--', 'unrelated.txt');
   f.git('commit', '-qm', 'loop: repair seed');
+  repairs.push(`repair seed | converted | converted ${f.git('rev-parse', '--short=7', 'HEAD')}`);
+  f.git('commit', '--allow-empty', '-qm', 'loop: repair verification');
+  repairs.push(`repair verification | converted | converted ${f.git('rev-parse', '--short=7', 'HEAD')}`);
+  const base = f.read().match(/^base: (.+)$/m)[1];
+  const legacySubjects = f.git('log', '--format=%s', `${base}..HEAD`).split('\n');
   const before = f.read();
   const head = f.git('rev-parse', 'HEAD');
   const result = f.convert();
   assert.equal(result.status, 0, result.stderr);
   const converted = f.read();
   assert.equal(converted, before.replace('\nallowance: 4\n', '\nallowance: 4\nreturned: none\n') + repairs.join('\n') + '\n');
-  assert.equal(converted.match(/^repair seed \|/gm)?.length, 2);
-  assert.equal(converted.match(/^repair verification \|/gm)?.length, 2);
+  for (const kind of ['seed', 'verification']) {
+    const legacyCount = legacySubjects.filter(value => value === `loop: repair ${kind}`).length;
+    assert.equal(legacyCount, 3, `${kind}: fixture includes a marker without a ledger diff`);
+    assert.equal(converted.match(new RegExp(`^repair ${kind} \\|`, 'gm'))?.length, legacyCount);
+  }
   assert.equal(f.git('rev-list', '--count', `${head}..HEAD`), '1');
   assert.equal(f.git('show', '-s', '--format=%B', 'HEAD'), subject);
   assert.equal(f.git('diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD'), f.ledger);

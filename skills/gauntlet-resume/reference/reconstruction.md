@@ -120,7 +120,7 @@ At step 4.2, after pending recovery and allowance migration reach a clean tuple-
 <!-- legacy-commit-labels:begin -->
 ### Legacy repair markers
 
-Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD -- <ledger path>`, validates each matching repair's committed iterations and reads its body, then writes the header and decisions together. Use the body's first line with pipes escaped, or `converted` when empty, and retain `converted <sha7>` as provenance. Keep all subject decoding inside this legacy converter.
+Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD`, validates each matching repair's committed iterations and reads its body, then writes the header and decisions together. Use the body's first line with pipes escaped, or `converted` when empty, and retain `converted <sha7>` as provenance. Keep all subject decoding inside this legacy converter.
 
 #### Conversion recipe
 
@@ -158,7 +158,7 @@ base = field(text, "base", r"[0-9a-f]{40}")
 allowance = field(text, "allowance", r"[1-9][0-9]*")
 markers = {"loop: repair seed": "repair seed", "loop: repair verification": "repair verification"}
 decisions = []
-for line in git("log", "--reverse", "--format=%H %s", base + "..HEAD", "--", path).splitlines():
+for line in git("log", "--reverse", "--format=%H %s", base + "..HEAD").splitlines():
     sha, old_subject = line.split(" ", 1)
     if old_subject not in markers:
         continue
