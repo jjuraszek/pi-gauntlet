@@ -171,6 +171,70 @@ test('legacy companion bodies feed the production five-argument admission shell'
   });
 });
 
+test('legacy pending companion verification keeps the repair and converts its charge exactly once', async t => {
+  assert.ok(Buffer.byteLength(reconstruction) < 50_000, 'reconstruction stays within the instruction byte guard');
+  assert.ok(reconstruction.split('\n').length < 2_000, 'reconstruction stays within the instruction line guard');
+  const legacy = reconstruction.split('### Legacy pending recovery')[1].split('<!-- legacy-commit-labels:end -->')[0];
+  const adapter = legacy.match(/<!-- legacy-companion-body-shell -->\s*```bash\n([\s\S]*?)\n```/)[1];
+  const verification = legacy.match(/<!-- legacy-verification-body-shell -->\s*```bash\n([\s\S]*?)\n```/);
+  assert.ok(verification, 'legacy verify needs body attribution admission instead of the row/seed parser or a new-format return file');
+  assert.match(legacy, /row\/seed targets only/);
+  assert.match(legacy, /commit with the shared Verification repair marker sentence/);
+  assert.match(legacy, /conversion preserves this decision without charging it again/);
+  for (const variant of ['valid', 'wrong tuple', 'wrong iteration']) await t.test(variant, () => {
+    const home = fixture();
+    home.commit('Close the fixture row', home.read().replace('| 1 | open |', '| 1 | done |'));
+    const companion = fixture();
+    const before = companion.git('rev-parse', 'HEAD');
+    const homeHead = home.git('rev-parse', 'HEAD');
+    const saved = home.read();
+    const pending = `pending: verify | companion | ${before}`;
+    const dispatched = saved.replace('iterations: 0', `iterations: 1\n${pending}`);
+    writeFileSync(home.file, dispatched);
+    writeFileSync(join(companion.cwd, 'repair.txt'), 'Keep this verification fix\n');
+    companion.git('add', '--', 'repair.txt');
+    const body = `${variant === 'wrong tuple' ? pending.replace('verify', 'seed') : pending}\niteration: ${variant === 'wrong iteration' ? 2 : 1}\n\nFix the failing check`;
+    companion.git('commit', '-qm', `Fix the failing check\n\n${body}`);
+    const repair = companion.git('rev-parse', 'HEAD');
+    assert.equal(companion.git('rev-list', '--count', `${before}..HEAD`), '1');
+    assert.equal(companion.git('status', '--porcelain'), '');
+    const result = spawnSync('timeout', ['-k', '30', '30', 'bash', '-ec', `${adapter}\n${verification[1]}\nrm -- "$RETURN_FILE"`], {
+      cwd: home.cwd, encoding: 'utf8', timeout: 65_000,
+      env: { ...process.env, CHECKOUT: companion.cwd, PENDING: pending, ITERATION: '1' },
+    });
+    assert.equal(home.git('rev-parse', 'HEAD'), homeHead, 'admission leaves home HEAD unchanged');
+    assert.equal(home.read(), dispatched, 'admission leaves only the expected bump/tuple dirt');
+    assert.equal(companion.git('rev-parse', 'HEAD'), repair, 'admission never resets the valid repair');
+    if (variant !== 'valid') {
+      assert.notEqual(result.status, 0, 'wrong legacy attribution must be rejected');
+      assert.match(result.stderr, /legacy verification attribution mismatch/);
+      return;
+    }
+    assert.equal(result.status, 0, result.stderr);
+    const markerSubject = read('skills/finishing-a-development-branch/reference/commit-message.md')
+      .match(/\| Verification repair marker \| `([^`]+)` \|/)[1];
+    const decision = `repair verification | companion ${repair.slice(0, 7)} | iteration 1\n`;
+    home.commit(markerSubject, dispatched.replace(`${pending}\n`, '') + decision);
+    assert.equal(home.git('show', '-s', '--format=%B', 'HEAD'), markerSubject);
+    const settled = home.read();
+    assert.equal(settled, saved.replace('iterations: 0', 'iterations: 1') + decision);
+    const converted = home.convert();
+    assert.equal(converted.status, 0, converted.stderr);
+    const expected = settled.replace('\nallowance: 4\n', '\nallowance: 4\nreturned: none\n');
+    assert.equal(home.read(), expected, 'conversion preserves rows, attempts and the consumed iteration');
+    assert.equal(home.read().match(/^repair verification \|/gm)?.length, 1, 'one reserved repair becomes one charge');
+    const convertedHead = home.git('rev-parse', 'HEAD');
+    const again = home.convert();
+    assert.equal(again.status, 0, again.stderr);
+    assert.equal(home.git('rev-parse', 'HEAD'), convertedHead, 'a second resume neither marks nor converts again');
+    assert.equal(home.read(), expected);
+    assert.equal(companion.git('rev-parse', 'HEAD'), repair);
+    assert.equal(readFileSync(join(companion.cwd, 'repair.txt'), 'utf8'), 'Keep this verification fix\n');
+    assert.equal(home.git('status', '--porcelain'), '');
+    assert.equal(companion.git('status', '--porcelain'), '');
+  });
+});
+
 test('historical saved replies: isolated decisions select conversion only for an unconverted ledger', async t => {
   const dir = 'eval/gauntlet-resume';
   const sample = 'legacy-ledger-conversion';

@@ -185,7 +185,9 @@ PY
 
 ### Legacy pending recovery
 
-For this decoder, apply the driver's row/decision and boundary checks with legacy attribution below instead of `returned:` or a return file; allow only the consumed iteration and pending removal header deltas. Use the legacy companion body's attributed rows when the tuple names a companion. After the unchanged-home and one-clean-companion-commit boundary passes, set `CHECKOUT`, `PENDING`, `ITERATION` and `SAVED_LEDGER` as `coordinated-legs.md` Companion commit admission requires, then run this adapter:
+Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery.
+
+Select verification admission below for `pending: verify` before the row/seed paths. For row/seed targets, apply the driver's row/decision and boundary checks with legacy attribution instead of `returned:` or a return file; allow only the consumed iteration and pending removal header deltas. Use the legacy companion body's attributed rows when the tuple names a companion. After the unchanged-home and one-clean-companion-commit boundary passes, set `CHECKOUT`, `PENDING`, `ITERATION` and `SAVED_LEDGER` as `coordinated-legs.md` Companion commit admission requires, then run this adapter:
 
 <!-- legacy-companion-body-shell -->
 ```bash
@@ -193,9 +195,30 @@ RETURN_FILE=$(mktemp) || exit 1
 git -C "$CHECKOUT" show -s --format=%b HEAD > "$RETURN_FILE" || exit 1
 ```
 
-Pass this temporary path as the fifth argument (`"$RETURN_FILE"`) to that reference's `companion-return-shell` recipe. Apply its row/seed checks unchanged to the extracted body; never search for a new-format return file during legacy recovery. Remove the temporary file after the home record or validation-miss repair. Finish this recovery before Returns conversion; retain all ambiguous-history questions and before-image stops.
+Pass this temporary path as the fifth argument (`"$RETURN_FILE"`) to that reference's `companion-return-shell` recipe for row/seed targets only. Apply its row/seed checks unchanged to the extracted body; never search for a new-format return file during legacy recovery. Remove the temporary file after the home record or validation-miss repair. Finish this recovery before Returns conversion; retain all ambiguous-history questions and before-image stops.
 
-Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery. Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery before the row/seed paths below; preserve its reserved count and consumed iteration without a second marker or bump.
+Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery with these legacy substitutions:
+
+| Boundary | Legacy verification rule |
+|---|---|
+| Attribution | Read the repair commit body's first two lines instead of a ledger-held return or companion return file. Set `CHECKOUT` to the failing checkout and `PENDING`/`ITERATION` to the retained tuple/consumed count, run the adapter above, then the verification check below, never `companion-return-shell`. Allow repair prose after those two lines. |
+| Protected state | Require the same clean single-commit boundary, unchanged rows, attempts, mapping, allowance and prior decisions. Require unchanged home HEAD and only expected bump/tuple dirt for a companion; require the bumped ledger with pending retained in the home child's commit. Do not require `returned:` on an unconverted ledger. |
+| Settlement | Match existing home `loop: repair verification` marker bodies to the tuple and consumed iteration before writing another marker; leave a settled legacy marker for Returns conversion to decode. For an unsettled admitted or interrupted repair, use the driver's current marker protocol: clear pending, append one `repair verification` decision with the consumed iteration unchanged and commit with the shared Verification repair marker sentence, without machine lines in its message. Keep `returned:` absent until conversion; conversion preserves this decision without charging it again. Delete the temporary body file after settlement. |
+
+<!-- legacy-verification-body-shell -->
+```bash
+python3 - "$RETURN_FILE" "$PENDING" "$ITERATION" <<'PY'
+from pathlib import Path
+import sys
+
+path, pending, iteration = sys.argv[1:]
+lines = Path(path).read_text().splitlines()
+if lines[:2] != [pending, "iteration: " + iteration]:
+    sys.exit("legacy verification attribution mismatch")
+PY
+```
+
+Preserve a matching clean repair commit; use the driver's interrupted reset/recovery only on a rejected boundary. Finish legacy settlement before Returns conversion without a second marker, iteration bump or attempt increment.
 
 With no `pending:` on disk, inspect home commit history before any refresh. Find the latest home child row/seed commit that changed this ledger, even when unrelated commits follow it; read its subject and body with `git -C <worktree> log --format=%H -- <ledger path>` and `git -C <worktree> show -s --format=%B <sha>`. Exclude returns superseded by a parent admission/repair or approved ledger mutation proven by the evidence below; never replay those over the parent's current ledger.
 

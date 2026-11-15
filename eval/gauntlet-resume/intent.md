@@ -1,6 +1,8 @@
-for: eb54f1bd24c8650f96efa70b2bf1f3fbd3fe11dcb0d1accd46a7fb10e7bf70ab
+for: 88304db645d565b5eacef6c37f59e32264a447d06203ce0f4508e89152edb51b
 
 ## Change
+
+Admit a legacy pending companion verification repair from its commit-body tuple and iteration through a verification-only attribution check, not the row/seed parser or a new-format return file. Preserve the valid repair, settle it once with the current ledger-decision marker and convert afterward without another charge. Add legacy-pending-verification for the parent's selected model check; this child runs only scripts/loop-legacy-conversion.test.mjs and does not launch model workers. Its disposable Git fixtures execute attribution and conversion, not the full resume driver. Preserve existing model records as historical partial coverage.
 
 Make the legacy Returns conversion an executable Python/Git recipe in reconstruction's marked converter. Decode exact ledger-touching seed and verification repair subjects after base, preserve all existing bytes except the returned header and appended decisions, and commit once with the shared sentence. Run only legacy-ledger-conversion for eligibility and recipe selection; scripts/loop-legacy-conversion.test.mjs proves the actual isolated conversion, preserved counts and second-call no-op. Preserve all unrelated model records; the changed reconstruction assembly and intent make their currency checks stale until separately refreshed.
 
@@ -67,6 +69,8 @@ Cover home-bound coordinated admission, informational HEAD/dirt drift, membershi
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
 
 ## Expected to move
+- legacy-pending-verification/admission: fails -> holds - Admit the clean companion repair through legacy body attribution without requiring a return file or sending verify to the row/seed parser.
+- legacy-pending-verification/accounting: fails -> holds - Keep the repair and consumed counts, settle with one ledger decision and preserve that charge through conversion.
 - returned-line-recovery/home: fails -> holds - Classify the supplied clean home return from ledger attribution and the before-image without reading messages or incrementing counts again. Replay only this isolated decision; it does not prove executable recovery.
 - legacy-ledger-conversion/eligibility: fails -> holds - Select the supplied Conversion recipe and shared sentence only when returned is absent; otherwise leave the supplied ledger untouched and stop before execution.
 - plan-citation-subject/wording: fails -> holds - Replace the resume label with the fixed citation-repair sentence as the entire subject.
