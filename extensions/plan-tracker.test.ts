@@ -447,6 +447,33 @@ test("refresh projects ledger states, numeric pending targets and live leg mappi
   }
 });
 
+test("refresh ignores returned attribution and repair and amended decisions", async () => {
+  const dir = ledgerFixture("plan-refresh-returned-");
+  const path = join(dir, "ledger.md");
+  const h = harness([], dir);
+  const text = ledger([
+    "1 | done | 1 | check passed", "2 | failed | 1 | check failed", "3 | open | 0 |",
+  ], "row 1 done | check passed | row 2", "allowance: 4");
+  writeFileSync(path, text);
+  const baseline = await h.call({ action: "refresh", path: "ledger.md" });
+  assert.equal(baseline.details.error, undefined);
+  assert.deepEqual(baseline.details.tasks.map(t => [t.name, t.status]), [
+    ["row 1", "complete"], ["row 2", "failed"], ["row 3", "pending"],
+  ]);
+  const decisions = [
+    "repair row 2 | missing decision | iteration 2",
+    "repair seed | seed miss: empty evidence | iteration 3",
+    "repair verification | home abc1234 | iteration 4",
+    "amended | 1 item(s) | Clarify evidence",
+  ].join("\n");
+  for (const returned of ["none", "2 | home | abc1234"]) {
+    writeFileSync(path, text.replace("allowance: 4", `allowance: 4\nreturned: ${returned}`) + "\n" + decisions);
+    const result = await h.call({ action: "refresh", path: "ledger.md" });
+    assert.equal(result.details.error, undefined, returned);
+    assert.deepEqual(result.details, baseline.details, returned);
+  }
+});
+
 test("refresh replaces only whole ledger names, preserves Gn statuses and replays its snapshot", async () => {
   const dir = ledgerFixture("plan-refresh-kept-");
   const path = join(dir, "ledger.md");

@@ -1,0 +1,34 @@
+{
+  "sample": "hotfix-seed-file-observation",
+  "arm": "baseline",
+  "skillSha": "e0ed29476f47b4637287b931429c13b55256feb56a421b994acd096eeff8d850",
+  "inputSha": "870f5c7cbd6e9829db5d0160d165d6d030ed1ba7eee7df2979961e013aed82fa",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Seed admission decision (step 4, `target: seed`)\n\n**Can the commit body replace the file? No, in every variant.** Three reasons:\n\n- **The file is the result carrier.** In this transport, the resolved private return file carries the seed result. The commit is only the test-changing work commit.\n- **The body tuple is old.** It does not match the dispatched `pending: seed | hotfix | aaaa…aaaa` / `iteration: 1`.\n- **The subject is wrong.** If the commit were the carrier, `Capture blank plant rejection` is not `loop: seed evidence`, which would itself be a seed miss.\n\nSo a missing, unreadable or stale file is never repaired from the commit.\n\n## A: readable file with exact tuple, iteration 1, row 1 open 0, exact seed decision\n\n- **Classification:** admitted.\n- **Reason:** The file matches all of the following:\n  - the dispatched tuple\n  - consumed iteration `1`\n  - row `| 1 | open | 0 | <selective failing evidence> |`\n  - decision `row 0 done | seeded 1 rows, closed 0 on baseline | 1`, in the required format\n\n  The row status is not `done`, so there is no \"baseline already passes\" abort. The supplied checks all pass: binding, boundary (clean, one commit), unchanged ledger and a test-changing diff.\n- **Attempts:** stay `0`. Seed admission consumes no attempt.\n- **Pending:** cleared.\n- **Ledger writes:**\n  - Write row 1 as `open | 0 | <evidence>`.\n  - Append the seed decision to `## Decisions`.\n  - Reset the consecutive-miss count.\n  - `iterations` stays at the already-bumped `1`.\n- **Header:** none added beyond the row and decision.\n- **Return file:** read as the admission source and left in place. No deletion is prescribed at this point.\n- **Next:** the first row attempt is next, but it is out of scope here.\n\n## B: return file missing\n\n- **Classification:** seed miss. There is no admissible seed result.\n- **Reason:** No result was returned through the transport. The old commit body cannot stand in for it.\n- **Prescribed outcome:** abort (pre-land), with no seed retry.\n- **Attempts:** stay `0`.\n- **Pending:** stays as written. It is not cleared and nothing is admitted.\n- **Ledger:** no row or decision written.\n- **Header:** none added.\n- **Return file:** nothing to consume. Do not create or synthesize one.\n\n## C: reading the file fails with EACCES\n\n- **Classification:** seed miss.\n- **Reason:** The result is unreadable, so nothing can be validated. A read error is not an admission.\n- **Prescribed outcome:** abort (pre-land), with no seed retry and no read retry.\n- **Attempts:** stay `0`.\n- **Pending:** left in place, not cleared.\n- **Header:** none added.\n- **Ledger:** no row or decision written.\n- **Return file:** left untouched. No chmod or rewrite, and no fallback to the commit body.\n\n## D: readable file with consumed iteration 0\n\n- **Classification:** seed miss (stale or mismatched return).\n- **Reason:** The iteration line must equal the consumed iteration `1` (`i + 1`). A value of `0` fails, even though the rest of the file may look well-formed.\n- **Prescribed outcome:** abort (pre-land), with no seed retry.\n- **Attempts:** stay `0`.\n- **Pending:** left in place, not cleared.\n- **Header:** none added.\n- **Ledger:** no row or decision written.\n- **Return file:** not admitted and left in place as evidence.\n\nI stop here. No row attempt, retry, counter change, cleanup or landing has been run.\n",
+      "words": 498,
+      "wallMs": 27456,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "| Variant | Seed-admission classification | Reason |\n|---|---|---|\n| A | **Seed miss → pre-land abort; no seed retry.** | The required commit subject is `loop: seed evidence`, not `Capture blank plant rejection`. A valid return file cannot override this failure. |\n| B | **Seed miss → pre-land abort; no seed retry.** | The commit subject is invalid. The missing return file does not change the decision. |\n| C | **Seed miss → pre-land abort; no seed retry.** | The commit subject is invalid. The return-file permission error does not change the decision. |\n| D | **Seed miss → pre-land abort; no seed retry.** | The commit subject is invalid. The return file’s iteration does not change the decision. |\n\n**Immediate effects in every variant:** attempts remain **0**; the existing `pending: seed | hotfix | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` remains unchanged; no header, row update, or decision is added to the external ledger. No return file is created, modified, or deleted.\n\n**Commit body versus file:** Step 4 requires validation from the commit, not a private return file. The body is therefore the required source—not a fallback—but it cannot cure the invalid subject. No first row attempt or cleanup is performed here.\n",
+      "words": 175,
+      "wallMs": 11961,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

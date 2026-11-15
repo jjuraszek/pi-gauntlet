@@ -201,9 +201,11 @@ those clauses bind every member. Assign member ticket groups `in-scope` and name
 their ownership through original AC indices in `scope:`. Unmatched groups retain ticket-acceptance's
 `this repo / elsewhere / repair` question; `elsewhere:` creates no leg.
 
-Commit home first using spec-finalization's existing gate and audit. Then write
-one companion file per companion in its own spec directory with the home's
-filename. Use `git -C <companion worktree>` to add and commit that file:
+Commit home first using spec-finalization's gate and audit. Read
+[commit-message.md](../../finishing-a-development-branch/reference/commit-message.md)
+for the companion spec commit's wording and ticket rule. Then write one companion
+file per companion in its own spec directory with the home's filename. Use
+`git -C <companion worktree>` to add and commit that file with the home spec subject:
 
 ```markdown
 # <home spec title>

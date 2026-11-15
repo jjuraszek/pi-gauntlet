@@ -1,0 +1,130 @@
+{
+  "sample": "spec-and-amendment-subjects",
+  "arm": "candidate",
+  "skillSha": "5d39b80176ff30152f8a194459212121d37491c147f5977930a438554f124a85",
+  "inputSha": "d42de2068ff586d08ce9472def29bc03c170b37168567dc796d93b7eedc17b7e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read actions: four independent traces\n\n## Trace A: User Review Gate, home and companion spec commits\n\n1. **Read the gate instructions.** `read` `/package/skills/brainstorming/reference/spec-finalization.md`.\n   - Observed: § User Review Gate requires an unconditional spec commit.\n   - The message goes on stdin through a quoted heredoc.\n   - The body is the council audit verbatim, with any required ticket reference appended after it.\n2. **Read the commit wording.** `read` `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - Observed: the Spec commit word source is `Add the <topic> spec`.\n   - The ticket comes from the spec header's `**Ticket:**` line, which is `#241`.\n   - The overrides `refs:` line puts the ticket in the body as `Refs #241`. No `(ref …)` suffix goes on the subject.\n3. **Read the companion grammar.** `read` `/package/skills/brainstorming/reference/legs.md`.\n   - Observed: commit home first.\n   - The companion file uses the home spec subject and the shared ticket rule, committed through `git -C <companion worktree>`.\n4. **Commit the home spec.** No predecessor changed, and there is no repair line. The command and message are:\n\n```bash\ngit -C /workspace/app add -- doc/specs/profile-cache.md && git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\nAdd the profile caching spec\n\nCoverage: 1 of 1\nApplied:\n- cache | Bound cache lifetime | accepted\nDeferred: none\nRejected: none\n\nRefs #241\nEOF\n```\n\n   - Observed: the commit succeeds.\n5. **Commit the companion spec.** The companion file and block are already validated.\n   - Subject: `Add the profile caching spec`, the same as the home commit.\n   - Ticket: `Refs #241` in the body, under the same convention. The council audit is not repeated there.\n\n```bash\ngit -C /workspace/client add -- doc/specs/profile-cache.md && git -C /workspace/client commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\nAdd the profile caching spec\n\nRefs #241\nEOF\n```\n\n   - Observed: the commit succeeds, and all member files agree.\n6. **Stop.** The trace ends here, before the summary evaluation and the `Read` of `$SUMMARY_PATH` for the gate render.\n\n## Trace B: Consent change to `none`\n\n1. **Read the grant rules.** `read` `/package/skills/brainstorming/reference/amendment-surface.md`, § Standing grants.\n   - Observed: on revocation, write `none`.\n   - If HEAD already carries the new value, commit nothing.\n   - Otherwise, when the spec has no other uncommitted change, compose the Consent change bookkeeping message with one body sentence.\n2. **Read the commit wording.** `read` `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - Observed: the fixed subject is `Change the standing amendment consent`.\n   - The body is whole sentences. Here it is one sentence naming the value.\n   - This is a fixed bookkeeping commit, not a spec, amendment, worker or wave commit. Its body is exactly the one required sentence, so it carries no ticket line.\n3. **Check HEAD.** HEAD holds `auto-apply amends`, and the only dirty change is the authorized consent edit. A commit is required:\n\n```bash\ngit -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\nChange the standing amendment consent\n\nThe standing amendment consent is now none.\nEOF\n```\n\n4. **Run the post-commit check.** `git -C /workspace/app show HEAD:doc/specs/profile-cache.md`\n   - Apply the predicate to the header block, the span between the H1 and the first `##`.\n   - Observed: exactly one `**Amend-grant:**` line, and its trimmed value is `none`.\n   - Reading: no grant. Value decoding gives no amend permission and no fund budget.\n5. **Second invocation, where HEAD already holds `none`.**\n   - HEAD's copy already carries the new value, so commit nothing.\n   - There is no edit and no commit, and the write is not repeated.\n   - HEAD already satisfies the predicate with `none`.\n\n## Trace C: Ledger-route amendment commit (single home)\n\n1. **Reread the apply section.** `read` `/package/skills/brainstorming/reference/amendment-surface.md`, § 5. This is required before the aftermath.\n   - Observed: the ledger exists, identified by line 1 `# Ledger - loop engine`. Skip `plan-writer` and `plan_check`.\n   - This is a single-home run, so there is no companion aftermath.\n   - Scope indices are preserved, and the scope grammar is revalidated before committing.\n2. **Reconcile the ledger.**\n   - Row 2 is a `deferred:` disposition, so it becomes `cut` with evidence equal to that disposition.\n   - Row 3 is a factual correction, so it keeps its status and evidence.\n   - Attempts, iterations and allowance are unchanged.\n3. **Append the ledger decision.** The batch has two items, so it is not a single-cut batch:\n\n   `amended | 2 items | Cache lifetime`\n\n4. **Read the commit wording.** `read` `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - Observed: the Amendment commit word source applies, with ` and <N-1> more`.\n   - The ticket goes in the body as `Refs #241`.\n   - The amendment audit rows are preserved as record lines.\n5. **Stage and commit the spec and ledger together.** The staged files are `doc/specs/profile-cache.md` and `doc/plans/profile-cache-ledger.md`.\n\n```bash\ngit -C /workspace/app add -- doc/specs/profile-cache.md doc/plans/profile-cache-ledger.md && git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md doc/plans/profile-cache-ledger.md <<'EOF'\nAmend the spec for cache lifetime and 1 more\n\n- cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds\n- defer | Defer offline cache | Offline cache follows in a separate change | granted | standing grant | client fixture unavailable\n\"auto-apply amends\"\n\nRefs #241\nEOF\n```\n\n6. **One-item variant.** With only the first item, the subject is `Amend the spec for cache lifetime`.\n7. **Stop.** The driver is not entered and no tests run. The next ledger-path refresh would project the row 2 change from `complete` to `skipped`.\n\n## Trace D: Disposition execute-order step 2\n\n1. **Read the disposition protocol.** `read` `/package/skills/finishing-a-development-branch/reference/disposition-protocol.md`, § Execute order.\n   - Observed: a disposition chosen here is already approved.\n   - It bypasses the amendment surface's reviewer and batch.\n   - Compose the commit from the Amendment commit row, keeping the disposition audit.\n2. **Read the commit wording.** `read` `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - Subject: `Amend the spec for retain cache warming`. There is one item, so no \"and N more\".\n   - Ticket placement: `Refs #241` in the body, after the retained disposition audit line `Gn - Retain cache warming: accept-into-spec`.\n   - The spec edit is committed before any fix dispatch.\n3. **Next step: execute-order step 3.** The spec changed, so re-audit conformance.\n   - If the inventory changes, regenerate it and re-render.\n   - Otherwise, project `fix-now` only from the refreshed inventory.\n",
+      "words": 922,
+      "wallMs": 49064,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Trace A — Spec commits\n\n1. **Required read:** `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Observed outcome: readable. The spec-commit recipe uses the H1; the bound ticket is `#241`, placed in the body as `Refs #241` under the overrides.\n\n2. **Stage and commit the home spec.** No predecessor file is included. The exact command and message are:\n\n   ```bash\n   git -C /workspace/app add -- doc/specs/profile-cache.md && git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Add the Profile caching spec\n\n   Coverage: 1 of 1\n   Applied:\n   - cache | Bound cache lifetime | accepted\n   Deferred: none\n   Rejected: none\n\n   Refs #241\n   EOF\n   ```\n\n   Observed outcome: staging and commit succeed.\n\n3. **Required read:** `/package/skills/brainstorming/reference/legs.md`. Observed outcome: readable. The companion artifact uses the home spec’s subject and the same ticket convention.\n\n4. **Write, stage and commit the companion artifact** at `/workspace/client/doc/specs/profile-cache.md`, using its already-validated copied fields and block. The companion commit subject is exactly:\n\n   ```text\n   Add the Profile caching spec\n   ```\n\n   Its body contains:\n\n   ```text\n   Refs #241\n   ```\n\n   Staging and committing are rooted with `git -C /workspace/client`. Observed outcome: both succeed, and the companion agrees with the home spec.\n\n5. **Stop before rendering the approval gate.** No gate-summary read or approval menu is narrated.\n\n## Trace B — Consent revocation\n\n1. **Required read:** `/package/skills/brainstorming/reference/amendment-surface.md`, specifically Standing grants. Observed outcome: readable. The authorized value `none` means no standing grant. There is no plan or ledger aftermath.\n\n2. **Compare HEAD with the edited spec**, using:\n\n   ```bash\n   git -C /workspace/app show HEAD:doc/specs/profile-cache.md\n   ```\n\n   Observed outcome: HEAD still contains `**Amend-grant:** auto-apply amends`; the working copy’s only change is the authorized replacement with `none`.\n\n3. **Required read:** `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Observed outcome: readable. Use the fixed consent-change subject and retain the bound ticket in the body.\n\n4. **Commit only the spec**, with this exact scoped command and message:\n\n   ```bash\n   git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Change the standing amendment consent\n\n   Change the standing amendment consent to none.\n\n   Refs #241\n   EOF\n   ```\n\n   Observed outcome: the commit succeeds.\n\n5. **Post-commit check:**\n\n   ```bash\n   git -C /workspace/app show HEAD:doc/specs/profile-cache.md\n   ```\n\n   Observed outcome: the header contains exactly one `**Amend-grant:** none` line, satisfying the structural predicate and indicating no grant.\n\n6. **Independent second invocation:** the same HEAD comparison already returns exactly one valid `**Amend-grant:** none` line. No value write and no consent-change commit are repeated.\n\n## Trace C — Two-item amendment with a loop ledger\n\n1. **Required reread before aftermath:** `/package/skills/brainstorming/reference/amendment-surface.md`, section 5. Observed outcome: readable. The existing loop ledger selects the ledger aftermath, not task-plan dispatch or checking.\n\n2. **Reconcile the ledger** at `/workspace/app/doc/plans/profile-cache-ledger.md`:\n   - Row 2 becomes `cut`; its evidence is the approved `deferred:` disposition from the spec.\n   - Row 3’s factual correction preserves its status and evidence.\n   - Every row’s attempts, and the ledger’s iterations and allowance, remain unchanged.\n   - Append exactly one batch decision:\n\n     ```text\n     amended | 2 items | Cache lifetime\n     ```\n\n     This is a two-item batch, so it does not use the single-cut `cut row 2` decision form.\n\n3. **Required read:** `/package/skills/brainstorming/reference/legs.md`. Observed outcome: readable. Validate the home block’s scope grammar against the original acceptance-row count, preserving indices despite the deferral. Validation succeeds. This single-home trace has no companion artifact.\n\n4. **Required read:** `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Observed outcome: readable. The amendment recipe yields the following exact message, preserving the supplied audit rows and quoted grant:\n\n   ```text\n   Amend the spec for Cache lifetime and 1 more\n\n   - cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds\n   - defer | Defer offline cache | Offline cache follows in a separate change | granted | standing grant | client fixture unavailable\n   \"auto-apply amends\"\n\n   Refs #241\n   ```\n\n5. **Stage these two files and commit them together:**\n\n   ```text\n   doc/specs/profile-cache.md\n   doc/plans/profile-cache-ledger.md\n   ```\n\n   All Git actions are rooted at `/workspace/app`. Observed outcome: staging and the single batch commit succeed.\n\n6. **Independent one-item variant:** containing only the first item, its subject is:\n\n   ```text\n   Amend the spec for Cache lifetime\n   ```\n\n7. **Stop here.** Do not enter the driver, dispatch a worker, or run tests.\n\n## Trace D — Human-selected disposition edit\n\n1. **Required read:** `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Observed outcome: readable. The already-approved spec change uses the Amendment commit recipe; no amendment reviewer or menu is required.\n\n2. **Commit the completed spec edit** with subject:\n\n   ```text\n   Amend the spec for Retain cache warming\n   ```\n\n   Place `Refs #241` in the commit body, not the subject, and retain the human-selected disposition audit.\n\n3. **Next step:** disposition execute-order step 3—re-audit because the spec changed. Regenerate the conformance inventory; if it changed, re-render the decisions. Any subsequent `fix-now` projection must come from that refreshed inventory.\n",
+      "words": 712,
+      "wallMs": 26491,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d8a8e939bd1c5307ba5cc65406aa55a21c4bca7e44b9f1051388b48b7108cbd8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9afbd815c9f500a3f00226887a7a4e5d69f670fdca99d5b477a20513cbebb49",
+      "baselineOutputSha": "b0c05de0bf30028c3e28dd37663497132c67b25462e102035f243d6e4917642d",
+      "candidateOutputSha": "ece61b6293097bc49b2d234cd70678b2cd6e5c82c8d39e7c145d3c748389de35",
+      "facts": {
+        "spec": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "audit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "consent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "amendment": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ledger": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "disposition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved five facts by making each trace read /package/skills/finishing-a-development-branch/reference/commit-message.md and take its subject from that file: `Add the profile caching spec`, the fixed `Change the standing amendment consent` with one body sentence naming none, `Amend the spec for cache lifetime and 1 more`, and the same amendment recipe for the disposition. Before had used `spec:`, `grant: none`, `loop: amend` and `spec: Retain cache warming` and never recorded a ledger decision. Ticket and audit held in both, with Refs #241 in the bodies only, the five council lines verbatim, a quoted heredoc and home committed before the companion. Three holds are fragile and worth pinning in the wording. First, the output lowercases item titles in subjects (`cache lifetime`, `retain cache warming`); say whether the title is copied verbatim or sentence-cased, because the disposition fact names the title as `Retain cache warming`. Second, the ledger line came out as `amended | 2 items | Cache lifetime` and was introduced as \"the ledger decision\" rather than an append to the ledger's Decisions section; give the literal line format, including the `item(s)` token if it is literal, and name the section. Third, the consent trace decided the commit carries no ticket line at all; that satisfies the fact as written, but if a bound ticket should appear in the consent body under the refs convention, say so explicitly, otherwise the output will keep dropping it.",
+      "wallMs": 15650,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d8a8e939bd1c5307ba5cc65406aa55a21c4bca7e44b9f1051388b48b7108cbd8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "b9afbd815c9f500a3f00226887a7a4e5d69f670fdca99d5b477a20513cbebb49",
+      "baselineOutputSha": "09c8259538abaa09296f39842ab263ae5b609746b03ca2cea59ce26b05f5f3e3",
+      "candidateOutputSha": "4405f0cc941a239de63736f24f2d47dd177cb739c5ebdcb4d43b603fa7de53f4",
+      "facts": {
+        "spec": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "audit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "consent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "amendment": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ledger": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "disposition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved five facts from fails to holds and lost none. Reading the shared commit-message reference at /package/skills/finishing-a-development-branch/reference/commit-message.md replaced the `spec:`, `grant:`, `loop: amend` and `amend:` subjects with `Add the Profile caching spec`, `Change the standing amendment consent` (plus a one-sentence body naming `none`), `Amend the spec for Cache lifetime and 1 more` and `Amend the spec for Retain cache warming`. The amendment boundary moved into a ledger decision instead of the subject, and the council audit, quoted heredoc, home-first ordering and `Refs #241` body placement that Before already had were kept. Three spots are thinner than they could be and worth pinning in the wording. First, the ledger decision is rendered `amended | 2 items | Cache lifetime` and described only as a 'batch decision'; state the literal form and that it is appended under the ledger's Decisions section, so a stricter reading of `2 item(s)` still passes. Second, the companion commit is narrated in prose without a command; require the same quoted-heredoc `git commit -F -` form as the home commit. Third, Trace D says to 'retain the human-selected disposition audit' without showing the body; require the full message so the audit lines and `Refs #241` are visible. In Trace B, also keep the body to the single value-naming sentence plus the ticket line, so no loop state can creep in.",
+      "wallMs": 13934,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8899bf733b281e7df57d1efaf639009994ec21d3"
+}

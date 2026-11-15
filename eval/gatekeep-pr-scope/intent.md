@@ -1,6 +1,8 @@
-for: 20cd1d0080708800c0e4226847f35f8f0a4c12a8884a5d30dc08dd8964896289
+for: e4da8818f49df97eb8df25f36f0b5fbed75b4ea690ac8e09c661c1ea7f7ebdc5
 
 ## Change
+
+Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
 Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
 

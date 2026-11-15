@@ -1,0 +1,90 @@
+{
+  "sample": "ignore-subject",
+  "arm": "candidate",
+  "skillSha": "3cc120aace0ad0d3269b3abdf4b2cef3afb9b987a07b77ef3e742674a6b58819",
+  "inputSha": "478c6a835d0d181f8c8c7d6e2c0fca7a70cf9495b070470f2f314a58718a119e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 2b narration: ignore, commit, create, report\n\nThe process cwd stays unchanged throughout. Every git command targets the repo with `-C`. I never `cd` into the worktree.\n\n## Pre-sequence clean-base check (Step 3, fresh creation)\n\n1. Run `git -C /workspace/app status --porcelain`.\n   - It exits 0 with empty output, so the source checkout is clean.\n\n## Resolve the commit wording\n\n2. Read `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - Its fixed bookkeeping sentence for \"Worktree directory ignore\" gives `IGNORE_SUBJECT = \"Ignore the worktree directory\"`.\n   - Bookkeeping commits carry no ticket reference, and no ticket exists anyway.\n\n## Step 2b sequence\n\n3. Resolve the inputs:\n   - `ROOT=/workspace/app`\n   - `BRANCH=feature/profile-cache`\n   - `NAME=feature-profile-cache` (each `/` replaced by `-`)\n4. Run `git -C /workspace/app worktree list --porcelain | grep -qx \"worktree /workspace/app/.worktrees/feature-profile-cache\"`.\n   - There is no match because only the primary is listed. I take the create branch.\n5. Run `git -C /workspace/app check-ignore -q .worktrees`.\n   - It exits 1, so `.worktrees` is not ignored and must be ignored first.\n6. Run `echo \".worktrees/\" >> /workspace/app/.gitignore`.\n7. Run `git -C /workspace/app add .gitignore`.\n8. Run `git -C /workspace/app commit -m \"Ignore the worktree directory\" -- .gitignore`. It succeeds.\n   - The exact commit message is `Ignore the worktree directory`.\n9. Run `git -C /workspace/app worktree add /workspace/app/.worktrees/feature-profile-cache -b feature/profile-cache`. It succeeds.\n10. Set `WORKTREE=/workspace/app/.worktrees/feature-profile-cache`.\n\nThe order was: ignore check, then append `.worktrees/` to `.gitignore`, then stage, then commit, and only then add the worktree.\n\n## Step 2c project setup\n\n11. Run the setup block in a subshell: `(cd \"/workspace/app/.worktrees/feature-profile-cache\" && …)`.\n    - The repo has no dependency manifests, so nothing runs.\n\n## Provenance note (report-only)\n\n12. Run `git -C /workspace/app symbolic-ref --short refs/remotes/origin/HEAD`.\n    - It returns `origin/main`, so the default branch is `main`.\n13. Run `git -C /workspace/app branch --show-current`.\n    - It returns `main`, which matches the default, so there is no note.\n\n## Step 4 read-back (single-member run, advisory)\n\n14. Run `git -C /workspace/app worktree list --porcelain`.\n    - It lists `worktree /workspace/app/.worktrees/feature-profile-cache`.\n15. Run `git -C /workspace/app/.worktrees/feature-profile-cache branch --show-current`.\n    - It returns `feature/profile-cache`, which matches the requested branch.\n\n## Step 4 report\n\n```\nWorktree ready at /workspace/app/.worktrees/feature-profile-cache\nBranch: feature/profile-cache\nBase: main (clean)\nReady to implement profile-cache\n```\n",
+      "words": 327,
+      "wallMs": 16087,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nAll commands below run with cwd `/workspace/app`.\n\n1. Read the commit-message reference:\n   ```bash\n   cat /package/skills/finishing-a-development-branch/reference/commit-message.md\n   ```\n   Resolve `IGNORE_SUBJECT=\"Ignore the worktree directory\"`. No ticket reference applies.\n\n2. Verify the clean base:\n   ```bash\n   git -C /workspace/app status --porcelain\n   ```\n   Succeeds with empty output.\n\n3. Resolve:\n   ```text\n   ROOT=/workspace/app\n   BRANCH=feature/profile-cache\n   NAME=feature-profile-cache\n   WORKTREE=/workspace/app/.worktrees/feature-profile-cache\n   ```\n\n4. Check whether the target worktree is already listed:\n   ```bash\n   git -C /workspace/app worktree list --porcelain | grep -qx \"worktree /workspace/app/.worktrees/feature-profile-cache\"\n   ```\n   No match; proceed with creation.\n\n5. Check the ignore rule:\n   ```bash\n   git -C /workspace/app check-ignore -q .worktrees\n   ```\n   Returns `1`.\n\n6. Append the ignore rule **before creating the worktree**:\n   ```bash\n   echo \".worktrees/\" >> /workspace/app/.gitignore\n   ```\n\n7. Stage and commit only the ignore file:\n   ```bash\n   git -C /workspace/app add .gitignore && git -C /workspace/app commit -m \"Ignore the worktree directory\" -- .gitignore\n   ```\n   Both commands succeed. The exact commit message is:\n   ```text\n   Ignore the worktree directory\n   ```\n\n8. Create the worktree and new branch:\n   ```bash\n   git -C /workspace/app worktree add \"/workspace/app/.worktrees/feature-profile-cache\" -b \"feature/profile-cache\"\n   ```\n   Succeeds.\n\n9. Read back the location and branch:\n   ```bash\n   git -C /workspace/app worktree list --porcelain\n   git -C /workspace/app/.worktrees/feature-profile-cache branch --show-current\n   ```\n   The listed path and observed branch match `WORKTREE` and `BRANCH`.\n\n10. Resolve the default branch:\n    ```bash\n    git -C /workspace/app symbolic-ref --short refs/remotes/origin/HEAD\n    ```\n    Returns `origin/main`; stripping `origin/` gives `main`, matching the source branch. No provenance note is needed.\n\n```text\nWorktree ready at /workspace/app/.worktrees/feature-profile-cache\nBranch: feature/profile-cache\nBase: main (clean)\nReady to implement profile cache\n```\n",
+      "words": 234,
+      "wallMs": 15273,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fb6394d65189cc045833cd3713a997d6cad44db7d3373b72d27031441dfacbd9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c5bf336202bae7750674b63e0ec94f267caf80cec0f87c02e17b60177a7004",
+      "baselineOutputSha": "369500df1ac48853f187ec9fc8958f29f8ff0d142ba04408ad7be5ccd918d73e",
+      "candidateOutputSha": "5d6fea5467d8636152d3fdb45ff0eebab3014d017c32d2270c07603689b50591",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved only the `wording` fact, as intended: the output now reads the shared commit-message reference before the Step 2b sequence, takes the fixed bookkeeping sentence from it, and commits with the single `-m \"Ignore the worktree directory\"`, so the body is empty and the subject carries no ticket or `.worktrees` path. Before never read the reference and used the path-bearing `Ignore .worktrees/`. `scope` and `ready` hold in both outputs: each appends `.worktrees/` to `/workspace/app/.gitignore`, stages and commits only `.gitignore` via `-C` and the `-- .gitignore` pathspec before `worktree add`, keeps the process cwd unchanged (the Step 2c `cd` is inside a subshell and nothing installs), runs no tests, and reports the observed path, branch and `Base: main (clean)`. To keep this stable, keep the instruction to read the reference and use its sentence verbatim placed ahead of the ignore-before-create sequence, keep the explicit `-- .gitignore` pathspec, and keep the statement that bookkeeping commits carry no ticket or body. One thing to consider is whether the reference read should be narrated only on the path where the ignore check exits 1, so it does not appear in runs where no ignore commit is made.",
+      "wallMs": 8909,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fb6394d65189cc045833cd3713a997d6cad44db7d3373b72d27031441dfacbd9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c5bf336202bae7750674b63e0ec94f267caf80cec0f87c02e17b60177a7004",
+      "baselineOutputSha": "0ae26e63896c2d54fa37b7573f3774b613a9c15aae9c2760f4b5975a34796d54",
+      "candidateOutputSha": "74c23ff883e82d49559d57e3241d90845fa5b0585030614339e7215d4bdebbd6",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scope": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved the wording fact as intended: the output now reads the shared commit-message reference first, resolves the bookkeeping subject `Ignore the worktree directory`, and commits with a single `-m` (empty body), no ticket and no `.worktrees` path in the subject, whereas Before copied the path-bearing `Ignore .worktrees/` and read no reference. Scope and ready were kept in both: the ignore rule is appended to the primary .gitignore, only .gitignore is staged and committed in /workspace/app before `worktree add`, cwd is unchanged, no nested tree or tests appear, and the ready block reports the path, branch and clean main base with no unrelated commit. Two small things to tighten so these stay stable: After's step 9 says the listed path and observed branch \"match WORKTREE and BRANCH\" rather than stating the observed values as Before did, so keep wording that requires echoing the actual read-back path and branch; and the reference is read from the finishing-a-development-branch skill's folder, so name the shared reference path explicitly in the wording and state \"empty body\" outright so the output does not depend on a reader inferring it from the single `-m`.",
+      "wallMs": 5211,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8fbc2cbe4c6941da0b79b4e88c1714aa1bc399e2"
+}

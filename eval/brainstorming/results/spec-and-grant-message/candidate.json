@@ -1,0 +1,288 @@
+{
+  "sample": "spec-and-grant-message",
+  "arm": "candidate",
+  "skillSha": "8234f88dd66ca3c5408df114ea63fb1f7a152de9be2e69b5481c54f54a11ac6e",
+  "inputSha": "219d99f61fb78dad7a8fc3df671e3040162d1bcada5e83e38deaddd9ec08d341",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated read and stage actions\n\nNo tools are available. Each step below is a planned action with the outcome the case supplies. Bundled package references are treated as read only when a step narrates the read.\n\n## Trace A: User Review Gate, from the home spec commit through the companion commit\n\n1. **Read** `/package/skills/brainstorming/reference/spec-finalization.md`. SKILL.md routes checklist steps 11–12 to its `## User Review Gate` section.\n   - Observed: the read succeeds and returns the bundled contents.\n   - The summarizer was already dispatched and replied successfully.\n   - The next stage is the unconditional spec commit, which comes before evaluating the summary.\n\n2. **Read** `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Spec-finalization's link `../../finishing-a-development-branch/reference/commit-message.md` resolves to this path from the brainstorming reference directory.\n   - Observed: the read succeeds.\n   - **Subject:** the Spec commit word source is `Add the <topic> spec`, built from H1 `Profile caching`. The result is `Add the profile caching spec`.\n   - **Ticket:** the spec header `**Ticket:** #241` is the bound ticket.\n   - **Ticket placement:** the overrides `refs:` convention puts it in the body as `Refs #241`. The subject therefore gets no `(ref …)` suffix.\n   - **Body:** the council audit is reproduced verbatim. The required ticket reference follows it. No predecessor is staged.\n\n3. **Stage and commit the home spec**, using the quoted-heredoc form only:\n\n   ```bash\n   git -C /workspace/app add -- doc/specs/profile-cache.md && git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Add the profile caching spec\n\n   Coverage: 1 of 1\n   Applied:\n   - cache | Bound cache lifetime | accepted\n   Deferred: none\n   Rejected: none\n\n   Refs #241\n   EOF\n   ```\n\n   - Observed: the add and the commit succeed.\n\n4. **Read** `/package/skills/brainstorming/reference/legs.md`. Spec-finalization names its artifact grammar for companion files, and it points back to commit-message.md for the companion commit's wording and ticket rule.\n   - Observed: the read succeeds.\n   - The copied `**Home:**` tuple, `## Problem`, `## Decisions`, and the `### Leg:` block are already validated, so nothing is rewritten.\n\n5. **Stage and commit the companion file** in `/workspace/client`:\n   - **Subject:** the Companion spec file row says to use the same subject as the home spec commit. The subject is `Add the profile caching spec`.\n   - **Ticket placement:** the shared ticket rule applies, so `Refs #241` goes in the body and not in the subject.\n\n   ```bash\n   git -C /workspace/client add -- doc/specs/profile-cache.md && git -C /workspace/client commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Add the profile caching spec\n\n   Refs #241\n   EOF\n   ```\n\n   - Observed: the commit succeeds. Both members' artifacts now agree.\n\n6. **Stop.** The remaining gate stages are not performed:\n   - resolving `loopEngine`,\n   - the dispatch-result size check,\n   - the final `Read` of `$SUMMARY_PATH`,\n   - `rm`,\n   - rendering the gate.\n\n## Trace B (independent): persisting the consent change to `none`\n\n1. **Read** `/package/skills/brainstorming/reference/amendment-surface.md` for `## Standing grants`. SKILL.md's \"Amending an approved spec\" routes there, and an unreadable file would be a blocking stop.\n   - Observed: the read succeeds.\n   - The event is a revocation, so the value is edited to `none`. That authorized edit is already the only dirty change.\n\n2. **Check the precondition** with `git -C /workspace/app show HEAD:doc/specs/profile-cache.md`.\n   - Observed: the header block holds `**Amend-grant:** auto-apply amends`. HEAD does not carry the new value.\n   - The spec has no other uncommitted change, so a standalone consent commit applies. It does not ride in an amendment batch.\n\n3. **Read** `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n   - **Subject:** the Consent change fixed bookkeeping sentence, used verbatim: `Change the standing amendment consent`.\n   - **Ticket:** this is a spec commit, not a ledger bookkeeping commit. The `refs:` convention therefore puts `Refs #241` in the body, and the subject stays verbatim.\n\n4. **Commit, scoped to the spec file**, with the message on stdin. The file is already tracked, so no `add` is needed.\n\n   ```bash\n   git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Change the standing amendment consent\n\n   Refs #241\n   EOF\n   ```\n\n   - Observed: the commit succeeds.\n\n5. **Run the post-commit check** with `git -C /workspace/app show HEAD:doc/specs/profile-cache.md`. Apply the predicate to the header block only, meaning the span between the H1 and the first `##`.\n   - Observed: exactly one `**Amend-grant:**` line, whose trimmed value is `none`. The reading is \"no grant\".\n   - Value decoding gives neither amend permission nor fix-round funding. The check passes.\n   - Had it failed, the action would be to stop and report.\n\n**Second invocation, where HEAD already holds `none`:**\n\n- Step 1's read is the same.\n- Step 2's `git -C /workspace/app show HEAD:doc/specs/profile-cache.md` shows `**Amend-grant:** none`.\n- HEAD already carries the new value, so **nothing is committed**. There is no commit-message read, no write, and no commit.\n- That HEAD reading already satisfies the predicate (no grant).\n",
+      "words": 701,
+      "wallMs": 36961,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Trace A — Home and companion spec commits\n\n1. **Read** `/package/skills/brainstorming/reference/spec-finalization.md`.  \n   Observed outcome: the successful summary does not replace the required spec commit. Read the commit-wording reference, preserve the council audit in the home commit body, and commit home before the companion.\n\n2. **Read** `/package/skills/finishing-a-development-branch/reference/commit-message.md`.  \n   Observed outcome: the spec recipe gives `Add the Profile caching spec`. The bound ticket is `#241`; the supplied overrides place `Refs #241` in the body, not the subject.\n\n3. **Stage and commit the home spec.** The narrated successful command is:\n\n   ```bash\n   git -C /workspace/app add -- doc/specs/profile-cache.md && git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Add the Profile caching spec\n\n   Coverage: 1 of 1\n   Applied:\n   - cache | Bound cache lifetime | accepted\n   Deferred: none\n   Rejected: none\n   Refs #241\n   EOF\n   ```\n\n4. **Read** `/package/skills/brainstorming/reference/legs.md`.  \n   Observed outcome: the companion artifact carries the home tuple, copied Problem and shared decisions, and its own leg block. It uses the home spec’s filename and commit subject. The supplied observation says these fields and the block are already validated.\n\n5. **Write, stage, and commit the validated companion artifact** at `/workspace/client/doc/specs/profile-cache.md`. Its subject is exactly `Add the Profile caching spec`; its ticket reference is `Refs #241` in the body:\n\n   ```bash\n   git -C /workspace/client add -- doc/specs/profile-cache.md && git -C /workspace/client commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Add the Profile caching spec\n\n   Refs #241\n   EOF\n   ```\n\n6. **Stop before rendering the approval gate.** Both commits succeeded under the fixed observations.\n\n## Trace B — Consent change, no plan or ledger\n\n1. **Read** `/package/skills/brainstorming/reference/amendment-surface.md`, specifically **Standing grants**.  \n   Observed outcome: the authorized value `none` revokes the grant. With no other uncommitted spec change, persist it as a scoped consent-change commit, unless HEAD already contains that value.\n\n2. **Check the committed value** using:\n\n   ```bash\n   git -C /workspace/app show HEAD:doc/specs/profile-cache.md\n   ```\n\n   Observed outcome: HEAD’s header contains `**Amend-grant:** auto-apply amends`; the authorized working-tree edit changes that value to `none`.\n\n3. **Read** `/package/skills/finishing-a-development-branch/reference/commit-message.md`.  \n   Observed outcome: the fixed consent-change subject is `Change the standing amendment consent`. The same bound ticket and overrides require `Refs #241` in the body.\n\n4. **Commit only the spec’s authorized consent edit.** No additional value write is needed; that edit already exists.\n\n   ```bash\n   git -C /workspace/app commit -q -F - -- doc/specs/profile-cache.md <<'EOF'\n   Change the standing amendment consent\n\n   Refs #241\n   EOF\n   ```\n\n5. **Check the committed spec after the commit:**\n\n   ```bash\n   git -C /workspace/app show HEAD:doc/specs/profile-cache.md\n   ```\n\n   Observed outcome: the header contains exactly one `**Amend-grant:** none` line and satisfies the standing-grant predicate. No plan or ledger aftermath applies.\n\n### Trace B — Second invocation, HEAD already contains `none`\n\n1. **Read** the Standing grants reference independently, then check:\n\n   ```bash\n   git -C /workspace/app show HEAD:doc/specs/profile-cache.md\n   ```\n\n2. Observed outcome: HEAD already contains the valid `**Amend-grant:** none` value. **Do not rewrite the field, stage a file, or create another consent-change commit.**\n",
+      "words": 443,
+      "wallMs": 22672,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0f9549e70e383ba533f6116dff21e6ee8d381a728c637f54e008581e1eb638b1",
+      "baselineOutputSha": "0be3246aee4f830c7af108f319dd0c4409dfa691e865214258df9454dc5b564e",
+      "candidateOutputSha": "e57fde11cf48103a34a6941ae27ca4f247f1b669f7a055a2a6ec37077654673b",
+      "facts": {
+        "spec": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "audit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "consent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved `spec` and `consent` by routing both commits through a narrated read of /package/skills/finishing-a-development-branch/reference/commit-message.md: the home subject became `Add the profile caching spec` instead of `spec: Profile caching`, and the consent commit became the verbatim `Change the standing amendment consent` with `Refs #241` in the body instead of `grant: none`. `audit` held in both: the five council lines are unchanged in a quoted heredoc to `git commit -F -`, scoped to the spec, with home committed before the companion. `ticket` was expected to move but already holds in Before as the fact is written, because Before resolved #241 from the header, put `Refs #241` in both bodies and reused the home subject for the companion; if the old `spec:` prefix is meant to fail it, the fact needs to say so, since only `spec` currently checks the subject wording. To keep these results, keep the explicit resolved-path read of the shared reference in each trace, the 'same subject as the home spec commit' companion rule, the body-only ticket rule under the overrides `refs:` convention, the audit-verbatim-then-ticket body order, and the 'HEAD already carries the value, commit nothing' skip. Consider stating whether the topic keeps the H1's casing (`Profile caching` versus `profile caching`) so the subject is deterministic, and keep the consent heredoc body limited to the ticket line so no loop state can leak in.",
+      "wallMs": 11984,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0f9549e70e383ba533f6116dff21e6ee8d381a728c637f54e008581e1eb638b1",
+      "baselineOutputSha": "73924c2f3fccb4645a8991d002b75b453143d619b7dc67ca08bea7fd8e14bb95",
+      "candidateOutputSha": "bb12266d782d9d91a3075630e4b63fe546fef2e59447b0eed1ef4358398fcf1d",
+      "facts": {
+        "spec": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "ticket": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "audit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "consent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved `spec` and `consent` by making the output narrate a read of `/package/skills/finishing-a-development-branch/reference/commit-message.md` and compose from it: `Add the Profile caching spec` replaced the prefixed `spec: cache profile lookups`, and `Change the standing amendment consent` replaced `grant: none`, with `Refs #241` in the body, the `git show HEAD:doc/specs/profile-cache.md` predicate check and the skip when HEAD already has `none` all intact. `ticket` did not move as expected, because Before already put `Refs #241` in both bodies and used one subject for home and companion; the only gain there is that After names the ticket as bound and applies the override explicitly, so if you want that fact to discriminate it must key on the header-sourced resolution or on the subject wording. `audit` held in both, but After runs `Refs #241` directly onto `Rejected: none` with no blank line, where Before separated them; say that the ticket line is its own trailer paragraph after one blank line following the unchanged audit block, so a stricter reader cannot take it for a sixth audit line. After also drops the audit from the companion body, which no fact requires, but state outright that the audit belongs to the home commit only so this is a rule rather than an accident. Keep the explicit home-before-companion ordering, the quoted heredoc to `git commit -F -` and the spec-only pathspec exactly as worded.",
+      "wallMs": 13322,
+      "verdict": "improved",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
+    }
+  },
+  "repoSha": "8fbc2cbe4c6941da0b79b4e88c1714aa1bc399e2",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "spec-and-grant-message",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "e373c8f18d3d96d9884eba6cf66fac6b083355d50ba3bbb1bf62218313e5f555",
+      "candidateSkillSha": "8234f88dd66ca3c5408df114ea63fb1f7a152de9be2e69b5481c54f54a11ac6e",
+      "inputSha": "219d99f61fb78dad7a8fc3df671e3040162d1bcada5e83e38deaddd9ec08d341",
+      "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0f9549e70e383ba533f6116dff21e6ee8d381a728c637f54e008581e1eb638b1",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-2"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "0be3246aee4f830c7af108f319dd0c4409dfa691e865214258df9454dc5b564e",
+            "payloadSha": "1ddc26295a4ebededa58b4b93488f238d6f630d4b7b56e6c310d0c2fe3d95bff"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "73924c2f3fccb4645a8991d002b75b453143d619b7dc67ca08bea7fd8e14bb95",
+            "payloadSha": "fac1792d2ea8989539b1ce0a6d7e49dde264f497ad399ad9a582b5dfc801d6e0"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "e57fde11cf48103a34a6941ae27ca4f247f1b669f7a055a2a6ec37077654673b",
+            "payloadSha": "3b217cac4a67083fe25926afffa0c66a854b5918566357626bc191d5125325a1"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "bb12266d782d9d91a3075630e4b63fe546fef2e59447b0eed1ef4358398fcf1d",
+            "payloadSha": "311bcec689b874c79ffa6ace8d34a11115725a08e3010c217e6b18ab9c28c57d"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "23f42f6c1f4c1b9ec06a9431a11eeda2e3cd82f08ccb956f3127a5b9fb5f5949",
+        "baselineOutputSha": "0be3246aee4f830c7af108f319dd0c4409dfa691e865214258df9454dc5b564e",
+        "candidateOutputSha": "e57fde11cf48103a34a6941ae27ca4f247f1b669f7a055a2a6ec37077654673b",
+        "facts": {
+          "spec": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "ticket": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "audit": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consent": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moved `spec` and `consent` because it narrates a read of the shared commit-message reference at its resolved path (/package/skills/finishing-a-development-branch/reference/commit-message.md) and takes both subjects from it: `Add the profile caching spec` (sentence-case topic, no `spec:` prefix, path or identifier) and the verbatim `Change the standing amendment consent`. Before never read that reference and used `spec: Profile caching` and `grant: none`. `ticket` did not move as expected: Before already resolved #241 from the spec header, put `Refs #241` in both commit bodies and gave the companion the same subject as home, so the fact as written holds there despite the prefixed subject. If you want that fact to distinguish the change, it would need to tie the ticket rule to the shared reference. `audit` holds in both: five audit lines unchanged, quoted heredoc to `git commit -F -`, spec-only pathspec, home before companion. To keep all of this, retain the wording that routes spec, companion and consent subjects through the shared reference, keeps the audit verbatim ahead of a body-only `Refs #N`, runs the HEAD check before the consent commit and skips the write when HEAD already holds the value. One thing to settle: After's consent commit carries `Refs #241` in the body, which the fact permits, but your Expected-to-move note says \"without a grant prefix or ticket\". If you intend no ticket on the consent commit, the reference should say so explicitly; as worded, the model applies the refs convention to it as a spec commit.",
+        "wallMs": 12227,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "23f42f6c1f4c1b9ec06a9431a11eeda2e3cd82f08ccb956f3127a5b9fb5f5949",
+        "baselineOutputSha": "73924c2f3fccb4645a8991d002b75b453143d619b7dc67ca08bea7fd8e14bb95",
+        "candidateOutputSha": "bb12266d782d9d91a3075630e4b63fe546fef2e59447b0eed1ef4358398fcf1d",
+        "facts": {
+          "spec": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "ticket": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "audit": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consent": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moves `spec` and `consent` by narrating a read of `/package/skills/finishing-a-development-branch/reference/commit-message.md` in both traces and composing `Add the Profile caching spec` and `Change the standing amendment consent` verbatim, where Before used `spec: cache profile lookups` and `grant: none` without reading the shared reference. `ticket` did not move as expected: Before already put `Refs #241` in both commit bodies and reused the home subject for the companion, so it holds in both outputs. `audit` holds in both, since each keeps the five council lines unchanged in a quoted heredoc to `git commit -F -`, scoped to the spec, with home committed before the companion. To keep these stable, the wording should require a blank line between the audit block and the `Refs #N` trailer, because After runs `Refs #241` directly after `Rejected: none`, which a stricter reader could treat as altering the audit block. It should also say whether the companion body carries the audit, since Before copied it and After dropped it. Finally, the Expected to move note for `consent` says \"without a grant prefix or ticket\" while the fact allows a body ticket; the reference should state outright that the consent commit carries the bound ticket in the body under the refs convention, never in the fixed subject, so both readings agree.",
+        "wallMs": 12941,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "0f9549e70e383ba533f6116dff21e6ee8d381a728c637f54e008581e1eb638b1",
+        "baselineOutputSha": "0be3246aee4f830c7af108f319dd0c4409dfa691e865214258df9454dc5b564e",
+        "candidateOutputSha": "e57fde11cf48103a34a6941ae27ca4f247f1b669f7a055a2a6ec37077654673b",
+        "facts": {
+          "spec": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "ticket": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "audit": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consent": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "After moved `spec` and `consent` by routing both commits through a narrated read of /package/skills/finishing-a-development-branch/reference/commit-message.md: the home subject became `Add the profile caching spec` instead of `spec: Profile caching`, and the consent commit became the verbatim `Change the standing amendment consent` with `Refs #241` in the body instead of `grant: none`. `audit` held in both: the five council lines are unchanged in a quoted heredoc to `git commit -F -`, scoped to the spec, with home committed before the companion. `ticket` was expected to move but already holds in Before as the fact is written, because Before resolved #241 from the header, put `Refs #241` in both bodies and reused the home subject for the companion; if the old `spec:` prefix is meant to fail it, the fact needs to say so, since only `spec` currently checks the subject wording. To keep these results, keep the explicit resolved-path read of the shared reference in each trace, the 'same subject as the home spec commit' companion rule, the body-only ticket rule under the overrides `refs:` convention, the audit-verbatim-then-ticket body order, and the 'HEAD already carries the value, commit nothing' skip. Consider stating whether the topic keeps the H1's casing (`Profile caching` versus `profile caching`) so the subject is deterministic, and keep the consent heredoc body limited to the ticket line so no loop state can leak in.",
+        "wallMs": 11984,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "230dcaf0f9d4aab6c3d7909d0849d383bd55696631586f211733f62a05c75401",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "0f9549e70e383ba533f6116dff21e6ee8d381a728c637f54e008581e1eb638b1",
+        "baselineOutputSha": "73924c2f3fccb4645a8991d002b75b453143d619b7dc67ca08bea7fd8e14bb95",
+        "candidateOutputSha": "bb12266d782d9d91a3075630e4b63fe546fef2e59447b0eed1ef4358398fcf1d",
+        "facts": {
+          "spec": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          },
+          "ticket": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "audit": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "consent": {
+            "before": "fails",
+            "after": "holds",
+            "label": "intended change"
+          }
+        },
+        "feedback": "The After wording moved `spec` and `consent` by making the output narrate a read of `/package/skills/finishing-a-development-branch/reference/commit-message.md` and compose from it: `Add the Profile caching spec` replaced the prefixed `spec: cache profile lookups`, and `Change the standing amendment consent` replaced `grant: none`, with `Refs #241` in the body, the `git show HEAD:doc/specs/profile-cache.md` predicate check and the skip when HEAD already has `none` all intact. `ticket` did not move as expected, because Before already put `Refs #241` in both bodies and used one subject for home and companion; the only gain there is that After names the ticket as bound and applies the override explicitly, so if you want that fact to discriminate it must key on the header-sourced resolution or on the subject wording. `audit` held in both, but After runs `Refs #241` directly onto `Rejected: none` with no blank line, where Before separated them; say that the ticket line is its own trailer paragraph after one blank line following the unchanged audit block, so a stricter reader cannot take it for a sixth audit line. After also drops the audit from the companion body, which no fact requires, but state outright that the audit belongs to the home commit only so this is a rule rather than an accident. Keep the explicit home-before-companion ordering, the quoted heredoc to `git commit -F -` and the spec-only pathspec exactly as worded.",
+        "wallMs": 13322,
+        "verdict": "improved",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    }
+  }
+}

@@ -25,7 +25,9 @@ test('companion interruptions use the common recovery before clean-return admiss
 test('clean companion results retain attribution and row admission checks', () => {
   for (const token of [
     'unchanged home HEAD and expected-only home dirt',
-    'Route wrong attribution, unexpected home dirt and home movement through common interrupted recovery',
+    'Route unexpected home dirt and home movement through common interrupted recovery',
+    'missing, unreadable or mismatched files are result-validation misses, not interrupted boundaries',
+    'For a companion, validate from the return file, not the reply or commit message',
     "'pending mismatch'", "'iteration mismatch'", "'foreign row'", "'attempt mismatch'",
     "'seed counts mismatch'", "'changed cut or closed row'", "'unmatched decision'",
     'post-boundary result-validation misses', 'clear `pending:` and preserve the consumed iteration',

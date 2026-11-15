@@ -125,7 +125,7 @@ Derive `NAME` from `$BRANCH` by replacing every `/` with `-`. The canonical home
 
 ### 2b. Create - gitignore the home first
 
-Run the Step 3 clean-base check in the source checkout before this sequence. `.worktrees/` must be gitignored before a worktree lands inside it.
+Run the Step 3 clean-base check in the source checkout before this sequence. `.worktrees/` must be gitignored before a worktree lands inside it. Read [commit-message.md](../finishing-a-development-branch/reference/commit-message.md) and set `IGNORE_SUBJECT` to its Worktree directory ignore bookkeeping sentence.
 
 ```bash
 # ROOT is the primary checkout derived in Step 0.
@@ -136,7 +136,7 @@ if git -C "$ROOT" worktree list --porcelain | grep -qx "worktree $ROOT/.worktree
 else
   if ! git -C "$ROOT" check-ignore -q .worktrees; then
     echo ".worktrees/" >> "$ROOT/.gitignore"
-    git -C "$ROOT" add .gitignore && git -C "$ROOT" commit -m "Ignore .worktrees/" -- .gitignore
+    git -C "$ROOT" add .gitignore && git -C "$ROOT" commit -m "$IGNORE_SUBJECT" -- .gitignore
   fi
   git -C "$ROOT" worktree add "$ROOT/.worktrees/$NAME" -b "$BRANCH"
 fi

@@ -1,0 +1,98 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile, stat } from 'node:fs/promises';
+
+const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+
+test('engine and operator docs describe ledger attribution and decision counters', async () => {
+  for (const path of ['doc/implement-engines.md', 'doc/configuration.md']) {
+    const text = (await read(path)).replaceAll('\\|', '|');
+    for (const token of ['returned: <target> | <repo> | <pre-dispatch HEAD>`', 'repair seed |', 'repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'amended |', 'returns/', 'return-file.md', 'finishing-a-development-branch/reference/commit-message.md', 'the saved `returned:` value', 'migrate any cap before converting repair history']) {
+      assert.ok(text.includes(token), `${path}: ${token}`);
+    }
+    assert.doesNotMatch(text, /loop: (?:repair|retry|amend|cut|migrate|escalate|seed)/);
+    assert.doesNotMatch(text, /first two body lines match the dispatched/);
+    assert.doesNotMatch(text, /amendment \||returned: <target>[^`]*iteration|unmatched `pending: verify`|match repo\/HEAD/);
+  }
+  const engines = (await read('doc/implement-engines.md')).replaceAll('\\|', '|');
+  for (const token of [
+    'Before reading result rows and decisions, require DONE, a clean tree, exactly one commit after the saved HEAD, the consumed `iterations:` and the dispatched tuple on `returned:` or a retained `pending:` line.',
+    'A retained matching `pending:` tuple is an ordinary or seed validation miss; a tuple on neither line takes interrupted recovery.',
+    'attribute a home repair through the committed ledger\'s consumed `iterations:` and retained `pending: verify` tuple, and only a companion (outside-ledger) repair through the return file\'s tuple and consumed iteration',
+  ]) assert.ok(engines.includes(token), token);
+  const configuration = await read('doc/configuration.md');
+  for (const token of [
+    'Before reading result rows and decisions, require DONE, a clean tree, exactly one commit after the saved HEAD, the consumed `iterations:` and the dispatched tuple on `returned:` or a retained `pending:` line.',
+    'A retained matching `pending:` tuple is an ordinary or seed result-validation miss after boundary admission; a tuple on neither line takes interrupted recovery for wrong attribution.',
+  ]) assert.ok(configuration.includes(token), `doc/configuration.md: ${token}`);
+  assert.doesNotMatch(configuration, /Admission reads the ledger before any child message: pending must be absent and returned must match the dispatched tuple/);
+});
+
+test('gate docs separate retained home tuples from wrong attribution and bound repairs by decisions', async () => {
+  const text = await read('doc/gate-contract.md');
+  for (const token of ['repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'plus one for a `pending: verify`', 'result-validation misses', 'restore the saved `returned:` value', 'amended |']) {
+    assert.ok(text.includes(token), token);
+  }
+  for (const token of [
+    'A home return that passes the DONE, clean exactly-one-commit boundary with the consumed `iterations:` but retains its matching `pending:` tuple is an ordinary or seed validation miss, not interrupted recovery.',
+    'A home return whose committed ledger carries the dispatched tuple on neither the `returned:` line nor a retained `pending:` line takes interrupted recovery for wrong attribution',
+    'Interrupted recovery is unconditional, before the allowance check:',
+  ]) assert.ok(text.includes(token), token);
+  assert.doesNotMatch(text, /loop: (?:repair|retry|amend|cut)|amendment \||unmatched `pending: verify`|matching repo\/HEAD/);
+});
+
+test('front-door docs expose the shared message contract', async () => {
+  const readme = await read('README.md');
+  assert.ok(readme.includes('skills/finishing-a-development-branch/reference/commit-message.md'));
+  assert.ok(readme.includes('returned:'));
+  for (const token of [
+    'Framework-run squash and merge-commit merges carry a [composed landed message](skills/finishing-a-development-branch/reference/commit-message.md#landed-message)',
+    'Rebase passes no message flags; a merge queue owns the landing and does not guarantee the composed text.',
+    'The flow prints one line when the repo\'s `squash_merge_commit_message` is `COMMIT_MESSAGES`',
+    'names `PR_BODY` and `BLANK` as settings that avoid pasting every branch commit into a GitHub-button merge',
+    'prints nothing for other values or a failed read, and never writes a repo setting',
+    'skills/finishing-a-development-branch/reference/commit-message.md#squash-default-note',
+    'Gatekeep withholds merge while the assessed head\'s tree still holds the task plan paired by basename with its carried spec or that spec\'s loop ledger',
+    'With no carried spec, this precondition is skipped.',
+    'skills/gatekeep-pr/reference/post-selection-loop.md#plan-free-head',
+  ]) assert.ok(readme.includes(token), `README.md: ${token}`);
+  const changelog = await read('CHANGELOG.md');
+  const unreleased = changelog.split('## Unreleased\n')[1]?.split('\n## ')[0];
+  assert.ok(unreleased?.includes('plain imperative sentence'));
+  assert.ok(unreleased?.includes('ledger'));
+});
+
+const docs = ['README.md', 'doc/configuration.md', 'doc/implement-engines.md', 'doc/gate-contract.md',
+  'skills/gauntlet-resume/reference/reconstruction.md'];
+const prose = text => text.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm, '');
+
+function headingIds(text) {
+  const counts = new Map();
+  return [...prose(text).matchAll(/^#{1,6}\s+(.+?)\s*#*$/gm)].map(([, heading]) => {
+    const slug = heading.toLowerCase().replace(/<[^>]*>/g, '')
+      .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, '').replace(/\s/g, '-');
+    const count = counts.get(slug) ?? 0;
+    counts.set(slug, count + 1);
+    return count ? `${slug}-${count}` : slug;
+  });
+}
+
+test('current contract docs link to existing files and heading anchors', async () => {
+  const failures = [];
+  for (const path of docs) {
+    const text = prose(await read(path));
+    for (const [, href] of text.matchAll(/\]\(([^\s)]+)\)/g)) {
+      if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) continue;
+      const target = new URL(href, new URL(`../${path}`, import.meta.url));
+      const anchor = decodeURIComponent(target.hash.slice(1));
+      target.hash = '';
+      try {
+        assert.ok((await stat(target)).isFile(), 'target is not a file');
+        if (anchor) assert.ok(headingIds(await readFile(target, 'utf8')).includes(anchor), 'heading is missing');
+      } catch (error) {
+        failures.push(`${path}: ${href}: ${error.message}`);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+});

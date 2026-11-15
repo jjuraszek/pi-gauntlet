@@ -1,0 +1,90 @@
+{
+  "sample": "merge-landed-message",
+  "arm": "candidate",
+  "skillSha": "692b9ffdad1ec862b1f14bc890e728c42c4f2a4de5ff03c35be0b39bedcda620",
+  "inputSha": "c3296d7b45030b2d2aecad14115986cbe35eb20785c8f120197b2b866614916a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Across all four cases the human picked `merge` on the final menu. Merge preconditions and compare-and-swap have already passed at head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. GitHub does not report the PR as blocked, so the merge needs no `--admin`.\n\n## A. Squash, squash default COMMIT_MESSAGES\n\n1. **Read the wording reference.** I read `/package/skills/finishing-a-development-branch/reference/commit-message.md`. Its absolute path comes from the loaded `/package/skills/gatekeep-pr/SKILL.md` and the relative link `../../finishing-a-development-branch/reference/commit-message.md`.\n\n2. **Resolve the ticket.** There is no carried spec, and the overrides have no `refs:` convention, so the bound ticket is `none`. The message gets no ticket reference.\n\n3. **Compose the landed message.** The words come from the PR title, the description and the two in-scope outcomes.\n   - Subject: `Count imported plants in compliance pagination`. It is 47 characters, imperative and capitalized, with no trailing period, paths or labels.\n   - Merge subject: `Count imported plants in compliance pagination (#37)`.\n\n4. **Save the body file.** I ran `mktemp \"${TMPDIR:-/tmp}/gatekeep-landed.XXXXXX\"`, which returned `/tmp/gatekeep-landed.Ab12Cd`. The file holds only the body, not the subject. Its complete text:\n\n   ```text\n   Compliance pages left imported plants out of their page counts, so the\n   counts disagreed with the plant totals. The count now includes imported\n   plants so totals and page counts agree.\n\n   - Page counts match the plant total for single-company views\n   - Imported plants' answers appear on their compliance pages\n   ```\n\n5. **Read repository settings.** This is the existing merge-preconditions read, with the squash-default field folded in rather than a second request:\n   ```bash\n   gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'\n   ```\n   It returned all three `allow_*` flags `true` and `squash_merge_commit_message: COMMIT_MESSAGES`. `allow_squash_merge` is true, so the squash policy is allowed.\n\n6. **Print the squash-default note** exactly:\n   ```text\n   Note: this repo's squash default (squash_merge_commit_message: COMMIT_MESSAGES) pastes every branch commit into the landed message when someone merges from the GitHub button; set it to PR_BODY or BLANK in the repo settings to stop that.\n   ```\n   No repository setting is written.\n\n7. **Run the merge:**\n   ```bash\n   gh pr merge 37 --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --squash --subject 'Count imported plants in compliance pagination (#37)' --body-file /tmp/gatekeep-landed.Ab12Cd\n   ```\n   The command exited 0.\n\n8. **Confirm the result.** I ran `gh pr view 37 --json state,mergeCommit`, which returned `state: MERGED` and a `mergeCommit.oid`.\n   - I wrote `pr.state = MERGED` and `pr.merge_commit = <returned oid>` to the record.\n   - I saved the `AC coverage` block to a payload file. The scope source is the PR, so the block has no row lines and the header has no spec path:\n     ```text\n     ## AC coverage\n     Informational - the ticket's rows are unchanged. PR https://github.com/acme/widgets/pull/37, merged <returned oid>\n     ```\n   - I stopped here. The own-merge post menu is next, and it will not offer `post coverage to ticket`.\n\n## B. Rebase, squash default PR_BODY\n\n1. **Read the wording reference.** I read the same `commit-message.md`. The rebase policy takes no message flags, so I composed no subject and wrote no body file.\n\n2. **Read repository settings:**\n   ```bash\n   gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'\n   ```\n   It returned all flags `true`, so `allow_rebase_merge` is satisfied, and `squash_merge_commit_message: PR_BODY`. That value is not COMMIT_MESSAGES, so I printed no note.\n\n3. **Run the merge:**\n   ```bash\n   gh pr merge 37 --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --rebase\n   ```\n   The command exited 0.\n\n4. **Confirm the result.** `gh pr view 37 --json state,mergeCommit` returned `MERGED`.\n   - I recorded `pr.state` and `pr.merge_commit`.\n   - I saved the same row-less `AC coverage` block as in A to a payload file.\n   - I stopped before the own-merge post menu.\n\n## C. Merge commit, squash-default field read failed\n\n1. **Read the wording reference and compose the message.** I read the same `commit-message.md`. The bound ticket is `none`.\n   - Subject: `Count imported plants in compliance pagination (#37)`.\n   - Body file: `mktemp \"${TMPDIR:-/tmp}/gatekeep-landed.XXXXXX\"` returned `/tmp/gatekeep-landed.Ef34Gh`. It holds the same complete body text as A.\n\n2. **Repository settings.** The existing read had already confirmed `allow_merge_commit: true`, but the `squash_merge_commit_message` field failed to read. Under the reference's rule a failed read prints nothing. I made no second request and wrote no settings.\n\n3. **Run the merge:**\n   ```bash\n   gh pr merge 37 --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --merge --subject 'Count imported plants in compliance pagination (#37)' --body-file /tmp/gatekeep-landed.Ef34Gh\n   ```\n   The command exited 0.\n\n4. **Confirm the result.** `gh pr view 37 --json state,mergeCommit` returned `MERGED`.\n   - I recorded `pr.state` and `pr.merge_commit`.\n   - I saved the row-less `AC coverage` payload file.\n   - I stopped before the own-merge post menu.\n\n## D. Squash, merge queued\n\n1. **Read the wording reference and compose the message.** This is the same as A: I read `commit-message.md`, the subject is `Count imported plants in compliance pagination (#37)`, and the body file `/tmp/gatekeep-landed.Ij56Kl` holds the same complete body text.\n\n2. **Read repository settings.** The same read as A returned all flags `true` and `COMMIT_MESSAGES`, so I printed the same squash-default note verbatim.\n\n3. **Run the merge.** The message flags stay on a merge-queue request:\n   ```bash\n   gh pr merge 37 --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --squash --subject 'Count imported plants in compliance pagination (#37)' --body-file /tmp/gatekeep-landed.Ij56Kl\n   ```\n   The command exited 0.\n\n4. **Check the state.** `gh pr view 37 --json state,mergeCommit` returned `state: OPEN`, because the PR is in the merge queue.\n   - I did not write `pr.state` or `pr.merge_commit`.\n   - I saved no coverage block.\n   - The next step would be the queued-merge wait in report.md and the merge-queued template, which offers only `wait` and `stop`. I stopped before rendering it.\n",
+      "words": 842,
+      "wallMs": 34664,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A. Squash merge\n\n1. Read the message rules with `cat /package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\n   Compose the subject `Count imported plants in pagination (#37)`. There is no ticket reference.\n\n   Run `mktemp \"${TMPDIR:-/tmp}/gatekeep-merge-body.XXXXXX\"` and retain the returned path as `$BODY_A`. Write the following complete body to that file:\n\n   Imported plants were missing from compliance page counts. Include them so totals and page counts agree.\n\n   - Page counts match totals for single-company views\n   - Imported answers appear on compliance pages\n\n2. Run the existing repository-settings read:\n\n   `gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`\n\n   Squash merging is enabled. Print exactly:\n\n   Note: this repo's squash default (squash_merge_commit_message: COMMIT_MESSAGES) pastes every branch commit into the landed message when someone merges from the GitHub button; set it to PR_BODY or BLANK in the repo settings to stop that.\n\n3. Run:\n\n   `gh pr merge 37 -R acme/widgets --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --squash --subject \"Count imported plants in pagination (#37)\" --body-file \"$BODY_A\"`\n\n4. The command succeeds. Run `gh pr view 37 -R acme/widgets --json state,mergeCommit`; the supplied result confirms that the PR is merged. Stop before the post menu.\n\n### B. Rebase merge\n\n1. Read the message rules with `cat /package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\n   Rebase merging uses no composed landed message, temporary body file, subject flag, or body flag.\n\n2. Run the existing repository-settings read:\n\n   `gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`\n\n   Rebase merging is enabled. Print no squash-default note.\n\n3. Run:\n\n   `gh pr merge 37 -R acme/widgets --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --rebase`\n\n4. The command succeeds. Run `gh pr view 37 -R acme/widgets --json state,mergeCommit`; the supplied result confirms that the PR is merged. Stop before the post menu.\n\n### C. Merge commit\n\n1. Read the message rules with `cat /package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\n   Compose the subject `Count imported plants in pagination (#37)`.\n\n   Run `mktemp \"${TMPDIR:-/tmp}/gatekeep-merge-body.XXXXXX\"` and retain the returned path as `$BODY_C`. Write the following complete body to that file:\n\n   Imported plants were missing from compliance page counts. Include them so totals and page counts agree.\n\n   - Page counts match totals for single-company views\n   - Imported answers appear on compliance pages\n\n2. Run the repository-settings read, including the squash-default field:\n\n   `gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`\n\n   The read fails. Print no squash-default note and do not retry or change repository settings. Merge-commit permission was just confirmed, and all merge preconditions pass as supplied.\n\n3. Run:\n\n   `gh pr merge 37 -R acme/widgets --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --merge --subject \"Count imported plants in pagination (#37)\" --body-file \"$BODY_C\"`\n\n4. The command succeeds. Run `gh pr view 37 -R acme/widgets --json state,mergeCommit`; the supplied result confirms that the PR is merged. Stop before the post menu.\n\n### D. Squash merge queued\n\n1. Read the message rules with `cat /package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\n   Compose the subject `Count imported plants in pagination (#37)`.\n\n   Run `mktemp \"${TMPDIR:-/tmp}/gatekeep-merge-body.XXXXXX\"` and retain the returned path as `$BODY_D`. Write the following complete body to that file:\n\n   Imported plants were missing from compliance page counts. Include them so totals and page counts agree.\n\n   - Page counts match totals for single-company views\n   - Imported answers appear on compliance pages\n\n2. Run the existing repository-settings read:\n\n   `gh api repos/acme/widgets --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`\n\n   Squash merging is enabled. Print exactly:\n\n   Note: this repo's squash default (squash_merge_commit_message: COMMIT_MESSAGES) pastes every branch commit into the landed message when someone merges from the GitHub button; set it to PR_BODY or BLANK in the repo settings to stop that.\n\n3. Run the merge request with both message flags retained:\n\n   `gh pr merge 37 -R acme/widgets --match-head-commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --squash --subject \"Count imported plants in pagination (#37)\" --body-file \"$BODY_D\"`\n\n4. The command succeeds. Run `gh pr view 37 -R acme/widgets --json state,mergeCommit`; the supplied result is OPEN in the merge queue. The merge is queued, not completed. Stop before the queued-merge post menu.\n",
+      "words": 591,
+      "wallMs": 17668,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e5d1e861a2f4a56269b8d750570cbe0714f78896bbdd65b84487e32c42a61517",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "266ab8653f6e8af3de41ba8c4c86eb96012a1655ef0e5f7570caca9a218aa6d0",
+      "baselineOutputSha": "376b5a81a9fc1784cd77c008fae4939efffdb740681360d0916b594880b5ec88",
+      "candidateOutputSha": "58d0d71124b53153cde64be1d790891ccc56aa1bd154c3eaa5c0cef5f3fb3844",
+      "facts": {
+        "message": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "queue": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and none that Before kept was lost. Before sent no --subject or --body on any merge, left squash_merge_commit_message out of the settings read and ignored it, and so printed no note and had no message flags to keep on D's queued request. After composes an imperative subject with trailing (#37) and a two-sentence, two-bullet body file for A, C and D, passes neither flag on B's rebase, and keeps --match-head-commit, the correct policy flag and no --admin on every merge. It folds the squash-default field into the existing settings read, prints the exact note for A and D, prints nothing for B (PR_BODY) or C (failed read), and writes no setting. D keeps the message flags, treats OPEN as queued, and neither retries nor records MERGED. Two things to tighten: D says it printed the note \"verbatim\" without reproducing it, so have the wording require the full note text wherever it is printed; and After's merge commands dropped the -R acme/widgets that Before had, which no fact checks but which you may want to restore. Keep the explicit \"rebase takes no message flags\" and \"failed read prints nothing, no second request\" statements, since those are what hold B and C.",
+      "wallMs": 9124,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e5d1e861a2f4a56269b8d750570cbe0714f78896bbdd65b84487e32c42a61517",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "266ab8653f6e8af3de41ba8c4c86eb96012a1655ef0e5f7570caca9a218aa6d0",
+      "baselineOutputSha": "ee767e7359ad51b635ef1636782ac15aab6ac350008a00490b9313f6c6656076",
+      "candidateOutputSha": "b89f78fdda0c8b9535c0118c80ca2b49dffb4c6ab9ae486f5c11b8b6979b2ec6",
+      "facts": {
+        "message": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "queue": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "All three facts move from fails to holds, and Before held none of them, so nothing was lost. Before composed no message, passed no --subject/--body-file on any merge, left squash_merge_commit_message out of the settings read and printed no note; D therefore also failed the queue fact for lack of message flags, although it already treated OPEN as queued without a retry or a MERGED claim. The After wording has A, C and D compose 'Count imported plants in pagination (#37)' with a two-sentence paragraph and two outcome bullets in a temp body file, and pass --subject and --body-file alongside the unchanged --match-head-commit and policy flag, with no --admin. B passes neither message flag. The single repository read now carries squash_merge_commit_message, A and D print the exact COMMIT_MESSAGES note, B (PR_BODY) and C (failed read) print nothing, and no setting is written. D keeps both flags and reports the merge as queued, not completed. To keep this stable, keep the wording explicit that the squash-default field rides on the existing settings read rather than a new request: C's 'Run the repository-settings read, including the squash-default field' after flags were 'just confirmed' could be read as a second request, so say that a failed field read is silent and never retried or re-requested. Also keep the explicit rebase carve-out (no subject, body or temp file), and keep the queued-result rule next to the merge command so OPEN is never retried or reported as MERGED.",
+      "wallMs": 10316,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f0ab8be0b453cd588973594e240e965cbcc90e52"
+}

@@ -41,13 +41,7 @@ Periodic "should I continue?" prompts add latency without adding safety. The pla
 
 ## Prerequisites
 
-- The worktree path is known - from the `using-git-worktrees` Step 4 report in this session or the handoff brief's `worktree:` row - and is passed as the top-level dispatch `cwd`. If no worktree path exists, stop and invoke `/skill:using-git-worktrees` first - implementation never lands directly on `main`. The process cwd is the primary checkout; nothing here changes it.
-- Approved plan or clear task scope. Before the first wave, establish committed originals at home: run `git -C "<abs home worktree>" status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"`. If nonempty, run `git -C "<abs home worktree>" add -- "<home-relative plan path>" "<home-relative spec path>"` and `git -C "<abs home worktree>" commit -m "plan: <spec title>" -- "<home-relative plan path>" "<home-relative spec path>"`. Stop on failure before dispatch; never stage unrelated source or use dirty retry text as a baseline.
-- `plan_tracker` list initialized at writing-plans handoff with the full wave-ordered task list. Consume and preserve it on continuation; only direct recovery with no tracker initializes the full plan list once, before dispatch, and never over an existing list.
-
-Call `plan_check({ planPath })` for the manifest; stop on FAIL; for `manifest-size`, emit a stop note asking for plan reduction. Consume each task's `files`, `tests`, `leg`, `mode`, heading and explicit `orchestrator`. Pass isolated implementers only their own task's `tests` as `SCOPED_TEST_COMMANDS`, or `none` when empty. Give in-place implementers, the integrated test gate and wave reviews the wave union of `tests`. Preserve each array element as one command without splitting or joining command strings. Children read Tests metadata themselves.
-
-On a spec-defect citation, pause the fix loop and take the delegated amendment route for [amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec) with amend permission on the `**Amend-grant:**` line decoded by the existing surface. Keep code-vs-spec mismatch in wave review; an unreadable spec anchor blocks instead of falling back to task-only review.
+Read [wave prerequisites](./reference/prerequisites.md) at its absolute path now; stop if unreadable.
 
 ## Fix delta
 
@@ -101,6 +95,8 @@ Carry `Leg:` and combined spec/task `Rules:` as additive task context to every i
 
 ## Dispatch
 
+Resolve [the commit-message reference](../finishing-a-development-branch/reference/commit-message.md) to an absolute path from this loaded skill. Add `wording: <absolute path>` and `ticket: <held reference or none>` to every implementer task, including repairs. Require the child to read that file and use the supplied ticket when composing a commit; keep the status and patch return protocols unchanged.
+
 Use `dispatching-parallel-agents` for isolation and serial patch integration. Use the dispatch-contract one-step chain for every repair and wave re-review, including escalated and funded rounds. Carry anchors, prior report path and scoped command arrays; never paste task or report contents. Resolve models only through the Model rules above. Keep verification conformance as its own dispatch under After All Tasks.
 
 ## The Wave Loop
@@ -127,7 +123,7 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
    - *In-place waves* dispatch with `cwd` the branch checkout and no `worktree:`; the child edits the checkout directly; apply no patch and run no snapshot recipe; print the same line with `delta none applied n/a`.
 
    After the round: `git -C <worktree> add -A`; `git -C <worktree> diff --stat` against the recorded pre-repair tree decides emptiness; re-run the test gate for the touched tasks' `tests`; on green, one `wave-reviewer` re-review with the marker `## Previous review report (re-review trigger)`, the prior report path, the `## Fix delta` tree pair, the same `BASE_SHA` / `HEAD_SHA: WORKTREE`. Transitions follow the table below.
-7. **Commit.** Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`: isolated waves `git -C <worktree> reset --soft "$WAVE_BASE_SHA" && git -C <worktree> add -A && git -C <worktree> commit -m <message>`; in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together; execute manifest `orchestrator` instructions at the completed-wave boundary.
+7. **Commit.** Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`: compose the message from the accepted manifest task headings and held ticket through [Word sources](../finishing-a-development-branch/reference/commit-message.md), applying Subject and Body. For isolated waves run `git -C <worktree> reset --soft "$WAVE_BASE_SHA" && git -C <worktree> add -A && git -C <worktree> commit -F -`, supplying the message on stdin; for in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together; execute manifest `orchestrator` instructions at the completed-wave boundary.
 
 `WAVE_BASE_SHA` is fixed across repair rounds, so every re-review diffs against the same root the first review saw.
 

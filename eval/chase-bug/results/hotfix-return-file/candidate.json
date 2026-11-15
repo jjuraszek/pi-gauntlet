@@ -1,0 +1,63 @@
+{
+  "sample": "hotfix-return-file",
+  "arm": "candidate",
+  "skillSha": "8de705f8e319d8ff1954b2e40c8c4a85ffed0756b718743f0bfd5462c61378ec",
+  "inputSha": "aa5110a6d2dbd76c4e65d937cdc3a760bd46952a64256a69d6f81841478ac9c2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "error",
+      "text": "# Hotfix step 4: seed and first row\n\n**Wording file:** `/package/skills/finishing-a-development-branch/reference/commit-message.md` (resolved from the chase-bug skill directory)\n**Ticket:** `#241`\n\nThe setup and dispatch scaffolding is the same for every dispatch:\n\n- **Binding:** the binding block is substituted with the worktree path `/workspace/root/.worktrees/hotfix/plants` and the primary root `/workspace/root`.\n- **Subagent call:** `loop-implementer` runs with `context: \"fresh\"`, `async: false`, and that worktree as `cwd`. Output goes to a `$TMPDIR` file.\n- **Inputs:** the spec is `/tmp/hotfix-plants.md` and the ledger is `/tmp/hotfix-ledger-plants.md`. The task also supplies `Leg: hotfix`, the mapping row 1 to AC 1 on leg hotfix, and `Rules: AGENTS.md`.\n- **Commands:** `SCOPED_TEST_COMMANDS` includes `node --test test/plants.test.mjs`. The full gate is `npm test`.\n- **Binding check:** `binding_check` passes after each return, and the primary checkout never changes.\n\n## Seed dispatch\n\n- Saved values: row 1 attempts `0`, `i = 0`, `HEAD_BEFORE = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- Ledger changes:\n  - `iterations: 1`\n  - `pending: seed | hotfix | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- Task fields:\n  - `iteration: 0`, `target: seed`, `previous decision: none`\n  - Hint: the seed contract, plus the instruction to commit with `--allow-empty` if no tracked file changes.\n  - `wording:` the wording file above.\n  - `ticket: #241`\n  - `return: /workspace/root/.git/worktrees/plants/gauntlet/returns/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-1.md`\n- The return file's parent directory is created first, and any stale file at that path is deleted before dispatch.\n\n## Seed admission\n\n- **Boundary:** passes. The worktree is clean and there is exactly one new commit, `bbbbbbbb…`.\n- **Return file:** passes.\n  - Line 1 is `seed | hotfix | aaaa…` and line 2 is `iteration: 1`. Both match what was dispatched.\n  - There is one row line, followed by the decision.\n- **Evidence:** passes.\n  - The command `timeout -k 30 120 node --test test/plants.test.mjs` contains no `;`, `|` or `&&`.\n  - It selects a test file and differs from the full `verification:` command.\n  - The result line is `blank name was accepted`.\n- **Seed row:** passes. It reads `| 1 | open | 0 | … |`, and the decision line matches exactly.\n- **Diff:** passes. The commit changes a tracked test file, and the row status is not `done`.\n- **Subject:** not inspected.\n- **Result: ADMIT.** The parent then:\n  - writes row 1 as `open | 0 | timeout -k 30 120 node --test test/plants.test.mjs; blank name was accepted`;\n  - appends the seed decision under `## Decisions`;\n  - sets `returned: seed | hotfix | aaaa…` and clears `pending:`;\n  - deletes the return file and resets the miss count to 0.\n\n## Row 1 dispatch\n\n- **Attempt budget:** attempts `0` is below allowance `4`. Attempts `0` is not `allowance - 1`, so there is no escalation and no `model:` field.\n- Saved values: attempts `0`, `i = 1`, `HEAD_BEFORE = bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n- Ledger changes:\n  - `iterations: 2`\n  - `pending: 1 | hotfix | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- Task fields:\n  - `iteration: 1`, `target: 1`\n  - `previous decision: row 0 done | seeded 1 rows, closed 0 on baseline | 1`\n  - `hint: none`\n  - `wording:` the same wording file, and `ticket: #241`\n  - `return: /workspace/root/.git/worktrees/plants/gauntlet/returns/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-2.md` (stale file deleted first)\n\n## Row 1 admission\n\n- **Boundary:** passes. The worktree is clean and there is one new commit, `cccccccc…`.\n- **Return file:** passes. The tuple `1 | hotfix | bbbb…` and `iteration: 2` both match the dispatch.\n- **Evidence:** passes. It uses the same selective command, with the result `2 passed`.\n- **Accounting:** passes.\n  - Attempts are `1`, which equals the saved `0 + 1`.\n  - The status is `done` in both the row and the decision.\n  - The decision matches the required pattern `row 1 (done|failed) | … | …`.\n- **Diff:** passes. The commit changes source code, so it counts as progress.\n- **Subject and body (`Refs #241`):** not used for admission.\n- **Result: ADMIT.** The parent then:\n  - writes row 1 as `done | 1 | timeout -k 30 120 node --test test/plants.test.mjs; 2 passed`;\n  - appends `row 1 done | Reject blank plant names | Reuse the plant fixture` under `## Decisions`;\n  - sets `returned: 1 | hotfix | bbbb…` and clears `pending:`;\n  - deletes the return file and resets the miss count to 0.\n- The run continues to step 5.\n\n## Alternative: seed returns with no return file\n\n**Decision: ABORT (pre-land).**\n\n- The boundary passes: the worktree is clean and there is exactly one commit.\n- However, admission reads only the return file at `…/returns/aaaa…-1.md`. It never reads the commit message or the child's reply.\n- The tuple, iteration and row lines in the commit body are not a substitute for the return file. Protocol state does not belong in a commit message.\n- A missing return file is a **seed miss**, and a seed miss means an immediate pre-land abort with no seed retry.\n- Accounting stays as it was:\n  - row 1 attempts stay `0`, because seed failures consume no attempt;\n  - nothing is admitted, and `returned:` stays `none`.\n- The pre-land abort path then runs as written. The final report precedes the ledger teardown, and chase-bug's step 4 menu is re-rendered without the hotfix option.\n",
+      "words": 722,
+      "wallMs": 30067,
+      "mechanical": {},
+      "error": "722 words over the 700 cap"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Unchanged binding and dispatch scaffolding applies to both sequential, fresh-context dispatches in the worktree, with `AGENTS.md` as the rule file. Binding checks pass before either result is inspected.\n\n### Seed dispatch\n\n```text\nwording: /package/skills/finishing-a-development-branch/reference/commit-message.md\nticket: #241\nreturn: /workspace/root/.git/worktrees/plants/gauntlet/returns/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-1.md\n```\n\nAccounting before dispatch:\n\n```text\niterations: 0 → 1\npending: seed | hotfix | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\nRow 1 remains `open`, attempts `0`; `returned: none`.\n\n### Seed admission\n\nAdmit the seed. There is exactly one new commit, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, with a clean worktree and tracked test changes. The return file matches the dispatched tuple and consumed iteration `1`, has the required format, and supplies:\n\n```text\n| 1 | open | 0 | timeout -k 30 120 node --test test/plants.test.mjs; blank name was accepted |\n\nrow 0 done | seeded 1 rows, closed 0 on baseline | 1\n```\n\nThe evidence command invokes a specific test file and differs from the full verification command, `npm test`. The child’s `DONE` reply and commit subject are not admission evidence.\n\nWrite the returned row, append the exact seed decision, and update:\n\n```text\nreturned: seed | hotfix | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\npending: cleared\niterations: 1\n```\n\nDelete the seed return file. Attempts remain `0`; consecutive misses reset to `0`.\n\n### First row dispatch\n\nAttempts `0` are below allowance `4`; this is not the final allowed attempt, so no escalation entry or model override applies.\n\n```text\nwording: /package/skills/finishing-a-development-branch/reference/commit-message.md\nticket: #241\nreturn: /workspace/root/.git/worktrees/plants/gauntlet/returns/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-2.md\n```\n\nAccounting before dispatch:\n\n```text\niterations: 1 → 2\npending: 1 | hotfix | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nRow 1 remains `open`, attempts `0`, until admission. The admitted seed decision supplies the previous decision.\n\n### First row admission\n\nAdmit the row result. There is exactly one new commit, `cccccccccccccccccccccccccccccccccccccccc`, with a clean worktree and tracked source changes. The return file matches the dispatched tuple and consumed iteration `2`, with matching row and decision statuses and attempts equal to saved attempts plus one:\n\n```text\n| 1 | done | 1 | timeout -k 30 120 node --test test/plants.test.mjs; 2 passed |\n\nrow 1 done | Reject blank plant names | Reuse the plant fixture\n```\n\nWrite the row, append that exact decision, and update:\n\n```text\nreturned: 1 | hotfix | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\npending: cleared\niterations: 2\n```\n\nDelete the row return file; consecutive misses reset to `0`. Commit subject and body do not determine admission.\n\n### Alternative: missing seed return file\n\nAbort pre-land; do not dispatch row 1 and do not retry the seed. The clean one-commit boundary does not replace the required return file. Tuple, iteration, and row lines in the commit body cannot establish admission.\n\nNo seed result is admitted: row 1 stays `open`, attempts `0`; `iterations` remains `1`, `returned` remains `none`, and the dispatched seed tuple remains pending. Append no seed decision.\n",
+      "words": 414,
+      "wallMs": 16031,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "verdict": "error",
+      "error": "722 words over the 700 cap"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5bbd998bdf41d053d558e98c826125847f72624fd47f27f0be07edff6649d93d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fae79c4c470761b6a5fc12a09bf20e4a1c623d068ab866e8526b15745afda4ab",
+      "baselineOutputSha": "adb5d14161022e2a1b7b7896f1ebf091569d5130593ad03bb5301343f63a8ffb",
+      "candidateOutputSha": "431ae4d7b1115694e37031117a2a6026b47bdf2cb55230f764c50f03ac5ff9c7",
+      "facts": {
+        "dispatch": {
+          "before": "fails",
+          "after": "fails",
+          "label": "intended but unchanged"
+        },
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved admission cleanly: binding checks run before either result is inspected, seed and row are admitted from their private return files with subject and body explicitly ruled out as evidence, attempts go 0 then 1, iterations reach 2, `returned` is set to each admitted tuple, pending is cleared, each file is deleted, and the missing-file alternative aborts pre-land with no row dispatch or seed retry despite the commit-body state. Dispatch still fails, though it is much closer than Before, which had no wording, no return path, and never dispatched the row. After shows the wording path, ticket #241 and both checkout-git-dir return paths, but it never says stale return files are removed before each dispatch. It also shows the iteration only as accounting (`0 → 1`, `1 → 2`), not as the value handed to the worker (seed 0, row 1). To close this, the skill wording should make removal of any stale file at the return path an explicit, narrated pre-dispatch step, not part of the 'unchanged scaffolding' that gets summarised away. It should also list the dispatched `iteration` value alongside wording, ticket and return as a field that is always printed, separate from the post-increment accounting. Neither change affects the admission behaviour.",
+      "wallMs": 11327,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f0ab8be0b453cd588973594e240e965cbcc90e52"
+}

@@ -2,6 +2,12 @@
 
 Exercise main-session driver decisions and the actual loop-implementer dispatch contract with synthetic state snapshots. Loads the driver and persona in full.
 
+## Ledger repair-count boundary
+
+`ledger-repair-counts` selects only the seed/verification budget decision from supplied ledger snapshots: seed exhaustion at 3 of 3, two verification decisions plus a pending reservation, and three settled decisions without pending. Model calls check the interpretation and stop output because the driver expresses counting as instructions, not an executable counter. The sample stops before recovery, dispatch or gate execution; it replaces no production logic with a test-only counter. The longer `seed-interrupted-count` and `verify-repair-count` process traces are not selected for this boundary.
+
+Run `timeout -k 30 120 node --test scripts/loop-repair-counts.test.mjs` to check instruction wiring and replay currency against saved model judgments. This is instruction/model coverage, not executable driver or end-to-end proof. Tests sit beside the other loop contract checks in `scripts/`; model calls stay outside CI.
+
 ## Dirty-tree stop coverage
 
 | Sample | Must hold |

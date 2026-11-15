@@ -1,0 +1,34 @@
+{
+  "sample": "ignore-subject",
+  "arm": "baseline",
+  "skillSha": "b771af3ddfe6cd4d9398b75d2b33fb45dfae8fdb69095805e9cc6bbfff477f45",
+  "inputSha": "478c6a835d0d181f8c8c7d6e2c0fca7a70cf9495b070470f2f314a58718a119e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 2b: Gitignore, Commit, Create, and Report\n\nThe process cwd stays `/workspace/app` throughout. Every git command targets the repo with `-C`. The Step 3 clean-base check (`git -C /workspace/app status --porcelain`) has already exited 0 with empty output.\n\n**Resolved values**\n- `ROOT=/workspace/app`\n- `BRANCH=feature/profile-cache`\n- `NAME=feature-profile-cache` (the `/` becomes `-`)\n\n**1. Check whether the worktree already exists** (cwd `/workspace/app`)\n```\ngit -C /workspace/app worktree list --porcelain | grep -qx \"worktree /workspace/app/.worktrees/feature-profile-cache\"\n```\nThe list shows only the primary, so there is no match. I take the create branch.\n\n**2. Check whether `.worktrees` is ignored** (cwd `/workspace/app`)\n```\ngit -C /workspace/app check-ignore -q .worktrees\n```\nThis exits 1, so `.worktrees` is not ignored. I must ignore it before any worktree is created.\n\n**3. Write the ignore entry** (cwd `/workspace/app`)\n```\necho \".worktrees/\" >> /workspace/app/.gitignore\n```\n\n**4. Stage it** (cwd `/workspace/app`)\n```\ngit -C /workspace/app add .gitignore\n```\n\n**5. Commit it** (cwd `/workspace/app`)\n```\ngit -C /workspace/app commit -m \"Ignore .worktrees/\" -- .gitignore\n```\nThe commit message is exactly `Ignore .worktrees/`. This commit lands on `main` and becomes the new base HEAD.\n\n**6. Create the worktree** (cwd `/workspace/app`)\n```\ngit -C /workspace/app worktree add \"/workspace/app/.worktrees/feature-profile-cache\" -b \"feature/profile-cache\"\n```\nThis succeeds, giving `WORKTREE=/workspace/app/.worktrees/feature-profile-cache`. I do not `cd` into it.\n\n**Step 2c (project setup):** I run the subshell `(cd \"/workspace/app/.worktrees/feature-profile-cache\" && {...})`. There are no `pnpm-lock.yaml`, `yarn.lock`, `package.json`, `Cargo.toml`, `pyproject.toml`, `Gemfile` or `go.mod` files, so nothing installs.\n\n**Provenance check** (fresh-creation path)\n- `git -C /workspace/app symbolic-ref --short refs/remotes/origin/HEAD` returns `origin/main`, so the default branch is `main`.\n- `git -C /workspace/app branch --show-current` returns `main`.\n- The two match, so there is no note.\n\n**Step 4 read-back** (single-member run, so these are advisory checks)\n- `git -C /workspace/app worktree list --porcelain` prints `worktree /workspace/app/.worktrees/feature-profile-cache`.\n- `git -C /workspace/app/.worktrees/feature-profile-cache branch --show-current` prints `feature/profile-cache`.\n\nNeither check shows a mismatch.\n\n**Step 4 report**\n```\nWorktree ready at /workspace/app/.worktrees/feature-profile-cache\nBranch: feature/profile-cache\nBase: main (clean)\nReady to implement profile cache\n```\n",
+      "words": 292,
+      "wallMs": 13762,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the using-git-worktrees skill to set up an isolated workspace.\n\nResolved values:\n- `ROOT=/workspace/app`\n- `BRANCH=feature/profile-cache`\n- `NAME=feature-profile-cache`\n- `WORKTREE=/workspace/app/.worktrees/feature-profile-cache`\n- Source branch: `main`\n\nAll commands below run with cwd `/workspace/app`, in this order:\n\n1. Verify the source is clean:\n   ```sh\n   git -C /workspace/app status --porcelain\n   ```\n   Succeeds with empty output.\n\n2. Check whether the target worktree is already registered:\n   ```sh\n   git -C /workspace/app worktree list --porcelain | grep -qx \"worktree /workspace/app/.worktrees/feature-profile-cache\"\n   ```\n   No match; proceed with creation.\n\n3. Check ignore coverage:\n   ```sh\n   git -C /workspace/app check-ignore -q .worktrees\n   ```\n   Returns `1`.\n\n4. Append the ignore rule **before creating the worktree**:\n   ```sh\n   echo \".worktrees/\" >> /workspace/app/.gitignore\n   ```\n\n5. Stage `.gitignore`:\n   ```sh\n   git -C /workspace/app add .gitignore\n   ```\n\n6. Commit only `.gitignore`, with the exact message `Ignore .worktrees/`:\n   ```sh\n   git -C /workspace/app commit -m \"Ignore .worktrees/\" -- .gitignore\n   ```\n\n7. Create the worktree and new branch from the updated `main`:\n   ```sh\n   git -C /workspace/app worktree add /workspace/app/.worktrees/feature-profile-cache -b feature/profile-cache\n   ```\n\n8. Read back the registered path:\n   ```sh\n   git -C /workspace/app worktree list --porcelain\n   ```\n   Confirms `/workspace/app/.worktrees/feature-profile-cache`.\n\n9. Read back its branch:\n   ```sh\n   git -C /workspace/app/.worktrees/feature-profile-cache branch --show-current\n   ```\n   Returns `feature/profile-cache`.\n\n10. Resolve the default branch for the provenance note:\n    ```sh\n    git -C /workspace/app symbolic-ref --short refs/remotes/origin/HEAD\n    ```\n    Returns `origin/main`; stripping `origin/` gives `main`, matching the source branch. No provenance note is needed.\n\n```text\nWorktree ready at /workspace/app/.worktrees/feature-profile-cache\nBranch: feature/profile-cache\nBase: main (clean)\nReady to implement profile cache\n```\n",
+      "words": 219,
+      "wallMs": 42101,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "8fbc2cbe4c6941da0b79b4e88c1714aa1bc399e2"
+}

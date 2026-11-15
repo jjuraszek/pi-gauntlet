@@ -1,0 +1,100 @@
+{
+  "sample": "ledger-repair-counts",
+  "arm": "candidate",
+  "skillSha": "1d7fc02e90e3c682646578aab2fc64cd646573e30e4b70978f06ae5cb97c0931",
+  "inputSha": "1af2cadf697a4cfe7caf0e127fa5da09c845f03a90ca20dde3f92b575878ffd9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## A. Seed budget at implement\n\n**Repair count: 3**, from the three `repair seed` lines in the home ledger's `## Decisions`. Interrupted repairs and validation-miss repairs both count. Commit messages are never counted.\n\nThe rule is to dispatch seed only while the count is below the ledger allowance. Here 3 is not below `allowance: 3`, so seed is exhausted.\n\n- **Dispatch:** no seed is dispatched.\n- **Calls:** none. There is no bump, no tuple write, no `mktemp` and no `subagent`.\n- **Durable changes:** none. `iterations:` stays 3, row 1 attempts stay 0, and there is no commit and no refresh.\n- **Next target:** none. The run waits at the human stop.\n\nHuman-facing output:\n\n```\ngauntlet: question\nStopped on seed\nseed: 3 of 3\nrow 1: 0 of 3\nPreserve every row's attempts.\nProblem: latest seed repair - \"seed interrupted: dirty tree\" (repair seed | seed interrupted: dirty tree | iteration 3)\nOptions:\n1. retry <n> | <hint> - retry a numbered row with a hint (does not erase the seed count)\n2. rows +N - raise the shared allowance; only this permits more seed repairs\n3. Amend - via the brainstorming amendment surface\n4. Stop - keep implement active and preserve branch state\nRecommendation: none - the seed budget is spent and retry or rows +N must come from the human\n```\n\nRow 1's denominator is the header allowance 3 plus zero retry lines.\n\n## B. Verification repair budget on resume\n\n**Reserved repair count: 3**, made up of:\n- 2 `repair verification` lines in the home ledger, and\n- 1 for the on-disk `pending: verify | home | aaaa…` tuple.\n\nThe `row 1 retry | … | allowed attempts 99` line does not count. The verification budget uses only the shared ledger allowance, with no per-row retry increments.\n\nThe count equals the allowance (3 of 3). Even so, the skill requires recovering an outstanding tuple before any new gate run or dispatch, including the last reserved repair at allowance.\n\n- **Immediate next step:** recover this outstanding tuple, not a fresh repair dispatch and not a gate run. (Not performed here.)\n- **Durable changes at this boundary:** none, and no further iteration bump is due.\n\n## C. Count after the admitted marker\n\n**Count on another resume: 3**, from the three `repair verification` lines (iterations 40, 41, 42). No `pending:` tuple exists, so the tuple adds +0.\n\n**Is the dispatch counted twice? No.** The marker appended the decision and removed the tuple in the same ledger commit. The dispatch was counted once as the pending tuple before admission and is now counted once as its decision line. It is never both at the same time.\n\n`iterations:` stays 42. I stop at the count, as requested.\n",
+      "words": 425,
+      "wallMs": 15177,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A. Seed budget exhausted\n\n**Repair count: 3 of 3**, from the three `repair seed` decision lines. Both interrupted repairs and validation-miss repairs count; `iterations: 3` is not the budget source.\n\nHuman-facing stop:\n\n```text\ngauntlet: question\nStopped on seed\nseed: 3 of 3\nrow 1: 0 of 3\nPreserve every row's attempts.\n\nretry 1 | <hint>\nrows +N\nAmend\nStop\n\nRecommendation: rows +N - only a raised allowance permits another seed attempt.\n```\n\nNo further seed is dispatched. A numbered retry does not erase or extend the seed-repair count. `iterations` remains **3** and row attempts remain **0**. No calls, writes or commits are made. Seed remains the target if additional seed budget is later authorized.\n\n### B. Outstanding verification repair is already reserved\n\n**Reserved repair count: 3 of 3**:\n- Two `repair verification` decision lines, including the interrupted repair.\n- One outstanding `pending: verify` tuple.\n\nThe historical row retry contributes nothing to the verification allowance; its `allowed attempts 99` does not affect this count. Neither does `iterations: 42`.\n\nThe immediate next step is **recovery of the outstanding verification tuple**, even though it reserves the last allowed repair. It is **not** a fresh repair dispatch or gate run, and the budget count alone does not trigger an exhaustion stop before recovery.\n\nStop here: no recovery, calls or durable changes are performed.\n\n### C. Admitted marker replaces the reservation\n\n**Repair count on another resume: 3 of 3**, from the three durable `repair verification` decision lines. There is no pending tuple to add.\n\nThat dispatch is **not counted twice**: removing its pending tuple and appending its repair marker in the same commit replaced the reservation with one recorded repair.\n\nNo calls, mutations or gate execution are performed.\n",
+      "words": 276,
+      "wallMs": 13741,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "2adb97a949cd5fc45927ddcced3661bd7e83ff97ba1697a05cdd4ef2b6593911",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1ab3f4c20dda5f8fab7ee617b5a6532d55641a186f8117efdf5aec003c788617",
+      "baselineOutputSha": "6df9be6867edeb88da0dab3def508ada9ea58d70b1f12dd108db9d7b0b70af5c",
+      "candidateOutputSha": "4f6321fcae765442b28af0daa14831ac19e4af9c00146ade0c73147c41039359",
+      "facts": {
+        "seed-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification-reservation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "settled-count": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ledger-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs count A as three repair seed decisions with 'Stopped on seed' / 'seed: 3 of 3', no dispatch, iterations 3 and attempts 0 unchanged; both count B as two repair verification lines plus the pending tuple, exclude the row retry and its 99, and name recovery of the outstanding tuple as the next step without performing it; both count C as three decision lines with no pending, iterations 42 and no double count; and both draw counts only from ledger Decisions and the pending header while explicitly saying commit messages are not consulted. The After wording keeps this intact, so the ledger-decisions counting rule and the 'recover outstanding tuple before any new gate run or dispatch, including at allowance' sentence should be kept as is. Minor drift to watch: After's A section adds negated procedure detail ('no mktemp and no subagent', 'no refresh') and expands the option lines and Problem line beyond the verbatim latest decision, and it changes the Recommendation to 'none'; none of that breaks a fact here, but if the stop block is meant to be a fixed template, state that the Problem line quotes the latest decision verbatim and that option lines are rendered unannotated, and keep the instruction to stay at the budget decision so worker/dispatch mechanics from the new shared-wording and ticket-passing text do not leak into budget-only answers. After's B also dropped the explicit statement that iterations stays 42 in favor of 'no further iteration bump is due'; keeping the explicit header value would be safer.",
+      "wallMs": 7005,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "2adb97a949cd5fc45927ddcced3661bd7e83ff97ba1697a05cdd4ef2b6593911",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1ab3f4c20dda5f8fab7ee617b5a6532d55641a186f8117efdf5aec003c788617",
+      "baselineOutputSha": "4f0704e16169462ce053dce485015e493dd1c66d8bf1b15f46f8348c6425f33e",
+      "candidateOutputSha": "4fc421071d2648da09046d0fb4362e66d34f42118bd210683d1636bbb08ff2fa",
+      "facts": {
+        "seed-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "verification-reservation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "settled-count": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ledger-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs count seed repairs from the three `repair seed` decision lines with `Stopped on seed` / `seed: 3 of 3`, reserve 3 verification repairs in B from two decisions plus the pending tuple while ignoring the row retry, name recovery as the next step without performing it, and count 3 in C without double counting, all from ledger Decisions and the pending header with no commit-message reads. The closest call is settled-count in After: section C no longer says that iterations remain 42, which Before stated explicitly. I judged it as holding because After proposes no iteration bump or second marker and takes the count from the three decision lines with no pending, but a stricter reader could fail it. To make this robust, the wording should prompt the output to restate that the iterations header is unchanged whenever a settled marker replaces a reservation. After also adds forward-looking remarks (\"Seed remains the target if additional seed budget is later authorized\") and changes the choices block to `retry 1 | <hint>`; neither breaks a fact, but tightening the wording to stop at the budget decision and keep the generic choice rendering would reduce the risk to ledger-only and seed-stop while still delivering ledger-based repair counting.",
+      "wallMs": 11545,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "b3e8496dbbca77bf8cdf6da3c4e2e0363a453701"
+}

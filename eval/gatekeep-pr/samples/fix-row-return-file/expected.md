@@ -1,0 +1,1 @@
+- admission: judged: A admits the matching private-file result without requiring a subject pattern. B is one validation miss caused by the absent file, not an admitted return from the plausible commit body. Reports only those classifications and reasons without executing a later step.

@@ -1,0 +1,70 @@
+{
+  "sample": "returned-line-recovery",
+  "arm": "candidate",
+  "skillSha": "066d2eae6c43007bf1dea28c06026ef17b60bd21d6b755c51d46c5684ba4b3b0",
+  "inputSha": "33bb0d0e00f2a19ae676e39a0f084bfd9faa296e07b1c144ef7e26f0b9e253d2",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Pending recovery: home return classification\n\n**Read-only calls, narrated in order.** No tracker calls, no writes.\n\n1. `git -C /workspace/home show HEAD:doc/plans/plants-ledger.md` reads the committed ledger.\n   - It has exactly one `returned:` line, so the ledger-held decoder applies, not the legacy decoder.\n   - It has no `pending:` tuple.\n   - The `returned:` value is `1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n2. `git -C /workspace/home show aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:doc/plans/plants-ledger.md` reads the before-image at S.\n   - It shows `iterations: 2`, `returned: none` and row 1 open with attempts 0.\n3. `git -C /workspace/home log -G'^returned: ' --format=%H aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..HEAD -- doc/plans/plants-ledger.md` finds the commit that introduced the tuple.\n   - The only candidate is `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`.\n   - Its ledger diff against its first parent introduces the tuple.\n   - The target and home identity match.\n   - The consumed count is 3, which equals before-image iterations 2 + 1.\n   - No commit message is read.\n\n## Classification\n\nThis is an **unsuperseded home child return, admitted once as a clean single return** on the ledger-held route.\n\n- **Authority:** the committed home ledger's `returned:` line together with the ledger diff. The commit subject and body play no part.\n- **Validation:** the driver's `Validate the return` checks pass over the entire S..HEAD range.\n  - The range contains one commit and the tree is clean.\n  - The only header deltas are the consumed iteration and the `returned:` replacement.\n  - Row 1 shows done, attempts 1, selective passing evidence and a matching decision.\n- **Interruption:** there are no later commits, no dirt and no repair, so the ambiguous-history question is not raised. Interrupted recovery is not triggered.\n\n## Sources\n\n- **Tuple:** the `returned:` line of `HEAD:doc/plans/plants-ledger.md`. Commit `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` is the commit that introduced it.\n- **Before-image:** `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:doc/plans/plants-ledger.md`, which is the ledger at S, not at `HEAD^`.\n- **Consumed count:** `iterations: 3`, taken from the committed ledger.\n\n## Counts\n\nNo further increment is needed.\n\n- `iterations: 3` already holds the consumed iteration.\n- Row 1 `attempts 1` already counts this attempt.\n- Admission adds no second iteration bump and no second attempt increment.\n\nStopping here. I make no ledger mutation, reset, migration, tracker refresh or dispatch.\n",
+      "words": 319,
+      "wallMs": 14872,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Classification: Clean, single-commit unsuperseded home return; admit once under the driver’s return-validation checks. The arbitrary subject and empty body do not affect admission.\n\nTuple source: The committed ledger’s `returned: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` line.\n\nBefore-image: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:doc/plans/plants-ledger.md`.\n\nCounts: Preserve iterations **3** and row 1 attempts **1**. Neither needs another increment.\n",
+      "words": 48,
+      "wallMs": 4427,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b17a2104be34055a0a0ce30fdd8dd9caad18e54a265b6ad5022aa33983d0e226",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c177ffda70f4df9bafbc3945325bf2554fa65a1c7d9eb8a5b064db58a9326f13",
+      "baselineOutputSha": "4da7977639bae50bc7c681e499f923975f7c46edf1f71f42571345abc92f249e",
+      "candidateOutputSha": "812b69b6e0433be0cc12740d84b9fd2a2ebbcf0285f2b8163a10d15e6124eddf",
+      "facts": {
+        "home": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the home fact as intended: it classifies the clean single home return as admitted on the ledger-held route, takes the tuple from the committed `returned:` line and the consumed count from committed `iterations: 3`, reads the before-image from the ledger at S rather than `HEAD^`, states that no commit message is read, keeps iterations 3 and attempts 1 with no second bump, and stops at the decision without any mutation. Before failed because it treated the commit body as the only tuple source, read the commit message, declared missing attribution and admitted no before-image; the only parts it got right (no second increment, stop without mutation) are retained in After, so nothing Before kept was lost. To keep this stable, preserve the explicit wording that the committed `returned:` line plus ledger diff is the authority and that subject and body play no part, keep the before-image tied to the tuple's SHA (S), and keep the closing no-mutation stop; consider trimming the narrated `git` read calls or marking them as supplied observations, since the case says ancestry and before-image reads are already supplied PASS and narrated calls could be misread as replaying restoration or as a running driver.",
+      "wallMs": 5743,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b17a2104be34055a0a0ce30fdd8dd9caad18e54a265b6ad5022aa33983d0e226",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c177ffda70f4df9bafbc3945325bf2554fa65a1c7d9eb8a5b064db58a9326f13",
+      "baselineOutputSha": "3bea06053512a5be0d5728f6f81c1d2fd7ce7f2c509053d7abd814d1760a655e",
+      "candidateOutputSha": "a520ea002e14ab9213d274cae757ff997d97ae56771a6d0dfe1b85b91fadbc00",
+      "facts": {
+        "home": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the home fact by naming the committed ledger's `returned: 1 | home | aaaa…` line as the tuple authority and stating that the arbitrary subject and empty body do not affect admission, where Before stopped on missing commit-body attribution and explicitly refused the ledger's returned header. After also keeps what Before already had: the before-image at S's ledger (`aaaa…:doc/plans/plants-ledger.md`), iterations 3 and row 1 attempts 1 with no second increment, and no restoration or mutation steps. Two points are implicit and could be made firmer: the output says 'admit once under the driver's return-validation checks' without an explicit statement that it stops at the decision with no ledger write, reset or refresh, and it attributes the tuple to the returned line but not explicitly the consumed iteration count to the committed iterations header. Wording that requires the answer to state that tuple and iteration come from the committed ledger (never commit messages) and to end with a one-line 'decision only, no mutation' statement would lock in the fact while still preserving Before's no-increment and before-image behavior.",
+      "wallMs": 5325,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "18f4c9cfeca924e74f54d48f293171b0cf1f5b72"
+}

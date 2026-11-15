@@ -1,0 +1,90 @@
+{
+  "sample": "digest-from-record-lines",
+  "arm": "candidate",
+  "skillSha": "1b1c0d4281b66cd7fd7efc66228363ed84ad4028d96460ac47a37fc4bf803801",
+  "inputSha": "2eff03e26828aadbdc2d5f2703be865aa6e68fec44ab4ffe129bcdf1e5f75a27",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=finishing-a-development-branch/step-4\nLog read: `git -C \"/workspace/app-tree\" log main..HEAD --format=%B`\n\nThe digest includes complete audit rows of kind `auto-apply` or `granted` only, selected by body record, never by subject. The `accepted` scope row, the quoted `\"auto-apply amends\"` text, and the citation-repair commit are excluded.\n\n```\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n```\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n---\n\nNo-amendment variant: the log contains only `Repair 2 plan citations` with a body that has no audit rows. N = 0, so the `Amendments auto-applied` block is omitted entirely. No digest line is printed, and the message goes from the marker and log read directly to the same menu.\n",
+      "words": 158,
+      "wallMs": 9118,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=finishing-a-development-branch/step-4\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --format=%B\n```\n\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n**Independent no-amendment variant:** No amendment digest is printed; the block is omitted because there are no qualifying audit rows.\n",
+      "words": 94,
+      "wallMs": 7281,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ab5d5d1b78a8f771bc0ddb811819a37dc13e328315e5698af142ecfd4ccc5be4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
+      "baselineOutputSha": "20e49a2c0ab3622d58a49fa8cf9d09905c8480b137da5edaa1275690e05a7b6d",
+      "candidateOutputSha": "604755110fd0a4013e3633cf3c2aff57f329a9d19e24e2f56b73dad09cfb8122",
+      "facts": {
+        "source": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "digest": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved both targeted facts as intended: replacing the anchored `--grep '^(amend:|loop: ...)'` selection with an unfiltered `git -C \"/workspace/app-tree\" log main..HEAD --format=%B` read satisfies source, and selecting by body record kind (`granted` or `auto-apply`) rather than subject label produces `Amendments auto-applied (2):` with the Cache lifetime and Fixture byte count rows, while excluding the accepted scope row, the quoted `\"auto-apply amends\"` text and the citation repair, and omitting the block in the repair-only variant. Before failed both because its subject-prefix grep matched nothing and yielded N = 0. The menu fact held in both: marker line first, the five ordinary options after the digest, no recommended suffix, no extra approval and no automatic shipping. To keep this stable, retain the explicit instructions that the marker line stays first, that the log read is stated with `--format=%B` and no `--grep` or subject filter, that only complete audit rows of kind `granted` or `auto-apply` count, and that the block is omitted entirely when N = 0; consider also stating that the digest sits between the marker and the menu so the added log-read line never displaces the marker or pushes anything after the options.",
+      "wallMs": 6083,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ab5d5d1b78a8f771bc0ddb811819a37dc13e328315e5698af142ecfd4ccc5be4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
+      "baselineOutputSha": "df1dd79ab8c44e26576f4f97561e74f5442f0914ecd8e18386c0b183b7ea3bb7",
+      "candidateOutputSha": "85bcfb1dc281a664d4263f51427a3c2778c705c6ba600d3130ab4557eb5b700d",
+      "facts": {
+        "source": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "digest": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved both digest facts in the intended direction and cost nothing that Before held. Replacing the subject-prefix `--grep` filter with an unfiltered `git -C \"/workspace/app-tree\" log main..HEAD --format=%B` body read satisfied `source`. Reading the pipe-delimited record lines from those bodies satisfied `digest`: it printed `Amendments auto-applied (2):` with the granted Cache lifetime row and the auto-apply Fixture byte count row, left out the accepted human-pick row and the plan-citation repair, and omitted the block in the repair-only variant. Before failed both because its filter matched none of the plain subjects, so it selected no records and dropped the digest. The `menu` fact held in both: the gate line comes first, followed by the ordinary five options with no recommended suffix, no extra approval and no automatic shipping. To keep this, the wording should continue to say explicitly that rows are selected by their disposition field (granted or auto-apply) from all commit bodies and never by subject, that the digest is omitted entirely when no rows qualify, and that the digest sits between the log command and the unchanged five-row menu under the gate line.",
+      "wallMs": 8121,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8899bf733b281e7df57d1efaf639009994ec21d3"
+}

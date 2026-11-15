@@ -64,7 +64,7 @@ Choose the recommendation through `## Recommendation`; print its `[recommended]`
 
 | Row | Availability | Pick |
 |---|---|---|
-| `merge` | Non-draft; viewer_permission WRITE, MAINTAIN or ADMIN; all `### Merge preconditions` hold | Run `gh pr merge --match-head-commit <assessed-sha>` with the resolved policy flag; append `--admin` only on the bypass path in `post-selection-loop.md` `### Merge course`. |
+| `merge` | Non-draft; viewer_permission WRITE, MAINTAIN or ADMIN; all `### Merge preconditions` hold | Read [commit message](../../finishing-a-development-branch/reference/commit-message.md) and execute `post-selection-loop.md` `### Merge course` with its composed message and policy flags; retain its assessed-head match and append `--admin` only on the bypass path, with every merge precondition satisfied. |
 | `approve` | viewer.is_author false, zero blockers, non-draft | Approve; persist approved_head only after success. |
 | `fix nits` | Nits outside the course; helpers and head_pushable true; accounting permits one iteration | Run exactly one delivery iteration, course unchanged; initialize missing accounting through `fix-wave.md` `## Wave`. |
 | `reply` | Unposted drafted reply, source review complete | Post drafted replyable C# replies; exact `reply <n>` selects one. |

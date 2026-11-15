@@ -1,0 +1,1 @@
+- message: judged: Returns only a plain imperative fault-naming subject of at most 72 characters and a fault-story paragraph of at most three sentences, with Refs #241 in the body. Uses no fix: prefix, slug template, outcome bullets or protocol lines and makes no delivery claim.

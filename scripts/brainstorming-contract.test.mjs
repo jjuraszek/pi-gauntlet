@@ -379,7 +379,7 @@ const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { with
 
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
   const text = read('skills/brainstorming/reference/amendment-surface.md');
-  for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', "printf 'grant: %s\\n'", 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', 'compose its Consent change bookkeeping message with one body sentence naming the new consent value', 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
   for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The waves budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
   const legacyRow = text.split('\n').find((l) => l.startsWith('| Line absent (legacy spec)'));
@@ -735,18 +735,28 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   const ledger = text.indexOf('Ledger exists');
   assert.ok(ledger > 0 && ledger < text.indexOf('Plan exists ->'));
-  for (const marker of ['# Ledger - loop engine', 'skip `plan-writer` and `plan_check`', 'Keep task-plan `add`/`update`/`init` out of this route', "after the commit, use the driver's next ledger-path refresh to project the new statuses and continue without task-plan aftermath", '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'a `1` or `2` approval without `--amends-stop`', 'a prose grant after an `--amends-stop` approval still counts']) assert.ok(text.includes(marker), marker);
-  for (const marker of ['Without a standing amend grant, send a re-bounded row to human review before applying it', 'for a batch containing only one cut, otherwise `loop: amend` (including mixed batches)']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['# Ledger - loop engine', 'skip `plan-writer` and `plan_check`', 'Keep task-plan `add`/`update`/`init` out of this route', "after the commit, use the driver's next ledger-path refresh to project the new statuses and continue without task-plan aftermath", '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'amended | <cut row n, or N item(s)> | <first item title>', 'Commit spec + ledger together using the shared amendment message below', 'amendment audit', 'a `1` or `2` approval without `--amends-stop`', 'a prose grant after an `--amends-stop` approval still counts']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['Without a standing amend grant, send a re-bounded row to human review before applying it', 'using `cut row n` only for a single-cut batch']) assert.ok(text.includes(marker), marker);
   assert.match(main(), /delete the plan file and the loop ledger/);
 });
 
+
+test('member-merge recovery rejects duplicate admitted members without reading messages', () => {
+  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const recovery = text.split('Without a rework-base ref,')[1].split('\n\n')[0];
+  assert.ok(recovery.includes("--first-parent --format='%H %P'"));
+  assert.ok(recovery.includes("second parent equals an admitted member's full original `headRefOid`"));
+  assert.ok(recovery.includes('Require each admitted member to match at most once across the entire first-parent walk.'));
+  assert.match(recovery, /On duplicate member matches, unrelated commits, failed ancestry, or dirt, stop before writes:/);
+  assert.ok(recovery.includes('Read no subject to identify a member merge.'));
+});
 
 test('PR-head provisioning validates and recovers admitted member heads before base', () => {
   const text = read('skills/using-git-worktrees/reference/pr-head.md');
   for (const marker of [
     'ordered array', 'every admitted PR', 'before any worktree write',
-    "--first-parent --format='%H %P %s'", 'second parent', 'actual local home branch tip',
-    'merge PR #<N> head <sha7> into PR #<home>', '(already landed)',
+    "--first-parent --format='%H %P'", 'second parent', 'actual local home branch tip',
+    'Read no subject to identify a member merge.', 'use its Member pull request merge commit row for each message', '(already landed)',
     'an ancestor no-op records no new commit', 'MEMBER_HEADS',
     'Stop before the base merge, spec, plan, later member merges, push, or close',
     "the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests",
@@ -787,6 +797,11 @@ test('PR conflict helpers and completion explicitly target the selected tree wit
     'diff --cached --name-only', 'commit --no-edit', 'merge --abort', 'rebase --abort',
   ]) assert.ok(base.includes('`git -C "$WORKTREE" ' + command + '`'), command);
   assert.doesNotMatch(base, /`git (?:diff|status|add|commit|merge)\b/);
+  const fetchedBase = text.split('### Merge the fetched base\n')[1].split('## Validate the sync outcome')[0];
+  assert.match(fetchedBase, /Read \[commit-message\.md\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message\.md\) and use its Base-sync merge commit row/);
+  assert.ok(fetchedBase.includes('git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>'));
+  assert.match(fetchedBase, /composed message on stdin/);
+  assert.doesNotMatch(fetchedBase, /merge --no-ff --no-edit/);
 });
 
 test('leading PR lists admit in order and keep every retained contract', () => {
@@ -886,7 +901,7 @@ test('receivers retain plural closure and brief contracts', () => {
 
 test('rework finish selects recorded mode and guards first and later pushes', () => {
   const finish = read('skills/finishing-a-development-branch/SKILL.md');
-  for (const marker of ['Rework base:` selects rebase mode', 'Only `Base:` in `merge:` form selects merge mode', 'rework sync incomplete for PR #<home>: no Rework base recorded; finish Task 1 first.', 'the rework must restart from the recorded rework base.', 'origin equals `PRE_REWORK_HEAD`', 'origin descends from `Rework base` and is an ancestor of HEAD', 'push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>', 'rev-parse -q --verify refs/gauntlet/pre-rework/pr-<N>', '--force-with-lease=<home headRefName>:<PRE_REWORK_HEAD>', 'stale info', 'no retry, no reset', '<Rework base | merge-sha | PRE_REWORK_HEAD>..HEAD', 'cherry <pushed home head> <pre-rework head>', 'this PR\'s commits are replayed there as <first7>..<last7>.', 'this PR\'s commits are already contained there.']) assert.ok(finish.includes(marker), marker);
+  for (const marker of ['Rework base:` selects rebase mode', 'Only `Base:` in `merge:` form selects merge mode', 'rework sync incomplete for PR #<home>: no Rework base recorded; finish Task 1 first.', 'the rework must restart from the recorded rework base.', 'origin equals `PRE_REWORK_HEAD`', 'origin descends from `Rework base` and is an ancestor of HEAD', 'push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>', 'rev-parse -q --verify refs/gauntlet/pre-rework/pr-<N>', '--force-with-lease=<home headRefName>:<PRE_REWORK_HEAD>', 'stale info', 'no retry, no reset', 'Use the accepted-complete fallback when no SHA is recorded; do not search commit messages', 'cherry <pushed home head> <pre-rework head>', 'this PR\'s commits are replayed there as <first7>..<last7>.', 'this PR\'s commits are already contained there.']) assert.ok(finish.includes(marker), marker);
   const menuStart = finish.indexOf('Read and apply [menu-layout]', finish.indexOf('**Rework PR subject'));
   assert.equal(finish.slice(menuStart, finish.indexOf('Rows 1-2 run', menuStart)), "Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)\n2. Push and create a Pull Request (PR #N already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #N already exists)\n4. Squash-merge to <base-branch> (no PR, no surviving branch; orphans PR #N - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\nWithhold row 1 by omitting it and placing `Withheld: push - <reason>` under the list; retain numbers 2-6. On that withheld menu read a bare reply by its displayed label: `2`-`6` select those rows; `1` or any other number gets the clarifying question naming `2`-`6` (this one menu overrides menu-layout's count-based `1`-`N` range). Recompute preflight on return to the menu. Add no approval gate. Map rows 2-6 to the existing Options 1-5 below, including their confirmation and cleanup rules; row 6 never deletes origin's branch.\n**Normal repo and named-branch worktree \u2014 present exactly these 5 options:**\n\nRead and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**Detached HEAD \u2014 present exactly these 4 options:**\n\nRead and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. You're on a detached HEAD (externally managed workspace).\n\n1. Push as new branch and create a Pull Request\n2. Push as new branch and create a draft Pull Request\n3. Keep as-is (I'll handle it later)\n4. Discard this work\n\nWhich option?\n```\n\n");
   assert.ok(!finish.includes('stays on origin because the push was not forced'));

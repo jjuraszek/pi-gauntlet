@@ -1,5 +1,7 @@
 # Loop engine: escalate after `loopEngine.escalateAfter` attempts and give each attempt its row's decision history
 
+> **Superseded by:** [doc/specs/2026-11-14-single-commit-message-contract.md](./2026-11-14-single-commit-message-contract.md) - the `loop: escalate row <n>` parent-commit subject in "Driver threshold rule" and "Hotfix" only
+
 **Goal:** Decouple the loop engine's one escalated attempt per row from the row's allowance through a `loopEngine.escalateAfter` setting (default 3, clamped to the last allowed attempt), and have the fresh-context child read its target row's complete ordered decision history from the ledger before choosing an approach, without growing the dispatch payload.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

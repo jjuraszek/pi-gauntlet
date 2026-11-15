@@ -95,15 +95,130 @@ After confirmation:
 3. Admit exactly one positive safe-integer `cap:` or `allowance:` header; both or neither is `ledger header malformed: <observed header lines>`, requiring human repair by hand. Call `plan_check({ planPath: <absolute ledger path> })` with legacy-compatible admission. On FAIL, stop with findings, retaining plan in_progress. Start the message with `gauntlet: stuck` followed by the findings reason on that line; never enter `## Plan repair` or writing-plans. On PASS, call `phase_tracker({ action: "skip", phase: "plan", reason: "resume: <spec> (loop engine)" })`, then `phase_tracker({ action: "start", phase: "implement" })`. Use the resolved absolute spec path as `<spec>` in the reason. Restore implement through refresh, not `init`.
 4. **Shared allowance boundary (every ledger restore, before phase continuation).** Read `/skill:loop-implementation`. Skip Entry step 1's allowance seeding; restore base, verification, iterations, row attempts and decisions from the ledger without reseeding. Resolve `gauntlet_setting({ key: "loopEngine" })` exactly once at the driver's authorized-restore grant boundary and retain `escalateAfter` in driver memory for this run; share this read with step 4.2, never refresh it inside the loop. On an unavailable tool, stop before any dispatch or write with `cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)`. Apply the following order on bare-worktree and brief routes alike:
    1. Apply pending recovery below against the unmigrated ledger, including home returns whose child commit removed the tuple. Validate the original one-commit `<pre-dispatch HEAD>..HEAD` range against its unchanged before-image. For companions, retain unchanged home HEAD and admit the expected iterations-bump-plus-tuple dirt. With a recoverable on-disk tuple and before-image, treat wrong attribution, unexpected home dirt and home movement as interrupted boundaries; reset the selected companion and home through common recovery before the home-only repair. Stop before refresh only when the tuple or before-image is unrecoverable. Resolve ambiguous-history admission before tracker calls as required below. Apply the driver's unconditional interrupted recovery before migration; migration changes neither admission ranges nor the home HEAD used for recovery.
-   2. Migrate only a clean, tuple-free ledger after admission or completed interrupted recovery. With `cap:` and no `allowance:`, reuse the single restore-boundary settings read and replace the cap line with `allowance: <maxIterationsPerRow>`. Commit only that header replacement as parent `loop: migrate allowance`; preserve iterations, every attempts cell and all decisions. With an existing allowance, use it without allowance resolution or a migration commit; the restore read supplies `escalateAfter` only. Defer migration through a missing-history stop or the dirty-tree stop; after recovery reaches a clean, tuple-free tree, migrate before the next dispatch or verification.
-   3. Require `allowance:` and no `cap:` immediately after step 4.2 (including right after committing `loop: migrate allowance`) and before the single `plan_tracker refresh` in step 4.4, including for all-closed ledgers; otherwise stop with `ledger has no allowance: line - resume through /skill:gauntlet-resume`, and state this post-migration validation step explicitly on every non-deferred route. For a missing-history stop or unresolved dirty tree, defer this final validation with migration and project the unmigrated ledger solely to report the stop.
-   4. Call `plan_tracker({ action: "refresh", path: <absolute ledger path> })` exactly once for the restore after phase restoration, recovery, eligible `loop: migrate allowance` commit and step 4.3's post-migration `allowance:`/`no cap:` validation, before any unresolved dirty-tree stop or dispatch. On verify/ship, restore the saved mixed task list first as `brief-contract.md` specifies; on implement, use no `init`. On refresh failure, stop with its findings and leave the existing task list untouched. Read `plan_tracker status` and report its exact observed state, never an inferred list.
+   2. Migrate only a clean, tuple-free ledger after admission or completed interrupted recovery. Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) for every migration or repair message. With `cap:` and no `allowance:`, reuse the single restore-boundary settings read and replace the cap line with `allowance: <maxIterationsPerRow>`. Commit only that header replacement using the Allowance migration on resume sentence; preserve iterations, every attempts cell and all decisions. With an existing allowance, use it without allowance resolution or a migration commit; the restore read supplies `escalateAfter` only. Then run Returns conversion below. Defer both migrations through a missing-history stop or the dirty-tree stop; after recovery reaches a clean, tuple-free tree, migrate before the next dispatch or verification.
+   3. Require `allowance:`, no `cap:` and exactly one `returned:` immediately after step 4.2 and before the single `plan_tracker refresh` in step 4.4, including for all-closed ledgers. On missing allowance stop with `ledger has no allowance: line - resume through /skill:gauntlet-resume`; on missing returned stop with `ledger has no returned: line - resume through /skill:gauntlet-resume`; name malformed or duplicate headers. State this post-migration validation step explicitly. For a missing-history stop or unresolved dirty tree, defer final validation with migration and project the unmigrated ledger solely to report the stop.
+   4. Call `plan_tracker({ action: "refresh", path: <absolute ledger path> })` exactly once for the restore after phase restoration, recovery, eligible migration commits and step 4.3's final header validation, before any unresolved dirty-tree stop or dispatch. On verify/ship, restore the saved mixed task list first as `brief-contract.md` specifies; on implement, use no `init`. On refresh failure, stop with its findings and leave the existing task list untouched. Read `plan_tracker status` and report its exact observed state, never an inferred list.
    Render the allowance header, rows, iterations, attempts, effective allowances and all decisions; distinguish the latest operational `row <n> ...` decision from the last physical history line. Compute each effective allowance as the header plus one per matching retry decision; ignore the retry's audit ceiling. Keep `cap +N` history as inert text and restore no funded rounds. For an interrupted return with a recovered pending tuple and before-image, apply the driver's [## Interrupted recovery](../../loop-implementation/reference/interrupted-recovery.md) without a human turn. Preserve the already-consumed iteration, count the failed attempt once, and return to the ordered table after repair; check allowance only there. Keep unrecoverable before-image and ambiguous-history stops. Resume the original phase only after this boundary: implement at `Before each dispatch`; verify/ship at `After the loop` step 1.
 5. Continue at loop step 5, the delivered driver's `Before each dispatch`, with durable iterations and retry data; an all-closed ledger completes implement through refresh and takes `After the loop` step 0. A migrated unresolved row at or above its effective allowance stops under rule 2 without an attempt; keep an allowance-stopped row `failed`. Only at a missing-history stop, render a row whose `pending:` tuple stays on disk as `row <n> in_progress (pending tuple restored)`. Never reset counters or reseed a validated seed.
 
 ### Pending recovery
 
-Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery. Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery before the row/seed paths below; preserve its reserved count and consumed iteration without a second marker or bump.
+Select the decoder before any tracker call: no `returned:` line -> Legacy pending recovery below, then Returns conversion at step 4.2; exactly one -> the ledger-held route here. Reject duplicate or malformed values without writes. Recover before dispatch or verification, preserving the consumed iteration and the before-image rather than bumping again.
+
+For an on-disk `pending:` tuple, use the loop driver's return admission and interrupted recovery with the pre-dispatch ledger at the tuple SHA (home) or the saved home snapshot (companion). For `pending: verify`, use After the loop step 1's repair contract: require the exact retained tuple and consumed count, unchanged row cells and all other protected ledger state in the single home commit, or the matching companion return file with unchanged home HEAD. An unrelated commit or a repair that changed a row is rejected, never recorded as a verification repair.
+
+With no `pending:`, read `returned:` from the committed home ledger. `none` leaves nothing to recover. A companion tuple is already settled: the home record commit proves admission; do not require its deleted return file or look up its SHA in home. A home tuple identifies the pre-dispatch SHA S. Read the ledger at S as the before-image. Find the commit introducing that tuple with `git -C <worktree> log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>`, comparing each candidate's ledger to its first parent's; use that introducing commit's ledger `iterations:` as the consumed count, never the live ledger's. Require matching target/home identity and count = before-image iterations +1; stop on an unavailable before-image or malformed attribution. Read no commit message. A tuple introduced by a parent repair is settled when that ledger diff appends its matching repair decision; never replay it as a child return. Classify settled evidence before comparing the live ledger to the original dispatch count: a later proven repair or approved ledger mutation may advance iterations while retaining the admitted tuple.
+
+For an unsuperseded home child return, apply the driver's Validate the return checks to the entire S..HEAD range, allowing only the consumed iteration, tuple removal and `returned:` replacement as header deltas. Admit a clean single return once with no second count or attempt increment. Prove a later repair or approved ledger mutation from its ledger diff, not a subject. A saved clean post-admission snapshot also settles it: require child ancestor of saved HEAD, saved HEAD ancestor of live HEAD, unchanged ledger since that saved HEAD, and matching canonical task names/statuses as defined in `brief-contract.md`.
+
+With later commits or dirt and no settled evidence, ask before tracker calls: `Was home return <sha> admitted before the later commits or dirty changes, or did the session stop before admission?` List S..HEAD and every dirty path. Disclose that `interrupted` discards them through `reset --hard <S>` and `clean -fd`. Keep bytes, counters and tasks unchanged until answered. Confirmed settled preserves the current ledger and requires fresh gates; confirmed interrupted runs the driver's interrupted recovery against S and its before-image without another bump; unknown stops without mutation. For an actual companion pending tuple, recompute the return file through `coordinated-legs.md` Resume and retain its unchanged-home and expected-dirt checks.
+
+### Returns conversion
+
+At step 4.2, after pending recovery and allowance migration reach a clean tuple-free tree, skip conversion when `returned:` already exists. Otherwise decode the legacy repair markers below, insert `returned: none` directly after `allowance:`, and append the decoded repair decisions in commit order. Preserve iterations, attempts, existing decisions and all other headers. Commit only the ledger using the shared Returns conversion on resume sentence before the single refresh. Keep row windows from reaching behind this conversion boundary. A second resume makes no conversion commit.
+
+<!-- legacy-commit-labels:begin -->
+### Legacy repair markers
+
+Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD`, validates each matching repair's committed iterations and reads its body, then writes the header and decisions together. Use the body's first line with pipes escaped, or `converted` when empty, and retain `converted <sha7>` as provenance. Keep all subject decoding inside this legacy converter.
+
+#### Conversion recipe
+
+Run from the supplied home worktree after step 4.2 reaches a clean, tuple-free allowance ledger. Set `ledger_path` to its repo-relative path and `conversion_subject` to the shared Returns conversion on resume sentence. Require Python 3; on an unavailable interpreter stop before writing. Use this recipe for the conversion commit, not a second hand-written edit or commit. Stop on a failed command and retain its error and working state.
+
+Set `CHECKOUT` to the resolved home worktree's absolute path and `ledger_path` to its repo-relative ledger path.
+
+<!-- ledger-conversion-shell -->
+```bash
+python3 - "$CHECKOUT" "$ledger_path" "$conversion_subject" <<'PY'
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+checkout, path, subject = sys.argv[1:]
+ledger = Path(checkout) / path
+
+def git(*args, **kwargs):
+    return subprocess.check_output(["git", "-C", checkout, *args], text=True, **kwargs)
+
+text = ledger.read_bytes().decode("utf-8")
+header_text = text.split("\n|", 1)[0]
+if re.search(r"^returned:", header_text, re.M):
+    sys.exit(0)
+if git("status", "--porcelain"):
+    sys.exit("returns conversion requires a clean tree")
+if re.search(r"^pending:", header_text, re.M):
+    sys.exit("finish pending recovery before returns conversion")
+
+def field(snapshot, name, pattern):
+    values = re.findall(r"^" + name + r": (.*)$", snapshot.split("\n|", 1)[0], re.M)
+    if len(values) != 1 or not re.fullmatch(pattern, values[0]):
+        sys.exit("cannot convert ledger: malformed " + name)
+    return values[0]
+
+base = field(text, "base", r"[0-9a-f]{40}")
+allowance = field(text, "allowance", r"[1-9][0-9]*")
+markers = {"loop: repair seed": "repair seed", "loop: repair verification": "repair verification"}
+decisions = []
+for line in git("log", "--reverse", "--format=%H %s", base + "..HEAD").splitlines():
+    sha, old_subject = line.split(" ", 1)
+    if old_subject not in markers:
+        continue
+    snapshot = git("show", sha + ":" + path)
+    count = field(snapshot, "iterations", r"0|[1-9][0-9]*")
+    if int(count) > 9007199254740991:
+        sys.exit("cannot convert ledger: unsafe iterations at " + sha)
+    body = git("show", "-s", "--format=%b", sha).splitlines()
+    reason = (body[0] if body and body[0] else "converted").replace("|", r"\|")
+    decisions.append(markers[old_subject] + " | " + reason + " | converted " + sha[:7])
+if text.count("\n## Decisions\n") != 1:
+    sys.exit("cannot convert ledger: missing or duplicate Decisions section")
+converted = re.sub(r"^allowance: " + allowance + r"$", r"\g<0>\nreturned: none", text, count=1, flags=re.M)
+if decisions:
+    converted += ("" if converted.endswith("\n") else "\n") + "\n".join(decisions) + "\n"
+ledger.write_bytes(converted.encode("utf-8"))
+git("add", "--", path)
+git("commit", "-q", "-F", "-", "--", path, input=subject + "\n")
+PY
+```
+
+### Legacy pending recovery
+
+Recover before dispatch or verification on every ledger restore. Run the read-only admission-evidence check below before phase/task restoration on every ledger route, including briefs; resolve its human question before any tracker call. Apply recovery writes only at the ordered pending-recovery step. Read the durable `pending:` tuple (target row, seed or verify, repo, pre-dispatch HEAD); the parent's uncommitted iterations bump plus tuple is expected dispatch dirt, not a reason to skip recovery.
+
+Select verification admission below for `pending: verify` before the row/seed paths. For row/seed targets, apply the driver's row/decision and boundary checks with legacy attribution instead of `returned:` or a return file; allow only the consumed iteration and pending removal header deltas. Use the legacy companion body's attributed rows when the tuple names a companion. After the unchanged-home and one-clean-companion-commit boundary passes, set `CHECKOUT`, `PENDING`, `ITERATION` and `SAVED_LEDGER` as `coordinated-legs.md` Companion commit admission requires, then run this adapter:
+
+<!-- legacy-companion-body-shell -->
+```bash
+RETURN_FILE=$(mktemp) || exit 1
+git -C "$CHECKOUT" show -s --format=%b HEAD > "$RETURN_FILE" || exit 1
+```
+
+Pass this temporary path as the fifth argument (`"$RETURN_FILE"`) to that reference's `companion-return-shell` recipe for row/seed targets only. Apply its row/seed checks unchanged to the extracted body; never search for a new-format return file during legacy recovery. Remove the temporary file after the home record or validation-miss repair. Finish this recovery before Returns conversion; retain all ambiguous-history questions and before-image stops.
+
+Route `pending: verify` through the loop driver's After the loop step 1 repair admission/recovery with these legacy substitutions:
+
+| Boundary | Legacy verification rule |
+|---|---|
+| Attribution | Read the repair commit body's first two lines instead of a ledger-held return or companion return file. Set `CHECKOUT` to the failing checkout and `PENDING`/`ITERATION` to the retained tuple/consumed count, run the adapter above, then the verification check below, never `companion-return-shell`. Allow repair prose after those two lines. |
+| Protected state | Require the same clean single-commit boundary, unchanged rows, attempts, mapping, allowance and prior decisions. Require unchanged home HEAD and only expected bump/tuple dirt for a companion; require the bumped ledger with pending retained in the home child's commit. Do not require `returned:` on an unconverted ledger. |
+| Settlement | Match existing home `loop: repair verification` marker bodies to the tuple and consumed iteration before writing another marker; leave a settled legacy marker for Returns conversion to decode. For an unsettled admitted or interrupted repair, use the driver's current marker protocol: clear pending, append one `repair verification` decision with the consumed iteration unchanged and commit with the shared Verification repair marker sentence, without machine lines in its message. Keep `returned:` absent until conversion; conversion preserves this decision without charging it again. Delete the temporary body file after settlement. |
+
+<!-- legacy-verification-body-shell -->
+```bash
+python3 - "$RETURN_FILE" "$PENDING" "$ITERATION" <<'PY'
+from pathlib import Path
+import sys
+
+path, pending, iteration = sys.argv[1:]
+lines = Path(path).read_text().splitlines()
+if lines[:2] != [pending, "iteration: " + iteration]:
+    sys.exit("legacy verification attribution mismatch")
+PY
+```
+
+Preserve a matching clean repair commit; use the driver's interrupted reset/recovery only on a rejected boundary. Finish legacy settlement before Returns conversion without a second marker, iteration bump or attempt increment.
 
 With no `pending:` on disk, inspect home commit history before any refresh. Find the latest home child row/seed commit that changed this ledger, even when unrelated commits follow it; read its subject and body with `git -C <worktree> log --format=%H -- <ledger path>` and `git -C <worktree> show -s --format=%B <sha>`. Exclude returns superseded by a parent admission/repair or approved ledger mutation proven by the evidence below; never replay those over the parent's current ledger.
 
@@ -123,6 +238,8 @@ Revalidate a clean, exactly-one-commit return through the home row below. For la
 |---|---|
 | Home leg or single-member `home` | Reconstruct the pre-dispatch ledger from `HEAD:<ledger path>` when HEAD is the tuple SHA, otherwise from `<pre-dispatch HEAD>:<ledger path>`. Compare live HEAD with that SHA. Admit exactly one new home commit with subject `loop: row <n> <status>` or `loop: seed evidence` only through the driver's `## Validate the return`: require a clean tree and the bounded row/decision result, allowing only the consumed iteration and pending removal header deltas, with no second iteration bump or repeated attempt increment. Clear the tuple through the admitted close or ordinary-miss repair. Route zero new commits, multiple commits, dirty or non-DONE returns through the driver's `## Interrupted recovery` against the tuple HEAD and its ledger before-image. Use the driver's job checks and reset/clean procedure without a provenance or process-exit gate; write the repair with the already-consumed iteration, clear pending and continue at Before each dispatch. Route reset/repair-write failures through the driver's counted failure pass, never dispatching from the wrong HEAD. With a recoverable tuple and before-image, route wrong attribution through the driver's `## Interrupted recovery` without a human turn. Stop only for an unrecoverable tuple or before-image, without redispatch or double counting. |
 | Actual multi-member companion | Apply `/skill:loop-implementation` `reference/coordinated-legs.md` `## Resume`: require unchanged home HEAD and exactly one new companion commit with tuple attribution, then validate its result. Record that leg's admitted rows, decisions or seeded state and SHA, removing the tuple in the home-ledger commit; never rerun the recovered row or its admitted extras. Route dirty, zero/multiple-commit or non-DONE boundaries through that reference's unconditional interrupted recovery, using the companion tuple HEAD and saved home ledger; reset the companion to the tuple HEAD and home to the saved home HEAD; commit the repair only in home. With a recoverable tuple and before-image, route wrong attribution, unexpected home dirt and home movement through that same interrupted recovery. Preserve state only on an unrecoverable tuple or before-image; route post-boundary result-validation misses through ordinary `loop: repair row <n>` or seed `loop: repair seed` repair in that protocol, clear `pending:` and preserve the consumed iteration. |
+
+<!-- legacy-commit-labels:end -->
 
 ## Spec with plan
 

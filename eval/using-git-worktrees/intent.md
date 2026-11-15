@@ -1,6 +1,8 @@
-for: 2d7286b00d7bc705d9ba7858e775fc347ef550b9812e82013f1dcc29ab6f8ccc
+for: 3cc120aace0ad0d3269b3abdf4b2cef3afb9b987a07b77ef3e742674a6b58819
 
 ## Change
+Read the shared commit-message reference for the worktree-ignore bookkeeping sentence rather than copying a path-bearing subject. Run only ignore-subject for this edit; preserve ignore-before-create ordering, scoped staging, ready reporting and prior sample records. These supplied observations prove narrated wording, not live provisioning or a target-wide pass.
+
 Default PR-subject provisioning linearizes the home branch with --no-rebase-merges and replays members in listed order while preserving original local refs and leaving origin member branches untouched. Explicit merge-forward retains member-then-base merges. Rebase conflicts use one scoped helper per stop and orchestrator-only continuation; failures abort and prove restoration against the actual saved pre-attempt home tip, with unresolved and pending outcomes deferred to Task 1. Interrupted recovery validates rework-base and original refs, forces rebase mode and uses cherry to skip landed members; canonical merge-subject recovery retains merge mode. Successful rebase sync persists and reports Rework base. Admission, clean-tree checks, fetched-base constraints, helper scope, and unrelated provisioning behavior remain required; no failure is accepted. The for hash binds the bundle-free candidate assembly, not sample-added references.
 
 Honor explicit primary ROOT and shared BRANCH for keyed leg provisioning; preserve all existing single-member provisioning facts.
@@ -10,6 +12,7 @@ For recorded no-home companion and marked-home legs, locate the branch's single 
 For pr-head-caller-root, replace unconditional missing-remote push advice with the local primary's file-scoped log check. Offer push only when it prints the leg-file commit; no branch and unrelated-branch/no-file observations require remote restoration from another clone, with nothing regenerated. Extend the existing missing row and fact without changing other assertions or the word cap. Run only this selected sample for narrated recovery, not live remote operations or target-wide coverage.
 
 ## Expected to move
+- ignore-subject/wording: fails -> holds - Use the shared path-free bookkeeping sentence without a ticket.
 - pr-head-caller-root/missing: fails -> holds - Prove the local branch holds the leg file before offering a push; otherwise require remote restoration.
 - pr-head-caller-root/script-reuse: fails -> holds - Select the branch-located script folder without a default-home stop.
 - pr-head-caller-root/script-create: fails -> holds - Use existing-branch script creation and refuse an unsupported form before any write.

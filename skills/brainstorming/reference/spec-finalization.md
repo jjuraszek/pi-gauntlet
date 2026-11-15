@@ -116,7 +116,7 @@ subagent({ agent: "spec-summarizer", context: "fresh", async: false, cwd: "<abs 
 
 `<SUMMARY_PATH>` above is a placeholder in the dispatch object; it means substitute the value of the shell variable `$SUMMARY_PATH` set above. The steps below use `$SUMMARY_PATH` (the shell form) once the value is in hand.
 
-Then commit the spec - staging any predecessor spec edited per [Marking superseded specs](superseding.md) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. Commit with the message on stdin through a quoted heredoc - the only permitted form, so audit lines carrying backticks or `$` land unchanged and each starts a line (telemetry accepts the applier result, this commit command, or assistant text; the first parsed audit wins):
+Then commit the spec: read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) and derive the subject from its Spec commit recipe and the spec H1, resolving the ticket from the spec header under its ticket rule. Stage any predecessor spec edited per [Marking superseded specs](superseding.md) alongside it; a change request at the gate that renames, materially revises, or drops the spec also reconciles the predecessor's banner before recommitting. This commit is **unconditional**: the summary is only a gate aid, so a degraded or missing summary never blocks it. Commit with the message on stdin through a quoted heredoc - the only permitted form, so audit lines carrying backticks or `$` land unchanged and each starts a line (telemetry accepts the applier result, this commit command, or assistant text; the first parsed audit wins):
 
 ```bash
 git -C <abs worktree path> add -- <spec path> [<predecessor path>] && git -C <abs worktree path> commit -q -F - -- <spec path> [<predecessor path>] <<'EOF'
@@ -130,10 +130,11 @@ After the home commit, write and commit every companion leg file through
 `git -C <companion worktree>` using [legs.md](legs.md)'s artifact grammar:
 `**Home:**` tuple, copied `## Problem`, `## Decisions` from shared
 Design/Errors/Out-of-scope and repo-binding clauses, and its own block verbatim.
+Use the same subject as the home spec commit and the shared ticket rule.
 Stop naming any failed companion; do not present artifact completion until all
 files agree. A single-member run writes no companion file.
 
-If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path the body is empty except for a main-loop drafted-AC repair audit line when a repair occurred. Append that repair line after the council audit on the council path; never alter its labels, cluster lines, or counts. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
+If the council path ran, the body is its audit (`Coverage:` when present, then `Applied:` / `Deferred:` / `Rejected:`, verbatim from `/skill:roasting-the-spec`'s return) - the durable, non-contractual record a finish-time revert and row 3 below read back; the audit is never a committed spec section. On the worker path keep only a main-loop drafted-AC repair audit line when a repair occurred and any ticket reference required in the body. Append that repair line after the council audit on the council path, followed by any required ticket reference; never alter the audit labels, cluster lines, or counts. `-m`, `-F <file>`, `printf | ... -F -`, and `$'...'` strings are not used for this commit. The `add` on the same line is required because the spec is untracked at its first commit and `commit -- <path>` rejects an untracked path.
 
 Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 

@@ -1,0 +1,90 @@
+{
+  "sample": "plan-citation-subject",
+  "arm": "candidate",
+  "skillSha": "efc91978f1ec956a827cc637a1dd4aed50958cd420fd4388f7e17b76b54b7205",
+  "inputSha": "2c257817a00b854b4e5c9f6c1f5d067f7fa06f0df27a1ad7b6d86ca4b997e6a9",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Post-PASS commit path and continuation\n\n**Observed state:** two `anchor-resolution` findings. Both were repaired from the citation table in round 1, and `plan_check` then returned PASS. Before repair the plan was tracked and clean: `ls-files --error-unmatch` exited 0 and `status --porcelain -- <plan>` printed nothing.\n\n## 1. Read the commit-message reference\n\nRead `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\nThe subject comes verbatim from the Fixed bookkeeping sentences row \"Plan citation repair\", `Repair <n> plan citations`, with n = 2.\n\n- The message has no body.\n- The ticket `#241` is not appended. The brief contract requires the entire subject verbatim from that fixed row, so no ticket reference is added.\n\n## 2. Commit the plan alone, with the message on stdin\n\n```bash\ngit -C /workspace/app add -- /workspace/app/doc/plans/cache.md && git -C /workspace/app commit -q -F - -- /workspace/app/doc/plans/cache.md\n```\n\nstdin:\n\n```text\nRepair 2 plan citations\n```\n\nThe add and commit both succeed. The `-- <plan path>` pathspec scopes the commit to the plan. The unrelated staged edit in `src/config.mjs` stays staged and is not included.\n\n## 3. Return to the originating restore at `skip plan R`\n\nThis is the implement-with-task-plan row of the call table.\n\n1. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: <brief file or \\\"pasted brief\\\">\" })`\n2. `phase_tracker({ action: \"start\", phase: \"implement\" })`\n3. `substep`: no call, because the brief shows none.\n4. Feasibility check before `init`:\n   - Pending-suffix order holds, since no `○` task precedes a non-pending one.\n   - The implement auto-complete edge does not apply, because Task 2 is not complete.\n5. `plan_tracker({ action: \"init\", ... })` uses the saved snapshot verbatim, never a fresh-plan list:\n   - Task 1: `complete`\n   - Task 2: `in_progress`\n\n## 4. Printed lines, in order\n\n```\nRepaired plan: 2 findings (anchor-resolution)\nGate history not restored; re-validating `Task 2` before any stage advance\n```\n\nAfter these, print the `Standing grant active: <sentence>` line or `No standing grant.`, whichever entry check 6 produced. Its result is not given here.\n\n## 5. Continue in subagent-driven-development\n\n- Do not use its reset-bearing entry.\n- Re-validate Task 2 first by re-running its `Tests:` command.\n- Then run the task loop from the first non-complete task, which is Task 2.\n- Gate history is not inferred.\n\n## Alternate pre-repair plan states\n\nThe same repair passes in both cases.\n\n| Pre-repair state | Before the first write | After PASS |\n|---|---|---|\n| **Untracked** (`ls-files --error-unmatch` fails) | Copy the plan to a temp path outside the repo. | No `git add` and no commit. |\n| **Staged-only dirty** (`M  doc/plans/cache.md` in porcelain, even though the working copy equals HEAD) | Treat as dirty. Copy the plan to a temp path outside the repo. Never substitute `git checkout`. | No `git add` and no commit. |\n\nIn both cases, state explicitly that the citation repair stays in the working copy and lands with the next task commit.\n\nEverything from `skip plan R` onward is identical in both cases:\n- the same `init` snapshot\n- the same `Repaired plan: 2 findings (anchor-resolution)` receipt\n- the same closing line, then the grant line\n- the same continuation\n\nThe only differences are:\n- the temp copy taken before repair\n- no commit is made\n",
+      "words": 477,
+      "wallMs": 18426,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Tracked and clean before repair\n\nThe unrelated staged edit in `src/config.mjs` does not make the plan dirty and must not enter the repair commit.\n\n1. Read `/package/skills/finishing-a-development-branch/reference/commit-message.md`.\n\n2. Run:\n   ```bash\n   git -C /workspace/app add -- doc/plans/cache.md && git -C /workspace/app commit -q -F - -- doc/plans/cache.md\n   ```\n   Supply exactly this message on stdin:\n   ```text\n   Repair 2 plan citations\n   ```\n   The citation-repair contract requires that entire subject verbatim; do not append `#241`. The scoped commit leaves the unrelated staged edit out.\n\n3. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: pasted brief\" })\n   ```\n\n4. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"implement\" })\n   ```\n\n5. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"Task 1\", status: \"complete\" },\n       { name: \"Task 2\", status: \"in_progress\" }\n     ]\n   })\n   ```\n\n6. Print:\n   ```text\n   Repaired plan: 2 findings (anchor-resolution)\n   Gate history not restored; re-validating `Task 2` before any stage advance\n   ```\n\n7. Print the standing-grant line retained from entry check 6: either exactly `No standing grant.` or `Standing grant active: <the validated sentence>`. The input does not supply that result, so its exact text cannot be determined.\n\n8. Continue in `subagent-driven-development` without its reset-bearing entry. Read its owning instructions and the existing Task 2, re-run Task 2’s unchanged `Tests:`, then continue the task loop from Task 2. Do not initialize a fresh task list or carry over gate evidence.\n\n### Alternate pre-repair states\n\nFor **either an untracked plan or a staged-only dirty plan**, the pre-repair path must already have saved the plan’s bytes to a temporary file outside the repository. Staged-only dirt counts as dirty even if the working-copy bytes match `HEAD`.\n\nAfter PASS:\n\n1. Run **no `git add` and no repair commit**. Omit the clean-plan commit-reference read and commit path above.\n\n2. Perform the same `skip plan`, `start implement`, and saved-snapshot `init` calls shown above.\n\n3. Print:\n   ```text\n   The citation repair stays in the working copy and lands with the next task commit.\n   Repaired plan: 2 findings (anchor-resolution)\n   Gate history not restored; re-validating `Task 2` before any stage advance\n   ```\n\n4. Print the retained check-6 standing-grant line, then make the same non-resetting handoff and re-validate Task 2’s `Tests:`.\n\nNeither alternate state authorizes staging the repaired plan, altering the saved task snapshot, or including `src/config.mjs` in a repair commit.\n",
+      "words": 356,
+      "wallMs": 18277,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "41a2040e8363378225ec1aedeb0a3fb4d4b8c8997ec55ac5e3d2b93c4c8def9b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a6c297a985d36e143a845db91abf7886945fee35cc431c8b059610a0d55f74f1",
+      "baselineOutputSha": "bb9e1d27750ec0e9f97a0878d412408a29c32676b6257ca28481670525a00dd8",
+      "candidateOutputSha": "2d3c87610128f4cd552a758fc4e78f7499785554b5f660c755293dee578d319a",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scoped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "continuation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved `wording` from fails to holds, as intended. Before composed `resume: plan citation repair - 2 findings`, which carries a `resume:` prefix and finding metadata. After reads the shared commit-message reference, takes the fixed \"Plan citation repair\" row verbatim as the entire subject `Repair 2 plan citations`, and explicitly declines to append ticket #241. `scoped` held in both: each runs `git -C /workspace/app add -- <plan>` and a commit with a trailing plan pathspec, supplies a full message (`-m` in Before, `-F -` on stdin in After), and leaves the staged `src/config.mjs` edit staged and uncommitted. `continuation` also held in both: each returns to the originating restore at `skip plan R` only after the commit succeeds, inits `plan_tracker` from the saved snapshot (Task 1 complete, Task 2 in_progress) rather than a fresh-plan list, and for both untracked and staged-only dirty plans makes no `git add` and no commit, stating the repair stays in the working copy for the next task commit. Nothing regressed. To keep it that way, retain the explicit instruction to read the commit-message reference, the \"entire subject verbatim, no ticket\" clause, the explicit plan pathspec on both add and commit, the \"saved snapshot verbatim, never a fresh-plan list\" phrasing, and the explicit working-copy statement for the two dirty/untracked variants. One optional tightening is to say outright that continuation happens only after the commit succeeds, since After currently conveys this by ordering and \"The add and commit both succeed\" rather than as a stated condition.",
+      "wallMs": 10424,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "41a2040e8363378225ec1aedeb0a3fb4d4b8c8997ec55ac5e3d2b93c4c8def9b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a6c297a985d36e143a845db91abf7886945fee35cc431c8b059610a0d55f74f1",
+      "baselineOutputSha": "642d273691163051f58c320f244bf003cc22f42e7a25e4fe568447853dca3361",
+      "candidateOutputSha": "70759918feac8c0a36a1b0230802210ee8be2f634c4829a21ee50ecbec5d5228",
+      "facts": {
+        "wording": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "scoped": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "continuation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved `wording` from fails to holds: it now reads the shared commit-message reference (`/package/skills/finishing-a-development-branch/reference/commit-message.md`) and supplies exactly `Repair 2 plan citations` as the entire subject, explicitly declining to append `#241`, where Before used `resume: plan citation repair - 2 findings` with a resume prefix and finding metadata and never read the reference. `scoped` holds in both: each stages and commits only the plan with explicit pathspecs under `git -C /workspace/app`, supplies a complete message, and leaves the staged `src/config.mjs` edit out (Before used absolute pathspecs and `-m`, After uses repo-relative pathspecs and `-F -` on stdin; both are acceptable). `continuation` holds in both: the tracker calls follow the successful commit, Task 1 complete and Task 2 in_progress are restored from the saved snapshot rather than a fresh plan, and for untracked and staged-only dirty plans both run no `git add` and no repair commit and leave the repair in the working copy for the next task commit. To keep these stable, keep the explicit 'read the shared reference, then the fixed sentence is the whole subject, no ticket suffix' statement, keep the path-scoped add/commit with the message supplied in full, and keep the alternate-state block's explicit 'no `git add` and no repair commit' plus the working-copy line; consider stating outright that continuation happens only after the commit succeeds, and that the `plan_tracker` init is a restore of the saved snapshot, since the word `init` next to 'Do not initialize a fresh task list' could be read as a contradiction by a stricter reader.",
+      "wallMs": 6949,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8fbc2cbe4c6941da0b79b4e88c1714aa1bc399e2"
+}

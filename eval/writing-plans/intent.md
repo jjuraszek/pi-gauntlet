@@ -1,6 +1,8 @@
-for: 880967481d5b8a9940c6c4f5cf7b32a1949a9fecbb60b0ad3369bd0f56b6ec93
+for: 239a8de8de7cc3aeb272bec84fa322039073214457b65784ef06d86dae33f142
 
 ## Change
+
+Route task and initial plan commit wording through the shared commit-message reference. Compose the plan subject from the spec H1 and carry its bound ticket using the project convention; preserve path-scoped commits and handoff order. Keep plan-commit-wording/scoped and plan-commit-wording/handoff passing, including clean-plan skips and failed-commit stops.
 
 Locate companion task checkouts by the recorded branch through the shared leg resolver, including omitted or literal recorded home values. Keep the session's home checkout and home-owned plan. Resolve all four task path kinds and baseline commands in the located companion; a missing branch stops planning without a guessed checkout. The leg-checkout-by-branch sample covers these routes with supplied git observations; every candidate fact must hold. Only this selected sample is replayed for this change, not the whole target.
 
@@ -29,6 +31,9 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
 ## Expected to move
+
+- plan-commit-wording/wording: fails -> holds - Read the shared plan recipe instead of the local plan prefix.
+- plan-commit-wording/ticket: fails -> holds - Carry the spec ticket under the project's body convention.
 - leg-checkout-by-branch/branch-lookup: fails -> holds - Select and validate the companion checkout by recorded branch.
 - leg-checkout-by-branch/path-roots: fails -> holds - Resolve all four task path kinds in the located checkout.
 - leg-checkout-by-branch/recorded-home: fails -> holds - Treat recorded home as a contract, not a lookup path.

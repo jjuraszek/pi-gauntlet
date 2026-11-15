@@ -1,0 +1,70 @@
+{
+  "sample": "hotfix-seed-file-observation",
+  "arm": "candidate",
+  "skillSha": "0f93e54526cb04d25547ffd374634f1e11e35c2cecf6215cb435fb5fe39a15bf",
+  "inputSha": "870f5c7cbd6e9829db5d0160d165d6d030ed1ba7eee7df2979961e013aed82fa",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Hotfix step 4: seed admission (`target: seed`, dispatched tuple `seed | hotfix | aaaa…aaaa`, consumed iteration 1)\n\nThe boundary check passes: the checkout is clean and there is exactly one new commit. Each variant below turns only on the return file at `/workspace/root/.git/worktrees/plants/gauntlet/returns/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-1.md`.\n\n**The commit body cannot replace the return file in any variant.** Admission reads the return file, not the commit message or the child's reply. The message carries no protocol state, so the tuple and result block in the body (`Capture blank plant rejection`) are ignored.\n\n### A: readable file, exact tuple, `iteration: 1`, valid row and decision\n- **Classification:** seed admitted.\n- **Reason:**\n  - Line 1 equals the dispatched `pending:` tuple.\n  - Line 2 is `iteration: 1`, which is `i + 1`.\n  - The row is exactly `| 1 | open | 0 | <selective failing evidence> |`.\n  - The decision is exactly `row 0 done | seeded 1 rows, closed 0 on baseline | 1`.\n  - The evidence cell is well formed.\n  - The status is `open`, not `done`.\n  - The commit changes a tracked test file, so the empty-diff rule does not apply.\n- **Effects:**\n  - **Attempts:** row 1 stays at 0. The parent writes `| 1 | open | 0 | <evidence> |` to the ledger.\n  - **Decisions:** the decision line is appended to `## Decisions`.\n  - **Pending:** `pending:` is cleared.\n  - **Header:** none is added. The tuple and iteration lines are not copied into the ledger, and `iterations: 1` stays as already bumped.\n  - **Miss count:** the consecutive-miss count is reset.\n  - **Return file:** deleted through the deletion recipe.\n  - **Next:** the first row attempt becomes eligible, with this decision as `previous decision`. It is not run here.\n\n### B: file missing\n- **Classification:** seed miss, giving a pre-land abort with no seed retry.\n- **Reason:** a missing return file is treated as a seed miss. The commit and its body do not substitute for it.\n- **Effects:**\n  - **Attempts:** unchanged at 0, because seed failures spend no attempt.\n  - **Row:** no row or decision is written, and no validation-miss row is written, since that rule applies only to `target: 1`.\n  - **Pending:** not cleared through admission. The ledger is then removed as the last act of the abort.\n  - **Header:** none is added.\n  - **Return file:** nothing exists to delete. The deletion recipe still runs before worktree cleanup, and it is a no-op.\n  - **Next:** the pre-land abort, with the step 4 menu re-rendered without the hotfix row.\n\n### C: read fails with EACCES\n- **Classification:** seed miss, giving a pre-land abort with no seed retry.\n- **Reason:** an unreadable return file is treated as a seed miss. This is a failed file read, not a failed path read during preparation.\n- **Effects:**\n  - **Attempts, row, pending and header:** the same as B.\n  - **Return file:** removed through the deletion recipe before worktree cleanup, while the checkout-local git dir still exists.\n\n### D: readable file with `iteration: 0`\n- **Classification:** seed miss, giving a pre-land abort with no seed retry.\n- **Reason:** line 2 must be `iteration: 1`, the consumed iteration `i + 1`, so a file showing `iteration: 0` does not match. The rest of the file and the commit body cannot cure the mismatch.\n- **Effects:**\n  - **Attempts, row, pending and header:** the same as B.\n  - **Return file:** deleted through the deletion recipe before worktree cleanup.\n",
+      "words": 510,
+      "wallMs": 19183,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "| Variant | Seed-admission classification and reason | Prescribed effects |\n|---|---|---|\n| **A** | **Admit seed.** The return file matches the dispatched tuple, consumed iteration `1`, required row and exact seed decision. | Attempts remain `0`. Write the admitted row, append the seed decision under `## Decisions`, clear `pending:`, and delete the return file. Add no returned header to the ledger. |\n| **B** | **Seed miss → pre-land abort, no seed retry.** The required return file is missing. | Attempts remain `0`; no admission writes, so `pending:` remains unchanged and no header is added. There is no return file to delete. |\n| **C** | **Seed miss → pre-land abort, no seed retry.** `EACCES` makes the required return file unreadable. | Attempts remain `0`; no admission writes, so `pending:` remains unchanged and no header is added. Return-file deletion is required through the prescribed recipe before abort cleanup; successful deletion cannot be assumed. |\n| **D** | **Seed miss → pre-land abort, no seed retry.** Returned iteration `0` does not match consumed iteration `1`. | Attempts remain `0`; no admission writes, so `pending:` remains unchanged and no header is added. Delete the return file through the prescribed recipe before abort cleanup. |\n\n**In every variant, the commit body cannot replace the return file.**\n",
+      "words": 189,
+      "wallMs": 10757,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7487be192c06d06b5eec86b0a95468055ad6551586fda5a305d40a2f89b2463e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c9127845ea1a884a42f1d82d262f58bcd91c1f4369e803940f821f873dabc0",
+      "baselineOutputSha": "a19439b75e56145e684683f8d24278417d18562f5f1388a52e53786c8777cbd8",
+      "candidateOutputSha": "a7398cab8ca7ec365667d39eaa5dd355cee9925092380d4c56b6e82a9045eb77",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the fact by handling the return file as the fact requires: in A it is deleted on admission (Before left it in place), and in B-D any remaining file is removed before worktree cleanup (Before left it untouched or kept it as evidence). After also keeps what Before already had right: attempts stay 0, pending is cleared only on admission, no header is added, the abort is pre-land with no seed retry, and the commit body never substitutes. Two points are thin and worth tightening. First, 'worker DONE is not row completion' is only implied by 'admission reads the return file, not the child's reply' and by row 1 staying open; say outright that the worker's DONE does not complete the row. Second, the Next lines and the B note go past the admission decision by mentioning ledger removal as the last act of the abort, re-rendering the step 4 menu, and the first row becoming eligible; they are described rather than executed, so the fact still holds, but wording that limits output to classification, reason, attempts, pending, header and return file would make the 'no later work' clause safe. Keep the explicit 'deleted before worktree cleanup' phrasing for B-D, including the no-op case when the file is missing.",
+      "wallMs": 9785,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7487be192c06d06b5eec86b0a95468055ad6551586fda5a305d40a2f89b2463e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "c7c9127845ea1a884a42f1d82d262f58bcd91c1f4369e803940f821f873dabc0",
+      "baselineOutputSha": "166f5157dd47b2c9cd1eb253d272052d9c71ebce7937a3ce16438b60c87f73eb",
+      "candidateOutputSha": "64cc8cb2bd760f162dc117a8cd6eb172e5d013cb5638ce6e41a9e11bee63be07",
+      "facts": {
+        "admission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before failed because it rejected every variant, including A, on an invented commit-subject rule, kept pending and the return file untouched everywhere, and called the commit body the required source. After moved the fact by making the private return file the admission source: A admits with attempts 0, pending cleared, no header and the file deleted; B-D abort pre-land with no seed retry, attempts unspent, and removal of any remaining return file before cleanup; the commit body never substitutes; and it stops at admission. Two wording gaps remain. First, After never says outright that worker DONE is not row completion or that the admitted row stays open; add one clause to A such as 'row 1 remains open at attempts 0; DONE alone does not complete it'. Second, A's 'append the seed decision under ## Decisions' could be read as extra ledger content; state explicitly that this is the prescribed row 0 line and that no returned header is added. Keep the C wording that deletion is required but its success cannot be assumed, and keep B's 'no return file to delete' phrased as 'remove any remaining return file' so the rule reads the same across B-D.",
+      "wallMs": 5414,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ece1f4870b0fc3b3baf79baa6753758bcf0aba38"
+}

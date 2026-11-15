@@ -1,0 +1,7 @@
+- reads: judged: Read the home spec before the home ledger, read supplied Rules in the companion checkout and read the supplied absolute wording file.
+- external-ledger: judged: Leave home ledger bytes and HEAD unchanged; do not replace its returned field or remove pending, edit foreign/cut rows, or stage the home ledger.
+- return-file: judged: Write the supplied checkout-local return file before committing, beginning with the exact pending tuple and iteration: 6, then a blank line, the four-column result row without a header, a blank line and the matching decision line.
+- result: judged: Return row 2 done with attempts 1, bounded command-first evidence and a matching row 2 done decision; emit no other row.
+- message: judged: Write a plain capitalized imperative subject about imported plants in pagination totals, without a framework label, path, code identifier or ticket reference; keep tuple, iteration, result row and decision out of the commit message.
+- one-commit: judged: Stage only companion code/tests and commit exactly once; never stage the return file; check clean status and let the parent delete the file.
+- reply: judged: The final reply contains only the bounded row 2 done decision matching the return file.

@@ -1,0 +1,3 @@
+- wording: judged: Reads the shared commit-message reference and uses its exact bookkeeping subject `Ignore the worktree directory`, with empty body and no ticket or .worktrees path in the subject.
+- scope: judged: Appends .worktrees/ to the primary .gitignore and stages/commits only .gitignore in /workspace/app before creating the feature worktree; does not change cwd, create a nested tree, or run tests.
+- ready: judged: Creates /workspace/app/.worktrees/feature-profile-cache on feature/profile-cache and reports that observed path and branch with a clean main base; performs no unrelated commit.

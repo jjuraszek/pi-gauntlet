@@ -1,0 +1,3 @@
+- source: judged: Reads all commit bodies in main..HEAD with git log --format=%b or an equivalent unfiltered body-only read, using git -C /workspace/app-tree. It never selects commits by subject prefix or --grep and excludes subjects from the record scan.
+- digest: judged: Prints Amendments auto-applied (2): with Cache lifetime - Cache entries expire after one hour and Fixture byte count - The fixture contains 43117 bytes. It excludes the accepted row and plan-citation repair, and omits the digest entirely in both the repair-only and record-shaped-subject variants.
+- menu: judged: Renders the ordinary five options after the digest, with gauntlet: gate=finishing-a-development-branch/step-4 first, no recommended suffix, no extra approval and no automatic shipping.

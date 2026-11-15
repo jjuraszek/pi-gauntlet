@@ -1,6 +1,10 @@
-for: 7d4df4559b7be03efbd989c26a94570d3e7963b230088fe76fb068200bb9eea5
+for: e290cbf5e851ff41e2cfe209a36702d56efab8fca2d02ffbcf194e174d993a62
 
 ## Change
+
+Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
+
+Select only fix-row-file-observation for the model-owned admission decision: readable matching, missing, unreadable and mismatched file observations, with immediate attempts, pending, round-charge and deletion effects. Keep the external ledger pending-only. Execute transport recipes and companion parsing separately in scripts/loop-outside-return.test.mjs; no worker, review, push or whole-wave replay runs. Preserve fix-row-return-file and other historical sample evidence; coverage is partial. The remaining Change paragraphs describe separate retained work.
 
 Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. P4's saved candidates retain these eight samples' outcomes. The preceding partial report covered the authorized bypass-merge-pick-revoked judgment refresh: all five facts hold on both saved replies, with no replay; earlier P4/P5 reports remain in Git. Other saved results remain earlier evidence. P5 seeded stop-draft-files once and ran its first candidate replay. That replay's anthropic/claude-opus-5-5 closing messages omitted the not-posted reason for both replies at both checkpoints, although the judge marked retained as holds; github-copilot/gpt-6.1-sol supplied the reason. P7 reran only stop-draft-files once after deleting the saved candidate, retaining the baseline and unchanged Teardown text and expected facts (ran P7-replay (1 of 2)). Direct inspection of the newest replies confirms both saved bodies are retained and all four closing messages name both paths with explicit reasons: "because you stopped" on anthropic/claude-opus-5-5 and "because you selected stop" on github-copilot/gpt-6.1-sol. All three candidate facts read holds for both models at the current assembly. The partial report covers only this sample; this outcome note follows the saved judgments without rejudging the replies.
 
@@ -12,6 +16,10 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 
 ## Expected to move
 
+- merge-plan-file-withheld/lookup: fails -> holds - Preserve the failed tree-lookup error and both paired paths instead of inferring absence from an empty result or a deletion diff; no model replay is recorded.
+- merge-landed-message/message: fails -> holds - Compose only a plain landed message from supplied outcomes; no policy choice, settings read or delivery simulation. This hypothesis has no current isolated replay.
+- fix-row-return-file/admission: fails -> holds - Classify the present file as admissible and the absent file as a validation miss, without trusting message attribution or applying later accounting. This hypothesis has no current isolated replay.
+- fix-row-file-observation/admission: fails -> holds - Admit a matching file or record one uncharged validation miss for missing, unreadable or mismatched files; clear pending without adding a header and delete the file.
 - batch-post-menu/standing: holds -> holds - Require one line per PR with the unchanged child standing sentence.
 - batch-post-menu/retirement: holds -> holds - Retirement carries no terminal marker or settlement row; settlement rows belong only to the parent's closing message.
 
@@ -58,3 +66,11 @@ For batch-failure-retry, keep a successful child's final marker and concrete squ
 Validate bypass-merge-pick-revoked for the WRITE/MAINTAIN identity rule and menu-rows-omitted for ownership and recommendation. Regenerate selected saved results only for required freshness assertions, failing facts or facts that exercise edited text. Preserve unrelated results at their recorded skillSha; reports name final-text coverage and earlier branch revisions separately.
 
 D8 assembles the frozen baseline with menu slices migrated to menus.md and without the deleted decision-menu.md; that baseline no longer proves the original 11-template flow. Candidate wording and operations remain testable. Preserve verification, repair, sync, CI watch, merge preconditions, compare-and-swap, accounting and run-record authority.
+
+## Isolated plan-free head coverage
+
+Withhold merge while either exact artifact paired with the carried spec remains in the assessed tree, and preserve lookup errors instead of interpreting empty stdout as absence. The merge-plan-file-withheld sample exercises only a saved failed-lookup decision, not assessment or delivery; it has no model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-plan-free-head.test.mjs`: the test executes the embedded Plan-free head recipe against synthetic Git trees for added, unchanged and deleted artifacts, unrelated plans, custom and quoted paths, lookup failure and PR-only scope. Checkout and index decoys do not change tree results. This is isolated deterministic coverage; no live merge, model checklist or workflow replay runs. Preserve all existing sample results as earlier evidence.
+
+## Isolated merge-message command coverage
+
+The merge-command-quoting sample exercises one merge-commit command with an already composed subject and body; it executes nothing. It has no saved model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs`: the test executes only the three policy command templates with a capturing gh function, including optional admin arguments, quoted data and a body path with spaces. It reuses only the message examples from the historical merge-landed-message results, not their workflow claims or judgments. No new model call, real merge, GitHub behavior or workflow replay is covered.

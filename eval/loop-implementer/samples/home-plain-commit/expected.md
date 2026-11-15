@@ -1,0 +1,7 @@
+- reads: judged: Read the spec before the ledger and read the supplied absolute wording file before composing each commit.
+- ordinary-message: judged: A's subject is a capitalized plain imperative about counting imported plants, not a framework label, path, row number or code identifier; use #81 in the body under the supplied refs convention, not E-909 in either part.
+- clean-message: judged: Neither message contains pending/iteration lines, ledger rows or decision lines; B adds no ticket reference.
+- home-attribution: judged: A commits returned: 1 | home | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb and iterations: 4 with pending removed; B commits returned: seed | home | cccccccccccccccccccccccccccccccccccccccc and iterations: 1 with pending removed.
+- home-ledger: judged: A closes row 1 done with attempts 1 and bounded command-first evidence, appends its done decision to the ledger and returns that line only.
+- seed: judged: B uses a plain imperative subject about recording baseline plant-count checks, closes only row 1 on baseline with both attempts still 0, and appends and returns row 0 done | seeded 1 rows, closed 1 on baseline | followed by row 2 as the next target.
+- commit-boundary: judged: Each snapshot stages the ledger explicitly, commits exactly once and checks clean status; neither creates a return file.

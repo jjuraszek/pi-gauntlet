@@ -80,6 +80,8 @@ Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the
 
 ### Shared worker context
 
+Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed.
+
 Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Mint a fresh output path per dispatch with `mktemp "${TMPDIR:-/tmp}/gatekeep-row.XXXXXX"`.
 
 ```text
@@ -88,6 +90,8 @@ Before work, check git -C <worktree> rev-parse HEAD equals <HEAD_BEFORE>.
 Finding evidence: <symptom, location, failing test or no scoped test, P#/L# ids>.
 Scope baseline: <stored scope.original_intent and authoritative spec path when present>.
 SCOPED_TEST_COMMANDS: <resolved commands or none>
+wording: <absolute shared reference path>
+ticket: <reference or none>
 A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module. For an outside-repo failure, use the smallest in-repo workaround and state its reason in one sentence. Never remove a test an AC row relies on through a skip.
 Output path: <per-dispatch output path>.
 ```
@@ -96,8 +100,8 @@ Append only the matching harness tail:
 
 | Harness | Tail |
 |---|---|
-| pi | Close the derived-spec AC mapped in the task; choose the fix. Run a selective check and commit and reply under the persona's Companion result commit contract. For a `cd <dir> &&` scoped runner, run from that directory and record only the runner and its relative test path. For `none`, use a runnable assertion that exits nonzero when the finding's claim fails; without a valid assertion return `failed` naming that cause. Never record the resolved verification command. Open a failed decision's second slot with `needs <what>` for a credential, another repo or infrastructure, or `contract exception: <why>` for a fix that changes the stored scope contract. |
-| Claude Code | Apply the course-authorized drafted payload, or the reviewer's finding text when no payload exists. Commit once on the PR branch with a subject naming the fix only when the scoped test passes or `SCOPED_TEST_COMMANDS` is `none`. Otherwise discard only your edits (`git checkout -- <your files>`, remove files you created) and return `open - <why>`. Return `open - contract exception: <why>` without a contract-changing commit. Report the failing run before the edit and passing run after it; for a doc-only payload with no test, report `no scoped test` and the diff, with the pre-push reviewer as its only gate. |
+| pi | Close the derived-spec AC mapped in the task; choose the fix. Run a selective check and commit and reply under the persona's Outside-ledger result contract; write the attributed result at `return:` before committing and keep the message free of protocol state. For a `cd <dir> &&` scoped runner, run from that directory and record only the runner and its relative test path. For `none`, use a runnable assertion that exits nonzero when the finding's claim fails; without a valid assertion return `failed` naming that cause. Never record the resolved verification command. Open a failed decision's second slot with `needs <what>` for a credential, another repo or infrastructure, or `contract exception: <why>` for a fix that changes the stored scope contract. |
+| Claude Code | Apply the course-authorized drafted payload, or the reviewer's finding text when no payload exists. Commit once on the PR branch using the supplied wording and ticket only when the scoped test passes or `SCOPED_TEST_COMMANDS` is `none`. Otherwise discard only your edits (`git checkout -- <your files>`, remove files you created) and return `open - <why>`. Return `open - contract exception: <why>` without a contract-changing commit. Report the failing run before the edit and passing run after it; for a doc-only payload with no test, report `no scoped test` and the diff, with the pre-push reviewer as its only gate. |
 
 ### Budgets
 
@@ -113,6 +117,8 @@ For an eligible row with no `row <n> escalated` line, compute `threshold = min(e
 ### Row dispatch
 
 On pi, use the wave's derived spec and companion ledger. Never seed-dispatch: start at `target: <row>`. Apply Budgets before changing the ledger. For each eligible row in review order, save its attempts, the ledger's iterations as `i`, and `git -C <worktree> rev-parse HEAD` as `HEAD_BEFORE`. Write `iterations: i + 1` and `pending: <row> | gatekeep | <HEAD_BEFORE>` before dispatch. Resolve `MB` as `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>`; use it as the worker's diff base, not the per-attempt commit boundary. Supply one `Rules:` line per existing worktree `AGENTS.md` and overrides file, using repo-relative paths; with neither file use `Rules: none`.
+
+Resolve the checkout-local `--git-dir` with the [Return file recipes](../../loop-implementation/reference/return-file.md), using `CHECKOUT` = the PR worktree, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`. Pass the prepared path as `return:`. On re-entry recompute it without deleting it before admission. Keep this private file outside tracked source and the external ledger; delete it through the same recipe after admission or a validation miss. Stop before dispatch on any path read, directory creation or stale-file deletion failure.
 
 Dispatch through `../SKILL.md` `## Harness notes` with this row task:
 
@@ -132,21 +138,22 @@ Leg: gatekeep
 mapped original AC: row <n> -> AC <n> (<P#/L# ids>), leg gatekeep
 Rules: <repo-relative path or none>
 pending: <row> | gatekeep | <HEAD_BEFORE>
+return: <absolute checkout-local return file>
 SCOPED_TEST_COMMANDS: <commands>
 ```
 
 ### Admission
 
-On pi, read the commit, not the reply, after every return:
+On pi, read the return file, not the reply or commit message, after every return:
 
 1. Read `git -C <worktree> status --porcelain` and `git -C <worktree> rev-list <HEAD_BEFORE>..HEAD --count`. Require a clean tree and exactly one new commit. Residue or more than one commit stops the round: dispatch no further worker, re-render naming the files and row, preserve attempts and the ledger, and discard nothing. Treat zero commits with a clean tree as a validation miss.
-2. Require subject `loop: row <n> <done|failed>`. Require the first two body lines to equal the dispatched `pending:` tuple and `iteration: <i + 1>`, then a blank line, the target four-column row `| <n> | <status> | <attempts> | <evidence> |` without a header, then any extras, then a blank line and one decision per serialized row, target first. Match decisions against `^row <k> (done|failed) \| .{1,200} \| .{1,200}$`. Require target attempts = saved attempts + 1 and status agreement across subject, row and decision. Admit at most one extra per other currently `open` ledger row, only `done` with attempts unchanged.
+2. Require the return file's first two lines to equal the dispatched `pending:` tuple and `iteration: <i + 1>`, then a blank line, the target four-column row `| <n> | <status> | <attempts> | <evidence> |` without a header, then any extras, then a blank line and one decision per serialized row, target first. Match decisions against `^row <k> (done|failed) \| .{1,200} \| .{1,200}$`. Require target attempts = saved attempts + 1 and status agreement across row and decision. Admit at most one extra per other currently `open` ledger row, only `done` with attempts unchanged. Require no subject pattern or message attribution; a missing, unreadable or mismatched return file is one validation miss, as is malformed content.
 3. Require command-first evidence: one runnable selective command up to the first unescaped semicolon, plus at most three result lines. Reject `;`, `|` or `&&` inside that command, the ledger's `verification:` command, or a command without a selected file, test id, filter or assertion. Require its runner to appear in the task's `SCOPED_TEST_COMMANDS` (normalize the documented working-directory prefix), or a runnable asserting command; require a filter to exit nonzero when it selects no test.
 4. Require `git -C <worktree> diff <HEAD_BEFORE>..HEAD` to change at least one tracked file; an empty diff is a validation miss.
 
-Admit a valid result by writing its row and extras to the external ledger, appending its decision lines to `## Decisions`, clearing `pending:` and resetting the row's consecutive-miss count. Keep failed partial work and tests on the branch for the next attempt; never discard them. Leave `done` rows awaiting the round's reviewer and feed the admitted failed line into the next attempt's `previous decision`. Charge an admitted ordinary source-changing commit, done or failed, once through the round checkpoint. Charge no round for an admitted failed `needs <what>` or `contract exception: <why>` decision, even with partial source changes; an independent ordinary source-changing result in the same pass still charges once. Charge no round for a validation miss.
+Admit a valid result by writing its row and extras to the external ledger, appending its decision lines to `## Decisions`, clearing `pending:`, deleting the return file and resetting the row's consecutive-miss count. Keep failed partial work and tests on the branch for the next attempt; never discard them. Leave `done` rows awaiting the round's reviewer and feed the admitted failed line into the next attempt's `previous decision`. Charge an admitted ordinary source-changing commit, done or failed, once through the round checkpoint. Charge no round for an admitted failed `needs <what>` or `contract exception: <why>` decision, even with partial source changes; an independent ordinary source-changing result in the same pass still charges once. Charge no round for a validation miss.
 
-For a dispatch error without a commit or any malformed subject, body, row, decision, evidence, attempt count, status, extra or empty diff, record one validation miss: status `failed`, attempts = saved attempts + 1, evidence `attempt <n>: <concrete miss>`, clear `pending:`, increment the row's consecutive-miss count and use `previous decision: none` next. On re-entry with `pending:` set, reconcile the branch before any dispatch: admit a matching result commit under the same checks and round-charge exceptions, count a clean tree without one as one miss, and stop on residue. Never re-dispatch pending work or recreate its round checkpoint.
+For a dispatch error without a commit, missing, unreadable or mismatched return file, malformed row, decision, evidence, attempt count, status, extra or empty diff, record one validation miss: status `failed`, attempts = saved attempts + 1, evidence `attempt <n>: <concrete miss>`, clear `pending:`, delete the return file, increment the row's consecutive-miss count and use `previous decision: none` next. On re-entry with `pending:` set, reconcile the branch before any dispatch: admit a matching result from the recomputed return file under the same checks and round-charge exceptions, count a clean tree without one as one miss, and stop on residue. Never re-dispatch pending work or recreate its round checkpoint.
 
 Route a failed decision whose second slot starts `needs <what>` through Exit check's `Helper open - needs <what>` obstacle (`stuck - needs <what>`); route `contract exception: <why>` through Contract decision. Keep independent blockers and the existing escalation paths.
 

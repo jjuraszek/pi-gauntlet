@@ -1,0 +1,110 @@
+{
+  "sample": "landed-message",
+  "arm": "candidate",
+  "skillSha": "3906b0416d0761e365bb0aded73270d375c19489d78e1a38cd52727e9c89c41e",
+  "inputSha": "f7d33ed0472e98fbaf0bc248c3dae20cbebd43f77788ca7fb95aec9d9de2552a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Step 5 traces\n\n## Trace A: Option 3, squash-merge to `main`\n\n**1. Compose the landed message before stripping the plan.**\n\nRead `/package/skills/finishing-a-development-branch/reference/commit-message.md`. The ticket is bound to #241, and the overrides place the reference in the body as `Refs #N`. The subject therefore carries no `(ref ...)` suffix. The spec has six in-scope rows, so two related rows are combined to stay within the five-bullet limit. The offline-caching row is deferred, so it is left out of the message.\n\nWrite this to an OS-temp file held in `LANDED_MESSAGE`:\n\n```text\nCount imported plants in compliance pagination\n\nCompliance pages skipped plants that exist only in the dedicated import, so\npage counts disagreed with totals. Pagination now includes those plants.\n\n- Single-company page counts match the plant total\n- Imported profile answers appear on the plant's compliance page\n- Filters include imported profiles\n- Duplicate imports count once, and empty imports leave counts unchanged\n- Page boundaries include imported profiles\n\nRefs #241\n```\n\n**2. Strip the plan and seal telemetry on the feature branch.**\n\nThis runs the guarded `git -C /workspace/app-tree rm <plan path>` followed by the commit `Remove ephemeral plan doc` for each tracked plan candidate. Then:\n\n```bash\nnode /package/bin/gauntlet-telemetry-seal.mjs --worktree /workspace/app-tree --option squash --base main --spec <spec path from the plan header>\n```\n\nThe seal succeeds, and its stdout is printed verbatim in the completion message.\n\n**3. Squash and commit in the primary checkout.**\n\n```bash\ngit -C /workspace/app checkout main\ngit -C /workspace/app pull\ngit -C /workspace/app merge --squash profile-counts\ngit -C /workspace/app commit -F \"$LANDED_MESSAGE\"\n```\n\n**4. Required order after the commit:**\n1. **Post-squash verification.** Run `(cd /workspace/app && <the Step 1 set>)`. This is mandatory, because the skip proof does not cover the primary tree. For a ledger subject, run the per-pair recipe instead.\n2. **Step 6 cleanup.** Resolve the keyed or legacy ownership of `/workspace/app-tree`. If it is owned, run `destroy:`, or `git -C /workspace/app worktree remove /workspace/app-tree` followed by `git -C /workspace/app worktree prune`.\n3. **Branch deletion.** Only if Step 6 removed the worktree, run `git -C /workspace/app branch -D profile-counts`.\n4. **Completion.** Start the message with `gauntlet: done merged`, then call `phase_tracker({ action: \"complete\", phase: \"ship\" })`.\n\nNothing is pushed and no PR is created.\n\n**Coordinated variant: final line of the repo-b companion squash message:**\n\n```text\nHome: repo-a profile-counts\n```\n\nThis line carries no spec path. The home squash body lists the companion squash SHAs.\n\n## Trace B: Option 1, push and create a PR\n\n**1. Squash-default read, done once for Options 1-2.**\n\nThe read returns `squash_merge_commit_message: COMMIT_MESSAGES`. Print:\n\n```text\nNote: this repo's squash default (squash_merge_commit_message: COMMIT_MESSAGES) pastes every branch commit into the landed message when someone merges from the GitHub button; set it to PR_BODY or BLANK in the repo settings to stop that.\n```\n\nFor an independent read returning `PR_BODY`, print nothing. For a permission-denied read, also print nothing. No repository setting is ever written.\n\n**2. Strip and seal.**\n\nUse the same guarded plan strip as Trace A, then:\n\n```bash\nnode /package/bin/gauntlet-telemetry-seal.mjs --worktree /workspace/app-tree --option pr --base main --spec <spec path from the plan header>\n```\n\n**3. Push and create the PR.**\n\n`LANDED_SUBJECT` is the same as Trace A's subject: `Count imported plants in compliance pagination`.\n\n```bash\ngit -C /workspace/app-tree push -u origin profile-counts\n(cd /workspace/app-tree && gh pr create --title \"$LANDED_SUBJECT\" --body \"$(cat <<'EOF'\n...\nEOF\n)\")\n```\n\nThe body contains these sections:\n- **`## Summary`** holds two or three bullets on the change and `Refs #241`, placed per the overrides refs convention.\n- **`## Test Plan`** holds checkbox verification steps.\n- **`## Acceptance criteria`** is the disposition appendix, present because one row is deferred. It lists only the offline-caching row verbatim with `- deferred: <where>`, so it is not presented as shipped.\n\n**4. Afterwards.**\n- The worktree is preserved for PR iteration.\n- Completion starts with `gauntlet: done pr-created`.\n\n**Draft selection (Option 2).** The only change is `--draft` added to `gh pr create`. The title, body and squash-default note are unchanged.\n\n## Trace C: `fix minors F3` instead of shipping\n\nThe minors line listed F3 and no `whole-diff minors fix:` line was present, so the reply is accepted.\n\n**Dispatch.** Send one `implementer` round with these inputs:\n- **cwd:** `/workspace/app-tree`\n- **task:** the finding line verbatim: `Keep imported profiles in the filtered total`\n- **`SCOPED_TEST_COMMANDS`:** the plan-header verification set, or the ledger gate set with its owning checkouts.\n- **`wording:`** `/package/skills/finishing-a-development-branch/reference/commit-message.md`\n- **`ticket:`** `#241`\n\n**Worker commit.** The subject comes from the Whole-diff minors fix row:\n\n```text\nKeep imported profiles in the filtered total\n```\n\nThe body carries `Refs #241` per the overrides.\n\n**Return.** The supplied scoped check succeeds, so control returns to **Step 3.5**:\n1. The freshness rule detects the working-tree change and re-audits conformance.\n2. The regenerated closure block records `whole-diff minors fix: <full SHA>`.\n3. No code review follows this round.\n4. **Step 4** re-renders the full menu under `gauntlet: gate=finishing-a-development-branch/step-4`.\n\nAny later `fix minors` reply is refused with \"minors round already spent\".\n",
+      "words": 786,
+      "wallMs": 29749,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Trace A — Option 3: local squash\n\nRead `/package/skills/finishing-a-development-branch/reference/commit-message.md`. The ticket convention puts `Refs #241` in the body, not the subject.\n\nCreate the squash-message file **before stripping the plan**:\n\n```bash\nLANDED_MESSAGE=$(mktemp)\ncat > \"$LANDED_MESSAGE\" <<'EOF'\nCount imported plants in compliance pagination\n\nCompliance pages skipped plants that exist only in the dedicated import, so page counts disagreed with totals. The query now includes them.\n\n- Single-company page counts match plant totals\n- Imported profile answers appear on compliance pages and remain included in filtered totals\n- Duplicate imports count once\n- Empty imports leave counts unchanged\n- Page boundaries include imported profiles\n\nRefs #241\nEOF\n```\n\nThis combines six completed outcomes into five bullets. Offline caching is not claimed as shipped.\n\nThe sequence is:\n\n1. Remove each tracked ephemeral task-plan or ledger candidate, committing each removal with:\n   ```bash\n   git -C /workspace/app-tree rm \"$PLAN_PATH\"\n   git -C /workspace/app-tree commit -m \"Remove ephemeral plan doc\"\n   ```\n   Preserve the spec. Retain the verification set captured before removal.\n\n2. Run the successful seal, using the artifact’s retained spec path:\n   ```bash\n   node /package/bin/gauntlet-telemetry-seal.mjs \\\n     --worktree /workspace/app-tree \\\n     --option squash \\\n     --base main \\\n     --spec \"$SPEC_PATH\"\n   ```\n   Retain its stdout for verbatim completion reporting.\n\n3. Squash into the primary:\n   ```bash\n   git -C /workspace/app checkout main\n   git -C /workspace/app pull\n   git -C /workspace/app merge --squash profile-counts\n   git -C /workspace/app commit -F \"$LANDED_MESSAGE\"\n   ```\n\n4. **Before cleanup**, rerun the retained Step 1 verification set against `/workspace/app`. The actual commands were not supplied, so none can be substituted here. For a ledger, execute its ordered gate pairs in the primary, logging each command and printing:\n   ```text\n   gate <i> exit <code> <log path>\n   ```\n   Stop at the first failure; preserve the worktree and branch.\n\n5. Only after successful post-squash verification, apply Step 6’s cleanup ownership contract. An owned built-in cleanup has this order:\n   ```bash\n   git -C /workspace/app worktree remove /workspace/app-tree\n   git -C /workspace/app worktree prune\n   git -C /workspace/app branch -D profile-counts\n   ```\n   A matching recorded destroy command takes precedence: run it from `/workspace/app`, then delete the branch only after successful removal, without built-in remove or prune. Never fall back after destroy failure.\n\n   No cleanup contract or native-script provenance was supplied. Under the legacy rules, `/workspace/app-tree` is outside the owned `.worktrees` locations: preserve it and `profile-counts`, reporting that the host-owned worktree still holds the branch.\n\nThere is **no push and no PR creation**. Mark ship complete after successful execution; report `gauntlet: done merged` and the seal’s actual stdout.\n\nFor the coordinated companion squash, its final line is exactly:\n\n```text\nHome: repo-a profile-counts\n```\n\n## Trace B — Option 1: create a PR\n\nUse the identical title:\n\n```text\nCount imported plants in compliance pagination\n```\n\nRead the repository setting once:\n\n```bash\n(cd /workspace/app-tree &&\n  gh api repos/<owner>/<repo> --jq .squash_merge_commit_message)\n```\n\nFor the supplied `COMMIT_MESSAGES` result, print exactly:\n\n```text\nNote: this repo's squash default (squash_merge_commit_message: COMMIT_MESSAGES) pastes every branch commit into the landed message when someone merges from the GitHub button; set it to PR_BODY or BLANK in the repo settings to stop that.\n```\n\nFor either an independent `PR_BODY` result or a permission-denied read, print **nothing** about this setting. Never write a setting.\n\nStrip the ephemeral plan and seal as above, but with `--option pr`. Then:\n\n```bash\ngit -C /workspace/app-tree push -u origin profile-counts\n\n(cd /workspace/app-tree &&\n  gh pr create \\\n    --title \"Count imported plants in compliance pagination\" \\\n    --body-file \"$PR_BODY\")\n```\n\n`PR_BODY` is an OS-temp file prepared with the project’s existing style. Its contents are summarized by section, as requested:\n\n- **Summary:** two or three bullets describing the completed imported-profile counting changes, without claiming offline caching.\n- **Test Plan:** verification steps from the retained successful set.\n- **Acceptance criteria:** the deferred offline-caching row, quoted verbatim from the spec with its actual `deferred:` destination. Neither its verbatim wording nor destination was supplied here.\n- Body ticket reference: `Refs #241`.\n\nIf the subject is a ledger, its final Summary bullet also lists its retained scoped gate commands and states that CI holds the full run.\n\nFor a draft, add **`--draft`** to `gh pr create`. The title and body do not change. Both PR options preserve the worktree and branch. Successful completion reports `gauntlet: done pr-created` and the seal’s stdout verbatim.\n\n## Trace C — fix Minor F3 instead\n\nRead the commit-message reference and dispatch one `implementer` round with:\n\n```text\ncwd: /workspace/app-tree\ntask: F3: Keep imported profiles in the filtered total\nwording: /package/skills/finishing-a-development-branch/reference/commit-message.md\nticket: #241\nSCOPED_TEST_COMMANDS: <the retained applicable scoped verification set>\n```\n\nRequire the supplied successful scoped-check evidence and have the worker commit using:\n\n```text\nKeep imported profiles in the filtered total\n\nRefs #241\n```\n\nReturn to **Step 3.5**, not directly to shipping. The change triggers a fresh conformance audit; the regenerated durable block records:\n\n```text\nwhole-diff minors fix: <full worker commit SHA>\n```\n\nThen re-render the full Step 4 menu. No additional code review follows this Minor round. No commands above are actually executed in this narration.\n",
+      "words": 776,
+      "wallMs": 30323,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f6e3809d57951f43555367a95cdae8e68d592c3bd42b740dacbf29c38a7d47f7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
+      "baselineOutputSha": "10f239aa290352bde8b378367510f409fa1b6d8755fc7dd3654764f2c7872aa1",
+      "candidateOutputSha": "55c7bc616fcc34487479a94a68b63d494c23b8e11c47f6e15796ab76e846263f",
+      "facts": {
+        "subject": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "minors": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All five facts move from fails to holds, and Before held none of them, so the After wording loses nothing. The shared commit-message reference drives most of the movement: After reads it explicitly, composes one plain subject reused verbatim as the PR title, keeps `Refs #241` in the squash body only, and reshapes the message into a two-sentence paragraph plus five bullets that fold the six in-scope outcomes without mentioning offline caching. Before never read the reference and wrote the outcomes as one prose paragraph with no bullets. Delivery flips on the companion line alone: After ends it with exactly `Home: repo-a profile-counts`, where Before appended `doc/specs/profile-counts.md`; strip and seal before squash, `commit -F`, re-verify before cleanup, no push, the retained worktree and `--draft` were already right in Before. The squash-default note is now read once and printed verbatim for COMMIT_MESSAGES, silent for PR_BODY and permission-denied, with no setting write; Before said the skill defines no settings read and invented a different note. The minors worker now receives the wording path and ticket #241, takes its subject from the F3 finding instead of `whole-diff minors fix`, and returns to Step 3.5. Two wording points could be tightened to keep these facts stable: Trace C says the subject \"comes from the Whole-diff minors fix row\", which a reader could confuse with the old fixed subject, so say it is derived from the selected Minor finding; and the PR Summary carrying `Refs #241` sits close to the title, so keep the rule explicit that the ticket never enters the title or subject under the body-placement override.",
+      "wallMs": 14161,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f6e3809d57951f43555367a95cdae8e68d592c3bd42b740dacbf29c38a7d47f7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
+      "baselineOutputSha": "e758d02c68e7425f13328f72a50788ce2a753210047da7181c38aa925d61e723",
+      "candidateOutputSha": "b78caaa80eae130d6475364aaf81999eb1d54cef79da933e155c4521ee6d19e4",
+      "facts": {
+        "subject": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "shape": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "delivery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "minors": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All five facts moved from fails to holds, and Before held none, so there is nothing to win back. Subject moved because After explicitly reads /package/skills/finishing-a-development-branch/reference/commit-message.md before composing, reuses the identical subject as the PR title, and keeps Refs #241 in the squash body only; Before never read the reference. Shape moved because After writes a two-sentence what/why paragraph and folds the six in-scope outcomes into five bullets with no mention of offline caching, where Before had six bullets plus an 'Offline caching remains deferred' line. Delivery moved mainly on the companion line: After prints exactly 'Home: repo-a profile-counts', where Before appended doc/specs/profile-counts.md; After also keeps strip and seal before the squash, commit -F, re-verification before cleanup, no push in A, the Summary/Test Plan/appendix body, the retained worktree, and --draft with unchanged title and body. Note moved because After reads the setting once, prints the exact shared note for COMMIT_MESSAGES, prints nothing for PR_BODY or a permission-denied read, and never writes a setting; Before invented its own note and a permission-denied report. Minors moved because After passes the reference path as wording and #241 as ticket, derives the subject from the F3 finding, and returns to Step 3.5; Before passed the finding text as wording and committed as 'whole-diff minors fix'. Three spots are fragile and worth pinning in the wording: the filter outcome survives only as 'remain included in filtered totals' in a merged bullet, so say that every in-scope outcome must stay recognisable when bullets are combined; the extra 'Body ticket reference: Refs #241' item in the PR body and the ledger-conditional asides (gate-pair lines, scoped CI Summary bullet) are not asked for in this non-ledger case and could be read as altering the body recipe, so scope them to ledger subjects only; and After places the settings read and note before strip, seal and push, so state where the single read belongs relative to PR creation.",
+      "wallMs": 14051,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "8899bf733b281e7df57d1efaf639009994ec21d3"
+}

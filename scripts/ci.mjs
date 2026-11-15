@@ -243,7 +243,7 @@ const tokenChecks = [
   // #27 gate removal / amendment path
   ["skills/brainstorming/SKILL.md", "## Amending an approved spec", true],
   ["skills/writing-plans/SKILL.md", "#amending-an-approved-spec", true],
-  ["skills/subagent-driven-development/SKILL.md", "#amending-an-approved-spec", true],
+  ["skills/subagent-driven-development/reference/prerequisites.md", "#amending-an-approved-spec", true],
   ["skills/finishing-a-development-branch/SKILL.md", "#amending-an-approved-spec", true],
   ["skills/brainstorming/SKILL.md", "Ask once whether the design replaces", false],
   ["skills/brainstorming/SKILL.md", "get approval after each", false],
@@ -421,7 +421,7 @@ if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass token
   if (resumeSkill.includes("restart pi in <worktree>")) {
     fail("gauntlet-resume: same-repo worktrees must not require restarting pi in the worktree");
   }
-  if (/\bgit (?!-C <worktree>)/.test(reconstruction)) {
+  if (/\bgit (?!-C (?:<worktree>|"\$CHECKOUT"))/.test(reconstruction)) {
     fail("gauntlet-resume reconstruction: git commands must target the resolved worktree with -C");
   }
   if (errors.length === resumeErrorsBefore) ok("gauntlet-resume targets same-repo worktrees by path");
@@ -616,6 +616,14 @@ try {
   const errors = lintPiCohortFloor(root);
   if (errors.length) fail(errors.join("\n    "));
   else ok("pi-cohort peer and README floors match");
+}
+
+try {
+  execFileSync(process.execPath, [R("scripts/commit-subject-lint.mjs")], { cwd: root, stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/commit-subject-lint.test.mjs")], { stdio: "pipe" });
+  ok("commit-subject lint and fixtures pass");
+} catch (e) {
+  fail(`commit-subject lint or fixtures failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
 }
 
 // ---- no provider/model literals in skills, personas, extensions (#42) -----------

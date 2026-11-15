@@ -1,0 +1,6 @@
+bundle+: skills/housekeeping/reference/fix.md
+The checkpoint is Fix stage 1, after all card choices were recorded and expected-state comparison passed. For this sample narrate the next fix dispatch and the helper's exact commit message instead of the next user-facing menu; use only these fixed observations and no tools.
+
+The loaded SKILL.md is /package/skills/housekeeping/SKILL.md. There is one kept Fix-picked class with card title `Replace deprecated assertions`, ticket `#241`, delivery `commit-push`, target /workspace/app, and no excluded item. The rule says replace deprecated equal assertions with strictEqual in test/cache.test.mjs; the user approved the card. The compiled check is `node --test test/cache.test.mjs`. The run folder is /tmp/housekeeping-run. The initial HEAD is 1111111111111111111111111111111111111111 and the worktree is clean. Overrides say `refs: #N in commit bodies as Refs #N`.
+
+All reads of the shared package reference succeed and return the bundled text. Give the wording and ticket fields in the helper's task, what it reads and how it composes the subject/body, and its scope/one-commit/push boundaries. Also show the message for the same card with no ticket and the helper's unreadable-reference fallback. Do not fetch any ticket or infer one from history. Stop before review or delivery.

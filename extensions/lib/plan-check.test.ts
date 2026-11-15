@@ -21,6 +21,22 @@ test("ledger admission bypasses task checks and permits empty open evidence", ()
     assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
   }
 });
+test("ledger admission ignores returned attribution and repair and amended decisions", () => {
+  const fs = { exists: () => false, glob: () => [] };
+  const text = ledger().replace("iterations: 0\n", "iterations: 0\nallowance: 4\n");
+  const baseline = checkPlan(text, ledgerSpec, fs);
+  assert.deepEqual(baseline, { findings: [], ledger: true });
+  const decisions = [
+    "repair row 3 | missing decision | iteration 2",
+    "repair seed | seed miss: empty evidence | iteration 3",
+    "repair verification | home abc1234 | iteration 4",
+    "amended | 1 item(s) | Clarify evidence",
+  ].join("\n");
+  for (const returned of ["none", "3 | home | abc1234"]) {
+    const input = text.replace("allowance: 4\n", `allowance: 4\nreturned: ${returned}\n`) + decisions + "\n";
+    assert.deepEqual(checkPlan(input, ledgerSpec, fs), baseline, returned);
+  }
+});
 for (const [name, rows] of Object.entries({
   missing: ["1 | open | 0 |"],
   extra: ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |", "4 | open | 0 |"],

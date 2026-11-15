@@ -255,15 +255,18 @@ For both rebase forms, consume every `pending` member in listed order, run `git 
 
 - [ ] **Step 6: Commit**
 
+  Read `<absolute wording reference>`: Subject, Body and Word sources. Compose
+  the message from this task heading and the bound ticket; send it on stdin.
+
   ```bash
   git add tests/path/test.py src/path/file.py
-  git commit -m "<imperative subject> (ref <ticket-id>)"
+  git commit -F -
   ```
 ```
 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
-Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
+Read [the commit-message reference](../finishing-a-development-branch/reference/commit-message.md) now. Resolve its absolute path into every task's Commit step and bind the ticket through Word sources. Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
 
 Declare `Delete:` as write ownership with a literal path and no existence requirement; follow [the Files contract](reference/plan-contract.md#files-wave-file-disjointness-paths-exist-files-block).
 
@@ -356,7 +359,7 @@ Fix what this review finds before handoff.
 
 ## Execution Handoff
 
-After the parent `plan_check` passes and the plan has been read once (`## Author the plan` step 7), check the plan-scoped status on the home worktree branch: `git -C "<abs home worktree>" status --porcelain -- "<home-relative plan path>"`. On empty output, skip staging and commit. On nonempty output, stage and commit only the home-relative plan: `git -C "<abs home worktree>" add -- "<home-relative plan path>"` then `git -C "<abs home worktree>" commit -m "plan: <spec title>" -- "<home-relative plan path>"`. Stop on any status, staging or commit failure; never stage unrelated source. Then mark the planning phase complete and initialize `plan_tracker` once with every plan task in wave order. Name each entry `W<k>: <title>` using its containing wave and task title. This is the execution list: do not initialize it again on continuation.
+After the parent `plan_check` passes and the plan has been read once (`## Author the plan` step 7), check the plan-scoped status on the home worktree branch: `git -C "<abs home worktree>" status --porcelain -- "<home-relative plan path>"`. On empty output, skip staging and commit. On nonempty output, read [Subject, Body and Word sources](../finishing-a-development-branch/reference/commit-message.md), compose the plan message from the spec H1 and bound ticket, and stage and commit only the home-relative plan: `git -C "<abs home worktree>" add -- "<home-relative plan path>"` then `git -C "<abs home worktree>" commit -F - -- "<home-relative plan path>"`, supplying the composed message on stdin. Stop on any status, staging or commit failure; never stage unrelated source. Then mark the planning phase complete and initialize `plan_tracker` once with every plan task in wave order. Name each entry `W<k>: <title>` using its containing wave and task title. This is the execution list: do not initialize it again on continuation.
 
 ```
 phase_tracker({ action: "complete", phase: "plan" })
