@@ -335,17 +335,17 @@ Run the strip-and-seal block above first (plan stripped, telemetry record sealed
 
 #### Option 3: Squash-merge to base
 
-Read [commit-message.md](reference/commit-message.md) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule. Write it to an OS-temp file `LANDED_MESSAGE` before stripping the plan. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
-
+Read [commit-message.md](reference/commit-message.md) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule. Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 ```bash
 git -C "$PRIMARY" checkout <base-branch>
 git -C "$PRIMARY" pull
 git -C "$PRIMARY" merge --squash "$FEATURE"
-git -C "$PRIMARY" commit -F "$LANDED_MESSAGE"
+git -C "$PRIMARY" commit -F - <<'EOF'
+<landed message>
+EOF
 # Non-ledger subjects only; for ledgers use the per-pair post-squash recipe below.
 (cd "$PRIMARY" && <the Step 1 set>)
 ```
-
 Keep only the spec and implementation in the staged squash tree; the stripped plan stays in feature history and the sealed telemetry record belongs to `refs/telemetry/records`.
 
 The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch. For a ledger, run the per-pair post-squash recipe in [verification-set.md](reference/verification-set.md) instead of the non-ledger subshell above.

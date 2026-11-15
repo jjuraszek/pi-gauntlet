@@ -36,7 +36,7 @@ function environment(cwd) {
     GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
     GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid',
     PRIMARY: cwd, WORKTREE: cwd, LANDED_SUBJECT: subject,
-    LANDED_MESSAGE: join(cwd, 'message with spaces.txt'), ARGS: join(cwd, 'pr arguments'),
+    ARGS: join(cwd, 'pr arguments'),
   };
 }
 
@@ -70,7 +70,7 @@ test('finish delegates squash and PR wording to the shared contract without rewr
   assert.match(pr, /Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style/);
   assert.match(pr, /Keep this disposition appendix out of Option 3's landed message/);
   assert.match(squash, /Read \[commit-message.md\]\(reference\/commit-message.md\) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule/);
-  assert.match(squash, /Write it to an OS-temp file `LANDED_MESSAGE` before stripping the plan/);
+  assert.match(squash, /Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below/);
   assert.match(skill, /Option 1's push and `gh pr create` commands with `--draft` added\. The PR body is unchanged/);
 });
 
@@ -78,20 +78,23 @@ test('saved landed-message examples retain all six outcomes and only the bound b
   for (const { model, message } of examples) await t.test(model, () => assertMessage(message));
 });
 
-test('the isolated commit command preserves each message from its OS-temp file', async t => {
-  const command = squash.split('\n').find(line => line.startsWith('git -C "$PRIMARY" commit '));
-  assert.equal(command, 'git -C "$PRIMARY" commit -F "$LANDED_MESSAGE"');
-  for (const { model, message } of examples) await t.test(model, () => {
+test('the isolated commit command preserves each message through a quoted stdin heredoc', async t => {
+  const command = squash.match(/git -C "\$PRIMARY" commit [^\n]+\n[\s\S]*?\nEOF/)?.[0];
+  assert.equal(command, 'git -C "$PRIMARY" commit -F - <<\'EOF\'\n<landed message>\nEOF');
+  const cases = [...examples, {
+    model: 'literal shell text',
+    message: 'Preserve literal text in landed messages\n\nKeep $PRIMARY, ${WORKTREE}, $(printf expanded), `printf expanded` and "quotes" literal.',
+  }];
+  for (const { model, message } of cases) await t.test(model, () => {
     const cwd = mkdtempSync(join(tmpdir(), 'finish-message-'));
     const env = environment(cwd);
     const git = (...args) => run(cwd, env, 'git', args);
     git('init', '-q', '-b', 'fixture');
     writeFileSync(join(cwd, 'plants.txt'), 'Imported plants count toward pagination.\n');
     git('add', '--', 'plants.txt');
-    writeFileSync(env.LANDED_MESSAGE, `${message}\n`);
-    run(cwd, env, 'bash', ['-c', command]);
+    run(cwd, env, 'bash', ['-c', command.replace('<landed message>', () => message)]);
     assert.equal(git('show', '-s', '--format=%B', 'HEAD').trimEnd(), message);
-    assert.equal(git('show', '-s', '--format=%s', 'HEAD').trimEnd(), subject);
+    assert.equal(git('show', '-s', '--format=%s', 'HEAD').trimEnd(), message.split('\n')[0]);
     assert.equal(git('ls-tree', '--name-only', 'HEAD').trimEnd(), 'plants.txt');
   });
 });
