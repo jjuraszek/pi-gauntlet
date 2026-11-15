@@ -329,6 +329,11 @@ const tokenChecks = [
   ["skills/brainstorming/reference/spec-finalization.md", "Approve to proceed", false],
   ["skills/brainstorming/reference/amendment-surface.md", "The gate grants on a `1` or `2` approval without `--amends-stop`", true],
   ["skills/brainstorming/reference/amendment-surface.md", "is an invalid reply and never a grant", true],
+  ["README.md", "Experimental approval options", false],
+  ["README.md", "experimental loop", false],
+  ["doc/configuration.md", "experimental option", false],
+  ["doc/implement-engines.md", "experimental loop engine", false],
+  ["doc/personas.md", "experimental loop engine", false],
   // standing grant lives in the spec header, read by gauntlet-resume; the brief grammar stays grant-free
   ["skills/gauntlet-resume/SKILL.md", "**Amend-grant:**", true],
   ["skills/gauntlet-resume/SKILL.md", "Standing grant active:", true],
