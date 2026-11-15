@@ -55,6 +55,7 @@ test('historical saved replies: post selections cover sets, inspection, reply id
     const output = saved.outputs[model];
     const judge = saved.judge[model];
     assert.equal(output.status, 'ok', model);
+    assert.ok(typeof output.text === 'string' && output.text.length > 0, `${model}: nonempty reply text`);
     assert.match(judge.factsSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded facts hash');
     assert.equal(judge.candidateOutputSha, sha256(output.text), model);
     for (const { id } of facts) assert.equal(judge.facts[id]?.after, 'holds', `${model}: ${id}`);

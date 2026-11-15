@@ -167,6 +167,10 @@ test('historical saved replies: isolated decisions select conversion only for an
       assert.equal(candidate.models.thinking, identity.thinking);
       assert.equal(candidate.outputs[model]?.status, 'ok');
       assert.equal(baseline.outputs[model]?.status, 'ok');
+      for (const [arm, record] of [['baseline', baseline], ['candidate', candidate]]) {
+        const output = record.outputs[model];
+        assert.ok(typeof output.text === 'string' && output.text.length > 0, `${arm}/${model}: nonempty reply text`);
+      }
       const judgment = candidate.judge[model];
       for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
         assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);

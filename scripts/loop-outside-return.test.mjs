@@ -53,6 +53,10 @@ function savedReplies(name, sample, facts) {
   assert.ok(candidate.models.replay.length > 0);
   return candidate.models.replay.map(model => {
     assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
+    for (const [arm, record] of [['baseline', baseline], ['candidate', candidate]]) {
+      const output = record.outputs[model];
+      assert.ok(typeof output?.text === 'string' && output.text.length > 0, `${name}/${sample}/${arm}/${model}: nonempty reply text`);
+    }
     const judgment = candidate.judge[model];
     const baselineOutputSha = sha256(baseline.outputs[model].text);
     const candidateOutputSha = sha256(candidate.outputs[model].text);

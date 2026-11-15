@@ -139,6 +139,10 @@ for (const [targetName, sample] of [
     assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
     for (const model of candidate.models.replay) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
+      for (const [arm, record] of [['baseline', baseline], ['candidate', candidate]]) {
+        const output = record.outputs[model];
+        assert.ok(typeof output.text === 'string' && output.text.length > 0, `${arm}/${model}: nonempty reply text`);
+      }
       const judgment = candidate.judge[model];
       for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
         assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);
@@ -273,12 +277,18 @@ for (const [targetName, sample, factId, historical] of [
     assert.match(text.split('## Stop boundary\n')[1].split('\n## ')[0], /Stop.*(?:output|decision|message)/);
     assert.match(read(`${dir}/report.md`), /historical/i);
     if (historical) {
+      const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
       for (const arm of ['baseline', 'candidate']) {
         const record = JSON.parse(read(`${dir}/results/${sample}/${arm}.json`));
         read(`${dir}/replay.md`);
         assert.match(record.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
         assert.match(record.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
-        assert.ok(Object.values(record.outputs).some(({ text }) => text.length > 0), 'retain completed replies');
+        assert.ok(record.models.replay.length > 0);
+        for (const model of record.models.replay) {
+          const output = record.outputs[model];
+          assert.ok(typeof output?.text === 'string' && output.text.length > 0, `${arm}/${model}: nonempty reply text`);
+          assert.equal(candidate.judge[model][`${arm}OutputSha`], sha256(output.text), `${arm}/${model}: recorded output hash`);
+        }
       }
     }
   });
@@ -301,6 +311,9 @@ for (const [targetName, sample, factIds] of [
     assert.ok(candidate.models.replay.length > 0);
     for (const model of candidate.models.replay) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
+      const output = candidate.outputs[model];
+      assert.ok(typeof output.text === 'string' && output.text.length > 0, `${model}: nonempty reply text`);
+      assert.equal(candidate.judge[model].candidateOutputSha, sha256(output.text), `${model}: recorded output hash`);
       for (const id of factIds) assert.equal(candidate.judge[model]?.facts[id]?.after, 'holds', `${model}: ${id}`);
       assert.ok(['improved', 'unchanged'].includes(candidate.judge[model]?.verdict), model);
     }

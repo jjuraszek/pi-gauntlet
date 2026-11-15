@@ -65,6 +65,10 @@ test('historical saved replies: home resume preserves completed isolated classif
     await t.test(model, () => {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
       assert.equal(baseline.outputs[model]?.status, 'ok', model);
+      for (const [arm, record] of [['baseline', baseline], ['candidate', candidate]]) {
+        const output = record.outputs[model];
+        assert.ok(typeof output.text === 'string' && output.text.length > 0, `${arm}/${model}: nonempty reply text`);
+      }
       const judgment = candidate.judge[model];
       for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
         assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);
