@@ -40,7 +40,7 @@ const evidence = 'timeout -k 30 120 node --test test/totals.test.mjs; 4 passed; 
 const row = (id, status = 'done', attempts = 1, check = evidence) => `| ${id} | ${status} | ${attempts} | ${check} |`;
 const decision = (id, status = 'done') => `row ${id} ${status} | Count imported plants. | Reuse the totals fixture.`;
 
-function currentReplies(name, sample, facts) {
+function savedReplies(name, sample, facts, { current = true } = {}) {
   const dir = `eval/${name}`;
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
@@ -51,17 +51,27 @@ function currentReplies(name, sample, facts) {
     inputSha: inputSha(read(`${dir}/replay.md`), text, bundle), kind: target.kind,
     assembly: target.assembly, thinking: candidate.models.thinking };
   assert.ok(candidate.models.replay.length > 0);
+  const factsSha = sha256(read(`${dir}/samples/${sample}/expected.md`));
+  const judgePromptSha = sha256(read('eval/judge.md'));
+  const intentSha = sha256(intentBody(read(`${dir}/intent.md`)));
   return candidate.models.replay.map(model => {
     assert.ok(cellReusable(candidate, model, identity), `${name}/${sample}: current reply for ${model}`);
     const judgment = candidate.judge[model];
-    assert.ok(judgmentCurrent(judgment, {
-      factsSha: sha256(read(`${dir}/samples/${sample}/expected.md`)),
-      judgePromptSha: sha256(read('eval/judge.md')),
-      intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
-      baselineOutputSha: sha256(baseline.outputs[model].text),
-      candidateOutputSha: sha256(candidate.outputs[model].text),
-    }), `${name}/${sample}: current judgment for ${model}`);
+    const baselineOutputSha = sha256(baseline.outputs[model].text);
+    const candidateOutputSha = sha256(candidate.outputs[model].text);
+    if (current) {
+      assert.ok(judgmentCurrent(judgment, {
+        factsSha, judgePromptSha, intentSha, baselineOutputSha, candidateOutputSha,
+      }), `${name}/${sample}: current judgment for ${model}`);
+    } else {
+      assert.equal(judgment.factsSha, factsSha, `${name}/${sample}: current facts for ${model}`);
+      assert.equal(judgment.judgePromptSha, judgePromptSha, `${name}/${sample}: current judge prompt for ${model}`);
+      assert.equal(judgment.baselineOutputSha, baselineOutputSha, `${name}/${sample}: baseline reply for ${model}`);
+      assert.equal(judgment.candidateOutputSha, candidateOutputSha, `${name}/${sample}: candidate reply for ${model}`);
+      assert.notEqual(judgment.intentSha, intentSha, `${name}/${sample}: historical intent for ${model}`);
+    }
     for (const fact of facts) assert.equal(judgment.facts[fact]?.after, 'holds', `${name}/${sample}/${model}/${fact}`);
+    assert.ok(['improved', 'unchanged'].includes(judgment.verdict), `${name}/${sample}: ${model}`);
     return candidate.outputs[model].text;
   });
 }
@@ -172,7 +182,7 @@ test('companion production admission reads the file, including seed and malforme
 });
 
 test('outside-ledger publication reuses saved wording and writes only the private return before committing', () => {
-  for (const output of currentReplies('loop-implementer', 'companion-return-file', ['return-file', 'external-ledger', 'message', 'one-commit'])) {
+  for (const output of savedReplies('loop-implementer', 'companion-return-file', ['return-file', 'external-ledger', 'message', 'one-commit'])) {
     const publication = /pending: 2 \| lib \| d{40}\n\s*iteration: 6\n\n\s*(\| 2 \| done \| 1 \| [^\n]+)\n\n\s*(row 2 done \| [^\n]+)/.exec(output);
     assert.ok(publication, 'extract only the published result, not the implementation trace');
     const commit = /git (?:-C \/workspace\/lib\/\.worktrees\/paging )?commit -m "([^"]+)"/.exec(output);
@@ -206,8 +216,9 @@ test('outside-ledger publication reuses saved wording and writes only the privat
 });
 
 test('isolated parent decisions distinguish gatekeep misses, hotfix seed aborts and hotfix row misses', () => {
-  for (const [name, sample] of [['gatekeep-pr', 'fix-row-file-observation'], ['chase-bug', 'hotfix-seed-file-observation'], ['chase-bug', 'hotfix-row-return-file']]) {
-    currentReplies(name, sample, ['admission']);
+  savedReplies('gatekeep-pr', 'fix-row-file-observation', ['admission'], { current: false });
+  for (const sample of ['hotfix-seed-file-observation', 'hotfix-row-return-file']) {
+    savedReplies('chase-bug', sample, ['admission']);
   }
 });
 

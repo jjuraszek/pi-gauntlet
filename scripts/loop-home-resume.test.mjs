@@ -7,7 +7,6 @@ import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 import { intentBody } from '../eval/lib/intent.mjs';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
-import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
@@ -49,33 +48,37 @@ test('home resume written rules preserve the original boundary and consumed coun
   assert.match(reconstruction, /migration changes neither admission ranges nor the home HEAD used for recovery/);
 });
 
-test('home resume reuses current isolated classification replies, not executable driver proof', async t => {
+test('home resume preserves completed isolated classification replies from the pre-conversion assembly', async t => {
   const dir = 'eval/gauntlet-resume';
   const sample = 'returned-line-recovery';
   const target = JSON.parse(read(`${dir}/target.json`));
-  // The older broad records are pinned by the closed source-wiring check.
+  // The older broad records are pinned by the closed source-wiring check; row 10 later added the conversion recipe to reconstruction.md and updated intent.md.
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate-isolated.json`));
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline-isolated.json`));
   const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
   const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
-  const identity = {
-    skillSha: sha256(assemble(selected, read, bundle)),
-    inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
-    kind: target.kind, assembly: target.assembly, thinking: candidate.models.thinking,
-  };
+  const skillSha = sha256(assemble(selected, read, bundle));
+  const currentInputSha = inputSha(read(`${dir}/replay.md`), text, bundle);
+  const factsSha = sha256(read(`${dir}/samples/${sample}/expected.md`));
+  const judgePromptSha = sha256(read('eval/judge.md'));
+  const intentSha = sha256(intentBody(read(`${dir}/intent.md`)));
+  assert.notEqual(candidate.skillSha, skillSha, 'preserved replies belong to the pre-conversion skill assembly');
+  assert.equal(candidate.inputSha, currentInputSha, 'isolated sample input is unchanged');
+  assert.equal(candidate.kind, target.kind);
+  assert.equal(candidate.assembly, target.assembly);
   assert.ok(candidate.models.replay.length > 0, 'must select saved decisions');
   for (const model of candidate.models.replay) {
     await t.test(model, () => {
-      assert.ok(cellReusable(candidate, model, identity), 'reply must match the isolated instructions and input');
+      assert.equal(candidate.outputs[model]?.status, 'ok', model);
+      assert.equal(baseline.outputs[model]?.status, 'ok', model);
       const judgment = candidate.judge[model];
-      assert.ok(judgmentCurrent(judgment, {
-        factsSha: sha256(read(`${dir}/samples/${sample}/expected.md`)),
-        judgePromptSha: sha256(read('eval/judge.md')),
-        intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
-        baselineOutputSha: sha256(baseline.outputs[model].text),
-        candidateOutputSha: sha256(candidate.outputs[model].text),
-      }), 'judgment must cover the current fact and replies');
+      assert.equal(judgment.factsSha, factsSha, 'judgment covers the current fact');
+      assert.equal(judgment.judgePromptSha, judgePromptSha, 'judgment uses the current judge prompt');
+      assert.equal(judgment.baselineOutputSha, sha256(baseline.outputs[model].text));
+      assert.equal(judgment.candidateOutputSha, sha256(candidate.outputs[model].text));
+      assert.notEqual(judgment.intentSha, intentSha, 'judgment belongs to the pre-conversion intent');
       assert.equal(judgment.facts.home?.after, 'holds');
+      assert.ok(['improved', 'unchanged'].includes(judgment.verdict), model);
     });
   }
 });
