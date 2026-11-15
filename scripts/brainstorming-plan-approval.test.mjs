@@ -22,7 +22,7 @@ test('plain plan approval persists the default grant and waves before completing
   assert.ok(gate.includes('directly below `**Amend-grant:**` in the header block'));
   assert.ok(gate.includes('quote the exact resulting `**Amend-grant:**` value in full'));
   const grants = read('skills/brainstorming/reference/amendment-surface.md');
-  assert.ok(grants.includes('a bare `1` or `2` at the spec gate'));
+  assert.ok(grants.includes('a `1` or `2` approval without `--amends-stop` at the spec gate'));
   assert.ok(grants.includes("the gate's default grant line"));
   assert.match(read('eval/brainstorming/samples/engine-waves/expected.md'), /^- plan-default: judged:.*A.*default grant.*waves.*HEAD.*completing brainstorm.*writing-plans/m);
 });
