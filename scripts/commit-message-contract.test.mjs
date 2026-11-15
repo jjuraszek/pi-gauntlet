@@ -95,7 +95,7 @@ test('finish composes landed messages and reads amendment records without subjec
   assert.match(digest, /--format=%b/);
   assert.doesNotMatch(digest, /--grep|--extended-regexp/);
   assert.match(finish, /--title "\$LANDED_SUBJECT"/);
-  assert.match(finish, /commit -F "\$LANDED_MESSAGE"/);
+  assert.match(finish, /git -C "\$PRIMARY" commit -F - <<'EOF'\n<landed message>\nEOF/);
   assert.match(finish, /Squash-default note/);
   assert.doesNotMatch(finish, /commit -m "<imperative summary>|Commit `whole-diff minors fix`/);
   const minors = finish.split('**Standalone extra reply')[1].split('### Step 5')[0];
