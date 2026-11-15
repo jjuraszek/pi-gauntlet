@@ -1,0 +1,1 @@
+- preservation: judged: Resets softly to the supplied commit and runs git commit --amend --no-edit --cleanup=verbatim, preserving the original message including trailing spaces and blank lines. Stops after naming the commands and byte-preservation result, without replaying the workflow.

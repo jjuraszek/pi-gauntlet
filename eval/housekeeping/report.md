@@ -4,6 +4,12 @@ for: 84c473acaabe97403eb60ee62b9c23b7496765acd8a7c0981d738e5078535363
 
 wall: 36s
 
+## Deterministic fold check
+
+`timeout -k 30 120 node --test scripts/routine-commit-message.test.mjs` passes 23 checks. The extracted amend command failed the raw-message assertion on trailing spaces and blank lines with `--no-edit` alone; `--cleanup=verbatim` preserves those bytes, original parents and the pre-fold tree. The other checks pin routine callers' word sources, execute the spec heredoc, retain amendment audit fixtures and inspect saved message examples.
+
+The fold-verbatim-message sample starts at the admitted pre-fold checkpoint and stops at the command. No model call, workflow replay, fetch or push ran. The commit-subject records and judgments below are preserved historical evidence: their full fix.md bundle and intent changed, so they are not current-bundle proof. Other housekeeping behavior is not re-proven.
+
 ## Change
 
 Pass the shared wording reference and the card's ticket to each committing fix helper. Compose the class message from the card title, retaining file scope, one-commit and no-push boundaries. Run only commit-subject for this edit; its supplied observations cover payload and message composition, not live fixes or delivery. Preserve earlier results without claiming target-wide coverage.
