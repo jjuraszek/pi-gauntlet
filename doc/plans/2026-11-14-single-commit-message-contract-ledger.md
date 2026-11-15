@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 22
+iterations: 23
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -23,7 +23,7 @@ allowance: 10
 | 13 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs; 23 passed, 0 failed; isolated policy argv/stdin checks preserve message, head guard and optional admin flag; saved message examples only, no new model calls, real merges or workflow replay |
 | 14 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-plan-free-head.test.mjs; 7 passed, 0 failed; isolated head-tree fixtures cover retained artifacts, deletion-only heads and lookup errors; no model replay or live merge |
 | 15 | done | 1 | timeout -k 30 90 node --test scripts/squash-default-note.test.mjs; 8 passed, 0 failed; current contract and saved note excerpts only; no new model replay, live API calls or settings writes |
-| 16 | open | 0 | |
+| 16 | done | 1 | timeout -k 30 120 node --test scripts/hotfix-landed-message.test.mjs; 9 passed; isolated commit and PR arguments preserve fault story and tickets; synthetic messages only - no model composition or workflow replay |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
 
@@ -51,3 +51,4 @@ row 12 done | Fixed finish's digest to scan body-only audit rows; isolated Git f
 row 13 done | Made gatekeep's three merge commands explicit; isolated argv/stdin checks preserve landed wording and omit message flags for rebase. | Reuse scripts/gatekeep-merge-message.test.mjs for command construction and saved message shapes; merge-command-quoting is an unrun single-command fixture.
 row 14 done | Added an assessed-head check that withholds merge for paired plans, ledgers or lookup errors and accepts deletion-only heads. | Reuse scripts/gatekeep-plan-free-head.test.mjs for isolated tree fixtures; merge-plan-file-withheld is an unrun single-decision sample.
 row 15 done | Verified the shared squash-default note, both PR options and gatekeep wiring against current text and saved note excerpts. | Reuse scripts/squash-default-note.test.mjs for isolated note-contract and saved-rendering checks without workflow replay.
+row 16 done | Verified hotfix commit stdin and PR arguments preserve a plain subject, fault story and ticket placement in isolated checks. | Reuse scripts/hotfix-landed-message.test.mjs for scratch commits and stubbed PR creation; synthetic messages do not prove model composition.
