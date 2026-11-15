@@ -3,7 +3,7 @@
 base: 855e872a42f9cac7a795704f3e0b383b182950ab
 verification: npm test
 checks: commands
-iterations: 25
+iterations: 26
 allowance: 10
 
 | row | status | attempts | evidence |
