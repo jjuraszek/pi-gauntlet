@@ -45,6 +45,17 @@ test('front-door docs expose the shared message contract', async () => {
   const readme = await read('README.md');
   assert.ok(readme.includes('skills/finishing-a-development-branch/reference/commit-message.md'));
   assert.ok(readme.includes('returned:'));
+  for (const token of [
+    'Framework-run squash and merge-commit merges carry a [composed landed message](skills/finishing-a-development-branch/reference/commit-message.md#landed-message)',
+    'Rebase passes no message flags; a merge queue owns the landing and does not guarantee the composed text.',
+    'The flow prints one line when the repo\'s `squash_merge_commit_message` is `COMMIT_MESSAGES`',
+    'names `PR_BODY` and `BLANK` as settings that avoid pasting every branch commit into a GitHub-button merge',
+    'prints nothing for other values or a failed read, and never writes a repo setting',
+    'skills/finishing-a-development-branch/reference/commit-message.md#squash-default-note',
+    'Gatekeep withholds merge while the assessed head\'s tree still holds the task plan paired by basename with its carried spec or that spec\'s loop ledger',
+    'With no carried spec, this precondition is skipped.',
+    'skills/gatekeep-pr/reference/post-selection-loop.md#plan-free-head',
+  ]) assert.ok(readme.includes(token), `README.md: ${token}`);
   const changelog = await read('CHANGELOG.md');
   const unreleased = changelog.split('## Unreleased\n')[1]?.split('\n## ')[0];
   assert.ok(unreleased?.includes('plain imperative sentence'));
