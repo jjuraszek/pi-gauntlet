@@ -1,6 +1,8 @@
-for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
+for: eb54f1bd24c8650f96efa70b2bf1f3fbd3fe11dcb0d1accd46a7fb10e7bf70ab
 
 ## Change
+
+Make the legacy Returns conversion an executable Python/Git recipe in reconstruction's marked converter. Decode exact ledger-touching seed and verification repair subjects after base, preserve all existing bytes except the returned header and appended decisions, and commit once with the shared sentence. Run only legacy-ledger-conversion for eligibility and recipe selection; scripts/loop-legacy-conversion.test.mjs proves the actual isolated conversion, preserved counts and second-call no-op. Preserve all unrelated model records; the changed reconstruction assembly and intent make their currency checks stale until separately refreshed.
 
 Select only returned-line-recovery to classify one supplied clean home return from its committed ledger tuple and before-image, without incrementing counts again. Run scripts/loop-home-resume.test.mjs for the written pending/ambiguity rules and actual Git discovery, before-image and full-range reads; neither it nor a narrated decision executes a resume driver or its ledger writes. Keep legacy-ledger-conversion and unrelated records as historical evidence; the remaining Change paragraphs describe separate retained work.
 
@@ -66,7 +68,7 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 ## Expected to move
 - returned-line-recovery/home: fails -> holds - Classify the supplied clean home return from ledger attribution and the before-image without reading messages or incrementing counts again. Replay only this isolated decision; it does not prove executable recovery.
-- legacy-ledger-conversion/eligibility: fails -> holds - Select conversion and its shared sentence only when returned is absent; otherwise leave the supplied ledger untouched. This hypothesis has no current isolated replay.
+- legacy-ledger-conversion/eligibility: fails -> holds - Select the supplied Conversion recipe and shared sentence only when returned is absent; otherwise leave the supplied ledger untouched and stop before execution.
 - plan-citation-subject/wording: fails -> holds - Replace the resume label with the fixed citation-repair sentence as the entire subject.
 - interrupted-ownership/home: fails -> holds - Recover a home interruption without checkout or launch proof, repair once with the consumed iteration and continue below allowance without a discard prompt.
 - interrupted-ownership/ownership: fails -> holds - Recover unconditionally despite unrelated writes, clear pending in the failed-attempt repair and continue below allowance without a human turn.

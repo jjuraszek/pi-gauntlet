@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 16
+iterations: 17
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -17,7 +17,7 @@ allowance: 10
 | 7 | done | 1 | timeout -k 30 120 node --test scripts/loop-repair-counts.test.mjs; 4 passed, 0 failed; ledger-repair-counts: 2 models hold 4 facts each; instruction/model coverage only, no executable counter or end-to-end replay |
 | 8 | done | 1 | timeout -k 30 120 node --test scripts/loop-worker-history.test.mjs; 6 passed, 0 failed; Git recipes cover two-worker, progress, repair and companion histories without counting decision-only parents; written hint rule checked, no driver execution or model calls |
 | 9 | done | 1 | timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs; 5 passed, 0 failed; Git reads and written rules checked, not executable resume; returned-line-recovery isolated replay passed in 2 model cells |
-| 10 | open | 0 | |
+| 10 | done | 1 | timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs; 9 passed, 0 failed; shipped conversion recipe preserves counts and commits once; isolated legacy-ledger-conversion eval passes both model cells |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
@@ -45,3 +45,4 @@ row 6 done | Pinned 12 bookkeeping subjects and repair/amendment decision wiring
 row 7 done | Verified ledger-only seed and verification counts in isolated decisions; seed stops at 3 of 3 and pending verification counts once. | Reuse scripts/loop-repair-counts.test.mjs and ledger-repair-counts saved replies for instruction/model checks, not executable driver proof.
 row 8 done | Executed ledger-history Git recipes; decision-only commits stay out of worker history, including repaired and companion returns. | Reuse scripts/loop-worker-history.test.mjs for Git boundaries and written hint rules; it does not execute the driver.
 row 9 done | Checked ledger-held home resume with real Git reads and an isolated admission decision; executable driver behavior remains unproven. | Reuse scripts/loop-home-resume.test.mjs for written rules, Git boundaries and current returned-line-recovery evidence.
+row 10 done | Added a one-commit legacy conversion recipe with preserved repair counts and an idempotent second call. | Reuse scripts/loop-legacy-conversion.test.mjs for the Git recipe and eligibility replay; prior resume eval hashes need refresh.

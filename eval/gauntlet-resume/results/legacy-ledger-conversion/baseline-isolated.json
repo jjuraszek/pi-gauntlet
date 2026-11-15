@@ -1,0 +1,34 @@
+{
+  "sample": "legacy-ledger-conversion",
+  "arm": "baseline",
+  "skillSha": "a692042d88a5c872318199f783d270b893a804cf8ad0a25df634b9f7275a5ff3",
+  "inputSha": "88b38ec8c0a038adabbf17b3098120df4ba9f28e45a69e49c70189a4c4385b2b",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Returns-conversion eligibility at reconstruction step 4.2\n\n**No tool calls are made and no lines are printed.** The input says no tracker call or new work is needed, and the stop boundary comes before conversion, commit or refresh.\n\n## The loaded skill text does not define Returns conversion\n\n- **What step 4.2 actually covers:** it defines only the legacy `cap:` → `allowance:` migration. It has no rule for a `returned:` header.\n- **No recipe is present:** none of the loaded sections contains a Returns conversion or a \"Conversion recipe.\"\n- **The commit-message reference is empty:** `finishing-a-development-branch/reference/commit-message.md` was included, but it has no content.\n\nSo the skill gives me no eligibility rule, recipe name or shared bookkeeping sentence for this axis. I won't invent any of them.\n\n## What the loaded step 4.2 does decide\n\nThe ledger is clean and tuple-free and already has `allowance: 4`. Step 4.2 says: \"With an existing allowance, use it without allowance resolution or a migration commit.\" That leaves no allowance migration and no `loop: migrate allowance` commit. Step 4.3's validation (`allowance:` present, no `cap:`) passes.\n\n## Per variant\n\n| Variant | Decision under the loaded text | Bookkeeping sentence |\n|---|---|---|\n| A: no `returned:` line | Leave untouched. No loaded rule makes a missing `returned:` header trigger conversion. | None defined |\n| B: `returned: none` already present | Leave untouched. The ledger needs no allowance migration, and no loaded rule acts on `returned:`. | None defined |\n\n## Caveat\n\nIf your shipped `loop-implementation` or reconstruction text has a Returns-conversion rule that the loaded excerpt doesn't show, these classifications are unverified. Please supply that section and the recipe; variant A is likely the case it would target. I'll then reclassify A and B and name the next operation, without executing it.\n",
+      "words": 275,
+      "wallMs": 11890,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "- **A — Convert.** No `returned:` header is present. Next operation: the supplied **Conversion recipe**, without executing it.\n- **B — Leave untouched.** `returned: none` is an existing `returned:` header.\n\nThe provided excerpts contain no Returns-conversion bookkeeping sentence, so I cannot reproduce that sentence exactly. No tools, writes, commits, or tracker calls performed.\n",
+      "words": 49,
+      "wallMs": 11477,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "094362248eb8c5dc760922302177731848ae09d9"
+}

@@ -1,8 +1,29 @@
-# eval report: gauntlet-resume (partial run: returned-line-recovery)
+# eval report: gauntlet-resume (partial run: legacy-ledger-conversion)
+
+for: eb54f1bd24c8650f96efa70b2bf1f3fbd3fe11dcb0d1accd46a7fb10e7bf70ab
+
+## Current isolated conversion coverage
+
+`timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs` passes 9 tests with 0 failures. The test lives beside the other loop tests in `scripts/`. It extracts and executes the shipped Conversion recipe in disposable Git fixtures, not a test-only converter. The fixture proves exact legacy-label decoding after ledger base, commit-order decisions, two seed and two verification repairs, unchanged iterations/attempts/history, one ledger-only commit with the shared subject, and a byte-identical second-call no-op. A verification command containing the allowance text cannot move the inserted header. Dirty trees, a pending tuple and malformed historical iterations stop before mutation. The driver's unconverted-ledger stop is a source assertion, not an executed driver.
+
+Only `legacy-ledger-conversion` was replayed: one eligibility decision varying returned-header presence, stopping before any conversion or tracker call. It names the shipped recipe for the eligible variant. The actual conversion and counts come from the local Git recipe test, not the model replies. No end-to-end or multi-stage replay ran.
+
+| sample | model | verdict | judge ms | fact |
+|---|---|---|---|---|
+| legacy-ledger-conversion | anthropic/claude-opus-5-5 | improved | 6383 | eligibility: fails -> holds |
+| legacy-ledger-conversion | github-copilot/gpt-6.1-sol | improved | 4624 | eligibility: fails -> holds |
+
+The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume legacy-ledger-conversion --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. The first run exited 0 in 18s (four replays, two judgments); after anchoring header insertion, the final run exited 0 in 15s (two candidate replays, two judgments, cached baselines). Neither run needed confirmation. Both controllers reaped their jobs, and both process groups and controllers were absent before their jobs entries were removed.
+
+Current records are `results/legacy-ledger-conversion/baseline-isolated.json` and `candidate-isolated.json`; the test verifies their assembly, input, intent, fact and judgment hashes locally. The broad baseline/candidate records remain byte-identical historical evidence. The changed reconstruction assembly and intent invalidate the earlier returned-line-recovery currency check; its files and closed-row command were left untouched and require a separately authorized refresh, not a claim of current coverage here.
+
+## Retained returned-line-recovery evidence (prior assembly)
 
 for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
 
-## Current isolated coverage
+The following coverage predates the conversion recipe and is historical, not current assembly evidence.
+
+### Prior isolated coverage
 
 `timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs` passes 5 tests with 0 failures. The test lives beside the existing home-admission and worker-history tests in `scripts/`. It executes the documented Git discovery, snapshot, status and full-dispatch-range reads in a scratch checkout. Pending dispatch dirt, a clean child, a later code-only commit, dirty paths and an unavailable before-image are separate observations. Source assertions cover count preservation and settled/ambiguous-history rules; they do not execute a resume driver or its ledger writes.
 
@@ -24,7 +45,7 @@ The earlier selected check was `timeout -k 30 120 node --test scripts/commit-mes
 | Narrowed sample | Entry and output | Stop | Coverage |
 |---|---|---|---|
 | returned-line-recovery | One supplied clean home return -> classification and authority | Before ledger mutation, migration or tracker restoration | Current isolated decision replay above |
-| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Still unselected; historical records have stale case hashes |
+| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Current isolated decision and Git-recipe checks above; broad records stay historical |
 
 ## Historical evidence
 
@@ -41,4 +62,4 @@ Historical commands used `timeout -k 30 3600 node eval/run.mjs gauntlet-resume <
 
 ## Remaining coverage
 
-Executable resume admission and count-preserving recovery writes remain unproven here. Legacy conversion and its count preservation/idempotence, companion recovery and verification-repair admission are separate obligations. Narrated eligibility or a source citation proves none of them.
+Executable resume admission, companion recovery and verification-repair admission remain unproven here. The isolated conversion recipe proves legacy count preservation and idempotence only; it does not execute pending recovery, allowance migration, tracker restoration or any later workflow stage.

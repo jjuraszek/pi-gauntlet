@@ -120,7 +120,62 @@ At step 4.2, after pending recovery and allowance migration reach a clean tuple-
 <!-- legacy-commit-labels:begin -->
 ### Legacy repair markers
 
-Use this decoder only for a ledger without `returned:`. After legacy pending recovery, list home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD -- <ledger path>`. Decode `loop: repair seed` and `loop: repair verification` subjects only: read the committed ledger's iterations at each SHA and append one matching `repair seed | legacy | iteration <consumed>` or `repair verification | legacy | iteration <consumed>` line. Stop on unavailable ledger snapshots; do not invent counts. Other old labels add no repair lines.
+Use this decoder only for a ledger without `returned:`. After legacy pending recovery, run the Conversion recipe below. It lists home commits since ledger base with `git -C <worktree> log --reverse --format='%H %s' <base>..HEAD -- <ledger path>`, reads each matching repair's committed iterations, then writes the header and decisions together. Keep all subject decoding inside this legacy converter.
+
+#### Conversion recipe
+
+Run from the supplied home worktree after step 4.2 reaches a clean, tuple-free allowance ledger. Set `ledger_path` to its repo-relative path and `conversion_subject` to the shared Returns conversion on resume sentence. Require Python 3; on an unavailable interpreter stop before writing. Use this recipe for the conversion commit, not a second hand-written edit or commit. Stop on a failed command and retain its error and working state.
+
+```bash
+python3 - "$ledger_path" "$conversion_subject" <<'PY'
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+path, subject = sys.argv[1:]
+
+def git(*args, **kwargs):
+    return subprocess.check_output(["git", *args], text=True, **kwargs)
+
+text = Path(path).read_bytes().decode("utf-8")
+header_text = text.split("\n|", 1)[0]
+if re.search(r"^returned:", header_text, re.M):
+    sys.exit(0)
+if git("status", "--porcelain"):
+    sys.exit("returns conversion requires a clean tree")
+if re.search(r"^pending:", header_text, re.M):
+    sys.exit("finish pending recovery before returns conversion")
+
+def field(snapshot, name, pattern):
+    values = re.findall(r"^" + name + r": (.*)$", snapshot.split("\n|", 1)[0], re.M)
+    if len(values) != 1 or not re.fullmatch(pattern, values[0]):
+        sys.exit("cannot convert ledger: malformed " + name)
+    return values[0]
+
+base = field(text, "base", r"[0-9a-f]{40}")
+allowance = field(text, "allowance", r"[1-9][0-9]*")
+markers = {"loop: repair seed": "repair seed", "loop: repair verification": "repair verification"}
+decisions = []
+for line in git("log", "--reverse", "--format=%H %s", base + "..HEAD", "--", path).splitlines():
+    sha, old_subject = line.split(" ", 1)
+    if old_subject not in markers:
+        continue
+    snapshot = git("show", sha + ":" + path)
+    count = field(snapshot, "iterations", r"0|[1-9][0-9]*")
+    if int(count) > 9007199254740991:
+        sys.exit("cannot convert ledger: unsafe iterations at " + sha)
+    decisions.append(markers[old_subject] + " | legacy | iteration " + count)
+if text.count("\n## Decisions\n") != 1:
+    sys.exit("cannot convert ledger: missing or duplicate Decisions section")
+converted = re.sub(r"^allowance: " + allowance + r"$", r"\g<0>\nreturned: none", text, count=1, flags=re.M)
+if decisions:
+    converted += ("" if converted.endswith("\n") else "\n") + "\n".join(decisions) + "\n"
+Path(path).write_bytes(converted.encode("utf-8"))
+git("add", "--", path)
+git("commit", "-q", "-F", "-", "--", path, input=subject + "\n")
+PY
+```
 
 ### Legacy pending recovery
 

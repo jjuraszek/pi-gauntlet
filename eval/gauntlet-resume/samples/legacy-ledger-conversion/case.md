@@ -9,10 +9,10 @@ The approved single-home ledger is clean and tuple-free. It has allowance 4, ite
 Change only returned-header presence. A: there is no returned line. B: the same ledger already has returned: none. All other inputs are identical.
 
 ## Output
-For each variant state convert or leave untouched and the applicable shared bookkeeping sentence, if any. Do not decode history, compute repair counts or write a converted ledger.
+For each variant state convert or leave untouched and the applicable shared bookkeeping sentence, if any. For an eligible conversion, name the supplied Conversion recipe as the next operation, without executing it. Do not decode history, compute repair counts or write a converted ledger.
 
 ## Stop boundary
 Stop after the eligibility decision. Do not recover a pending return, execute conversion, commit, refresh or simulate a second resume.
 
 ## Validation
-Unselected model candidate for interpreting the eligibility instruction. Legacy decoding, count preservation and idempotent execution require the spec's separate deterministic conversion-script fixture; they are not proven by this classification or the source citation check. Saved broader replies are historical only.
+Selected isolated classification of conversion eligibility and its recipe. scripts/loop-legacy-conversion.test.mjs executes the shipped recipe for decoding, count preservation and idempotence in disposable Git fixtures. This classification does not prove those operations or a resume flow. Saved broader replies are historical only.
