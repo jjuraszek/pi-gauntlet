@@ -29,7 +29,9 @@ test('saved allowance flag replays carry run allowance 6 without a spec allowanc
     const judged = candidate.judge[model];
     assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
-    assert.equal(judged.facts['loop-allowance']?.after, 'holds', `${model}: separate allowance carrier`);
-    assert.match(output.text, /^[ \t]*`?run allowance: 6`?\r?\n(?:[ \t]*\r?\n)*[ \t]*`?\/skill:loop-implementation`?\r?$/m, `${model}: literal carrier directly before invocation`);
+    for (const id of ['loop-allowance', 'loop-label-allowance']) {
+      assert.equal(judged.facts[id]?.after, 'holds', `${model}: ${id} separate allowance carrier`);
+    }
+    assert.match(output.text, /^run allowance: 6\r?\n\/skill:loop-implementation\r?$/m, `${model}: literal carrier directly before invocation`);
   }
 });

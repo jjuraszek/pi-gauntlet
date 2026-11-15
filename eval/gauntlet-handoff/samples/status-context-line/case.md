@@ -11,7 +11,7 @@ Phases:
   ○ implement
   ○ verify
   ○ ship
-Context: 26.0% of window
+Context: 31.0% of window
 ```
 
 plan_tracker({ action: "status" }):
