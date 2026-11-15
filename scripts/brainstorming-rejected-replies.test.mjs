@@ -47,7 +47,7 @@ test('saved rejected-reply cases ask once and leave files and commits unchanged 
       assert.equal(judged.candidateOutputSha, sha256(output.text), `${sample}/${model}: judged output`);
       for (const id of ids) assert.equal(judged.facts[id]?.after, 'holds', `${sample}/${model}/${id}`);
       if (sample === 'flag-replies') {
-        assert.match(output.text, /^run allowance: 6\r?\n(?:[ \t]*\r?\n)*[^\n]*\/skill:loop-implementation/m, `${model}: accepted control retains its carrier ordering`);
+        assert.match(output.text, /^[ \t]*`?run allowance: 6`?\r?\n(?:[ \t]*\r?\n)*[ \t]*`?\/skill:loop-implementation`?\r?$/m, `${model}: accepted control retains its carrier ordering`);
       }
     }
   }
