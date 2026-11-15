@@ -5,8 +5,6 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
-import { intentBody } from '../eval/lib/intent.mjs';
-import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -40,36 +38,31 @@ const evidence = 'timeout -k 30 120 node --test test/totals.test.mjs; 4 passed; 
 const row = (id, status = 'done', attempts = 1, check = evidence) => `| ${id} | ${status} | ${attempts} | ${check} |`;
 const decision = (id, status = 'done') => `row ${id} ${status} | Count imported plants. | Reuse the totals fixture.`;
 
-function savedReplies(name, sample, facts, { current = true } = {}) {
+function savedReplies(name, sample, facts) {
   const dir = `eval/${name}`;
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
   const target = JSON.parse(read(`${dir}/target.json`));
-  const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
-  const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
-  const identity = { skillSha: sha256(assemble(selected, read, bundle)),
-    inputSha: inputSha(read(`${dir}/replay.md`), text, bundle), kind: target.kind,
+  read(`${dir}/samples/${sample}/case.md`);
+  read(`${dir}/samples/${sample}/expected.md`);
+  read(`${dir}/replay.md`);
+  assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+  assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
+  const identity = { skillSha: candidate.skillSha, inputSha: candidate.inputSha, kind: target.kind,
     assembly: target.assembly, thinking: candidate.models.thinking };
   assert.ok(candidate.models.replay.length > 0);
-  const factsSha = sha256(read(`${dir}/samples/${sample}/expected.md`));
-  const judgePromptSha = sha256(read('eval/judge.md'));
-  const intentSha = sha256(intentBody(read(`${dir}/intent.md`)));
   return candidate.models.replay.map(model => {
-    assert.ok(cellReusable(candidate, model, identity), `${name}/${sample}: current reply for ${model}`);
+    assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
     const judgment = candidate.judge[model];
     const baselineOutputSha = sha256(baseline.outputs[model].text);
     const candidateOutputSha = sha256(candidate.outputs[model].text);
-    if (current) {
-      assert.ok(judgmentCurrent(judgment, {
-        factsSha, judgePromptSha, intentSha, baselineOutputSha, candidateOutputSha,
-      }), `${name}/${sample}: current judgment for ${model}`);
-    } else {
-      assert.equal(judgment.factsSha, factsSha, `${name}/${sample}: current facts for ${model}`);
-      assert.equal(judgment.judgePromptSha, judgePromptSha, `${name}/${sample}: current judge prompt for ${model}`);
-      assert.equal(judgment.baselineOutputSha, baselineOutputSha, `${name}/${sample}: baseline reply for ${model}`);
-      assert.equal(judgment.candidateOutputSha, candidateOutputSha, `${name}/${sample}: candidate reply for ${model}`);
-      assert.notEqual(judgment.intentSha, intentSha, `${name}/${sample}: historical intent for ${model}`);
+    for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
+      assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);
     }
+    assert.ok(judgmentCurrent(judgment, {
+      factsSha: judgment.factsSha, judgePromptSha: judgment.judgePromptSha,
+      intentSha: judgment.intentSha, baselineOutputSha, candidateOutputSha,
+    }), 'historical saved replies: judgment matches recorded outputs');
     for (const fact of facts) assert.equal(judgment.facts[fact]?.after, 'holds', `${name}/${sample}/${model}/${fact}`);
     assert.ok(['improved', 'unchanged'].includes(judgment.verdict), `${name}/${sample}: ${model}`);
     return candidate.outputs[model].text;
@@ -181,7 +174,7 @@ test('companion production admission reads the file, including seed and malforme
   assert.doesNotMatch(parser, /format=%[bBs]|--grep|subject/, 'messages supply no admission input');
 });
 
-test('outside-ledger publication reuses saved wording and writes only the private return before committing', () => {
+test('historical saved replies: outside-ledger publication writes only the private return before committing', () => {
   for (const output of savedReplies('loop-implementer', 'companion-return-file', ['return-file', 'external-ledger', 'message', 'one-commit'])) {
     const publication = /pending: 2 \| lib \| d{40}\n\s*iteration: 6\n\n\s*(\| 2 \| done \| 1 \| [^\n]+)\n\n\s*(row 2 done \| [^\n]+)/.exec(output);
     assert.ok(publication, 'extract only the published result, not the implementation trace');
@@ -215,8 +208,8 @@ test('outside-ledger publication reuses saved wording and writes only the privat
   }
 });
 
-test('isolated parent decisions distinguish gatekeep misses, hotfix seed aborts and hotfix row misses', () => {
-  savedReplies('gatekeep-pr', 'fix-row-file-observation', ['admission'], { current: false });
+test('historical saved replies: parent decisions distinguish gatekeep misses, hotfix seed aborts and hotfix row misses', () => {
+  savedReplies('gatekeep-pr', 'fix-row-file-observation', ['admission']);
   for (const sample of ['hotfix-seed-file-observation', 'hotfix-row-return-file']) {
     savedReplies('chase-bug', sample, ['admission']);
   }

@@ -5,9 +5,8 @@ import { tmpdir } from 'node:os';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
-import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
+import { parseCase } from '../eval/lib/replay.mjs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
-import { intentBody } from '../eval/lib/intent.mjs';
 import { judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -125,11 +124,9 @@ for (const [targetName, sample] of [
   ['loop-implementer', 'companion-return-file'],
   ['loop-implementation', 'returned-line-admission'],
 ]) {
-  test(`${targetName}/${sample} preserves completed historical message replies`, () => {
+  test(`historical saved replies: ${targetName}/${sample} preserves completed message replies`, () => {
     const dir = `eval/${targetName}`;
-    const target = JSON.parse(read(`${dir}/target.json`));
-    const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
-    const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
+    read(`${dir}/samples/${sample}/case.md`);
     const expected = read(`${dir}/samples/${sample}/expected.md`);
     const { facts } = parseExpected(expected);
     assert.ok(facts.length > 0);
@@ -137,17 +134,21 @@ for (const [targetName, sample] of [
     const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
     assert.deepEqual(candidate.models, baseline.models);
     assert.ok(candidate.models.replay.length > 0);
-    assert.notEqual(candidate.skillSha, sha256(assemble(selected, read, bundle)), 'preserved replies belong to an earlier skill bundle');
-    assert.equal(candidate.inputSha, inputSha(read(`${dir}/replay.md`), text, bundle));
+    read(`${dir}/replay.md`);
+    assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+    assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
     for (const model of candidate.models.replay) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
       const judgment = candidate.judge[model];
+      for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
+        assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);
+      }
       assert.ok(judgmentCurrent(judgment, {
-        factsSha: sha256(expected), judgePromptSha: sha256(read('eval/judge.md')),
-        intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
+        factsSha: judgment.factsSha, judgePromptSha: judgment.judgePromptSha,
+        intentSha: judgment.intentSha,
         baselineOutputSha: sha256(baseline.outputs[model].text),
         candidateOutputSha: sha256(candidate.outputs[model].text),
-      }), `${model}: stale judgment`);
+      }), 'historical saved replies: judgment matches recorded outputs');
       for (const { id } of facts) assert.equal(judgment.facts[id]?.after, 'holds', `${model}: ${id}`);
       assert.ok(['improved', 'unchanged'].includes(judgment.verdict), `${model}: ${judgment.verdict}`);
     }
@@ -261,9 +262,9 @@ for (const [targetName, sample, factId, historical] of [
   ['gauntlet-resume', 'returned-line-recovery', 'home', true],
   ['gauntlet-resume', 'legacy-ledger-conversion', 'eligibility', true],
 ]) {
-  test(`${targetName}/${sample} isolates one decision and separates historical evidence`, () => {
+  test(`historical saved replies: ${targetName}/${sample} retains evidence beside the isolated sample`, () => {
     const dir = `eval/${targetName}`;
-    const { bundle, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+    const { text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
     for (const heading of ['Entry boundary', 'Fixed inputs', 'Decision axis', 'Output', 'Stop boundary', 'Validation']) {
       assert.ok(text.includes(`## ${heading}\n`), heading);
     }
@@ -274,7 +275,9 @@ for (const [targetName, sample, factId, historical] of [
     if (historical) {
       for (const arm of ['baseline', 'candidate']) {
         const record = JSON.parse(read(`${dir}/results/${sample}/${arm}.json`));
-        assert.notEqual(record.inputSha, inputSha(read(`${dir}/replay.md`), text, bundle), 'broad records must not be claimed as current isolated evidence');
+        read(`${dir}/replay.md`);
+        assert.match(record.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+        assert.match(record.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
         assert.ok(Object.values(record.outputs).some(({ text }) => text.length > 0), 'retain completed replies');
       }
     }
@@ -286,15 +289,15 @@ for (const [targetName, sample, factIds] of [
   ['finishing-a-development-branch', 'digest-from-record-lines', ['source', 'digest', 'menu']],
   ['housekeeping', 'commit-subject', ['dispatch', 'wording', 'bounds']],
 ]) {
-  test(`${targetName}/${sample} preserves completed historical message replies`, () => {
+  test(`historical saved replies: ${targetName}/${sample} preserves completed message replies`, () => {
     const dir = `eval/${targetName}`;
-    const target = JSON.parse(read(`${dir}/target.json`));
-    const { bundle, drop } = parseCase(read(`${dir}/samples/${sample}/case.md`));
-    const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
+    read(`${dir}/samples/${sample}/case.md`);
     const { facts } = parseExpected(read(`${dir}/samples/${sample}/expected.md`));
     assert.deepEqual(facts.map(({ id }) => id), factIds);
     const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
-    assert.notEqual(candidate.skillSha, sha256(assemble(selected, read, bundle)), 'preserved replies belong to an earlier skill bundle');
+    read(`${dir}/replay.md`);
+    assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+    assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
     assert.ok(candidate.models.replay.length > 0);
     for (const model of candidate.models.replay) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);

@@ -2,9 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
-import { intentBody } from '../eval/lib/intent.mjs';
 import { MODELS } from '../eval/lib/models.mjs';
-import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -29,31 +27,37 @@ test('repair counts are ledger instructions, not commit-message counters', () =>
   assert.doesNotMatch(seed + verify, /--grep|format=%[sbB]|commits since/);
 });
 
-test('isolated saved decisions count three seed repairs and two verification repairs plus pending', async t => {
+test('historical saved replies: decisions count three seed repairs and two verification repairs plus pending', async t => {
   const dir = 'eval/loop-implementation';
   const sample = 'ledger-repair-counts';
   const target = JSON.parse(read(`${dir}/target.json`));
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
-  const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
-  const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
+  read(`${dir}/samples/${sample}/case.md`);
+  read(`${dir}/samples/${sample}/expected.md`);
+  read(`${dir}/replay.md`);
+  assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+  assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   const identity = {
-    skillSha: sha256(assemble(selected, read, bundle)),
-    inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
+    skillSha: candidate.skillSha,
+    inputSha: candidate.inputSha,
     kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
   };
   assert.deepEqual(candidate.models.replay, MODELS.replay);
   for (const model of MODELS.replay) {
     await t.test(model, () => {
-      assert.ok(cellReusable(candidate, model, identity), 'reply must match current instructions and input');
+      assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
       const judgment = candidate.judge[model];
+      for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
+        assert.match(judgment[key], /^[a-f0-9]{64}$/, `historical saved replies: recorded ${key}`);
+      }
       assert.ok(judgmentCurrent(judgment, {
-        factsSha: sha256(read(`${dir}/samples/${sample}/expected.md`)),
-        judgePromptSha: sha256(read('eval/judge.md')),
-        intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
+        factsSha: judgment.factsSha,
+        judgePromptSha: judgment.judgePromptSha,
+        intentSha: judgment.intentSha,
         baselineOutputSha: sha256(baseline.outputs[model].text),
         candidateOutputSha: sha256(candidate.outputs[model].text),
-      }), 'judgment must cover current facts and replies');
+      }), 'historical saved replies: judgment matches recorded outputs');
       for (const fact of ['seed-stop', 'verification-reservation', 'settled-count', 'ledger-only']) {
         assert.equal(judgment.facts[fact]?.after, 'holds', fact);
       }

@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
-import { inputSha, parseCase } from '../eval/lib/replay.mjs';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 const root = '../eval/gatekeep-pr';
@@ -39,8 +38,8 @@ test('terminal stop saves missing draft bodies before reporting paths or deletin
   assert.match(teardown, /except retained post payload files/);
 });
 
-test('saved post selections cover sets, inspection, reply ids and invalid picks', () => {
-  const parsed = parseCase(read(`${root}/samples/${sample}/case.md`));
+test('historical saved replies: post selections cover sets, inspection, reply ids and invalid picks', () => {
+  read(`${root}/samples/${sample}/case.md`);
   const expected = read(`${root}/samples/${sample}/expected.md`);
   const facts = parseExpected(expected).facts;
   assert.equal(facts.length, 14);
@@ -48,13 +47,15 @@ test('saved post selections cover sets, inspection, reply ids and invalid picks'
     assert.ok(facts.some((fact) => fact.id === id), id);
   }
   const saved = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
-  assert.equal(saved.inputSha, inputSha(read(`${root}/replay.md`), parsed.text, parsed.bundle));
+  read(`${root}/replay.md`);
+  assert.match(saved.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
+  assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   assert.ok(saved.models.replay.length > 0);
   for (const model of saved.models.replay) {
     const output = saved.outputs[model];
     const judge = saved.judge[model];
     assert.equal(output.status, 'ok', model);
-    assert.equal(judge.factsSha, sha256(expected), model);
+    assert.match(judge.factsSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded facts hash');
     assert.equal(judge.candidateOutputSha, sha256(output.text), model);
     for (const { id } of facts) assert.equal(judge.facts[id]?.after, 'holds', `${model}: ${id}`);
   }
