@@ -14,13 +14,24 @@ test('engine and operator docs describe ledger attribution and decision counters
     assert.doesNotMatch(text, /first two body lines match the dispatched/);
     assert.doesNotMatch(text, /amendment \||returned: <target>[^`]*iteration|unmatched `pending: verify`|match repo\/HEAD/);
   }
+  const engines = (await read('doc/implement-engines.md')).replaceAll('\\|', '|');
+  for (const token of [
+    'Before reading result rows and decisions, require DONE, a clean tree, exactly one commit after the saved HEAD, the consumed `iterations:` and the dispatched tuple on `returned:` or a retained `pending:` line.',
+    'A retained matching `pending:` tuple is an ordinary or seed validation miss; a tuple on neither line takes interrupted recovery.',
+    'attribute a home repair through the committed ledger\'s consumed `iterations:` and retained `pending: verify` tuple, and only a companion (outside-ledger) repair through the return file\'s tuple and consumed iteration',
+  ]) assert.ok(engines.includes(token), token);
 });
 
-test('gate docs bound repairs by decisions without treating attribution misses as interruptions', async () => {
+test('gate docs separate retained home tuples from wrong attribution and bound repairs by decisions', async () => {
   const text = await read('doc/gate-contract.md');
   for (const token of ['repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'plus one for a `pending: verify`', 'result-validation misses', 'restore the saved `returned:` value', 'amended |']) {
     assert.ok(text.includes(token), token);
   }
+  for (const token of [
+    'A home return that passes the DONE, clean exactly-one-commit boundary with the consumed `iterations:` but retains its matching `pending:` tuple is an ordinary or seed validation miss, not interrupted recovery.',
+    'A home return whose committed ledger carries the dispatched tuple on neither the `returned:` line nor a retained `pending:` line takes interrupted recovery for wrong attribution',
+    'Interrupted recovery is unconditional, before the allowance check:',
+  ]) assert.ok(text.includes(token), token);
   assert.doesNotMatch(text, /loop: (?:repair|retry|amend|cut)|amendment \||unmatched `pending: verify`|matching repo\/HEAD/);
 });
 
