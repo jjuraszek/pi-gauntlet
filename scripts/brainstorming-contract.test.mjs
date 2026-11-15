@@ -741,6 +741,16 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
 });
 
 
+test('member-merge recovery rejects duplicate admitted members without reading messages', () => {
+  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const recovery = text.split('Without a rework-base ref,')[1].split('\n\n')[0];
+  assert.ok(recovery.includes("--first-parent --format='%H %P'"));
+  assert.ok(recovery.includes("second parent equals an admitted member's full original `headRefOid`"));
+  assert.ok(recovery.includes('Require each admitted member to match at most once across the entire first-parent walk.'));
+  assert.match(recovery, /On duplicate member matches, unrelated commits, failed ancestry, or dirt, stop before writes:/);
+  assert.ok(recovery.includes('Read no subject to identify a member merge.'));
+});
+
 test('PR-head provisioning validates and recovers admitted member heads before base', () => {
   const text = read('skills/using-git-worktrees/reference/pr-head.md');
   for (const marker of [
