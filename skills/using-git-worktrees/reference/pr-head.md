@@ -125,7 +125,7 @@ After all members, merge the fetched base. In the Step 4 report print one `PR:` 
 
 ### Merge the fetched base
 
-Run `git -C "$WORKTREE" merge --no-ff --no-edit origin/<baseRefName>` and record the matching outcome:
+Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) and use its Base-sync merge commit row. Run `git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>` with the composed message on stdin and record the matching outcome:
 
 | Outcome | Record and continuation |
 |---|---|

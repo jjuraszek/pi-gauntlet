@@ -73,6 +73,7 @@ Take the words from the source for the commit situation, then apply the subject 
 | Convergence repair commit | The failing commands and review findings repaired, as one sentence |
 | Whole-diff minors fix commit | The selected Minor findings, as one sentence |
 | Member pull request merge commit | The member pull request's title, shortened to fit, with a trailing `(#<N>)` |
+| Base-sync merge commit | The fetched base being integrated: `Sync with the fetched base` |
 | Landed message and pull request title | The spec's `**Goal:**` line and in-scope acceptance rows; without a spec, the pull request's title and description |
 | Hotfix landing and hotfix pull request | The fault story in the handoff record |
 

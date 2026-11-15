@@ -797,6 +797,11 @@ test('PR conflict helpers and completion explicitly target the selected tree wit
     'diff --cached --name-only', 'commit --no-edit', 'merge --abort', 'rebase --abort',
   ]) assert.ok(base.includes('`git -C "$WORKTREE" ' + command + '`'), command);
   assert.doesNotMatch(base, /`git (?:diff|status|add|commit|merge)\b/);
+  const fetchedBase = text.split('### Merge the fetched base\n')[1].split('## Validate the sync outcome')[0];
+  assert.match(fetchedBase, /Read \[commit-message\.md\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message\.md\) and use its Base-sync merge commit row/);
+  assert.ok(fetchedBase.includes('git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>'));
+  assert.match(fetchedBase, /composed message on stdin/);
+  assert.doesNotMatch(fetchedBase, /merge --no-ff --no-edit/);
 });
 
 test('leading PR lists admit in order and keep every retained contract', () => {

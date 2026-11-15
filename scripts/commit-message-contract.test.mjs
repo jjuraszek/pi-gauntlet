@@ -8,7 +8,7 @@ import test from 'node:test';
 import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { intentBody } from '../eval/lib/intent.mjs';
-import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
+import { judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const reference = 'skills/finishing-a-development-branch/reference/commit-message.md';
@@ -37,6 +37,7 @@ const sites = [
   'skills/finishing-a-development-branch/reference/disposition-protocol.md',
   'skills/using-git-worktrees/SKILL.md',
   'skills/using-git-worktrees/reference/pr-head.md',
+  ['skills/using-git-worktrees/reference/pr-head.md', 'Merge the fetched base'],
 ];
 
 test('shared wording reference owns all five parts and ticket resolution', () => {
@@ -47,11 +48,14 @@ test('shared wording reference owns all five parts and ticket resolution', () =>
   for (const token of ['72 characters', '**Ticket:**', 'refs:', 'ticket:', 'wording:', 'COMMIT_MESSAGES', 'PR_BODY', 'BLANK']) {
     assert.ok(text.includes(token), token);
   }
+  assert.match(text, /\| Member pull request merge commit \|[^\n]+\n\| Base-sync merge commit \|[^\n]*`Sync with the fetched base`/);
 });
 
-for (const path of sites) {
-  test(`${path} cites the shared wording source`, () => {
-    const text = read(path);
+for (const site of sites) {
+  const [path, heading] = Array.isArray(site) ? site : [site];
+  test(`${path}${heading ? `#${heading}` : ''} cites the shared wording source`, () => {
+    const source = read(path);
+    const text = heading ? source.split(`### ${heading}\n`)[1]?.split(/^#{2,3}\s/m)[0] ?? '' : source;
     if (path.startsWith('agents/')) {
       assert.ok(/wording:/.test(text), 'the persona must consume the absolute wording input');
       assert.ok(/ticket:/.test(text), 'the persona must consume the dispatched ticket');
@@ -121,7 +125,7 @@ for (const [targetName, sample] of [
   ['loop-implementer', 'companion-return-file'],
   ['loop-implementation', 'returned-line-admission'],
 ]) {
-  test(`${targetName}/${sample} saved replies hold every current message fact`, () => {
+  test(`${targetName}/${sample} preserves completed historical message replies`, () => {
     const dir = `eval/${targetName}`;
     const target = JSON.parse(read(`${dir}/target.json`));
     const { bundle, drop, text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
@@ -133,12 +137,10 @@ for (const [targetName, sample] of [
     const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
     assert.deepEqual(candidate.models, baseline.models);
     assert.ok(candidate.models.replay.length > 0);
+    assert.notEqual(candidate.skillSha, sha256(assemble(selected, read, bundle)), 'preserved replies belong to an earlier skill bundle');
+    assert.equal(candidate.inputSha, inputSha(read(`${dir}/replay.md`), text, bundle));
     for (const model of candidate.models.replay) {
-      assert.ok(cellReusable(candidate, model, {
-        skillSha: sha256(assemble(selected, read, bundle)),
-        inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
-        kind: target.kind, assembly: target.assembly, thinking: candidate.models.thinking,
-      }), `${model}: missing or stale candidate output`);
+      assert.equal(candidate.outputs[model]?.status, 'ok', model);
       const judgment = candidate.judge[model];
       assert.ok(judgmentCurrent(judgment, {
         factsSha: sha256(expected), judgePromptSha: sha256(read('eval/judge.md')),
