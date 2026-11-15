@@ -92,7 +92,7 @@ test('amendment batches and chosen spec dispositions use the shared message reci
 test('finish composes landed messages and reads amendment records without subject filters', () => {
   const finish = read('skills/finishing-a-development-branch/SKILL.md');
   const digest = finish.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
-  assert.match(digest, /--format=%B/);
+  assert.match(digest, /--format=%b/);
   assert.doesNotMatch(digest, /--grep|--extended-regexp/);
   assert.match(finish, /--title "\$LANDED_SUBJECT"/);
   assert.match(finish, /commit -F "\$LANDED_MESSAGE"/);
@@ -116,9 +116,6 @@ test('worktree ignore commit uses the shared bookkeeping sentence', () => {
 
 for (const [targetName, sample] of [
   ['brainstorming', 'spec-and-amendment-subjects'],
-  ['finishing-a-development-branch', 'landed-message'],
-  ['finishing-a-development-branch', 'digest-from-record-lines'],
-  ['housekeeping', 'commit-subject'],
   ['using-git-worktrees', 'ignore-subject'],
   ['loop-implementer', 'home-plain-commit'],
   ['loop-implementer', 'companion-return-file'],
@@ -278,6 +275,29 @@ for (const [targetName, sample, factId, historical] of [
         assert.notEqual(record.inputSha, inputSha(read(`${dir}/replay.md`), text, bundle), 'broad records must not be claimed as current isolated evidence');
         assert.ok(Object.values(record.outputs).some(({ text }) => text.length > 0), 'retain completed replies');
       }
+    }
+  });
+}
+
+for (const [targetName, sample, factIds] of [
+  ['finishing-a-development-branch', 'landed-message', ['subject', 'shape', 'delivery', 'note', 'minors']],
+  ['finishing-a-development-branch', 'digest-from-record-lines', ['source', 'digest', 'menu']],
+  ['housekeeping', 'commit-subject', ['dispatch', 'wording', 'bounds']],
+]) {
+  test(`${targetName}/${sample} preserves completed historical message replies`, () => {
+    const dir = `eval/${targetName}`;
+    const target = JSON.parse(read(`${dir}/target.json`));
+    const { bundle, drop } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+    const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
+    const { facts } = parseExpected(read(`${dir}/samples/${sample}/expected.md`));
+    assert.deepEqual(facts.map(({ id }) => id), factIds);
+    const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
+    assert.notEqual(candidate.skillSha, sha256(assemble(selected, read, bundle)), 'preserved replies belong to an earlier skill bundle');
+    assert.ok(candidate.models.replay.length > 0);
+    for (const model of candidate.models.replay) {
+      assert.equal(candidate.outputs[model]?.status, 'ok', model);
+      for (const id of factIds) assert.equal(candidate.judge[model]?.facts[id]?.after, 'holds', `${model}: ${id}`);
+      assert.ok(['improved', 'unchanged'].includes(candidate.judge[model]?.verdict), model);
     }
   });
 }
