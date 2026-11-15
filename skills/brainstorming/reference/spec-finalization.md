@@ -185,7 +185,7 @@ Pick one:
 
 3 - council explanation: show the council audit, then return to this gate without approving.
 
-4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.
+4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:brainstorming #<N>` there.
 
 Recommended: <recommended-row> - <reason>
 

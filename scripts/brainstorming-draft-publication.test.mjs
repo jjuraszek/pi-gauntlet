@@ -9,6 +9,7 @@ const sample = 'eval/spec-gate/samples/option-6-handoff';
 test('draft PR row 4 persists deferred headers before spec-only publication and create-only retry', () => {
   const gate = read('skills/brainstorming/reference/spec-finalization.md');
   assert.ok(gate.includes('for row-4 reply decoding, publication'));
+  assert.ok(gate.split('\n').includes("4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:brainstorming #<N>` there."), 'draft row includes the fresh-session continuation command before publication');
   assert.ok(gate.includes('omit row 2 and all its flag lines, including `--allowance=N`; render rows 1, 3, 4'));
   assert.ok(gate.includes('Loop engine unavailable: this spec has no acceptance-criteria rows.'));
   const ref = read('skills/brainstorming/reference/spec-pr.md');

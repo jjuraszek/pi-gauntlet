@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Replace the spec approval gate with four rows: `1` plan engine, `2` loop engine, `3` council explanation, and `4` draft-PR handoff. Mark exactly one row `[recommended]`: context reading above 25% recommends row `4` when available; otherwise zero acceptance rows or a bundled row recommends row `1`, and the default is row `2`. Bare `approve` takes the recommended row. The loop engine is no longer labeled experimental.
+- Plain `1` or `2` now grants automatic application of later amendments within the original problem statement; add `--amends-stop` to require human approval instead. Redraws still stop for approval. Use `--fund-rounds=N` on row `1` for additional conformance-review rounds and `--allowance=N` on row `2` for the loop run allowance.
+- Breaking reply grammar: old `2` changes from plan-with-grant to loop-with-grant, old `4` changes from loop-without-grant to draft-PR handoff, and old `5` and `6` leave the valid range. Gate suffixes `; fund N fix rounds` and `; allowance N` are replaced by `--fund-rounds=N` and `--allowance=N`, with no aliases for the old digits or suffixes.
+- Add a model-visible `Context: <p>% of window` line to `phase_tracker` status (`Context: unknown` when unavailable), without adding it to the TUI.
+
 ## v8.5.1 - 2026-11-13
 
 - Housekeeping excludes spec and plan folders from content checks, keeps specs outside the file budget, and checks specs-only selections instead of ending empty. Fully superseded specs get a Delete-or-Keep card in every run, without a Ticket pick or hotfix-bounds gate; outside references recommend Keep. With no argument, checkout changes select uncommitted files and disclose commits ahead of the unfetched local ref; a clean checkout selects unpushed changes after fetching, with stops for divergent history, remote containment and squash receipts.
