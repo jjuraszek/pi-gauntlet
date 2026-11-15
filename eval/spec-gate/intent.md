@@ -1,4 +1,4 @@
-for: 958814567d03516a4f7f622e366e95465fbad02d1857943813f6ae0055edefae
+for: df8a3021dbf793bad56b4e06f74b8d59708e6f5d2bbc9ac33e3146f4c8c1b1d6
 
 ## Change
 
@@ -10,7 +10,10 @@ Extend all-none with grounded loop-gate observations and independent plan and dr
 
 Refresh only spec-gate/recommended-row for Design 7: align the single-outcome reading to 12.0 and the PR-subject reading to 31.0, add independent 26.0 and 31.0 draft-PR recommendations, and render the full zero-row council gate at 12.0 with rows 1, 3, 4 and no allowance bullet. Preserve all twelve existing fact IDs, the 25.0/25.1 boundary, zero-row context precedence, first bundled qualifying row, and observation-facet checks. Seed this changed case's baseline first, then compare this sample only against the unchanged candidate skill text. This tool-free replay measures rendered text, not live persistence; retain prior partial-report evidence without rerunning other samples.
 
+Accept row-free approval prose with no amendment, grant, or budget wording through the same recommended-row mapping and literal echo as bare approve. Extend flag-replies with "approved, go ahead" and the contrasting "approved, apply every amend" rejection. Run only spec-gate/flag-replies against base c94a93b6aafb72f059dbd4870cfde2de4f42fc38; preserve the other sample records and partial-report evidence. This tool-free replay checks narrated default approval and rejected worded intent, not live persistence.
+
 ## Expected to move
+- flag-replies/plain-prose: fails -> holds - Plain approval prose takes the just-rendered recommendation with the literal approve echo and default grant.
 - all-none/f5: fails -> holds - Bare approve follows recommended loop with an echo and the default grant rather than granting nothing.
 - all-none/plan: fails -> holds - A rendered plan recommendation resolves approve to row 1 with the echo and default grant.
 - all-none/draft: fails -> holds - A rendered draft-PR recommendation resolves approve to row 4 with the echo and publication stop.

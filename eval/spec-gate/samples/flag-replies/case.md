@@ -52,6 +52,7 @@ The gate was rendered in the preceding turn; now handle these independent replie
 | bare-plan | 1 |
 | bare-loop | 2 |
 | approve-loop | approve |
+| plain-prose | approved, go ahead |
 | approve-stop | approve --amends-stop |
 | label-funded | plan engine --fund-rounds=3 --amends-stop |
 | plan-stop | 1 --amends-stop |
@@ -83,6 +84,7 @@ The gate was rendered in the preceding turn; now handle these independent replie
 | removed-five | 5 |
 | removed-six | 6 |
 | granting-words | 1 apply every amend |
+| prose-grant | approved, apply every amend |
 | prose-stop | approve, stop on amends |
 | digit-stop | 1, stop on amends |
 | prose-funding | approve and fund 3 more rounds |

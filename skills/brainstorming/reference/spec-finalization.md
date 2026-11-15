@@ -204,7 +204,7 @@ If you believe the summary needs correcting, do **not** silently rewrite it - re
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. Resolve a rendered row from its digit, label, or `approve` taking the recommended row. Parse whitespace-separated flags after that selector in any order, each at most once.
+Wait for the user. Resolve a rendered row from its digit or label; use the recommended row for `approve` and plain approval prose as defined below. Parse whitespace-separated flags after a digit, label, or `approve` in any order, each at most once.
 
 **Rejected replies.** Apply every check below before plain approval and before change requests. For a rejected reply, make no file or commit changes, state that the gate is waiting, and end with exactly one clarifying question containing the listed content and a question mark; a second invalid reply leaves the gate waiting too. Do not infer a grant or turn worded amendment or budget intent into a spec edit.
 
@@ -217,7 +217,7 @@ Wait for the user. Resolve a rendered row from its digit, label, or `approve` ta
 | A flag with no row digit, row label, or `approve`; a budget token alone | Ask for a rendered row. |
 | `5`, `6`, another out-of-range digit, or a withheld row's digit or label | Name the rendered rows; never remap the selection. |
 
-For bare `approve`, resolve the recommended rendered row (1, 2, or 4) from the just-rendered gate; never recompute it from newer context or acceptance rows. Print `Taking "approve" as option <n> - <label>` with that row's number and label before applying its action, exactly as for its bare digit.
+For bare `approve`, resolve the recommended rendered row (1, 2, or 4) from the just-rendered gate; never recompute it from newer context or acceptance rows. Print `Taking "approve" as option <n> - <label>` with that row's number and label before applying its action, exactly as for its bare digit. Apply this same mapping and literal echo to approval prose that names no row and carries no amendment, grant, or budget wording (for example, `approved, go ahead`).
 
 After these checks, use the accepted mapping below. Accept `--fund-rounds=N` on row 1 with N matching `[1-9][0-9]*`; without `--amends-stop`, append `; fund N fix rounds` to `G` without removing the default amend permission. Keep `G` verbatim, including its final period (`approval.; fund N fix rounds`). On row 2, accept one `--allowance=N` flag with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings.
 
