@@ -2,7 +2,7 @@ bundle+: skills/brainstorming/reference/pr-subject.md
 replay: continuation
 
 ## Fixed observations
-These are five independent spec-writing branches. Gather and both design approvals are complete; all required references and the context draft were read. No values or scope decisions remain unresolved. No tools are available. Each spec has Amend-grant none. Council audit is 1 applied, 0 deferred, 0 rejected; summary read succeeded.
+These are five independent spec-writing branches. Gather and both design approvals are complete; all required references and the context draft were read. No values or scope decisions remain unresolved. No tools are available. Each spec has Amend-grant none. Council audit is 1 applied, 0 deferred, 0 rejected; summary read succeeded. Resolved loopEngine.maxIterationsPerRow is 4; phase_tracker status returned Context: 12.0% of window.
 
 Free-text: No ticket. Approved design: repeating an export request returns its existing download instead of creating another export. This is the complete requested behavior.
 Ticket: Fetched ticket #42 has the heading Acceptance criteria and exactly one row, whose full text including its terminal period is `- [ ] Retry delay stays bounded.` - the approved design keeps that outcome in scope, with no additions.

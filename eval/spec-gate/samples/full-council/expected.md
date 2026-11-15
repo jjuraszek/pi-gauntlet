@@ -2,4 +2,4 @@
 - f2: judged: The gate's Council counts line states 11 applied, 0 deferred, and 0 rejected.
 - f3: judged: No per-cluster Applied, Deferred, or Rejected line appears between the briefing and the menu.
 - f4: judged: The gate menu has exactly four numbered one-sentence rows labeled 1 plan engine, 2 loop engine, 3 council explanation, and 4 draft PR, with no missing or extra row and no experimental label.
-- f5: judged: The reply `1` is treated as plain approval leading to planning without an auto-apply amends grant.
+- f5: judged: Reply `1` approves for the plan engine, persisting the full default auto-apply amendment grant and **Engine:** waves, preserving the council audit and checking both fields in HEAD before completing brainstorm and invoking writing-plans.

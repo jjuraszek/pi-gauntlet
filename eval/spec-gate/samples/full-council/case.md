@@ -54,6 +54,10 @@ Ticket orchard-billing#7, Acceptance criteria, rows verbatim (ticket provenance,
 - [ ] Repeated collection requests return the original receipt.
   in-scope
 
+## Narrated approval recipe
+
+Override the shared one-sentence approval shortcut for this sample: after rendering the gate, narrate the selected header fields with the full exact amendment-grant value, the audit-preserving commit amend, the HEAD check of both fields, and the phase completion and next skill. No tools exist; describe these operations without claiming live execution.
+
 ## User reply
 
 1

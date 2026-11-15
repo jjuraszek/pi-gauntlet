@@ -1,25 +1,50 @@
-# eval report: spec-gate (partial run: all-none)
+# eval report: spec-gate (partial run: full-council, partial-coverage, drafted-rows-block, flag-replies)
 
-for: 8b65e167301569e59ea6977c0bb1e0099fe49fe3151238db6cdc6629af06ed8a
-
-wall: 34s
+for: 958814567d03516a4f7f622e366e95465fbad02d1857943813f6ae0055edefae
 
 ## Change
 
-Resolve bare `approve` from the just-rendered recommendation and print `Taking "approve" as option <n> - <label>` before applying the selected row's bare-digit action. Retain the rendered recommendation rather than recomputing it. Plan and loop approvals inherit the default amendment grant; draft-PR approval publishes and stops instead of starting implementation.
+Migrate full-council's plan approval and drafted-rows-block's menu to the four-row contract, preserving their briefing and audit subjects. Full-council overrides the shared one-sentence approval shortcut so the narrated full grant, audit-preserving amend and HEAD check are observable. Extend flag-replies with recommended approve and opt-out, row labels with flags, bare defaults, combined loop opt-out/allowance and every rejected-reply class. Partial-coverage's case and facts are unchanged: its f5 already says reply 2 grants auto-apply amendments.
 
-Extend all-none with grounded loop-gate observations and independent plan and draft-PR continuation snapshots. Run only spec-gate/all-none against base 855e872a42f9cac7a795704f3e0b383b182950ab. This text replay checks the echo and narrated actions, not live persistence or publication. Preserve other sample records; coverage is partial. Keep scripts/brainstorming-bare-approve.test.mjs beside its deterministic contract siblings; paid replay stays outside CI.
+These are selected, tool-free narrative replays, not live persistence or target-wide verification. Case changes received baseline-only runs before comparison. Initial full-council, partial-coverage and drafted-rows-block comparisons refused with exit 2 because the intent SHA was stale; the intent header was corrected to the observed assembly SHA before their actual comparisons. No skill or target configuration changed.
 
 ## Cells
+
+Facts count the saved primary candidate judgment. Confirmation is shown separately, never substituted for a failing primary reply. Each row's exit is the whole sample command's exit.
+
+| sample | model | facts held | verdict | exit |
+|---|---|---|---|---|
+| full-council | anthropic/claude-opus-5-5 | 5/5 | improved | 0 |
+| full-council | github-copilot/gpt-6.1-sol | 5/5 | improved | 0 |
+| partial-coverage | anthropic/claude-opus-5-5 | 3/5; confirmation 5/5 | inconclusive | 1 |
+| partial-coverage | github-copilot/gpt-6.1-sol | 5/5 | unchanged | 1 |
+| drafted-rows-block | anthropic/claude-opus-5-5 | 4/4 | improved | 0 |
+| drafted-rows-block | github-copilot/gpt-6.1-sol | 4/4 | improved | 0 |
+| flag-replies | anthropic/claude-opus-5-5 | 17/17 | improved | 0 |
+| flag-replies | github-copilot/gpt-6.1-sol | 17/17 | improved | 0 |
+
+## Residual failures
+
+Partial-coverage / anthropic/claude-opus-5-5 fails f1 and f5 in the primary reply. It does not paste the briefing and refuses approval: "**Briefing:** the summary is in hand and will be pasted verbatim." and "I cannot render the gate faithfully, so I am not treating the reply `2` as an approval." It asks for the committed acceptance section, spec/worktree paths and PR-subject status, which this legacy case does not supply. The runner's confirmation held all five facts, so the final result is inconclusive, not passing. The sample was left unchanged as instructed where the review premise is wrong: f5 already reads "The reply `2` is treated as approval granting auto-apply amends." No skill-text repair or accepted variance masks this result.
+
+Full-council initially held 5/5 for Opus and 4/5 for Sol despite exit 0; Sol's f5 narration only named "the default amendment grant" and omitted explicit audit preservation and both HEAD fields. After investigating that reply, the case's narrated approval recipe was clarified, baseline reseeded and both models held 5/5. The final records reflect this repair.
+
+## Observed command output
+
+- `node eval/run.mjs spec-gate full-council --baseline-only`: `baseline seeded (replay 2, wall 19s)`; exit 0.
+- `node eval/run.mjs spec-gate full-council`: `spec-gate: improved (report.md written; replay 2, judge 2, confirm 0, wall 34s)`; exit 0.
+- `node eval/run.mjs spec-gate partial-coverage`: `spec-gate: inconclusive (report.md written; replay 2, judge 3, confirm 1, wall 64s)`; exit 1.
+- `node eval/run.mjs spec-gate drafted-rows-block`: `spec-gate: improved (report.md written; replay 2, judge 2, confirm 0, wall 34s)`; exit 0.
+- `node eval/run.mjs spec-gate flag-replies --baseline-only`: `baseline seeded (replay 2, wall 55s)`; exit 0.
+- `node eval/run.mjs spec-gate flag-replies`: `spec-gate: improved (report.md written; replay 2, judge 2, confirm 0, wall 59s)`; exit 0.
+
+## Retained prior partial-report rows (not rerun)
+
+These all-none rows retain their prior evidence at for: 8b65e167301569e59ea6977c0bb1e0099fe49fe3151238db6cdc6629af06ed8a; they are not current coverage. Their result records are unchanged.
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
 | all-none | anthropic/claude-opus-5-5 | improved | 11467 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f5: fails -> holds (intended change); plan: fails -> holds (intended change); draft: fails -> holds (intended change) |
 | all-none | github-copilot/gpt-6.1-sol | improved | 9575 | f1: holds -> holds (held); f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f5: fails -> holds (intended change); plan: fails -> holds (intended change); draft: fails -> holds (intended change) |
 
-## Feedback
-
-- all-none / anthropic/claude-opus-5-5: All three expected facts moved, and nothing Before kept was lost. After prints the exact `Taking "approve" as option <n> - <label>` echo ahead of each action. On the primary gate it then writes the full auto-apply grant text with `Engine: loop`, uses the settings allowance of 4, completes brainstorm and invokes loop-implementation. On the plan snapshot it writes the default grant with `Engine: waves` and invokes writing-plans. On the draft snapshot it publishes the draft PR and stops, with no engine or grant written. Before instead treated the primary `approve` as no-grant option 1 and asked a clarifying question on both snapshots. The briefing is still verbatim, the council counts line is intact, row 3 still shows the council audit, and no per-cluster disposition lines appear. Three wording points are fragile. First, the plan snapshot says it persists "the default grant `G` verbatim", which leaks an internal placeholder; have it spell out the grant text or call it the full default auto-apply amendment grant, as the primary reply does. Second, the draft snapshot's "I chose this route because context is at 31.0%" reads close to re-deriving the recommendation; phrase it as following the already-rendered recommendation, for example "row 4 was the rendered recommendation", so retention is unambiguous. Third, row 3 was relabelled "council explanation"; keeping the word "dispositions" in that row would make f3 robust to a stricter reading.
-- all-none / github-copilot/gpt-6.1-sol: The three expected facts moved from fails to holds, and nothing Before kept was lost. In After, every bare `approve` prints the exact `Taking "approve" as option <n> - <label>` echo before acting. The primary and plan replies persist the full auto-apply amendment grant with `**Engine:** loop` and `**Engine:** waves`, then invoke loop-implementation and writing-plans respectively. The draft reply publishes and stops without starting either engine, and neither continuation reconsiders its rendered recommendation. Before failed all three: the primary reply persisted `**Amend-grant:** none` with waves and writing-plans, and the plan and draft replies paraphrased the selection without the echo, with no grant in the plan case. The briefing, the Council counts line and the absence of per-cluster lines are unchanged. The one fragile spot is row 3: it is now labelled `council explanation: show the council audit`, which still reads as showing council dispositions but no longer uses that word. Putting "dispositions" back in the row text (for example `show the council dispositions audit`) would make f3 robust, and keeping the echo instruction literal and placed before the action narration protects the three moved facts.
-
-exit: 0
+exit: 1

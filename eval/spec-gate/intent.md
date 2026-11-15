@@ -1,6 +1,8 @@
-for: 8b65e167301569e59ea6977c0bb1e0099fe49fe3151238db6cdc6629af06ed8a
+for: 958814567d03516a4f7f622e366e95465fbad02d1857943813f6ae0055edefae
 
 ## Change
+
+Migrate full-council's plain plan approval and drafted-rows-block's rendered menu to the four-row contract, preserving briefing, audit, drafted-row and continuation assertions. Leave partial-coverage's case and facts unchanged: its f5 already says reply 2 grants auto-apply amendments. Extend flag-replies with bare defaults, recommended approve with opt-out, label selectors, combined loop opt-out/allowance, and each rejected-reply class. Share exact G definitions and the approval recipe to keep the independent table within the existing target cap; require literal allowance carriers. Run only full-council, partial-coverage, drafted-rows-block and flag-replies, seeding baseline first wherever case text changed. Preserve other records and partial-report rows. These selected tool-free narrations do not prove live persistence or target-wide coverage.
 
 Resolve bare `approve` from the just-rendered recommendation and print `Taking "approve" as option <n> - <label>` before applying the selected row's bare-digit action. Retain the rendered recommendation rather than recomputing it. Plan and loop approvals inherit the default amendment grant; draft-PR approval publishes and stops instead of starting implementation.
 

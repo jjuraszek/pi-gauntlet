@@ -22,7 +22,7 @@ Council: 1 applied, 0 deferred, 0 rejected
 
 3 - council explanation: show the council audit, then return to this gate without approving.
 
-4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.
+4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:brainstorming #<N>` there.
 
 Recommended: 1 - row 1 "The runner writes a daily summary and emails it to the owner." commits to writing a summary, emailing it; a plan splits it into tasks.
 

@@ -1,6 +1,10 @@
-for: e52a382ac514f9b538c6028dc3b67a9a3ee44db9f69a63e2b5bbc90877ccdaba
+for: 65abe58528f169348439b67695efa230f2300fdcc1a132548d4ce2ee6976dcb1
 
 ## Change
+
+Complete the selected four-row migrations in loop-gate, engine-waves, grant-budget-reply, spec-pr-regate-legs, spec-pr-unmarked, spec-pr-publish-legs and drafted-ac-rows. Grant-budget-reply already numbers rows 1/2/3/4 and tests the full funded grant; migrate its stale draft-PR sentence and token-only fact to the specified fresh-session command and single clarifying question for a rendered row. Preserve their original drafting, audit, waves, budget, provisioning, publication and cleanup subjects and non-gate facts. Replace six-row menus and approval numbers with plan 1, loop 2, council 3 and draft PR 4; default engine approvals persist the full amendment grant while explicit --amends-stop opts out. Cover the budget-only funded opt-out in spec-gate/flag-replies and ground recommendations with observed context/settings. Run only these seven migrated samples, seeding baseline first wherever case text changed; spec-pr-unmarked changes facts only. Preserve unrelated result records and partial-report rows. These selected tool-free narrations do not prove live Git/GitHub operations or target-wide coverage; later failures remain failures rather than accepted variance.
+
+### Prior change context (not current replay authorization)
 
 On a marked draft-PR re-gate, accept plan 1 and loop 2 with the ordinary gate's flags, persist the decoded grant, selected engine and lowercase PR identity in a new commit, verify all three fields from HEAD, then continue through the selected engine. Keep the allowance carrier out of the spec and settings. Migrate only spec-pr-regate to the four-row menu and eight bare/flagged approval traces; retain audit, shape, change and unresolved-merge controls. Run only spec-pr-regate against base 855e872a42f9cac7a795704f3e0b383b182950ab. This tool-free replay proves narrated ordering, not live persistence or target-wide coverage. Preserve other records. The selective deterministic check lives beside its siblings in scripts/brainstorming-pr-regate-approval.test.mjs; model replay remains outside CI.
 
@@ -165,14 +169,13 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
 - loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
-- spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
 - spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
 - spec-pr-unmarked/carried-path: fails -> holds - Keep the carried spec path as the draft; mint no pr-42 filename.
 - spec-pr-unmarked/no-record: fails -> holds - Write and require no Rework record on the unmarked route.
-- spec-pr-unmarked/withheld: fails -> holds - Withhold 6 naming the existing PR.
+- spec-pr-unmarked/withheld: fails -> holds - Withhold draft row 4 naming the existing PR.
 - spec-pr-unmarked/persist: fails -> holds - Persist Engine, Amend-grant, and PR as a new commit on approval 1.
 - aftermath-budget-exhausted/no-restore: fails -> holds - Stop the attributable third dirty-row outcome before restoration and take its named paths and cause to the human to commit, discard, or move without re-dispatch.
 - aftermath-retry-grant/restore: fails -> holds - Restore exactly three tracked unprotected row paths before applying, preserve artifacts/parent paths, and root plain-jj filesets.
@@ -229,11 +232,11 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
-- loop-gate/menu: fails -> holds - Render exact options 4/5 with resolved allowance7 and the run allowance suffix; offer funding only on 1/2.
+- loop-gate/menu: fails -> holds - Render rows 1/2/3/4 with row 2 recommended, resolved allowance 7 and engine-specific flags; offer funding only on row 1.
 - loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
 - loop-gate/loop: fails -> holds - Plain 2 persists G and loop, HEAD-checks both fields, then completes brainstorm and dispatches loop with the settings allowance.
-- loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
-- engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
+- loop-gate/no-ac: fails -> holds - Keep the 1/3/4 not-fetched zero-row gate without row 2 or its flags; drafted rows enable loop row 2.
+- engine-waves/waves: fails -> holds - Route bare 1 and 1 --amends-stop to waves with the full default grant and none respectively.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
 - engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
