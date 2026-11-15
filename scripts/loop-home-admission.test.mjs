@@ -70,7 +70,7 @@ test('home admission written contract limits attribution and all header deltas',
   assert.ok(recovery.includes('repair row <n> | interrupted - <reason> | iteration <consumed>'));
   assert.match(recovery, /Never append a fabricated child decision/);
   for (const token of [
-    'approval options 4 and 5 alike', 'Recovery itself is unconditional',
+    'Recover without a human turn with or without amend permission.', 'Recovery itself is unconditional',
     'matching start identity and command', 'PGID equal to the pid', 'wait at most 10 s',
     'recheck identity, command and group leader before each signal',
     'skip that job and continue recovery', 'absent or empty jobs file means no jobs to terminate',
