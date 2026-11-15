@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 18
+iterations: 19
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -19,7 +19,7 @@ allowance: 10
 | 9 | done | 1 | timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs; 5 passed, 0 failed; Git reads and written rules checked, not executable resume; returned-line-recovery isolated replay passed in 2 model cells |
 | 10 | done | 1 | timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs; 9 passed, 0 failed; shipped conversion recipe preserves counts and commits once; isolated legacy-ledger-conversion eval passes both model cells |
 | 11 | done | 1 | timeout -k 30 90 node --test scripts/finish-landed-message.test.mjs; 10 passed, 0 failed; saved message examples reused; isolated commit and PR argv checks, no model or workflow replay |
-| 12 | open | 0 | |
+| 12 | done | 1 | timeout -k 30 90 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; executed body-only Git recipe and record selector; saved renderings reused, no model or workflow replay |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
 | 15 | open | 0 | |
@@ -47,3 +47,4 @@ row 8 done | Executed ledger-history Git recipes; decision-only commits stay out
 row 9 done | Checked ledger-held home resume with real Git reads and an isolated admission decision; executable driver behavior remains unproven. | Reuse scripts/loop-home-resume.test.mjs for written rules, Git boundaries and current returned-line-recovery evidence.
 row 10 done | Added a one-commit legacy conversion recipe with preserved repair counts and an idempotent second call. | Reuse scripts/loop-legacy-conversion.test.mjs for the Git recipe and eligibility replay; prior resume eval hashes need refresh.
 row 11 done | Proved finish's squash and PR wording with saved message examples and isolated commit/title checks. | Reuse scripts/finish-landed-message.test.mjs for message shape, ticket placement and local caller checks; no workflow replay or fresh model run.
+row 12 done | Fixed finish's digest to scan body-only audit rows; isolated Git fixtures and saved rendering checks pass. | Reuse scripts/finish-amendment-digest.test.mjs for record selection, range and empty-digest controls; saved replies cover rendering only.

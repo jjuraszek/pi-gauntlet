@@ -17,4 +17,8 @@ Amend the spec for Fixture byte count
 
 - bytes | Fixture byte count | The fixture contains 43117 bytes | auto-apply | measured correction | wc returned 43117
 
-None of these subjects starts with a framework label. An independent no-amendment variant contains only Repair 2 plan citations with the same body. State what digest it prints without repeating the menu. Keep the reply within 500 words.
+None of these subjects starts with a framework label. An independent no-amendment variant contains only Repair 2 plan citations with the same body. Another independent variant has this single commit subject:
+
+- subject | Not an amendment | This line is only a subject | granted | fixture | no body record
+
+Its body is just `No amendment applied.` State what digest each variant prints without repeating the menu. Stop at the menu; do not narrate verification or delivery. Keep the reply within 500 words.
