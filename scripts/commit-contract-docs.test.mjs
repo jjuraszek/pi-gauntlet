@@ -20,6 +20,12 @@ test('engine and operator docs describe ledger attribution and decision counters
     'A retained matching `pending:` tuple is an ordinary or seed validation miss; a tuple on neither line takes interrupted recovery.',
     'attribute a home repair through the committed ledger\'s consumed `iterations:` and retained `pending: verify` tuple, and only a companion (outside-ledger) repair through the return file\'s tuple and consumed iteration',
   ]) assert.ok(engines.includes(token), token);
+  const configuration = await read('doc/configuration.md');
+  for (const token of [
+    'Before reading result rows and decisions, require DONE, a clean tree, exactly one commit after the saved HEAD, the consumed `iterations:` and the dispatched tuple on `returned:` or a retained `pending:` line.',
+    'A retained matching `pending:` tuple is an ordinary or seed result-validation miss after boundary admission; a tuple on neither line takes interrupted recovery for wrong attribution.',
+  ]) assert.ok(configuration.includes(token), `doc/configuration.md: ${token}`);
+  assert.doesNotMatch(configuration, /Admission reads the ledger before any child message: pending must be absent and returned must match the dispatched tuple/);
 });
 
 test('gate docs separate retained home tuples from wrong attribution and bound repairs by decisions', async () => {
