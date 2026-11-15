@@ -49,18 +49,20 @@ This is a new free-text spec, not a PR subject. The pre-summary phase_tracker({ 
 
 ## Independent recommendation checks
 
-After the initial gate and its reply, evaluate these independent gate observations with the same acceptance row and no user reply. None is a create-only retry view. Give only each case ID, the first-line gate marker, the selected row's sentence with its tag, and its Recommended line; do not repeat the briefing, flags, or unselected rows.
+After the initial gate and its reply, evaluate these independent gate observations with the same acceptance row and no user reply. None is a create-only retry view. Give only each case ID, the first-line gate marker, the selected row's sentence with its tag, and its Recommended line, plus any Withheld line; do not repeat the briefing, flags, or unselected rows.
 
 | Case | Status observation | Rendered choices |
 |---|---|---|
 | unknown | Context: unknown | 1, 2, 3, 4 |
 | boundary | Context: 25.0% of window | 1, 2, 3, 4 |
-| low | Context: 12.4% of window | 1, 2, 3, 4 |
-| withheld | Context: 80.0% of window | 1, 2, 3; row 4 is withheld because this is PR #42 |
+| low | Context: 12.0% of window | 1, 2, 3, 4 |
+| above-boundary | Context: 26.0% of window | 1, 2, 3, 4 |
+| high | Context: 31.0% of window | 1, 2, 3, 4 |
+| withheld | Context: 31.0% of window | 1, 2, 3; row 4 is withheld because this is PR #42 |
 
 ## Zero-row recommendation checks
 
-For each independent case below, replace the spec's acceptance section with `none - ticket not fetched (tracker unreachable)`. No checkbox rows exist, the council audit is available, and none is a create-only retry view. Use the supplied rendered choices; give only the case ID, first-line gate marker, selected row's sentence with its tag, and Recommended line. There is no user reply.
+For each independent case below, replace the spec's acceptance section with `none - ticket not fetched (tracker unreachable)`. No checkbox rows exist, the council audit is available, and none is a create-only retry view. For zero-low, render the full gate with its marker, briefing, council line, all available rows and their flags, explanatory lines, and Recommended line. For the other cases, give only the case ID, first-line gate marker, selected row's sentence with its tag, and Recommended line. There is no user reply; zero-low is not a PR subject.
 
 | Case | Status observation | Rendered choices |
 |---|---|---|

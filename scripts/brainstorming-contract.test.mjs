@@ -253,11 +253,11 @@ test('low, unknown or withheld draft context restricts the recommendation to eng
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   assert.match(text, /Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4/);
   const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
-  for (const observation of ['Context: unknown', 'Context: 25.0% of window', 'Context: 12.4% of window', 'Context: 80.0% of window']) {
+  for (const observation of ['Context: unknown', 'Context: 25.0% of window', 'Context: 12.0% of window', 'Context: 31.0% of window']) {
     assert.ok(fixture.includes(observation), observation);
   }
   assert.match(fixture, /row 4 is withheld/);
-  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- engine-only: judged:.*unknown.*25\.0.*12\.4.*withheld.*1 or 2/m);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- engine-only: judged:.*unknown.*25\.0.*12\.0.*withheld.*1 or 2/m);
 });
 
 test('zero acceptance rows recommend the plan engine only after the draft-PR rule', () => {
