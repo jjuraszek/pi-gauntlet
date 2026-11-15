@@ -48,7 +48,7 @@ test('unreachable cuts reuse the amendment owner and preserve ledger accounting'
     '## Out of scope', '<row text, first 60 chars> - unreachable in this checkout - <what>',
     'amended the spec: row <n> - unreachable in this checkout - <what>',
     'Without amend permission', 'human batch',
-    'single `loop: cut row <n>` commit', 'Preserve attempts, iterations, allowance and spent escalation',
+    'single amendment commit', 'amended | cut row <n> | <first item title>', 'Preserve attempts, iterations, allowance and spent escalation',
     '`Deferred/deviates per spec:`', 'never convert the disposition to `venue:`',
   ]) assert.ok(section.includes(token), token);
   assert.match(driver, /Read \[unreachable-returns\]\(reference\/unreachable-returns.md\) in full now with read at its absolute path/);

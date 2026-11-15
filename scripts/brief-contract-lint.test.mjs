@@ -94,7 +94,7 @@ const reconstruction = realFiles.find(f => f.rel === "skills/gauntlet-resume/ref
 const ledgerRestore = reconstruction.split("## Spec with ledger")[1].split("## Spec with plan")[0];
 for (const token of ["Shared allowance boundary", "Skip Entry step 1's allowance seeding", "ledger has no allowance: line - resume through /skill:gauntlet-resume", "After the loop", "latest operational"]) assert.ok(ledgerRestore.includes(token), token);
 const boundary = ledgerRestore.split('4. **Shared allowance boundary')[1].split('5. Continue')[0];
-const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only a clean, tuple-free ledger after admission or completed interrupted recovery', 'Require `allowance:` and no `cap:`', 'Call `plan_tracker({ action: "refresh"'];
+const ordered = ['Apply pending recovery below against the unmigrated ledger', 'Migrate only a clean, tuple-free ledger after admission or completed interrupted recovery', 'Require `allowance:`, no `cap:` and exactly one `returned:`', 'Call `plan_tracker({ action: "refresh"'];
 for (let i = 1; i < ordered.length; i++) assert.ok(boundary.indexOf(ordered[i - 1]) >= 0 && boundary.indexOf(ordered[i - 1]) < boundary.indexOf(ordered[i]), ordered[i]);
 for (const token of [
   'both or neither is `ledger header malformed: <observed header lines>`',
@@ -103,11 +103,11 @@ for (const token of [
   'reuse the single restore-boundary settings read',
   'Resolve `gauntlet_setting({ key: "loopEngine" })` exactly once',
   'retain `escalateAfter` in driver memory',
-  'Commit only that header replacement as parent `loop: migrate allowance`',
+  'Commit only that header replacement using the Allowance migration on resume sentence',
   'preserve iterations, every attempts cell and all decisions',
   'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)',
   'With an existing allowance, use it without allowance resolution or a migration commit',
-  'Defer migration through a missing-history stop or the dirty-tree stop',
+  'Defer both migrations through a missing-history stop or the dirty-tree stop',
   'project the unmigrated ledger solely to report the stop',
   'header plus one per matching retry decision', "ignore the retry's audit ceiling",
   'Keep `cap +N` history as inert text and restore no funded rounds',
@@ -152,16 +152,30 @@ for (const token of ["exactly one new home commit", "zero new commits", "multipl
 assert.doesNotMatch(ledgerRestore, /exclusive checkout|ownership-fenced|recovery incomplete|recovery-incomplete|owned-job exit|verified process identity\/exit|discard-authorization/);
 assert.match(ledgerRestore, /unconditional interrupted recovery before migration/);
 assert.match(ledgerRestore, /clean, tuple-free tree.*migrate before the next dispatch/);
+const interrupted = readFileSync(join(root, 'skills/loop-implementation/reference/interrupted-recovery.md'), 'utf8');
 for (const sample of ["interrupted-ownership", "migration-recovery", "ledger-tracker-recovery"]) {
   const sampleDir = join(root, "eval/gauntlet-resume/samples", sample);
   const input = readFileSync(join(sampleDir, "case.md"), "utf8");
   const expected = readFileSync(join(sampleDir, "expected.md"), "utf8");
   assert.match(input, /bundle\+: skills\/loop-implementation\/reference\/interrupted-recovery\.md/, sample);
-  assert.match(expected, /loop: repair row [12]/, sample);
+  assert.match(interrupted, /repair row <n> \| interrupted - <reason> \| iteration <consumed>/, sample);
   assert.match(expected, /without (?:another|a second).*bump/, sample);
   assert.doesNotMatch(expected, /recovery incomplete|provenance.*before.*reset|stops for discard\/reset authorization/, sample);
 }
-const recovery = ledgerRestore.split("### Pending recovery")[1];
+const heldRecovery = ledgerRestore.split('### Pending recovery\n')[1].split('### Returns conversion\n')[0];
+assert.match(heldRecovery, /no `returned:` line -> Legacy pending recovery below.*exactly one -> the ledger-held route/);
+assert.match(heldRecovery, /With no `pending:`, read `returned:` from the committed home ledger/);
+assert.match(heldRecovery, /log -G'\^returned: ' --format=%H <base>\.\.HEAD -- <ledger path>/);
+assert.match(heldRecovery, /introducing commit's ledger `iterations:` as the consumed count, never the live ledger's/);
+assert.match(heldRecovery, /Read no commit message/);
+assert.match(heldRecovery, /matching target\/home identity.*before-image iterations \+1/);
+assert.match(heldRecovery, /A companion tuple is already settled.*do not require its deleted return file or look up its SHA in home/);
+assert.match(heldRecovery, /later repair or approved ledger mutation from its ledger diff, not a subject/);
+assert.match(heldRecovery, /Was home return <sha> admitted before the later commits or dirty changes/);
+assert.match(heldRecovery, /Keep bytes, counters and tasks unchanged until answered/);
+assert.match(ledgerRestore, /insert `returned: none` directly after `allowance:`.*append the decoded repair decisions in commit order/);
+assert.match(ledgerRestore, /A second resume makes no conversion commit/);
+const recovery = ledgerRestore.split('### Legacy pending recovery\n')[1].split('<!-- legacy-commit-labels:end -->')[0];
 assert.match(ledgerRestore, /Only at a missing-history stop, render a row whose `pending:` tuple stays on disk as `row <n> in_progress \(pending tuple restored\)`/);
 assert.match(recovery, /Confirmed interrupted[^\n]*entire `<pre-dispatch HEAD>\.\.HEAD` range[^\n]*before-image without another bump[^\n]*unconditional interrupted recovery[^\n]*failed attempt[^\n]*ordered table/);
 assert.match(routes, /verify with `Ledger:`[^\n]*fresh home conformance review/);

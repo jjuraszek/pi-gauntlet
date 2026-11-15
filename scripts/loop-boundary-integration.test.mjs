@@ -42,9 +42,10 @@ test('CI includes the selective loop boundary regression files', () => {
 
 test('boundary integration samples keep explicit ownership and allowance counterexamples', () => {
   assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
-  for (const [sample, tokens] of [
-    ['seed-interrupted-count', ['seed: 1 of 1', 'loop: repair seed', 'rows +N', 'attempts 0']],
-    ['companion-interrupted-recovery', ['repo-b', 'pending:', 'Missing provenance', 'loop: repair row 2']],
+  const recovery = read('skills/loop-implementation/reference/interrupted-recovery.md');
+  for (const [sample, tokens, decision] of [
+    ['seed-interrupted-count', ['seed: 1 of 1', 'rows +N', 'attempts 0'], 'repair seed | seed interrupted: <reason> | iteration <consumed>'],
+    ['companion-interrupted-recovery', ['repo-b', 'pending:', 'Missing provenance'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
     ['exit-repair-capability', ['timeout -k 30', 'jobs', 'repairs: 4 of 4', 'without a proof demand or human turn']],
     ['tracker-verify', ['repairs: 4 of 4', 'second repair']],
     ['scaled-cap-grant', ['rule 3 supplies the fixed hint', 'admitted amendments']],
@@ -53,12 +54,13 @@ test('boundary integration samples keep explicit ownership and allowance counter
     ['human-stop-counts', ['repairs: 7 of 7', 'B dispatches', 'E and F recover automatically']],
     ['decision-repair', ['rule 3 supplies the fixed hint', 'rule 2 stops']],
     ['gate-line-first', ['Stopped: dirty tree with no dispatch pending', 'typed discard']],
-    ['allowance-10-escalate-after', ['loop: repair row 2', 'no stop or human turn']],
-    ['spent-row-escalation', ['loop: repair row 2', 'without a proof demand or human turn']],
-    ['multi-row-return', ['loop: repair row 1', 'demanding proof or taking a human turn']],
-    ['tracker-boundary', ['loop: repair row 2', 'no proof demand or human turn']],
+    ['allowance-10-escalate-after', ['no stop or human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
+    ['spent-row-escalation', ['without a proof demand or human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
+    ['multi-row-return', ['demanding proof or taking a human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
+    ['tracker-boundary', ['no proof demand or human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
   ]) {
     const text = read(`eval/loop-implementation/samples/${sample}/expected.md`);
     for (const token of tokens) assert.ok(text.includes(token), `${sample}: ${token}`);
+    if (decision) assert.ok(recovery.includes(decision), `${sample}: ledger repair decision`);
   }
 });
