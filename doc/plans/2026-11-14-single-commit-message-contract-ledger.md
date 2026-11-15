@@ -3,7 +3,7 @@
 base: 04389adbc9a13d809c958d34ff2d96f3247f6a19
 verification: npm test
 checks: commands
-iterations: 21
+iterations: 22
 allowance: 10
 
 | row | status | attempts | evidence |
@@ -22,7 +22,7 @@ allowance: 10
 | 12 | done | 1 | timeout -k 30 90 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; executed body-only Git recipe and record selector; saved renderings reused, no model or workflow replay |
 | 13 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs; 23 passed, 0 failed; isolated policy argv/stdin checks preserve message, head guard and optional admin flag; saved message examples only, no new model calls, real merges or workflow replay |
 | 14 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-plan-free-head.test.mjs; 7 passed, 0 failed; isolated head-tree fixtures cover retained artifacts, deletion-only heads and lookup errors; no model replay or live merge |
-| 15 | open | 0 | |
+| 15 | done | 1 | timeout -k 30 90 node --test scripts/squash-default-note.test.mjs; 8 passed, 0 failed; current contract and saved note excerpts only; no new model replay, live API calls or settings writes |
 | 16 | open | 0 | |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
@@ -50,3 +50,4 @@ row 11 done | Proved finish's squash and PR wording with saved message examples 
 row 12 done | Fixed finish's digest to scan body-only audit rows; isolated Git fixtures and saved rendering checks pass. | Reuse scripts/finish-amendment-digest.test.mjs for record selection, range and empty-digest controls; saved replies cover rendering only.
 row 13 done | Made gatekeep's three merge commands explicit; isolated argv/stdin checks preserve landed wording and omit message flags for rebase. | Reuse scripts/gatekeep-merge-message.test.mjs for command construction and saved message shapes; merge-command-quoting is an unrun single-command fixture.
 row 14 done | Added an assessed-head check that withholds merge for paired plans, ledgers or lookup errors and accepts deletion-only heads. | Reuse scripts/gatekeep-plan-free-head.test.mjs for isolated tree fixtures; merge-plan-file-withheld is an unrun single-decision sample.
+row 15 done | Verified the shared squash-default note, both PR options and gatekeep wiring against current text and saved note excerpts. | Reuse scripts/squash-default-note.test.mjs for isolated note-contract and saved-rendering checks without workflow replay.
