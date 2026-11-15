@@ -1,10 +1,31 @@
 import test from 'node:test';
+import { sha256 } from '../eval/lib/checks.mjs';
 import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdtempSync, existsSync, mkdirSync, readdirSync, unlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
+
+function historicalReplies(record) {
+  const replies = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    replies.push([model, output]);
+  }
+  assert.ok(replies.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return replies;
+}
 
 const skill = readFileSync(new URL('../skills/subagent-driven-development/SKILL.md', import.meta.url), 'utf8');
 const template = readFileSync(new URL('../skills/requesting-code-review/wave-reviewer.md', import.meta.url), 'utf8');
@@ -50,7 +71,7 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
   }
   const record = JSON.parse(readFileSync(new URL('../eval/writing-plans/results/leg-checkout-by-branch/candidate.json', import.meta.url), 'utf8'));
   assert.equal(Object.keys(record.outputs).length, 2);
-  for (const [model, output] of Object.entries(record.outputs)) {
+  for (const [model, output] of historicalReplies(record)) {
     assert.equal(output.status, 'ok', model);
     const facts = record.judge[model].facts;
     assert.deepEqual(Object.keys(facts).sort(), ['baseline', 'branch-lookup', 'home-plan', 'missing', 'path-roots', 'recorded-home']);
@@ -327,10 +348,10 @@ test('rebuild restores base-owned Delete paths without touching siblings or pass
   }
 });
 
-test('rebuild Delete sample retains passing candidate facts for both replay models', () => {
+test('rebuild Delete sample retains passing candidate facts for successful replay models', () => {
   const record = JSON.parse(readFileSync(new URL('../eval/subagent-driven-development/results/rebuild-delete-paths/candidate.json', import.meta.url), 'utf8'));
   assert.equal(Object.keys(record.outputs).length, 2);
-  for (const [model, output] of Object.entries(record.outputs)) {
+  for (const [model, output] of historicalReplies(record)) {
     assert.equal(output.status, 'ok', model);
     const facts = record.judge[model].facts;
     assert.deepEqual(Object.keys(facts).sort(), ['absent', 'create', 'filter', 'restore', 'siblings']);

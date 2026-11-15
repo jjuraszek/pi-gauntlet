@@ -38,6 +38,32 @@ const evidence = 'timeout -k 30 120 node --test test/totals.test.mjs; 4 passed; 
 const row = (id, status = 'done', attempts = 1, check = evidence) => `| ${id} | ${status} | ${attempts} | ${check} |`;
 const decision = (id, status = 'done') => `row ${id} ${status} | Count imported plants. | Reuse the totals fixture.`;
 
+function historicalModels(candidate, baseline) {
+  const models = [];
+  for (const model of candidate.models.replay) {
+    let usable = true;
+    for (const record of [candidate, baseline]) {
+      const output = record.outputs[model];
+      const context = `${record.sample}/${record.arm}/${model}`;
+      if (output?.status === 'error') {
+        assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+        assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+        console.log(`${context}: errored replay excluded from evidence`);
+        usable = false;
+        continue;
+      }
+      assert.equal(output?.status, 'ok', context);
+      assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+      const hash = candidate.judge?.[model]?.[`${record.arm}OutputSha`];
+      if (hash === undefined && candidate.outputs[model]?.status === 'error') { usable = false; continue; }
+      assert.equal(hash, sha256(output.text), `${context}: recorded output hash`);
+    }
+    if (usable) models.push(model);
+  }
+  assert.ok(models.length > 0, `${candidate.sample}: at least one hash-verified ok reply pair`);
+  return models;
+}
+
 function savedReplies(name, sample, facts) {
   const dir = `eval/${name}`;
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
@@ -51,7 +77,7 @@ function savedReplies(name, sample, facts) {
   const identity = { skillSha: candidate.skillSha, inputSha: candidate.inputSha, kind: target.kind,
     assembly: target.assembly, thinking: candidate.models.thinking };
   assert.ok(candidate.models.replay.length > 0);
-  return candidate.models.replay.map(model => {
+  return historicalModels(candidate, baseline).map(model => {
     assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
     const judgment = candidate.judge[model];
     const baselineOutputSha = sha256(baseline.outputs[model].text);

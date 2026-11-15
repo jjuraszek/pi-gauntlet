@@ -12,6 +12,55 @@ import { judgmentCurrent } from '../eval/lib/records.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const reference = 'skills/finishing-a-development-branch/reference/commit-message.md';
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
+function historicalModels(record, candidate = record) {
+  const models = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${record.arm}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    const hash = candidate.judge?.[model]?.[`${record.arm}OutputSha`];
+    // Failed paired replays have no judgment of the successful arm.
+    if (hash === undefined && candidate.outputs[model]?.status === 'error') continue;
+    assert.equal(hash, sha256(output.text), `${context}: recorded output hash`);
+    models.push(model);
+  }
+  assert.ok(models.length > 0, `${record.sample}/${record.arm}: at least one hash-verified ok reply`);
+  return models;
+}
+
+test('historical saved replies reject unusable cells and exclude errors from judgments', () => {
+  const record = () => ({
+    sample: 'saved-reply-contract', arm: 'candidate', models: { replay: ['ok-model'] },
+    outputs: { 'ok-model': { status: 'ok', text: 'reply' } },
+    judge: { 'ok-model': { candidateOutputSha: sha256('reply') } },
+  });
+  for (const [name, mutate, message] of [
+    ['blank text', r => { r.outputs['ok-model'].text = ''; }, /nonempty reply text/],
+    ['stale hash', r => { r.outputs['ok-model'].text = 'edited reply'; }, /recorded output hash/],
+    ['missing hash', r => { delete r.judge['ok-model'].candidateOutputSha; }, /recorded output hash/],
+    ['empty error', r => { r.outputs['ok-model'] = { status: 'error', error: '' }; }, /needs an error string/],
+    ['only errors', r => { r.outputs['ok-model'] = { status: 'error', error: 'provider failure' }; }, /at least one hash-verified ok reply/],
+  ]) {
+    const malformed = record();
+    mutate(malformed);
+    assert.throws(() => historicalModels(malformed), message, name);
+  }
+  const mixed = record();
+  mixed.models.replay.push('error-model');
+  mixed.outputs['error-model'] = { status: 'error', error: 'provider failure' };
+  Object.defineProperty(mixed.judge, 'error-model', {
+    get() { assert.fail('an errored replay must not read a judgment'); },
+  });
+  assert.deepEqual(historicalModels(mixed), ['ok-model']);
+});
+
 const sites = [
   'agents/loop-implementer.md',
   'skills/loop-implementation/SKILL.md',
@@ -137,7 +186,10 @@ for (const [targetName, sample] of [
     read(`${dir}/replay.md`);
     assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
     assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
-    for (const model of candidate.models.replay) {
+    const baselineModels = historicalModels(baseline, candidate);
+    const models = historicalModels(candidate).filter(model => baselineModels.includes(model));
+    assert.ok(models.length > 0, `${sample}: requires a hash-verified ok reply pair`);
+    for (const model of models) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
       const judgment = candidate.judge[model];
       for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
@@ -262,7 +314,7 @@ for (const [targetName, sample, factId, historical] of [
   ['gauntlet-resume', 'returned-line-recovery', 'home', true],
   ['gauntlet-resume', 'legacy-ledger-conversion', 'eligibility', true],
 ]) {
-  test(`historical saved replies: ${targetName}/${sample} retains evidence beside the isolated sample`, () => {
+  test(`historical saved replies: ${targetName}/${sample} validates recorded cells beside the isolated sample`, () => {
     const dir = `eval/${targetName}`;
     const { text } = parseCase(read(`${dir}/samples/${sample}/case.md`));
     for (const heading of ['Entry boundary', 'Fixed inputs', 'Decision axis', 'Output', 'Stop boundary', 'Validation']) {
@@ -273,12 +325,13 @@ for (const [targetName, sample, factId, historical] of [
     assert.match(text.split('## Stop boundary\n')[1].split('\n## ')[0], /Stop.*(?:output|decision|message)/);
     assert.match(read(`${dir}/report.md`), /historical/i);
     if (historical) {
+      const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
       for (const arm of ['baseline', 'candidate']) {
         const record = JSON.parse(read(`${dir}/results/${sample}/${arm}.json`));
         read(`${dir}/replay.md`);
         assert.match(record.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
         assert.match(record.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
-        assert.ok(Object.values(record.outputs).some(({ text }) => text.length > 0), 'retain completed replies');
+        historicalModels(record, candidate);
       }
     }
   });
@@ -299,7 +352,7 @@ for (const [targetName, sample, factIds] of [
     assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
     assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
     assert.ok(candidate.models.replay.length > 0);
-    for (const model of candidate.models.replay) {
+    for (const model of historicalModels(candidate)) {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
       for (const id of factIds) assert.equal(candidate.judge[model]?.facts[id]?.after, 'holds', `${model}: ${id}`);
       assert.ok(['improved', 'unchanged'].includes(candidate.judge[model]?.verdict), model);

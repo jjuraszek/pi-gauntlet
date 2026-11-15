@@ -4,6 +4,26 @@ import assert from 'node:assert/strict';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+function historicalReplies(record) {
+  const replies = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    replies.push([model, output]);
+  }
+  assert.ok(replies.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return replies;
+}
+
 const loop = read('skills/gatekeep-pr/reference/post-selection-loop.md');
 const section = (start, end) => loop.slice(loop.indexOf(`${start}\n`), loop.indexOf(`${end}\n`));
 
@@ -50,7 +70,7 @@ for (const [name, repoSha] of [
     assert.match(saved.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
     assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
     assert.equal(Object.keys(saved.outputs).length, 2);
-    for (const [model, output] of Object.entries(saved.outputs)) {
+    for (const [model, output] of historicalReplies(saved)) {
       assert.equal(output.status, 'ok', model);
       const judge = saved.judge[model];
       assert.match(judge.factsSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded facts hash');

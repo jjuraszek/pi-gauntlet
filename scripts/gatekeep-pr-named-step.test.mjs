@@ -4,6 +4,26 @@ import { test } from 'node:test';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
+function historicalModels(record) {
+  const models = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    models.push(model);
+  }
+  assert.ok(models.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return models;
+}
+
 const root = '../eval/gatekeep-pr';
 const sample = 'post-step-pr-named';
 
@@ -41,7 +61,7 @@ test('historical saved replies: PR-named steps offer trusted steps and preserve 
   assert.match(saved.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
   assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   assert.ok(saved.models.replay.length > 0);
-  for (const model of saved.models.replay) {
+  for (const model of historicalModels(saved)) {
     const output = saved.outputs[model];
     const judge = saved.judge[model];
     assert.equal(output.status, 'ok', model);

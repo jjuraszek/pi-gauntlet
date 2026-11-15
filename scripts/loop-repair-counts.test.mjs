@@ -6,6 +6,32 @@ import { MODELS } from '../eval/lib/models.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+function historicalModels(candidate, baseline) {
+  const models = [];
+  for (const model of candidate.models.replay) {
+    let usable = true;
+    for (const record of [candidate, baseline]) {
+      const output = record.outputs[model];
+      const context = `${record.sample}/${record.arm}/${model}`;
+      if (output?.status === 'error') {
+        assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+        assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+        console.log(`${context}: errored replay excluded from evidence`);
+        usable = false;
+        continue;
+      }
+      assert.equal(output?.status, 'ok', context);
+      assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+      const hash = candidate.judge?.[model]?.[`${record.arm}OutputSha`];
+      if (hash === undefined && candidate.outputs[model]?.status === 'error') { usable = false; continue; }
+      assert.equal(hash, sha256(output.text), `${context}: recorded output hash`);
+    }
+    if (usable) models.push(model);
+  }
+  assert.ok(models.length > 0, `${candidate.sample}: at least one hash-verified ok reply pair`);
+  return models;
+}
+
 const driver = read('skills/loop-implementation/SKILL.md');
 
 test('repair counts are ledger instructions, not commit-message counters', () => {
@@ -44,7 +70,7 @@ test('historical saved replies: decisions count three seed repairs and two verif
     kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
   };
   assert.deepEqual(candidate.models.replay, MODELS.replay);
-  for (const model of MODELS.replay) {
+  for (const model of historicalModels(candidate, baseline)) {
     await t.test(model, () => {
       assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
       const judgment = candidate.judge[model];

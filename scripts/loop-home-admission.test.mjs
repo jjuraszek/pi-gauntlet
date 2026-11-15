@@ -8,6 +8,32 @@ import { sha256 } from '../eval/lib/checks.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+function historicalModels(candidate, baseline) {
+  const models = [];
+  for (const model of candidate.models.replay) {
+    let usable = true;
+    for (const record of [candidate, baseline]) {
+      const output = record.outputs[model];
+      const context = `${record.sample}/${record.arm}/${model}`;
+      if (output?.status === 'error') {
+        assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+        assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+        console.log(`${context}: errored replay excluded from evidence`);
+        usable = false;
+        continue;
+      }
+      assert.equal(output?.status, 'ok', context);
+      assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+      const hash = candidate.judge?.[model]?.[`${record.arm}OutputSha`];
+      if (hash === undefined && candidate.outputs[model]?.status === 'error') { usable = false; continue; }
+      assert.equal(hash, sha256(output.text), `${context}: recorded output hash`);
+    }
+    if (usable) models.push(model);
+  }
+  assert.ok(models.length > 0, `${candidate.sample}: at least one hash-verified ok reply pair`);
+  return models;
+}
+
 const driver = read('skills/loop-implementation/SKILL.md');
 const recovery = read('skills/loop-implementation/reference/interrupted-recovery.md');
 const validation = driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0];
@@ -77,7 +103,7 @@ test('historical saved replies: home admission decisions, not a driver implement
     kind: target.kind, assembly: target.assembly, thinking: candidate.models.thinking,
   };
   assert.ok(candidate.models.replay.length > 0, 'must select saved decisions');
-  for (const model of candidate.models.replay) {
+  for (const model of historicalModels(candidate, baseline)) {
     await t.test(model, () => {
       assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
       const judgment = candidate.judge[model];

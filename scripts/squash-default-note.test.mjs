@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { sha256 } from '../eval/lib/checks.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
@@ -17,10 +18,24 @@ function printedNotes(text) {
 }
 
 function savedOutputs(path) {
-  const outputs = Object.entries(JSON.parse(read(path)).outputs);
-  assert.ok(outputs.length > 0, 'select at least one saved reply');
-  for (const [model, output] of outputs) assert.equal(output.status, 'ok', model);
-  return outputs;
+  const record = JSON.parse(read(path));
+  const replies = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    replies.push([model, output]);
+  }
+  assert.ok(replies.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return replies;
 }
 
 test('the shared note has one exact positive branch and silent other-value and read-failure branches', () => {

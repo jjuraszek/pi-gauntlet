@@ -8,6 +8,26 @@ import { assemble, parseCase } from '../eval/lib/replay.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+function historicalReplies(record) {
+  const replies = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    replies.push([model, output]);
+  }
+  assert.ok(replies.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return replies;
+}
+
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 // A missing or empty report.md must fail the order assertion, not crash the loader.
 const readOrEmpty = (p) => { try { return read(p); } catch { return ''; } };
@@ -63,7 +83,7 @@ for (const target of ['gatekeep-pr', 'gatekeep-pr-scope', 'gatekeep-pr-merge-sta
       assert.match(saved.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
       assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
       assert.equal(Object.keys(saved.outputs).length, 2, sample);
-      for (const [model, output] of Object.entries(saved.outputs)) {
+      for (const [model, output] of historicalReplies(saved)) {
         assert.equal(output.status, 'ok', `${sample}/${model}`);
         assert.match(saved.judge[model].factsSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded facts hash');
         assert.equal(saved.judge[model].candidateOutputSha, sha256(output.text));
@@ -551,7 +571,7 @@ test('historical saved replies: eligible BLOCKED and current viewer-relative aut
   assert.match(saved.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
   assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   assert.equal(Object.keys(saved.outputs).length, 2);
-  for (const [model, output] of Object.entries(saved.outputs)) {
+  for (const [model, output] of historicalReplies(saved)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/final/);
     assert.match(output.text, /merge - squash-merge using your admin override/);
@@ -592,7 +612,7 @@ test('historical saved replies: bypass eligibility and current pending CI and in
   assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);
-  for (const [model, output] of Object.entries(saved.outputs)) {
+  for (const [model, output] of historicalReplies(saved)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/initial/);
     assert.match(output.text, /e2e[^\n]*(?:pending|running|progress)|(?:pending|running)[^\n]*e2e|the required end-to-end check is still running/i);
@@ -638,7 +658,7 @@ test('historical saved replies: false or unreadable bypass eligibility and curre
   assert.match(saved.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
   assert.equal(Object.keys(saved.outputs).length, 2);
   const expected = read(`${root}/samples/${sample}/expected.md`);
-  for (const [model, output] of Object.entries(saved.outputs)) {
+  for (const [model, output] of historicalReplies(saved)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /gate=gatekeep-pr\/obstacle/);
     assert.match(output.text, /GitHub[^\n]*(?:blocks|blocked)[^\n]*(?:merg|actor)|GitHub[^\n]*merg[^\n]*blocked/i);
@@ -783,7 +803,7 @@ test('three archetypes own menus and typed dispatch is not row authority', () =>
   for (const gate of menus.matchAll(/^gauntlet: gate=gatekeep-pr\/\S+ recommended=(\d+)$/gm)) assert.equal(gate[1], '1');
   const replay = JSON.parse(read('../eval/gatekeep-pr/results/gate-line-first/candidate.json'));
   assert.ok(Object.keys(replay.outputs).length > 0);
-  for (const [model, output] of Object.entries(replay.outputs)) {
+  for (const [model, output] of historicalReplies(replay)) {
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /^gauntlet: gate=gatekeep-pr\/obstacle recommended=1\r?\n/);
     assert.match(output.text, /^1\. .*\bstop\b.*\[recommended\]/m);

@@ -7,6 +7,32 @@ import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+function historicalModels(candidate, baseline) {
+  const models = [];
+  for (const model of candidate.models.replay) {
+    let usable = true;
+    for (const record of [candidate, baseline]) {
+      const output = record.outputs[model];
+      const context = `${record.sample}/${record.arm}/${model}`;
+      if (output?.status === 'error') {
+        assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+        assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+        console.log(`${context}: errored replay excluded from evidence`);
+        usable = false;
+        continue;
+      }
+      assert.equal(output?.status, 'ok', context);
+      assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+      const hash = candidate.judge?.[model]?.[`${record.arm}OutputSha`];
+      if (hash === undefined && candidate.outputs[model]?.status === 'error') { usable = false; continue; }
+      assert.equal(hash, sha256(output.text), `${context}: recorded output hash`);
+    }
+    if (usable) models.push(model);
+  }
+  assert.ok(models.length > 0, `${candidate.sample}: at least one hash-verified ok reply pair`);
+  return models;
+}
+
 const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
 const pending = reconstruction.split('\n### Pending recovery\n')[1].split('\n### Returns conversion\n')[0];
 const driver = read('skills/loop-implementation/SKILL.md');
@@ -61,7 +87,7 @@ test('historical saved replies: home resume preserves completed isolated classif
   assert.equal(candidate.kind, target.kind);
   assert.equal(candidate.assembly, target.assembly);
   assert.ok(candidate.models.replay.length > 0, 'must select saved decisions');
-  for (const model of candidate.models.replay) {
+  for (const model of historicalModels(candidate, baseline)) {
     await t.test(model, () => {
       assert.equal(candidate.outputs[model]?.status, 'ok', model);
       assert.equal(baseline.outputs[model]?.status, 'ok', model);

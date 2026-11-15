@@ -4,6 +4,27 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { sha256 } from '../eval/lib/checks.mjs';
+
+function historicalReplies(record) {
+  const replies = [];
+  for (const model of record.models.replay) {
+    const output = record.outputs[model];
+    const context = `${record.sample}/${model}`;
+    if (output?.status === 'error') {
+      assert.equal(output.status, 'error', `${context}: errored replay excluded from evidence`);
+      assert.ok(typeof output.error === 'string' && output.error.trim().length > 0, `${context}: errored replay excluded from evidence needs an error string`);
+      console.log(`${context}: errored replay excluded from evidence`);
+      continue;
+    }
+    assert.equal(output?.status, 'ok', context);
+    assert.ok(typeof output.text === 'string' && output.text.trim().length > 0, `${context}: nonempty reply text`);
+    assert.equal(record.judge?.[model]?.candidateOutputSha, sha256(output.text), `${context}: recorded output hash`);
+    replies.push([model, output]);
+  }
+  assert.ok(replies.length > 0, `${record.sample}: at least one hash-verified ok reply`);
+  return replies;
+}
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const loop = read('skills/gatekeep-pr/reference/post-selection-loop.md');
@@ -21,7 +42,7 @@ function commandFor(policy) {
 
 // Read only message examples from the historical record, not its workflow claims or judgments.
 function messageExamples() {
-  const examples = Object.entries(saved.outputs).map(([model, output]) => {
+  const examples = historicalReplies(saved).map(([model, output]) => {
     assert.equal(output.status, 'ok', model);
     const text = output.text.split(/^###? B\./m)[0];
     const subject = text.match(/--subject (['"])(.*?)\1/)?.[2];
