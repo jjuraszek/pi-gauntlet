@@ -361,8 +361,7 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   assert.match(driver, /verification-failure stop keeps amend\/stop only/);
   const expected = readFileSync(new URL('eval/loop-implementation/samples/cap-and-exit-verification/expected.md', root), 'utf8');
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
-  const intent = readFileSync(new URL('eval/loop-implementation/intent.md', root), 'utf8');
-  assert.match(intent, /cap-and-exit-verification\/contract: fails -> holds - .*verify step 1/);
+  assert.match(expected, /^- contract: judged: .*verify step 1/m);
   assert.match(after, /Gn tasks.*same tracker/);
   assert.match(after, /Without amend permission, refresh and stop with `Stopped: row <n> reopened by amendment during verify`/);
   assert.match(after, /Under amend permission, continue without a second authorization/);
