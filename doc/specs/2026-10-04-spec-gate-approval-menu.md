@@ -1,6 +1,7 @@
 # Numbered approval menu at the spec gate
 
 > **Superseded by:** [doc/specs/2026-10-04-resume-restores-amend-grant.md](./2026-10-04-resume-restores-amend-grant.md) - "Standing grants matcher and trailer" grant recording (the `Amend-grant:` trailer) only
+> **Superseded by:** [doc/specs/2026-11-14-spec-gate-four-row-menu.md](./2026-11-14-spec-gate-four-row-menu.md) - "Gate render" menu rows and the "Reply grammar" digits only (the grant description sentence stays, as the value a default approval persists)
 
 **Goal:** the brainstorming spec gate ends with a two-item numbered menu - `1` approves, `2` approves and grants auto-apply amends - so the existing standing grant is a visible, one-sentence choice instead of a trailing offer in prose; grant semantics do not change.
 

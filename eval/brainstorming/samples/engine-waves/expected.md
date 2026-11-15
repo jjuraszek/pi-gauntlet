@@ -1,4 +1,5 @@
-- waves: judged: A writes Engine waves below Amend-grant none; B writes Engine waves and the option-2 granting description. Both amend and check both HEAD fields before completing brainstorm and invoking writing-plans.
+- plan-default: judged: A writes the full default grant sentence beginning every later spec amendment and ending spec approval. as Amend-grant, and Engine waves directly below it. It quotes the full grant value in narration, amends the spec commit while retaining the council audit, and verifies both HEAD fields before completing brainstorm and invoking writing-plans without another approval.
+- waves: judged: A and B both write Engine waves; A persists the full default granting sentence, while B (1 --amends-stop) persists exactly Amend-grant none and quotes none in narration. Both amend preserving the audit and check both HEAD fields before completing brainstorm and invoking writing-plans.
 - audit: judged: C and D print the audit and re-present without writes, grants, or approval; approval needs a clean reply without 3.
 - mixed: judged: E revises and re-presents the gate rather than approving or invoking an engine.
-- invalid: judged: F asks for 1, 2, 4, or 5 with no writes; G quotes malformed funding and re-presents with no writes or approval, not a change request.
+- invalid: judged: F asks exactly one clarifying question asking for a rendered row (1, 2, 3, or 4), with no writes or approval. G quotes --fund-rounds=0 in exactly one clarifying question and leaves the gate waiting with no writes or approval, not a change request.

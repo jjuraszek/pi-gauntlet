@@ -30,6 +30,23 @@ Ticket orchard-billing#7, Acceptance criteria, rows verbatim (ticket provenance,
 - [ ] Repeated collection requests return the original receipt.
   in-scope
 
+## Gate observations
+
+This is a new ticket spec, not a PR subject. The critique pass used a worker and produced no council audit. The pre-summary status observation ends with `Context: unknown`.
+
 ## User reply
 
 1
+
+## Independent withholding checks
+
+After handling the initial reply, render these independent gates from the same briefing and worker return. Do not repeat the briefing or commit line. For each case give its ID, gate marker, numbered rows with their flag bullets, any unavailability or withheld line, and Recommended line. Use `Context: unknown` for every case; none is a create-only retry. Keep each recommendation reason to one sentence.
+
+| Case | Acceptance section | Subject | Critique |
+|---|---|---|---|
+| zero-worker | `none - ticket not fetched (tracker unreachable)`; no checkbox rows | new spec | worker, no audit |
+| pr-worker | original single in-scope row | PR #42 | worker, no audit |
+| zero-pr-worker | same zero-row section as zero-worker | PR #42 | worker, no audit |
+| aborted | original single in-scope row | new spec | council aborted before an audit existed |
+
+Then handle reply `3` independently against each of these four gates: print only the clarification and whether anything changes, without rendering the gate again. No independent case approves implementation. Limit the complete response to 1150 words.

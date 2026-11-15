@@ -1,0 +1,90 @@
+{
+  "sample": "status-context-line",
+  "arm": "candidate",
+  "skillSha": "5da2d7c1c4aae855f456e27ff00cddb9e4707b5d58ba8066c9a16da4ea62a1cc",
+  "inputSha": "568c0ef5292ffcc654f1cb48087c7688bd9b00e5e45b2b58354071c5c18e9c88",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\n\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\n**Actions taken:**\n\n1. **Read the contract.** I read `../gauntlet-resume/reference/brief-contract.md` in full before acting.\n2. **Resolved the target.** `--key context-check` was given without `--out`. A human-given key passes through verbatim.\n3. **Ran cohort's handoff procedure.**\n   - I located cohort through `pi list` and read `<root>/skills/handoff/SKILL.md`.\n   - I followed that procedure with `--key context-check`, pinning the snapshot to the run home `/work/app/.worktrees/context-check`.\n   - It reported `Handoff written: /tmp/pi-handoff/context-check.md`.\n   - Line 1 is `# Handoff: Context check`, so the check passes.\n4. **Checked for a double section.** The file has no `## Process state` line, so step 4 does not fire.\n5. **Checked for a hotfix.** `skills/chase-bug/hotfix.md` is not in context, so step 5 does not fire.\n6. **Appended process state.**\n   - I read `phase_tracker` status, then `plan_tracker` status, without changing either tracker.\n   - `plan` is `in_progress`, so the section is appended.\n   - I dropped the trailing `Context: 31.0% of window` line and copied everything else verbatim.\n   - `Active task` is the first `→` task.\n   - This is a single-member run with no PR subject, Rework record or ledger, so the brief has no PR pairs, rework base, coordinated block or ledger fields.\n\nSingle append:\n\n```bash\ncat >> \"/tmp/pi-handoff/context-check.md\" <<'EOF'\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\nEOF\n```\n\nI re-read the file tail. The brief ends with the gate-history line and nothing after it. The core six headings through `## Skills loaded` are unchanged.\n\nBrief tail:\n\n```text\n## Skills loaded\n...\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\n```\n\n**Report**\n\nBrief written: `/tmp/pi-handoff/context-check.md`\n\nResume with:\n\n```\n/skill:gauntlet-resume /tmp/pi-handoff/context-check.md\n```\n\nThe brief records `worktree: yes /work/app/.worktrees/context-check`, so resume does not need a worktree override argument.\n",
+      "words": 312,
+      "wallMs": 12515,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done brief-written\nI'm using the gauntlet-handoff skill to write a resumable handoff brief.\n\nPreserve cohort’s six core headings and append once to its reported file, dropping only the phase status’s final `Context: ` line:\n\n```bash\ncat >> \"/tmp/pi-handoff/context-check.md\" <<'EOF'\n\n## Process state\n\nPhases:\n  ⊘ brainstorm (resume: /work/app/.worktrees/context-check/doc/specs/check.md)\n  → plan\n  ○ implement\n  ○ verify\n  ○ ship\n\nPlan: 0/1 done (1 in progress)\n\n  → [0] Write checks\n\nActive task: Write checks\nGate history not restored - re-validate before advancing.\nEOF\n```\n\nThe appended block above is the exact brief tail. Re-read the tail to confirm the gate-history line is last, with nothing after it.\n\nHandoff written: `/tmp/pi-handoff/context-check.md`\n\nResume with:\n`/skill:gauntlet-resume /tmp/pi-handoff/context-check.md`\n",
+      "words": 99,
+      "wallMs": 3708,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4225865ec729c69da909663101a6a483f58b8b1209bb93ac3d34fbf2184a248e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1f28d519833b45df33ac4615436369d23a9df0ddf5e390c25ed3fb7bb1333790",
+      "baselineOutputSha": "f0c9500d37cf7a4779e3ab0b343a0c5462c08756ba21532e4de2e371876f6435",
+      "candidateOutputSha": "d6a88a84793ccb4fe442abdf35e23a37ba703f6548a518bc87153967e9693ab3",
+      "facts": {
+        "context-tail": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unchanged-grammar": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "read-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "The After wording moved context-tail and unchanged-grammar as intended: the appended block now omits only the trailing `Context: 31.0% of window` line while every other phase-status line and the full plan-status output (including its blank line and the `→ [0] Write checks` row) are copied verbatim, and the layout runs blank line, `## Process state`, blank line, phase status, blank line, plan status, blank line, `Active task: Write checks`, terminal gate-history line with no Context field or invented field; Before copied the Context line into the brief, which failed both. read-only held in both: status-only tracker reads, one append to cohort's reported file, six-heading core preserved, no second state file, and the `/skill:gauntlet-resume /tmp/pi-handoff/context-check.md` report after the `gauntlet: done brief-written` marker. To keep this stable, keep the drop rule scoped narrowly to the final phase-status line only when it starts with `Context: `, and state that nothing else is trimmed or reflowed. One thing to watch: After additionally prints a `Brief tail` re-display block with a `...` placeholder under `## Skills loaded`; it is presentation only and did not move a fact, but wording that says to show the single append once and then the final report would avoid a reader mistaking it for a second append or an altered core.",
+      "wallMs": 5637,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4225865ec729c69da909663101a6a483f58b8b1209bb93ac3d34fbf2184a248e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1f28d519833b45df33ac4615436369d23a9df0ddf5e390c25ed3fb7bb1333790",
+      "baselineOutputSha": "c3b169700f9dc1fb30f722047e47876e881924c2d8c92249e4c824858eef67d1",
+      "candidateOutputSha": "ceb6b61fd5fc509a7e4eb6f0976314293c6ba7291a6c5f6ac7f60cfd219a6c67",
+      "facts": {
+        "context-tail": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "unchanged-grammar": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "read-only": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "The After wording's instruction to drop only the trailing `Context: ` line from the phase status is what moved context-tail and unchanged-grammar: the appended block now contains the five phase lines with no `Context: 31.0% of window` line, followed by a blank line, the full plan status (including its internal blank line and the `→ [0] Write checks` row), `Active task: Write checks`, and the terminal gate-history line, with no extra field inside the heredoc. Before copied the Context line verbatim into the brief, which failed both facts. read-only holds in both: each output makes a single append to cohort's reported file `/tmp/pi-handoff/context-check.md`, leaves the six-heading core alone, writes no second state file, and reports `/skill:gauntlet-resume /tmp/pi-handoff/context-check.md` after the `gauntlet: done brief-written` marker. To keep this stable, keep the drop rule phrased narrowly (only the final phase-status line, only when it starts with `Context: `) and keep stating that all other phase lines and the whole plan status are copied verbatim, so the model does not also trim the plan's blank line or the task row. Minor drifts in After that did not move any fact but are worth pinning down if the report wording is meant to be fixed: the path label changed from `Handoff path:` to `Handoff written:`, the resume command moved from a fenced block to inline code, and the blank line after the marker disappeared; if those are part of the contract, spell the final-report format out explicitly alongside the drop rule.",
+      "wallMs": 6506,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "ed29c4d8820ed328706d0c658e9aaf7f2c261377"
+}

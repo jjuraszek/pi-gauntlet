@@ -1,6 +1,20 @@
-for: fcd1a45e3c4f4e3ad71d69fb6c8a84e2dcb2c023b28c2f88dbcab82e20892fe5
+for: 65abe58528f169348439b67695efa230f2300fdcc1a132548d4ce2ee6976dcb1
 
 ## Change
+
+Complete the selected four-row migrations in loop-gate, engine-waves, grant-budget-reply, spec-pr-regate-legs, spec-pr-unmarked, spec-pr-publish-legs and drafted-ac-rows. Grant-budget-reply already numbers rows 1/2/3/4 and tests the full funded grant; migrate its stale draft-PR sentence and token-only fact to the specified fresh-session command and single clarifying question for a rendered row. Preserve their original drafting, audit, waves, budget, provisioning, publication and cleanup subjects and non-gate facts. Replace six-row menus and approval numbers with plan 1, loop 2, council 3 and draft PR 4; default engine approvals persist the full amendment grant while explicit --amends-stop opts out. Cover the budget-only funded opt-out in spec-gate/flag-replies and ground recommendations with observed context/settings. Run only these seven migrated samples, seeding baseline first wherever case text changed; spec-pr-unmarked changes facts only. Preserve unrelated result records and partial-report rows. These selected tool-free narrations do not prove live Git/GitHub operations or target-wide coverage; later failures remain failures rather than accepted variance.
+
+### Prior change context (not current replay authorization)
+
+On a marked draft-PR re-gate, accept plan 1 and loop 2 with the ordinary gate's flags, persist the decoded grant, selected engine and lowercase PR identity in a new commit, verify all three fields from HEAD, then continue through the selected engine. Keep the allowance carrier out of the spec and settings. Migrate only spec-pr-regate to the four-row menu and eight bare/flagged approval traces; retain audit, shape, change and unresolved-merge controls. Run only spec-pr-regate against base 855e872a42f9cac7a795704f3e0b383b182950ab. This tool-free replay proves narrated ordering, not live persistence or target-wide coverage. Preserve other records. The selective deterministic check lives beside its siblings in scripts/brainstorming-pr-regate-approval.test.mjs; model replay remains outside CI.
+
+Withhold draft row 4 on every PR-subject gate, retaining rows 1/2/3 and the existing-PR disclosure. Keep the unmarked spec-only classifier on the same withheld row and implementation approvals 1/2. Migrate only pr-subject-gate: at Context: 26.0%, recommend the unbundled loop row 2 and clarify independent replies 4, draft PR, and 6 without mutation or remapping. Run only pr-subject-gate against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve all unrelated records. This selected tool-free replay proves narrated gating, not live GitHub operations or target-wide coverage.
+
+Reject invalid gate replies before approval and spec-change handling. Migrate only loop-funded-reply to row-2 loop and row-1 plan flag grammar, preserving its funding rejection, opt-out, default grant, allowance carrier and waves controls. Replace comma-allowance acceptance with rejection, then add a table of malformed, duplicate, unknown, worded, old-suffix, wrong-row and withheld-row cases. Retain its bundle and 2200-word cap; narrate shared unchanged state once and one question per rejected input. Run only loop-funded-reply and spec-gate/flag-replies for this change against base 855e872a42f9cac7a795704f3e0b383b182950ab. These selected tool-free replays do not establish live writes or target-wide coverage; preserve all unrelated records.
+
+Migrate grant-budget-reply's funding approval to `1 --fund-rounds=3`, retaining its report-runner subject and token-only control. Persist the complete default grant, its terminal period included, plus `; fund 3 fix rounds` and Engine waves, preserve the audit and verify HEAD before completing brainstorm and planning. Run only grant-budget-reply for this edit against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve other sample records. This is partial narrated persistence coverage, not live git execution or a target-wide pass.
+
+Plain approval `2` now persists the default standing grant G with Engine loop, checks the amended commit before completing brainstorm, and invokes loop-implementation without writing-plans. Strengthen only loop-gate's plain-reply continuation to include the observed allowance 7 and absence of an override carrier. State the driver's plan skip and settings-write boundary explicitly in the handoff instead of leaving them implicit. Run loop-gate only; its other menu facts retain pre-migration wording and are not closure evidence for this row. Saved narration proves the selected continuation, not live Git execution or target-wide coverage.
 
 Record leg contracts by creator, omitting home for script/native creation and omitting home/destroy for host-owned trees. Keep keyed and built-in homes, portable script commands with explicit branch, distinct create/destroy name tokens, and branch-based lookup with identity checks. Run only multi-repo-script-placed-leg for this change against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f, within the spec's three-run/fourteen-call-per-run bound. Its bundled legs reference carries the changed instructions. Remove the stale opening-message new-file marker because that file exists at this base. Preserve other sample records; this synthetic replay proves narrated contracts, not live creation or target-wide coverage.
 
@@ -32,6 +46,8 @@ Publish N>1 committed spec handles in companion-first/home-last preflight and pu
 
 The first intent token merge-forward, after the leading PR-reference run, selects member-then-base merge provisioning and is stripped alone; later occurrences remain intent. The pr-subject-merge-forward sample exercises that override, nonleading/free-text controls and unchanged unmarked spec-only routing. Preserve original-head records and existing admission/relatedness controls. This fixture extension accepts no failed must-hold fact and performs no live forge actions. Fixture-only sync-mode coverage does not change the bundle-free assembly SHA 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124; preserve the unrelated aftermath-unchanged-command inconclusive evidence rather than treating a cached partial report as target-wide verification.
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
+
+Persist the default amendment grant and Engine waves on plain reply `1`, retain the council audit while amending, and verify both committed fields before completing brainstorm and invoking writing-plans. Strengthen only engine-waves trace A with the full header value, full narration, and ordered continuation; its plan-default fact proves the new plan approval. Run only engine-waves against base 855e872a42f9cac7a795704f3e0b383b182950ab. The remaining traces keep their existing coverage for later reply migrations; this selected narrated replay proves no live git or tracker operations and no target-wide coverage. Preserve other samples and prior accepted variance.
 
 Feed attributable plan-aftermath failures back into the same amendment batch, restore only an entirely eligible dirtied-source row, honor amend permission independently of funding, and stop at two applied retry items or repeated evidence. Add amendment-surface section 5 immediately after section 4 in the headed assembly, retaining wordCap 1400, the denylist and existing bundle drops (a path drop removes both slices). This changes whole-target assembly cost: parent verification reseeds the baseline with `node eval/run.mjs brainstorming --baseline-only`, then runs the full `node eval/run.mjs brainstorming` on both models and produces report/records; the four additions alone are not the replay scope. Keep replays outside task Tests because the runner CLI cannot satisfy its file-token contract; add no Replays contract or selective bundle machinery.
 
@@ -89,6 +105,19 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- spec-pr-regate/gate: fails -> holds - Use the four-row gate with draft row 4 withheld and loop 2 recommended.
+- spec-pr-regate/audit: fails -> holds - Preserve pinned audit while the zero-row gate omits loop 2.
+- spec-pr-regate/approvals: fails -> holds - Bare and flagged replies 1/2 select waves/loop and persist all three fields in a new commit before continuing.
+- spec-pr-regate/flags: fails -> holds - Decode opt-out and funding separately while keeping allowance out of persisted spec fields.
+- spec-pr-regate/hidden: fails -> holds - Clarify hidden 4 and retired 6 using rendered choices without mutation or remapping.
+- pr-subject-gate/menu: fails -> holds - Render only rows 1/2/3 while withholding draft row 4.
+- pr-subject-gate/clarification: fails -> holds - Clarify hidden digit 4, draft PR label, and retired digit 6 without mutation or remapping.
+- pr-subject-gate/recommendation: fails -> holds - Recommend the rendered loop row despite high context when draft row 4 is withheld.
+- loop-funded-reply/words: fails -> holds - Reject worded intent with its matching flag rather than grant or edit.
+- loop-funded-reply/suffixes: fails -> holds - Reject retired suffixes in favor of engine-specific flags.
+- loop-funded-reply/flags: fails -> holds - Reject cross-engine and non-engine flags after any selector.
+- loop-funded-reply/selection: fails -> holds - Ask for rendered rows without remapping an invalid or withheld selection.
+- engine-waves/plan-default: fails -> holds - Reply 1 grants by default and commits both fields before completing brainstorm and invoking writing-plans.
 - spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
 - spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
 - spec-pr-regate-legs/script-create: fails -> holds - Use existing-branch script creation or stop unsupported scripts before any write.
@@ -140,14 +169,13 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
 - loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
-- spec-pr-regate-legs/remote-only: holds -> fails - single-model variance: regressed under one replay model in one of three full runs while the other replay model held every fact; accepted on the gate's instruction, not as an intended behavior change
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
 - spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
 - spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
 - spec-pr-unmarked/carried-path: fails -> holds - Keep the carried spec path as the draft; mint no pr-42 filename.
 - spec-pr-unmarked/no-record: fails -> holds - Write and require no Rework record on the unmarked route.
-- spec-pr-unmarked/withheld: fails -> holds - Withhold 6 naming the existing PR.
+- spec-pr-unmarked/withheld: fails -> holds - Withhold draft row 4 naming the existing PR.
 - spec-pr-unmarked/persist: fails -> holds - Persist Engine, Amend-grant, and PR as a new commit on approval 1.
 - aftermath-budget-exhausted/no-restore: fails -> holds - Stop the attributable third dirty-row outcome before restoration and take its named paths and cause to the human to commit, discard, or move without re-dispatch.
 - aftermath-retry-grant/restore: fails -> holds - Restore exactly three tracked unprotected row paths before applying, preserve artifacts/parent paths, and root plain-jj filesets.
@@ -204,11 +232,11 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
 - pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
-- loop-gate/menu: fails -> holds - Render exact options 4/5 with resolved allowance7 and the run allowance suffix; offer funding only on 1/2.
+- loop-gate/menu: fails -> holds - Render rows 1/2/3/4 with row 2 recommended, resolved allowance 7 and engine-specific flags; offer funding only on row 1.
 - loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
-- loop-gate/loop: fails -> holds - Persist and HEAD-check both fields before completing brainstorm and dispatching.
-- loop-gate/no-ac: fails -> holds - Keep the 1/2/3/6 not-fetched zero-row gate without 4/5; drafted rows enable loop options.
-- engine-waves/waves: fails -> holds - Retain waves routing and grant semantics for 1/2.
+- loop-gate/loop: fails -> holds - Plain 2 persists G and loop, HEAD-checks both fields, then completes brainstorm and dispatches loop with the settings allowance.
+- loop-gate/no-ac: fails -> holds - Keep the 1/3/4 not-fetched zero-row gate without row 2 or its flags; drafted rows enable loop row 2.
+- engine-waves/waves: fails -> holds - Route bare 1 and 1 --amends-stop to waves with the full default grant and none respectively.
 - engine-waves/audit: fails -> holds - Audit re-gates without approval.
 - engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
 - engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
@@ -222,7 +250,7 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
 - loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
-- grant-budget-reply/funded-value: fails -> holds - Persist the exact option-2 description plus the funding suffix without a change-request round.
+- grant-budget-reply/funded-value: fails -> holds - Reply 1 --fund-rounds=3 persists the full default grant and funding suffix with waves, then checks HEAD before planning.
 - grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
 - questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.
 - amendment-menu-render/f1: fails -> holds - Enforce the new amendment menu and reply grammar.

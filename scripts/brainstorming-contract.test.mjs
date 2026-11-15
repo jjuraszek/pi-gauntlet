@@ -174,7 +174,7 @@ test('baseline recommendations use decoded amend permission and preserve writer 
   assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/writing-plans', import.meta.url))), []);
 });
 
-test('gate template renders the Scope cuts line after the commit line', () => {
+test('gate template renders four fixed one-sentence rows after the unchanged briefing', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   assert.match(text, /Scope cuts: <row text, first 60 chars> - <disposition>; \.\.\. \| none/);
   const commitAt = text.indexOf('Spec written and committed to');
@@ -182,6 +182,126 @@ test('gate template renders the Scope cuts line after the commit line', () => {
   const draftedAt = text.indexOf('Drafted acceptance criteria (approval ratifies):');
   const councilAt = text.indexOf('Council: <A>');
   assert.ok(commitAt >= 0 && commitAt < cutsAt && cutsAt < draftedAt && draftedAt < councilAt);
+  const template = text.match(/```\ngauntlet: gate=brainstorming\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
+  const rows = [...template.matchAll(/^(\d+) - ([^:]+): (.+)$/gm)];
+  assert.deepEqual(rows.map(([, number, label]) => [number, label]), [
+    ['1', 'plan engine'], ['2', 'loop engine'], ['3', 'council explanation'], ['4', 'draft PR'],
+  ]);
+  for (const [, number, , body] of rows) {
+    const sentence = body.replace(/ \[recommended\]$/, '');
+    assert.match(sentence, /^[^.!?]+\.$/, `row ${number}: one sentence`);
+  }
+  assert.ok(template.includes('Pick one:'));
+});
+
+test('gate flags stay under their engine with one sentence ending in the resolved default', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const template = text.match(/```\ngauntlet: gate=brainstorming\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
+  const rows = [...template.matchAll(/^(\d+) - [^\n]+\n((?:- `--[^\n]+\n)*)\n/gm)];
+  assert.equal(rows.length, 4, 'each row group ends with a blank line');
+  const amendDefault = 'apply it and list it at the finish gate; a redraw always stops';
+  const expected = [
+    [['--amends-stop', amendDefault], ['--fund-rounds=N', 'stop and ask there']],
+    [['--amends-stop', amendDefault], ['--allowance=N', '<n>']],
+    [], [],
+  ];
+  for (const [index, row] of rows.entries()) {
+    const flags = [...row[2].matchAll(/^- `(--\S+)`: (.+)$/gm)];
+    assert.deepEqual(flags.map(([, flag]) => flag), expected[index].map(([flag]) => flag), `row ${row[1]} flags`);
+    for (const [i, [, , explanation]] of flags.entries()) {
+      assert.match(explanation, /^[^.!?]+\.$/, 'one sentence per flag');
+      assert.ok(explanation.endsWith(`(default: ${expected[index][i][1]}).`), explanation);
+    }
+  }
+  assert.match(text, /Retain `maxIterationsPerRow` .* as `<n>` for the loop row's `--allowance=N` default/);
+});
+
+test('gate recommendation ties one rendered row to the first-line marker and trailing reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const template = text.match(/```\n(gauntlet: gate=brainstorming\/user-review-gate[^\n]*\n[\s\S]*?)\n```/)[1];
+  assert.equal(template.split('\n')[0], 'gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>');
+  assert.match(text, /Choose exactly one rendered row from 1, 2, or 4 as the recommendation/);
+  assert.match(text, /Append `\[recommended\]` at the end of that row's sentence, never to a flag line or row 3/);
+  assert.match(text, /Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number/);
+  assert.match(template, /^Recommended: <recommended-row> - <reason>$/m);
+  assert.ok(template.indexOf('Recommended:') > template.indexOf('4 - draft PR:'));
+  assert.ok(template.indexOf('Recommended:') < template.indexOf('Or tell me what to change'));
+});
+
+test('high context recommends a rendered draft PR with a fresh-session reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = text.slice(text.indexOf('## User Review Gate'));
+  const settingsAt = gate.indexOf('resolve `gauntlet_setting({ key: "loopEngine" })`');
+  const status = 'phase_tracker({ action: "status" })';
+  assert.equal(gate.split(status).length - 1, 1, 'one status call per gate');
+  const statusAt = gate.indexOf(status);
+  const readAt = gate.indexOf('2. **The `Read` itself');
+  assert.ok(settingsAt < statusAt && statusAt < readAt, 'status sits beside settings before the final summary Read');
+  for (const rule of [
+    'strictly above 25', 'row 4 is rendered', 'before assessing acceptance rows',
+    'Compare the reading as a number; never floor it',
+    '25.0 does not trigger this rule; 25.1 and 26.0 do',
+    'a missing `Context:` line, `Context: unknown`, or a failed call as unknown',
+    'never stop for a missing reading',
+    'Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.',
+  ]) assert.ok(gate.includes(rule), rule);
+  assert.match(read('eval/spec-gate/samples/recommended-row/case.md'), /Context: 25\.1% of window/);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- context: judged:.*25\.1.*fresh session.*hallucination/m);
+});
+
+test('low, unknown or withheld draft context restricts the recommendation to engines', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  assert.match(text, /Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4/);
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  for (const observation of ['Context: unknown', 'Context: 25.0% of window', 'Context: 12.0% of window', 'Context: 31.0% of window']) {
+    assert.ok(fixture.includes(observation), observation);
+  }
+  assert.match(fixture, /row 4 is withheld/);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- engine-only: judged:.*unknown.*25\.0.*12\.0.*withheld.*1 or 2/m);
+});
+
+test('zero acceptance rows recommend the plan engine only after the draft-PR rule', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const rule = 'When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1';
+  assert.ok(text.includes(rule), 'zero rows select the plan engine');
+  assert.ok(text.indexOf(rule) > text.indexOf('For a numeric context reading strictly above 25'), 'context priority precedes the zero-row fallback');
+  assert.ok(text.includes('Recommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.'));
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  assert.ok(fixture.includes('none - ticket not fetched (tracker unreachable)'));
+  for (const id of ['zero-unknown', 'zero-low', 'zero-withheld', 'zero-high']) {
+    assert.ok(fixture.includes(`| ${id} |`), id);
+  }
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- zero-rows: judged:.*zero-unknown.*zero-low.*zero-withheld.*row 1.*zero-high.*row 4/m);
+});
+
+test('bundled acceptance rows recommend a plan with the first qualifying row and its outcomes', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  for (const rule of [
+    'When row 4 is not recommended and acceptance rows exist',
+    "assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent",
+    'Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows',
+    'Treat two or more separately checkable outcomes in one row as bundled',
+    'Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome',
+    'Recommend row 1 for a bundled row',
+    'Use the first bundled row in section order, with its one-based index among all rows',
+    'Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.',
+  ]) assert.ok(text.includes(rule), rule);
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  for (const id of ['bundle-in-scope', 'bundle-venue', 'bundle-high']) {
+    assert.ok(fixture.includes(`| ${id} |`), id);
+  }
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-venue.*bundle-high/m);
+});
+
+test('unbundled acceptance rows recommend loop with the exact fallback reason', () => {
+  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const rule = 'When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`';
+  assert.ok(text.includes(rule), 'unbundled rows select loop with the prescribed reason');
+  assert.ok(text.indexOf(rule) > text.indexOf('When row 4 is not recommended and acceptance rows exist'), 'fallback follows context, zero-row and bundled-row assessment');
+  const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
+  assert.ok(fixture.includes('| unbundled-facets | Context: unknown | C |'));
+  assert.match(fixture, /### Acceptance section C[\s\S]*The status line shows the receipt ID, total, and currency\.[\s\S]*The receipt identifier is stored in the request record\./);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- unbundled: judged:.*unknown.*boundary.*low.*withheld.*row 2.*no row bundles more than one outcome.*unbundled-facets/m);
 });
 
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
@@ -199,10 +319,10 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
 
 test('summary faults, partial coverage, commit and revisions retain their routes', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'invoke `/skill:writing-plans` on 1/2', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('Then commit the spec') < text.indexOf('1. **From the dispatch tool result'));
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
-  for (const marker of ['Council: <A> applied, <D> deferred, <R> rejected', '3 - show council dispositions', 'add -- <spec path>', "commit -q -F - -- <spec path>", "<<'EOF'", 'git -C <abs worktree path> show -s --format=%b HEAD', 'a reply carrying `3` never grants', '-> reverted at gate', '`-m`, `-F <file>`']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['Council: <A> applied, <D> deferred, <R> rejected', '3 - council explanation:', 'add -- <spec path>', "commit -q -F - -- <spec path>", "<<'EOF'", 'git -C <abs worktree path> show -s --format=%b HEAD', 'a reply carrying `3` never grants', '-> reverted at gate', '`-m`, `-F <file>`']) assert.ok(text.includes(marker), marker);
   const template = text.slice(text.indexOf('<spec-only summary read back'), text.indexOf('Or tell me what to change in the spec'));
   for (const gone of ['Applied: [<severity>]', 'Deferred: [<severity>]', 'Rejected: [<severity>]', 'Coverage: <N> of <M> members reported;']) assert.ok(!template.includes(gone), `template still carries ${gone}`);
   assert.ok(template.includes('Council:'));
@@ -210,9 +330,9 @@ test('summary faults, partial coverage, commit and revisions retain their routes
 
 test('spec publication and re-entry share shape proof and published persistence', () => {
   const gate = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['6 - approve, hand off as draft PR:', 'Withheld: draft PR - #N already exists', '1, 2, 3, 6', 'spec-pr.md']) assert.ok(gate.includes(marker), marker);
-  assert.match(gate, /On every PR subject omit row 6 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout/);
-  assert.match(main().match(/^13\. .*$/m)[0], /loop-implementation.*6 ends the flow after publishing/);
+  for (const marker of ['4 - draft PR:', 'Withheld: draft PR - #N already exists', '1, 3, 4', 'spec-pr.md']) assert.ok(gate.includes(marker), marker);
+  assert.match(gate, /On every PR subject omit row 4 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout/);
+  assert.match(main().match(/^13\. .*$/m)[0], /loop-implementation.*4 ends the flow after publishing/);
   const ref = read('skills/brainstorming/reference/spec-pr.md');
   for (const marker of ['flowGuards', 'specDirs', 'origin/$DEFAULT', 'defaultBranchRef', 'retry opening the draft PR', 'AUDIT_SHA=', 'diff-filter=A', '**PR:**', 'spec: select engine and grant for PR #N', 'never amend', 'Superseded by:', 'removes nothing']) assert.ok(ref.includes(marker), marker);
   const classifier = read('skills/brainstorming/reference/pr-subject.md');
@@ -224,14 +344,15 @@ test('spec publication and re-entry share shape proof and published persistence'
   assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), follow `pr-subject.md`'s spec contract/);
   assert.match(gate, /For a rework PR subject \(a draft carrying `## PR under rework`\), require the complete `## Rework record`/);
   assert.match(main(), /the unmarked spec-only route keeps the carried spec path/);
-  assert.match(ref, /The unmarked route's gate approval \(1\/2\/4\/5\) applies this same new-commit persistence/);
+  assert.match(ref, /Apply this same new-commit persistence to the unmarked route's gate approval \(1\/2 with their accepted flags\), never `--amend`/);
   assert.ok(gate.includes('its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe'));
   const gather = read('skills/brainstorming/gatherer.md');
   assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
   assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
   for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
-  assert.ok(gate.indexOf('5 - approve, loop engine') < gate.indexOf('6 - approve, hand off'));
-  assert.ok(gate.indexOf('6 - approve, hand off') < gate.indexOf('Add "; fund N fix rounds"'));
+  assert.ok(gate.indexOf('2 - loop engine:') < gate.indexOf('4 - draft PR:'));
+  assert.ok(gate.indexOf('1 - plan engine:') < gate.indexOf('--fund-rounds=N'));
+  assert.ok(gate.indexOf('--fund-rounds=N') < gate.indexOf('2 - loop engine:'));
 });
 
 test('deferred boundaries precede ship and restore arming; header PR finish owns non-force delivery', () => {
@@ -273,22 +394,22 @@ test('no skill records the grant as a commit trailer', () => {
 test('spec-finalization writes the grant line and persists approval-time grants in the spec commit', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
-  assert.ok(text.indexOf('On approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On approval');
-  for (const marker of ['2; fund 3 fix rounds', '2, fund 3 fix rounds', 'Decode before', 'token alone', 'malformed N']) assert.ok(text.includes(marker), marker);
-  const hint = 'Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round.';
+  assert.ok(text.indexOf('On every implementation approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On every implementation approval');
+  for (const marker of ['1 --fund-rounds=N', '1 --amends-stop --fund-rounds=N', 'G; fund N fix rounds', 'fund N fix rounds', '; fund N fix rounds', ', fund N fix rounds', 'Decode before', 'budget token alone', 'missing `=N`']) assert.ok(text.includes(marker), marker);
+  const hint = '- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).';
   assert.match(text, /Decode before `edit` or `--amend`/);
   assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every implementation approval'), 'decode before approval persistence');
-  assert.ok(text.indexOf(hint) > text.indexOf('3 - show council dispositions:'));
-  assert.ok(text.indexOf(hint) < text.indexOf('Or tell me what to change'));
+  assert.ok(text.indexOf(hint) > text.indexOf('1 - plan engine:'));
+  assert.ok(text.indexOf(hint) < text.indexOf('2 - loop engine:'));
   assert.ok(!text.includes('--trailer'), 'trailer step removed');
 });
 
 test('loop approval allowance suffix seeds only this run ledger', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
   const gate = text.slice(text.indexOf('## User Review Gate'));
-  for (const token of ['4; allowance 6', '5; allowance 6', '[1-9][0-9]*', 'positive safe integer', 'allowance: 6', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'wait without writing', 'waves-only', 're-present the gate quoting the token', 'bare option', '4, allowance 6', '5, allowance 6', 'run allowance: <n>']) assert.ok(gate.includes(token), token);
+  for (const token of ['2 --allowance=N', '; allowance N', ', allowance N', '[1-9][0-9]*', 'positive safe integer', 'run allowance: N', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'make no file or commit changes', '`--fund-rounds=N` on row 2', 'Quote the offending token.', 'Ask for a rendered row.', 'run allowance: <n>']) assert.ok(gate.includes(token), token);
   assert.doesNotMatch(gate, /persist the option-2 description plus `; fund 3 fix rounds`; engine loop|budget-only\); engine loop/);
-  assert.match(read('doc/gate-contract.md'), /`; allowance N`.*4\/5.*`; fund N fix rounds`.*1\/2/);
+  assert.match(read('doc/gate-contract.md'), /`--amends-stop` on 1\/2.*`--fund-rounds=N` on 1.*`--allowance=N` on 2/);
 });
 
 test('roasting-the-spec members, chair and applier preserve the grant line', () => {
@@ -597,16 +718,13 @@ test('PR spec replacement and lint preserve the record and raw council input', (
 
 test('engine gate persists both fields before completing and dispatching the selected engine', () => {
   const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const line of [
-    '4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1; allowance <n> per row.',
-    "5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant, allowance <n> per row.",
-  ]) assert.ok(text.includes(line), line);
-  for (const marker of ['asking for an approval option', '`3` plus `1`/`2`/`4`/`5`', 'a reply carrying `3` never grants', 'token with malformed N', 'write nothing', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render only options 1, 2, 3, 6 (PR subject: 1, 2, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '`4` approves without a grant', '`5` approves and grants', 'bare `4` or `5`', '`4` or `5` with a funding token', 'write nothing and wait for a valid approval', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
+  assert.ok(text.includes('2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.'));
+  for (const marker of ['Ask for a rendered row.', '`3` plus `1`/`2`/`4`', 'a reply carrying `3` never grants', 'missing `=N`', 'make no file or commit changes', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render rows 1, 3, 4 (PR subject: 1, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '| `2 --amends-stop` | approve; persist `none`; engine `loop`; use the settings allowance |', '| bare `2` | approve; persist `G`; engine `loop`; use the settings allowance |', '`--fund-rounds=N` on row 2', 'state that the gate is waiting', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
   const persistence = text.indexOf('On every implementation approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);
   const complete = text.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', check);
-  const dispatch = text.indexOf('invoke `/skill:writing-plans` on 1/2', complete);
+  const dispatch = text.indexOf('invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2', complete);
   assert.ok(persistence > 0 && amend > persistence && check > amend && complete > check && dispatch > complete);
   assert.doesNotMatch(text, /commit is untouched/);
   assert.match(main(), /13\. .*loop-implementation/);
@@ -617,7 +735,7 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
   const text = read('skills/brainstorming/reference/amendment-surface.md');
   const ledger = text.indexOf('Ledger exists');
   assert.ok(ledger > 0 && ledger < text.indexOf('Plan exists ->'));
-  for (const marker of ['# Ledger - loop engine', 'skip `plan-writer` and `plan_check`', 'Keep task-plan `add`/`update`/`init` out of this route', "after the commit, use the driver's next ledger-path refresh to project the new statuses and continue without task-plan aftermath", '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'a bare `5` grants the same way', 'digit `2` or `5`']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['# Ledger - loop engine', 'skip `plan-writer` and `plan_check`', 'Keep task-plan `add`/`update`/`init` out of this route', "after the commit, use the driver's next ledger-path refresh to project the new statuses and continue without task-plan aftermath", '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'loop: cut row <n>', 'loop: amend', 'amendment audit', 'a `1` or `2` approval without `--amends-stop`', 'a prose grant after an `--amends-stop` approval still counts']) assert.ok(text.includes(marker), marker);
   for (const marker of ['Without a standing amend grant, send a re-bounded row to human review before applying it', 'for a batch containing only one cut, otherwise `loop: amend` (including mixed batches)']) assert.ok(text.includes(marker), marker);
   assert.match(main(), /delete the plan file and the loop ledger/);
 });

@@ -315,14 +315,25 @@ const tokenChecks = [
   ["skills/gauntlet-handoff/SKILL.md", "phase_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "plan_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "reference/brief-contract.md", true],
+  ["skills/gauntlet-handoff/SKILL.md", "drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim", true],
   ["skills/gauntlet-handoff/SKILL.md", "/skill:handoff", true],
   ["skills/gauntlet-handoff/SKILL.md", "node_modules/pi-cohort", false],
   ["skills/gauntlet-handoff/SKILL.md", ".pi/agent", false],
-  // spec-gate approval menu: option 2 is the visible standing grant; the digit grants only at the spec gate
-  ["skills/brainstorming/reference/spec-finalization.md", "2 - approve, auto-apply amends:", true],
+  // spec-gate approval menu: rows 1/2 grant by default; flags retain review or fund the selected engine
+  ["skills/brainstorming/reference/spec-finalization.md", "1 - plan engine:", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "2 - loop engine:", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "`1 --amends-stop` | approve; persist `none`; engine `waves`", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "`2 --amends-stop` | approve; persist `none`; engine `loop`", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "`--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round", true],
+  ["skills/brainstorming/reference/spec-finalization.md", "`--allowance=N`: attempts per row before the loop stops and asks (default: <n>)", true],
   ["skills/brainstorming/reference/spec-finalization.md", "Approve to proceed", false],
-  ["skills/brainstorming/reference/amendment-surface.md", "`2` at the spec gate", true],
+  ["skills/brainstorming/reference/amendment-surface.md", "The gate grants on a `1` or `2` approval without `--amends-stop`", true],
   ["skills/brainstorming/reference/amendment-surface.md", "is an invalid reply and never a grant", true],
+  ["README.md", "Experimental approval options", false],
+  ["README.md", "experimental loop", false],
+  ["doc/configuration.md", "experimental option", false],
+  ["doc/implement-engines.md", "experimental loop engine", false],
+  ["doc/personas.md", "experimental loop engine", false],
   // standing grant lives in the spec header, read by gauntlet-resume; the brief grammar stays grant-free
   ["skills/gauntlet-resume/SKILL.md", "**Amend-grant:**", true],
   ["skills/gauntlet-resume/SKILL.md", "Standing grant active:", true],
@@ -334,8 +345,8 @@ for (const [file, tok, want] of tokenChecks) {
   const has = txt(file).includes(tok);
   if (has !== want) fail(`${file}: token "${tok.trim()}" ${want ? "missing" : "must be absent"}`);
 }
-// spec-gate approval menu: the grant description sentence is one display sentence, byte-identical in
-// option 2 of the gate template (1x) and both tier-2 footers (2x); any other count is drift
+// spec-gate approval menu: the default grant sentence is byte-identical in the gate's
+// default grant line (1x) and both tier-2 footers (2x); any other count is drift
 {
   const GRANT_SENTENCE =
     "every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.";
@@ -534,7 +545,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
   ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source and eval lib contracts pass");
 } catch (e) {
   fail(`happy-path, wave-review, PR comment, brainstorming or eval lib regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);

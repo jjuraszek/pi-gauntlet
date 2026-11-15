@@ -1,0 +1,250 @@
+{
+  "sample": "flag-replies",
+  "arm": "candidate",
+  "skillSha": "df8a3021dbf793bad56b4e06f74b8d59708e6f5d2bbc9ac33e3146f4c8c1b1d6",
+  "inputSha": "fc78d6b3b4fd5b523009558647e99b26513fcc2f4676ed91c2bc67075a37454f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Shared approval recipe** (run once per accepted case, after that case's header values are set):\n\n1. Read [Standing grants](amendment-surface.md#standing-grants) and run Value decoding on the case's Amend-grant value. Stop if the file is unreadable or the value is malformed.\n2. `edit` the spec's `**Amend-grant:**` to that value. Write exactly one `**Engine:**` line directly below it.\n3. `git -C <abs worktree path> add -- <spec path>`, then `git -C <abs worktree path> commit --amend --no-edit -q`. This keeps the council-audit body.\n4. HEAD check: `git -C <abs worktree path> show HEAD:<spec path>` must show both fields with the case's values and must pass the grant predicate and Value decoding. On any amend or HEAD-check failure, stop and report.\n5. Run `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`, then invoke the next skill.\n\n**Shared default grant G** (exact `**Amend-grant:**` value for every granting branch):\n`every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.`\n\n**Funded G** (exact value, written in full once):\n`every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 3 fix rounds`\n\n**Loop note:** for bare loop approvals, the driver uses the settings allowance of 4 and writes it to neither the spec nor settings. Plan is skipped with reason `loop engine`.\n\n---\n\n**bare-plan**: `**Amend-grant:**` G; `**Engine:** waves`. Decoded amendment permission: auto-apply. Funding: none. Recipe applied.\n/skill:writing-plans\n\n**bare-loop**: `**Amend-grant:**` G; `**Engine:** loop`. Decoded amendment permission: auto-apply. Funding: none. Uses settings allowance 4. Recipe applied.\n/skill:loop-implementation\n\n**approve-loop**: Taking \"approve\" as option 2 - loop engine. `**Amend-grant:**` G; `**Engine:** loop`. Decoded amendment permission: auto-apply. Funding: none. Uses settings allowance 4. Recipe applied.\n/skill:loop-implementation\n\n**plain-prose**: Taking \"approve\" as option 2 - loop engine. `**Amend-grant:**` G; `**Engine:** loop`. Decoded amendment permission: auto-apply. Funding: none. Uses settings allowance 4. Recipe applied.\n/skill:loop-implementation\n\n**approve-stop**: Taking \"approve\" as option 2 - loop engine. `**Amend-grant:** none`; `**Engine:** loop`. Decoded amendment permission: stop on amends. Funding: none. Uses settings allowance 4. Recipe applied.\n/skill:loop-implementation\n\n**label-funded**: `**Amend-grant:** fund 3 fix rounds`; `**Engine:** waves`. Decoded amendment permission: stop on amends. Funding: 3. Recipe applied.\n/skill:writing-plans\n\n**plan-stop**: `**Amend-grant:** none`; `**Engine:** waves`. Decoded amendment permission: stop on amends. Funding: none. Recipe applied.\n/skill:writing-plans\n\n**loop-stop**: `**Amend-grant:** none`; `**Engine:** loop`. Decoded amendment permission: stop on amends. Funding: none. Uses settings allowance 4. Recipe applied.\n/skill:loop-implementation\n\n**plan-funded**: `**Amend-grant:**` Funded G; `**Engine:** waves`. Decoded amendment permission: auto-apply. Funding: 3. Recipe applied.\n/skill:writing-plans\n\n**plan-stop-funded**: `**Amend-grant:** fund 3 fix rounds`; `**Engine:** waves`. Decoded amendment permission: stop on amends. Funding: 3. Recipe applied.\n/skill:writing-plans\n\n**loop-allowance**: `**Amend-grant:**` G; `**Engine:** loop`. Decoded amendment permission: auto-apply. Funding: none. The allowance of 6 goes to the ledger only. Recipe applied.\nrun allowance: 6\n/skill:loop-implementation\n\n**loop-label-allowance**: `**Amend-grant:**` G; `**Engine:** loop`. Decoded amendment permission: auto-apply. Funding: none. The allowance of 6 goes to the ledger only. Recipe applied.\nrun allowance: 6\n/skill:loop-implementation\n\n**loop-stop-allowance**: `**Amend-grant:** none`; `**Engine:** loop`. Decoded amendment permission: stop on amends. Funding: none. The allowance of 6 goes to the ledger only. Recipe applied.\nrun allowance: 6\n/skill:loop-implementation\n\n---\n\n**Rejections:** every rejected reply below leaves the gate waiting, with no file writes and no commits.\n\n- **wrong-plan**: `--allowance=6` belongs to row 2 (loop engine), not row 1; did you mean `2 --allowance=6`, or plain `1`?\n- **wrong-loop**: `--fund-rounds=3` belongs to row 1 (plan engine), not row 2; did you mean `1 --fund-rounds=3`, or plain `2`?\n- **council-flag**: `--amends-stop` belongs to rows 1 and 2, and row 3 takes no flags; do you want plain `3`, or `1`/`2` with `--amends-stop`?\n- **draft-flag**: `--amends-stop` belongs to rows 1 and 2, and row 4 takes no flags; do you want plain `4`, or `1`/`2` with `--amends-stop`?\n- **approve-wrong**: `approve` maps to row 2, and `--fund-rounds=3` belongs only to row 1 (plan engine); did you mean `1 --fund-rounds=3`?\n- **label-wrong**: `--allowance=6` belongs to row 2 (loop engine), not plan engine; did you mean `loop engine --allowance=6`, or plain `plan engine`?\n- **zero**: `--fund-rounds=0` is not a positive integer; what positive N do you want?\n- **negative**: `--allowance=-1` is not a positive integer; what positive N do you want?\n- **decimal**: `--allowance=1.5` is not a positive integer; what whole-number N do you want?\n- **unsafe**: `--fund-rounds=9007199254740992` exceeds the safe-integer range; what smaller positive N do you want?\n- **missing**: `--allowance` is missing its `=N` value; what allowance do you want, as `--allowance=N`?\n- **duplicate**: `--amends-stop` appears twice; did you mean `1 --amends-stop`?\n- **unknown**: `--other` is not a recognized flag; which rendered row and flag did you intend?\n- **flag-alone**: `--amends-stop` has no row; which rendered row (1, 2, 3, or 4) do you choose?\n- **budget-alone**: \"fund 3 fix rounds\" has no row; which rendered row (1, 2, 3, or 4) do you choose?\n- **old-loop**: the suffix `; allowance 6` is no longer accepted; did you mean `2 --allowance=6`?\n- **old-plan**: the suffix `, fund 3 fix rounds` is no longer accepted; did you mean `plan engine --fund-rounds=3`?\n- **old-approve**: the suffix `; allowance 6` is no longer accepted; did you mean `approve --allowance=6`?\n- **old-more**: the suffix `, 3 more fix rounds` is no longer accepted; did you mean `1 --fund-rounds=3`?\n- **removed-five**: `5` is not a rendered row; the rendered rows are 1, 2, 3, and 4, so which one do you choose?\n- **removed-six**: `6` is not a rendered row; the rendered rows are 1, 2, 3, and 4, so which one do you choose?\n- **granting-words**: \"apply every amend\" is already the default auto-apply behavior, and `--amends-stop` is the opt-out; did you mean plain `1`?\n- **prose-grant**: \"apply every amend\" is already the default auto-apply behavior, and `--amends-stop` is the opt-out; did you mean plain `approve`?\n- **prose-stop**: \"stop on amends\" corresponds to the `--amends-stop` flag; did you mean `approve --amends-stop`?\n- **digit-stop**: \"stop on amends\" corresponds to the `--amends-stop` flag; did you mean `1 --amends-stop`?\n- **prose-funding**: \"fund 3 more rounds\" corresponds to the `--fund-rounds=N` flag, which only row 1 (plan engine) accepts; did you mean `1 --fund-rounds=3`?\n",
+      "words": 1014,
+      "wallMs": 41215,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Common approval recipe\n\nThese are independent continuations, not actions already performed.\n\nShared exact header values:\n\n**G** = `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.`\n\n**Funded G** = `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.; fund 3 fix rounds`\n\nFor every accepted case below: read **Standing grants**, stopping if unreadable; perform Value decoding; edit `**Amend-grant:**` to the specified exact value and put exactly one specified `**Engine:**` field directly below it. Then run `git -C <worktree> add -- <spec>` followed by `git -C <worktree> commit --amend --no-edit -q`, preserving the audit body. Check `git -C <worktree> show HEAD:<spec>` for both selected fields, the grant predicate, and valid decoding; stop on amend/check failure. Complete `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`, then immediately invoke the listed skill without another prompt.\n\nEvery rejection leaves the gate waiting without writes or commits.\n\n## Accepted continuations\n\n**bare-plan**  \nHeaders: `**Amend-grant:** G` (expanded exactly above); `**Engine:** waves`. Decoded permission: auto-apply except redraws; funding: none. Apply the common recipe, then invoke:\n/skill:writing-plans\n\n**bare-loop**  \nHeaders: `**Amend-grant:** G`; `**Engine:** loop`. Permission: auto-apply except redraws; funding: none. Apply the common recipe; use settings allowance 4 without persisting it to spec/settings, and skip planning because `loop engine`.\n/skill:loop-implementation\n\n**approve-loop**  \nTaking \"approve\" as option 2 - loop engine  \nHeaders: `**Amend-grant:** G`; `**Engine:** loop`. Permission: auto-apply except redraws; funding: none. Apply the common recipe; use settings allowance 4 without persisting it, and skip planning because `loop engine`.\n/skill:loop-implementation\n\n**plain-prose**  \nTaking \"approve\" as option 2 - loop engine  \nHeaders: `**Amend-grant:** G`; `**Engine:** loop`. Permission: auto-apply except redraws; funding: none. Apply the common recipe; use settings allowance 4 without persisting it, and skip planning because `loop engine`.\n/skill:loop-implementation\n\n**approve-stop**  \nTaking \"approve\" as option 2 - loop engine  \nHeaders: `**Amend-grant:** none`; `**Engine:** loop`. Permission: none; funding: none. Apply the common recipe; use settings allowance 4 without persisting it, and skip planning because `loop engine`.\n/skill:loop-implementation\n\n**label-funded**  \nHeaders: `**Amend-grant:** fund 3 fix rounds`; `**Engine:** waves`. Permission: none; funding: 3 extra fix rounds per task after its escalated round. Apply the common recipe.\n/skill:writing-plans\n\n**plan-stop**  \nHeaders: `**Amend-grant:** none`; `**Engine:** waves`. Permission: none; funding: none. Apply the common recipe.\n/skill:writing-plans\n\n**loop-stop**  \nHeaders: `**Amend-grant:** none`; `**Engine:** loop`. Permission: none; funding: none. Apply the common recipe; use settings allowance 4 without persisting it, and skip planning because `loop engine`.\n/skill:loop-implementation\n\n**plan-funded**  \nHeaders: `**Amend-grant:** Funded G` (expanded exactly above); `**Engine:** waves`. Permission: auto-apply except redraws; funding: 3 extra fix rounds per task after its escalated round. Apply the common recipe.\n/skill:writing-plans\n\n**plan-stop-funded**  \nHeaders: `**Amend-grant:** fund 3 fix rounds`; `**Engine:** waves`. Permission: none; funding: 3 extra fix rounds per task after its escalated round. Apply the common recipe.\n/skill:writing-plans\n\n**loop-allowance**  \nHeaders: `**Amend-grant:** G`; `**Engine:** loop`. Permission: auto-apply except redraws; funding: none. Apply the common recipe; persist allowance 6 only in the ledger and skip planning because `loop engine`.\nrun allowance: 6\n/skill:loop-implementation\n\n**loop-label-allowance**  \nHeaders: `**Amend-grant:** G`; `**Engine:** loop`. Permission: auto-apply except redraws; funding: none. Apply the common recipe; persist allowance 6 only in the ledger and skip planning because `loop engine`.\nrun allowance: 6\n/skill:loop-implementation\n\n**loop-stop-allowance**  \nHeaders: `**Amend-grant:** none`; `**Engine:** loop`. Permission: none; funding: none. Apply the common recipe; persist allowance 6 only in the ledger and skip planning because `loop engine`.\nrun allowance: 6\n/skill:loop-implementation\n\n## Rejected continuations\n\n**wrong-plan:** Would you select row 2, loop engine, which accepts `--allowance=6`?\n\n**wrong-loop:** Would you select row 1, plan engine, which accepts `--fund-rounds=3`?\n\n**council-flag:** Would you remove `--amends-stop` or select row 1 or 2, which accepts it?\n\n**draft-flag:** Would you remove `--amends-stop` or select row 1 or 2, which accepts it?\n\n**approve-wrong:** Would you select row 1, plan engine, which accepts `--fund-rounds=3`?\n\n**label-wrong:** Would you select row 2, loop engine, which accepts `--allowance=6`?\n\n**zero:** Would you replace `--fund-rounds=0` with a positive safe integer value?\n\n**negative:** Would you replace `--allowance=-1` with a positive safe integer value?\n\n**decimal:** Would you replace `--allowance=1.5` with a positive safe integer value?\n\n**unsafe:** Would you replace `--fund-rounds=9007199254740992` with a positive safe integer value?\n\n**missing:** Would you replace `--allowance` with `--allowance=N`, using a positive safe integer?\n\n**duplicate:** Would you provide `--amends-stop` only once?\n\n**unknown:** Would you remove the unknown token `--other`?\n\n**flag-alone:** Which rendered row—1 plan, 2 loop, 3 council explanation, or 4 draft PR—do you select?\n\n**budget-alone:** Which rendered row—1 plan, 2 loop, 3 council explanation, or 4 draft PR—do you select?\n\n**old-loop:** Would you replace `; allowance 6` with `--allowance=6`?\n\n**old-plan:** Would you replace `, fund 3 fix rounds` with `--fund-rounds=3`?\n\n**old-approve:** Would you replace `; allowance 6` with `--allowance=6`?\n\n**old-more:** Would you replace `, 3 more fix rounds` with `--fund-rounds=3`?\n\n**removed-five:** Which rendered row—1 plan, 2 loop, 3 council explanation, or 4 draft PR—do you select instead of 5?\n\n**removed-six:** Which rendered row—1 plan, 2 loop, 3 council explanation, or 4 draft PR—do you select instead of 6?\n\n**granting-words:** Since auto-apply is the default and `--amends-stop` is the opt-out, would you remove “apply every amend” and resubmit?\n\n**prose-grant:** Since auto-apply is the default and `--amends-stop` is the opt-out, would you remove “apply every amend” and resubmit?\n\n**prose-stop:** Would you replace “stop on amends” with `--amends-stop`?\n\n**digit-stop:** Would you replace “stop on amends” with `--amends-stop`?\n\n**prose-funding:** Would you replace “fund 3 more rounds” with `--fund-rounds=3` and select row 1, plan engine, which accepts it?\n",
+      "words": 928,
+      "wallMs": 25482,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "cd02b4a2116463e69ab09b753eb208fda1cafb001fc4758e7200e2879cb31e89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "63aa98222bef0700343eaa7425b9f1e67a9e898e05ecb0d2d1d467bb4043ca10",
+      "baselineOutputSha": "c875a1a0285f16cda9a3527baaa9418ad55fcbfd224a12a29dda4233360db065",
+      "candidateOutputSha": "4083ec916573f0daf52c8e84afe316868cb19bbce4d98ce2305505e8939d8605",
+      "facts": {
+        "defaults": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-prose": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "approve-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "label-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-stop-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "wrong-engine": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "malformed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "missing-row": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "old-suffix": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "removed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-grant": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-funding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-label-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-stop-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After loses nothing Before had: missing-row is the only fact Before satisfied (one row question each for flag-alone and budget-alone, no writes), and After keeps it. Before decoded every reply against a six-option gate with `;` suffixes, so it gave bare `1` and `approve` a `none` grant, rejected all `--flag` replies, accepted the worded stop/grant replies and `5`/`6`, and never printed the echo or a carrier line. After moves the remaining facts by adopting the four-row grammar: bare and approve replies inherit the shared G, `approve` and plain prose print the literal `Taking \"approve\" as option 2 - loop engine`, and the three allowance cases print `run allowance: 6` as an unwrapped line directly above `/skill:loop-implementation`. Rejections sit under one no-write statement, each with a single question quoting the offending token and naming the accepting row or flag. Three holds are thin and worth hardening in the wording. For label-funded and plan-stop-funded, `stop on amends` plus `Funding: 3` only implies the distinction; have the skill say outright that the budget funds three extra fix rounds and grants no auto-apply permission. For the allowance cases, `goes to the ledger only` should become an explicit `not written to the spec or settings`. For loop-label-allowance and label-funded, state that the label resolves to row 2 or row 1 rather than leaving it implied.",
+      "wallMs": 23461,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "cd02b4a2116463e69ab09b753eb208fda1cafb001fc4758e7200e2879cb31e89",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "63aa98222bef0700343eaa7425b9f1e67a9e898e05ecb0d2d1d467bb4043ca10",
+      "baselineOutputSha": "464b63e3ce49f1e92f5a5361c129fe56e8b18c0b55c827309151f67245cbcead",
+      "candidateOutputSha": "209a3a0251cccf2eec691e7b7cbf54855634982ebf4dbbac20a2127ca750235a",
+      "facts": {
+        "defaults": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plain-prose": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "approve-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "label-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-stop-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "wrong-engine": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "malformed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "missing-row": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "old-suffix": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "removed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-grant": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "worded-funding": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-label-allowance": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "loop-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-stop-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "plan-funded": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved nearly every fact because it adopts the four-row contract outright, where Before had replied under the old 1/2/4/5/6 numbering and treated the flags as undefined. Row-free approval prose and bare approve now resolve to the rendered recommendation with the literal 'Taking \"approve\" as option 2 - loop engine' echo, the default grant G and Engine loop. Flags are decoded into exact header values (none, fund 3 fix rounds, G, and Funded G written out in full), and the allowance carrier appears as an unwrapped 'run allowance: 6' line directly above /skill:loop-implementation. Each rejection asks a single question that quotes the offending token and names the accepting row or flag. The two facts Before already kept (malformed, missing-row) held only loosely, since its questions quoted the tokens and asked for an option but in the old syntax; After keeps them cleanly. To keep all of this stable, retain the single shared no-write sentence for rejections, the one-question-per-case form that quotes the exact token, and the full G and Funded G expansions. Three points rest on inference and would be safer stated outright: that 'persist allowance 6 only in the ledger' means never the spec or settings, that 'Permission: none' on the funded-stop cases means no auto-apply permission, and that 'loop engine' resolves to row 2 in loop-label-allowance.",
+      "wallMs": 27420,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "dc45b8405eb6c1d9f34bb6e8d6f7edb0970c2087"
+}

@@ -84,7 +84,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    - No phase `in_progress` -> append nothing; say the brief is a plain handoff.
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in
-     `reference/brief-contract.md` lays it out: both status outputs verbatim
+     `reference/brief-contract.md` lays it out: drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim
      (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. For multiple members, read `reference/brief-contract.md` "Coordinated brief grammar" and append its ordered member snapshot, including missing trees and existing receipt paths, in that layout. Keep the core snapshot home-bound. Use only the contract's grammar; write no second state file. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the

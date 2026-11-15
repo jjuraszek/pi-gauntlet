@@ -52,6 +52,10 @@ Ticket orchard-billing#7, Acceptance criteria, rows verbatim (ticket provenance,
 - [ ] Repeated collection requests return the original receipt.
   in-scope
 
+## Gate observations
+
+The successful status read before the summary returned `Context: 12.0% of window`. The shared settings observation applies. There is no PR subject. The rendered gate stays in context, while its summary temp file has been removed. When narrating the reply, state which observations are reread and which are reused.
+
 ## User reply
 
 3

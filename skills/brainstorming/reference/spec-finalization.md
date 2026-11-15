@@ -137,7 +137,7 @@ If the council path ran, the body is its audit (`Coverage:` when present, then `
 
 Evaluate the summary in two stages (the **Degrade path** referenced in each is defined just below):
 
-Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for both loop options. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance.
+Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for the loop row's `--allowance=N` default. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance. Beside this lookup, call `phase_tracker({ action: "status" })` once before the summary `Read`. Retain the numeric percentage from its `Context:` line; treat a missing `Context:` line, `Context: unknown`, or a failed call as unknown and never stop for a missing reading.
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (an exit-0 save error returns the save error plus a `Full reply preserved at` / `not preserved` pointer, no inline output), or the reference reports under ~500 bytes, or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) - skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
 2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim immediately after the gate marker. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
@@ -148,8 +148,16 @@ Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditi
 
 Follow the [first-line rule](menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
 
+Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[recommended]` at the end of that row's sentence, never to a flag line or row 3. Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number; give a concrete reason after the dash.
+
+Decide the recommendation before rendering, without printing the deliberation. For a numeric context reading strictly above 25, when row 4 is rendered, recommend row 4 before assessing acceptance rows. Compare the reading as a number; never floor it: 25.0 does not trigger this rule; 25.1 and 26.0 do. Use this reason line, substituting the observed percentage for `<P>` and keeping the literal `<N>` until publication: ``Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.`` Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4.
+
+When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1 with this reason: `Recommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.`
+
+When row 4 is not recommended and acceptance rows exist, assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent. Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows. Treat two or more separately checkable outcomes in one row as bundled. Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome. Recommend row 1 for a bundled row. Use the first bundled row in section order, with its one-based index among all rows, in this reason: `Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.` When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`
+
 ```
-gauntlet: gate=brainstorming/user-review-gate
+gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>
 <spec-only summary read back from the temp file - pasted verbatim, unedited>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
@@ -166,20 +174,29 @@ Council: <A> applied, <D> deferred, <R> rejected
 <unresolved ambiguities; every `Missing from the spec` entry from the summary>
 New predecessor candidates at spec-writing: <path> (<title>), ... - index rows are a hint; code is the source and an absent row proves nothing.
 
-1 - approve: proceed to planning under the existing amendment review; a fresh reviewer applies evidence-backed factual corrections on its own, and every other spec amendment (scope, acceptance-criteria, or contract edits, and redraws) stops for your review.
-2 - approve, auto-apply amends: every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
-3 - show council dispositions: prints the council audit verbatim, then re-presents this gate. Not an approval.
-4 - approve, loop engine (experimental): skip the plan; iterate a fresh loop-implementer over the acceptance-criteria ledger; amendments stop for your review as under 1; allowance <n> per row.
-5 - approve, loop engine, auto-apply amends: as 4 with option 2's amendment grant, allowance <n> per row.
-6 - approve, hand off as draft PR: approve the spec's content only; push this branch and open a draft PR carrying just the spec; engine and amendment grant are chosen later by whoever runs `brainstorming #N` on that PR. Ends this flow without planning.
-Add "; fund N fix rounds" (or "N more fix rounds") to 1 or 2 to fund N implement fix rounds past the escalated waves round. Add "; allowance N" to 4 or 5 to set this run's per-row allowance.
+Pick one:
+1 - plan engine: write a task plan, then implement it in reviewed waves.
+- `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).
+- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).
+
+2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.
+- `--amends-stop`: stop for my review before the loop rewords or cuts a row it is stuck on (default: apply it and list it at the finish gate; a redraw always stops).
+- `--allowance=N`: attempts per row before the loop stops and asks (default: <n>).
+
+3 - council explanation: show the council audit, then return to this gate without approving.
+
+4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:brainstorming #<N>` there.
+
+Recommended: <recommended-row> - <reason>
 
 Or tell me what to change in the spec, or say "revert applied council edit <X>" to undo a specific applied edit.
 ```
 
-For zero `- [ ]` rows under `## Acceptance criteria`, render only options 1, 2, 3, 6 (PR subject: 1, 2, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance. Whenever rows exist, render options 4/5. Keep the worker-path omission of option 3; do not invent a council audit.
+For zero `- [ ]` rows under `## Acceptance criteria`, omit row 2 and all its flag lines, including `--allowance=N`; render rows 1, 3, 4 (PR subject: 1, 3) and explain: "Loop engine unavailable: this spec has no acceptance-criteria rows." The only legal zero-row body is `none - ticket not fetched (<reason>)`; retain its paste-rows affordance.
 
-On every PR subject omit row 6 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout; a hidden 6 gets the clarifying question naming rendered choices. Read [spec-pr.md](spec-pr.md) for option-6 reply decoding, publication, and marked-PR re-gating; its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe.
+Apply the withholding rules independently: on the worker path or when the council aborted before an audit existed, omit row 3 and the `Council:` line; combine this with the zero-row and PR-subject omissions and never renumber the remaining rows. Do not invent a council audit.
+
+On every PR subject omit row 4 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout; a hidden 4 gets the clarifying question naming rendered choices. Read [spec-pr.md](spec-pr.md) for row-4 reply decoding, publication, and marked-PR re-gating; its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe.
 
 Render the drafted-only block in the template from the applied spec section, never from the summarizer: copy every row and disposition verbatim. Include it for a fetched ticket without ACs; omit it for ticket-row provenance. Approval ratifies these rows at this gate, with no pre-gate acceptance stop. On reply `3`, keep the block reused verbatim with the briefing; on a row-touching change request, render from the recommitted section; on redraw, render from the re-drafted section.
 
@@ -187,30 +204,45 @@ If you believe the summary needs correcting, do **not** silently rewrite it - re
 
 **Revert valve.** "Revert applied council edit X" is a normal change request: revise the spec to undo edit X, re-dispatch the summarizer with a **fresh** temp path (per the re-dispatch rule below), and re-present the gate. This is cheap here - the spec is not yet plan- or code-bearing.
 
-Wait for the user. Interpret budget replies with this table before routing change requests. For 4/5, accept one optional `; allowance N` or `, allowance N` suffix with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings. On a malformed allowance suffix (zero, negative, non-numeric, unsafe, duplicate or trailing text), re-present the gate with exactly one clarifying question quoting it, then wait without writing; a second invalid reply leaves the gate waiting.
+Wait for the user. Resolve a rendered row from its digit or label; use the recommended row for `approve` and plain approval prose as defined below. Parse whitespace-separated flags after a digit, label, or `approve` in any order, each at most once.
+
+**Rejected replies.** Apply every check below before plain approval and before change requests. For a rejected reply, make no file or commit changes, state that the gate is waiting, and end with exactly one clarifying question containing the listed content and a question mark; a second invalid reply leaves the gate waiting too. Do not infer a grant or turn worded amendment or budget intent into a spec edit.
+
+| Rejected reply | Question content |
+|---|---|
+| `--fund-rounds=N` on row 2, `--allowance=N` on row 1, or any flag on row 3 or 4; apply equally after a digit, label, or `approve` | Quote the flag and name the engine row that accepts it (`--amends-stop` belongs to rows 1 and 2). |
+| amendment, grant, or budget intent in words beside a digit, label, or approval prose (`approve, stop on amends`) | Quote the words and name the matching flag: `--amends-stop`, `--fund-rounds=N`, or `--allowance=N`; for granting words, say auto-apply is the default and name `--amends-stop` as the opt-out. |
+| N not matching `[1-9][0-9]*` or not a positive safe integer, a value flag missing `=N`, a repeated flag, or an unknown `--` token | Quote the offending token. |
+| Old suffix forms `; allowance N`, `, allowance N`, `; fund N fix rounds`, `, fund N fix rounds`, or `N more fix rounds`, beside a digit, label, or `approve` | Quote the suffix and name the matching flag, `--allowance=N` or `--fund-rounds=N`. |
+| A flag with no row digit, row label, or `approve`; a budget token alone | Ask for a rendered row. |
+| `5`, `6`, another out-of-range digit, or a withheld row's digit or label | Name the rendered rows; never remap the selection. |
+
+For bare `approve`, resolve the recommended rendered row (1, 2, or 4) from the just-rendered gate; never recompute it from newer context or acceptance rows. Print `Taking "approve" as option <n> - <label>` with that row's number and label before applying its action, exactly as for its bare digit. Apply this same mapping and literal echo to approval prose that names no row and carries no amendment, grant, or budget wording (for example, `approved, go ahead`).
+
+After these checks, use the accepted mapping below. Accept `--fund-rounds=N` on row 1 with N matching `[1-9][0-9]*`; without `--amends-stop`, append `; fund N fix rounds` to `G` without removing the default amend permission. Keep `G` verbatim, including its final period (`approval.; fund N fix rounds`). On row 2, accept one `--allowance=N` flag with N matching `[1-9][0-9]*` and a positive safe integer. Carry the accepted value to loop entry and persist it only in the ledger, not in the spec or settings.
 
 | Reply | Action / written value |
 |---|---|
-| bare `2` | approve; persist the option-2 description above |
-| `2; fund 3 fix rounds` or `2, fund 3 fix rounds` | approve; persist that description plus `; fund 3 fix rounds`, not a change request |
-| `1` with a budget token | approve; persist `fund 3 fix rounds` alone for that token (budget-only) |
-| bare `4` or `5` | approve; persist `none` for 4 or the option-2 description above for 5; engine loop; use the settings allowance |
-| `4; allowance 6` / `4, allowance 6` or `5; allowance 6` / `5, allowance 6` | approve as the corresponding bare option; carry `run allowance: 6` to ledger seeding |
-| `4` or `5` with a funding token | Funding is waves-only: re-present the gate quoting the token; write nothing and wait for a valid approval |
-| waves approval prose with a funding token | approve; preserve the prose collapsed to one physical line |
-| budget token alone (`fund 3 fix rounds` or `allowance 6`) | re-present the gate asking for an approval option; write nothing |
-| waves funding token with malformed N, or allowance suffix on an option other than 4/5 | re-present the gate quoting the token; write nothing, never imply a change request |
+| bare `1` | approve; persist `G`; engine `waves` |
+| `1 --amends-stop` | approve; persist `none`; engine `waves` |
+| bare `2` | approve; persist `G`; engine `loop`; use the settings allowance |
+| `2 --amends-stop` | approve; persist `none`; engine `loop`; use the settings allowance |
+| `1 --fund-rounds=N` | approve; persist `G; fund N fix rounds`; engine `waves` |
+| `1 --amends-stop --fund-rounds=N` | approve; persist `fund N fix rounds`; engine `waves` |
+| `2 --allowance=N` | approve; persist `G`; engine `loop`; carry `run allowance: N` to ledger seeding |
 
-For every value to persist, read [Standing grants](amendment-surface.md#standing-grants) and run Value decoding. Decode before `edit` or `--amend`; never persist a malformed token. Use the decoded table value in the approval persistence below, including waves budget-only approvals. Strip only an accepted loop allowance suffix before decoding the grant; keep the run allowance separate from `**Amend-grant:**`. In persistence narration, quote the exact resulting `**Amend-grant:**` value in full, including any funding suffix; never substitute an option name or "option-2 description plus suffix" for the persisted text.
+Default grant (`G`): `every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.`
 
-On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On `3` or its label alone: print the audit verbatim from `git -C <abs worktree path> show -s --format=%b HEAD` (never from a held tool result; the body survives the grant's `--amend --no-edit`), then re-present the same gate - the briefing text of the gate message just rendered, reused verbatim (no summarizer re-dispatch, no read of the removed `$SUMMARY_PATH`; if that text is no longer in context, the one-line degrade note takes its place), the `Council:` line, the adjacent lines, the rendered option rows; nothing in the spec or the commit changes. `3` plus a change request is a change request. `3` plus `1`/`2`/`4`/`5` prints and re-presents, and the approval is read only from a clean `1`/`2`/`4`/`5` on the re-presented gate - a reply carrying `3` never grants. A gate-round recommit (change request or revert) re-runs the same heredoc commit with the audit as its body, so HEAD always carries it; on a revert of edit X, move X's `Applied:` line to `Rejected:` with `-> reverted at gate` and recompute the `Council:` counts from the revised audit. On approval - `1`, `approve`, or equivalent prose approves without a grant; `2`, `approve, auto-apply amends`, or equivalent prose approves and grants; `4` approves without a grant; `5` approves and grants using option 2's description - first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable). On every implementation approval (1/2/4/5), `edit` the spec's `**Amend-grant:**` value to the decoded table value for funded replies, otherwise the granting sentence for 2/5 or `none` for 1/4. Write exactly one `**Engine:** loop` for 4/5 or `**Engine:** waves` for 1/2 directly below `**Amend-grant:**` in the header block (readers: absent -> `waves`). Then `git -C <abs worktree path> add -- <spec path>` and `git -C <abs worktree path> commit --amend --no-edit -q`, keeping the council-audit body; confirm `git -C <abs worktree path> show HEAD:<spec path>` contains both fields with the selected values and satisfies the grant predicate and Value decoding. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the amend or the HEAD check fails, stop and report; never proceed as granted. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
+For every value to persist, read [Standing grants](amendment-surface.md#standing-grants) and run Value decoding. Decode before `edit` or `--amend`; never persist a malformed token. Use the decoded table value in the approval persistence below, including waves budget-only approvals. Apply this opt-out rule only without funding: For `--amends-stop` approvals, persist `none` rather than the default grant and keep the selected row's engine. With both `--amends-stop` and `--fund-rounds=N` on row 1, persist only `fund N fix rounds`, without amend permission, and keep engine `waves`. Strip only an accepted `--allowance=N` flag before decoding the grant; keep the run allowance separate from `**Amend-grant:**`. In persistence narration, quote the exact resulting `**Amend-grant:**` value in full, including any funding suffix; never substitute an option name or "option-2 description plus suffix" for the persisted text.
+
+On a change request (including a revert), revise the spec and re-present - mint a **fresh** temp path for the re-dispatched summarizer (never reuse a prior round's path, so stale content can never be mistaken for the new summary). On `3` or its label alone: print the audit verbatim from `git -C <abs worktree path> show -s --format=%b HEAD` (never from a held tool result; the body survives the grant's `--amend --no-edit`), then re-present the same gate - the briefing text of the gate message just rendered, reused verbatim (no summarizer re-dispatch, no read of the removed `$SUMMARY_PATH`; if that text is no longer in context, the one-line degrade note takes its place), the `Council:` line, the adjacent lines, the rendered option rows, flag lines, tag, marker, and `Recommended:` line verbatim; make no new status or settings call and do not recompute the recommendation. Record no approval; nothing in the spec or the commit changes. `3` plus a change request is a change request. `3` plus `1`/`2`/`4` prints and re-presents, and the approval is read only from a clean `1`/`2`/`4` on the re-presented gate - a reply carrying `3` never grants. A gate-round recommit (change request or revert) re-runs the same heredoc commit with the audit as its body, so HEAD always carries it; on a revert of edit X, move X's `Applied:` line to `Rejected:` with `-> reverted at gate` and recompute the `Council:` counts from the revised audit. On a validated implementation approval, first read [Standing grants](amendment-surface.md#standing-grants) (stop if unreadable). On every implementation approval (1/2), `edit` the spec's `**Amend-grant:**` value to the decoded table value for every reply. Write exactly one `**Engine:** loop` for 2 or `**Engine:** waves` for 1 directly below `**Amend-grant:**` in the header block (readers: absent -> `waves`). Then `git -C <abs worktree path> add -- <spec path>` and `git -C <abs worktree path> commit --amend --no-edit -q`, keeping the council-audit body; confirm `git -C <abs worktree path> show HEAD:<spec path>` contains both fields with the selected values and satisfies the grant predicate and Value decoding. A reply that mixes approval with a change request ("2 but rename the section") is a change request: revise, re-present, and read the grant only from the reply to the re-presented gate. If the amend or the HEAD check fails, stop and report; never proceed as granted. The plan and execution mode are mechanical derivatives, so the only human gate here is spec approval itself. Don't land the spec on `main`; it stays in the worktree and ships in the same squash commit as the implementation.
 
 Post-approval changes follow [Amending an approved spec](../SKILL.md#amending-an-approved-spec).
 
-After implementation approval (1/2/4/5), mark the brainstorm phase complete:
+After implementation approval (1/2), mark the brainstorm phase complete:
 
 ```
 phase_tracker({ action: "complete", phase: "brainstorm" })
 ```
 
-Then invoke `/skill:writing-plans` on 1/2 or `/skill:loop-implementation` on 4/5 immediately, with no further prompt. For an accepted allowance suffix on 4/5, print exactly one line `run allowance: <n>` immediately before invoking `/skill:loop-implementation`; omit that line on a bare approval. Keep this carrier in the approving turn only, never in the spec or settings.
+Then invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2 immediately, with no further prompt. For a bare loop approval, state that the driver uses the settings allowance without writing it to the spec or settings, and skips plan with reason `loop engine` instead of invoking writing-plans. For an accepted `--allowance=N` flag on row 2, print exactly one line `run allowance: <n>` immediately before invoking `/skill:loop-implementation`; omit that line on a bare approval. Render the carrier as a standalone plain-text line, even when narrating the handoff; keep it in the approving turn only, never in the spec or settings.

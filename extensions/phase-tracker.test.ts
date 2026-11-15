@@ -586,6 +586,53 @@ test("tracker registration is model-only and phase_tracker requests sequential e
   }
 });
 
+for (const row of [
+  { name: "exactly 25 percent", read: () => ({ tokens: 250000, contextWindow: 1000000, percent: 0 }), expected: "25.0% of window" },
+  { name: "just above 25 percent", read: () => ({ tokens: 250001, contextWindow: 1000000, percent: 25 }), expected: "25.1% of window" },
+  { name: "exactly 26 percent", read: () => ({ tokens: 260000, contextWindow: 1000000, percent: null }), expected: "26.0% of window" },
+  { name: "zero tokens", read: () => ({ tokens: 0, contextWindow: 1000000, percent: 99 }), expected: "0.0% of window" },
+  { name: "fractional percentage", read: () => ({ tokens: 1, contextWindow: 3, percent: 33 }), expected: "33.4% of window" },
+  { name: "missing reader", read: undefined, expected: "unknown" },
+  { name: "no usage", read: () => undefined, expected: "unknown" },
+  { name: "null tokens", read: () => ({ tokens: null, contextWindow: 1000000, percent: null }), expected: "unknown" },
+  { name: "zero window", read: () => ({ tokens: 250000, contextWindow: 0, percent: 25 }), expected: "unknown" },
+  { name: "negative window", read: () => ({ tokens: 250000, contextWindow: -1, percent: 25 }), expected: "unknown" },
+]) {
+  test(`status context: ${row.name}`, async () => {
+    const h = harness();
+    const tool = h.tools.find(t => t.name === "phase_tracker")!;
+    const ctx = { ...h.ctx, getContextUsage: row.read };
+    const result = await tool.execute("status", { action: "status" }, undefined, undefined, ctx) as {
+      content: { text: string }[];
+    };
+    assert.equal(result.content.map(c => c.text).join("\n").split("\n").at(-1), `Context: ${row.expected}`);
+  });
+}
+
+for (const row of [
+  { name: "known", usage: { tokens: 1, contextWindow: 3, percent: 33 }, expected: "33.4% of window" },
+  { name: "unknown", usage: undefined, expected: "unknown" },
+]) {
+  test(`status context stays out of details, TUI and widget: ${row.name}`, async () => {
+    const state = phases({ brainstorm: "in_progress" });
+    const h = harness({ hasUI: true, branch: enteredBranch(state) });
+    Object.assign(h.ctx, { getContextUsage: () => row.usage });
+    await h.emit("session_start");
+    const widgetBefore = h.widgets.at(-1);
+    assert.match(widgetBefore!, /brainstorm/);
+    const tool = h.tools.find(t => t.name === "phase_tracker")! as any;
+    const result = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx);
+    assert.equal(result.content[0].text.split("\n").at(-1), `Context: ${row.expected}`);
+    assert.deepEqual(result.details, { action: "status", phases: state });
+    const rendered = tool.renderResult(result, {}, { fg: (_color: string, text: string) => text });
+    assert.match(rendered.text, /Phases:[\s\S]*brainstorm/);
+    assert.doesNotMatch(rendered.text, /Context:|of window/);
+    await h.emit("session_switch");
+    assert.equal(h.widgets.at(-1), widgetBefore);
+    for (const widget of h.widgets) assert.doesNotMatch(widget!, /Context:|of window/);
+  });
+}
+
 test("all-complete plan activity auto-completes an active implement phase", async () => {
   const h = harness({ branch: implementBranch() });
   await h.emit("session_start");

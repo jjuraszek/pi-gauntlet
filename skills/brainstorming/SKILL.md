@@ -34,7 +34,7 @@ Treat the flag as discovery control, not harness authorization. The command reli
 
 ## Checklist
 
-Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan - brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1/2 to `/skill:writing-plans` and 4/5 to `/skill:loop-implementation` per the gate; 6 ends the flow after publishing. Do not jump ahead of approval, and do not silently drop the critique pass.
+Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan - brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1 to `/skill:writing-plans` and 2 to `/skill:loop-implementation` per the gate; 4 ends the flow after publishing. Do not jump ahead of approval, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** - as the first action on authorized fresh entry, before reading code, the worktree, or answering the user, reset both trackers and start the phase. A new brainstorm owns a clean slate, so stale phases and tasks from earlier work are cleared; re-entering mid-brainstorm is safe (nothing to lose, same clean slate):
 
@@ -55,7 +55,7 @@ Work through the items below **in order**. After a user answer or completed side
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
 12. **User review gate** - follow [User Review Gate](#user-review-gate).
-13. **Transition** - after approval, invoke `/skill:writing-plans` on 1/2 or `/skill:loop-implementation` on 4/5 per [User Review Gate](#user-review-gate); 6 ends the flow after publishing.
+13. **Transition** - after approval, invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2 per [User Review Gate](#user-review-gate); 4 ends the flow after publishing.
 
 ## Project Routing
 
@@ -168,7 +168,7 @@ Follow [Spec Council](reference/spec-finalization.md#spec-council) for the manda
 
 ## User Review Gate
 
-Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for summary, commit, approval, and selected-engine transition or option-6 publication.
+Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for summary, commit, approval, and selected-engine transition or row-4 publication.
 
 ## Amending an approved spec
 
