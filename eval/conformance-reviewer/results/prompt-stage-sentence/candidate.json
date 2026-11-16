@@ -1,8 +1,8 @@
 {
   "sample": "prompt-stage-sentence",
   "arm": "candidate",
-  "skillSha": "4e80239a3805cbe8b793e11ac1f5a4f5d7ef49014f35ffbb77a26e6bbfdeba6e",
-  "inputSha": "3288f87f70daa35aa3090e14c7b5bd8d577f69442fe1088de42d0e069bec499e",
+  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
+  "inputSha": "0396dc1f15f0eb9f784a326702b9390441dbd20922d47c4f6f87d9793589a282",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,66 +17,74 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line change; the behavior can be checked directly from the numbered file)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter returns its input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n",
-      "words": 53,
-      "wallMs": 5797,
+      "text": "```\nConformance verdict: GAPS\nConfidence: high   (one-line diff, complete inputs; every requirement maps directly to src/label.mjs or to a file absent from the evidence)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter returns its input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" (goal restated in spec \"Goal\" - \"Trim surrounding whitespace from labels.\"; prompt - \"Make the label formatter trim surrounding whitespace.\") — evidence: src/label.mjs:2 (`return value.trim();`)\n  - [MISSING]      G1: trimming regression test in test/label.test.mjs — origin: spec \"Tests\" - \"Trimming regression - `test/label.test.mjs`, [...]\" — searched: delivered diff and file list; only src/label.mjs is changed, and the task states no test files exist\n  - [MISSING]      G2: label formatter lowercases its output — origin: prompt - \"Make the label formatter lowercase its output.\" — searched: src/label.mjs:1-3; the function returns `value.trim()` with no case conversion, and no other file is delivered\n\nOrigin drift (spec vs prompt/ticket):\n  - The prompt asks for lowercase output, but the spec's Goal/Design cover trimming only and never mention lowercasing — recorded in spec? no — the spec silently dropped a prompt requirement; reported as G2.\n```\n\n```\nG1:\n  verdict: MISSING\n  origin: spec \"Tests\" - \"Trimming regression - `test/label.test.mjs`, [...]\"\n  evidence: absent\n  remediation: add test/label.test.mjs with a regression case asserting label() strips leading/trailing whitespace\n  touched-files: test/label.test.mjs\n  touched-resources: none\n  recommended: fix\n```\n\n```\nG2:\n  verdict: MISSING\n  origin: prompt - \"Make the label formatter lowercase its output.\"\n  evidence: absent\n  remediation: make label() lowercase its result in addition to trimming, and record the lowercase requirement in the spec Goal/Design so spec and prompt are back in sync\n  touched-files: src/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1 conflicts G2 (the trimming regression's expected output depends on whether label() also lowercases)\n",
+      "words": 261,
+      "wallMs": 14115,
       "mechanical": {
-        "f2": "holds",
-        "f4": "holds"
+        "f3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 39,
-      "wallMs": 7217,
+      "text": "Conformance verdict: GAPS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n  - [MISSING] G1: Lowercase the formatter output — origin: prompt - \"Make the label formatter lowercase its output.\" — searched: complete delivered diff and src/label.mjs:1–3; the implementation only trims.\n  - [MISSING] G2: Provide a trimming regression test — origin: spec \"Tests\" - \"Trimming regression - `test/label.test.mjs` [...]\" — searched: complete delivered evidence; no test files exist.\n\nOrigin drift (spec vs prompt/ticket):\n  - The prompt requires lowercase output, but the spec omits that requirement — recorded in spec? no — trimming alone does not satisfy the original prompt.\n\nGaps for user decision:\n\n```text\nG1:\n  verdict: MISSING\n  origin: prompt - \"Make the label formatter lowercase its output.\"\n  evidence: absent\n  remediation: Make the formatter lowercase its output while preserving whitespace trimming.\n  touched-files: src/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\n```text\nG2:\n  verdict: MISSING\n  origin: spec \"Tests\" - \"Trimming regression - `test/label.test.mjs` [...]\"\n  evidence: absent\n  remediation: Add the specified trimming regression test.\n  touched-files: test/label.test.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1,G2 disjoint\n",
+      "words": 165,
+      "wallMs": 15044,
       "mechanical": {
-        "f2": "holds",
-        "f4": "holds"
+        "f3": "holds"
       }
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7e33c7c28b10f18c1205e3cf92aa4e9f519e7858cbb808bf1a48f92c37812f51",
+      "factsSha": "aa2b0f7f8042b6a65cac0e9450d7bb41fd86c07cb466ce583366f819fd0e5b1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
-      "baselineOutputSha": "1e644a47aaa0a932285749471681e8ebfa8c4d401fd7f4d18d23a2ace249cd60",
-      "candidateOutputSha": "bed59ccf79a6fdc65c66fda07cabc58a405ccb0540ff04717a04d3c331cf7ea9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "5092662392184519f483be3cfd21ce48ff86c297ee559942c47b356a060af7f9",
+      "candidateOutputSha": "8dcb62a6fd85d0d02e6ffcd487bf3a574d027320812ab00aa3be0e4b6ed7da76",
       "facts": {
         "f1": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
         },
-        "f3": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
         "f2": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f4": {
           "before": "holds",
           "after": "holds",
-          "label": "held"
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "The After wording moved both facts in the intended direction: the report no longer creates a prompt-origin MISSING row or gap block for \"Both pull requests pass CI.\", no longer cites the sentence in the confidence note, and reports origin drift as none, while the trimming requirement stays DELIVERED with evidence at src/label.mjs:2 and the verdict becomes CONFORMS. Before failed f1 by quoting the sentence in a coverage row, a gap block, the drift section and the confidence line, and failed f3 by recording a drift entry for the spec's omission of it. Nothing that Before kept was lost: the R1 row, its spec origin quote and its line-level evidence all survive. To keep this stable, keep the wording that tells the auditor to drop delivery-stage sentences silently (no row, no drift entry, no skip note, no mention in the confidence rationale) and to keep the spec clause as the origin when the prompt repeats the behavior, as After's R1 row does.",
-      "wallMs": 5152,
+      "feedback": "The After wording moved f1 and f4 in the intended direction and kept f2. On f1, Before raised the prompt's CI sentence as gap G3 with its own drift line and a rescope recommendation, while After has no row, gap, drift entry or mention of pull requests or CI. On f4, Before quoted the whole Tests line including \"under `npm test`\", put \"run under `npm test`\" in the gap title, and added package.json to touched files; After keeps the missing test/label.test.mjs as a spec-origin gap quoting only the file clause, with remediation and touched files limited to that file. On f2, the lowercase gap survives in both with the prompt origin quoted verbatim and its drift line intact, so the exclusion did not suppress undelivered file behavior. The one soft spot is the \"[...]\" marker in After's origin quote: it is not a skip note, but it does signal that something was cut from the line, and a stricter reader could count it as a trace of the excluded suite-run clause. To make f4 robust, tell the auditor to end the origin quote at the end of the file clause (\"Trimming regression - `test/label.test.mjs`\") with no ellipsis or elision marker, while keeping the current rule that undelivered behaviors and file deliverables remain gaps with their original prompt or spec quotes.",
+      "wallMs": 9288,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7e33c7c28b10f18c1205e3cf92aa4e9f519e7858cbb808bf1a48f92c37812f51",
+      "factsSha": "aa2b0f7f8042b6a65cac0e9450d7bb41fd86c07cb466ce583366f819fd0e5b1a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
-      "baselineOutputSha": "a97909ad390936bd99f12726c41d2ba4fa6f4d7320808d297ed0ef2ace8ae0ee",
-      "candidateOutputSha": "a135fd1fcb9fc4c01961728a7e944ea8e15b39603ad4aaf31fc8b4f059b08323",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "05736e11bde9f3069789e12a39a1e7016dc89ce8a4b2432b2932a7d9b27f70d4",
+      "candidateOutputSha": "b272173f4387b55518b80ab647081540fb8101a618965d3854e51fb42a31ef3f",
       "facts": {
         "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
@@ -85,22 +93,12 @@
           "before": "holds",
           "after": "holds",
           "label": "intended but unchanged"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f4": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
         }
       },
-      "feedback": "After dropped the trailing paragraph that Before appended ('The prompt's statement \"Both pull requests pass CI\" is context, not an acceptance requirement... CI status is not verified'), which is what moved f1 from fails to holds: Before produced no coverage row, gap or verdict for the sentence but still quoted and explained it, which f1 forbids. f3 held in both outputs: origin drift is 'none' and trimming is DELIVERED with evidence at src/label.mjs:2, so nothing Before kept was lost. To preserve this, keep the wording that tells the skill to omit delivery-stage sentences silently (no skip note, no quote, no 'not verified' disclaimer) while still requiring the behavior requirement to be listed with its spec origin and file:line evidence; avoid any instruction that invites an explanatory note about excluded content, since that would reintroduce the Before failure.",
-      "wallMs": 5833,
+      "feedback": "After moves f1 and f4 in the intended direction and keeps f2. For f1, Before raised G3, a drift line and a parallel-safety note that all quoted \"Both pull requests pass CI.\", while After has no row, gap, drift entry or mention of that sentence. For f2, both outputs keep the lowercase gap as MISSING with the prompt origin \"Make the label formatter lowercase its output.\", so the exclusion did not suppress undelivered file behaviour. For f4, Before quoted the whole Tests line including \"under `npm test`\" and put \"runnable under npm test\" in the row title and remediation, whereas After keeps the missing test file as a spec \"Tests\" gap quoting only \"Trimming regression - `test/label.test.mjs`\" and drops the suite run from the title, remediation and touched files. The one soft spot is the \"[...]\" marker After appends to that origin quote: a strict reader could take it as a visible trace of the excluded clause. To make f4 robust, word the instruction so the origin quote ends cleanly at the file clause with no ellipsis or elision marker, and keep the current wording that excludes only stage or suite-run clauses while file deliverables and prompt-only behaviours stay as requirements.",
+      "wallMs": 8617,
       "verdict": "improved"
     }
   },
-  "repoSha": "366f8d51914eef50f63ae747ec873821a3d76a42"
+  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
 }

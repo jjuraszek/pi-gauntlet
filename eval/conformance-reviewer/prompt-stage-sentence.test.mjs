@@ -15,9 +15,11 @@ const read = (path) => readFileSync(resolve(root, path), "utf8");
 const dir = "eval/conformance-reviewer";
 const sample = "prompt-stage-sentence";
 
-test("prompt-only stage sentence produces no requirement or drift while prompt behavior stays covered", () => {
+test("prompt-only behavior and a Tests file remain gaps while stage proof is omitted", () => {
   const target = JSON.parse(read(`${dir}/target.json`));
   const { text, bundle } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+  assert.match(text, /Make the label formatter lowercase its output\./);
+  assert.match(text, /## Tests\nTrimming regression - `test\/label\.test\.mjs`, under `npm test`\./);
   assert.deepEqual(lintTarget(resolve(root, dir)), []);
   const expected = read(`${dir}/samples/${sample}/expected.md`);
   const { facts } = parseExpected(expected);
@@ -36,9 +38,12 @@ test("prompt-only stage sentence produces no requirement or drift while prompt b
     assert.ok(cellReusable(baseline, model, { ...identity, skillSha: baseline.skillSha }), `${model}: inconsistent baseline`);
     const output = candidate.outputs[model];
     assert.ok(Object.values(runMechanical(facts, output.text)).every((value) => value === "holds"), `${model}: mechanical facts`);
-    assert.match(output.text, /Conformance verdict: CONFORMS/);
+    assert.match(output.text, /Conformance verdict: GAPS/);
     assert.doesNotMatch(output.text, /Both pull requests pass CI/);
-    assert.doesNotMatch(output.text, /\[(?:PARTIAL|MISSING|DRIFTED|UNAUTHORIZED)\]/);
+    assert.doesNotMatch(output.text, /npm test|UNAUTHORIZED/);
+    assert.match(output.text, /origin: prompt[^\n]*Make the label formatter lowercase its output/);
+    assert.match(output.text, /origin: spec[^\n]*Trimming regression - `test\/label\.test\.mjs`/);
+    assert.ok((output.text.match(/^G\d+:$/gm) ?? []).length >= 2, `${model}: both missing-file gaps`);
     const judged = candidate.judge[model];
     assert.ok(judgmentCurrent(judged, {
       factsSha: sha256(expected), judgePromptSha: sha256(read("eval/judge.md")),

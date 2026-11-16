@@ -1,9 +1,9 @@
-Audit this change against the complete spec and verbatim prompt below. No pull requests exist, and no CI results are supplied. No tools are available. The diff and numbered current file are the complete delivered evidence.
+Audit this change against the complete spec and verbatim prompt below. No pull requests exist, and no CI results are supplied. No tools are available. The diff and numbered current file are the complete delivered evidence. No test files exist.
 
 ## Verbatim original prompt
 
 ```text
-Make the label formatter trim surrounding whitespace. Both pull requests pass CI.
+Make the label formatter trim surrounding whitespace. Make the label formatter lowercase its output. Both pull requests pass CI.
 ```
 
 ## Spec
@@ -16,6 +16,9 @@ Trim surrounding whitespace from labels.
 
 ## Design
 The label formatter returns the input with surrounding whitespace removed.
+
+## Tests
+Trimming regression - `test/label.test.mjs`, under `npm test`.
 ```
 
 ## Delivered diff
