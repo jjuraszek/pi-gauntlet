@@ -1,0 +1,38 @@
+{
+  "sample": "legs-verification-line",
+  "arm": "baseline",
+  "skillSha": "92d1e1e59ed2595bcfff01527f64f9a23d9212701b0a8b03650adcfcf044615a",
+  "inputSha": "93f9797b89afd869f6bb0fcb6686dc913a65b828d76344843594ae4c6d1f1566",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nConformance verdict: GAPS\nConfidence: medium   (the code-level clauses are verifiable from the diff and numbered files; the verification-contract clauses have no supplied evidence: no PR exists, no CI result, no test output, and no tools were available to run checks)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" (also prompt - \"trims surrounding whitespace\") — evidence: src/label.mjs:2\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" (also prompt - \"lowercases the label\") — evidence: src/label.mjs:2\n  - [DELIVERED]    R3: Labels are normalized before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:1-3 (the bundled `label` now trims and lowercases; the task inputs state the unchanged CLI entry point calls `label` before printing)\n  - [DELIVERED]    R4: Regenerated CLI bundle committed with the change — origin: prompt - \"Commit the regenerated CLI bundle as part of the change.\" / spec \"Legs / acme/widgets\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:2 (matches src/label.mjs:2; the task inputs state it is tracked and committed)\n  - [MISSING]      G1: Leg verification `npm test` run and passing — origin: spec \"Legs / acme/widgets\" - \"verification: npm test\" — searched: diff, numbered files, supplied inputs; no test output supplied, and no tool was available to run it\n  - [MISSING]      G2: PR gate `npm run pr-check` passed — origin: spec \"Legs / acme/widgets\" - \"PR gate npm run pr-check\" (also prompt - \"the PR gate [...] are the ship evidence\") — searched: supplied inputs; no pull request exists and no pr-check result was supplied\n  - [MISSING]      G3: Green CI on the exact PR head as ship evidence — origin: spec \"Legs / acme/widgets\" - \"ship evidence is green CI on the exact PR head\" (also prompt - \"green exact-head CI are the ship evidence\") — searched: supplied inputs; no PR exists, so there is no PR head and no CI run\n\nOrigin drift (spec vs prompt/ticket):\n  none   (the prompt's formatter, bundle-commit and ship-evidence requirements all appear in the spec)\n```\n\n```\nG1:\n  verdict: MISSING\n  origin: spec \"Legs / acme/widgets\" - \"verification: npm test\"\n  evidence: absent\n  remediation: run npm test on the committed change and record passing output as leg verification evidence\n  touched-files: none\n  touched-resources: fixture\n  recommended: fix\n```\n\n```\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / acme/widgets\" - \"PR gate npm run pr-check\"\n  evidence: absent\n  remediation: open a PR for the change and run the PR gate npm run pr-check against it, recording a passing result\n  touched-files: none\n  touched-resources: fixture, external service\n  recommended: fix\n```\n\n```\nG3:\n  verdict: MISSING\n  origin: spec \"Legs / acme/widgets\" - \"ship evidence is green CI on the exact PR head\"\n  evidence: absent\n  remediation: once the PR exists, obtain a green CI run whose commit SHA equals the PR head and cite it as ship evidence\n  touched-files: none\n  touched-resources: external service\n  recommended: fix\n```\n\nParallel-safe: G1 conflicts G2 (pr-check likely runs the same test suite and fixtures); G2 conflicts G3 (both require the same PR, and CI must run on the head the gate verified); G1 conflicts G3 (shared test fixtures, and the exact-head CI result depends on the final committed head)\n",
+      "words": 485,
+      "wallMs": 21840,
+      "mechanical": {
+        "f1": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Conformance verdict: GAPS\nConfidence: medium\n\nRequirement coverage:\n  - [DELIVERED] R1: Normalize labels before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2; supplied delivery evidence confirms the unchanged CLI entry point calls `label` before printing.\n  - [DELIVERED] R2: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R3: Lowercase the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R4: Commit the regenerated CLI bundle — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:1–3; supplied delivery evidence explicitly confirms regeneration and inclusion in the committed change.\n  - [MISSING] G1: Required test verification is not evidenced — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"verification: npm test\" — searched: complete supplied diff, numbered files, and delivery statements; no `npm test` result supplied.\n  - [MISSING] G2: Required PR gate is not evidenced — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"PR gate npm run pr-check\" — searched: complete supplied inputs; no PR or `npm run pr-check` result supplied.\n  - [MISSING] G3: Required exact-head green CI ship evidence is absent — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"ship evidence is green CI on the exact PR head\" — searched: complete supplied inputs; explicitly no PR exists and no CI result is supplied.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nGaps for user decision:\n\n```yaml\nG1:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: acme/widgets / contract\" - \"verification: npm test\"\n  evidence: absent\n  remediation: Run npm test against the audited change and supply its result.\n  touched-files: unknown\n  touched-resources: none\n  recommended: fix\n```\n\n```yaml\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: acme/widgets / contract\" - \"PR gate npm run pr-check\"\n  evidence: absent\n  remediation: Execute npm run pr-check and supply evidence that the required PR gate passes.\n  touched-files: unknown\n  touched-resources: none\n  recommended: fix\n```\n\n```yaml\nG3:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: acme/widgets / contract\" - \"ship evidence is green CI on the exact PR head\"\n  evidence: absent\n  remediation: Defer ship approval until a PR exists and green CI evidence identifies its exact head; this cannot be established from the supplied branch-only evidence.\n  touched-files: unknown\n  touched-resources: external service (PR hosting and CI)\n  recommended: rescope\n```\n\nParallel-safe: G1 conflicts G2 (verification scope and file overlap unknown); G1 conflicts G3 (CI verification scope unknown); G2 conflicts G3 (PR gate and exact-head CI may share verification resources)\n",
+      "words": 373,
+      "wallMs": 22787,
+      "mechanical": {
+        "f1": "fails"
+      }
+    }
+  },
+  "repoSha": "ab9bfd89947dac9c5c95f0661a91fc53db77be52"
+}

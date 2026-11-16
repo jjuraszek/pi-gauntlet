@@ -3,13 +3,13 @@
 base: 3171d0e124e361836d163217ff976af02c86cf2f
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
-returned: seed | home | 70a0bd1f2c4599df60b4582d7355e724d5f6b4a3
+returned: 1 | home | ab9bfd89947dac9c5c95f0661a91fc53db77be52
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/legs-verification-line.test.mjs; 1 passed, 0 failed; selected model eval legs-verification-line improved on both replay models; file and behavior clauses DELIVERED without PR-gate or ship-evidence gaps |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -19,3 +19,4 @@ returned: seed | home | 70a0bd1f2c4599df60b4582d7355e724d5f6b4a3
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 6: reuse scripts/brainstorming-contract.test.mjs to widen the ticket gate and drafting rules
+row 1 done | The audit drops delivery-stage clauses while retaining delivered file and behavior requirements on the same leg line. | Reuse eval/conformance-reviewer and its legs-verification-line fixture and cached replay check to test the remaining audit exclusions.

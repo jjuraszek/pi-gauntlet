@@ -228,6 +228,8 @@ const tokenChecks = [
   ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
+  ["agents/conformance-reviewer.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
+  ["agents/conformance-reviewer.md", "This is the only exception to", false],
   ["agents/wave-reviewer.md", "met | unmet | out-of-scope", true],
   ["skills/subagent-driven-development/wave-reviewer-prompt.md", "TRAJECTORY: CONVERGING", true],
   ["skills/subagent-driven-development/reference/dispatch-contract.md", "WAVE_VERDICT_SCHEMA", true],
