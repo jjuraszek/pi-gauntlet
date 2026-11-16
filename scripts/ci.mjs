@@ -227,16 +227,21 @@ const tokenChecks = [
   ["agents/spec-council-synthesizer.md", "\nlean: <k> of <n> members found nothing to cut\n", true],
   ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
+  ["skills/shape-ticket/SKILL.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
+  ["agents/conformance-reviewer.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
+  ["agents/conformance-reviewer.md", "This is the only exception to", false],
   ["agents/wave-reviewer.md", "met | unmet | out-of-scope", true],
   ["skills/subagent-driven-development/wave-reviewer-prompt.md", "TRAJECTORY: CONVERGING", true],
   ["skills/subagent-driven-development/reference/dispatch-contract.md", "WAVE_VERDICT_SCHEMA", true],
   ["skills/writing-plans/SKILL.md", "is never waivable", true],
+  ["skills/writing-plans/SKILL.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   // council provenance / probe-before-apply / standing amend approval
   ["agents/spec-council-member.md", "probed:", true],
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],
   ["agents/spec-council-synthesizer.md", "grounded|hypothesis:", true],
   ["agents/spec-council-applier.md", "clusters that assert data shape, ordering, or semantics", true],
+  ["agents/spec-council-applier.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["skills/roasting-the-spec/SKILL.md", "outputMode: \"file-only\"", true],
   ["skills/shape-ticket/SKILL.md", "outputMode: \"file-only\"", true],
   ["skills/brainstorming/reference/amendment-surface.md", "waives per-diff review", true],
@@ -545,10 +550,10 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
-  ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source and eval lib contracts pass");
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), R("scripts/delivery-stage-authoring.test.mjs"), R("eval/conformance-reviewer/ci-step-is-the-change.test.mjs"), R("eval/conformance-reviewer/legs-verification-line.test.mjs"), R("eval/conformance-reviewer/prompt-stage-sentence.test.mjs"), R("eval/conformance-reviewer/stage-exclusion.test.mjs"), R("eval/spec-council-applier/pr-description-finding.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source, delivery-stage authoring and eval contracts pass");
 } catch (e) {
-  fail(`happy-path, wave-review, PR comment, brainstorming or eval lib regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`happy-path, wave-review, PR comment, brainstorming, delivery-stage authoring or eval regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
 }
 
 try {

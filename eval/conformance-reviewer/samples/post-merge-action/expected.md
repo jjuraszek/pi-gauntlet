@@ -1,0 +1,2 @@
+- f1: judged: Neither the housekeeping sentence "After merge, a repository admin creates the `DEPLOY_TOKEN` secret." nor the commit-message sentence "The commit message says \"Trim widget labels\"." is quoted, paraphrased or explained anywhere in the report. Neither produces a coverage row, gap block, verdict, origin-drift line, UNAUTHORIZED row or skip note. The report retains the delivered trimming behavior with evidence at src/label.mjs:2.
+- f2: mechanical: contains "Conformance verdict: CONFORMS"

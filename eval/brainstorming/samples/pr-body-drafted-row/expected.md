@@ -1,0 +1,3 @@
+- f1: judged: No drafted acceptance row has PR-description text listing deleted test files as its sole observable. The release-script behavior that produces pull-request text is retained, not misclassified as stage proof.
+- f2: judged: Under Drafted from the design, no ticket rows:, exactly two unchecked in-scope rows name the committed behaviors: the retired parser's test directory is empty after removing its obsolete tests, and the release script writes the changelog section into the pull request body. Neither behavior is lost or cut.
+- f3: judged: No cut question or scope-decision question is asked, and no none fallback replaces the rows.

@@ -1,0 +1,4 @@
+- f1: mechanical: contains "Conformance verdict: CONFORMS"
+- f2: judged: No coverage row, gap block or origin-drift line quotes or treats the PR gate command or ship evidence as a requirement. The report does not list or explain skipped stage clauses.
+- f3: judged: Both behavior clauses, trimming surrounding whitespace and lowercasing the label, have DELIVERED coverage rows citing the delivered file evidence.
+- f4: judged: The regenerated bundles committed clause from the leg verification line has its own DELIVERED coverage row with an origin quoting that file clause and evidence in bin/widget.mjs. The report does not exclude the whole verification line.

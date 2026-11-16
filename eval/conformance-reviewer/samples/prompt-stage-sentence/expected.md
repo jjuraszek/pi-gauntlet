@@ -1,0 +1,4 @@
+- f1: judged: The prompt sentence "Both pull requests pass CI." produces no coverage row, gap block, verdict or origin-drift line. The report does not quote, paraphrase or explain this excluded sentence anywhere.
+- f2: judged: The missing lowercase behavior remains a gap whose origin is prompt and quotes "Make the label formatter lowercase its output." The spec dropped this behavior and src/label.mjs does not deliver it; the exclusion does not suppress this undelivered file behavior.
+- f3: mechanical: contains "Conformance verdict: GAPS"
+- f4: judged: The missing test/label.test.mjs remains a gap whose spec origin quotes the Tests line's file clause "Trimming regression - `test/label.test.mjs`". Only the suite-run clause "under `npm test`" is excluded, with no row, gap, origin quote, drift line or skip note for that suite run.

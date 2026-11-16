@@ -1,0 +1,106 @@
+{
+  "sample": "stage-only-sentences",
+  "arm": "candidate",
+  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
+  "inputSha": "832cfff8a13048b180d913a3ff1d17df4cafb443d628df1b74f3c909b5f07348",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line diff; String.prototype.trim removes leading and trailing whitespace, which is the whole requirement)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter returns input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n  - [DELIVERED]    R2: labels have surrounding whitespace trimmed — origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\" — evidence: src/label.mjs:1-2\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 70,
+      "wallMs": 8923,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 39,
+      "wallMs": 5771,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "5605ad37c4cea903af9eb344547bef3ae71d291a988305f37747c3278836405f",
+      "candidateOutputSha": "ac3bdb99d20770835b983fc9cbfce7875354086c59ba002b5a06549491a268f1",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved both facts in the intended direction: it drops every delivery-stage sentence (CI on PR head, PR title, PR state/approval, PR description step, merge, scan-time record, npm test run, release workflow) with no coverage row, gap block, drift line or skip note, and its confidence text speaks only about the trim behavior, while the delivered trimming stays covered with file evidence at src/label.mjs:2. Before quoted all three named sentences as origins, gave each stage sentence a MISSING row and gap block, and explained the process clauses in confidence and origin drift, so both facts failed there. Nothing that Before kept was lost. To keep this stable, keep the wording that excluded stage sentences leave no trace at all (no quote, no summary, no explanation in confidence or drift) and that behavior requirements still cite file:line evidence. One thing to watch: After splits the same behavior into two rows (Goal and Design); this does not break either fact, but if you want a single requirement per behavior, say that Goal restatements of a Design requirement merge into one row.",
+      "wallMs": 5600,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "2deb99ae85920d318ba294ed43976ad5b695145688b93179997290cdfaaa6a28",
+      "candidateOutputSha": "a135fd1fcb9fc4c01961728a7e944ea8e15b39603ad4aaf31fc8b4f059b08323",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "In After, the report contains a single DELIVERED row for the trimming behavior with file evidence at src/label.mjs:2, no quotes of any PR-description, ship-evidence or root-scan sentence, no rows, gap blocks, verdict or drift lines for PR title, PR state, review, merge, full-suite or workflow-run sentences, and no skip note in confidence or origin drift, so both f1 and f3 hold. Before fails both: it quotes all three named sentences as origins, gives G1-G8 coverage rows and gap blocks to every stage sentence, returns GAPS because of them, and its drift line explains that the 'delivery and verification clauses remain requirements'. The After wording delivered the Change here without losing anything Before kept (R1 with its spec origin and file evidence is intact). To keep this stable, retain the wording that makes stage-sentence exclusion silent (no skip note, no drift comment, no confidence caveat) and that keeps behavior clauses as requirements with line-level file evidence; avoid any phrasing that invites the model to justify a 'high' confidence by mentioning what was excluded.",
+      "wallMs": 5563,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+}

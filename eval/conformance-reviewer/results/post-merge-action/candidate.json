@@ -1,0 +1,84 @@
+{
+  "sample": "post-merge-action",
+  "arm": "candidate",
+  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
+  "inputSha": "2c6caf9a3cd6b929ea91ca53d2e41239c873114a0fd1fec713873b0bf251b4d7",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line change, fully visible in the diff and numbered file; no checks were run because no tools were available)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Labels have surrounding whitespace trimmed — origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n  - [DELIVERED]    R2: The label formatter returns its input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:1-2 (`export function label(value) {` / `return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 85,
+      "wallMs": 6130,
+      "mechanical": {
+        "f2": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 38,
+      "wallMs": 4861,
+      "mechanical": {
+        "f2": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f40452c2d24163ac4dc21d12fe6efcc19741347447f48ad51b15eba64017ec59",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "c4adc641e38ac1216571bc07a850dab921bfbdb5df627ea2d39db86bd907b239",
+      "candidateOutputSha": "a2a33f67bc5a10b6b3a9a57dc956e4e217ebab0c8ddae07075b745f8785cd5bb",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved f1 as intended: the report no longer quotes, paraphrases or explains the after-merge `DEPLOY_TOKEN` admin step or the commit-message sentence, and produces no coverage row, gap block, UNAUTHORIZED row, drift line or skip note for either, while the trimming behavior stays DELIVERED with evidence at src/label.mjs:2 and the verdict becomes CONFORMS. Before failed because it turned the commit-message sentence into a MISSING gap (G1) and the housekeeping sentence into an UNAUTHORIZED row (G2), quoting both, and its confidence note also mentioned the commit message. To keep this result stable, keep the exclusion wording explicit that post-merge operator steps and commit-message sentences are omitted silently (no skip note, and no mention in the confidence line); the After confidence note's 'no checks were run' is fine since it does not reference either excluded sentence, but take care that the wording never invites a remark about unverified delivery-stage evidence there. Splitting the Goal and Design sentences into two delivered rows is harmless for this fact, though you may want wording that merges duplicate behavior statements into one requirement if other samples expect a single row.",
+      "wallMs": 5641,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f40452c2d24163ac4dc21d12fe6efcc19741347447f48ad51b15eba64017ec59",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "66d52ce40ca5a5d64bae27ae95e519bf4f9194f4a645694e91fe305893488252",
+      "candidateOutputSha": "df63d0552429763050dc25677dd4dec15ee696c72841e7e8d52ebe8c891f0afe",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved f1 as intended: Before quoted both the DEPLOY_TOKEN housekeeping sentence and the commit-message sentence as UNAUTHORIZED rows G1 and G2 with gap blocks, a GAPS verdict, and an origin-drift comment about them, while After omits both sentences entirely (no row, gap block, drift line, or skip note) and retains the delivered trimming requirement with evidence at src/label.mjs:2 under a CONFORMS verdict. Nothing Before kept was lost for this fact; to keep it stable, keep the wording that classifies post-merge operator steps and commit-message sentences as delivery-stage clauses excluded silently (no skip note or scope-creep row), and keep the instruction to cite precise line evidence for the delivered behavior so the src/label.mjs:2 citation persists.",
+      "wallMs": 3998,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+}

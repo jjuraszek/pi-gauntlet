@@ -1,32 +1,30 @@
-# eval report: brainstorming (partial run: spec-and-amendment-subjects)
+# eval report: brainstorming (partial run: post-action-sorted)
 
-for: 9e6ce55eb9025e4a284616304491e63bfb600b1bcb4520b1b09b075f57d2e877
+for: 2ad9f23fcdaa0b865286c331ea4a809337f4bddc6c6df06b677ceabbdb8f0b45
 
-wall: 72s
+wall: 36s
 
 ## Change
 
+Distinguish pull-request text as stage proof from text the change produces, and sort operator steps before every spec-writing branch. Run only pr-body-drafted-row and post-action-sorted against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit, with a baseline-only run first for the bundled drafting sample. Keep each committed behavior, copy ticket rows verbatim, and place the admin's after-merge secret step in the labeled Design paragraph rather than an acceptance row or Tests requirement. Remove the obsolete new-file markers for the commit-message reference, which exists at this base, without changing assembly content. Preserve prior evidence and facts; these tool-free checkpoints prove authored sections, not live writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs. The initial drafting comparison stopped on an unspecified Self-Review read in one replay; supply that successful prerequisite observation in both new fixtures without changing facts or weakening the read gate. Reseed the changed bundled case before its comparison, and reuse the unchanged base for every run.
+
 Compose spec, companion and amendment subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council and amendment audit lines. Consent changes use its fixed sentence with a body naming the new value. Ledger amendments record their boundary in Decisions, not the subject; selected spec dispositions use the same amendment recipe without another gate. Run only spec-and-amendment-subjects, which extends the spec-and-grant-message fixture with batch and disposition checkpoints; preserve that earlier sample and all its evidence. These narrated results prove message composition and scoped persistence, not live writes or target-wide coverage.
-
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| spec-and-amendment-subjects | anthropic/claude-opus-5-5 | improved | 15650 | spec: fails -> holds (intended change); ticket: holds -> holds (held); audit: holds -> holds (held); consent: fails -> holds (intended change); amendment: fails -> holds (intended change); ledger: fails -> holds (intended change); disposition: fails -> holds (intended change) |
-| spec-and-amendment-subjects | github-copilot/gpt-6.1-sol | improved | 13934 | spec: fails -> holds (intended change); ticket: holds -> holds (held); audit: holds -> holds (held); consent: fails -> holds (intended change); amendment: fails -> holds (intended change); ledger: fails -> holds (intended change); disposition: fails -> holds (intended change) |
-
-## Feedback
-
-- spec-and-amendment-subjects / anthropic/claude-opus-5-5: After moved five facts by making each trace read /package/skills/finishing-a-development-branch/reference/commit-message.md and take its subject from that file: `Add the profile caching spec`, the fixed `Change the standing amendment consent` with one body sentence naming none, `Amend the spec for cache lifetime and 1 more`, and the same amendment recipe for the disposition. Before had used `spec:`, `grant: none`, `loop: amend` and `spec: Retain cache warming` and never recorded a ledger decision. Ticket and audit held in both, with Refs #241 in the bodies only, the five council lines verbatim, a quoted heredoc and home committed before the companion. Three holds are fragile and worth pinning in the wording. First, the output lowercases item titles in subjects (`cache lifetime`, `retain cache warming`); say whether the title is copied verbatim or sentence-cased, because the disposition fact names the title as `Retain cache warming`. Second, the ledger line came out as `amended | 2 items | Cache lifetime` and was introduced as "the ledger decision" rather than an append to the ledger's Decisions section; give the literal line format, including the `item(s)` token if it is literal, and name the section. Third, the consent trace decided the commit carries no ticket line at all; that satisfies the fact as written, but if a bound ticket should appear in the consent body under the refs convention, say so explicitly, otherwise the output will keep dropping it.
-- spec-and-amendment-subjects / github-copilot/gpt-6.1-sol: After moved five facts from fails to holds and lost none. Reading the shared commit-message reference at /package/skills/finishing-a-development-branch/reference/commit-message.md replaced the `spec:`, `grant:`, `loop: amend` and `amend:` subjects with `Add the Profile caching spec`, `Change the standing amendment consent` (plus a one-sentence body naming `none`), `Amend the spec for Cache lifetime and 1 more` and `Amend the spec for Retain cache warming`. The amendment boundary moved into a ledger decision instead of the subject, and the council audit, quoted heredoc, home-first ordering and `Refs #241` body placement that Before already had were kept. Three spots are thinner than they could be and worth pinning in the wording. First, the ledger decision is rendered `amended | 2 items | Cache lifetime` and described only as a 'batch decision'; state the literal form and that it is appended under the ledger's Decisions section, so a stricter reading of `2 item(s)` still passes. Second, the companion commit is narrated in prose without a command; require the same quoted-heredoc `git commit -F -` form as the home commit. Third, Trace D says to 'retain the human-selected disposition audit' without showing the body; require the full message so the audit lines and `Refs #241` are visible. In Trace B, also keep the body to the single value-naming sentence plus the ticket line, so no loop state can creep in.
-
-exit: 0
 
 ### Prior change context (not current replay authorization)
 
-Migrate only loop-gate, engine-waves, grant-budget-reply, spec-pr-regate-legs, spec-pr-unmarked, spec-pr-publish-legs and drafted-ac-rows. Preserve their original subjects and non-gate assertions. Rows are 1 plan engine, 2 loop engine, 3 council explanation, 4 draft PR. Bare engine approvals grant amendments; --amends-stop opts out. Preserve PR-subject withholding and home-only published persistence.
+Prior intent for: 65abe58528f169348439b67695efa230f2300fdcc1a132548d4ce2ee6976dcb1
 
-This is selected tool-free narration, not live Git/GitHub execution or a target-wide pass. Reuse valid replays when only judgments change. Preserve unrelated results and the prior spec-pr-regate rows below.
+Complete the selected four-row migrations in loop-gate, engine-waves, grant-budget-reply, spec-pr-regate-legs, spec-pr-unmarked, spec-pr-publish-legs and drafted-ac-rows. Grant-budget-reply already numbers rows 1/2/3/4 and tests the full funded grant; migrate its stale draft-PR sentence and token-only fact to the specified fresh-session command and single clarifying question for a rendered row. Preserve their original drafting, audit, waves, budget, provisioning, publication and cleanup subjects and non-gate facts. Replace six-row menus and approval numbers with plan 1, loop 2, council 3 and draft PR 4; default engine approvals persist the full amendment grant while explicit --amends-stop opts out. Cover the budget-only funded opt-out in spec-gate/flag-replies and ground recommendations with observed context/settings. Run only these seven migrated samples, seeding baseline first wherever case text changed; spec-pr-unmarked changes facts only. Preserve unrelated result records and partial-report rows. These selected tool-free narrations do not prove live Git/GitHub operations or target-wide coverage; later failures remain failures rather than accepted variance.
+
+On a marked draft-PR re-gate, accept plan 1 and loop 2 with the ordinary gate's flags, persist the decoded grant, selected engine and lowercase PR identity in a new commit, verify all three fields from HEAD, then continue through the selected engine. Keep the allowance carrier out of the spec and settings. Migrate only spec-pr-regate to the four-row menu and eight bare/flagged approval traces; retain audit, shape, change and unresolved-merge controls. Run only spec-pr-regate against base 855e872a42f9cac7a795704f3e0b383b182950ab. This tool-free replay proves narrated ordering, not live persistence or target-wide coverage. Preserve other records. The selective deterministic check lives beside its siblings in scripts/brainstorming-pr-regate-approval.test.mjs; model replay remains outside CI.
+
+Withhold draft row 4 on every PR-subject gate, retaining rows 1/2/3 and the existing-PR disclosure. Keep the unmarked spec-only classifier on the same withheld row and implementation approvals 1/2. Migrate only pr-subject-gate: at Context: 26.0%, recommend the unbundled loop row 2 and clarify independent replies 4, draft PR, and 6 without mutation or remapping. Run only pr-subject-gate against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve all unrelated records. This selected tool-free replay proves narrated gating, not live GitHub operations or target-wide coverage.
+
+Reject invalid gate replies before approval and spec-change handling. Migrate only loop-funded-reply to row-2 loop and row-1 plan flag grammar, preserving its funding rejection, opt-out, default grant, allowance carrier and waves controls. Replace comma-allowance acceptance with rejection, then add a table of malformed, duplicate, unknown, worded, old-suffix, wrong-row and withheld-row cases. Retain its bundle and 2200-word cap; narrate shared unchanged state once and one question per rejected input. Run only loop-funded-reply and spec-gate/flag-replies for this change against base 855e872a42f9cac7a795704f3e0b383b182950ab. These selected tool-free replays do not establish live writes or target-wide coverage; preserve all unrelated records.
+
+Migrate grant-budget-reply's funding approval to `1 --fund-rounds=3`, retaining its report-runner subject and token-only control. Persist the complete default grant, its terminal period included, plus `; fund 3 fix rounds` and Engine waves, preserve the audit and verify HEAD before completing brainstorm and planning. Run only grant-budget-reply for this edit against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve other sample records. This is partial narrated persistence coverage, not live git execution or a target-wide pass.
+
+Plain approval `2` now persists the default standing grant G with Engine loop, checks the amended commit before completing brainstorm, and invokes loop-implementation without writing-plans. Strengthen only loop-gate's plain-reply continuation to include the observed allowance 7 and absence of an override carrier. State the driver's plan skip and settings-write boundary explicitly in the handoff instead of leaving them implicit. Run loop-gate only; its other menu facts retain pre-migration wording and are not closure evidence for this row. Saved narration proves the selected continuation, not live Git execution or target-wide coverage.
 
 Record leg contracts by creator, omitting home for script/native creation and omitting home/destroy for host-owned trees. Keep keyed and built-in homes, portable script commands with explicit branch, distinct create/destroy name tokens, and branch-based lookup with identity checks. Run only multi-repo-script-placed-leg for this change against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f, within the spec's three-run/fourteen-call-per-run bound. Its bundled legs reference carries the changed instructions. Remove the stale opening-message new-file marker because that file exists at this base. Preserve other sample records; this synthetic replay proves narrated contracts, not live creation or target-wide coverage.
 
@@ -58,6 +56,8 @@ Publish N>1 committed spec handles in companion-first/home-last preflight and pu
 
 The first intent token merge-forward, after the leading PR-reference run, selects member-then-base merge provisioning and is stripped alone; later occurrences remain intent. The pr-subject-merge-forward sample exercises that override, nonleading/free-text controls and unchanged unmarked spec-only routing. Preserve original-head records and existing admission/relatedness controls. This fixture extension accepts no failed must-hold fact and performs no live forge actions. Fixture-only sync-mode coverage does not change the bundle-free assembly SHA 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124; preserve the unrelated aftermath-unchanged-command inconclusive evidence rather than treating a cached partial report as target-wide verification.
 Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
+
+Persist the default amendment grant and Engine waves on plain reply `1`, retain the council audit while amending, and verify both committed fields before completing brainstorm and invoking writing-plans. Strengthen only engine-waves trace A with the full header value, full narration, and ordered continuation; its plan-default fact proves the new plan approval. Run only engine-waves against base 855e872a42f9cac7a795704f3e0b383b182950ab. The remaining traces keep their existing coverage for later reply migrations; this selected narrated replay proves no live git or tracker operations and no target-wide coverage. Preserve other samples and prior accepted variance.
 
 Feed attributable plan-aftermath failures back into the same amendment batch, restore only an entirely eligible dirtied-source row, honor amend permission independently of funding, and stop at two applied retry items or repeated evidence. Add amendment-surface section 5 immediately after section 4 in the headed assembly, retaining wordCap 1400, the denylist and existing bundle drops (a path drop removes both slices). This changes whole-target assembly cost: parent verification reseeds the baseline with `node eval/run.mjs brainstorming --baseline-only`, then runs the full `node eval/run.mjs brainstorming` on both models and produces report/records; the four additions alone are not the replay scope. Keep replays outside task Tests because the runner CLI cannot satisfy its file-token contract; add no Replays contract or selective bundle machinery.
 
@@ -114,77 +114,16 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
-## Preserved selected evidence
+## Cells
 
-Only spec-and-grant-message was checked for this edit. Earlier candidate records and their judgments remain unchanged; these are historical results, not coverage of the current bundle.
-
-| Sample | Prior bundle | Result in both model cells | Evidence |
-|---|---|---|---|
-| design-names-paid-actions | fcd1a45e3c4f4e3ad71d69fb6c8a84e2dcb2c023b28c2f88dbcab82e20892fe5 | improved, all facts hold | [saved replies and judgments](results/design-names-paid-actions/candidate.json) |
-| spec-pr-regate-legs | b6e834c8d722123f091398aa0ffaaf8338db7519ee68b9b49d03f5f21e9b4680 | improved, all facts hold | [saved replies and judgments](results/spec-pr-regate-legs/candidate.json) |
-
-## Retained prior partial report: seven F4 samples (not rerun)
-
-Prior report for: 65abe58528f169348439b67695efa230f2300fdcc1a132548d4ce2ee6976dcb1
-
-Prior exit: 0
-
-These rows are preserved evidence, not current coverage.
-
-Facts are primary candidate facts. Exit is the sample command's exit code, shared by its two model rows.
-
-| Sample | Replay model | Verdict | Facts held | Exit |
+| sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| loop-gate | anthropic/claude-opus-5-5 | improved | 5/5 | 0 |
-| loop-gate | github-copilot/gpt-6.1-sol | improved | 5/5 | 0 |
-| engine-waves | anthropic/claude-opus-5-5 | improved | 5/5 | 0 |
-| engine-waves | github-copilot/gpt-6.1-sol | improved | 5/5 | 0 |
-| grant-budget-reply | anthropic/claude-opus-5-5 | improved | 2/2 | 0 |
-| grant-budget-reply | github-copilot/gpt-6.1-sol | improved | 2/2 | 0 |
-| spec-pr-regate-legs | anthropic/claude-opus-5-5 | improved | 10/10 | 0 |
-| spec-pr-regate-legs | github-copilot/gpt-6.1-sol | improved | 10/10 | 0 |
-| spec-pr-unmarked | anthropic/claude-opus-5-5 | improved | 10/10 | 0 |
-| spec-pr-unmarked | github-copilot/gpt-6.1-sol | improved | 10/10 | 0 |
-| spec-pr-publish-legs | anthropic/claude-opus-5-5 | improved | 13/13 | 0 |
-| spec-pr-publish-legs | github-copilot/gpt-6.1-sol | unchanged | 13/13 | 0 |
-| drafted-ac-rows | anthropic/claude-opus-5-5 | improved | 5/5 | 0 |
-| drafted-ac-rows | github-copilot/gpt-6.1-sol | improved | 5/5 | 0 |
+| post-action-sorted | anthropic/claude-opus-5-5 | improved | 9757 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
+| post-action-sorted | github-copilot/gpt-6.1-sol | improved | 6791 | f1: fails -> holds (intended change); f2: fails -> holds (intended change); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
 
-## Prior commands and observed output (not rerun)
+## Feedback
 
-Final runs used `node eval/run.mjs brainstorming <sample>` for exactly the samples below. Their baseline-only runs preceded candidate replay after each case edit. Independent spec-gate work ran concurrently; brainstorming samples never overlapped.
+- post-action-sorted / anthropic/claude-opus-5-5: The After wording moved f1 and f2 by sorting operator steps before rendering. The admin's after-merge `DEPLOY_TOKEN` step now sits only in a Design paragraph opening with the bold run-in label **Post-deployment housekeeping.**, with its actor and timing and no Tests line. Before had it as an unbolded bullet tagged 'tracked, non-blocking' plus a 'none' Tests line. The scan-time delivery note is now left out of the authored sections entirely, where Before wrote it as a Design imperative ('record the scan time in the pull request body') plus a 'none' Tests line. f3 and f4 are kept: both ticket rows are copied character-for-character under the Ticket ABC-204 header with in-scope dispositions, no row is added, no cut question is asked, and the release-script changelog behavior stays in Design with a fixture comparison in Tests. To keep this stable, keep stating explicitly that script-produced pull-request text is a behavior (so it stays in Design and Tests), that delivery-note pull-request text gets no sentence in the spec, and that operator steps get no 'none' Tests line. One risk to watch: After's Tests lines paraphrase the ticket rows ('contains no files', 'verbatim from the fixture changelog'). That is fine for these facts, but make sure the wording never invites paraphrase inside the Acceptance criteria block itself.
+- post-action-sorted / github-copilot/gpt-6.1-sol: After moved f1 by replacing Before's `### Post-deployment housekeeping` heading with a paragraph opening on the bold label **Post-deployment housekeeping.** that keeps the repository admin and the after-merge timing as a statement of fact, and by dropping the Before Tests line that listed the admin's secret creation (even with a `none` proof it placed the step in Tests). It moved f2 by removing Before's `### Delivery instruction` section, whose imperative "Record the scan time in the PR body" and matching Tests line made delivery-note PR text an obligation; After leaves scan time out of the authored sections entirely and mentions it only in the surrounding narration as something not to write. f3 and f4 are kept in both: the two ticket rows are copied character-for-character with their in-scope dispositions and Ticket ABC-204 provenance, no row is added and no scope-cut question is asked, and the release-script changelog requirement stays in Design with a fixture-versus-generated-body comparison in Tests. To keep this stable, keep the wording that sorts operator steps into the labeled bold paragraph before any branch and that distinguishes PR text the change produces from PR text used as delivery proof; consider stating explicitly that the housekeeping label is a bold run-in paragraph, never a heading, and that delivery notes get neither a Design imperative nor a `none` Tests line. One thing to watch: After's added `### Verification coverage` Design subsection restates the tests as Design imperatives; it does not break any fact here since it only concerns the directory check and the script's generated body, but it duplicates Tests and could be discouraged.
 
-```text
-loop-gate: brainstorming: improved (report.md written; replay 0, judge 2, confirm 0, wall 17s)
-engine-waves: brainstorming: improved (report.md written; replay 0, judge 2, confirm 0, wall 14s)
-grant-budget-reply: brainstorming: improved (report.md written; replay 0, judge 2, confirm 0, wall 14s)
-spec-pr-regate-legs: brainstorming: improved (report.md written; replay 2, judge 2, confirm 0, wall 137s)
-spec-pr-unmarked: brainstorming: improved (report.md written; replay 0, judge 2, confirm 0, wall 18s)
-spec-pr-publish-legs: brainstorming: unchanged (report.md written; replay 0, judge 2, confirm 0, wall 40s)
-drafted-ac-rows: brainstorming: improved (report.md written; replay 0, judge 2, confirm 0, wall 13s)
-```
-
-Full replies, judgments, identity hashes and feedback are in each selected sample's `results/<sample>/{baseline,candidate}.json`.
-
-## Repair notes
-
-- loop-gate now has two observable ticket rows and a numeric context observation; its zero-row control withholds only loop row 2 and its flags. The drafted control renders all four rows.
-- engine-waves now uses bare 1 and 1 --amends-stop as its two waves controls; the council/change/token/malformed controls remain.
-- grant-budget-reply already used rows 1/2/3/4, but its draft-PR sentence lacked the required fresh-session command and its token-only fact still demanded a full gate re-render. Align both with Design 1 and 4; keep the exact funded grant assertion.
-- spec-pr-regate-legs and spec-pr-unmarked retain their provisioning and published-commit assertions while using rows 1/2/3 and the full default grant on 1. Regate's large checkpoint case needed compact narration within the existing target cap and explicit preservation of omitted-home/script predicates after observed failures; no fact was removed or waived.
-- spec-pr-publish-legs uses reply/retry 4, retains every cleanup checkpoint, and requests literal outcome lines rather than compressed prose. Its success fact's ambiguous "both markers, deferred, no Engine" was read by a judge as PR-body markers. Clarify it using `skills/brainstorming/reference/spec-pr.md`: the body is the verbatim summary, the home header reads Amend-grant none / Engine deferred, and neither engine starts. No body markers are required by the source.
-- drafted-ac-rows retains all five provenance scenarios and supplies context/settings for the empty-ticket four-row gate.
-- Intent updates remove the historical remote-only accepted variance and stale selected-sample expected-move numbering. Refresh judgments against the final intent without replaying unchanged valid outputs.
-
-There are no remaining failed candidate facts in these seven samples. Heavy checkpoint inputs remain intact because their original publication/provisioning assertions require the full scenarios. No skill or implementation source changed.
-
-## Retained prior partial report rows (not rerun)
-
-Prior report for: e52a382ac514f9b538c6028dc3b67a9a3ee44db9f69a63e2b5bbc90877ccdaba
-
-These rows are preserved evidence, not current coverage.
-
-| Sample | Replay model | Verdict | Replay ms | Facts moved |
-|---|---|---|---|---|
-| spec-pr-regate | anthropic/claude-opus-5-5 | improved | 20996 | single-member: holds -> holds (held); classifier: holds -> holds (held); skips: holds -> holds (held); gate: fails -> holds (intended change); audit: fails -> holds (intended change); change: holds -> holds (held); approvals: fails -> holds (intended change); flags: fails -> holds (intended change); hidden: fails -> holds (held); unresolved: holds -> holds (held) |
-| spec-pr-regate | github-copilot/gpt-6.1-sol | improved | 23001 | single-member: holds -> holds (held); classifier: holds -> holds (held); skips: holds -> holds (held); gate: fails -> holds (intended change); audit: fails -> holds (intended change); change: holds -> holds (held); approvals: fails -> holds (intended change); flags: fails -> holds (intended change); hidden: fails -> holds (held); unresolved: holds -> holds (held) |
+exit: 0

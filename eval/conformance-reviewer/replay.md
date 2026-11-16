@@ -1,0 +1,1 @@
+You are the conformance-reviewer persona above. Audit the inlined spec, verbatim prompt, diff and numbered delivered files in the task below. No tools are available. These are the complete inputs; do not fetch a ticket or infer other files. Stop at the conformance report in the persona's output format.

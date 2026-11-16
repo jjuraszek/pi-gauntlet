@@ -1,0 +1,25 @@
+# eval report: conformance-reviewer (partial run: ci-step-is-the-change)
+
+for: ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7
+
+wall: 23s
+
+## Change
+
+Exclude delivery-stage clauses from conformance requirements without excluding file deliverables on the same leg verification line. The leg sample keeps two delivered behaviors and a delivered bundle clause in coverage, and reports CONFORMS without quoting or commenting on the PR gate or ship evidence.
+
+Exclude standalone stage sentences from Design, Errors and edge cases, and Tests whether a pull request exists or not. Keep one delivered requirement for the behavior half of each mixed acceptance row, with only the behavior in its origin quote. The stage-only-sentences and mixed-row samples exercise semantic classification and report omission, which token checks alone cannot prove. The prompt-stage-sentence sample omits a prompt-only CI sentence from the spec and requires no requirement, drift entry or skip note for that sentence, while a dropped prompt-only lowercase behavior and a missing Tests-file clause remain gaps with prompt and spec origins respectively; only the Tests line's suite-run clause is excluded from coverage, origin, remediation and touched files. The ci-step-is-the-change regression sample keeps the unchanged audit behavior for an undeleted browser-install step and a missing regenerated bundle on a leg verification line. Its four facts must hold on both arms; no movement is intended for them. Keep the spec's file clause as the origin when the prompt repeats it, so a leg verification line's missing file deliverable stays visible as spec coverage. The post-merge-action sample leaves out the after-merge admin secret-creation step and commit-message text without a row, drift or skip note, while delivered trimming still yields CONFORMS. Coverage is limited to these six samples.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| ci-step-is-the-change | anthropic/claude-opus-5-5 | unchanged | 8098 | f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f1: holds -> holds (held) |
+| ci-step-is-the-change | github-copilot/gpt-6.1-sol | unchanged | 11727 | f2: holds -> holds (held); f3: holds -> holds (held); f4: holds -> holds (held); f1: holds -> holds (held) |
+
+## Feedback
+
+- ci-step-is-the-change / anthropic/claude-opus-5-5: No fact moved on this regression sample, which is the intended result. After still reports the undeleted browser-install step (G1) and the stale bundle (G2) as MISSING with spec origins and recommended: fix, and it does not treat the workflow edit or the verification-line file clause as an excluded delivery stage. Two small drifts are worth guarding against. First, both structured gap blocks in After now say "evidence: absent" where Before cited .github/workflows/ci.yml:8 and bin/label.mjs:2. f4 holds only because the G2 coverage row still names bin/label.mjs:2 as stale against src/label.mjs:2; if that row were shortened, f4 would fail. Second, the G2 origin quote now carries an "[...]" elision. It still quotes "regenerated bundles committed", so f4 holds, but the wording should make clear that only the file clause is quoted, not the suite-run clause. To keep these facts robust while delivering the Change, say explicitly that a file deliverable on a leg verification line (and a spec instruction to edit a CI workflow file) is an implementation requirement, and that a MISSING gap's evidence field should cite the file:line showing the stale or unremoved content rather than "absent".
+- ci-step-is-the-change / github-copilot/gpt-6.1-sol: None of the three regression facts moved: After still reports the undeleted browser-install step as a MISSING requirement and gap with the spec Design quote, still reports the stale bin/label.mjs as a non-DELIVERED requirement and gap quoting "regenerated bundles committed" from the leg verification line, and still recommends fix for both. The After wording made f4 firmer: Before quoted the spec clause only in the coverage row (alongside the prompt) and gave only the prompt quote in the G2 gap block, so it holds on a less strict reading, whereas After uses the spec file clause as the origin in both places. After also dropped Before's R2 row, which treated the `node --test` verification command as a delivered requirement; this is consistent with excluding the suite-run clause while keeping the file clause on the same line. To keep these facts stable, keep the explicit instruction that a file-deliverable clause on a leg verification line stays a requirement with the spec clause as origin even when the prompt repeats it, and that a spec sentence whose subject is editing a CI workflow file is an implementation requirement, not a delivery-stage clause. One minor wording point: G2 moved from MISSING to PARTIAL, which does not affect any fact here, but if you want the verdict label stable, say that an unregenerated tracked bundle is MISSING rather than partially delivered.
+
+exit: 0

@@ -1,0 +1,4 @@
+- f1: judged: Design contains a paragraph opening with the bold label **Post-deployment housekeeping.**, not a heading, saying that after merge a repository admin creates the DEPLOY_TOKEN secret. It retains the actor and timing, not an implementation imperative or a Tests requirement.
+- f2: judged: No Tests line or Design imperative obliges pull-request text or a CI result except the release script's generated changelog behavior. Recording scan time in the PR body is not an obligation in the authored sections.
+- f3: judged: Acceptance criteria copies the two supplied ticket rows character-for-character with their in-scope dispositions and Ticket ABC-204 provenance. It adds no row and asks no scope-cut question.
+- f4: judged: Design retains the requirement that the release script writes the changelog section into the pull request body, and Tests verifies that generated body against the changelog fixture.

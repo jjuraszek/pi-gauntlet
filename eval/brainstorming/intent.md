@@ -1,6 +1,8 @@
-for: 9e6ce55eb9025e4a284616304491e63bfb600b1bcb4520b1b09b075f57d2e877
+for: 2ad9f23fcdaa0b865286c331ea4a809337f4bddc6c6df06b677ceabbdb8f0b45
 
 ## Change
+
+Distinguish pull-request text as stage proof from text the change produces, and sort operator steps before every spec-writing branch. Run only pr-body-drafted-row and post-action-sorted against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit, with a baseline-only run first for the bundled drafting sample. Keep each committed behavior, copy ticket rows verbatim, and place the admin's after-merge secret step in the labeled Design paragraph rather than an acceptance row or Tests requirement. Remove the obsolete new-file markers for the commit-message reference, which exists at this base, without changing assembly content. Preserve prior evidence and facts; these tool-free checkpoints prove authored sections, not live writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs. The initial drafting comparison stopped on an unspecified Self-Review read in one replay; supply that successful prerequisite observation in both new fixtures without changing facts or weakening the read gate. Reseed the changed bundled case before its comparison, and reuse the unchanged base for every run.
 
 Compose spec, companion and amendment subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council and amendment audit lines. Consent changes use its fixed sentence with a body naming the new value. Ledger amendments record their boundary in Decisions, not the subject; selected spec dispositions use the same amendment recipe without another gate. Run only spec-and-amendment-subjects, which extends the spec-and-grant-message fixture with batch and disposition checkpoints; preserve that earlier sample and all its evidence. These narrated results prove message composition and scoped persistence, not live writes or target-wide coverage.
 
@@ -109,6 +111,13 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- pr-body-drafted-row/f1: fails -> holds - Leave PR-description proof out while keeping PR text produced by a script.
+- pr-body-drafted-row/f2: holds -> holds - Retain one row per committed file-deliverable behavior.
+- pr-body-drafted-row/f3: holds -> holds - Rewriting a proof does not ask a scope-cut question.
+- post-action-sorted/f1: fails -> holds - Keep the manual secret step in the labeled housekeeping paragraph with actor and timing.
+- post-action-sorted/f2: fails -> holds - Do not write delivery-note PR text as an obligation.
+- post-action-sorted/f3: holds -> holds - Preserve the verbatim ticket contract on the extracted-rows branch.
+- post-action-sorted/f4: holds -> holds - Keep generated PR text in Design and Tests as a behavior.
 - spec-and-amendment-subjects/spec: fails -> holds - Read the shared spec recipe and preserve the council audit.
 - spec-and-amendment-subjects/consent: fails -> holds - Use the fixed consent subject and name its new value in a body sentence.
 - spec-and-amendment-subjects/amendment: fails -> holds - Derive batch wording from the first item title and retain every audit row.

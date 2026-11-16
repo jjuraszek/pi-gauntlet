@@ -156,10 +156,11 @@ Run by a human against pi-cohort >= 7.1.0, before a pi-gauntlet release claims t
 ## Key concepts
 
 | Term | Meaning |
-| --- | --- |
+|---|---|
 | Gate | A machine-enforced checkpoint between phases (e.g. within a brainstorming-entered flow, `complete verify` is blocked until conformance review has run). Not a suggestion. |
 | Spec council | Multi-model critique of the spec before you see it (`roasting-the-spec`); members and chair return saved-file references, and a fresh applier inherits the main loop's model and thinking unless overridden, edits only the spec, and returns the audit. The main loop checks structure without ingesting member/chair findings, re-reads the spec, and hands it to the unchanged user gate to ratify or revert. Members flag unrelated extras or sufficient in-scope simplifications (`over-spec`); every member closes with a `lean:` line - "nothing to cut" is a first-class answer - and the chair tallies them (`lean: <k> of <n> members found nothing to cut`). Falls back to a single-model critique if no council is configured. |
 | Conformance gate | The closing check: does the delivered code + docs match your *original prompt*, not the derived plan? Compatible executable recommendations auto-fix first; anything still open renders as a numbered decision brief - one item per decision, the problem in plain words first, lettered options each with a one-line consequence, and `Recommended: <letter> - <reason>` or `No recommendation - pick one`. Reply with one line per item (`1. B`), or bare `1` to take every recommendation (no-recommendation items are re-asked by number); a current `CONFORMS` / no-concerns handoff goes straight to branch options with no extra sign-off. |
+| Post action | A step a person performs after the branch is delivered (after merge or deploy) - the usual case of an operator step, a step a person performs that no file delivers, whatever its timing. The spec records it with its actor and timing; the plan, the implementation and the conformance gate never treat it, a CI or review result, or pull-request text as a requirement, unless producing that text or result is itself a behavior of the change. When the PR gate runs, its post-merge menu offers a step the spec assigns to the merger after merge. |
 | Wave | A batch of N >= 1 plan tasks with disjoint files, run through the one wave loop; N > 1 dispatches concurrently |
 | Overrides file | `.pi/gauntlet-overrides.md` - where you put project-specific detail the generic skills don't know (CI command, worktree wrapper, routing rules). |
 
