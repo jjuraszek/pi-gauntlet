@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9c06f7053a5ee657124fb5e05490cd18645e6cdbb32eb7d9d699fef0b316c10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "ded89b391c147fe6b87ba979bb7032e59799f793b91df685408ad87e462f9ce7",
       "candidateOutputSha": "c9a8c0564d948f3583b18166e3c464c95466d8c13156afd7225b195694038a0c",
       "facts": {
@@ -58,14 +58,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both facts moved from fails to holds, as the Change intended for this mixed-row case. In Before, each acceptance row was quoted in full and marked PARTIAL (G1, G2) because of the empty PR body and missing `slow` job, and the standalone stage sentences from Design, Errors and edge cases, and Tests became MISSING, DRIFTED or UNAUTHORIZED gaps (G3-G10). In After, each acceptance row yields exactly one DELIVERED requirement (R4, R5) whose origin quote keeps only the behavior clause and truncates the stage half with [...]. Its evidence is anchored in the diff (the legacy/old.mjs deletion, test/no-legacy.test.mjs:6), and no coverage row, verdict, drift line or skip note mentions the PR description, the slow job, CI, title, approval, merge, npm test or the release run. Before held neither fact, so there is nothing to recover. To keep this stable, the wording should continue to state explicitly that a mixed row produces one requirement for its behavior half only, with a truncated origin quote, and that excluded stage clauses are omitted silently. One residual risk is that After's R4 and R5 overlap with R1 and R2 (the same behavior from Design and the prompt); if the wording ever merges duplicates, make sure each acceptance row still keeps its own single Rn with its own origin quote. A second is that R4 leads with the local check output and cites the diff second; requiring a diff or file citation in every evidence field would keep the \"diff evidence\" part from regressing.",
-      "wallMs": 10953,
+      "feedback": "Both facts moved from fails to holds, as intended. Before quoted each acceptance row in full and marked both PARTIAL (G1, G2) because of the empty PR body and the missing `slow` job result, then turned every standalone stage sentence from Design, Errors and edge cases, and Tests into MISSING, DRIFTED or UNAUTHORIZED gaps. After gives each acceptance row exactly one DELIVERED requirement (R4, R5), with evidence from the diff, the numbered test file and the local check output. Its origin quotes stop at the behavior clause and truncate the rest with [...]. Nothing in After's coverage, verdict, drift line or notes mentions the PR description, the slow job, CI, title, approval, merge, scan time, `npm test` or the release workflow. Before held neither fact, so there is nothing to preserve. To keep this result stable, keep the wording explicit on three points: a mixed row yields one requirement for its behavior half only, the origin quote truncates the stage clause with [...], and excluded stage clauses are omitted silently with no skip note, drift entry or gap. One thing to watch: R1/R4 and R2/R5 restate the same behavior from Design and from Acceptance criteria. That is fine here because each acceptance row still maps to exactly one Rn, but if the wording ever encourages merging or further splitting those rows, the 'exactly one DELIVERED Rn per acceptance row' property could break.",
+      "wallMs": 11936,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9c06f7053a5ee657124fb5e05490cd18645e6cdbb32eb7d9d699fef0b316c10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "2d4e06d735f6f23e006ddbe00e1143e7b1ffcb86c9b736a0190335d504307775",
       "candidateOutputSha": "346968fb439afdbf9048fd8ba12770c2c35c7f98eaeb1bc72470a4de0ecb64a9",
       "facts": {
@@ -85,10 +85,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both facts moved from fails to holds as intended. In Before, the acceptance rows were quoted in full (including \"PR description\" and \"job on the PR head\"), were reported as PARTIAL gaps G4/G5 rather than DELIVERED Rn, and every standalone stage sentence from Design, Errors and edge cases, and Tests appeared as a MISSING/DRIFTED gap with a GAPS verdict. In After, each acceptance row has exactly one DELIVERED entry (R3 for the empty tracked legacy directory, R4 for the test over the full tracked tree) with diff evidence, origin quotes truncated with [...] to the behavior clause only, and no coverage row, gap block, verdict, drift line or skip note mentions the stage halves or the standalone stage sentences; the verdict is CONFORMS. Before held neither fact, so nothing was lost. One thing to watch: R1/R2 (Design) and R3/R4 (Acceptance criteria) cover overlapping behavior; this still satisfies \"exactly one DELIVERED Rn per acceptance row\", but if you want to keep it robust, keep the wording that says each mixed acceptance row yields a single requirement quoting only its behavior clause, and that excluded stage clauses are omitted silently (no skip note, no drift comment), so the model does not start merging the acceptance rows into the Design rows or annotating the truncation.",
-      "wallMs": 5785,
+      "feedback": "The After wording moved both facts in the intended direction. Before treated each mixed acceptance row as a single requirement including its stage half, so both rows came out PARTIAL (G4, G5) with the full sentence quoted, and every standalone stage sentence from Design, Errors and edge cases, and Tests became a MISSING or DRIFTED gap. After gives each acceptance row exactly one DELIVERED requirement (R3, R4) with diff evidence, quotes only the behavior clause with the stage clause cut to [...], and says nothing about PR description, slow job, CI, title, review, merge, timing, npm test or release workflow in coverage, drift, verdict or notes. No fact that Before kept was lost, since Before held neither. One thing to watch: After also lists R1 and R2 from the Design sentences, which describe the same behaviors as R3 and R4. That is acceptable under f1 as written because each acceptance row still has exactly one Rn with an acceptance-criteria origin, but a stricter reading could count it as double coverage. If you want that robust, add wording that says a behavior stated in both Design and an acceptance row is reported once, or that Design and acceptance origins are kept as distinct requirements on purpose, while keeping the instruction to quote only the behavior clause and to omit stage sentences silently.",
+      "wallMs": 8342,
       "verdict": "improved"
     }
   },
-  "repoSha": "1ec95f929085b681609b68d9af366e18b91d3119"
+  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923"
 }

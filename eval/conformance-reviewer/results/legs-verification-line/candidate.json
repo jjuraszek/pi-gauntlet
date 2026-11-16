@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3a70307f489ba91bc24f9766912261a0b8868851fae1e0ccf3e701887e7f69f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "012184ac16b923dcab6ef6f23ec8f74c90bff1e06f17ba90bbcef0c8977c631c",
       "candidateOutputSha": "41c52448b59d53178553446cf40b2a13cef00dfb485af92c9530772bcfc0a406",
       "facts": {
@@ -63,16 +63,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "The After wording moved f2 as intended: Before raised G2 and G3 as MISSING gaps quoting \"PR gate npm run pr-check\" and \"ship evidence is green CI on the exact PR head\", and its origin-drift line named ship evidence as a requirement, while After has no row, gap block, drift entry or skip note for either and reports CONFORMS. f3 and f4 did not move, contrary to the expected fails -> holds: Before already had DELIVERED rows for trim and lowercase citing src/label.mjs:2, and its own DELIVERED R4 row quoting \"regenerated bundles committed\" with evidence in bin/widget.mjs. So the change preserved these two facts on this sample rather than fixing them. To keep them, retain the wording that splits the leg verification line clause by clause, so the file-deliverable clause stays a requirement quoted on its own (as After's R4 does with the elided \"[...] regenerated bundles committed [...]\") and only the stage clauses drop silently. After also drops \"npm test\" without comment; if that is intended, say explicitly that run-a-command verification clauses are stage clauses, so the omission stays consistent and never comes back as a gap or a skip note.",
-      "wallMs": 10302,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-2",
-      "thinking": "medium"
+      "feedback": "The After wording moved f2 as intended: the report no longer raises G2/G3 gap blocks quoting \"PR gate npm run pr-check\" and \"ship evidence is green CI on the exact PR head\", its origin-drift line no longer mentions ship-evidence requirements, and it adds no skip note or explanation of excluded stage clauses. It also drops the `npm test` gap, which lets the verdict reach CONFORMS. f3 and f4 hold in both outputs, so they did not move from fails to holds as you expected. Before already had DELIVERED rows for trim and lowercase citing src/label.mjs:2, and a DELIVERED bundle row quoting \"regenerated bundles committed\" with bin/widget.mjs evidence. Nothing Before kept was lost. To keep it that way, keep the explicit instruction that a file-deliverable clause on a leg verification line is split out as its own requirement, with an origin quote containing only that clause (After's \"[...] regenerated bundles committed [...]\" does this), and that excluded stage clauses are omitted silently rather than listed as skipped. One fragility to watch: the elided-quote form \"[...]\" works here, but if the wording ever encourages quoting the full verification line, the PR gate and ship-evidence text would leak back into an origin and fail f2.",
+      "wallMs": 8812,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a70307f489ba91bc24f9766912261a0b8868851fae1e0ccf3e701887e7f69f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "bfabc9707f755aaef2ca853a619cc3d9401ae9164c26e38c3193cca079b567e3",
       "candidateOutputSha": "f0644a3024cc449781b4523e55fa6d0ce370c2c318b7ced98519957ec6a1f609",
       "facts": {
@@ -97,14 +95,12 @@
           "label": "intended change"
         }
       },
-      "feedback": "The After wording moved f2 from fails to holds: the report no longer has gap rows or YAML blocks quoting \"PR gate npm run pr-check\" or \"ship evidence is green CI on the exact PR head\", and it adds no skip note or drift entry about them. f3 and f4 held in Before and still hold: both Design behaviors keep DELIVERED rows citing src/label.mjs:2 and bin/widget.mjs:2, and \"regenerated bundles committed\" keeps its own DELIVERED row (R4) with evidence in bin/widget.mjs, so the verification line was not excluded wholesale. Two things to keep stable: R4's origin now pairs the prompt sentence with the spec clause, which is fine here but only safe if the wording requires the file clause to be quoted verbatim from the verification line every time; and After also silently drops \"npm test\" (Before's G1), so state explicitly whether running tests counts as an excluded stage clause, so that this is deliberate rather than incidental. To protect f4 across runs, the wording should say that a verification line is split clause by clause, with file-deliverable clauses kept as requirements and only stage or evidence clauses dropped without comment.",
-      "wallMs": 9032,
-      "verdict": "improved",
-      "judgeModel": "anthropic-fable/claude-fable-5-2",
-      "thinking": "medium"
+      "feedback": "The After wording moved f2 from fails to holds: Before turned \"PR gate npm run pr-check\" and \"ship evidence is green CI on the exact PR head\" into MISSING rows G2/G3 with gap blocks, while After has no row, gap, drift line or skip note mentioning either stage clause, and the verdict flips to CONFORMS. f3 held in both: the trim and lowercase rows are DELIVERED and cite src/label.mjs:2 and bin/widget.mjs:2. f4 held in both: After keeps a dedicated DELIVERED R4 row whose origin quotes \"regenerated bundles committed\" from the leg contract with evidence in bin/widget.mjs, so the file clause survived the exclusion of the rest of the verification line. Two things to watch: After's R4 merges a prompt origin with the spec origin in one row, which is fine here but could blur the 'origin quoting that file clause' check if the spec quote were ever dropped in favor of the prompt quote, so keep wording that requires the leg file clause to be quoted verbatim as its own origin; and After also silently dropped \"npm test\" (Before's G1), which no fact here covers, so make sure the wording states explicitly whether a local test command on the verification line is a delivery-stage clause to exclude or a requirement, rather than leaving it to inference.",
+      "wallMs": 5900,
+      "verdict": "improved"
     }
   },
-  "repoSha": "1ec95f929085b681609b68d9af366e18b91d3119",
+  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923",
   "refresh": {
     "status": "complete",
     "identity": {

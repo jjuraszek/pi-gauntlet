@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "5605ad37c4cea903af9eb344547bef3ae71d291a988305f37747c3278836405f",
       "candidateOutputSha": "f56a46e1aa875615e171184aee7708469e08336341d14a14726e25a6673196e2",
       "facts": {
@@ -65,14 +65,14 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved both facts as intended. The report now has a single DELIVERED row for the trimming behavior with file evidence at src/label.mjs:2, and it quotes none of the PR-description, ship-evidence or scan-time sentences. The PR-title, PR-state, review, merge, full-suite and workflow sentences get no coverage row, gap block, verdict or drift line, and neither the confidence text nor origin drift mentions skipped stages (drift is simply 'none'). Before failed both facts because it quoted every stage sentence as a MISSING row with a gap block and explained the process clauses in origin drift. Before held neither fact, so nothing regressed. To keep this result, keep the wording that excludes standalone stage sentences silently (no skip note, no drift entry, no confidence mention) whether or not a PR exists, and keep the explicit instruction that the behavior requirement stays covered with file evidence so the exclusion never swallows the file deliverable.",
-      "wallMs": 4971,
+      "feedback": "The After wording moved both facts as intended: by excluding standalone delivery-stage sentences from conformance requirements, the report no longer quotes the ship-evidence, PR-description or root-scan sentences, gives no coverage rows, gap blocks, verdicts or drift lines to the PR-title, PR-state, review, merge, full-suite or workflow sentences, and carries no skip note in the confidence text or origin drift, while R1 still cites src/label.mjs:2 for the trimming behavior. Before failed both facts because it turned every stage sentence into a MISSING row with a gap block and explained the process clauses in the drift section. No fact that Before held was lost, so there is nothing to recover here. To keep it that way, keep the explicit instruction that excluded stage sentences are omitted silently (no skip note, no confidence remark, no drift entry) and that the behavior requirement must still be listed with file-and-line evidence, since that pairing is what both facts depend on.",
+      "wallMs": 4597,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "a7f5081c8f396b8359ca5deab56c9ecb80108db1c3de50a9c1dc92fbf3b5adcc",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
       "baselineOutputSha": "2deb99ae85920d318ba294ed43976ad5b695145688b93179997290cdfaaa6a28",
       "candidateOutputSha": "2b0326b69f65a960af334e906a7aa44ffca2c9b3c9fe2c71d1ad67ca5bf62c58",
       "facts": {
@@ -82,9 +82,9 @@
           "label": "intended change"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f2": {
           "before": "fails",
@@ -97,10 +97,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "The After wording moved both facts as intended: by excluding standalone delivery-stage sentences from requirements, the report no longer quotes the PR description, ship evidence or root scan sentences, gives no coverage row, gap block, verdict or drift line to the PR-title, PR-state, review, merge, full-suite or workflow-run sentences, and adds no skip note in confidence or origin drift, while R1 remains DELIVERED with file evidence at src/label.mjs:1-3. Before failed both because it quoted all eight stage sentences as MISSING gaps, and its drift line explicitly commented that delivery and verification clauses remain requirements. Before kept no fact that After lost, so nothing needs restoring; to keep this result stable, retain the explicit instruction that excluded stage sentences are omitted silently (no skip list, no confidence caveat, no drift entry) and that the behavior requirement must still cite file and line evidence.",
-      "wallMs": 4584,
+      "feedback": "After moved f1 from fails to holds: the report now has a single DELIVERED row for the trimming behavior with file evidence (src/label.mjs:1-3) and no coverage row, gap block, verdict or drift line for any PR-title, PR-state, review, merge, CI, full-suite or workflow sentence, and none of the three named stage sentences is quoted. Before quoted all three and gave each stage sentence a MISSING row and gap block, so f1 failed there. f3 holds in both as written: Before treated the stage sentences as requirements rather than listing or explaining them as skipped (its drift line says they 'remain requirements', which is not a skip note), and the trimming behavior was covered with src/label.mjs:2; After says nothing about the stage sentences in confidence or drift and keeps the trimming row. To keep this result, the wording should continue to instruct that excluded stage sentences are silently omitted (no skip note, no drift comment, no confidence caveat) while the behavior requirement keeps its verbatim origin quote and file-line evidence; avoid any phrasing that invites the report to justify high confidence by mentioning what was excluded.",
+      "wallMs": 5208,
       "verdict": "improved"
     }
   },
-  "repoSha": "1ec95f929085b681609b68d9af366e18b91d3119"
+  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923"
 }

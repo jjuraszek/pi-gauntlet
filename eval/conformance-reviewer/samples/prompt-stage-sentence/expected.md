@@ -1,0 +1,4 @@
+- f1: judged: The prompt sentence "Both pull requests pass CI." produces no coverage row, gap block or verdict, including no row with a prompt origin quoting it. The report does not quote, paraphrase or explain this excluded sentence anywhere.
+- f2: mechanical: contains "Conformance verdict: CONFORMS"
+- f3: judged: The spec's omission of the prompt's delivery-stage sentence produces no origin-drift entry. The actual trimming behavior requested in the prompt and spec remains DELIVERED with evidence at src/label.mjs:2.
+- f4: mechanical: lacks "UNAUTHORIZED"

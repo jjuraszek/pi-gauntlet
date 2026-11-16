@@ -1,0 +1,106 @@
+{
+  "sample": "prompt-stage-sentence",
+  "arm": "candidate",
+  "skillSha": "45d48bd3ee0afb7ecc98812c2f6e7bc614d3ef12927593316fbdc0dd0f55a965",
+  "inputSha": "3288f87f70daa35aa3090e14c7b5bd8d577f69442fe1088de42d0e069bec499e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (single-line change; behavior is fully readable from the delivered file)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter returns the input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n  - [DELIVERED]    R2: Labels have surrounding whitespace trimmed — origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\" — evidence: src/label.mjs:2\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n",
+      "words": 66,
+      "wallMs": 7235,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 40,
+      "wallMs": 8018,
+      "mechanical": {
+        "f2": "holds",
+        "f4": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7e33c7c28b10f18c1205e3cf92aa4e9f519e7858cbb808bf1a48f92c37812f51",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "baselineOutputSha": "1e644a47aaa0a932285749471681e8ebfa8c4d401fd7f4d18d23a2ace249cd60",
+      "candidateOutputSha": "9d1ca9181dbb87611dfa473946d1dcf86fec9b2052f7706ed7ab644aa7d83847",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved both facts as intended. Before turned the prompt's \"Both pull requests pass CI.\" into a MISSING gap G1 with a prompt-origin quote, a gap block, a GAPS verdict, a confidence note about CI and an origin-drift entry, so f1 and f3 both failed. After contains no row, gap, quote, paraphrase or skip note for that sentence and reports origin drift as none, while the trimming behavior stays DELIVERED with evidence at src/label.mjs:2, so both hold. One small side effect: After splits the single trimming behavior into two rows (R1 from Design, R2 from Goal) with spec-only origins, where Before had one row that also cited the prompt's trimming sentence. This breaks neither fact, but if you want one requirement per behavior, add wording that Goal and Design statements of the same behavior merge into one requirement, and that the behavior clause of the prompt may still be cited as a co-origin while stage sentences are never quoted. Keep the current exclusion wording for standalone stage sentences in the prompt, since that is what removed the gap, the drift entry and all mention of the CI sentence.",
+      "wallMs": 5767,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7e33c7c28b10f18c1205e3cf92aa4e9f519e7858cbb808bf1a48f92c37812f51",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "baselineOutputSha": "a97909ad390936bd99f12726c41d2ba4fa6f4d7320808d297ed0ef2ace8ae0ee",
+      "candidateOutputSha": "cefbac79777c0f2bc8a526dbb709171cbdd3a7d109bc4edacaa3be8d84e5f046",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "In Before, the report added a trailing note that quoted the prompt's \"Both pull requests pass CI\" sentence and explained it as context with CI unverified, which breaks f1's requirement that the excluded sentence is not quoted, paraphrased or explained anywhere; After drops that note entirely, so f1 now holds. f3 holds in both: origin drift is \"none\" and the trimming requirement is DELIVERED with evidence at src/label.mjs:2. To keep this, the After wording should continue to state that delivery-stage sentences are silently excluded (no coverage row, no drift entry, no skip note, no commentary) while explicitly keeping the behavior requirement with its spec origin quote and file:line evidence; avoid any instruction that invites a \"not verified\" or \"treated as context\" remark, since that reintroduces the mention that failed in Before.",
+      "wallMs": 4228,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923"
+}
