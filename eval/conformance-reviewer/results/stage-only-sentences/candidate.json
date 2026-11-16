@@ -1,7 +1,7 @@
 {
   "sample": "stage-only-sentences",
   "arm": "candidate",
-  "skillSha": "45d48bd3ee0afb7ecc98812c2f6e7bc614d3ef12927593316fbdc0dd0f55a965",
+  "skillSha": "4e80239a3805cbe8b793e11ac1f5a4f5d7ef49014f35ffbb77a26e6bbfdeba6e",
   "inputSha": "832cfff8a13048b180d913a3ff1d17df4cafb443d628df1b74f3c909b5f07348",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line change; String.prototype.trim removes leading and trailing whitespace, and the delivered file is fully visible)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter returns the input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" (also spec \"Goal\" - \"Trim surrounding whitespace from labels.\"; prompt - \"Make the label formatter trim surrounding whitespace.\") — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
-      "words": 74,
-      "wallMs": 8138,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line diff; the only file-deliverable requirement is directly visible in the numbered file)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter returns the input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`; String.prototype.trim removes leading and trailing whitespace only, so interior whitespace is kept)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n",
+      "words": 66,
+      "wallMs": 7972,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:1-3, which returns `value.trim()`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 40,
-      "wallMs": 7737,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 39,
+      "wallMs": 6589,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -40,9 +40,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
       "baselineOutputSha": "5605ad37c4cea903af9eb344547bef3ae71d291a988305f37747c3278836405f",
-      "candidateOutputSha": "f56a46e1aa875615e171184aee7708469e08336341d14a14726e25a6673196e2",
+      "candidateOutputSha": "4918fccf082b4d46f7a330833a6dd4fbdab0de71c0c6db7f08be82438b27053d",
       "facts": {
         "f1": {
           "before": "fails",
@@ -65,16 +65,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "The After wording moved both facts as intended: by excluding standalone delivery-stage sentences from conformance requirements, the report no longer quotes the ship-evidence, PR-description or root-scan sentences, gives no coverage rows, gap blocks, verdicts or drift lines to the PR-title, PR-state, review, merge, full-suite or workflow sentences, and carries no skip note in the confidence text or origin drift, while R1 still cites src/label.mjs:2 for the trimming behavior. Before failed both facts because it turned every stage sentence into a MISSING row with a gap block and explained the process clauses in the drift section. No fact that Before held was lost, so there is nothing to recover here. To keep it that way, keep the explicit instruction that excluded stage sentences are omitted silently (no skip note, no confidence remark, no drift entry) and that the behavior requirement must still be listed with file-and-line evidence, since that pairing is what both facts depend on.",
-      "wallMs": 4597,
+      "feedback": "Both facts moved from fails to holds. Before quoted all eight delivery-stage sentences as MISSING rows G1-G8 with gap blocks, and its origin drift line explained the spec's process clauses, so f1 and f3 failed. After reports only R1, delivered at src/label.mjs:2 with the spec's Design sentence as origin, drift is 'none', and no stage sentence is quoted or commented on, so both hold. The one soft spot is the confidence text: 'the only file-deliverable requirement' hints that other, non-file sentences were set aside, and a stricter reader could take that as an implicit skip note against f3. To remove the risk, have the wording tell the model to justify confidence only by what was checked (for example 'one-line diff; the trimming requirement is directly visible in the numbered file') and never to describe requirements by contrast with an excluded category. The rest of After's behaviour should stay as is: the spec clause as the origin and a file:line evidence citation.",
+      "wallMs": 6824,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
       "baselineOutputSha": "2deb99ae85920d318ba294ed43976ad5b695145688b93179997290cdfaaa6a28",
-      "candidateOutputSha": "2b0326b69f65a960af334e906a7aa44ffca2c9b3c9fe2c71d1ad67ca5bf62c58",
+      "candidateOutputSha": "a135fd1fcb9fc4c01961728a7e944ea8e15b39603ad4aaf31fc8b4f059b08323",
       "facts": {
         "f1": {
           "before": "fails",
@@ -82,9 +82,9 @@
           "label": "intended change"
         },
         "f3": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f2": {
           "before": "fails",
@@ -97,10 +97,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "After moved f1 from fails to holds: the report now has a single DELIVERED row for the trimming behavior with file evidence (src/label.mjs:1-3) and no coverage row, gap block, verdict or drift line for any PR-title, PR-state, review, merge, CI, full-suite or workflow sentence, and none of the three named stage sentences is quoted. Before quoted all three and gave each stage sentence a MISSING row and gap block, so f1 failed there. f3 holds in both as written: Before treated the stage sentences as requirements rather than listing or explaining them as skipped (its drift line says they 'remain requirements', which is not a skip note), and the trimming behavior was covered with src/label.mjs:2; After says nothing about the stage sentences in confidence or drift and keeps the trimming row. To keep this result, the wording should continue to instruct that excluded stage sentences are silently omitted (no skip note, no drift comment, no confidence caveat) while the behavior requirement keeps its verbatim origin quote and file-line evidence; avoid any phrasing that invites the report to justify high confidence by mentioning what was excluded.",
-      "wallMs": 5208,
+      "feedback": "In After, the report contains a single DELIVERED row for the trimming behavior with file evidence (src/label.mjs:2) and nothing else: none of the PR-description, ship-evidence, or root-scan sentences is quoted, and no PR-title, PR-state, review, merge, full-suite or workflow sentence gets a coverage row, gap block, verdict or drift line, so f1 holds; confidence text and origin drift are bare ('high', 'none') with no skip note or explanation of omitted stage sentences, so f3 holds. Before failed both because it quoted all eight stage sentences as MISSING rows G1-G8 with gap blocks, and its drift line commented that the 'delivery and verification clauses remain requirements'. The After wording delivers the Change on this sample without losing anything Before kept (the R1 trimming row and its file evidence are preserved); to keep it stable, retain the instruction that excluded stage sentences are omitted silently — no skip list, no confidence caveat, no drift comment — while the behavior sentence stays as a spec-origin requirement with line-level evidence.",
+      "wallMs": 5492,
       "verdict": "improved"
     }
   },
-  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923"
+  "repoSha": "366f8d51914eef50f63ae747ec873821a3d76a42"
 }

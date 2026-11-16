@@ -1,7 +1,7 @@
 {
   "sample": "mixed-row",
   "arm": "candidate",
-  "skillSha": "45d48bd3ee0afb7ecc98812c2f6e7bc614d3ef12927593316fbdc0dd0f55a965",
+  "skillSha": "4e80239a3805cbe8b793e11ac1f5a4f5d7ef49014f35ffbb77a26e6bbfdeba6e",
   "inputSha": "39eb589f107fe16dd53e2acfef6a93a33ba8c9809c9013b57a481f92fe52ab33",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (all behavioral requirements are verifiable from the diff, the tracked-file list, the numbered test file and the supplied local check output)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Delete every tracked file under legacy/. Origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" Also prompt - \"Remove the tracked legacy directory [...]\". Evidence: the diff deletes legacy/old.mjs (`deleted file mode 100644`, hunk `@@ -1 +0,0 @@`). The tracked list is now only README.md, package.json and test/no-legacy.test.mjs. Supplied `$ git ls-files legacy/` printed nothing.\n  - [DELIVERED]    R2: Add test/no-legacy.test.mjs to check the full tracked file list for paths under legacy/. Origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" Also prompt - \"[...] add a test that checks the full tracked file list for legacy files.\" Evidence: test/no-legacy.test.mjs:6 runs `git ls-files -z` with no pathspec or exclusions, so it reads the full tracked tree. test/no-legacy.test.mjs:7 asserts that no path starts with \"legacy/\".\n  - [DELIVERED]    R3: Prevent tracked legacy files from returning. Origin: spec \"Goal\" - \"[...] prevent tracked legacy files from returning.\" Evidence: test/no-legacy.test.mjs:5-8 is a committed regression test. It fails if any tracked path under legacy/ reappears.\n  - [DELIVERED]    R4: `git ls-files legacy/` returns nothing. Origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing, [...]\". Evidence: supplied check output, where `$ git ls-files legacy/` produced empty output. The diff also deletes legacy/old.mjs.\n  - [DELIVERED]    R5: `node --test test/no-legacy.test.mjs` passes over the full tracked tree. Origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree, [...]\". Evidence: supplied check output shows `ok 1 - no tracked legacy files`, `# pass 1` and `# fail 0`. test/no-legacy.test.mjs:6 scans the full tracked list (`git ls-files -z`, unfiltered).\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
-      "words": 275,
-      "wallMs": 19287,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small diff; deletion, tracked tree and test behavior are all directly visible, and the supplied local check output confirms them)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Remove the tracked legacy directory and keep tracked legacy files from returning — origin: spec \"Goal\" - \"Remove the tracked legacy directory and prevent tracked legacy files from returning.\" — evidence: diff deletes legacy/old.mjs; tracked tree is only README.md, package.json, test/no-legacy.test.mjs; the regression guard is in test/no-legacy.test.mjs:5-7\n  - [DELIVERED]    R2: Delete every tracked file under legacy/ — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: diff `deleted file mode 100644` for legacy/old.mjs (the only tracked file under legacy/); supplied output `$ git ls-files legacy/` prints nothing\n  - [DELIVERED]    R3: Add test/no-legacy.test.mjs that checks the full tracked file list for legacy/ paths — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:6 (`git ls-files -z` over the whole tree, with no pathspec or exclusion), test/no-legacy.test.mjs:7 (asserts no path starts with `legacy/`)\n  - [DELIVERED]    R4: `git ls-files legacy/` returns nothing — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing, [...]\" — evidence: supplied output `$ git ls-files legacy/` (empty); tracked-file list contains no legacy/ path\n  - [DELIVERED]    R5: The test passes over the full tracked tree — origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree, [...]\" — evidence: test/no-legacy.test.mjs:6-7; supplied output \"ok 1 - no tracked legacy files / # pass 1 / # fail 0\"\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 236,
+      "wallMs": 16763,
       "mechanical": {
         "f3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Remove all tracked legacy files — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: legacy/old.mjs:1 (deleted in diff); supplied complete tracked-file list contains no `legacy/` paths.\n  - [DELIVERED] R2: Add a regression test checking the full tracked tree for legacy paths — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:5-7 invokes unrestricted `git ls-files -z` and asserts that no tracked path starts with `legacy/`.\n  - [DELIVERED] R3: The tracked legacy directory is empty — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing [...]\" — evidence: legacy/old.mjs:1 (deleted in diff); test/no-legacy.test.mjs:6-7; supplied local output shows `$ git ls-files legacy/` with no output.\n  - [DELIVERED] R4: The regression test passes over the full tracked tree — origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree [...]\" — evidence: test/no-legacy.test.mjs:6-7; supplied local check output: `ok 1 - no tracked legacy files`, `# tests 1`, `# pass 1`, `# fail 0`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 165,
-      "wallMs": 16207,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Remove every tracked legacy file — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: legacy/old.mjs:1 (deleted in supplied diff); supplied complete tracked-file list contains no `legacy/` paths.\n  - [DELIVERED] R2: Add a test checking the full tracked file list for legacy paths — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:5–7; `git ls-files -z` has no path exclusions, and the assertion rejects every path starting with `legacy/`.\n  - [DELIVERED] R3: No legacy files remain tracked — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing, [...]\" — evidence: legacy/old.mjs:1 (deleted in supplied diff); supplied local output shows `$ git ls-files legacy/` with no output.\n  - [DELIVERED] R4: The regression test passes over the full tracked tree — origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree, [...]\" — evidence: test/no-legacy.test.mjs:6–7; supplied local output reports `ok 1 - no tracked legacy files`, `# pass 1`, and `# fail 0`.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
+      "words": 166,
+      "wallMs": 15049,
       "mechanical": {
         "f3": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "9c06f7053a5ee657124fb5e05490cd18645e6cdbb32eb7d9d699fef0b316c10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
       "baselineOutputSha": "ded89b391c147fe6b87ba979bb7032e59799f793b91df685408ad87e462f9ce7",
-      "candidateOutputSha": "c9a8c0564d948f3583b18166e3c464c95466d8c13156afd7225b195694038a0c",
+      "candidateOutputSha": "6ebcb648094cba3c11647fcdfddc765aebb41e9bdbc42f77d3f0a3951f71a4d7",
       "facts": {
         "f1": {
           "before": "fails",
@@ -58,16 +58,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both facts moved from fails to holds, as intended. Before quoted each acceptance row in full and marked both PARTIAL (G1, G2) because of the empty PR body and the missing `slow` job result, then turned every standalone stage sentence from Design, Errors and edge cases, and Tests into MISSING, DRIFTED or UNAUTHORIZED gaps. After gives each acceptance row exactly one DELIVERED requirement (R4, R5), with evidence from the diff, the numbered test file and the local check output. Its origin quotes stop at the behavior clause and truncate the rest with [...]. Nothing in After's coverage, verdict, drift line or notes mentions the PR description, the slow job, CI, title, approval, merge, scan time, `npm test` or the release workflow. Before held neither fact, so there is nothing to preserve. To keep this result stable, keep the wording explicit on three points: a mixed row yields one requirement for its behavior half only, the origin quote truncates the stage clause with [...], and excluded stage clauses are omitted silently with no skip note, drift entry or gap. One thing to watch: R1/R4 and R2/R5 restate the same behavior from Design and from Acceptance criteria. That is fine here because each acceptance row still maps to exactly one Rn, but if the wording ever encourages merging or further splitting those rows, the 'exactly one DELIVERED Rn per acceptance row' property could break.",
-      "wallMs": 11936,
+      "feedback": "Both facts moved from fails to holds, and the After wording did not lose anything Before kept, since Before held neither. In Before, the two acceptance rows were PARTIAL gaps (G1, G2) with full origin quotes including \"the PR description lists every file the folder held\" and \"the `slow` job on the PR head\", and the standalone stage sentences from Design, Errors and edge cases, and Tests became G3-G10 with gap blocks and a GAPS verdict. In After, each acceptance row is exactly one DELIVERED requirement (R4, R5) whose origin quote stops at the behavior clause with \"[...]\", and no coverage row, gap block, verdict, drift line or skip note mentions PR text, CI, review, merge, `npm test`, scan time or the release run. One soft spot for f1: R4's evidence cites only the supplied `git ls-files legacy/` output and the tracked-file list, not the diff's deletion of legacy/old.mjs, so a strict reader could question \"diff evidence\" for that row. Wording that tells the auditor to cite the diff hunk (file and line, or the deleted file) for every delivered acceptance-row behavior, with local check output as supporting evidence only, would make this robust while keeping the stage-clause exclusion and the truncated origin quotes.",
+      "wallMs": 11279,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "9c06f7053a5ee657124fb5e05490cd18645e6cdbb32eb7d9d699fef0b316c10a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ac34020cc2947d3bba7f0bcd97dfde361d16852e61c8eddccdbbd03a079d25ce",
+      "intentSha": "0f323a66b418295491fd02dc4272dad0bd4aec2c6698bf82e414ef8b926744b6",
       "baselineOutputSha": "2d4e06d735f6f23e006ddbe00e1143e7b1ffcb86c9b736a0190335d504307775",
-      "candidateOutputSha": "346968fb439afdbf9048fd8ba12770c2c35c7f98eaeb1bc72470a4de0ecb64a9",
+      "candidateOutputSha": "c56a145d3bb048fbb84d97db08f08226450ffbfc887528681dd11a75249be2a9",
       "facts": {
         "f1": {
           "before": "fails",
@@ -85,10 +85,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "The After wording moved both facts in the intended direction. Before treated each mixed acceptance row as a single requirement including its stage half, so both rows came out PARTIAL (G4, G5) with the full sentence quoted, and every standalone stage sentence from Design, Errors and edge cases, and Tests became a MISSING or DRIFTED gap. After gives each acceptance row exactly one DELIVERED requirement (R3, R4) with diff evidence, quotes only the behavior clause with the stage clause cut to [...], and says nothing about PR description, slow job, CI, title, review, merge, timing, npm test or release workflow in coverage, drift, verdict or notes. No fact that Before kept was lost, since Before held neither. One thing to watch: After also lists R1 and R2 from the Design sentences, which describe the same behaviors as R3 and R4. That is acceptable under f1 as written because each acceptance row still has exactly one Rn with an acceptance-criteria origin, but a stricter reading could count it as double coverage. If you want that robust, add wording that says a behavior stated in both Design and an acceptance row is reported once, or that Design and acceptance origins are kept as distinct requirements on purpose, while keeping the instruction to quote only the behavior clause and to omit stage sentences silently.",
-      "wallMs": 8342,
+      "feedback": "After moved both facts in the intended direction: each mixed acceptance row now has exactly one DELIVERED requirement (R3 for the empty `git ls-files legacy/`, R4 for the test passing over the full tracked tree) with diff evidence, their origin quotes stop at the behavior clause and truncate the stage half with [...], and no coverage row, verdict, drift line or skip note mentions the PR description, slow job, CI, title, approval, merge, scan timing, `npm test` or release workflow; Before instead quoted the full rows as PARTIAL gaps G4/G5 and raised G1-G3 and G6-G10 for the standalone stage sentences. Before held neither fact, so nothing was lost. To keep this stable, retain the wording that makes the behavior half of a mixed row a single delivered requirement quoted only up to the truncation marker, and that excludes stage sentences silently even when a pull request exists. One thing to watch: After also lists the Design sentences as R1 and R2, which overlap R3 and R4; that does not break the facts as written, but if you want strictly one requirement per behavior, add wording that merges a Design sentence and its acceptance row into one requirement rather than listing both.",
+      "wallMs": 6268,
       "verdict": "improved"
     }
   },
-  "repoSha": "5d7f1ef3902b1079767a18c840f6bf56cd8aa923"
+  "repoSha": "366f8d51914eef50f63ae747ec873821a3d76a42"
 }

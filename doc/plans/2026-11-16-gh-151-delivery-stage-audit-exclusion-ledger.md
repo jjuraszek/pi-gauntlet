@@ -3,9 +3,9 @@
 base: 3171d0e124e361836d163217ff976af02c86cf2f
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
-returned: 4 | home | 5d7f1ef3902b1079767a18c840f6bf56cd8aa923
+returned: 5 | home | 366f8d51914eef50f63ae747ec873821a3d76a42
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -13,7 +13,7 @@ returned: 4 | home | 5d7f1ef3902b1079767a18c840f6bf56cd8aa923
 | 2 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/stage-exclusion.test.mjs; 2 passed, 0 failed; selected model evals stage-only-sentences and mixed-row improved on both replay models; stage clauses omitted with no PR and with an open PR |
 | 3 | done | 0 | timeout -k 30 60 node --test eval/conformance-reviewer/stage-exclusion.test.mjs; 2 passed, 0 failed; mixed-row holds all facts on both replay models; each acceptance row has one DELIVERED requirement and a behavior-only origin quote |
 | 4 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/prompt-stage-sentence.test.mjs; 1 passed, 0 failed; prompt-stage-sentence model eval: 2 improved cells, all 8 facts hold; 4 replays, 2 judgments, 0 confirmations |
-| 5 | open | 0 | |
+| 5 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/ci-step-is-the-change.test.mjs; 1 passed, 0 failed; ci-step-is-the-change model eval holds all four facts on both arms and both replay models; CI-file and bundle gaps retain recommended: fix and spec origins |
 | 6 | open | 0 | timeout -k 30 60 node --test scripts/brainstorming-contract.test.mjs; 66 passed, 1 failed; workflow-stage gate lacks a pull request's title, body, state or review |
 | 7 | open | 0 | |
 
@@ -23,3 +23,4 @@ row 1 done | The audit drops delivery-stage clauses while retaining delivered fi
 row 2 done | Added passing audit coverage that omits stage-only sentences with and without an existing pull request. | Reuse eval/conformance-reviewer/stage-exclusion.test.mjs to replay the stage-only-sentences and mixed-row fixtures and cached judgments.
 row 3 done | Confirmed each mixed acceptance row retains one delivered requirement and quotes only its behavior clause. | nothing new to build on
 row 4 done | Added a prompt-only CI sample proving the audit omits stage requirements and drift while keeping delivered behavior. | Reuse eval/conformance-reviewer/prompt-stage-sentence.test.mjs to check the fixture and cached model judgments locally.
+row 5 done | Preserved fix gaps for missing CI-file changes and regenerated bundles, retaining spec origins when the prompt repeats them. | Reuse eval/conformance-reviewer/ci-step-is-the-change.test.mjs for cached CI-file and bundle regression checks.

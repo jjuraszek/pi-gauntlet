@@ -1,0 +1,4 @@
+- f1: mechanical: contains "Conformance verdict: GAPS"
+- f2: judged: The report includes a non-DELIVERED requirement and a gap for the browser-install step left in .github/workflows/ci.yml, with an origin quoting the spec's instruction to remove that step. It treats the workflow-file behavior as an implementation requirement, not an excluded stage proof.
+- f3: judged: Both the browser-install gap and the stale generated-bundle gap have recommended: fix; neither is waived, accepted or rescoped as a delivery-stage obligation.
+- f4: judged: The report includes a non-DELIVERED requirement and a gap whose origin quotes "regenerated bundles committed" from the leg verification line. Its evidence identifies the unchanged bin/label.mjs as not regenerated from the modified src/label.mjs; it does not skip the file clause merely because it sits in verification.
