@@ -202,7 +202,7 @@ Anonymize private material or rewrite it as simpler synthetic text before it lan
 
 ## CI
 
-The full suite in `scripts/ci.mjs` runs `eval/lib/*.test.mjs`, structural lint over immediate target directories including `_template`, and the shared hygiene scan. Nested `brainstorming/replay/` is outside structural lint, not outside the tree hygiene scan. CI never calls a model. `eval/` is checkout-only, excluded from the npm tarball and from model-literal lint scope.
+The full suite in `scripts/ci.mjs` runs `eval/lib/*.test.mjs`, the explicitly listed deterministic sample regression tests (`eval/conformance-reviewer/*.test.mjs`, `eval/spec-council-applier/pr-description-finding.test.mjs`, and `scripts/delivery-stage-authoring.test.mjs`), structural lint over immediate target directories including `_template`, and the shared hygiene scan. The sample regression tests reuse committed replay outputs and judgments. Nested `brainstorming/replay/` is outside structural lint, not outside the tree hygiene scan. CI never calls a model. `eval/` is checkout-only, excluded from the npm tarball and from model-literal lint scope.
 
 ## Policy
 
