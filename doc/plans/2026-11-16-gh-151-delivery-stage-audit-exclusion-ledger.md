@@ -26,3 +26,4 @@ row 4 done | Added a prompt-only CI sample proving the audit omits stage require
 row 5 done | Preserved fix gaps for missing CI-file changes and regenerated bundles, retaining spec origins when the prompt repeats them. | Reuse eval/conformance-reviewer/ci-step-is-the-change.test.mjs for cached CI-file and bundle regression checks.
 row 6 done | Expanded ticket and drafting rules to reject PR proof, preserve generated PR text, and sort operator steps into narrative context. | Reuse scripts/delivery-stage-authoring.test.mjs to replay the three cached authoring samples and guard PR-text-as-product behavior.
 row 7 done | Made the critique applier write operator instructions in the targeted section without creating PR-body obligations. | Reuse eval/spec-council-applier/pr-description-finding.test.mjs to replay the operator-step fixture and cached model judgments.
+amended | 2 item(s) | Post-merge menu promise narrowed
