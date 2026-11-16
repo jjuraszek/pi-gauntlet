@@ -119,13 +119,15 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
     assert.match(text, /^\| Workflow-stage proof \|/m, `${path}: integrity class exists`);
   }
   const gateRow = ticket.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
-  for (const marker of ['drop', 'Reporter note', 'Label every retained original containing a dropped stage clause', "including AC uniqueness's split-row copy", 'leave no unmarked duplicate']) assert.ok(gateRow.includes(marker), marker);
+  for (const marker of ['drop', 'Reporter note', 'Label every retained original containing a dropped stage clause', "including AC uniqueness's split-row copy", 'leave no unmarked duplicate', "a pull request's title, body, state or review"]) assert.ok(gateRow.includes(marker), marker);
   assert.match(brainstorming, /on a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
   assert.ok(ticket.includes('relocation or a stage-proof drop empties the AC list'));
   const trigger = brainstorming.split('\n').find((line) => line.startsWith('| ') &&
     line.includes('workflow-stage proof under `shape-ticket/SKILL.md` `## AC integrity gate`'));
   assert.ok(trigger, 'cut-question trigger names the owning gate');
   assert.ok(trigger.includes('D - a stage proof is not an outcome'));
+  assert.ok(trigger.includes('pull-request text is itself the behavior under change'));
+  for (const marker of ['**Change or post action.**', 'a PR title, body or state']) assert.ok(brainstorming.includes(marker), marker);
   assert.ok(read('skills/shape-ticket/reference/examples.md').includes('**Workflow-stage proof**'));
 });
 
