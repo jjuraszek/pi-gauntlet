@@ -235,6 +235,7 @@ const tokenChecks = [
   ["skills/subagent-driven-development/wave-reviewer-prompt.md", "TRAJECTORY: CONVERGING", true],
   ["skills/subagent-driven-development/reference/dispatch-contract.md", "WAVE_VERDICT_SCHEMA", true],
   ["skills/writing-plans/SKILL.md", "is never waivable", true],
+  ["skills/writing-plans/SKILL.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   // council provenance / probe-before-apply / standing amend approval
   ["agents/spec-council-member.md", "probed:", true],
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],

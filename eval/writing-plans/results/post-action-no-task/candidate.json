@@ -1,0 +1,120 @@
+{
+  "sample": "post-action-no-task",
+  "arm": "candidate",
+  "skillSha": "364689d0d9414d415d5a3891e7617140f71f88733086428c278838e974cfc1b1",
+  "inputSha": "591e1142185d628159cc0842824e05df1c958f76523fc099da57d9e8226d756a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Scan records and publish release notes Implementation Plan\n\n**Goal:** Count only non-blank records in `records.txt` and publish the changelog's Release notes section in the release pull-request body.\n\n**Spec:** doc/specs/scan.md\n**Ticket:** none\n**Baseline home:** abc1234\n**Verification:** `npm test`\n\nBaseline provenance: HEAD abc1234, porcelain status empty before and after each run. Admitted paths: none. Both commands executed unchanged, each exiting 0 with 2 passing tests. No artifacts were produced and HEAD did not move.\n\n## Wave 1 — Scan and release fixes\n\nTask 1 and Task 2 own disjoint files. The scan test reads the tracked tree only and uses no external service, so neither task contends on a shared mutable runtime resource.\n\n### Task 1: Ignore blank lines when counting records\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/scan.md § \"Design\" L4, § \"Acceptance criteria\" L9-L10, § \"Tests\" L13\n\nExcluded citation (not work, not an acceptance condition): `slow`\n\n**Files:**\n- Modify: `src/scan.mjs`\n- Test: `tests/scan.test.mjs`\n\n**Tests:**\n- `node --test tests/scan.test.mjs`\n- baseline: abc1234 pass\n- via: `src/scan.mjs`\n\n- [ ] **Step 1: Write the failing test**\n\n  In `tests/scan.test.mjs`, add a case that counts records from `records.txt` content containing blank lines and whitespace-only lines. The input `\"a\\n\\nb\\n   \\nc\\n\"` must count as 3 records. Keep the existing full-tracked-tree cases.\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/scan.test.mjs`\n  Expected: FAIL, because the current code counts blank lines (5 instead of 3).\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `src/scan.mjs`, filter lines before counting:\n\n  ```js\n  const records = content.split('\\n').filter((line) => line.trim() !== '');\n  return records.length;\n  ```\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/scan.test.mjs`\n  Expected: PASS, with every test passing over the full tracked tree.\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  Run the project's scoped formatter on `src/scan.mjs tests/scan.test.mjs`.\n  Expected: no diff on re-run.\n\n- [ ] **Step 6: Commit**\n\n  1. Read the commit-message reference (`finishing-a-development-branch/reference/commit-message.md`): its Subject, Body and Word sources sections.\n  2. Compose the message from this task's heading. The ticket is none.\n  3. Send the message on stdin:\n\n  ```bash\n  git add src/scan.mjs tests/scan.test.mjs\n  git commit -F -\n  ```\n\n### Task 2: Write the changelog section into the release pull-request body\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/scan.md § \"Design\" L5, § \"Tests\" L14\n\n**Files:**\n- Modify: `scripts/release.mjs`\n- Test: `tests/release.test.mjs`\n\n**Tests:**\n- `node --test tests/release.test.mjs`\n- baseline: abc1234 pass\n- via: `scripts/release.mjs`\n\n- [ ] **Step 1: Write the failing test**\n\n  In `tests/release.test.mjs`, add a case using a changelog that has a `Release notes` section. Assert two things about the generated pull-request body:\n  - It contains the release title.\n  - It contains that section's text, and not text from other changelog sections.\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/release.test.mjs`\n  Expected: FAIL, because the body currently holds only the title.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `scripts/release.mjs`, extract the section from `CHANGELOG.md` and append it to the body:\n\n  ```js\n  const section = extractSection(changelog, 'Release notes');\n  const body = `${title}\\n\\n${section}`;\n  ```\n\n  Define `extractSection` in `scripts/release.mjs`. It returns the lines after the matching heading, up to the next heading of the same or higher level.\n\n  Decision: no `CHANGELOG.md` edit - the existing Release notes section is readable by the script (source inspection).\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/release.test.mjs`\n  Expected: PASS.\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  Run the project's scoped formatter on `scripts/release.mjs tests/release.test.mjs`.\n  Expected: no diff on re-run.\n\n- [ ] **Step 6: Commit**\n\n  1. Read the commit-message reference (`finishing-a-development-branch/reference/commit-message.md`): its Subject, Body and Word sources sections.\n  2. Compose the message from this task's heading. The ticket is none.\n  3. Send the message on stdin:\n\n  ```bash\n  git add scripts/release.mjs tests/release.test.mjs\n  git commit -F -\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4 | ignore blank lines in `records.txt` when counting in `src/scan.mjs` | Task 1 |\n| § \"Design\" L5 | `scripts/release.mjs` writes changelog section into the pull-request body | Task 2 |\n| § \"Acceptance criteria\" L9-L10 | `node --test tests/scan.test.mjs` passes over the full tracked tree | Task 1 |\n| § \"Tests\" L13 | blank-line counting tested in `tests/scan.test.mjs` | Task 1 |\n| § \"Tests\" L14 | changelog section rendering tested in `tests/release.test.mjs` | Task 2 |\n\nCoverage decisions behind the table:\n\n- **Design L5 is tabled.** The script writes pull-request text, so that text is a behavior of the change and gets a row.\n- **Design L6 has no row.** It is a Post-deployment housekeeping step a person performs after merge, and no file delivers it.\n- **Acceptance L9-L10 is a mixed row.** Only its test-behavior half is tabled, owned by Task 1. Its venue half (the CI job result) is excluded. That half's code literal appears exactly once, on Task 1's `Excluded citation` line, and nowhere else in the plan.\n",
+      "words": 720,
+      "wallMs": 30297,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "# Scan records and publish release notes — Implementation Plan\n\n**Spec:** doc/specs/scan.md\n**Ticket:** none\n**Verification:** `npm test`\n\nBaseline provenance: supplied observations identify clean HEAD `abc1234`, with no additional legs or overrides. Both scoped test commands executed successfully at that revision: two passing tests each, no failures, artifacts, working-tree changes, or HEAD movement. This plan uses those measured results; it makes no additional execution claims.\n\n## Wave 1 — Correct counting and release-body rendering\n\nThe tasks have no ordering dependency, own disjoint files, and share no mutable runtime resource. The scan test’s enumeration of the tracked tree is read-only.\n\n### Task 1: Ignore blank lines when counting records\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/scan.md § \"Design\" L4, § \"Acceptance criteria\" L9-L10, § \"Tests\" L13\n\n**Files:**\n- Modify: `src/scan.mjs`\n- Modify: `tests/scan.test.mjs`\n- Test: `tests/scan.test.mjs`\n\n**Tests:**\n- `node --test tests/scan.test.mjs`\n- baseline: abc1234 pass\n- via: `src/scan.mjs` record-counting behavior\n\nExcluded citation (not work, not an acceptance condition): `slow`\n\n- [ ] **Step 1: Confirm the existing tests pass**\n\n  Run: `node --test tests/scan.test.mjs`\n\n  Expected: existing tests pass. Preserve the existing full-tracked-tree enumeration.\n\n- [ ] **Step 2: Extend the existing counting tests**\n\n  Add cases using the existing test harness:\n  - Two nonblank records separated by an empty line count as two.\n  - Leading and trailing empty lines do not increase the count.\n  - An empty file and a file containing only empty lines count as zero.\n  - Two nonblank records without intervening empty lines still count as two.\n\n  Keep record contents unchanged; this task changes counting, not record normalization.\n\n- [ ] **Step 3: Confirm the regression tests fail**\n\n  Run: `node --test tests/scan.test.mjs`\n\n  Expected: the blank-line cases fail because blank lines are currently counted.\n\n- [ ] **Step 4: Correct the counting operation**\n\n  In `src/scan.mjs`, exclude blank lines from the lines counted from `records.txt`. Preserve the existing input-loading mechanism and externally visible result format.\n\n- [ ] **Step 5: Confirm the scoped tests pass**\n\n  Run: `node --test tests/scan.test.mjs`\n\n  Expected: all tests pass, including the existing tracked-tree exercise.\n\n- [ ] **Step 6: Check the changed JavaScript**\n\n  No formatting or lint command is supplied. Run syntax checks:\n\n  ```bash\n  node --check src/scan.mjs\n  node --check tests/scan.test.mjs\n  ```\n\n  Expected: both exit zero.\n\n- [ ] **Step 7: Commit**\n\n  Apply the supplied commit-message reference’s Subject, Body, and Word sources rules. Use an imperative subject describing blank-line counting; no ticket reference applies.\n\n  ```bash\n  git add src/scan.mjs tests/scan.test.mjs\n  printf '%s\\n' 'Ignore blank lines when counting records' | git commit -F -\n  ```\n\n### Task 2: Render the changelog section in release pull-request bodies\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/scan.md § \"Design\" L5, § \"Tests\" L14\n\n**Files:**\n- Modify: `scripts/release.mjs`\n- Modify: `tests/release.test.mjs`\n- Test: `tests/release.test.mjs`\n\n**Tests:**\n- `node --test tests/release.test.mjs`\n- baseline: abc1234 pass\n- via: `scripts/release.mjs` pull-request-body rendering\n\n- [ ] **Step 1: Confirm the existing tests pass**\n\n  Run: `node --test tests/release.test.mjs`\n\n  Expected: existing tests pass.\n\n- [ ] **Step 2: Add a release-body regression test**\n\n  Extend the existing harness to assert that the generated pull-request body includes the contents of the Release notes section read from `CHANGELOG.md`, rather than containing only the release title. Assert that unrelated changelog sections are not copied as release notes. Do not edit the changelog.\n\n- [ ] **Step 3: Confirm failure**\n\n  Run: `node --test tests/release.test.mjs`\n\n  Expected: the new assertion fails because the current body contains only the title.\n\n- [ ] **Step 4: Implement section rendering**\n\n  Update `scripts/release.mjs` to read the Release notes section and include its contents in the body passed through the existing pull-request creation path. Preserve unrelated release behavior.\n\n- [ ] **Step 5: Confirm passing tests and valid syntax**\n\n  Run: `node --test tests/release.test.mjs`\n\n  Expected: all tests pass.\n\n  No formatting or lint command is supplied. Run:\n\n  ```bash\n  node --check scripts/release.mjs\n  node --check tests/release.test.mjs\n  ```\n\n  Expected: both exit zero.\n\n- [ ] **Step 6: Commit**\n\n  Apply the supplied commit-message reference’s wording rules; no ticket reference applies.\n\n  ```bash\n  git add scripts/release.mjs tests/release.test.mjs\n  printf '%s\\n' 'Include changelog notes in release pull-request bodies' | git commit -F -\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4 | Ignore blank lines in `records.txt` when counting records in `src/scan.mjs` | Task 1 |\n| § \"Design\" L5 | `scripts/release.mjs` writes the changelog section into the pull request body | Task 2 |\n| § \"Acceptance criteria\" L9-L10 | Scan tests pass over the full tracked tree | Task 1 |\n| § \"Tests\" L13 | Blank-line counting in `tests/scan.test.mjs` | Task 1 |\n| § \"Tests\" L14 | Changelog section rendering in `tests/release.test.mjs` | Task 2 |\n",
+      "words": 666,
+      "wallMs": 26158,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4e692199f75f7aadc9c24eb810c72a35655c56dee0ab88814f62f96b86057b50",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4af3033dbbca840a5a9ed4af0143174a86dcf1bb2a9d36e908c2438fc3ab2e8a",
+      "baselineOutputSha": "69d43f65f3a889cf3824242d1087a6bc01c975b9dec688642baac69839ed3491",
+      "candidateOutputSha": "969a870b8130b6994c5f1985e8282b950011787c044ae39566e92720fb85f756",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Only f5 moved on the text: After puts the literal `slow` exactly once, on Task 1's line opening `Excluded citation (not work, not an acceptance condition):`, and in no step or acceptance condition, whereas Before named `slow` inside a Task 1 Decision sentence and had no Excluded citation line. f1, f2 and f3 were expected to move from fails to holds but already hold in Before as written: its coverage table has no row for the housekeeping paragraph, no task implements or conditions acceptance on the DEPLOY_TOKEN step, and the mixed row is tabled for the scan-test behavior alone under Task 1 with the CI run explicitly not task work. What Before did instead was park L6 in a blocking Open Question, call it non-waivable, end with an OPEN QUESTIONS status, and defer the venue run to verify/PR time; none of the six facts tests for that, so the sample does not show the improvement After actually makes (no Open Question, a clean statement that L6 is a person's post-merge step no file delivers, and the venue half excluded outright). To make the intended moves observable, add or tighten facts so they fail when the operator step is raised as an Open Question or blocks the plan, and when the venue is deferred as verify-time proof. After's wording keeps f4 and f6 (rows for Design L4 and L5, with Task 2 owning the release-script text), so nothing Before held is lost; keep the excluded-literal rule phrased as 'only on the owning task's Excluded citation line' and keep the closing coverage notes free of the literal, as After does by saying 'the CI job result' instead of repeating `slow`.",
+      "wallMs": 14885,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4e692199f75f7aadc9c24eb810c72a35655c56dee0ab88814f62f96b86057b50",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4af3033dbbca840a5a9ed4af0143174a86dcf1bb2a9d36e908c2438fc3ab2e8a",
+      "baselineOutputSha": "52f352c90cfccbf6cc4922a3f17a3139fb457facbac4b3ce8ea84d363d932cef",
+      "candidateOutputSha": "4c0622ee7b91c10323aabc130b9cb9b1d05d6b83819fed756ad35511d22f816f",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f6": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved f1, f2, f3 and f5 from fails to holds and kept f4 and f6. The exclusion wording removed the Design L6 coverage row, the housekeeping step (Before's Step 9) and the Orchestrator note about the admin secret, so no row or task touches DEPLOY_TOKEN. The mixed acceptance row is now tabled as 'Scan tests pass over the full tracked tree' owned by Task 1, with no PR-head job in the row or in any step (Before's Step 8 is gone). The literal slow appears exactly once, on Task 1's 'Excluded citation (not work, not an acceptance condition):' line. The blank-line and release-script rows both survive, and the release-script work has its own implementation task (Task 2), so the retained file-delivered pull-request text behavior is intact. To keep this stable, keep the wording that explicitly says script-produced pull-request text is behavior of the change, so the operator-step and workflow-stage exclusions are not over-applied to L5. Also keep the instruction that the excluded literal goes only on the owning task's Excluded citation line and nowhere else, since a second mention of slow in the provenance note, a step or the table would break f5. One fragile point: Task 1's Spec line still cites L9-L10 as a range, which is fine here, but the wording should keep stating that citing the anchor does not import the venue clause as work.",
+      "wallMs": 6961,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "fe2bf28f126294b17c48aa850e8222321dd1941a"
+}

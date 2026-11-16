@@ -1,4 +1,4 @@
-for: 239a8de8de7cc3aeb272bec84fa322039073214457b65784ef06d86dae33f142
+for: 364689d0d9414d415d5a3891e7617140f71f88733086428c278838e974cfc1b1
 
 ## Change
 
@@ -30,8 +30,14 @@ Keep Leg before Files and leg-specific test baselines and rule routing; preserve
 
 Add grant variants as two new samples, baseline-menu-under-grant and baseline-menu-aftermath, while preserving the existing parent-offers-fix-first-narrow-amend sample's failure/menu/pause as the no-grant control. Decode amend permission before taking baseline recommendations in initial planning and unchanged-command amendment aftermath. No model replay runs during implementation; verification owns the generated report.
 
+Exclude operator steps, commit message text and workflow-stage proof from plan rows and tasks, retaining file-delivered pipeline or pull-request text behavior. Table mixed rows for behavior alone and place an excluded inline literal only on its owning task's Excluded citation line. The post-action-no-task sample isolates this coverage decision using a housekeeping step, a mixed acceptance row and release-script text production; its six facts must hold. Evidence is sample-scoped, not a target-wide or end-to-end pass.
+
 ## Expected to move
 
+- post-action-no-task/f1: fails -> holds - Give the housekeeping paragraph no coverage row.
+- post-action-no-task/f2: fails -> holds - Give the operator's secret-creation step no task.
+- post-action-no-task/f3: fails -> holds - Table the mixed row for behavior alone.
+- post-action-no-task/f5: fails -> holds - Preserve the excluded literal only as an excluded citation.
 - plan-commit-wording/wording: fails -> holds - Read the shared plan recipe instead of the local plan prefix.
 - plan-commit-wording/ticket: fails -> holds - Carry the spec ticket under the project's body convention.
 - leg-checkout-by-branch/branch-lookup: fails -> holds - Select and validate the companion checkout by recorded branch.
