@@ -1,0 +1,4 @@
+- f1: judged: None of the three sentences "The PR description carries this step.", "Ship evidence stays green `ci` on the exact PR head.", or "The root scan time before and after is recorded in the PR body." is quoted anywhere in the report. None of the additional PR-title, PR-state, review, merge, full-suite or workflow-run sentences gets a coverage row, gap block, verdict or drift line.
+- f2: mechanical: contains "Conformance verdict: CONFORMS"
+- f3: judged: The report does not list, summarize or explain skipped delivery-stage sentences anywhere, including in confidence text or origin drift. The delivered trimming behavior remains covered with file evidence.
+- f4: mechanical: lacks "UNAUTHORIZED"

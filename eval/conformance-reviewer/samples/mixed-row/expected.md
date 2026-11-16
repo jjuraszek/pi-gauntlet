@@ -1,0 +1,3 @@
+- f1: judged: Each in-scope acceptance row has exactly one DELIVERED Rn with diff evidence: one for the empty tracked legacy directory, and one for the new test checking the full tracked tree. The missing PR-body list and slow-job run do not split either row or make it a gap.
+- f2: judged: Neither acceptance-row origin quote contains "PR description" or "job on the PR head". Each quotes only its behavior clause, truncating the excluded clause with [...]. No coverage row, gap block, verdict, drift line or skip note mentions the stage halves or the standalone delivery-stage sentences from Design, Errors and edge cases, and Tests.
+- f3: mechanical: contains "Conformance verdict: CONFORMS"
