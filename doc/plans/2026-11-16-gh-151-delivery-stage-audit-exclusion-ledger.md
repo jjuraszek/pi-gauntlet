@@ -27,3 +27,4 @@ row 5 done | Preserved fix gaps for missing CI-file changes and regenerated bund
 row 6 done | Expanded ticket and drafting rules to reject PR proof, preserve generated PR text, and sort operator steps into narrative context. | Reuse scripts/delivery-stage-authoring.test.mjs to replay the three cached authoring samples and guard PR-text-as-product behavior.
 row 7 done | Made the critique applier write operator instructions in the targeted section without creating PR-body obligations. | Reuse eval/spec-council-applier/pr-description-finding.test.mjs to replay the operator-step fixture and cached model judgments.
 amended | 2 item(s) | Post-merge menu promise narrowed
+amended | 1 item(s) | Stale new-file flag in the plan eval target

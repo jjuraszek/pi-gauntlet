@@ -180,6 +180,8 @@ Keep the pinned literals `is never waivable` and ``table only `in-scope` and `ve
 
 Per `eval/README.md` and AGENTS.md "Change process": one sample per changed decision, each `samples/<name>/case.md` + `expected.md`, each target's `intent.md` gaining this change's paragraph, results committed sample-scoped. Sample text is synthetic; it names no consumer repo, job or person.
 
+In `eval/writing-plans/target.json`, remove `"new": true` from the `skills/finishing-a-development-branch/reference/commit-message.md` entry: that file exists at the baseline, and the runner refuses every `writing-plans` sample with `new file exists at baseline` while the flag stays. Change nothing else in that file.
+
 Add the target `eval/conformance-reviewer/` on the `eval/_template` layout (`target.json`, `intent.md`, `README.md`, `replay.md`, `samples/`), with `target.json` following `eval/spec-council-member/target.json`:
 
 ```json
