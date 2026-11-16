@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.7.1 - 2026-11-16
 
 - Exclude workflow-stage proofs, operator steps and commit message text from implementation requirements in the conformance audit and plan; keep operator steps in the spec with their real actor and timing. Pull-request text and pipeline results that files produce as the change's behavior remain requirements. For a flow upgraded mid-audit, an old excluded gap's `Gn` task can stay `in_progress` and block verify completion even after a `CONFORMS` re-audit. The person running the flow directs manual recovery using existing operations: confirm that the old gap's origin quote asks only for a workflow-stage proof (a delivery-stage observable, not a behavior of the change), an operator step (a step a person performs that no file delivers, at any timing, or a production-only observation), or commit message text; mark only that `Gn` task `complete`; remove its carried-open entry from `## Closure / conformance` if one was recorded; retry verify completion. A `Gn` omitted by the re-audit for any other reason stays `in_progress`. (#151)
 - pi-cohort peer floor raised to 8.2.0.
