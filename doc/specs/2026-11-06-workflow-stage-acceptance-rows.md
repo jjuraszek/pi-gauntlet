@@ -1,5 +1,7 @@
 # Workflow-stage proof is not an acceptance criterion: drop it at the ticket gate and at spec-writing
 
+> **Superseded by:** [doc/specs/2026-11-16-gh-151-delivery-stage-audit-exclusion.md](./2026-11-16-gh-151-delivery-stage-audit-exclusion.md) - the class's observable list in D1, the "applier stays at five and the persona is untouched" bullet in "Errors and edge cases", and the "Out of scope" entries for the applier, writing-plans and the conformance reviewer
+
 **Goal:** An acceptance row whose only observable is a delivery-pipeline stage - a CI or workflow run result, a pull request's state or review, a merge, or a full verification-suite run - never reaches a plan, a loop ledger, or a conformance reviewer: shape-ticket's AC integrity gate drops it (retaining the text in the Reporter note as retired proof), brainstorming screens ticket rows for that shape before question one and asks the cut question with ticket repair recommended as the first ordinary question, and never drafts one from a design.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
