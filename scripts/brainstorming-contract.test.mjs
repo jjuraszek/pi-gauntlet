@@ -127,7 +127,11 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
   assert.ok(trigger, 'cut-question trigger names the owning gate');
   assert.ok(trigger.includes('D - a stage proof is not an outcome'));
   assert.ok(trigger.includes('pull-request text is itself the behavior under change'));
-  for (const marker of ['**Change or post action.**', 'a PR title, body or state']) assert.ok(brainstorming.includes(marker), marker);
+  assert.ok(gateRow.includes('not a behavior of the change'));
+  assert.ok(ticket.includes('Keep a row whose behavior produces pull-request text'));
+  const sorting = brainstorming.slice(brainstorming.indexOf('## Row production at spec-writing'), brainstorming.indexOf('Branch on the gathered result'));
+  for (const marker of ['**Change or post action.**', 'On every gathered result', 'with its real actor and timing', 'never as an acceptance row, a Tests line or a Design imperative', '**Post-deployment housekeeping.**', 'unless that text or result is itself a behavior of the change', 'Ticket rows stay verbatim.']) assert.ok(sorting.includes(marker), marker);
+  assert.ok(brainstorming.includes('a PR title, body or state'));
   assert.ok(read('skills/shape-ticket/reference/examples.md').includes('**Workflow-stage proof**'));
 });
 

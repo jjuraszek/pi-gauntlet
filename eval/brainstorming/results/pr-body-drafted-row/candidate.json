@@ -1,0 +1,90 @@
+{
+  "sample": "pr-body-drafted-row",
+  "arm": "candidate",
+  "skillSha": "b2fa6688a5abc2b6076c465e51e9131bb885f5654502dc66db9a0302b16688e1",
+  "inputSha": "5e8f1b13ab5f7dc4dd6a4d8b13f17b99169f00e0f2a51f89d1eb748525c3c78f",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Narrated actions at checklist step 7 (spec-writing)\n\n1. **Stage: resume at step 7.** Gather and both design approvals are complete. The Spec Self-Review instructions from `skills/brainstorming/reference/spec-finalization.md` were read earlier this session and are in context, so no re-read is needed. Nothing is unreadable or outstanding.\n\n2. **Stage: branch on the gathered result.** `reference/ticket-acceptance.md` is in context. The sentinel is `none - no ticket`, so the `## Row production at spec-writing` table selects a drafted section under `Drafted from the design, no ticket rows:`. No ticket rows exist, so there is no verbatim block and no ticket cut question with option D.\n\n3. **Stage: sort every approved commitment as a change or an operator step.**\n   - **Behavior 1, removing the obsolete parser tests:** this is a change. Files deliver it.\n   - **Behavior 2, the release script writing the changelog section into the PR body:** this is a change. The script's own output is the PR text, so that text is a behavior of the change, not a workflow obligation.\n   - **Operator steps:** none. No `Post-deployment housekeeping` paragraph is needed.\n\n4. **Read: `skills/shape-ticket/SKILL.md` `## AC integrity gate`.** This is a first-use read required by the Workflow-stage proof row of the integrity table. It is narrated, not a live call. No unreadable outcome is recorded, so drafting continues. The two rules I apply from it are:\n   - A row whose sole observable is pull-request text is a stage proof.\n   - A row whose behavior produces PR text keeps that text as its observable.\n\n5. **Stage: apply the integrity classes to each row.**\n   - **Behavior 1:** the draft proves it with \"the PR description lists every deleted test file\". That is a workflow-stage proof attached to a committed outcome. I keep the outcome and rewrite the proof to the Design behavior: the retired parser's test directory is empty. The PR-description sketch goes into no row, Tests line, or Design sentence. The outcome is unchanged, so no scope decision is involved.\n   - **Behavior 1, tree-wide check:** not tree-wide. It is one named directory with one observable (empty), not \"zero findings of a kind\" across a tree.\n   - **Behavior 2:** clean behavioral binary. The setup is the release script plus a sample changelog. The action is running the script. The result is a generated body containing that section. It needs no numeric baseline, and it is not a stage proof.\n   - **Remaining classes:** no wishful, tautological, unspecified-but-binding, external-input, or post-deployment defect is present.\n\n6. **Stage: check whether a question is required.** None is required:\n   - No outcome leaves in-scope.\n   - No value is missing.\n   - No enumeration is needed.\n   - No cut question is triggered.\n   \n   I write the section without stopping.\n\n7. **Stage: render the section** below, placed after `## Problem`.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] After the change, the retired parser's test directory contains no files.\n  in-scope\n- [ ] Running the release script with a sample changelog produces a pull request body that contains that changelog's section.\n  in-scope\n```\n\n8. **Next stage:** step 8, spec self-review (lint). No file write or test run is claimed here. At the user review gate, these two drafted rows are shown verbatim under \"Drafted acceptance criteria (approval ratifies):\". `Scope cuts:` renders `none`.\n",
+      "words": 518,
+      "wallMs": 25921,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Read stage — recorded state:** The ticket-acceptance reference and owning gate are available in context. The required Spec Self-Review read of `skills/brainstorming/reference/spec-finalization.md` succeeded earlier; no prerequisite read remains outstanding.\n\n2. **Acceptance drafting stage:** Preserve both approved behaviors. Do not turn “the PR description lists every deleted test file” into an acceptance criterion: it is only a workflow-stage proof sketch for the removal behavior. Retain the release script’s generated pull request text as an observable behavior of the change. No clarification or scope-cut question is required.\n\n3. **Proposed section — not written to disk:**\n\n   ## Acceptance criteria\n\n   Drafted from the design, no ticket rows:\n\n   - [ ] After the obsolete parser test files are removed, the retired parser's test directory is empty.\n     in-scope\n   - [ ] Given a sample changelog, running the release script writes the changelog section into the generated pull request body.\n     in-scope\n",
+      "words": 136,
+      "wallMs": 20289,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dad6602447c3a60828cdd2d0bd6e088cbecdb2d8155c30601880c247964b2a37",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f5661c372ad88dae4db68e813a84b162ea770267e59bab036db4b5f81f9e9886",
+      "baselineOutputSha": "f38cce31c11d3f16d412a26ee01044ff97baec3c3b77a0ceda113a592dcac07e",
+      "candidateOutputSha": "fb85939123371319e5603e76a67ef0f89f6bc3f8df7c3bcd439af1a0e302e598",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` (empty retired-parser test directory; release script writes the changelog section into the PR body), neither has a row whose sole observable is PR-description text listing deleted files, and neither asks a cut or scope question or emits a `none` fallback. The expected f1 fails -> holds movement is therefore not shown by this pair, because Before already dropped the PR-description proof and kept the script-produced PR text as a behavior. What After adds is the explicit change-versus-operator-step sort and the stated distinction between PR text as sole observable (stage proof) and PR text the change produces (behavior), plus the statement that the PR-description sketch goes into no row, Tests line or Design sentence. Keep that wording, and keep the instruction to preserve the outcome while rewriting only its proof, since that is what holds f2 and f3. One small tightening: Before's row said the directory shows no test files while After's says it contains no files; the latter matches the Design's 'empty' commitment more exactly, so keep it.",
+      "wallMs": 5693,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dad6602447c3a60828cdd2d0bd6e088cbecdb2d8155c30601880c247964b2a37",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f5661c372ad88dae4db68e813a84b162ea770267e59bab036db4b5f81f9e9886",
+      "baselineOutputSha": "62199b848b0afb47490f42fcbba9b9a3c94211c0a44abbc896f40432d3285051",
+      "candidateOutputSha": "d2f394dc3bced5fef7c934f84d1a3d947fac0fd94a5f1c77d0481932e2f731c9",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "On this replay nothing moved: both outputs render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` (retired parser's test directory empty after removal; release script writes the changelog section into the pull request body), neither has a row whose sole observable is PR-description text listing deleted files, and neither asks a cut or scope question or falls back to none. The expected f1 fails -> holds did not show up because Before already left the PR-description inventory out as a proof sketch while keeping the release-script row, so this sample is regression coverage for the new wording rather than evidence of improvement. After states the distinction more explicitly (calling the inventory a workflow-stage proof sketch and the generated PR text an observable behavior of the change), which is the wording to keep. To preserve all three facts, keep the instruction that rewriting or dropping a stage proof preserves the Design commitment it was attached to and raises no scope-cut question, and keep the rule that text the change itself produces stays an acceptance observable. After omits Before's closing note about continuing to self-review and the critique pass; no fact checks this, but if that continuation matters, name it in the wording.",
+      "wallMs": 5476,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f241bcf71d748d324d6787c21e35bc0c3d439ae1"
+}

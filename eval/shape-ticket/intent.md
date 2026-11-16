@@ -1,6 +1,8 @@
-for: 77e71fd79d865e091ec6c3c2c43b4d4a4549609fedd87e412d3cc4ec28b4bb0a
+for: cbe84f36505294d55bdd94e0b84dc0cf6de4c95b44b5b35386697f4d87c3b31f
 
 ## Change
+Drop ticket rows whose sole observable is a pull request's title or body while preserving behavior that produces pull-request text. Run only pr-body-proof against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit. Require the retired-proof Reporter note and byte-identical surviving behavior rows. The first comparison dropped the release-script row on both candidate models, so add an explicit file-produced-text example beside the unchanged class row; retain every must-hold fact and the original baseline. Preserve all prior records; this tool-free checkpoint proves drafted text, not live tracker writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs.
+
 Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
 
 Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
@@ -25,6 +27,10 @@ Mark active clarification and integrity questions, the exact-diff gate, and ende
 Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundled observations, preserve surviving behavioral text and untouched rows byte-for-byte during that drop, retain displaced text in the fenced Reporter note with the retired workflow-stage proof label, and route an emptied AC list to recovery or park. The workflow-stage-proof sample checks repair of mixed behavior/stage rows and a second ticket with only stage proof; coverage is sample-scoped, not a target-wide pass.
 
 ## Expected to move
+- pr-body-proof/f1: fails -> holds - Exclude a PR-description checklist as delivery-stage proof.
+- pr-body-proof/f2: fails -> holds - Retain the dropped row under its retired-proof label.
+- pr-body-proof/f3: holds -> holds - Keep the release script's generated PR text as a behavior.
+- pr-body-proof/f4: holds -> holds - Keep the file-removal behavior verbatim.
 - per-ref-settlement/identity: fails -> holds - Both baseline replies identify the create by title rather than the returned #83.
 - per-ref-settlement/no-title-key: fails -> holds - One baseline reply uses the drafted title as its row key; the other omits a plain row.
 - workflow-stage-proof/f4: fails -> holds - Both baseline replies retain the removed text but omit the retired workflow-stage proof label.

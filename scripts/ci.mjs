@@ -227,6 +227,7 @@ const tokenChecks = [
   ["agents/spec-council-synthesizer.md", "\nlean: <k> of <n> members found nothing to cut\n", true],
   ["skills/roasting-the-spec/SKILL.md", "Human input (verbatim", true],
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
+  ["skills/shape-ticket/SKILL.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
   ["agents/conformance-reviewer.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["agents/conformance-reviewer.md", "This is the only exception to", false],
