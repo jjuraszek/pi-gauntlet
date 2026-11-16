@@ -3,9 +3,9 @@
 base: 3171d0e124e361836d163217ff976af02c86cf2f
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 6 | home | f241bcf71d748d324d6787c21e35bc0c3d439ae1
+returned: 7 | home | e6cf03a0c76c0f71d0f51c348a5e7a81efe1e943
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -15,7 +15,7 @@ returned: 6 | home | f241bcf71d748d324d6787c21e35bc0c3d439ae1
 | 4 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/prompt-stage-sentence.test.mjs; 1 passed, 0 failed; prompt-stage-sentence model eval: 2 improved cells, all 8 facts hold; 4 replays, 2 judgments, 0 confirmations |
 | 5 | done | 1 | timeout -k 30 60 node --test eval/conformance-reviewer/ci-step-is-the-change.test.mjs; 1 passed, 0 failed; ci-step-is-the-change model eval holds all four facts on both arms and both replay models; CI-file and bundle gaps retain recommended: fix and spec origins |
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/delivery-stage-authoring.test.mjs; 3 cached checks passed, 22 judged facts hold on two models; selected model evals: pr-body-proof, pr-body-drafted-row, post-action-sorted; authoring contract: 67 passed, 0 failed |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 60 node --test eval/spec-council-applier/pr-description-finding.test.mjs; 1 passed, 0 failed; pr-description-finding model eval: two improved cells, all four facts hold; operator actor and before-merge timing preserved without PR-body obligations |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 6: reuse scripts/brainstorming-contract.test.mjs to widen the ticket gate and drafting rules
@@ -25,3 +25,4 @@ row 3 done | Confirmed each mixed acceptance row retains one delivered requireme
 row 4 done | Added a prompt-only CI sample proving the audit omits stage requirements and drift while keeping delivered behavior. | Reuse eval/conformance-reviewer/prompt-stage-sentence.test.mjs to check the fixture and cached model judgments locally.
 row 5 done | Preserved fix gaps for missing CI-file changes and regenerated bundles, retaining spec origins when the prompt repeats them. | Reuse eval/conformance-reviewer/ci-step-is-the-change.test.mjs for cached CI-file and bundle regression checks.
 row 6 done | Expanded ticket and drafting rules to reject PR proof, preserve generated PR text, and sort operator steps into narrative context. | Reuse scripts/delivery-stage-authoring.test.mjs to replay the three cached authoring samples and guard PR-text-as-product behavior.
+row 7 done | Made the critique applier write operator instructions in the targeted section without creating PR-body obligations. | Reuse eval/spec-council-applier/pr-description-finding.test.mjs to replay the operator-step fixture and cached model judgments.
