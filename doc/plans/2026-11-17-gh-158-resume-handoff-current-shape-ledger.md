@@ -26,3 +26,4 @@ row 2 failed | Prepared three C3 stage fixtures and a freshness-bound paired-rep
 row 2 done | Verified current brainstorm, plan and ship paired replays preserve tracker calls, task snapshots and gate boundaries with fresh hashes. | nothing new to build on.
 row 1 failed | Prepared valid ledger and task-plan scratch fixtures and a freshness-bound C1 read-trace check. | Reuse tool-traces/prepare.mjs; split restore references, then capture C1 JSON traces in the primary session; do not substitute text replays.
 row 1 failed | Rechecked the C1 trace fixture: both saved engine captures are absent, while scratch admission passes. | Do not repeat worker-only retries; split the references, then capture both C1 traces in primary sessions with tool-traces/README.md before redispatch.
+row 1 escalated | implModel round | allowed attempts 10
