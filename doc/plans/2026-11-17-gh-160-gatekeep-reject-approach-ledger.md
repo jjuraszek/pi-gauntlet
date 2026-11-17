@@ -3,13 +3,13 @@
 base: bae599d7e7dd4f864cb8f8a23ab11221f54717da
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | 4be4174d90d61655d77a55b80d4c8af5ce0f2d11
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | open | 0 | timeout -k 30 30 node --test scripts/gatekeep-reject.test.mjs; 1 test failed; review-baseline.md lacks the Approach grounds section |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | cut | 0 | deviates: an approach conflict the developer does not reject is a blocker - assess posts it and a delivery course repairs it, so it withholds merge until repaired or overruled by the developer |
@@ -18,3 +18,4 @@ returned: none
 | 7 | open | 0 | |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1: define approach grounds and validate first-report conflicts
