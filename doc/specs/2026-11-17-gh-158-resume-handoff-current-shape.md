@@ -403,6 +403,7 @@ Materiality bar: `reference/documentation-impact.md`.
 
 ## Out of scope
 
+- The loop driver's dirty-tree stop sentence keeps the words `finish eligible migration` in this change. Resume no longer migrates a ledger, so the words describe a step that never runs; Design 8 names four driver edits and this sentence is not one of them, and each further driver edit forces a replay of ten saved eval samples. Rewording it rides with the next change to that file.
 - Converting, migrating or hand-repairing an old ledger; a converter tool. Ticket row 5 is cut by the request.
 - Detecting or rejecting old briefs.
 - Specs without `## Legs`, `**Amend-grant:**` or `**Engine:**`; their readers in brainstorming, finishing and using-git-worktrees keep their rules.

@@ -38,3 +38,4 @@ amended | 1 item(s) | Refresh the two foreign-target records the commit wording 
 amended | 1 item(s) | Rebind the gatekeep eval instead of replaying it
 amended | 2 item(s) | Name the owner-move reseeds and the fixture repairs
 amended | 1 item(s) | Reject the retired cap header on single-repo ledgers too
+amended | 1 item(s) | Leave the dirty-tree stop wording for the next driver edit
