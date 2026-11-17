@@ -97,6 +97,7 @@ test('shared wording reference owns all five parts and ticket resolution', () =>
     assert.ok(text.includes(token), token);
   }
   assert.match(text, /\| Member pull request merge commit \|[^\n]+\n\| Base-sync merge commit \|[^\n]*`Sync with the fetched base`/);
+  assert.doesNotMatch(text, /Allowance migration on resume|Returns conversion on resume|Convert the ledger to a per-row allowance|Convert the ledger to ledger-held returns/);
 });
 
 for (const site of sites) {
