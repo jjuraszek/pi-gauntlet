@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
-import { inputSha, parseCase } from '../eval/lib/replay.mjs';
+import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
@@ -66,6 +66,54 @@ test('the caller requests and validates approach conflicts before rendering the 
   assert.match(report, /native verdict/);
   assert.match(report, /Do not double-count/);
   assert.ok(read('ci.mjs').includes('R("scripts/gatekeep-reject.test.mjs")'), 'CI selects the deterministic approach checks');
+});
+
+test('the first report previews a saved, checked rejection note without exposing other drafts', () => {
+  const note = read('../skills/gatekeep-pr/reference/reject.md');
+  const findings = read('../skills/gatekeep-pr/reference/findings.md');
+  const report = read('../skills/gatekeep-pr/reference/report.md');
+  for (const heading of ['What this PR builds', 'Why it does not fit this repo', 'What to do instead']) {
+    assert.ok(note.includes(`### ${heading}`), heading);
+  }
+  for (const rule of [/under 180 words/, /one short paragraph or one list/, /every open approach blocker and nothing else/, /everyday role before/, /base path trails/, /Output done-check/, /mktemp/, /note_sha256/, /same head/, /missing or unreadable/, /remaining blockers/, /reject_withdrawn/, /never rewrite/i]) {
+    assert.match(note, rule);
+  }
+  assert.match(findings, /reject\.md.*Draft note/);
+  assert.match(findings, /post.time composition.*does not apply.*rejection note/);
+  assert.match(report, /saved note.*full.*unfenced/);
+  assert.match(report, /after the problems and before the recommendation/);
+  assert.match(report, /one plain lead-in sentence/);
+  assert.match(report, /one drafted body printed outside `show evidence`/);
+  assert.match(report, /Keep full drafted file edits, description bodies and replies.*behind that command/);
+});
+
+test('approach-conflict-report: each saved note has three compact sections at the current bundle', () => {
+  const candidate = JSON.parse(read('../eval/gatekeep-pr/results/approach-conflict-report/candidate.json'));
+  const target = JSON.parse(read('../eval/gatekeep-pr/target.json'));
+  const { bundle, drop } = parseCase(read('../eval/gatekeep-pr/samples/approach-conflict-report/case.md'));
+  const readSkill = (path) => read(`../${path}`);
+  const intent = read('../eval/gatekeep-pr/intent.md');
+  assert.ok(intent.startsWith(`for: ${sha256(assemble(target, readSkill))}\n`));
+  target.skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
+  assert.equal(candidate.skillSha, sha256(assemble(target, readSkill, bundle)), 'note replay uses the edited bundle');
+  for (const [model, output] of Object.entries(candidate.outputs)) {
+    const start = output.text.indexOf('### What this PR builds');
+    assert.ok(start >= 0, `${model}: missing note preview`);
+    const note = output.text.slice(start).trim();
+    assert.deepEqual([...note.matchAll(/^### (.+)$/gm)].map((match) => match[1]), [
+      'What this PR builds', 'Why it does not fit this repo', 'What to do instead',
+    ]);
+    assert.ok(note.split(/\s+/).length < 180, `${model}: note exceeds word cap`);
+    assert.doesNotMatch(note, /```|\b[APLRC]\d+\b/);
+    const sections = note.split(/^### .+$/m).slice(1).map((text) => text.trim());
+    for (const section of sections) {
+      assert.ok(section.length > 0, `${model}: empty section`);
+      const paragraphs = section.split(/\n\s*\n/);
+      assert.ok(paragraphs.length === 1 || paragraphs.every((text) => /^[-*] /.test(text)),
+        `${model}: mix of paragraphs or paragraph and list`);
+    }
+    assert.match(sections[1], /docs\/architecture\.md/);
+  }
 });
 
 for (const sample of ['approach-conflict-report', 'approach-local-instance']) {

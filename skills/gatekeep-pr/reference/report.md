@@ -4,7 +4,7 @@ Read after `findings.md` at step 5. Render report, then `menus.md`; apply SKILL.
 
 ## Report
 
-Write whole sentences in three unlabeled parts: change and scope, standing and problems, then a recommendation. Omit empty sections; number findings when two or more problems block merging.
+Write whole sentences in three unlabeled parts: change and scope, standing and problems, then a recommendation. Keep the rejection note's required headings as the sole exception (`## Rejection note`). Omit empty sections; number findings when two or more problems block merging.
 
 Preserve:
 
@@ -23,6 +23,10 @@ In part two of the first report, state each validated approach blocker in one or
 
 Render these blockers regardless of the native verdict or green CI. Do not double-count a blocker merged with a native or prior-review finding; retain independent ordinary blockers and nits. Keep `A<n>`, contributor IDs and ground numbers behind `show evidence`. A dropped entry or non-blocking overlay adds no approach problem to this list.
 
+## Rejection note
+
+Read `reject.md` `## Draft note` before rendering. With a prepared note, print one plain lead-in sentence, then the saved note in full and unfenced after the problems and before the recommendation. Read `reject.note_path`; do not summarize, reword or fence its bytes. Keep the note's three headings and its word cap separate from the ordinary report's two-sentence opening and short problem items. With no note, add no lead-in, headings or placeholder.
+
 ## Standing
 
 Put part three's recommendation sentence and reason immediately above `Pick one:`; follow `menus.md`. Name a running required check or unchanged obstacle, not readiness. Translate verdict and exit state into prose.
@@ -31,7 +35,7 @@ Explain standing with true evidence: distinguish CI from local runs and never tu
 
 ## What stays out
 
-Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. Keep full drafted file edits, description bodies and replies, matched claims, per-row AC outcomes, internal IDs and check classifications behind that command. An author assertion the gate cannot verify is non-blocking uncertainty, not a fabricated finding.
+Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. Keep full drafted file edits, description bodies and replies, matched claims, per-row AC outcomes, internal IDs and check classifications behind that command. The rejection note is the one drafted body printed outside `show evidence`, through `## Rejection note`. An author assertion the gate cannot verify is non-blocking uncertainty, not a fabricated finding.
 
 Under `show evidence`, print `state: <absolute-path>`, then the run record's course, immutable target, stored scope baseline, cumulative round/sync usage and caps, deadline, wave checkpoints and failed-prerequisite history. Follow with the prior-review and sync records, retaining their SHAs, and the evidence record (CI: each satisfying check's name, conclusion, SHA and run URL; local: each run's command, `result`, `exit_code` and `show evidence: <log_path>`); claim dispositions; AC outcomes and `cross-check:` from `assessment.md` `## Select the scope contract`; check dispositions; drafted payloads keyed by blocker or nit; drafted replies keyed by comment. Keep these records inspectable without copying them into the report.
 

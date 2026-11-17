@@ -1,4 +1,4 @@
-for: 96444bbaf9d328b1adc667c554a3619196a9a524a75e4dbb3f6e96ba057e19c7
+for: 67a1add5db553b8ef88f0e348087ea8264706b4952e47bb50fe5fdad560de27d
 
 ## Change
 
@@ -12,7 +12,11 @@ Bind this intent to the current assembly after the commit-message contract and p
 
 Check the main mechanism before gate work against six evidence-backed approach grounds. Require the spec's line-oriented approach appendix (builds, path/conflicts with or smaller, instead, replaces) alongside delta-bounded native findings. Validate entries in order, using the base-path existence check only for base-evidence grounds. Reject unknown grounds, missing paths or remedies, absent smaller alternatives, and disguised local repairs as approach blockers. Honor non-blocking base-rubric overlays. Render each validated conflict as one or two plain-language problem sentences without double counting or letting the native verdict suppress approach blockers. Keep each base citation on the conflict and omit a separate remedy sentence from the problem item rather than expanding it past two sentences.
 
-Run only approach-conflict-report and approach-local-instance against the supplied pre-change base. These samples cover first-report integration and validation, not rejection menus, note persistence, overrule, writes, or closure. Preserve every other sample's saved results as historical evidence; coverage is partial. The selected samples bundle the shipped review rubric; commit-message.md exists at this base rather than being a new-file exception.
+Add a saved rejection note to the first report after its problems and before its recommendation. Require three headed sections under 180 words covering every open approach blocker and nothing else, with the ordinary role-first register and base citations. Done-check once before saving and hashing the note; display its bytes rather than composing again. Reuse an unchanged note and replace it only after a missing/unreadable file or a changed blocker set; remove it when no blocker remains or rejection is unavailable.
+
+Select only approach-conflict-report for this edit, extending its isolated first-report checkpoint through the note preview and stopping before recommendations or menus. A model must compose a compact note from two different grounds in plain language; text assertions alone cannot establish its meaning or register. Reseed this sample's baseline after its bundle change. Verify headings, word count and saved judgments locally. Preserve approach-local-instance and every other sample's saved results as earlier evidence; coverage is partial, not rejection-menu, posting, closure or end-to-end persistence coverage. The new rejection-note reference is candidate-only at the supplied base.
+
+The first selected candidate kept all note-shape facts but failed one model's note-content fact: its component glosses followed their names. Tighten the note's role-first example and first-mention done-check, then rerun only approach-conflict-report with unchanged expectations and the saved baseline. Preserve the first candidate outside the checkout; the committed candidate records the latest wording, not a target-wide pass.
 
 ## Expected to move
 
@@ -85,6 +89,9 @@ The merge-command-quoting sample exercises one merge-commit command with an alre
 - approach-conflict-report/base-path: fails -> holds - Keep the base-branch evidence locator in the first report.
 - approach-conflict-report/smaller: fails -> holds - Explain the concrete smaller alternative without inventing a base rule.
 - approach-conflict-report/register: fails -> holds - Keep a two-sentence opening and one or two sentences per problem without internal IDs.
+- approach-conflict-report/note: fails -> holds - Preview a three-section rejection note under 180 words after the problems.
+- approach-conflict-report/note-content: fails -> holds - Explain both conflicts and their replacement remedies for a reader without the code open.
+- approach-conflict-report/frozen: fails -> holds - Check the note once, save and hash its bytes, then display that saved text.
 - approach-local-instance/validation: fails -> holds - Admit only complete supported whole-mechanism conflicts.
 - approach-local-instance/base-check: fails -> holds - Check the cited base file with cat-file after stripping its line suffix.
 - approach-local-instance/smaller: fails -> holds - Require a concrete outcome-preserving smaller change for needless machinery.

@@ -1,8 +1,8 @@
 {
   "sample": "approach-conflict-report",
   "arm": "candidate",
-  "skillSha": "348c0db16c1b8fb6be08e430ce2ba224b9626d875c3ac58f18463257c59d66e3",
-  "inputSha": "7ad41371e037cc9d27f7bf5e5e42edb154625a0a8607342546f664d03a03fdf5",
+  "skillSha": "55dcc296b4f2060cd73e20c04f0e1a03678c224d7e6761b317e4da430c6aacf1",
+  "inputSha": "d051ddd51e9d6b7dc2a848e8b88b18faedc72acbd0aa5298e2980d30c4f18aef",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Step 5: integrate and report** (assessed head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, with worktree `/work/widgets-pr-88`)\n\n1. **Tracker.** I `add` the `report` stage and start it. Earlier stages are already closed.\n\n2. **Pre-menu refresh.** These reads run before integration, and all of them succeed:\n   - `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`\n   - `gh run list -R <owner>/<repo> -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`\n   - The fixed Section A GraphQL query re-reads `bypass_eligible`.\n   - Head, body and base are unchanged, so merge state, reviewDecision, checks, actions runs and review requests are replaced together. `viewer.role` stays requested reviewer, and CI stays CI-sufficient on the assessed head.\n\n3. **Provenance.** CI evidence is bound to the assessed head, so there are no local provenance checks.\n\n4. **Scope and claims.** Scope comes from the PR, not a spec, and the retained original intent is the contract. Both stated behaviors have code and real tests, so both are judged covered. Every claim matched, and no `P#` comes from claims or checks.\n\n5. **Approach-conflict validation.** `work_started` is false, and the merged rubric is the shipped baseline. The native verdict, SHIP, is not an input.\n   - **A1, Second mechanism.** The ground is in the rubric, and it is a base-evidence ground with `path:` present. With `:12` stripped, I run `git -C /work/widgets-pr-88 cat-file -e origin/main:docs/architecture.md`, which exits 0. `instead:` is present, and `replaces: main mechanism` holds because the remedy removes the catalog copy and the nightly job that `builds:` names. The entry is valid, so I mint blocker **P1** with conflict key `Second mechanism + docs/architecture.md`, provenance A1, and `overruled: false`.\n   - **A2, Needless machinery.** The ground is in the rubric, and it is a smaller-change ground, so I skip `cat-file`. `smaller:` is concrete and preserves the outcome. `instead:` is present, and `replaces: main mechanism` holds because the remedy removes the queue, scheduler and worker. The entry is valid, so I mint blocker **P2** with conflict key `Needless machinery`, provenance A2, and `overruled: false`.\n   - No entries are dropped, and there is no overlay that could downgrade either ground. There are no native findings or prior items to merge, so P1 and P2 stay separate blockers.\n\n6. **Drafted payloads.** I keep each blocker's `builds:` and `instead:` in its evidence pack. Nothing is applied, and the worktree stays tracked-clean.\n\n---\n\nThis PR updates the search index whenever catalog entries change, and it lets operators download the index on demand. You are a requested reviewer, and both behaviors the PR describes are built and tested.\n\nTwo problems block merging, even though the checks passed in CI on the commit being reviewed and the description matches the code.\n\n1. The PR adds a nightly job that keeps its own copy of the catalog in a new table to update the index. The architecture document says the catalog store owns the catalog and other consumers receive changes through its change feed (docs/architecture.md:12).\n2. The PR adds a lasting export queue, a scheduler and a background worker to serve on-demand downloads. Extending the existing export handler to stream the download on request would give operators the same export without that extra machinery.\n",
-      "words": 503,
-      "wallMs": 22085,
+      "text": "**Narration**\n\n1. **Tracker.** Steps 1-4 are already closed. Step 5 starts, so I `add` the `report` stage now. Verification and the review both assessed head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, and step 5 stays bound to that same head.\n\n2. **Read order.** I read `reference/post-selection-loop.md` `### Pre-menu refresh` first, then `reference/findings.md`, then `reference/report.md`.\n\n3. **Pre-menu refresh.** This is read-only and run by the orchestrator. No helper is dispatched.\n   - I run Section A's fixed GraphQL query for PR 88 to refresh `viewerPermission`, `viewerCanUpdateBranch`, `viewerCanMergeAsAdmin`, `headRefOid`, `body` and `baseRefName`.\n   - I run `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`.\n   - I run `gh run list -R <base-owner>/<base-repo> -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`.\n   - The head, body and base are unchanged, so I replace the merge-state and check fields together. `viewer.role` is re-derived as requested reviewer. The evidence still resolves to CI-sufficient on the exact head.\n\n4. **Provenance.** The evidence source is CI, so the local provenance checks do not apply.\n\n5. **Requirements.** The scope source is the PR. Both stated behaviors are judged covered by code and tests:\n   - the search index updates when catalog entries change\n   - operators can export the index on demand\n\n   The verifier matched every claim. No comments exist, so there is no comment ledger work.\n\n6. **Approach conflicts.** The appendix is present and is not `none`. I validate it against the shipped baseline rubric, which has no overlay. The native SHIP verdict is ignored for this judgment.\n   - **A1 \"Second mechanism\":**\n     - The ground is in the rubric, and it requires a path, which is present.\n     - I run `git -C /work/widgets-pr-88 cat-file -e origin/main:docs/architecture.md` (the `:12` suffix stripped). It exits 0.\n     - `instead:` is present. `replaces: main mechanism` holds, and `instead:` removes what `builds:` names.\n     - The entry is valid and becomes blocker P1, with conflict key `Second mechanism docs/architecture.md`, provenance A1 and `overruled: false`.\n   - **A2 \"Needless machinery\":**\n     - The ground is in the rubric. `smaller:` is concrete and preserves the outcome, so no `cat-file` runs for this ground.\n     - `instead:` is present. `replaces: main mechanism` holds, and `instead:` removes the queue, scheduler and worker named in `builds:`.\n     - No overlay downgrades this ground, so it blocks. It becomes blocker P2, with conflict key `Needless machinery`, provenance A2 and `overruled: false`.\n   - No entries were dropped. No native or prior findings exist to merge with them.\n\n7. **Rejection note.** I read `reject.md` `## Draft note`. All conditions hold:\n   - the PR is OPEN\n   - `work_started == false`\n   - `reject_withdrawn == false`\n   - two approach blockers are open\n\n   I draft the note from P1 and P2 only, then run SKILL.md's Output done-check once. I save it with `mktemp \"${TMPDIR:-/tmp}/gatekeep-note.XXXXXX\"` and compute its SHA-256 from the saved bytes. I persist `reject: { note_path, note_sha256, menu_open: false }` in the run record, then read the saved file back for the preview below.\n\n8. **Rendering.** I render through `report.md`. No helper, repair, post or cleanup runs.\n\n---\n\nThis PR keeps the search index up to date when catalog entries change and lets operators download the index whenever they ask. You are a requested reviewer, and both behaviors the PR describes are built and tested.\n\nTwo problems block merging, even though the checks passed in CI and the description matches the code:\n\n1. The PR adds a nightly job that keeps its own copy of the catalog to update the index. In this repository, the catalog store owns the catalog, and other parts receive its changes through the stream of updates it publishes (docs/architecture.md:12).\n2. The PR adds a lasting export queue, a scheduler and a background worker to serve downloads that operators request on demand. Extending the existing export handler to stream the download when asked would give operators the same export without any of that machinery.\n\nThe rejection note below explains both problems to the author and can be posted as the review:\n\n### What this PR builds\n\nIt adds a task that runs each night and keeps its own copy of the catalog entries to refresh search: the nightly indexing job. It also adds a saved list of waiting exports, a part that starts them on a schedule, and a background process that runs them: the export queue, scheduler and worker.\n\n### Why it does not fit this repo\n\nThe part that stores and owns catalog entries, the catalog store, passes every change to other parts through the stream of updates it publishes, its change feed (docs/architecture.md:12). A second copy refreshed nightly bypasses that stream. Operators only need a download on request, and the existing code that serves exports, the export handler, can stream one without a queue or background process.\n\n### What to do instead\n\nDrop the catalog copy and the nightly task, and update search from the change feed. Remove the export queue, scheduler and worker, and stream downloads from the existing export handler.\n",
+      "words": 774,
+      "wallMs": 41477,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "This PR updates the search index when catalog entries change and lets operators export it on demand; you are a requested reviewer. Both behaviors are implemented and tested, covering the PR's stated intent.\n\nTwo problems block merging, although CI passed for the commit being reviewed.\n\n1. The nightly indexing job keeps its own catalog table, but other consumers receive catalog changes through the catalog store's change feed (docs/architecture.md:12).\n2. The PR adds a lasting export queue, scheduler and worker for on-demand downloads. Extending the existing export handler to stream downloads on request gives operators the same export without a queue or background worker.\n",
-      "words": 103,
-      "wallMs": 8780,
+      "text": "1. I continue at step 5, using the supplied successful refresh: the head, description, and base are unchanged. I add the `report` tracker stage; I do not reinitialize tracking. Verification and review both assess `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n\n2. I integrate the supplied review against the shipped baseline. Both approach entries qualify as blockers despite the native `SHIP` verdict:\n   - The indexing approach duplicates catalog ownership, and the supplied successful `git -C /work/widgets-pr-88 cat-file -e origin/main:docs/architecture.md` result validates its base-file evidence. Its proposed replacement removes the catalog copy and nightly job.\n   - The export approach adds machinery that the existing export handler makes unnecessary. Its concrete smaller alternative preserves on-demand downloads, and its replacement removes the queue, scheduler, and worker.\n\n   I retain two separate blockers and their evidence. Both promised behaviors are implemented and tested, the description's claims match, and exact-head CI is green; none of those facts cancels these approach blockers.\n\n3. I prepare the rejection note from those two approach blockers alone. I check its wording, role-first introductions, three required headings, and length under 180 words. I save the exact text previewed below using `mktemp \"${TMPDIR:-/tmp}/gatekeep-note.XXXXXX\"`, calculate its SHA-256 from the saved bytes, and persist its absolute path and hash with `menu_open: false`. I read back the saved bytes for the preview. No helper, repair, post, or cleanup runs.\n\nThis PR updates the search index when catalog entries change and lets operators export the index on demand; you are a requested reviewer. Both behaviors are implemented and tested, with no deferred scope.\n\nTwo problems block merging, although the checks ran successfully in CI.\n\n1. The PR adds a nightly indexing job with its own catalog table, but other consumers receive catalog changes through the catalog owner's change feed (docs/architecture.md:12).\n2. On-demand downloads use a lasting export queue, a process that starts work at scheduled times, and a background worker. Extending the existing export handler to stream downloads on request provides the same export without that machinery.\n\nThe prepared review note follows.\n\n### What this PR builds\n\nA process that updates the search index nightly keeps its own catalog table. On-demand exports use a waiting list for export requests, an export queue; a process that starts work at scheduled times, a scheduler; and a process that handles background work, a worker.\n\n### Why it does not fit this repo\n\nThe catalog store owns catalog data, and other consumers receive changes through its change feed, rather than maintaining another catalog table (docs/architecture.md:12). Operators only need an on-demand download, which the existing request-handling code, the export handler, can stream without queued background work.\n\n### What to do instead\n\nDrop the catalog copy and nightly indexing job, and update the index from the change feed. Remove the export queue, scheduler, and worker, and stream downloads from the existing export handler.\n",
+      "words": 460,
+      "wallMs": 22058,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "759c1fa2676e0285b4946a8261d9a1340559d9017c4717f73ca6393db33db073",
+      "factsSha": "ed70ccd9b7abccdf930722f44d8cb5ff0120655b1ca0c14f5a3f6bd81be79b90",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0c84821164df1139f61b37d31c67dc73e2bcc406a112f9d696d28e24c1d21034",
-      "baselineOutputSha": "c970e1069d12d94c6d8bde0d09f587b5d53ce5e4d8dfa8b2a6c238398d58fb86",
-      "candidateOutputSha": "c6f5ced344be813760a0192d6cafbd6e46e0a2a2dbe42c179a15ee959bec696c",
+      "intentSha": "eba7cbb7e00c241c3eac640950c5b914421d189e36aeba45e33b9e61f01acc65",
+      "baselineOutputSha": "749210beff372f036b27e4dd0d3aebdbf7670f5d810eb99ce8a550925bd2827e",
+      "candidateOutputSha": "3001f4e698bc1db8db35e444e3cd4f1b41a5d7734092a38d1cc3ba78de42578b",
       "facts": {
         "conflicts": {
           "before": "holds",
@@ -62,18 +62,33 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note-content": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "frozen": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "On this sample only `register` moved: Before already named both conflicts as separate blockers despite SHIP, cited docs/architecture.md:12 trailing the claim, and gave the streaming alternative, so the expected fails -> holds moves for `conflicts`, `base-path` and `smaller` do not show here. `register` moved because the two-sentence cap and the instruction to omit a separate remedy sentence cut Before's four-sentence and three-sentence problem items down to two each, while the two-sentence opening stayed and the A1/A2 and P1/P2 ids stayed in the narration, out of the report prose. The cost is that After's items are thinner and two facts now hold only narrowly. Item 1 sets what the PR builds beside the architecture rule without saying the copy conflicts with or bypasses the change feed. Item 2 leaves the reason the queue and worker are unnecessary to the phrase \"the same export without that extra machinery\", having dropped Before's explicit \"operators only need a download when they ask for one\". To keep these safe, require within the two-sentence cap that the base-evidence item state the contradiction outright (for example, \"this bypasses the change feed that the architecture document says other consumers must use (docs/architecture.md:12)\"), and that the smaller-change item give the reason in a clause (\"operators only need a download when they ask, so the queue and background worker add nothing\"). Keep the wording that holds ledger ids to the narration and stops the report before any recommendation or menu.",
-      "wallMs": 16546,
+      "feedback": "After moved four facts from fails to holds and lost none, but only four of the seven expected moves showed up because Before already held conflicts, base-path and smaller: it triaged both appendix entries into blockers on its own, cited docs/architecture.md:12 after the change-feed claim, and named streaming from the existing export handler. Register moved because After caps each problem at two sentences and drops the remedy sentence; Before ran four and three sentences per problem. Note, note-content and frozen moved because the new rejection-note wording exists at all: Before said the skill defines no such note and saved nothing, while After narrates the single done-check, the mktemp save under TMPDIR or /tmp, the hash of the saved bytes, the recorded note_path and note_sha256, and the read-back. The note itself has the three exact headings, runs about 165 words, and puts each component's role before its name (\"a task that runs each night ... : the nightly indexing job\", \"the part that stores and owns catalog entries, the catalog store\"), so the tightened role-first example worked here. Two margins are thin. The two-sentence cap leaves problem 2 carrying both the smaller alternative and the reason the machinery is unneeded in one sentence, so keep the wording that the alternative sentence must say it gives the same outcome without the queue or worker. Problem 1 no longer says why a second copy is a problem and relies on juxtaposition with the cited rule, so consider requiring the second sentence to state the conflict explicitly, for example that the copy bypasses the change feed. The note is roughly 15 words under the 180 limit, so the role-first glosses could push a longer case over; a hint to gloss each component once and reuse the bare name afterwards would protect that.",
+      "wallMs": 22629,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "759c1fa2676e0285b4946a8261d9a1340559d9017c4717f73ca6393db33db073",
+      "factsSha": "ed70ccd9b7abccdf930722f44d8cb5ff0120655b1ca0c14f5a3f6bd81be79b90",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "0c84821164df1139f61b37d31c67dc73e2bcc406a112f9d696d28e24c1d21034",
-      "baselineOutputSha": "7209b6332252bb794991895a67614f8ecebdea9dca1ad249c31ea4e030135fb2",
-      "candidateOutputSha": "8138225c71c6cbca67b1a75a502ac21e752a899bf0fb22151db62de222e2a84f",
+      "intentSha": "eba7cbb7e00c241c3eac640950c5b914421d189e36aeba45e33b9e61f01acc65",
+      "baselineOutputSha": "fe542717218884897647d9f35f54ece465c3bc7cc56a6bb80c2779ff0a0662d5",
+      "candidateOutputSha": "af068500a47e9047283d9262555d12eae5e7e452068b8c4e16e440603507b436",
       "facts": {
         "conflicts": {
           "before": "fails",
@@ -99,12 +114,27 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "note": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "note-content": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "frozen": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "The only fact that moved is conflicts. Before demoted the export queue, scheduler and worker to a \"smaller point [that] does not block merging\", whereas After states \"Two problems block merging, although CI passed\" and lists both as separate items, so the native SHIP verdict no longer suppresses the second approach conflict. On the text alone, Before already satisfied base-path, smaller, register and boundary: it carried the trailing docs/architecture.md:12 citation, named streaming from the existing handler, kept a two-sentence opening with no ledger ids, and stopped before any recommendation or menu. Those expected moves did not show as fails -> holds here. After keeps all four, but two of them hold thinly. Item 1 relies on a bare \"but\" to carry the conflict, so keep wording that requires saying the PR's copy bypasses the owner's change feed, with the base citation trailing that claim. Item 2 only implies why the queue and worker are unnecessary through \"the same export without a queue or background worker\", so keep wording that requires stating the smaller alternative preserves the on-demand download and that the extra machinery adds nothing the PR promises. Both fit within the two-sentence limit without adding a separate remedy sentence.",
-      "wallMs": 12014,
+      "feedback": "After moved four facts and lost none. The rule that a native SHIP verdict cannot suppress a validated approach entry moved conflicts: Before demoted the export machinery to a non-blocking smaller point, while After lists two numbered merging problems. The three-heading requirement and the every-blocker, role-first rules moved note and note-content: Before's note had no headings and called the export issue non-blocking, while After's is about 150 words under the exact headings, glosses the queue, scheduler, worker and handler before naming them, and ends on both remedies. The done-check, save, hash and record wording moved frozen: Before saved and hashed but narrated no check and no recorded path or hash. Base-path, smaller, register and boundary were judged to hold in Before on its text, though base-path, smaller and register were expected to move; Before's base-path and register were borderline (\"requires\" overstates line 12, and a repair sentence and a CI sentence were attached to the problem), and After is cleaner on both. Three things to tighten: the note leaves \"change feed\" and \"catalog store\" unglossed, so extend the first-mention check to cover every named component, including ones the repo already owns; the done-check is narrated as a list of things checked, so say explicitly that it runs once before the save; and the narration says \"absolute path and hash\" rather than the field names note_path and note_sha256, which a stricter reader could mark down. Keep the wording that puts the base citation on the conflict and leaves the remedy out of the problem item; it is what holds the problems to one or two sentences.",
+      "wallMs": 22693,
       "verdict": "improved"
     }
   },
-  "repoSha": "bff65c9d65f5b46c336939ed5d6fa577c5e08631"
+  "repoSha": "11245083ddb3f5aad568c594d2dc212d55e87bb5"
 }
