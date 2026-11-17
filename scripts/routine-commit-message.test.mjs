@@ -41,7 +41,7 @@ const sites = [
   ['consent change', 'skills/brainstorming/reference/amendment-surface.md', 'Consent change', /Consent change bookkeeping message/, /one body sentence naming the new consent value/],
   ['plan', 'skills/writing-plans/SKILL.md', 'Plan commit', /compose the plan message from the spec H1 and bound ticket/, /commit -F - --/],
   ['wave', 'skills/subagent-driven-development/SKILL.md', 'Plan task and wave commit', /accepted manifest task headings and held ticket/, /wording: <absolute path>/],
-  ['plan citation repair', 'skills/gauntlet-resume/reference/brief-contract.md', 'Plan citation repair', /entire subject verbatim from its Plan citation repair row/, /commit -q -F - --/],
+  ['plan citation repair', 'skills/gauntlet-resume/reference/plan-repair.md', 'Plan citation repair', /entire subject verbatim from its Plan citation repair row/, /commit -q -F - --/],
   ['companion spec', 'skills/brainstorming/reference/legs.md', 'Companion spec file commit', /with the home spec subject/, /companion spec commit's wording and ticket rule/],
   ['housekeeping class', 'skills/housekeeping/reference/fix.md', 'Housekeeping class commit', /recipe with the card's title and supplied ticket/, /ticket: <reference or none>/],
 ];

@@ -71,8 +71,8 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | shape-ticket/hard-stop | question | skills/shape-ticket/SKILL.md | ## AC integrity gate | free |
 | gauntlet-resume/discovery | gate | skills/gauntlet-resume/SKILL.md | ## Arguments | N. rows |
 | gauntlet-resume/spec-without-plan | question | skills/gauntlet-resume/reference/reconstruction.md | ## Spec without plan | free |
-| gauntlet-resume/spec-with-ledger | question | skills/gauntlet-resume/reference/reconstruction.md | ## Spec with ledger | free |
-| gauntlet-resume/spec-with-plan | question | skills/gauntlet-resume/reference/reconstruction.md | ## Spec with plan | free |
+| gauntlet-resume/spec-with-ledger | question | skills/gauntlet-resume/reference/restore-loop.md | ## Spec with ledger | free |
+| gauntlet-resume/spec-with-plan | question | skills/gauntlet-resume/reference/restore-plan.md | ## Spec with plan | free |
 | gauntlet-resume/dispatch | question | skills/gauntlet-resume/SKILL.md | ## Dispatch | free |
 | gauntlet-handoff/step-1 | question | skills/gauntlet-handoff/SKILL.md | ## Sequence | free |
 | gauntlet-performance/reply-exactly-this-in-this-order | gate | skills/gauntlet-performance/SKILL.md | ## Reply - exactly this, in this order | N. rows |
@@ -124,8 +124,9 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | housekeeping | Invalid input, failed precondition, unexpected Check mutation or Fix ending with open classes | skills/housekeeping/SKILL.md § ## 5. Report | gauntlet: stuck |
 | gauntlet-resume | No handoff briefs; argument stop routes (including missing bare-name worktree routed to entry check 2) | skills/gauntlet-resume/SKILL.md § ## Arguments | gauntlet: stuck |
 | gauntlet-resume | Entry-check failure | skills/gauntlet-resume/SKILL.md § ## Entry checks | gauntlet: stuck |
-| gauntlet-resume | Ledger plan_check FAIL | skills/gauntlet-resume/reference/reconstruction.md § ## Spec with ledger | gauntlet: stuck |
-| gauntlet-handoff | Step 7: brief written | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: done brief-written |
+| gauntlet-resume | Unsupported or malformed ledger | skills/gauntlet-resume/reference/restore-loop.md § ## Ledger admission | gauntlet: stuck |
+| gauntlet-resume | Ledger plan_check FAIL | skills/gauntlet-resume/reference/restore-loop.md § ## Spec with ledger | gauntlet: stuck |
+| gauntlet-handoff | Step 6: brief written | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: done brief-written |
 | gauntlet-handoff | --out and --key exclusivity STOP | skills/gauntlet-handoff/SKILL.md § ## Sequence | gauntlet: stuck |
 
 Housekeeping's [Report](../skills/housekeeping/SKILL.md#5-report) uses nonzero `key=count` class counters, comma-joined without spaces, in this fixed order: `prs,commits,amended,edited,tickets,not-filed,ignored,not-decided,open`. `amended` counts classes folded into the last unpushed commit, not commits pushed; an amend run names that commit before and after the fold and states that nothing was pushed. Fix completion uses `done` unless `open` is nonzero, including a rejected push; then it uses `stuck` with the same ordered counters. `not-filed`, `ignored` and `not-decided` are human decisions, not failures. Its card marker's `recommended=<n>` names the recommended pick, not the card number; intermediate picks continue the walk without a terminal marker. The `spec-superseded` card offers only Delete (`fix`) and Keep (`ignore`) in every run, including directory runs; Keep counts as `ignored`. Delete remains available without a hotfix-bounds check.
@@ -178,7 +179,7 @@ These are the stops this recovery and authorization contract keeps or touches, n
 | Spec amendment, including an `unreachable:` cut | Reviewer applies evidence-backed factual corrections; other amendments stop for review | Applies with no human turn |
 | Row reopened by an applied amendment during verify | Authorize the row's return, or stop | Runs within remaining row allowance, with verify active, then reruns step 1 |
 | A redraw | Stops | Stops |
-| Run cannot start: missing `checks:`, neither `allowance:` nor legacy `cap:`, unavailable settings tool, or seed `plan_check` findings | Stops | Stops |
+| Run cannot start: missing `checks:`, `allowance:` or `returned:`, a `cap:` line, unavailable settings tool, or seed `plan_check` findings | Stops | Stops |
 | Dirty tree with no dispatch pending; on resume, admission question or missing-history stops (unrecoverable pre-dispatch ledger/tuple, or unreadable child attribution with no tuple) | Stops | Stops |
 | Dispatch returns an async handle despite `async: false` | Stops | Stops |
 

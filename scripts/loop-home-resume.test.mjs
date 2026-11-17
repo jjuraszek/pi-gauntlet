@@ -33,15 +33,13 @@ function historicalModels(candidate, baseline) {
   return models;
 }
 
-const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
-const pending = reconstruction.split('\n### Pending recovery\n')[1].split('\n### Returns conversion\n')[0];
+const restoreLoop = read('skills/gauntlet-resume/reference/restore-loop.md');
+const pending = restoreLoop.split('\n## Pending recovery\n')[1].split(/\n#{1,2} /)[0];
 const driver = read('skills/loop-implementation/SKILL.md');
 const holds = read('skills/loop-implementation/reference/driver-holds.md');
 
 test('home resume written rules preserve the original boundary and consumed counts', () => {
   for (const text of [
-    'Select the decoder before any tracker call',
-    'Reject duplicate or malformed values without writes',
     'preserving the consumed iteration and the before-image rather than bumping again',
     'For an on-disk `pending:` tuple, use the loop driver\'s return admission and interrupted recovery',
     'pre-dispatch ledger at the tuple SHA (home)',
@@ -60,7 +58,7 @@ test('home resume written rules preserve the original boundary and consumed coun
     'A tuple introduced by a parent repair is settled when that ledger diff appends its matching repair decision',
     'Prove a later repair or approved ledger mutation from its ledger diff, not a subject',
     'require child ancestor of saved HEAD, saved HEAD ancestor of live HEAD, unchanged ledger since that saved HEAD',
-    'matching canonical task names/statuses as defined in `brief-contract.md`',
+    'matching canonical task names/statuses as defined in "Ledger task names"',
     'With later commits or dirt and no settled evidence, ask before tracker calls',
     'List S..HEAD and every dirty path',
     '`interrupted` discards them through `reset --hard <S>` and `clean -fd`',
@@ -70,8 +68,7 @@ test('home resume written rules preserve the original boundary and consumed coun
     'unknown stops without mutation',
   ]) assert.ok(pending.includes(text), text);
   assert.doesNotMatch(pending, /format=%[sBb]|HEAD\^|--grep/);
-  assert.match(reconstruction, /Validate the original one-commit .* range against its unchanged before-image/);
-  assert.match(reconstruction, /migration changes neither admission ranges nor the home HEAD used for recovery/);
+  assert.match(restoreLoop, /Validate the original one-commit .* range against its unchanged before-image/);
 });
 
 test('historical saved replies: home resume preserves completed isolated classifications', async t => {
@@ -135,7 +132,7 @@ test('resume Git reads retain S as the before-image across later commits and dir
   const snapshot = sha => execute(holds, 'git show <sha>:<ledger path>', sha);
   const discover = () => execute(pending, "git -C <worktree> log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>");
   const count = () => execute(driver, 'git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count');
-  const dirt = () => execute(reconstruction, 'git -C <worktree> status --porcelain');
+  const dirt = () => execute(restoreLoop, 'git -C <worktree> status --porcelain');
 
   writeFileSync(join(checkout, ledger), saved.replace('iterations: 2', 'iterations: 3')
     .replace('returned: none', `returned: none\npending: 1 | home | ${before}`));

@@ -517,7 +517,7 @@ test('deferred boundaries precede ship and restore arming; header PR finish owns
   assert.match(ref, /Option 3 squash seal uses `--option squash --base origin\/<baseRefName>`/);
   const resume = read('skills/gauntlet-resume/SKILL.md');
   assert.ok(resume.indexOf(stop) > resume.indexOf('6. **Grant field.**') && resume.indexOf(stop) < resume.indexOf('## Dispatch'));
-  for (const path of ['reconstruction.md', 'brief-contract.md']) {
+  for (const path of ['reconstruction.md', 'restore-plan.md']) {
     const text = read(`skills/gauntlet-resume/reference/${path}`);
     assert.match(text, /entry check 6[^\n]*deferred/);
   }
@@ -617,11 +617,11 @@ test('published handoff after PR-create failure cannot bypass deferred admission
   assert.match(check, /including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff/);
   assert.match(check, /Skip only grant decoding/);
   assert.doesNotMatch(check, /skip this check/);
-  const brief = read('skills/gauntlet-resume/reference/brief-contract.md');
+  const brief = read('skills/gauntlet-resume/reference/restore-plan.md');
   assert.match(brief, /For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`/);
   assert.match(brief, /push succeeded but PR creation failed/);
   const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
-  const route = reconstruction.slice(reconstruction.indexOf('## Spec without plan'), reconstruction.indexOf('## Spec with ledger'));
+  const route = reconstruction.slice(reconstruction.indexOf('## Spec without plan'));
   assert.ok(route.indexOf("entry check 6's deferred-header admission") < route.indexOf('Ask exactly one question'));
 });
 
@@ -630,7 +630,7 @@ test('gauntlet-resume checks the grant field before dispatch and announces it af
   for (const marker of ['continued onto the next physical line', '6. **Grant field.**', 'Standing grant active: <sentence>', 'No standing grant.', 'entry checks 1-6']) assert.ok(text.includes(marker), marker);
   assert.ok(text.includes('## Dispatch') && text.indexOf('**Amend-grant:**') < text.indexOf('## Dispatch'), 'Amend-grant check precedes Dispatch');
   assert.ok(text.includes('## Post-restore continuation') && text.indexOf('## Post-restore continuation') < text.indexOf('No standing grant.'), 'announcement lives in Post-restore');
-  const contract = read('skills/gauntlet-resume/reference/brief-contract.md');
+  const contract = read('skills/gauntlet-resume/reference/restore-plan.md');
   assert.ok(contract.includes('tracked from base'), 'S resolver widened');
   assert.ok(read('skills/gauntlet-resume/reference/reconstruction.md').includes('entry check 6'), 'reconstruction runs check 6 before its tracker calls');
   for (const file of ['skills/gauntlet-resume/reference/brief-contract.md', 'skills/gauntlet-handoff/SKILL.md']) assert.ok(!read(file).includes('Amend-grant'), `${file} stays grant-free`);

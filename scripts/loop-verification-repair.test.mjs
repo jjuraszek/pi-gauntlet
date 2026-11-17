@@ -8,7 +8,7 @@ const gate = driver.split('\n## After the loop\n')[1].split('\n2. Dispatch')[0];
 const wording = readFileSync(new URL('skills/finishing-a-development-branch/reference/commit-message.md', root), 'utf8');
 const companion = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
 const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
-const reconstruction = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
+const restoreLoop = readFileSync(new URL('skills/gauntlet-resume/reference/restore-loop.md', root), 'utf8');
 const amendment = readFileSync(new URL('skills/brainstorming/reference/amendment-surface.md', root), 'utf8');
 
 const bookkeeping = [
@@ -21,8 +21,6 @@ const bookkeeping = [
   ['Verification repair marker', 'Record a verification repair', gate, 'shared Verification repair marker sentence'],
   ['Companion row record', 'Record the <repo> result for acceptance row <n>', companion, 'shared Companion row record or Companion seed record sentence'],
   ['Companion seed record', 'Record the <repo> baseline', companion, 'shared Companion row record or Companion seed record sentence'],
-  ['Allowance migration on resume', 'Convert the ledger to a per-row allowance', reconstruction, 'Allowance migration on resume sentence'],
-  ['Returns conversion on resume', 'Convert the ledger to ledger-held returns', reconstruction, 'shared Returns conversion on resume sentence'],
   ['Verification-produced changes', 'Keep the changes the verification run produced', gate, 'shared Verification-produced changes sentence'],
 ];
 
@@ -42,7 +40,7 @@ test('bookkeeping writers resolve the shared wording file instead of a local tem
     'skills/loop-implementation/SKILL.md',
     'skills/loop-implementation/reference/coordinated-legs.md',
     'skills/loop-implementation/reference/interrupted-recovery.md',
-    'skills/gauntlet-resume/reference/reconstruction.md',
+    'skills/gauntlet-resume/reference/plan-repair.md',
     'skills/brainstorming/reference/amendment-surface.md',
   ]) {
     const file = new URL(path, root);
@@ -98,9 +96,8 @@ test('ledger amendments and cuts append one decision and use the patterned amend
 
 test('verification repairs reserve and consume the shared allowance across legs and resume', () => {
   assert.ok(Buffer.byteLength(driver) < 50_000);
-  for (const reference of [companion, reconstruction]) {
-    assert.match(reference, /Route `pending: verify` through.*After the loop step 1/);
-  }
+  assert.match(companion, /Route `pending: verify` through.*After the loop step 1/);
+  assert.match(restoreLoop, /For `pending: verify`, use After the loop step 1's repair contract/);
   for (const token of [
     'repairs < allowance', 'Count `repairs` as `repair verification` lines in the home ledger',
     'plus one for a `pending: verify` tuple on disk',

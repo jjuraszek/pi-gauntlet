@@ -7,7 +7,7 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 test('engine and operator docs describe ledger attribution and decision counters', async () => {
   for (const path of ['doc/implement-engines.md', 'doc/configuration.md']) {
     const text = (await read(path)).replaceAll('\\|', '|');
-    for (const token of ['returned: <target> | <repo> | <pre-dispatch HEAD>`', 'repair seed |', 'repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'amended |', 'returns/', 'return-file.md', 'finishing-a-development-branch/reference/commit-message.md', 'the saved `returned:` value', 'migrate any cap before converting repair history']) {
+    for (const token of ['returned: <target> | <repo> | <pre-dispatch HEAD>`', 'repair seed |', 'repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'amended |', 'returns/', 'return-file.md', 'finishing-a-development-branch/reference/commit-message.md', 'the saved `returned:` value']) {
       assert.ok(text.includes(token), `${path}: ${token}`);
     }
     assert.doesNotMatch(text, /loop: (?:repair|retry|amend|cut|migrate|escalate|seed)/);

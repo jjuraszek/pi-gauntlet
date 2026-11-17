@@ -2,9 +2,6 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const LEGACY_FILE = "skills/gauntlet-resume/reference/reconstruction.md";
-const LEGACY_BEGIN = "<!-- legacy-commit-labels:begin -->";
-const LEGACY_END = "<!-- legacy-commit-labels:end -->";
 const LABEL = /\b(?:loop: |amend: |grant: |plan: |resume: |fix: <)/g;
 
 function markdownFiles(root, dir, recursive) {
@@ -21,13 +18,8 @@ export function lintCommitSubjects(root) {
   const findings = [];
   for (const file of files) {
     const lines = readFileSync(join(root, file), "utf8").split(/\r?\n/);
-    const begin = lines.indexOf(LEGACY_BEGIN);
-    const end = lines.indexOf(LEGACY_END);
-    const legacy = file === LEGACY_FILE && begin >= 0 && end > begin &&
-      lines.lastIndexOf(LEGACY_BEGIN) === begin && lines.lastIndexOf(LEGACY_END) === end;
     let fence;
     for (const [index, raw] of lines.entries()) {
-      if (legacy && index >= begin && index <= end) continue;
       const marker = raw.match(/^ {0,3}(`{3,}|~{3,})/);
       if (marker) {
         if (!fence) fence = marker[1];

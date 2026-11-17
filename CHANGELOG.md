@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- **Breaking:** `/skill:gauntlet-resume` and `/skill:gauntlet-handoff` accept only the brief and ledger formats the current release writes. A ledger with a `cap:` line, or without `allowance:` or `returned:`, stops with `unsupported ledger format` instead of converting; finish the run on the pi-gauntlet release that wrote the ledger (pi-gauntlet 8.7.1 still converts older ledgers). Resume rules are split by route: a single-repo loop resume reads at most 42,000 bytes of resume rules, a task-plan resume 37,000 and a handoff 17,000; multi-repo rules load only for a brief with a `legs:` block and plan repair only after a `plan_check` failure. (#158)
+
 ## v8.8.0 - 2026-11-17
 
 - Execute reject's frozen-note review, permission-checked PR close and cleanup as separately selectable steps, with failure-safe settlement and parent-owned batch queueing. Let the developer overrule eligible problems for this run and explain unrepaired blockers in three short sections; dispatch approach remedies on both harnesses and retain their closure IDs across head moves. (#160)

@@ -68,28 +68,25 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    output option resolved in step 1. Read the run home's spec; with multiple members, explicitly supply `Run worktree: <home worktree>` through cohort's "was told to work in" snapshot clause. Pin the snapshot to that path, not the most-recently-used companion and not an `Also seen:` entry. The brief's core (six headings, ending at
    `## Skills loaded`) is cohort's to write, by cohort's rules. No `pi-cohort` entry, or
    the file missing -> STOP: "cohort `handoff` skill not found at
-   `<root>/skills/handoff/SKILL.md` - install or upgrade to pi-cohort >= 7.1.0". No
+   `<root>/skills/handoff/SKILL.md` - install or upgrade pi-cohort". No
    fallback to the `/handoff` prompt.
 3. **Take the path from the report.** Cohort's procedure ends with `Handoff written: <abs
    path>` or `Handoff not written: <reason>`. `Handoff not written` -> STOP with that reason.
    Otherwise that path is the brief; line 1 not starting `# Handoff:` -> STOP with the path.
-4. **Refuse a double section.** The file already has a line matching
-   `^## Process state\s*$` -> STOP: "the installed pi-cohort still writes process state
-   itself - upgrade to pi-cohort >= 7.1.0".
-5. **Hotfix exclusion.** `skills/chase-bug/hotfix.md` is in this session's context ->
-   append nothing; report a plain hotfix handoff and go to step 7. Checked before the
+4. **Hotfix exclusion.** `skills/chase-bug/hotfix.md` is in this session's context ->
+   append nothing; report a plain hotfix handoff and go to step 6. Checked before the
    trackers: chase-bug never touches tracker state, and a stale armed flow appended here
    would steer resume away from its hotfix route.
-6. **Append.** `phase_tracker({ action: "status" })`, then `plan_tracker({ action: "status" })`. Never refresh or mutate either tracker; copy its observed task rows, including ledger and conformance tasks, through the shared contract.
+5. **Append.** `phase_tracker({ action: "status" })`, then `plan_tracker({ action: "status" })`. Never refresh or mutate either tracker; copy its observed task rows, including ledger and conformance tasks, through the shared contract.
    - No phase `in_progress` -> append nothing; say the brief is a plain handoff.
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in
      `reference/brief-contract.md` lays it out: drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim
-     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. For multiple members, read `reference/brief-contract.md` "Coordinated brief grammar" and append its ordered member snapshot, including missing trees and existing receipt paths, in that layout. Keep the core snapshot home-bound. Use only the contract's grammar; write no second state file. Append with a single
+     (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. For more than one member, `Read` `../gauntlet-resume/reference/coordinated.md` in full and append its "Coordinated brief grammar" ordered member snapshot, including missing trees and existing receipt paths, in that layout. Keep the core snapshot home-bound. Use only the contract's grammar; write no second state file. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
      contract and nothing after.
-7. **Report.**
+6. **Report.**
 
    Start the message with `gauntlet: done brief-written`. Print the path and `/skill:gauntlet-resume <path>`. When a section was
    appended and the brief's `worktree:` field is `no`, resume's entry check 2 needs an
@@ -105,7 +102,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
   six core headings are cohort's; this skill appends one section).
 - Recomputing the brief path instead of taking it from `Handoff written:`.
 - Restating the section layout here instead of reading `reference/brief-contract.md`.
-- Appending when step 4 or step 5 fired.
+- Appending when step 4 fired.
 - Deriving the key from the primary checkout's branch while a run worktree exists.
 
 ## Project overrides

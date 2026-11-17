@@ -9,9 +9,6 @@ import { runInNewContext } from "node:vm";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const script = join(root, "scripts/commit-subject-lint.mjs");
-const legacyPath = "skills/gauntlet-resume/reference/reconstruction.md";
-const begin = "<!-- legacy-commit-labels:begin -->";
-const end = "<!-- legacy-commit-labels:end -->";
 const labels = ["loop: row 2 done", "amend: change scope", "grant: allow amendments", "plan: write tasks", "resume: repair citations", "fix: <slug>"];
 
 function fixture(files) {
@@ -90,21 +87,12 @@ test("reason exemptions apply to the reason value, not every subject on its line
   assert.equal(misleading.status, 1);
 });
 
-test("only a complete marked block in reconstruction exempts legacy labels", () => {
-  const legacy = `${begin}\n${labels.map((label) => `Decode \`${label}\`.`).join("\n")}\n${end}`;
-  const clean = lint(fixture({ [legacyPath]: legacy }));
-  assert.equal(clean.status, 0, clean.stderr);
-  for (const [name, file, text, line] of [
-    ["before", legacyPath, `Commit with subject \`loop: row 2 done\`.\n${legacy}`, 1],
-    ["after", legacyPath, `${legacy}\nCommit with subject \`loop: row 2 done\`.`, 9],
-    ["other skill", "skills/example/reference/reconstruction.md", legacy, 2],
-    ["persona", "agents/example.md", legacy, 2],
-    ["unclosed", legacyPath, `${begin}\nCommit with subject \`loop: row 2 done\`.`, 2],
-    ["duplicate blocks", legacyPath, `${legacy}\n${legacy}`, 2],
-  ]) {
-    const bad = lint(fixture({ [file]: text }));
-    assert.equal(bad.status, 1, name);
-    assert.ok(bad.stderr.includes(`${file}:${line}:`), `${name}: ${bad.stderr}`);
+test("a marked block is flagged in every file", () => {
+  const marked = `<!-- legacy-commit-labels:begin -->\n${labels.map((label) => `Decode \`${label}\`.`).join("\n")}\n<!-- legacy-commit-labels:end -->`;
+  for (const file of ["skills/gauntlet-resume/reference/reconstruction.md", "skills/example/reference/reconstruction.md", "agents/example.md"]) {
+    const bad = lint(fixture({ [file]: marked }));
+    assert.equal(bad.status, 1, file);
+    assert.ok(bad.stderr.includes(`${file}:2:`), `${file}: ${bad.stderr}`);
   }
 });
 

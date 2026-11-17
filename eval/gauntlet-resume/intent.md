@@ -1,6 +1,8 @@
-for: 3bfc60ac4466dce917da9a12dc57d017ed4db0c77cb867fb4c907708a28873b2
+for: 6793622816dbb53ad61a84f32f0aac16314bdf80e481224134aa1a6a0b8bb36d
 
 ## Change
+
+Split the resume rules by route without changing what a current-format input restores. brief-contract.md keeps only the brief grammar; restore-loop.md owns ledger admission, the one ordered ledger restore and pending recovery; restore-plan.md owns the process-state call table and Spec with plan; plan-repair.md is read only after a plan_check FAIL; coordinated.md is read only for a brief with a legs: block. SKILL.md gains the engine test, the membership test and the restore rules with the closing line. A ledger with cap:, or without allowance: or returned:, stops at ledger admission as an unsupported format; resume converts nothing and reads no commit message. The four new references are declared new, so the 09c9f4e1 baseline arm replays the earlier three-file text. No sample is selected or run by this edit: every saved record is stale against the new assembly until the primary session reruns its selected samples, and the paragraphs below about cap migration, returns conversion and commit-body attribution describe earlier changes this split removes.
 
 Preserve current-format single-repository brief restoration in current-brainstorm-brief, current-plan-brief, and current-ship-brief. Keep the ordered tracker calls, active phase/substep, exact task snapshot, and fresh-gate boundary unchanged against 09c9f4e1. Run these three C3 paired replays only from the primary session; the loop worker prepares fixtures and the local recorded-output check. These text samples do not prove instruction-read bytes or live tracker mutation, and unrun records provide no behavior evidence.
 
