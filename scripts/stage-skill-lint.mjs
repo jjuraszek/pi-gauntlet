@@ -80,11 +80,12 @@ export function lintTempPaths(text, file) {
   const gate = file.startsWith("skills/gatekeep-pr/");
   text.split("\n").forEach((raw, i) => {
     const report = () => findings.push({ line: i + 1, rule: "temp-path", text: raw.trim() });
-    for (const match of raw.matchAll(/\bmktemp\b(?:[ \t]+-[\w-]+)*[ \t]*(?:"([^"]*)"|'([^']*)'|([^\s`;)|]+))?/g)) {
+    // Look ahead for the argument so it cannot hide nested mktemp occurrences.
+    for (const match of raw.matchAll(/\bmktemp\b(?=(?:[ \t]+-[\w-]+)*[ \t]*(?:"([^"]*)"|'([^']*)'|([^\s`;)|]+))?)/g)) {
       const argument = match[1] ?? match[2] ?? match[3] ?? "";
       const rooted = gate
         ? /^\$(?:RUN_DIR|\{RUN_DIR\})\//.test(argument) || argument.endsWith("/gauntlet/tmp/gate.XXXXXX")
-        : /^\$(?:SCRATCH|\{SCRATCH\})\//.test(argument) || argument.includes("/gauntlet/tmp/");
+        : /^\$(?:SCRATCH|\{SCRATCH\})\//.test(argument) || argument.includes("gauntlet/tmp");
       if (!rooted && !(exception && argument === exception)) report();
     }
     for (const match of raw.matchAll(/TMPDIR/g)) {
