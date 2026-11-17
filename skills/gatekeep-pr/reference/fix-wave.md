@@ -31,7 +31,7 @@ Resolve `SCOPED_TEST_COMMANDS` once per wave from the merge-base copies of the o
 
 ### Finding artifacts
 
-On pi, after a delivery course or terminal `fix nits` pick authorizes file work and before its first row dispatch, write the derived spec and companion ledger together at `<record path>-spec.md` and `<record path>-ledger.md`, beside the OS-temp continuation record outside the checkout. Reuse the existing pair on re-entry; create neither for assess/post-only work or on Claude Code. Never stage either file or include them in a PR-branch commit.
+On pi, after a delivery course or terminal `fix nits` pick authorizes file work and before its first row dispatch, write the derived spec and companion ledger together at `<record path>-spec.md` and `<record path>-ledger.md`, beside the continuation record in `RUN_DIR`. Reuse the existing pair on re-entry; create neither for assess/post-only work or on Claude Code. Never stage either file or include them in a PR-branch commit.
 
 Resolve `gauntlet_setting({ key: "loopEngine" })` for `maxIterationsPerRow` and `escalateAfter`, and `gauntlet_setting({ key: "escalationLoop" })` for `implModel`; retain the values for row budgets. An unavailable resolver stops the wave naming the missing tool; never guess the allowance or threshold. Resolve `MB` with `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>` and take the ledger's verification command from the brief, not a scoped runner.
 
@@ -80,9 +80,9 @@ Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the
 
 ### Shared worker context
 
-Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed.
+Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed. Pass `scratch: <absolute RUN_DIR>` to Sync and pre-push review helpers too.
 
-Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Mint a fresh output path per dispatch with `mktemp "${TMPDIR:-/tmp}/gatekeep-row.XXXXXX"`.
+Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Mint a fresh output path per dispatch with `mktemp "$RUN_DIR/row.XXXXXX"`.
 
 ```text
 Worktree: <absolute PR worktree>. Run every command as git -C <worktree> ... or (cd <worktree> && ...).
@@ -94,6 +94,8 @@ wording: <absolute shared reference path>
 ticket: <reference or none>
 A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module. For an outside-repo failure, use the smallest in-repo workaround and state its reason in one sentence. Never remove a test an AC row relies on through a skip.
 Output path: <per-dispatch output path>.
+scratch: <absolute RUN_DIR>
+Write all controllers, logs, jobs files and other scratch in this directory; never re-derive it from the PR worktree. Keep outside-ledger return files on their existing checkout-local transport.
 ```
 
 Append only the matching harness tail:

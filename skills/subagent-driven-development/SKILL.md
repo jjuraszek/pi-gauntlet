@@ -52,7 +52,9 @@ Substitute a shell-quoted checkout path for `{{CHECKOUT}}` and run the entire bl
 <!-- fix-delta-tree-shell -->
 ```bash
 FD_ROOT={{CHECKOUT}}
-FD_INDEX=$(mktemp) || exit 1
+SCRATCH="$(git -C "$FD_ROOT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
+FD_INDEX=$(mktemp "$SCRATCH/fix-delta.XXXXXX") || exit 1
 cp "$(git -C "$FD_ROOT" rev-parse --path-format=absolute --git-path index)" "$FD_INDEX" || { rm -f "$FD_INDEX"; exit 1; }
 GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" add -A && GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" write-tree
 FD_STATUS=$?
@@ -133,7 +135,9 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
 ```bash
 RP_ROOT={{WORKTREE}}
 RP_BASE={{BASE_SHA}}
-RP_DIR=$(mktemp -d) || exit 1
+SCRATCH="$(git -C "$RP_ROOT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
+RP_DIR=$(mktemp -d "$SCRATCH/repair.XXXXXX") || exit 1
 RP_TREE="$RP_DIR/tree"
 git -C "$RP_ROOT" add -A || exit 1
 git -C "$RP_ROOT" diff --binary --cached "$RP_BASE" > "$RP_DIR/integrated.patch" || exit 1
@@ -243,7 +247,7 @@ PREFLIGHT_STATUS=$?
 ```
 
 
-Create `REPORT_DIR` with `mktemp -d`. Forward predecessor status and report paths across dependent waves; never paste task text.
+Read [stage scratch](../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the owning implementation checkout. Create `REPORT_DIR` with `mktemp -d "$SCRATCH/reports.XXXXXX"`; use it for reports and scoped-gate logs. Forward predecessor status and report paths across dependent waves; never paste task text.
 
 ### Chain stopped or failed
 

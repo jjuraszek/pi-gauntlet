@@ -183,7 +183,10 @@ test('tree delta is repair-only regardless of committed, staged or unstaged repa
   const before = captureTree(checkout, scratch);
   assert.equal(before.status, 0, before.stderr);
   assert.equal(git(checkout, 'status', '--porcelain'), implementationStatus);
-  assert.deepEqual(readdirSync(scratch), []);
+  const stageScratch = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet', 'tmp');
+  assert.ok(existsSync(stageScratch), 'tree capture uses checkout-local Git scratch');
+  assert.deepEqual(readdirSync(stageScratch), []);
+  assert.deepEqual(readdirSync(scratch), [], 'OS temp stays untouched');
   git(checkout, 'commit', '-qm', 'implementation');
   const implementation = git(checkout, 'rev-parse', 'HEAD');
   // The expected patch is independent of the capture and includes no implementation hunk.
@@ -202,7 +205,8 @@ test('tree delta is repair-only regardless of committed, staged or unstaged repa
     assert.equal(delta, expected, state);
     deltas.push(delta);
     assert.equal(git(checkout, 'status', '--porcelain'), status, state);
-    assert.deepEqual(readdirSync(scratch), [], state);
+    assert.deepEqual(readdirSync(stageScratch), [], state);
+    assert.deepEqual(readdirSync(scratch), [], `${state}: OS temp untouched`);
   }
   assert.equal(new Set(deltas).size, 1);
 });

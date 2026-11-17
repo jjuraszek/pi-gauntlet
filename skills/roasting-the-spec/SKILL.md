@@ -49,10 +49,10 @@ Resolve `../brainstorming/reference/documentation-impact.md` relative to this lo
 
 ### 1 — Fan out to members
 
-Create an absolute temp dir outside the worktree so member files are never tracked by git:
+Read [stage scratch](../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the home worktree. Create the council directory there and use its absolute path as `<tmpdir>` below:
 
 ```bash
-mktemp -d   # absolute path, e.g. /tmp/tmp.XXXXXX
+COUNCIL_DIR=$(mktemp -d "$SCRATCH/council.XXXXXX") || exit 1
 ```
 
 Dispatch one member per configured model, in parallel, each writing its critique into that dir. Do **not** read these files' findings content yourself — they are for the chair. The only permitted parent access is the mechanical structural probe below (existence plus header regex, no content ingestion, no adjudication).

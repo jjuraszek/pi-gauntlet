@@ -260,8 +260,8 @@ test('gatekeeper leaves model knobs unset and has no skill discovery machinery',
 test('assessment.md dispatches Verify and Review as fresh helpers with no inline path', () => {
   assert.ok(!/\binline\b(?!\s+comments?\b)/i.test(assessment), 'no inline path remains');
   assert.ok(assessment.includes('## Helpers'));
-  assert.ok(assessment.includes('gatekeep-verify.XXXXXX'));
-  assert.ok(assessment.includes('gatekeep-review.XXXXXX'));
+  assert.ok(assessment.includes('mktemp "$RUN_DIR/verify.XXXXXX"'));
+  assert.ok(assessment.includes('mktemp "$RUN_DIR/review.XXXXXX"'));
   assert.match(assessment, /head_pushable/);
   assert.match(assessment, /push --dry-run --no-verify --no-follow-tags/);
   assert.match(assessment, /dispatched sequentially - never `worktree: true`/);
@@ -482,7 +482,7 @@ test('verification-brief.md gathers permissions, treats held runs as pending, an
   assert.match(sectionB, /^\| Held run \|/m);
   assert.match(sectionB, /`approve workflow run`/);
   assert.match(sectionB, /local run: no conclusive check`, `local run: held run not approvable`,\s+`local run: local verification: always`/);
-  assert.match(sectionB, /log_path: <file under \$\{TMPDIR:-\/tmp\}/);
+  assert.match(sectionB, /log_path: <file in RUN_DIR holding the full captured output>/);
   assert.match(sectionB, /^\| Fix wave \|[^\n]*reference\/fix-wave\.md/m);
   assert.ok(!sectionB.includes('`action_required`/`error` block'), 'action_required is no longer a blocking conclusion');
   assert.ok(!brief.includes('raw_tail'), 'the orchestrator reads log_path, never a tail');

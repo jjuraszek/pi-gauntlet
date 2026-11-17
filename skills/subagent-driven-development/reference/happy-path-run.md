@@ -13,7 +13,9 @@
       HP_DURATION={{HP_DURATION}}
       HP_ROW={{HP_ROW}}
       HP_HEADER={{HP_HEADER}}
-      HP_DIR=$(mktemp -d) || exit 1
+      SCRATCH="$(git -C "$HP_WORKTREE" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+      mkdir -p "$SCRATCH" || exit 1
+      HP_DIR=$(mktemp -d "$SCRATCH/happy-path.XXXXXX") || exit 1
       HEAD=$(git -C "$HP_WORKTREE" rev-parse HEAD) || exit 1
       HP_LABEL=$HP_ROW
       if [[ "$HP_HEADER" != "$HP_ROW" ]]; then HP_LABEL="$HP_ROW (header: $HP_HEADER)"; fi

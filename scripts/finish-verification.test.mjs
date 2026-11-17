@@ -17,7 +17,7 @@ test("ledger finish preserves gate set, strip and amendment contracts", () => {
   assert.ok(verification.includes("# Ledger - loop engine"));
   assert.match(skill, /read.*absolute path.*reference\/verification-set\.md/);
   assert.doesNotMatch(skill, /For a ledger, (?:use|supply) its `verification:` command/);
-  for (const token of ['## Gate set', '## Leg mapping', 'checks:', 'ordered list of (leg, command) pairs', 'LOG_DIR=$(mktemp -d)', 'SCOPED_TEST_COMMANDS', 'verify-before-ship may warn', 'do not run the full suite to clear the warning', 'Commit verification-produced tracked changes, or stop']) assert.ok(verification.includes(token), token);
+  for (const token of ['## Gate set', '## Leg mapping', 'checks:', 'ordered list of (leg, command) pairs', 'LOG_DIR=$(mktemp -d "$SCRATCH/finish.XXXXXX")', 'SCOPED_TEST_COMMANDS', 'verify-before-ship may warn', 'do not run the full suite to clear the warning', 'Commit verification-produced tracked changes, or stop']) assert.ok(verification.includes(token), token);
   assert.match(skill, /For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`/);
   assert.match(skill, /Verification: scoped - <commands>; CI on this push holds the full run.*last `## Summary` bullet/);
   assert.match(skill, /ledger.*post-squash.*verification-set\.md/);

@@ -102,10 +102,10 @@ subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree 
 
 After self-review and the critique pass (council or worker, both already applied to the spec - see [Spec Council](#spec-council)), dispatch the spec-only summarizer over the **applied** spec, then commit the spec on the worktree branch and stop. The summary is folded into the one human gate, not a new gate.
 
-Mint an absolute temp path outside the worktree (so it is never committed), then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
+Read [stage scratch](../../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the home worktree. Mint an absolute path there, then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
 
 ```bash
-SUMMARY_PATH=$(mktemp "${TMPDIR:-/tmp}/gauntlet-spec-summary.XXXXXX")   # absolute, portable across GNU/BSD mktemp
+SUMMARY_PATH=$(mktemp "$SCRATCH/spec-summary.XXXXXX") || exit 1
 ```
 
 ```
@@ -145,7 +145,7 @@ Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" }
 
 **Degrade path** - reach the gate with a one-line "summary generation failed" note; never paraphrase from the file-only reference, never render a stub as the canonical summary.
 
-Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditional cleanup; harmless if the file was never created, since it lives outside the worktree under the OS temp dir).
+Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditional cleanup of this checkout's scratch file).
 
 Follow the [first-line rule](menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
 

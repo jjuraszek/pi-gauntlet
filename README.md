@@ -135,6 +135,8 @@ pi-gauntlet is **opinionated**: it recommends this pipeline for non-trivial chan
 
 **Worktree contract.** pi runs in the primary checkout; the work happens in `.worktrees/<branch>`. Skills never `cd` there - the worktree path is a value from the `using-git-worktrees` report (or the handoff brief on `gauntlet-resume`), carried as dispatch `cwd: "<path>"`, as `git -C <path>`, or as `(cd "<path>" && <cmd>)` for other cwd-bound commands; the runtime extensions derive the checkout from the artifact path they act on. Requires git >= 2.31; a plain (non-colocated) jj workspace has no `.git`, so the resolver falls back to `jj root` there, reading primary-vs-workspace from `.jj/repo` (a directory in the primary checkout, a pointer file in added workspaces).
 
+Stage scratch stays in each checkout's Git metadata at `gauntlet/tmp`; PR gate helpers and logs share their record's run folder under the common Git directory. Teardown removes only its owned run folder and preserves kept post drafts. See [scratch storage](doc/configuration.md#scratch-storage) for lifecycle, plain-jj fallback and Claude Code protected-path permissions.
+
 ## Handoff and resume
 
 `/skill:gauntlet-handoff` and `/skill:gauntlet-resume` are a pair: cohort's `handoff` skill writes the six flow-agnostic headings, gauntlet-handoff appends `## Process state`, and gauntlet-resume reads the whole brief back. Both gauntlet skills read one grammar file, `skills/gauntlet-resume/reference/brief-contract.md`; the repo validator (`scripts/ci.mjs`) fails if a grammar line appears anywhere else under `skills/`. Requires pi-cohort >= 7.1.0 (the `handoff` skill, [pi-cohort #18](https://github.com/jjuraszek/pi-cohort/issues/18)); on an older pi-cohort, gauntlet-handoff stops before writing. A resume also reads the spec's `**Amend-grant:**` header line and prints `Standing grant active: <sentence>` or `No standing grant.` on the line after its closing line; the brief itself carries no grant. On a `plan_check` failure, resume repairs plan citation drift itself (moved anchors, changed literals, file rows that completed tasks deleted) and stops only when a task must change.
@@ -434,7 +436,7 @@ Complete `.pi/gauntlet-overrides.md`:
 
 ```markdown
 ## conventions
-Keep scratch files outside the repository.
+Keep scratch files outside tracked source; use the gauntlet scratch-storage contract for stage work.
 
 ## verification-before-completion
 

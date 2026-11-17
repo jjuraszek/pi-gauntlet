@@ -611,6 +611,15 @@ try {
 }
 
 {
+  const { lintTempPathScope } = await import("./stage-skill-lint.mjs");
+  const offenders = lintTempPathScope(root).map(
+    (hit) => `${hit.file}:${hit.line} [${hit.rule}] ${hit.text}`,
+  );
+  if (offenders.length) fail("gauntlet scratch must stay under its owning Git directory:\n    " + offenders.join("\n    "));
+  else ok("gauntlet scratch paths stay under their owning Git directories");
+}
+
+{
   const { lintSkillSizes } = await import("./skill-size-lint.mjs");
   const errors = lintSkillSizes(root);
   if (errors.length) fail("instruction files exceed the single-read budget:\n    " + errors.join("\n    "));

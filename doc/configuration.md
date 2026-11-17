@@ -189,6 +189,14 @@ Tracker refresh projects labels such as `2/5: Verify loop behavior and recovery`
 
 Amendments reconcile spec and ledger together: approved disposed rows become cut, requirement-preserving changes preserve rows, and a re-bounded done row reopens with `reopened by amendment`. Preserve attempts, iterations and allowance; no plan writer or plan check runs for this aftermath; the driver's next refresh projects the new statuses. Finish strips the ledger while the spec and telemetry ship.
 
+## Scratch storage
+
+Gauntlet stage scratch lives at `<checkout git dir>/gauntlet/tmp`, resolved with `git -C "<checkout>" rev-parse --path-format=absolute --git-dir`. Each leg uses its own checkout, including gather and conformance workers. Linked worktrees therefore have distinct scratch directories; Git metadata stays outside tracked source without an ignore entry. Stage scratch lasts until its stage deletes the exact file or directory, or the worktree is removed.
+
+PR gate scratch lives at `<common git dir>/gauntlet/tmp/gate.XXXXXX`, resolved from the session checkout's `--git-common-dir`. The record is `state`; multi-PR runs use `pr-<N>/state` children. Helpers, logs, finding artifacts and drafted bodies share the record's directory. Teardown validates ownership from the surviving primary and deletes exactly that run folder, preserving other runs and worktree scratch. Unrun or failed post bodies move to unique OS-temp `gate-kept.XXXXXX` files first. A validated record outside this layout keeps its files in place.
+
+Only a confirmed plain jj workspace without Git metadata uses the stage fallback `gauntlet.XXXXXX` under OS temp; a failed Git lookup or directory creation otherwise stops. Claude Code may prompt for its protected `.git` path: approve that path rather than redirect scratch elsewhere. No startup scan or automatic reclaim runs after an unhandled exit. Outside-ledger `gauntlet/returns/` transport is separate; hotfix and non-stage skills retain their own rules. This path contract has no settings key.
+
 ## Phase models
 
 `piGauntlet.phaseModels` switches the parent session's model and thinking level when a phase starts. Keys: `plan`, `implement`, `verify`, `ship` (no `brainstorm` - the user picks the model the session starts on). Each value is `provider/id` or `provider/id:level`, where `level` is a pi thinking level (`off|minimal|low|medium|high|xhigh|max`); a trailing `:suffix` that is not a level is part of the model id (`ollama/qwen2.5-coder:7b`). A switch is persistent: pi records it in the session, replays it on resume, and nothing reverts it at phase end, so with only `implement` set the verify and ship phases keep the implement model. A phase without a key leaves the active model and thinking level unchanged, including a model the user picked by hand. Without `:level` the thinking level is pi's default for the new model. Whole-object precedence applies (repo `.pi/settings.json` replaces the preset block).
