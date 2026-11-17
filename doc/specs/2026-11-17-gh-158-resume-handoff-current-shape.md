@@ -51,7 +51,7 @@ Framing: kept - no cited alternative; extending only the first-use gate of `doc/
 Ticket #158, "Acceptance Criteria", rows verbatim:
 
 - [ ] Resuming from a single-repo handoff brief: the session transcript's read calls show the main session reads no coordinated-only file or section - none of the rules now under `## Coordinated brief grammar` and `## Coordinated admission` in `skills/gauntlet-resume/reference/brief-contract.md`, and none of the coordinated-brief rules now inline in entry checks 3, 3b, and 4 of `skills/gauntlet-resume/SKILL.md`; the main body keeps only the test needed to choose the single-repo or coordinated route.
-  deviates: unreachable in this checkout - C1 read-call transcripts absent and agent launches prohibited in this worker; proof at primary Pi session in a scratch checkout
+  in-scope
 - [ ] For the same recorded single-repo brief at each supported stage, the resume at commit 09c9f4e10b9e9f1b6f2852cf9c35dc3e14025134 and the changed resume load the same continuation skill and restore the same phase and task state.
   in-scope
 - [ ] Resuming from a coordinated (multi-repo) brief reads the coordinated rules before any tracker write, and each coordinated stop condition at that commit stops on the same recorded input with the same result.
@@ -282,7 +282,7 @@ Paid external action: model eval runs, `node eval/run.mjs <target> <sample>`, pr
 
 Approving this spec authorizes these runs for the whole flow, across seed, rows, repairs and finish, with no per-step permission prompt. Fourteen samples is advisory, not a budget. Each existing sample must hold every expected fact on the changed files, except the intended moves: the `old-ledger-stops` and `missing-line` facts above, the facts rewritten with the three fixtures, and `retired-budgets` `legacy-route`. No target-wide or cross-target run.
 
-Candidate runs, not authorized by approval alone. Each is a paid model run by the same runner on the same frozen models, and each enters the table above only when the user selects it at the gate (Open questions). Text replays run with `--no-tools`, so none of the fourteen can observe a read call.
+Additional paid runs C1-C4 are authorized by the user's implementation-stop answer: `A, continue without bothering! you have ammend permissions!`. The primary session runs these checks and supplies their evidence to the implementer; the worker prepares fixtures and implementation without launching Pi. Authorization covers setup, baseline and changed runs, repairs and finish without another permission prompt. Missing fixtures are deliverables to create, not evidence that the outcome is unreachable. C5-C7 remain optional and unselected. Text replays run with `--no-tools`, so none of the fourteen can observe a read call.
 
 | # | Run | Evidence it would supply |
 |---|---|---|
@@ -346,17 +346,17 @@ Add:
 
 ## Tests
 
-Structural and byte assertions (`scripts/*.test.mjs`) and text replays are separate kinds of evidence. Token presence never stands in for the read observations of ticket rows 1 and 3 or for the recorded-input equivalence of rows 2 and 3; the lines marked `awaits the gate` name the run that would supply each (Design 9 candidates).
+Structural and byte assertions (`scripts/*.test.mjs`) and text replays are separate kinds of evidence. Token presence never stands in for the read observations of ticket rows 1 and 3 or for the recorded-input equivalence of rows 2 and 3; Design 9 runs C1-C4 supply those observations under the user's explicit authorization; C5-C7 remain unselected.
 
 - A single-repo route's file set excludes `coordinated.md` (the Design 4 sets, and every mention of `coordinated.md` outside that file sits in a sentence conditioned on a `legs:` block or on more than one member), no leg grammar line sits outside it, and entry checks 3 and 4 keep the same-repository binding and the single-repo drift notice while carrying no coordinated rule beyond the `legs:` test and its pointer - `scripts/resume-routes.test.mjs`, `scripts/brief-contract-lint.test.mjs`
-- Ticket row 1, the read calls of a single-repo brief resume name no `coordinated.md` - unavailable C1 trace, recorded as a deviation; text replays run without tools and cannot supply it. Structural route separation remains required by Design 3 and Design 4.
-- Ticket row 3, a resume from a brief with a `legs:` block reads `coordinated.md` before its first tracker write - a tool-observed trace, required before acceptance; awaits the gate (C2)
+- Ticket row 1, the read calls of a single-repo brief resume name no `coordinated.md` - authorized C1 tool-observed traces for ledger and task-plan briefs; text replays cannot substitute.
+- Ticket row 3, a resume from a brief with a `legs:` block reads `coordinated.md` before its first tracker write - a tool-observed trace, required before acceptance; authorized C2
 - Single-repo brief, implement with a task plan, restores the same calls and task list - `eval/gauntlet-resume` `clean-pass-unchanged`, `pending-owner-stops`
 - Single-repo brief, implement with a ledger, restores the same calls, recovery and continuation - `eval/gauntlet-resume` `loop-ledger-brief`, `ledger-tracker-recovery`, `returned-line-recovery`; `scripts/loop-home-resume.test.mjs`
 - Single-repo brief at verify restores the mixed task list, never starts implement, and keeps `pending: verify` admission - `eval/gauntlet-resume` `ledger-tracker-verify`, `baseline-upgrade-preserves-statuses`; `scripts/loop-verification-repair.test.mjs`
-- Brainstorm, plan and ship stage call sequences are present in `restore-plan.md` and `restore-loop.md` - `scripts/brief-contract-lint.test.mjs` (re-pointed row assertions), `scripts/resume-routes.test.mjs`; structural only - the paired restore of ticket row 2 at those stages awaits the gate (C3)
+- Brainstorm, plan and ship stage call sequences are present in `restore-plan.md` and `restore-loop.md` - `scripts/brief-contract-lint.test.mjs` (re-pointed row assertions), `scripts/resume-routes.test.mjs`; structural only - the paired restore of ticket row 2 at those stages uses authorized C3
 - A brief with a `legs:` block admits or retries as before - `eval/gauntlet-resume` `legs-ok`, `legs-receipt`
-- Each multi-repo stop sentence of `## Coordinated admission` is present unchanged in `coordinated.md` - `scripts/resume-routes.test.mjs`; structural only - the same-input stop results of ticket row 3 on the five unselected `legs-*` stop samples await the gate (C4)
+- Each multi-repo stop sentence of `## Coordinated admission` is present unchanged in `coordinated.md` - `scripts/resume-routes.test.mjs`; structural only - the same-input stop results of ticket row 3 on the five `legs-*` stop samples use authorized C4
 - `## Ledger admission` sends an absent ledger on a ship-stage `legs:` brief to `coordinated.md` before the `ledger not found` stop, and `coordinated.md` keeps `for a ledger subject, recover gate pairs from the committed pre-strip ledger` - `scripts/resume-routes.test.mjs`; `legs-receipt` covers only the task-plan retry
 - The engine test names `restore-plan.md` only for a process-state brief without `Ledger:`, a task-plan candidate and seed step 8; `reconstruction.md` keeps the Candidates rows for no spec, more than one spec and one spec without a plan, and `## Spec without plan` keeps the approval question with its `loop`, `waves` or absent, and unapproved branches - `scripts/resume-routes.test.mjs`; a model run of `loop-no-ledger` awaits the gate (C5)
 - `seed.md` step 8 names `restore-plan.md` `## Spec with plan` for a pinned spec with a plan and keeps the pinned path and the Candidates bypass - `scripts/resume-routes.test.mjs`
@@ -391,17 +391,16 @@ Materiality bar: `reference/documentation-impact.md`.
 
 ## Out of scope
 
-- Resuming from a single-repo handoff brief: the session transcript's read calls - unreachable in this checkout - C1 read-call transcripts absent and agent launches prohibited in this worker. The Design 3 membership test and Design 4 read sets and ceilings remain required; this cut records missing observed-transcript proof, not permission to load coordinated rules on single-repo routes.
 - Converting, migrating or hand-repairing an old ledger; a converter tool. Ticket row 5 is cut by the request.
 - Detecting or rejecting old briefs.
 - Specs without `## Legs`, `**Amend-grant:**` or `**Engine:**`; their readers in brainstorming, finishing and using-git-worktrees keep their rules.
 - The loop driver's `checks:` stop, its rules for history lines in a converted ledger, and the `legacy and single-member` sentence.
 - `extensions/plan-tracker.ts`; it reads only `allowance:` already.
 - pi-cohort's `handoff` skill.
-- Model runs beyond the fourteen samples in Design 9; a candidate run there enters only by the user's selection at the gate.
+- Model runs beyond the fourteen samples and authorized C1-C4 in Design 9; C5-C7 remain unselected.
 
 ## Open questions
 
 - Consumer-repo runs that still hold a ledger without `returned:` or `allowance:` could not be counted from here. They meet the Design 5 stop; the recovery is in `doc/configuration.md` and `CHANGELOG.md`.
 - Byte ceilings: whether the Design 10 removals fit 42,000, 37,000 and 17,000 bytes is unmeasured. Probe: `rg --max-count 3 'dry[- ]split|restore-loop\.md|resume-routes'` over `skills`, `scripts`, `doc/configuration.md`, `doc/gate-contract.md`, `doc/implement-engines.md`, `eval/README.md`, `README.md`, `AGENTS.md` - no match; no split or per-file allocation exists, and the only way to obtain one is to perform the split. A council member's section-based estimate (plan route about 38.7 KB, loop route about 42.0 KB, error about 1.5 KB) is unverified, and the read-set and trailer moves in Designs 2-4 change it. Settles: the three Design 4 ceilings and the Tests ceiling line. Path: the user supplies an allocation at the gate, or the first plan task performs a dry split, records the per-file bytes, and names the kept prose it compresses without changing a rule. A split that cannot fit goes back to the user through brainstorming's amendment path; never raise a ceiling silently or delete a kept rule to fit.
-- Candidate runs: ticket rows 1 and 3 need a tool-observed read trace, and rows 2 and 3 need paired behavior at brainstorm, plan and ship stage and on each coordinated stop input. No authorized run supplies them, and adding a paid run is the user's scope decision. At the gate the user selects from Design 9 candidates C1-C7 or names another source of that evidence; until then the `awaits the gate` lines in Tests have no evidence. C5, C6 and C7 are optional model coverage on top of the static assertions already named.
+- C1-C4 are authorized: the primary session supplies the tool-observed traces and paired replay evidence without another prompt. C5-C7 remain optional model coverage on top of the static assertions already named.
