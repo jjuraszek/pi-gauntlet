@@ -18,6 +18,8 @@ Cover all seven action-row-one scenarios: pending progress, ruleset block, uncha
 
 Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
 
+This evidence refresh covers only reject-not-after-pick, adding its post-fix-nits-push checkpoint at a different assessed head. Coverage is partial; no other sample is replayed and the skill bundle is unchanged.
+
 ## Expected to move
 
 - teardown-own-run-folder/owned-block: fails -> holds - Invoke the marked ownership-checking block instead of composing cleanup commands.
@@ -111,6 +113,7 @@ Implement reject's frozen-note menu, close permissions, ordered post/close/clean
 - reject-not-after-pick/continuation: fails -> holds - later work menus stay free of reject
 - reject-not-after-pick/closure: fails -> holds - remedy-only delivery dispatches and supplies closure inputs
 - reject-not-after-pick/external: fails -> holds - external head review preserves approach contributor closure IDs
+- reject-not-after-pick/fix-nits-head: fails -> holds - a fix-nits push changes the assessed head without a fresh approach appendix, approach judgment or reject row
 - approach-blocker-other-row/assess: fails -> holds - alternate assess choice posts open approach blockers
 - approach-blocker-other-row/dispatch: fails -> holds - both harnesses dispatch remedy-only work with scoped tests
 - approach-blocker-other-row/payload-limit: fails -> holds - approach remedies retain the common payload limit and use needs returns when it cannot be met

@@ -205,6 +205,27 @@ test('work picks withdraw reject before work and keep later review on carried cl
   assert.match(task, /carried approach.*closure lines/);
   assert.match(task, /never.*whole.PR approach.*after.*work_started/i);
   assert.match(read('../skills/gatekeep-pr/reference/assessment.md'), /work_started == false/);
+
+  const root = '../eval/gatekeep-pr/';
+  const sample = 'reject-not-after-pick';
+  const checkpoint = read(`${root}samples/${sample}/case.md`).split('\n').find((line) => line.startsWith('| F |'));
+  assert.ok(checkpoint, 'the sample must exercise a fix-nits push and its new-head review');
+  assert.match(checkpoint, /picked fix nits.*course null/);
+  const heads = checkpoint.match(/first assessed head ([a-f0-9]{40}).*single push yields ([a-f0-9]{40})/);
+  assert.ok(heads, 'the checkpoint must supply the first and pushed assessed heads');
+  assert.notEqual(heads[1], heads[2], 'the fix-nits push must change the assessed head');
+  assert.match(checkpoint, /new review comment/);
+  assert.match(checkpoint, /source review task.*both harnesses/);
+  const { facts } = parseExpected(read(`${root}samples/${sample}/expected.md`));
+  const fact = facts.find(({ id }) => id === 'fix-nits-head');
+  assert.ok(fact, 'the post-fix-nits head needs its own must-hold fact');
+  assert.match(fact.text, /work_started true.*course null/);
+  assert.match(fact.text, /no approach appendix.*no.*approach.*judg.*no.*conflict.*no reject/);
+  const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
+  assert.match(candidate.skillSha, /^[a-f0-9]{64}$/);
+  for (const model of candidate.models.replay) {
+    assert.equal(candidate.judge[model]?.facts[fact.id]?.after, 'holds', `${model}/${fact.id}`);
+  }
 });
 
 test('approach-none-unchanged: no-conflict reports and menus match the pre-feature baseline', () => {
