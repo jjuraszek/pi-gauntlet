@@ -36,3 +36,4 @@ row 3 done | Verified C2 reads coordinated rules before tracker writes and all f
 repair verification | home 821f7ae | iteration 13
 amended | 1 item(s) | Refresh the two foreign-target records the commit wording change made stale
 amended | 1 item(s) | Rebind the gatekeep eval instead of replaying it
+amended | 2 item(s) | Name the owner-move reseeds and the fixture repairs

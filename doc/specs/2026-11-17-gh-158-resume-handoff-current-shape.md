@@ -255,6 +255,14 @@ Rewrite three selected fixtures to the current format. Their inputs or facts req
 
 Every other fact of the three keeps its safety content on the current format: recovery before refresh, the consumed iteration kept, the failed attempt counted once, no `init` on implement, the stop on an unavailable before-image. The `09c9f4e1` text also restores the current format, so the baseline arm replays each rewritten case; run `--baseline-only` first, because the case changed.
 
+Fixture repairs added by amendment under the standing grant after the second whole-diff review. Each repaired case replays on both arms, `--baseline-only` first:
+
+| Sample | Defect | Repair |
+|---|---|---|
+| `finishing-a-development-branch` `ledger-pending-return` | the `rejection` fact quotes the failed-row evidence that only `skills/loop-implementation/reference/interrupted-recovery.md` step 3 defines, and the case did not bundle that file; the fact's literal `iteration 3: interrupted - 2 commits` contradicted step 3, which writes the dispatch iteration in the row and the consumed count in the decision; cases A and C did not ask for the return-file lookup or the repaired cells the facts check | add `bundle+:` for that reference (byte-identical to `09c9f4e1`); the fact names `iteration 2: interrupted - 2 commits` and the decision `repair row 2 \| interrupted - 2 commits \| iteration 3`; A asks how the return-file path is recomputed and which lines are matched, C asks for both reset targets, the repaired row 2 cells and the repair decision |
+| `gauntlet-resume` `ledger-tracker-verify` | the `labels` fact checks the refreshed label of cut row 2, which no instruction file defines and a no-tools replay cannot observe | K asks what the producer wrote and supplies the observed refresh status `row 2 \| Reject malformed allowance replies`, the line `extensions/plan-tracker.ts` renders for a cut row; `expected.md` unchanged |
+| `gauntlet-resume` `loop-ledger-brief` | the case's ledger header list had no `returned:` line, an unsupported format under Design 5, while the case says every entry check passed | the header list states one settled `returned:` tuple and no `pending:`; `expected.md` unchanged |
+
 Change the `legacy-route` fact of `eval/loop-implementation/samples/retired-budgets` (case D, `cap: 49` and no `allowance:` header): D stops with the driver's Design 5 sentence and does not route through resume. The sample is not in the run list; its record goes stale until a run is selected (candidate C7 below).
 
 Update `target.json` for `gauntlet-resume` and `gauntlet-handoff` to the new layout following `eval/README.md` "Iterating on a skill edit": list `brief-contract.md` and `reconstruction.md` whole, declare the four new references as new, and re-point `bundle+` and `bundle-` lines. No selected sample drops a pre-existing file that holds its rules at `09c9f4e1`, so its baseline arm replays the old text and every unchanged fact is judged before and after.
@@ -285,6 +293,8 @@ Approving this spec authorizes these runs for the whole flow, across seed, rows,
 Additional paid runs C1-C4 are authorized by the user's implementation-stop answer: `A, continue without bothering! you have ammend permissions!`. The primary session runs these checks and supplies their evidence to the implementer; the worker prepares fixtures and implementation without launching Pi. Authorization covers setup, baseline and changed runs, repairs and finish without another permission prompt. Missing fixtures are deliverables to create, not evidence that the outcome is unreachable. C5-C7 remain optional and unselected. Text replays run with `--no-tools`, so none of the fourteen can observe a read call.
 
 C8, added by amendment under the standing grant after the user's instruction to continue without further questions: removing the two conversion rows from `commit-message.md` changes the assembled input of every eval target that bundles that file, and two contract tests bind saved records to the current assembly: `scripts/delivery-stage-authoring.test.mjs` (target `brainstorming`) and `scripts/gatekeep-comment-reconcile.test.mjs` (target `gatekeep-pr`). For `brainstorming`, replay the two samples that test names (`pr-body-drafted-row`, `post-action-sorted`) against base `3171d0e1`, the base whose baseline assembly matches the saved baseline records, and update its `intent.md`. For `gatekeep-pr`, rebind `intent.md` to the current assembly and replay nothing: its saved `loop-worker` record predates the fix-wave return contract that an earlier change introduced, a replay fails three of its facts on both models for that older reason, and bringing that sample to the current contract is separate work outside this spec. Runner: the implementing agent. No other sample of either target runs. These actions are listed at the finish gate.
+
+Reseeds that follow from the owner move, added by amendment under the standing grant: moving the restore rules gives five samples outside the fourteen a new owner file in their assembled input, so their saved records are replayed too: `loop-implementation` `companion-interrupted-recovery`, `interrupted-child-redispatch`, `leg-resume` and `verify-repair-count`, and `finishing-a-development-branch` `ledger-post-strip`. They are replayed again after any later edit to a file they assemble. `leg-resume` keeps one fact that fails on one model at base and after the change alike; it is recorded as observed and is not an acceptance condition of this spec.
 
 | # | Run | Evidence it would supply |
 |---|---|---|
@@ -399,7 +409,7 @@ Materiality bar: `reference/documentation-impact.md`.
 - The loop driver's `checks:` stop, its rules for history lines in a converted ledger, and the `legacy and single-member` sentence.
 - `extensions/plan-tracker.ts`; it reads only `allowance:` already.
 - pi-cohort's `handoff` skill.
-- Model runs beyond the fourteen samples and authorized C1-C4 in Design 9; C5-C7 remain unselected.
+- Model runs beyond the fourteen samples, authorized C1-C4, C8 and the five owner-move reseeds named in Design 9; C5-C7 remain unselected.
 
 ## Open questions
 
