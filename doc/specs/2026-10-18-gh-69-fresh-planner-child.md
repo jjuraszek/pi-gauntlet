@@ -1,5 +1,7 @@
 # Fresh planner child for writing-plans
 
+> **Superseded by:** [doc/specs/2026-11-17-gh-153-writing-plans-partition.md](./2026-11-17-gh-153-writing-plans-partition.md) - the `skills/writing-plans/SKILL.md` Components row clause keeping the authoring sections in the skill, "plan-writer persona" items 1 and 3 (the read of `SKILL.md` headings), and the "Out of scope" split entry only
+
 **Goal:** The plan phase authors, checks, and repairs the implementation plan inside one fresh `plan-writer` child, so the parent's transcript holds only the dispatch, one stamping `plan_check`, one read of the finished plan, and the phase bookkeeping.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Ticket:** #69
