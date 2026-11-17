@@ -1,7 +1,9 @@
-bundle+: skills/writing-plans/SKILL.md
 bundle+: skills/brainstorming/reference/legs.md
+bundle-: skills/writing-plans/SKILL.md
 
-Evaluate the plan contract as the plan-writer, not the parent orchestrator. This is a text-only exercise: narrate the checkout lookup and path-resolution calls using the supplied observations, then show the single-task plan fragment (home header, Files, Tests, baseline and steps) you would write for A. State what changes for B and what you do for C. Treat the observations as measured; make no live-tool or file-write claims. Keep the whole response under 900 words.
+Role: plan-writer
+
+Evaluate the plan contract as the plan-writer, not the parent orchestrator. This is a text-only exercise: narrate the checkout lookup and path-resolution calls using the supplied observations, then show the single-task plan fragment (home header, Files, Tests, baseline and steps) you would write for A. In its Files list, give each of the four task paths every kind the contract's Files section assigns for what the task does to that path. State what changes for B and what you do for C. The cases are independent, so this case replaces the replay's single last line: close A's section with A's final reply line, and close C with its lookup report and no PLAN WRITTEN or OPEN QUESTIONS line. Treat the observations as measured; make no live-tool or file-write claims. Keep the whole response under 900 words.
 
 The approved home spec is /workspace/home/active/doc/specs/settings.md; the plan path is /workspace/home/active/doc/plans/settings.md. The session's home worktree is /workspace/home/active, home primary /workspace/home, and companion primary /workspace/widget. Membership is settled as team/home and team/widget; no other siblings exist. Both recorded branches are feature/settings. Home has a keyed home: .worktrees/<name>. The supplied companion block is:
 

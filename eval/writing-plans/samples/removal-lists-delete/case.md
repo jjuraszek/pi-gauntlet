@@ -1,6 +1,6 @@
 Evaluate the plan contract's authoring rules with the approved spec and observed repository facts below. Produce the plan Markdown that the plan-writer would write, not the orchestrator's dispatch or the persona's final status reply. Treat this as a text-only contract exercise: use the supplied read and baseline observations, make no live-tool or file-write claims, and keep the whole response under 800 words.
 
-Home: /workspace/app. Spec: /workspace/app/doc/specs/retire.md. Plan: /workspace/app/doc/plans/retire.md. Plan skill: /workspace/tools/skills/writing-plans/SKILL.md. Plan contract: /workspace/tools/skills/writing-plans/reference/plan-contract.md.
+Home: /workspace/app. Spec: /workspace/app/doc/specs/retire.md. Plan: /workspace/app/doc/plans/retire.md. Plan contract: /workspace/tools/skills/writing-plans/reference/plan-contract.md.
 
 Observed state:
 - No plan exists yet. HEAD is abc1234, and status is clean. Repository conventions specify npm test as the full verification entrypoint and no happy-path command. There are no additional overrides or legs.

@@ -167,14 +167,157 @@ test('evidenced drafted corrections are amend items while redraws retain the gat
 test('baseline implement-only maintenance preserves staged repairs and truthful execution identity', () => {
   const surface = read('skills/brainstorming/reference/amendment-surface.md');
   for (const marker of ['preserve staged repairs', 'no test execution', 'failing command, assertion or path', 'corresponding repair evidence', 'unrelated regressions', 'budget-only', 'malformed', 'redraw', 'existing task gate loop', 'Repeated authorized intermediate evidence']) assert.ok(surface.includes(marker), marker);
-  const skill = read('skills/writing-plans/SKILL.md');
+  const skill = read('skills/writing-plans/reference/plan-contract.md');
   for (const marker of ['identified execution tree', 'nonzero executed-test count', 'zero tests', 'original per-leg declarations', 'no endpoint-tree equivalence']) assert.ok(skill.includes(marker), marker);
+});
+
+test('writing-plans keeps flow in the skill and child rules in the plan contract', () => {
+  const text = read('skills/writing-plans/SKILL.md');
+  const removedHeadings = new Set([
+    '## File Structure',
+    '## Leg routing',
+    '## Wave Grouping',
+    '## Bite-Sized Task Granularity',
+    '## Plan Document Header',
+    '## Task Structure',
+    '## Spec Coverage Table',
+    '## No Placeholders',
+    '## Self-Review (Before Handoff)',
+    '## Remember',
+  ]);
+  assert.deepEqual(text.split('\n').filter((line) => removedHeadings.has(line)), [],
+    'child-only authoring headings must not load into the main session');
+  assert.doesNotMatch(text, /Plan skill/i);
+  const templates = [...text.matchAll(/^\s*> (Write the implementation plan[^\n]*)$/gm)];
+  assert.equal(templates.length, 1, 'one fixed child dispatch template');
+  assert.equal(templates[0][1],
+    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to reference/plan-contract.md>`.',
+    'the child prompt carries only the four paths, never authoring rules');
+  for (const [sample, facts] of [
+    ['fresh-child-authors-plan', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'four-paths', 'no-reference-read']],
+    ['parent-offers-fix-first-narrow-amend', ['failure', 'menu', 'pause', 'reads-open-questions']],
+    ['gate-line-first', ['first-line', 'failure', 'menu', 'pause']],
+  ]) {
+    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    assert.equal(Object.keys(record.outputs).length, 2, `${sample}: two replay models`);
+    for (const [model, output] of Object.entries(record.outputs)) {
+      assert.equal(output.status, 'ok', `${sample}/${model}`);
+      assert.deepEqual(Object.keys(record.judge[model].facts).sort(), [...facts].sort(), `${sample}/${model}: fact set`);
+      for (const fact of facts) assert.equal(record.judge[model].facts[fact].after, 'holds', `${sample}/${model}/${fact}`);
+    }
+  }
+});
+
+test('plan-writer reads one complete contract before writing on four paths', () => {
+  const writer = read('agents/plan-writer.md');
+  assert.match(writer, /four absolute paths: the worktree, the approved spec, the plan path, and the plan contract file/);
+  assert.match(writer, /Keep the four-path inputs/);
+  assert.doesNotMatch(writer, /SKILL\.md|plan skill|skill's (?:Self-Review|Baseline)/);
+  const procedure = writer.slice(writer.indexOf('## Procedure'), writer.indexOf('## Rules'));
+  assert.match(procedure, /2\. Read the whole plan contract file \(`plan-contract\.md`\)/);
+  assert.match(procedure, /5\. Run Baseline from the plan contract's `## Self-review \(before handoff\)`/);
+  assert.match(procedure, /6\. Run the deterministic checker and judgment checks in the plan contract's `## Self-review \(before handoff\)`/);
+  for (const sample of ['child-reads-one-contract', 'removal-lists-delete', 'maintenance-after-delete', 'baseline-fails-on-base']) {
+    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    assert.equal(Object.keys(record.outputs).length, 2, sample);
+    for (const [model, output] of Object.entries(record.outputs)) {
+      assert.equal(output.status, 'ok', `${sample}/${model}`);
+      const facts = record.judge[model].facts;
+      assert.ok(Object.keys(facts).length > 0, `${sample}/${model}`);
+      if (sample === 'child-reads-one-contract') assert.deepEqual(Object.keys(facts).sort(), ['four-paths', 'no-skill-read', 'reads-contract']);
+      for (const [fact, result] of Object.entries(facts)) assert.equal(result.after, 'holds', `${sample}/${model}/${fact}`);
+    }
+  }
+});
+
+test('writing-plans callers and anchors resolve to the partitioned contract', () => {
+  const failures = [];
+  const prose = text => text.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm, '');
+  const headingIds = text => {
+    const counts = new Map();
+    return [...prose(text).matchAll(/^#{1,6}\s+(.+?)\s*#*$/gm)].map(([, heading]) => {
+      const slug = heading.toLowerCase().replace(/<[^>]*>/g, '')
+        .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, '').replace(/\s/g, '-');
+      const count = counts.get(slug) ?? 0;
+      counts.set(slug, count + 1);
+      return count ? `${slug}-${count}` : slug;
+    });
+  };
+  const checkLink = (path, href) => {
+    if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) return;
+    const target = new URL(href, new URL(`../${path}`, import.meta.url));
+    const anchor = decodeURIComponent(target.hash.slice(1));
+    target.hash = '';
+    try {
+      const text = readFileSync(target, 'utf8');
+      if (anchor && !headingIds(text).includes(anchor)) failures.push(`${path}: missing anchor ${href}`);
+    } catch {
+      failures.push(`${path}: unreadable link ${href}`);
+    }
+  };
+  for (const path of ['skills/writing-plans/SKILL.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/writing-plans/reference/open-questions.md']) {
+    for (const [, href] of prose(read(path)).matchAll(/\]\(([^\s)]+)\)/g)) checkLink(path, href);
+  }
+  for (const dir of ['skills', 'agents', 'doc']) {
+    for (const name of readdirSync(new URL(`../${dir}/`, import.meta.url), { recursive: true }).filter(name => name.endsWith('.md'))) {
+      const path = `${dir}/${name}`;
+      const text = read(path);
+      for (const [, href] of text.matchAll(/\]\(([^\s)]*plan-contract\.md#[^\s)]+)\)/g)) checkLink(path, href);
+      if (dir === 'doc') continue;
+      for (const line of text.split('\n')) {
+        if (/five absolute paths|five-path|plan skill/i.test(line)) failures.push(`${path}: retired five-path input`);
+        if (/writing-plans[^\n]*SKILL\.md/.test(line) && /## (?:File Structure|Leg routing|Wave Grouping|Bite-Sized Task Granularity|Plan Document Header|Task Structure|Spec Coverage Table|No Placeholders|Self-Review|Remember)/.test(line)) failures.push(`${path}: retired skill heading`);
+        for (const [, href] of line.matchAll(/\]\(([^\s)]*writing-plans\/SKILL\.md#[^\s)]+)\)/g)) checkLink(path, href);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file \(`plan-contract\.md`\) at the supplied path/);
+  for (const [path, count] of [
+    ['skills/brainstorming/reference/amendment-surface.md', 2],
+    ['skills/subagent-driven-development/reference/implement-amendments.md', 1],
+    ['skills/gauntlet-resume/reference/brief-contract.md', 1],
+  ]) assert.equal((read(path).match(/four absolute paths \(worktree, approved spec, plan, plan contract\)/g) ?? []).length, count, path);
+  const resume = read('skills/gauntlet-resume/reference/brief-contract.md');
+  for (const row of resume.split('\n').filter(line => line.startsWith('| `- Task N:') || line.startsWith('| Global or contamination rows'))) {
+    assert.match(row, /writing-plans\/reference\/open-questions\.md/);
+  }
+  const ci = read('scripts/ci.mjs');
+  for (const [, file, token] of ci.matchAll(/\["(skills\/writing-plans\/[^"\n]+)", "([^"\n]+)", true\]/g)) {
+    if (!read(file).includes(token)) failures.push(`CI token ${token} is absent from ${file}`);
+  }
+  assert.deepEqual(failures, []);
+  const legCase = read('eval/writing-plans/samples/leg-checkout-by-branch/case.md');
+  assert.match(legCase, /^bundle-: skills\/writing-plans\/SKILL\.md$/m,
+    'the child replay must not receive parent dispatch instructions');
+  assert.match(legCase.replace(/^(bundle[+-]:[^\n]*\n)+\s*/, ''), /^Role: plan-writer\n/,
+    'select the replay child branch instead of the parent no-write branch');
+  for (const sample of ['leg-checkout-by-branch', 'pr-subject-threads', 'pr-subject-sync-repair']) {
+    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    assert.equal(Object.keys(record.outputs).length, 2, sample);
+    for (const [model, output] of Object.entries(record.outputs)) {
+      assert.equal(output.status, 'ok', `${sample}/${model}`);
+      for (const [fact, result] of Object.entries(record.judge[model].facts)) assert.equal(result.after, 'holds', `${sample}/${model}/${fact}`);
+    }
+  }
 });
 
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));
-  for (const marker of ['Value decoding', 'before waiting', 'budget-only', 'Recommendation: <option>[ <filter>]', 'took recommendation: <option>', 'narrow hook-config', 'Task N Tests: narrow to hook-config', 'none', 'without a concrete filter', 'no amend permission', 'never clean automatically']) assert.ok(branch.includes(marker), marker);
+  const questions = branch.split('\n').find((line) => line.includes('`OPEN QUESTIONS` + any result'));
+  const repeatedFail = branch.split('\n').find((line) => line.includes('`PLAN WRITTEN` + `FAIL`'));
+  for (const line of [questions, repeatedFail]) {
+    assert.match(line, /read `reference\/open-questions\.md` now, before asking; unreadable -> stop with a blocking error, never reconstruct from memory/);
+  }
+  assert.match(repeatedFail, /the same FAIL a second time goes to the user as an open question; read/);
+  assert.match(branch, /No child reply.*`OPEN QUESTIONS` when the plan carries substantive Open Questions rows.*take that reply's branch above/);
+  const menu = read('skills/writing-plans/reference/open-questions.md');
+  assert.match(menu, /^## Ask the human$/m);
+  assert.match(menu, /Start the message with `gauntlet: question` alone at column zero on the first physical line/);
+  assert.match(menu, /Never append a colon to the marker/);
+  assert.match(menu, /For a second identical FAIL, present the FAIL lines, verbatim, as an exhausted finding does/);
+  for (const marker of ['Value decoding', 'before waiting', 'budget-only', 'Recommendation: <option>[ <filter>]', 'took recommendation: <option>', 'narrow hook-config', 'Task N Tests: narrow to hook-config', 'none', 'without a concrete filter', 'no amend permission', 'never clean automatically']) assert.ok(menu.includes(marker), marker);
   const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
   assert.ok(aftermath.includes('same grant-aware step-6 path'));
   assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/writing-plans', import.meta.url))), []);
@@ -916,7 +1059,7 @@ test('rework finish selects recorded mode and guards first and later pushes', ()
 });
 
 test('planning completes interrupted sync and persists pending outcomes before finish', () => {
-  const plan = read('skills/writing-plans/SKILL.md');
+  const plan = read('skills/writing-plans/reference/plan-contract.md');
   assert.match(plan, /Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task\./);
   const sdd = read('skills/subagent-driven-development/SKILL.md');
   for (const clause of [
@@ -927,7 +1070,7 @@ test('planning completes interrupted sync and persists pending outcomes before f
     'Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`:',
     'in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together;',
   ]) assert.ok(sdd.includes(clause), clause);
-  for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
+  for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
 });
 
 test('both critique routes reject PR-sourced commitments without cutting design or provenance', () => {

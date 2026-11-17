@@ -1,4 +1,3 @@
-bundle+: skills/writing-plans/SKILL.md
 bundle+: skills/verification-before-completion/SKILL.md
 
 # Input

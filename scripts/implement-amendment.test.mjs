@@ -25,7 +25,7 @@ systemPromptMode: replace
   const modes = text.slice(text.indexOf('## Implement-only amendment modes'), text.indexOf('## Procedure'));
   for (const marker of ['Amend-prepare:', 'Amend-apply:', 'writes nothing', 'one paragraph', 'structured output', 'concerns', 'question', 'redraw', 'granted items verbatim', 'named spec sections', 'pre-apply task numbers', 'tasksAdded', 'tasksAnchorChanged', 'tasksRemoved', 'amendedSections', 'passed', 'failLines', 'substantive baseline', 'parent owns stamping', 'Baseline']) assert.ok(modes.includes(marker), marker);
   assert.ok(text.indexOf('## Implement-only amendment modes') < text.indexOf('## Procedure'));
-  for (const marker of ['five absolute paths', '`Findings:`', '`Amend:`', 'preserve every task title and wave position', 'The plan path is the only file you write', 'Never call `plan_tracker`, `phase_tracker`, or `subagent`']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['four absolute paths', '`Findings:`', '`Amend:`', 'preserve every task title and wave position', 'The plan path is the only file you write', 'Never call `plan_tracker`, `phase_tracker`, or `subagent`']) assert.ok(text.includes(marker), marker);
   assert.match(text, /Outside these implement-only modes, keep the ordinary output contract and shell restrictions/);
 });
 
@@ -56,7 +56,7 @@ test('implement apply patches locally and compares semantic obligations against 
 });
 
 test('apply uses committed home originals at every binding site and fails before writes', () => {
-  for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md', 'skills/writing-plans/SKILL.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/subagent-driven-development/reference/dispatch-contract.md', 'skills/subagent-driven-development/reference/implement-amendments.md']) {
+  for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/subagent-driven-development/reference/dispatch-contract.md', 'skills/subagent-driven-development/reference/implement-amendments.md']) {
     const text = read(path);
     assert.match(text, /committed (?:home )?plan\/spec originals/, path);
     assert.doesNotMatch(text, /Missing original inventory fails the retry|capture the original task numbers[^.]*saved apply report/i, path);

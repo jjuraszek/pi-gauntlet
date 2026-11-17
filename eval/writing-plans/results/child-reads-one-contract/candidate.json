@@ -1,0 +1,90 @@
+{
+  "sample": "child-reads-one-contract",
+  "arm": "candidate",
+  "skillSha": "0fc1a24dbc1cd978efe958bb44974dc17013576327f359c4c157235b20393265",
+  "inputSha": "b7aa96fb7a0ab48856380dc96bfd89595aa6084291852f7a6cc57658ee1fe4e3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Reads and commands, in order**\n\n1. `read /workspace/app/AGENTS.md`, whole file. It names `npm test` as full verification. It documents no style or format commands and no happy path.\n2. `read` each overrides file, whole file:\n   - `/workspace/app/.pi/gauntlet-overrides.md`: absent.\n   - `/workspace/app/gauntlet-overrides.md`: absent.\n   - `/workspace/app/doc/gauntlet-overrides.md`: absent.\n   - With no `## Happy path` table, the plan gets no `**Happy path:**` line.\n3. `read /workspace/tools/skills/writing-plans/reference/plan-contract.md`, whole file.\n4. `read /workspace/tools/skills/finishing-a-development-branch/reference/commit-message.md`, whole file. The contract requires this read, and its absolute path goes into the Commit step.\n5. `read /workspace/app/doc/specs/hook.md`, whole file. It has no `## Legs`, so everything is home. It has no `**Ticket:**` line, so the bound ticket is `none`.\n6. `read /workspace/app/src/hook.ts`, whole file. It exports `isHook(value)`, which returns true for every value.\n7. `read /workspace/app/tests/hook.test.ts`, whole file. It imports `isHook` and checks one valid string.\n8. `read /workspace/app/doc/plans/hook.md`: absent, so this is a fresh plan.\n9. `write /workspace/app/doc/plans/hook.md` as a full plan.\n10. Baseline provenance:\n    - `git -C \"/workspace/app\" rev-parse --short HEAD` returned `abc1234`.\n    - `git -C \"/workspace/app\" status --porcelain --untracked-files=all` returned empty, so the tree is clean and nothing needed admitting.\n11. Baseline run: `(cd \"/workspace/app\" && node --test tests/hook.test.ts)` exited 0 with 1 test passed. Reading status and HEAD again showed no change, so the run is not contaminated and left no artifacts.\n12. `write` the plan again with the baseline evidence and provenance note.\n13. `plan_check({ planPath: \"/workspace/app/doc/plans/hook.md\" })` returned PASS. The judgment checks requested no edit.\n\n---\n\n```markdown\n# Validate Hook Input Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Make `isHook` accept only string input.\n\n**Architecture:** A one-line type guard in `src/hook.ts`, covered by a new non-string case in the existing test file.\n\n**Tech Stack:** TypeScript, Node built-in test runner (`node --test`).\n\n**Spec:** `doc/specs/hook.md`\n\n**Verification:** `npm test`\n\n---\n\nBaseline provenance: initial inventory empty (clean tree); BASE abc1234; no paths admitted; 1 command run, no contamination, no artifacts.\n\n## Wave 1 — Hook validation\n\n### Task 1: Reject non-string hook input\n\n**TDD scenario:** Modifying tested code — run existing tests first\n\n**Spec:** doc/specs/hook.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: abc1234 pass\n- via: `isHook(value)`\n\n- [ ] **Step 1: Write the failing test**\n\n  Append to `tests/hook.test.ts`, keeping the existing string case unchanged:\n\n  ```ts\n  test(\"isHook rejects non-string input\", () => {\n    for (const value of [42, null, undefined, {}, [], true]) {\n      assert.strictEqual(isHook(value), false);\n    }\n  });\n  ```\n\n- [ ] **Step 2: Run test, confirm failure**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: FAIL — `isHook rejects non-string input` asserts `true !== false`; the existing string case passes.\n\n- [ ] **Step 3: Write minimal implementation**\n\n  In `src/hook.ts`, change the body of `isHook`:\n\n  ```ts\n  export function isHook(value: unknown): value is string {\n    return typeof value === \"string\";\n  }\n  ```\n\n- [ ] **Step 4: Run test, confirm pass**\n\n  Run: `node --test tests/hook.test.ts`\n  Expected: PASS, 2 tests.\n\n- [ ] **Step 5: Format & lint the task's files**\n\n  AGENTS.md documents no scoped format or lint command, so run none.\n  Run: `git diff --stat`\n  Expected: only `src/hook.ts` and `tests/hook.test.ts` changed.\n\n- [ ] **Step 6: Commit**\n\n  Read `/workspace/tools/skills/finishing-a-development-branch/reference/commit-message.md`: Subject, Body and Word sources. Compose the message from this task heading; the bound ticket is `none`, so add no reference. Send it on stdin.\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -F -\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4 | `isHook` returns false for non-string input in `src/hook.ts` | Task 1 |\n| § \"Design\" L5 | non-string case in `tests/hook.test.ts`; string case still passes | Task 1 |\n| § \"Acceptance criteria\" L8 | hook validation accepts only strings | Task 1 |\n```\n\nPLAN WRITTEN /workspace/app/doc/plans/hook.md\n",
+      "words": 547,
+      "wallMs": 27900,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Replay: reads and observed checks\n\n1. `read(\"/workspace/app/AGENTS.md\", portion=\"entire file\")`  \n   Full verification is `npm test`. No style commands or happy path are documented.\n\n2. `read(\"/workspace/app/.pi/gauntlet-overrides.md\", portion=\"entire file\")` → absent.\n3. `read(\"/workspace/app/gauntlet-overrides.md\", portion=\"entire file\")` → absent.\n4. `read(\"/workspace/app/doc/gauntlet-overrides.md\", portion=\"entire file\")` → absent.\n\n5. `read(\"/workspace/tools/skills/writing-plans/reference/plan-contract.md\", portion=\"entire file\")`  \n   Apply its file mapping, task, baseline, coverage, and self-review contracts.\n\n6. `read(\"/workspace/app/doc/specs/hook.md\", portion=\"entire file, lines 1–8\")`  \n   The spec has no Legs or additional Rules. All work belongs to the home checkout.\n\n7. `read(\"/workspace/tools/skills/brainstorming/reference/legs.md\", portion=\"entire file\")`  \n   Apply home-checkout routing; no companion checkout lookup is needed.\n\n8. `read(\"/workspace/tools/skills/finishing-a-development-branch/reference/commit-message.md\", portion=\"entire file\")`  \n   Bind ticket to `none`; use an imperative commit subject derived from the task title.\n\n9. `read(\"/workspace/app/src/hook.ts\", portion=\"entire file\")`  \n   Existing export: `isHook(value)`, currently always returning true.\n\n10. `read(\"/workspace/app/tests/hook.test.ts\", portion=\"entire file\")`  \n    Existing test imports `isHook` and checks a valid string. Retain this file as the test anchor.\n\nDecision: modify these two existing files in one task. No documentation change, additional rule, style command, or happy-path header is applicable.\n\nBaseline calls:\n- `bash('git -C \"/workspace/app\" rev-parse --short HEAD')` → `abc1234`.\n- `bash('git -C \"/workspace/app\" status --porcelain --untracked-files=all')` → empty.\n- `bash('(cd \"/workspace/app\" && node --test tests/hook.test.ts)')` → exit 0; one test passed.\n- Repeat the HEAD and status calls → `abc1234`, empty.\n\nDecision: record measured passing evidence for the existing test, not for the future assertion.\n\n`write(\"/workspace/app/doc/plans/hook.md\", content=the complete plan below)` saves the plan.  \n`plan_check({ planPath: \"/workspace/app/doc/plans/hook.md\" })` → PASS. Judgment checks request no edit. Leave stamping and task initialization to the parent.\n\n---\n\n# Validate Hook Input Implementation Plan\n\n> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.\n\n**Goal:** Make hook validation accept only strings.\n\n**Architecture:** Keep validation in the existing `isHook(value)` export. Extend its existing test file to demonstrate rejection of non-string input while preserving string acceptance.\n\n**Tech Stack:** TypeScript; Node.js test runner.\n\n**Spec:** `doc/specs/hook.md`\n\n**Verification:** `npm test`\n\nBaseline home: abc1234\n\nBaseline provenance: home checkout `/workspace/app`, HEAD `abc1234`; initial full status inventory empty; no dirty paths admitted. The scoped test command exited 0 with one passing test; subsequent HEAD and status were unchanged.\n\n---\n\n## Files\n\n**Create:** None.\n\n**Modify:**\n- `src/hook.ts` — reject non-string input.\n- `tests/hook.test.ts` — add non-string rejection coverage.\n\n**Delete:** None.\n\n## Wave 1 — Hook validation\n\n### Task 1: Reject non-string hook input\n\n**TDD scenario:** Modifying tested code — run existing tests first.\n\n**Spec:** doc/specs/hook.md § \"Design\" L4-L5, § \"Acceptance criteria\" L8\n\n**Files:**\n- Modify: `src/hook.ts`\n- Modify: `tests/hook.test.ts`\n- Test: `tests/hook.test.ts`\n\n**Tests:**\n- `node --test tests/hook.test.ts`\n- baseline: abc1234 pass\n- via: `isHook(value)`\n\n- [ ] **Step 1: Run the existing test**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: PASS; the existing valid-string case remains green.\n\n- [ ] **Step 2: Add the failing non-string case**\n\n  In `tests/hook.test.ts`, follow the existing assertion style and assert that `isHook(42)` returns false. Retain the existing valid-string assertion.\n\n- [ ] **Step 3: Confirm the regression test fails**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: FAIL because the new assertion receives true instead of false.\n\n- [ ] **Step 4: Implement string-only validation**\n\n  In `src/hook.ts`, replace the unconditional true result with `return typeof value === \"string\";`. Preserve the existing export and callable interface.\n\n- [ ] **Step 5: Confirm both cases pass**\n\n  Run: `node --test tests/hook.test.ts`  \n  Expected: PASS for string acceptance and non-string rejection.\n\n- [ ] **Step 6: Review task-file formatting**\n\n  Match the existing formatting in both modified files. No scoped formatter or lint command is documented; do not invent one.\n\n- [ ] **Step 7: Commit**\n\n  Read `/workspace/tools/skills/finishing-a-development-branch/reference/commit-message.md`: Subject, Body, and Word sources. Ticket: none. Use subject `Reject non-string hook input`, supplied on stdin.\n\n  ```bash\n  git add src/hook.ts tests/hook.test.ts\n  git commit -F -\n  ```\n\n## Spec coverage\n\n| anchor | requirement (short) | owner |\n|---|---|---|\n| § \"Design\" L4 | Make `isHook` reject non-string input in `src/hook.ts` | Task 1 |\n| § \"Design\" L5 | Extend `tests/hook.test.ts` with non-string coverage and preserve string acceptance | Task 1 |\n| § \"Acceptance criteria\" L8 | Hook validation accepts only strings | Task 1 |\n\nPLAN WRITTEN /workspace/app/doc/plans/hook.md\n",
+      "words": 581,
+      "wallMs": 30243,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "70af812060ceefd175883dd9e7becf0c8452362c05f237c3cde53675f259d6ab",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1c51a9fd60ebb611bebeed4e9c9359a8ac86f994b23fea330ce351c127be689d",
+      "baselineOutputSha": "79ab01364de20030cc2c3d3311fcc6a615ec8aa26c2842460a59c199817b66e5",
+      "candidateOutputSha": "ecc192527d9092cb0f27e163dd1f4a74d0af5b929b5eae21b5bab9ed76c2ebdd",
+      "facts": {
+        "reads-contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-skill-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "four-paths": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved four-paths from fails to holds: Before read the whole contract and wrote the plan, but said the dispatch named no SKILL.md path and that the parent should add the skill path to future dispatches, which is a request for a plan skill path. After drops that and treats the contract at its supplied path as the sole authoring source. reads-contract holds in both, since each narrates a whole-file read of plan-contract.md before the fragment. no-skill-read also holds in both, so the expected fails -> holds move did not show here: Before only mentions not guessing a SKILL.md path and never reads one. One thing to watch in After is the new whole-file read of /workspace/tools/skills/finishing-a-development-branch/reference/commit-message.md, which is not one of the four dispatched paths. It is not a SKILL.md and the child does not ask the parent for it, so no fact fails, but a stricter reader could count it as a fifth path. To keep four-paths robust, have the contract say explicitly that this commit-message reference is a contract-internal pointer the child resolves itself, or inline the commit rules needed for the Commit step, and keep the wording that the child never requests or infers a skill path.",
+      "wallMs": 9354,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "70af812060ceefd175883dd9e7becf0c8452362c05f237c3cde53675f259d6ab",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1c51a9fd60ebb611bebeed4e9c9359a8ac86f994b23fea330ce351c127be689d",
+      "baselineOutputSha": "8966edebf6b7ae6a2a0bfbdf8f3e4337c6a4174e0ad60117b6892adb8f35bd93",
+      "candidateOutputSha": "a65060edb01fb09fb8ec677801b20fc23784c855605ce47a10dab71c7f72fd15",
+      "facts": {
+        "reads-contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-skill-read": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "four-paths": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After drops the Before read of `/workspace/tools/skills/writing-plans/SKILL.md` (\"## File Structure\" through \"## Self-Review\") and takes file mapping, task, baseline, coverage and self-review rules solely from the full read of the supplied plan-contract.md, which moves no-skill-read and four-paths to holds while reads-contract stays held. The child now writes the plan from the four dispatched paths without requesting or using a plan skill path. One caveat on four-paths: After also reads two sibling-skill references that were not dispatched (`brainstorming/reference/legs.md` and `finishing-a-development-branch/reference/commit-message.md`), even though the spec has no Legs and the ticket is none. I counted these as contract-directed reference reads rather than a fifth path or plan skill path, but a stricter reader could count them against the fact. To make it robust, have the contract condition the legs.md read on the spec actually declaring Legs, and either inline the commit-subject rule or state explicitly that the commit-message reference is read by the implementer at commit time, not by the plan-writer. Keep the wording that the contract at the supplied path is read in full before writing and that no SKILL.md is consulted.",
+      "wallMs": 11736,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "2fdf5ace61e1d4a726930e3699d0a12ed1c7ec11"
+}

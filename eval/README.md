@@ -61,7 +61,7 @@ After adding or changing `bundle-` lines, run `node eval/run.mjs <target> <sampl
 
 Committed `gatekeep-pr` records average 48 s per replay cell (max 173 s); a serial full run measured 20-29 minutes in past sessions; with the default pool of four, wall time is roughly a quarter of the serial sum, and the committed `report.md`'s `wall:` line is the current measurement for each target; a per-sample partial run takes 2-5 minutes depending on the number of stale cells.
 
-Declaring drops: a sample keeps a reference file when any of its facts belongs to a workflow step whose skill table reads that file, or when the author is unsure; the skill's `SKILL.md` is never dropped. Lint refuses a `bundle-` path outside `skillFiles`, a subset that drops every file, `bundle-` on `kind: edit`, and a path listed under both `bundle+` and `bundle-`.
+Declaring drops: a sample keeps a reference file when any of its facts belongs to a workflow step whose skill table reads that file, or when the author is unsure; the skill's `SKILL.md` is never dropped except by a sample replaying a child persona that never reads that file. Lint refuses a `bundle-` path outside `skillFiles`, a subset that drops every file, `bundle-` on `kind: edit`, and a path listed under both `bundle+` and `bundle-`.
 
 A skill file with no version at the baseline refuses the run; use `--base <ref>` to pick a base that has it. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
 
