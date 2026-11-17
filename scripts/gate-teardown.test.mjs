@@ -116,6 +116,24 @@ for (const [command, condition] of [['mktemp', /kept-draft mint failed/], ['mv',
   });
 }
 
+test('nonexistent TMPDIR retains the run and its original kept draft', () => {
+  const { primary, root, scratch } = fixture();
+  const folder = mkdtempSync(join(root, 'gate.'));
+  const body = join(folder, 'reply.body');
+  const missing = join(scratch, 'nonexistent');
+  write(body, 'reply');
+  assert.equal(existsSync(missing), false);
+  assert.throws(() => teardown(primary, folder, [body], { TMPDIR: missing }), error => {
+    assert.notEqual(error.status, 0);
+    assert.ok(error.stderr.toString().includes(`${body}: kept-draft mint failed`));
+    assert.equal(error.stdout.toString(), '');
+    return true;
+  });
+  assert.ok(existsSync(folder));
+  assert.equal(readFileSync(body, 'utf8'), 'reply');
+  assert.equal(existsSync(missing), false);
+});
+
 test('teardown removes only the first gate run and the second still reads its saved progress', () => {
   const { primary, checkout, root } = fixture({ linked: true });
   const first = mkdtempSync(join(root, 'gate.'));
