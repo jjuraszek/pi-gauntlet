@@ -51,7 +51,7 @@ Framing: kept - no cited alternative; extending only the first-use gate of `doc/
 Ticket #158, "Acceptance Criteria", rows verbatim:
 
 - [ ] Resuming from a single-repo handoff brief: the session transcript's read calls show the main session reads no coordinated-only file or section - none of the rules now under `## Coordinated brief grammar` and `## Coordinated admission` in `skills/gauntlet-resume/reference/brief-contract.md`, and none of the coordinated-brief rules now inline in entry checks 3, 3b, and 4 of `skills/gauntlet-resume/SKILL.md`; the main body keeps only the test needed to choose the single-repo or coordinated route.
-  in-scope
+  deviates: unreachable in this checkout - C1 read-call transcripts absent and agent launches prohibited in this worker; proof at primary Pi session in a scratch checkout
 - [ ] For the same recorded single-repo brief at each supported stage, the resume at commit 09c9f4e10b9e9f1b6f2852cf9c35dc3e14025134 and the changed resume load the same continuation skill and restore the same phase and task state.
   in-scope
 - [ ] Resuming from a coordinated (multi-repo) brief reads the coordinated rules before any tracker write, and each coordinated stop condition at that commit stops on the same recorded input with the same result.
@@ -349,7 +349,7 @@ Add:
 Structural and byte assertions (`scripts/*.test.mjs`) and text replays are separate kinds of evidence. Token presence never stands in for the read observations of ticket rows 1 and 3 or for the recorded-input equivalence of rows 2 and 3; the lines marked `awaits the gate` name the run that would supply each (Design 9 candidates).
 
 - A single-repo route's file set excludes `coordinated.md` (the Design 4 sets, and every mention of `coordinated.md` outside that file sits in a sentence conditioned on a `legs:` block or on more than one member), no leg grammar line sits outside it, and entry checks 3 and 4 keep the same-repository binding and the single-repo drift notice while carrying no coordinated rule beyond the `legs:` test and its pointer - `scripts/resume-routes.test.mjs`, `scripts/brief-contract-lint.test.mjs`
-- Ticket row 1, the read calls of a single-repo brief resume name no `coordinated.md` - a tool-observed read trace, required before acceptance; text replays run without tools and cannot supply it; awaits the gate (C1)
+- Ticket row 1, the read calls of a single-repo brief resume name no `coordinated.md` - unavailable C1 trace, recorded as a deviation; text replays run without tools and cannot supply it. Structural route separation remains required by Design 3 and Design 4.
 - Ticket row 3, a resume from a brief with a `legs:` block reads `coordinated.md` before its first tracker write - a tool-observed trace, required before acceptance; awaits the gate (C2)
 - Single-repo brief, implement with a task plan, restores the same calls and task list - `eval/gauntlet-resume` `clean-pass-unchanged`, `pending-owner-stops`
 - Single-repo brief, implement with a ledger, restores the same calls, recovery and continuation - `eval/gauntlet-resume` `loop-ledger-brief`, `ledger-tracker-recovery`, `returned-line-recovery`; `scripts/loop-home-resume.test.mjs`
@@ -391,6 +391,7 @@ Materiality bar: `reference/documentation-impact.md`.
 
 ## Out of scope
 
+- Resuming from a single-repo handoff brief: the session transcript's read calls - unreachable in this checkout - C1 read-call transcripts absent and agent launches prohibited in this worker. The Design 3 membership test and Design 4 read sets and ceilings remain required; this cut records missing observed-transcript proof, not permission to load coordinated rules on single-repo routes.
 - Converting, migrating or hand-repairing an old ledger; a converter tool. Ticket row 5 is cut by the request.
 - Detecting or rejecting old briefs.
 - Specs without `## Legs`, `**Amend-grant:**` or `**Engine:**`; their readers in brainstorming, finishing and using-git-worktrees keep their rules.
