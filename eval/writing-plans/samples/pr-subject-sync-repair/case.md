@@ -1,4 +1,3 @@
-bundle+: skills/writing-plans/SKILL.md
 bundle+: skills/using-git-worktrees/reference/pr-head.md
 bundle+: skills/subagent-driven-development/SKILL.md
 # Input

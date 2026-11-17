@@ -11,7 +11,9 @@ This target replays planning instructions: a fresh `plan-writer` dispatch with f
 
 | Sample | Must hold |
 |---|---|
-| leg-checkout-by-branch | Resolve all four task path kinds and baseline commands in the companion found by branch; keep the home plan and stop when no tree holds the branch. Bundles the full writing-plans skill and shared leg reference; covers omitted and literal recorded home. |
+| leg-checkout-by-branch | Resolve all four task path kinds and baseline commands in the companion found by branch; keep the home plan and stop when no tree holds the branch. Bundles the shared leg reference; covers omitted and literal recorded home. |
+| pr-subject-threads | Keep one task per fix thread, style-only headers and scoped verification unions; retain merge-first ordering, dispositions and ordinary gates. Bundles the verification skill. |
+| pr-subject-sync-repair | Complete interrupted home/member replay before thread tasks, persist the rework base through the amendment path and retain merge-mode control. Bundles the PR-head reference and execution skill. |
 | all-singleton-plan | Three singleton waves without Solo lines pass the parent check; ordered tracker initialization leads directly to execution without mode selection. |
 | child-reads-one-contract | Bundle the plan-writer persona and drop SKILL.md; narrate a full contract read before writing, read no skill file and proceed on four paths without asking for a fifth. This observes replayed read order, not live tools. |
 | baseline-fails-on-base | Keep the original command and verbatim existing failure in Open Questions without inventing passing evidence. |
