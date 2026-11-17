@@ -1,11 +1,8 @@
-# eval report: gauntlet-resume (partial run: legs-wrong-repo)
+# eval report: gauntlet-resume (partial run: current-ship-brief)
 
 for: 6793622816dbb53ad61a84f32f0aac16314bdf80e481224134aa1a6a0b8bb36d
 
-wall: 6s
-
-refresh: complete; sample: legs-wrong-repo; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
-audit: [candidate.json](results/legs-wrong-repo/candidate.json)
+wall: 27s
 
 ## Change
 
@@ -83,12 +80,12 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| legs-wrong-repo | anthropic/claude-opus-5-5 | unchanged | 4871 | stop: holds -> holds (intended but unchanged) |
-| legs-wrong-repo | github-copilot/gpt-6.1-sol | unchanged | 4682 | stop: holds -> holds (intended but unchanged) |
+| current-ship-brief | anthropic/claude-opus-5-5 | unchanged | 5960 | calls: holds -> holds (held); snapshot: holds -> holds (held); gates: holds -> holds (held) |
+| current-ship-brief | github-copilot/gpt-6.1-sol | unchanged | 10577 | calls: holds -> holds (held); snapshot: holds -> holds (held); gates: holds -> holds (held) |
 
 ## Feedback
 
-- legs-wrong-repo / anthropic/claude-opus-5-5: The fact holds in both outputs: After still stops at the companion identity check before any tracker write, names repo-b, and prints both the observed common directory (/work/repo-c/.git) and the expected one (/work/repo-b/.git), treating it as an identity stop rather than informational drift, so the route split did not move this fact. Two small differences are worth noting for robustness. After no longer narrates the membership check or mentions that the branch and copied leg header match, and it drops the remediation sentence telling the user how to repoint the leg; none of that is required by the fact, but explicitly saying the stop occurs despite the matching branch and Home header would make the 'despite' clause unmistakable. After also prints the 'I'm using the gauntlet-resume skill' announcement after the stuck line inside the same printed block, which reads oddly ordered; keep the coordinated.md wording that puts the stop line last and states expected/observed common directories with the leg name so this fact stays held.
-- legs-wrong-repo / github-copilot/gpt-6.1-sol: Both outputs satisfy the stop fact: each names repo-b, gives the expected common directory /work/repo-b/.git and the observed /work/repo-c/.git, and ends at the stuck line without narrating any tracker call, so the matching branch and copied leg header are not treated as sufficient. The difference is that Before states the boundary outright ('Stop before any tracker write. No plan_check call.') and shows the common-dir probe, whereas After only implies the stop by ending after the stuck message. That implicit stop is enough for the fact to hold here, but it is more fragile; to keep it robust while delivering the route split, have coordinated.md (or the SKILL.md restore rules) instruct the narration to state explicitly that it stops before any tracker write or plan_check after printing the stuck line, and keep the expected/observed common-directory wording in the message.
+- current-ship-brief / anthropic/claude-opus-5-5: None of the three facts moved: After keeps the same eight ordered tracker calls with identical arguments (start/skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), never starts implement or ship, leaves verify in_progress with the exact three-task snapshot, and still states that closure review reruns before ship, gate history is not restored, prints 'No standing grant.', and hands off to verification-before-completion for fresh conformance with no repair commit. The route split shows only as the restore-plan.md 'Process-state restore' attribution and a rendered phase/plan block, which is harmless. To keep these facts stable, keep the ship row's 'as verify' sequence, the explicit 'start implement is never called' line, the two printed lines, and the 'nothing carries over' statement in the restore-plan.md call table and SKILL.md closing rules; After dropped Before's explicit naming of the 'verify without Ledger:' row and the 'Engine: waves / not deferred' reasoning, so consider keeping wording that prompts those so the no-ledger route and the treatment of the saved verify glyph as non-reusable evidence stay explicit rather than implied.
+- current-ship-brief / github-copilot/gpt-6.1-sol: No fact moved: After keeps the same ordered tracker chain (brainstorm start/skip with the spec-path reason, plan start, plan_check on the absolute plan path, plan and implement skips with the brief reason, verify start, then plan_tracker init), the same three-task snapshot with verify in_progress, and the same fresh-gate boundary, which is what the split intended for a current-format ship brief. The gates fact holds in After with thinner margins than in Before. After drops the explicit "No repair, repair receipt, or commit" line after the PASS, so the no-repair-commit clause is satisfied only by absence. It also replaces "full, fresh conformance gate" with "full conformance gate, with no prior gate evidence carried over", and omits "do not complete or skip verify". It moves the closure-review sentence into the active-phase line, and adds two phrases, "with no substep" and "without its reset-bearing entry", that a reader could misread as narrowing the verification handoff. To keep every fact robust, have the restore rules or closing line in SKILL.md / restore-plan.md state explicitly that a plan_check PASS makes no repair or commit, that the handoff is to verification-before-completion for fresh conformance with the saved verify glyph giving no reusable gate evidence, and that verify is neither completed nor skipped by resume. Keep "The closure review re-runs before ship." and "No standing grant." as fixed printed lines.
 
 exit: 0
