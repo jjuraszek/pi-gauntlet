@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 You are inside the implement loop on a clean single-home ledger with checks: commands, allowance:8, iterations:9, a surviving validated seed, and held escalateAfter:3. Settings resolves implModel. No retry hint. For each independent snapshot describe the next action in this turn and whether you may end the turn. Tools are unavailable: narrate prescribed calls rather than claiming execution.
 

@@ -17,8 +17,19 @@ const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | do
   "# Ledger - loop engine\n**Spec:** `doc/specs/test.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n" + rows.map(r => `| ${r} |`).join("\n") + "\n\n## Decisions\n";
 
 test("ledger admission bypasses task checks and permits empty open evidence", () => {
-  for (const input of [ledger(), ...["cap: 97", "allowance: 4"].map(header => ledger().replace("iterations: 0\n", `iterations: 0\n${header}\n`))]) {
+  for (const input of [ledger(), ledger().replace("iterations: 0\n", "iterations: 0\nallowance: 4\n")]) {
     assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
+  }
+});
+test("single-repository ledger rejects cap headers as unsupported even with an allowance", () => {
+  for (const header of ["cap: 97", "cap: 97\ncap: 97", "allowance: 4\ncap: 97"]) {
+    const input = ledger().replace("iterations: 0\n", `iterations: 0\n${header}\n`);
+    assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, [{
+      check: "ledger",
+      line: lineOf(input, "cap: 97"),
+      text: "cap: 97",
+      reason: "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it",
+    }], header);
   }
 });
 test("ledger admission ignores returned attribution and repair and amended decisions", () => {
@@ -1443,26 +1454,27 @@ branch: feature/run
 scope: AC 1
 `;
 const coordinatedLedger = () => ledger(["1 | open | 0 |", "2 | open | 0 |", "3 | cut | 0 | deferred: #70", "4 | open | 0 |"])
-  .replace("base: abc", "base: abc1234\nbase repo-a: abc1234\nbase repo-b: def5678\nseeded repo-a: no\nseeded repo-b: no\ncap: 20")
+  .replace("base: abc", "base: abc1234\nbase repo-a: abc1234\nbase repo-b: def5678\nseeded repo-a: no\nseeded repo-b: no\nallowance: 20")
   + "\n## Leg mapping\n| row | ac | leg |\n|---|---|---|\n| 1 | 1 | repo-a |\n| 2 | 1 | repo-b |\n| 3 | 2 | repo-a |\n| 4 | 3 | repo-a |\n";
 const emptyPort: FsPort = { exists: () => false, glob: () => [] };
 test("coordinated ledger expands shared ownership and defaults unlisted ACs home", () => {
   assert.deepEqual(checkPlan(coordinatedLedger(), coordinatedSpec, emptyPort).findings, []);
 });
-test("coordinated ledger budget header admits allowance or legacy cap, never both", () => {
-  for (const key of ["allowance", "cap"]) {
-    for (const value of ["1", "4", "9007199254740991"]) {
-      const input = coordinatedLedger().replace("cap: 20", `${key}: ${value}`);
-      assert.deepEqual(checkPlan(input, coordinatedSpec, emptyPort).findings, [], `${key}: ${value}`);
-    }
-    for (const value of ["", "0", "-1", "1.5", "04", "four", "9007199254740992"]) {
-      const input = coordinatedLedger().replace("cap: 20", `${key}: ${value}`);
-      assert.ok(checkPlan(input, coordinatedSpec, emptyPort).findings.some(f => f.check === "ledger"), `${key}: ${value}`);
-    }
+test("coordinated ledger requires exactly one positive safe integer allowance", () => {
+  for (const value of ["1", "4", "9007199254740991"]) {
+    const input = coordinatedLedger().replace("allowance: 20", `allowance: ${value}`);
+    assert.deepEqual(checkPlan(input, coordinatedSpec, emptyPort).findings, [], value);
   }
-  for (const header of ["", "allowance: 4\nallowance: 4", "cap: 20\ncap: 20", "allowance: 4\ncap: 20"]) {
-    const input = coordinatedLedger().replace("cap: 20", header);
+  for (const header of ["", "allowance: 4\nallowance: 4", ...["", "0", "-1", "1.5", "04", "four", "9007199254740992"].map(value => `allowance: ${value}`)]) {
+    const input = coordinatedLedger().replace("allowance: 20", header);
     assert.ok(checkPlan(input, coordinatedSpec, emptyPort).findings.some(f => f.check === "ledger"), header);
+  }
+});
+test("coordinated ledger rejects cap headers as unsupported even with an allowance", () => {
+  for (const header of ["cap: 20", "cap: 20\ncap: 20", "allowance: 4\ncap: 20"]) {
+    const input = coordinatedLedger().replace("allowance: 20", header);
+    assert.ok(checkPlan(input, coordinatedSpec, emptyPort).findings.some(f =>
+      f.check === "ledger" && f.reason === "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it"), header);
   }
 });
 for (const scope of ["", "scope: AC 1\nscope: AC 2", "scope: AC 1, AC 1", "scope: AC 0", "scope: AC -1", "scope: AC 1.5", "scope: AC 4", "scope: 1", "scope: AC 1-2", "scope: AC 1,", "scope: none, AC 1"]) {
@@ -1476,16 +1488,16 @@ for (const [name, change] of Object.entries({
   wrongOrder: (s: string) => s.replace("| 1 | 1 | repo-a |", "| 1 | 1 | repo-b |"),
   foreignBase: (s: string) => s + "base stranger: abc1234\n",
   missingSeed: (s: string) => s.replace("seeded repo-b: no\n", ""),
-  invalidCap: (s: string) => s.replace("cap: 20", "cap: 0"),
+  invalidAllowance: (s: string) => s.replace("allowance: 20", "allowance: 0"),
   wrongHomeMapping: (s: string) => s + "pending: 2 | repo-a | abc1234\n",
   foreignTarget: (s: string) => s + "pending: 3 | repo-b | abc1234\n",
   duplicatePending: (s: string) => s + "pending: seed | repo-b | abc1234\npending: seed | repo-b | abc1234\n",
 })) test(`coordinated ledger rejects ${name}`, () => {
   assert.ok(checkPlan(change(coordinatedLedger()), coordinatedSpec, emptyPort).findings.length);
 });
-test("coordinated ledger admits partial seeds, recovery tuples and later cap grants", () => {
+test("coordinated ledger admits partial seeds, recovery tuples and later allowance grants", () => {
   for (const [target, repo] of [["1", "REPO-A"], ["seed", "REPO-A"], ["2", "REPO-B"], ["seed", "REPO-B"]]) {
-    assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("cap: 20", "cap: 99") + `pending: ${target} | ${repo} | abc1234\n`, coordinatedSpec, emptyPort).findings, [], `${target} ${repo}`);
+    assert.deepEqual(checkPlan(coordinatedLedger().replace("seeded repo-a: no", "seeded repo-a: yes").replace("allowance: 20", "allowance: 99") + `pending: ${target} | ${repo} | abc1234\n`, coordinatedSpec, emptyPort).findings, [], `${target} ${repo}`);
   }
 });
 
@@ -1535,8 +1547,8 @@ for (const [name, change] of Object.entries({
   duplicateSeed: (s: string) => s + "seeded repo-b: yes\n",
   negativeIterations: (s: string) => s.replace("iterations: 0", "iterations: -1"),
   unsafeIterations: (s: string) => s.replace("iterations: 0", "iterations: 9007199254740992"),
-  fractionalCap: (s: string) => s.replace("cap: 20", "cap: 1.5"),
-  unsafeCap: (s: string) => s.replace("cap: 20", "cap: 9007199254740992"),
+  fractionalAllowance: (s: string) => s.replace("allowance: 20", "allowance: 1.5"),
+  unsafeAllowance: (s: string) => s.replace("allowance: 20", "allowance: 9007199254740992"),
   malformedPending: (s: string) => s + "pending: 2 | repo-b | not-a-sha\n",
   unknownPending: (s: string) => s + "pending: seed | stranger | abc1234\n",
   nonexistentPending: (s: string) => s + "pending: 99 | repo-b | abc1234\n",

@@ -19,7 +19,7 @@ test('entry and restore stop for dirt only with no pending dispatch', () => {
     "then print `Preserve every row's attempts.`",
     'list every `open` or `failed` row after the header',
   ]) assert.ok(stop.includes(token), token);
-  assert.match(entry, /route a recovered pending tuple through reconstruction's pending recovery and ## Interrupted recovery before any unresolved dirty-tree stop/);
+  assert.match(entry, /route a recovered pending tuple through resume's pending recovery and ## Interrupted recovery before any unresolved dirty-tree stop/);
 });
 
 test('only typed discard resets dirt and resumes the suspended entry or restore sequence', () => {

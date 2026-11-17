@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/finishing-a-development-branch/SKILL.md
 bundle+: skills/finishing-a-development-branch/reference/legs.md
 You are at Step 5 with every verification and conformance gate passed. The user selected Option 3 in trace A and Option 1 in independent trace B. Narrate the command sequence from these supplied observations, showing message file contents in full; do not use tools. The package is at /package, worktree /workspace/app-tree, primary /workspace/app, branch profile-counts and base main. Strip and seal succeed. Read requests for package references return their bundled contents. No worktree creation is needed.

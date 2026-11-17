@@ -26,6 +26,18 @@ Loop samples add the full resume, brief contract, and driver with `bundle+`; the
 
 Process, commands, and record schema: eval/README.md.
 
+## Current-format stage equivalence
+
+Use the three C3 samples below for paired comparisons with `--base 09c9f4e1`. Run each selected sample from the primary session with `node eval/run.mjs gauntlet-resume <sample> --base 09c9f4e1`; preserve unrelated records. The loop worker prepares these inputs without launching Pi.
+
+| Sample | Must hold |
+|---|---|
+| current-brainstorm-brief | Start brainstorm, restore its substep and empty task snapshot, and retain the human approval boundary. |
+| current-plan-brief | Arm through brainstorm start/skip to plan, restore its substep without initializing tasks, and continue plan writing without resetting. |
+| current-ship-brief | Restore through armed plan_check to verify, initialize the complete/skipped task snapshot exactly, and require fresh conformance before ship. |
+
+Run `node --test scripts/resume-current-stages.test.mjs` to check fixture shape and saved pairs. This acceptance check requires baseline and candidate outputs, instruction/input hashes, and current judgments holding every stage fact on both arms. Missing replay records fail rather than skip. Keep it outside CI's deterministic test list: preparing fixtures alone does not establish equivalence. Text replays provide partial stage coverage, not C1 read traces or a target-wide pass.
+
 ## Coordinated-flow coverage
 
 Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.

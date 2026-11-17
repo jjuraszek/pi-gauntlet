@@ -1,0 +1,3 @@
+- calls: judged: After read-only admission, restores with phase_tracker start brainstorm, skip brainstorm with reason resume: /work/project/.worktrees/parser/doc/specs/parser.md, start plan, then substep author, in that order; makes no plan_check, plan_tracker init/refresh, or start implement call during restoration.
+- snapshot: judged: Ends restoration at plan in_progress with substep author and No plan active; preserves the empty task snapshot and skips brainstorm rather than completing it or inferring approval from file presence.
+- gates: judged: States that gate history is not restored, prints No standing grant., and continues in the writing-plans body without resetting trackers or repeating start plan; restores no verification or conformance evidence.

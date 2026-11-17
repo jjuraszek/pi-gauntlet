@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 Each snapshot starts from a clean single-home ledger with checks: commands, allowance:8, iterations:14, validated seed, row1 failed attempts3, row2 failed attempts2. Held escalateAfter is 3 and escalationLoop resolves implModel. Last admitted target is row1. No pending tuple or retry hint. Show the next ordered-table action, selected target/hint/model and preserved state. Tools are unavailable: narrate, do not claim execution.
 

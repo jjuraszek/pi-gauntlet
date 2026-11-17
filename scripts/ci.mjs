@@ -416,7 +416,6 @@ if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass token
 {
   const resumeErrorsBefore = errors.length;
   const resumeSkill = txt("skills/gauntlet-resume/SKILL.md");
-  const reconstruction = txt("skills/gauntlet-resume/reference/reconstruction.md");
   if (!resumeSkill.includes("git -C <worktree> rev-parse --path-format=absolute --git-common-dir")) {
     fail("gauntlet-resume: entry check 3 must compare the resolved worktree git-common-dir");
   }
@@ -426,8 +425,10 @@ if (errors.length === subtractiveErrorsBefore) ok("subtractive review pass token
   if (resumeSkill.includes("restart pi in <worktree>")) {
     fail("gauntlet-resume: same-repo worktrees must not require restarting pi in the worktree");
   }
-  if (/\bgit (?!-C (?:<worktree>|"\$CHECKOUT"))/.test(reconstruction)) {
-    fail("gauntlet-resume reconstruction: git commands must target the resolved worktree with -C");
+  for (const name of ["reconstruction", "restore-loop", "restore-plan", "plan-repair"]) {
+    if (/\bgit (?!-C (?:<worktree>|"\$CHECKOUT"))/.test(txt(`skills/gauntlet-resume/reference/${name}.md`))) {
+      fail(`gauntlet-resume ${name}: git commands must target the resolved worktree with -C`);
+    }
   }
   if (errors.length === resumeErrorsBefore) ok("gauntlet-resume targets same-repo worktrees by path");
 }
@@ -575,6 +576,9 @@ try {
     R("scripts/loop-implementer-process.test.mjs"),
     R("scripts/loop-unreachable-cut.test.mjs"),
     R("scripts/loop-verification-repair.test.mjs"),
+    R("scripts/loop-home-resume.test.mjs"),
+    R("scripts/commit-message-contract.test.mjs"),
+    R("scripts/resume-routes.test.mjs"),
   ], { stdio: "pipe" });
   ok("stage-skill lint fixtures pass");
 } catch (e) {

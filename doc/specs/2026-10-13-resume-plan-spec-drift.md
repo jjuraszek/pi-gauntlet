@@ -1,5 +1,7 @@
 # Resume repairs plan citation drift instead of stopping
 
+> **Superseded by:** [doc/specs/2026-11-17-gh-158-resume-handoff-current-shape.md](./2026-11-17-gh-158-resume-handoff-current-shape.md) - the owner file in "Owner section: `## Plan repair` in `brief-contract.md`" only
+
 **Goal:** `/skill:gauntlet-resume` continues an interrupted flow automatically when `plan_check` fails on citation drift, by repairing the plan's citations and re-checking, and stops only when a finding needs a task renamed, reordered, added, or removed.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 

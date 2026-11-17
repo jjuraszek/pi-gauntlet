@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/finishing-a-development-branch/SKILL.md
 
 Finish a normal single-repository run at `/tmp/widget-work`. The user picked Option 1, create a PR. The selected spec is `doc/specs/2026-01-02-widget.md`, the ledger is `doc/plans/2026-01-02-widget-ledger.md`, and the base is `main`. Conformance passed. Explain the next commands and the completion report, using only these captured results; do not execute tools.

@@ -4,6 +4,7 @@
 > **Superseded by:** [doc/specs/2026-09-20-gh-40-gauntlet-handoff-shared-brief-contract.md](./2026-09-20-gh-40-gauntlet-handoff-shared-brief-contract.md) - "Argument grammar" (zero-argument form) and "Cohort drift verification" (provenance) sections only
 > **Superseded by:** [doc/specs/2026-09-25-resume-spec-seed.md](./2026-09-25-resume-spec-seed.md) - "never runs `git worktree add`" boundary and the argument classification table only
 > **Superseded by:** [doc/specs/2026-10-13-resume-plan-spec-drift.md](./2026-10-13-resume-plan-spec-drift.md) - the `plan_check` FAIL handling in the process-state restore table and the reconstruction "Spec with plan" route only
+> **Superseded by:** [doc/specs/2026-11-17-gh-158-resume-handoff-current-shape.md](./2026-11-17-gh-158-resume-handoff-current-shape.md) - "File layout" and the files named for "Process-state restore" and "Bare-worktree reconstruction" only
 
 Ticket: https://github.com/jjuraszek/pi-gauntlet/issues/31
 Handoff contract provenance: pi-cohort `doc/handoff-template.md` at worktree `prune-prompts` commit `d737eb9` (not yet on pi-cohort main). The grammar is inlined below; the cohort file is provenance, not a runtime dependency.

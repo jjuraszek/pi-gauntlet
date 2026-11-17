@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/finishing-a-development-branch/SKILL.md
 You are at Step 4 immediately before its ordinary named-branch five-row menu. Worktree is /workspace/app-tree, base main. All gates passed and no minors or conformance gaps remain. Show the exact log command and amendment digest, followed by the normal menu. No tools are available; narrate from these supplied observations.
 

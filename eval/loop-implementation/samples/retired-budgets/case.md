@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
 No tools: narrate only the next budget and validation decisions for these independent loop-engine observations. Every ledger is clean with a validated seed and no stagnation. A and B have no pending work and all rows except row 2 are done. The current spec's Amend-grant is fund 9 fix rounds. Settings are available if needed.

@@ -77,10 +77,10 @@ for (const telemetry of [".git/gauntlet/telemetry"]) {
 }
 
 test("stripped ledger recovery keeps owning-checkout routing instead of spec full commands", () => {
-  assert.match(verification, /authorized ledger restore[\s\S]*\[pending recovery\]\(\.\.\/\.\.\/gauntlet-resume\/reference\/reconstruction\.md#pending-recovery\)[\s\S]*missing parent record alone is not an absent pre-strip source[\s\S]*git -C <home> show <strip commit>\^:<ledger path>/);
+  assert.match(verification, /authorized ledger restore[\s\S]*\[pending recovery\]\(\.\.\/\.\.\/gauntlet-resume\/reference\/restore-loop\.md#pending-recovery\)[\s\S]*missing parent record alone is not an absent pre-strip source[\s\S]*git -C <home> show <strip commit>\^:<ledger path>/);
   assert.match(verification, /never from the spec's `contract:` `- verification:` lines/);
   assert.match(verification, /missing.*stop/i);
-  for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {
+  for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/coordinated.md']) {
     const text = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
     assert.match(text, /pre-strip ledger/);
     assert.match(text, /gate pairs/);

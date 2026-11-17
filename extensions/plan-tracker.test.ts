@@ -549,9 +549,9 @@ test("allowance labels count retry decisions, preserve identity and render on ev
   assert.equal(raised.details.tasks.find(t => t.name === "row 5 (repo-b)")!.label, `1/7: ${descriptions[4]} (repo-b)`);
   assert.equal(raised.details.tasks.length, result.details.tasks.length);
   writeFileSync(path, text.replace("allowance: 4", "cap: 49"));
-  const legacy = await h.call({ action: "refresh", path });
-  assert.equal(legacy.details.error, undefined);
-  assert.deepEqual(legacy.details.tasks.filter(t => t.name.startsWith("row ")).map(t => t.label),
+  const withoutAllowance = await h.call({ action: "refresh", path });
+  assert.equal(withoutAllowance.details.error, undefined);
+  assert.deepEqual(withoutAllowance.details.tasks.filter(t => t.name.startsWith("row ")).map(t => t.label),
     descriptions.map((description, i) => `${description} (${[2, 4].includes(i) ? "repo-b" : "repo-a"})`));
 });
 
@@ -708,18 +708,15 @@ test("refresh rejects missing specs, missing criteria and empty descriptions ato
 });
 
 test("status rows round-trip through the brief identity grammar without description drift or duplicate tasks", async () => {
-  const contract = readFileSync(new URL("../skills/gauntlet-resume/reference/brief-contract.md", import.meta.url), "utf8");
-  const suffix = new RegExp(contract.match(/suffix pattern `([^`]+)`/)![1]);
-  const prefix = new RegExp(contract.match(/prefix pattern `([^`]+)`/)![1]);
-  const canonical = new RegExp(contract.match(/canonical pattern `([^`]+)`/)![1]);
-  const restoreName = (name: string) => {
-    const labeled = suffix.exec(name);
-    if (labeled) return labeled[1];
-    const plain = name.replace(prefix, "");
-    return canonical.test(plain) ? plain : name;
-  };
+  const contract = readFileSync(new URL("../skills/gauntlet-resume/reference/restore-loop.md", import.meta.url), "utf8");
+  const suffixPattern = contract.match(/suffix pattern `([^`]+)`/);
+  assert.ok(suffixPattern, "ledger restore must document its suffix pattern");
+  const suffix = new RegExp(suffixPattern[1]);
+  const restoreName = (name: string) => suffix.exec(name)?.[1] ?? name;
   for (const [input, expected] of [
-    ["row 3", "row 3"], ["2/5: row 3", "row 3"], ["2/5: row 3 (repo-b)", "row 3 (repo-b)"],
+    ["row 3", "row 3"], ["row 3 (repo-b)", "row 3 (repo-b)"],
+    ["2/5: row 3", "2/5: row 3"], ["2/5: row 3 (repo-b)", "2/5: row 3 (repo-b)"],
+    ["row 3 | 2/5: Verify | row 99", "row 3"],
     ["row 3 (repo-b) | 2/5: Verify | row 99", "row 3 (repo-b)"],
     ["2/5: G3: pending", "2/5: G3: pending"], ["G1: row 3 | description", "G1: row 3 | description"],
     ["row 3 notes | description", "row 3 notes | description"],

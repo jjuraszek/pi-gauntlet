@@ -263,9 +263,10 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
 });
 
 test('ledger resume delegates gate execution to the loop skill', () => {
-  for (const file of ['skills/gauntlet-resume/SKILL.md', 'skills/gauntlet-resume/reference/brief-contract.md']) {
+  for (const file of ['skills/gauntlet-resume/SKILL.md', 'skills/gauntlet-resume/reference/restore-loop.md']) {
     const text = readFileSync(new URL(file, root), 'utf8');
-    assert.match(text, /After the loop.*step 1.*gate set per.*`## Gate set`/);
+    assert.match(text, /After the loop.*step 1/);
+    if (file.endsWith('restore-loop.md')) assert.match(text, /After the loop.*step 1.*gate set per.*`## Gate set`/);
     assert.doesNotMatch(text, /ledger gate once per leg/);
   }
 });
@@ -274,7 +275,7 @@ test('handoff drops only the trailing phase Context line and preserves tracker s
   const handoff = readFileSync(new URL('skills/gauntlet-handoff/SKILL.md', root), 'utf8');
   const brief = readFileSync(new URL('skills/gauntlet-resume/reference/brief-contract.md', root), 'utf8');
   assert.ok(handoff.includes('drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim'));
-  const producers = brief.split('\n## Producers\n')[1].split('\n## Coordinated brief grammar\n')[0];
+  const producers = brief.split('\n## Producers\n')[1].split('\n## ')[0];
   assert.match(producers, /Drop exactly the last\s+line of the `phase_tracker status` output when it starts with `Context: `; copy the\s+rest verbatim/);
   assert.match(producers, /the `plan_tracker status` output\s+verbatim/);
 });
@@ -333,19 +334,13 @@ test('ledger refresh owns entry, dispatch and implement completion', () => {
 });
 
 test('reconstruction routes interrupted recovery unconditionally before mutation or task projection', () => {
-  const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/reconstruction.md', root), 'utf8');
-  const interrupted = recovery.split('| Confirmed interrupted |')[1].split('\n')[0];
-  const home = recovery.split('| Home leg or single-member `home` |')[1].split('\n')[0];
-  assert.match(interrupted, /unconditional interrupted recovery/);
-  assert.match(interrupted, /consumed/);
-  assert.match(home, /## Interrupted recovery/);
-  assert.match(home, /without a provenance or process-exit gate/);
-  assert.match(home, /already-consumed iteration/);
+  const recovery = readFileSync(new URL('skills/gauntlet-resume/reference/restore-loop.md', root), 'utf8').split('\n## Pending recovery\n')[1];
+  assert.match(recovery, /confirmed interrupted runs the driver's interrupted recovery against S and its before-image without another bump/);
+  assert.match(recovery, /preserving the consumed iteration and the before-image rather than bumping again/);
   assert.doesNotMatch(recovery, /restore the target row and the tuple|restore row <n> to its pre-dispatch|ownership-fenced/);
   const reference = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
   const resume = reference.split('\n## Resume\n')[1].split('\n## Targeting and dispatch\n')[0];
-  const companion = recovery.split('| Actual multi-member companion |')[1].split('\n')[0];
-  for (const instruction of [resume, companion]) {
+  for (const instruction of [resume]) {
     assert.match(instruction, /common interrupted recovery|unconditional interrupted recovery/);
     assert.match(instruction, /post-boundary result-validation misses.*ordinary.*seed.*clear `pending:`.*preserve the consumed iteration/);
     assert.doesNotMatch(instruction, /attribution\/result mismatch|missing evidence take|ownership-fenced/);
@@ -681,7 +676,7 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
   assert.match(before, /Keep `iterations:` as a dispatch counter only; it bounds nothing/);
   assert.match(before, /require `allowance:` and no `cap:` before the ordered table/);
-  assert.match(before, /ledger has no allowance: line - resume through \/skill:gauntlet-resume/);
+  assert.match(before, /ledger has no allowance: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it/);
   assert.match(before, /ignore its waves-only budget token, retaining no amend permission for a budget-only value/);
   assert.match(before, /\| 3 \| .*two consecutive validation misses/);
   assert.match(before, /\| 4 \| Dispatch allowed/);
@@ -710,14 +705,14 @@ test('configuration-allowance: binding documentation describes the single allowa
       'min(escalateAfter, effective allowance - 1)', 'attempts >= threshold',
       'never re-resolved inside the loop', 'fresh-session restore',
       'before its escalated attempt',
-      'retry <n> | <hint>', 'rows +N', 'bookkeeping lives in the ledger', 'header-only parent commit through the shared message contract',
+      'retry <n> | <hint>', 'rows +N', 'bookkeeping lives in the ledger',
       'effective allowance is the header allowance plus one per',
-      'Preserve every row\'s attempts.', 'both or neither requires human repair',
+      'Preserve every row\'s attempts.',
       'Old funding supplies no attempts', 'Stopped: dirty tree with no dispatch pending', 'typed `discard`',
     ],
     'doc/implement-engines.md': [
       'no total iteration cap', 'Neither needs amend permission', 'rows +N',
-      'replace `cap:` with `allowance: <n>`, and commit through the shared [message contract]', 'admitted amendments restart both windows for every row',
+      'admitted amendments restart both windows for every row',
       'escalateAfter', 'threshold attempt', 'without re-resolving the allowance',
     ],
     'doc/gate-contract.md': [
@@ -740,7 +735,6 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     'loop-implementation/scaled-cap-grant': ['rows +50', 'allowance:4', 'retry 24'],
     'loop-implementation/cap-and-exit-verification': ['iterations:200', 'allowance:2'],
     'loop-implementation/funding': ['rows +2', 'fund 2 fix rounds'],
-    'loop-implementation/legacy-cap': ['cap97', 'maxIterationsPerRow4', 'unavailable loopEngine settings tool'],
     'loop-implementation/row-progress': ['allowance:4'],
     'loop-implementation/stagnation-and-retry': ['allowance:3', 'allowance:8', 'failed attempts3, below its allowance'],
     'loop-implementation/leg-iteration': ['allowance 4'],
@@ -755,9 +749,8 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     'gauntlet-resume/loop-ledger-brief': ['allowance:4'],
     'gauntlet-resume/loop-ledger-worktree': ['allowance:4'],
     'gauntlet-resume/ledger-tracker-recovery': ['allowance:4'],
-    'gauntlet-resume/ledger-tracker-verify': ['allowance:4', 'row 3 | 2/5: Verify loop behavior and recovery', 'row 3 | 2/6: Verify loop behavior and recovery', '2/5: row 3'],
+    'gauntlet-resume/ledger-tracker-verify': ['allowance:4', 'row 3 | 2/5: Verify loop behavior and recovery', 'row 3 | 2/6: Verify loop behavior and recovery'],
     'gauntlet-handoff/ledger-task-list': ['allowance4', 'row 1 | 0/4: Verify loop behavior and recovery', 'row 2 | Reject malformed allowance replies'],
-    'gauntlet-resume/legacy-cap-brief': ['cap:'],
   };
   for (const target of ['spec-gate', 'brainstorming']) {
     const gateReplay = readFileSync(new URL(`eval/${target}/replay.md`, root), 'utf8');
@@ -770,7 +763,7 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     const expected = readFileSync(new URL('expected.md', dir), 'utf8');
     for (const token of tokens) assert.ok(input.includes(token), `${id}: ${token}`);
     assert.match(expected, /^- [\w-]+: judged:/m, `${id}: judged facts`);
-    if (!sample.startsWith('legacy-')) assert.doesNotMatch(input, /\bcap:\s*\d|iterations \d+, cap \d/);
+    assert.doesNotMatch(input, /\bcap:\s*\d|iterations \d+, cap \d/);
   }
   const scaled = readFileSync(new URL('eval/loop-implementation/samples/scaled-cap-grant/expected.md', root), 'utf8');
   for (const id of ['stop', 'grant', 'parse', 'independent', 'windows', 'entry', 'validation']) {
@@ -825,4 +818,27 @@ test('configuration-allowance: documented gate and entry behavior matches instru
   assert.match(entry, /Use that value over step 1's setting; with no carrier use `maxIterationsPerRow`/);
   assert.match(entry, /Ignore the carrier once a ledger exists; resume uses its header only/);
   assert.match(readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8'), /same allowance seed value and source echo as the home driver's Entry step 4/);
+});
+
+test('unsupported-ledger evals require admission stops without conversion', () => {
+  const recovery = 'recovery: doc/configuration.md "Loop engine operations"';
+  const suffix = 'unsupported ledger format; finish this run on the pi-gauntlet release that wrote it';
+  for (const [sample, sentences] of [
+    ['loop-implementation/returned-line-admission', ['ledger has no returned: line']],
+    ['loop-implementation/retired-budgets', ['ledger has no allowance: line']],
+    ['gauntlet-resume/old-ledger-stops', ['ledger has no returned: line', 'ledger carries a cap: line']],
+  ]) {
+    const [target, name] = sample.split('/');
+    const expected = readFileSync(new URL(`eval/${target}/samples/${name}/expected.md`, root), 'utf8');
+    for (const sentence of sentences) assert.ok(expected.includes(`${sentence} - ${suffix}`), `${sample}: ${sentence}`);
+    assert.ok(expected.includes(recovery), `${sample}: recovery line`);
+    assert.doesNotMatch(expected, /resume through \/skill:gauntlet-resume|routes through gauntlet-resume/);
+  }
+});
+
+test('an unconverted ledger stops before the ordered dispatch table', () => {
+  const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+  const boundary = driver.split('## Before each dispatch')[1].split('| Order |')[0];
+  assert.ok(boundary.includes('Require exactly one `returned:` line before each dispatch; without one stop with `ledger has no returned: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it`'));
+  assert.ok(boundary.includes('recovery: doc/configuration.md "Loop engine operations"'));
 });

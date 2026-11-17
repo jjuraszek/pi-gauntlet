@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 
 Act at companion return admission only. Do not execute Entry, seed, dispatch or verify. All snapshots are independent. The driver holds membership, Rules, paths /work/home and /work/companion and both bases. Both legs already have validated seeds. Report admission, home-ledger effects, operational previous decision and the post-return tool trace. Tools are unavailable; narrate the calls, not successful execution.

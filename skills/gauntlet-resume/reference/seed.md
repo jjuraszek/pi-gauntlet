@@ -29,9 +29,9 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
 6. **Same repository.** Entry check 3 against `<full-path>`.
 7. **Pinned copy.** `<full-path>/<rel>` exists, is readable, and its line 1 is not the
    context-draft marker; otherwise stop naming that path. Never copy `<seed>` in.
-8. **Continue** in `reconstruction.md` with the spec pinned at `<full-path>/<rel>`,
-   skipping Candidates: `<full-path>/<sibling plans dir>/<basename of rel>` exists ->
-   "Spec with plan"; otherwise "Spec without plan". Prompts say "no brief context
+8. **Continue** with the spec pinned at `<full-path>/<rel>`, skipping `reconstruction.md`
+   "Candidates": `<full-path>/<sibling plans dir>/<basename of rel>` exists ->
+   `restore-plan.md` "Spec with plan"; otherwise `reconstruction.md` "Spec without plan". Prompts say "no brief context
    available".
 
 The seed route writes no spec copy, rename, or marker commit: the spec stays where main

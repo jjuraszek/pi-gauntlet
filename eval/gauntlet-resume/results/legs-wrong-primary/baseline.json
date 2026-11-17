@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-primary",
   "arm": "baseline",
-  "skillSha": "9c0002a441aec380b13b44a56f6d7e1b4c3c162355e0916f10e200471e3ec451",
+  "skillSha": "0be4e8b5f82147eb7aae5ef4b8e717763b43bc6a40a26e2720f868ab6744243a",
   "inputSha": "f56532907cf09df5470bb831c07009ff21e43e73b24c53257f1540247036a5a9",
   "kind": "text",
   "assembly": "headed",
@@ -11,24 +11,24 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Resume stops at entry check 3 because the session is running from the companion primary `/work/repo-b`, not the home repository. It makes no tracker write and does not reach `plan_check`.\n\n**Tool call 1** (entry check 3, in the session cwd `/work/repo-b`):\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-b/.git`\n\n**Tool call 2** (entry check 3, against the run home worktree from the brief):\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult: `/work/repo-a/.git`\n\nThe two common directories differ. Settings and flow guards come from the repository in the session cwd. This is a coordinated brief and the session started on a member primary (repo-b), so the stop also names the run home. Check 3b (\"Coordinated admission\") keeps check 3's home binding, so the matching companion branch, common directory and `**Home:**` tuple do not admit this session.\n\n**Printed:**\n```\ngauntlet: stuck same-repository binding: session cwd common dir /work/repo-b/.git differs from worktree common dir /work/repo-a/.git — the resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository; restart pi in that repository's primary checkout (/work/repo-a) and re-run /skill:gauntlet-resume.\nhome is repo-a; restart there\n```\n\nThe following did not run, because the route stops with nothing mutated:\n- No `phase_tracker` call (no `start brainstorm` or `skip`).\n- No `plan_check` call.\n- No `plan_tracker init`.\n- No coordinated-admission fan-out.\n- No closing line and no standing-grant line.\n",
-      "words": 213,
-      "wallMs": 9781,
+      "text": "No tracker call is made. The coordinated admission step re-runs entry check 3 against the run home, and that check fails before `plan_check` or any tracker write.\n\n**Tool call 1:** session-cwd common directory, with the session cwd at the companion primary `/work/repo-b`:\n```\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\n→ `/work/repo-b/.git`\n\n**Tool call 2:** run-home worktree common directory, taken from the brief's `## Repo state`:\n```\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\n→ `/work/repo-a/.git`\n\nThe two paths differ, so entry check 3 stops. The resume skill makes:\n- no `phase_tracker` or `plan_tracker` call\n- no `plan_check`\n- no companion lookup\n- no receipt check\n\n**Printed:**\n```\ngauntlet: stuck session repository /work/repo-b/.git differs from worktree repository /work/repo-a/.git\nThe resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository; restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\nThe run ends here. To continue, restart pi in `/work/repo-a` and re-run `/skill:gauntlet-resume` with the same brief.\n",
+      "words": 146,
+      "wallMs": 8446,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nRead-only shell call in the session cwd, `/work/repo-b`:\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-b/.git\n```\n\nRead-only shell call:\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-a/.git\n```\n\nPrint:\n```text\ngauntlet: stuck resolved worktree /work/repo-a/.worktrees/feature-shared-change belongs to a different repository: session common directory /work/repo-b/.git differs from target common directory /work/repo-a/.git; restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\nStop before any tracker write or `plan_check` call.\n",
-      "words": 87,
-      "wallMs": 12988,
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nTool call:\n```bash\nrealpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-b/.git\n```\n\nTool call:\n```bash\nrealpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"\n```\nResult:\n```text\n/work/repo-a/.git\n```\n\nPrint:\n```text\ngauntlet: stuck session git common directory /work/repo-b/.git differs from target git common directory /work/repo-a/.git; the resolved worktree belongs to a different repository. Restart pi in that repository's primary checkout and re-run.\nhome is repo-a; restart there\n```\n\nStop before coordinated admission continues. No tracker mutation or `plan_check` call.\n",
+      "words": 85,
+      "wallMs": 14916,
       "mechanical": {}
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "2b6186d076ec7a72d52e9188714c4ebb9e477a36"
 }

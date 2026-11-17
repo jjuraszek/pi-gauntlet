@@ -92,8 +92,6 @@ Use these subjects verbatim, substituting only the named values. Read no spec in
 | Verification repair marker | `Record a verification repair` |
 | Companion row record | `Record the <repo> result for acceptance row <n>` |
 | Companion seed record | `Record the <repo> baseline` |
-| Allowance migration on resume | `Convert the ledger to a per-row allowance` |
-| Returns conversion on resume | `Convert the ledger to ledger-held returns` |
 | Consent change | `Change the standing amendment consent` |
 | Verification-produced changes | `Keep the changes the verification run produced` |
 | Worktree directory ignore | `Ignore the worktree directory` |

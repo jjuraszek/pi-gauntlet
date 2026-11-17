@@ -1,9 +1,11 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 
-// The handoff-brief process-state grammar lives in exactly one file under skills/** (#40):
+// The handoff-brief process-state grammar lives in exactly one file under skills/**:
 // the producer (gauntlet-handoff) and consumer (gauntlet-resume) cite it and inline nothing.
+// Leg lines live in a second file read only by multi-member runs.
 export const CONTRACT_FILE = "skills/gauntlet-resume/reference/brief-contract.md";
+export const LEGS_FILE = "skills/gauntlet-resume/reference/coordinated.md";
 export const CITING_SKILLS = ["skills/gauntlet-handoff/SKILL.md", "skills/gauntlet-resume/SKILL.md"];
 export const CITE = "reference/brief-contract.md";
 
@@ -26,13 +28,14 @@ export function lintBriefGrammar(files) {
       const m = text.match(pattern);
       if (!m) continue;
       if (rel === CONTRACT_FILE) inContract = true;
+      else if (rel === LEGS_FILE && pattern === GRAMMAR_PATTERNS.at(-1)) continue;
       else findings.push({ rule: "grammar-outside-contract", file: rel, text: m[0].trim() });
     }
     if (!inContract) findings.push({ rule: "grammar-missing", file: CONTRACT_FILE, text: pattern.source });
   }
   const legLine = /^(?:legs:|  - repo: .+|    (?:worktree|branch|HEAD|dirty|receipt): .+)\s*$/gm;
   for (const { rel, text } of files) {
-    if (rel !== CONTRACT_FILE) {
+    if (rel !== LEGS_FILE) {
       for (const match of text.matchAll(legLine)) findings.push({ rule: "grammar-outside-contract", file: rel, text: match[0].trim() });
       continue;
     }

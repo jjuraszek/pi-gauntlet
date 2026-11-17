@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 

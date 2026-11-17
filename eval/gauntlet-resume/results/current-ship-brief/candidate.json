@@ -1,0 +1,90 @@
+{
+  "sample": "current-ship-brief",
+  "arm": "candidate",
+  "skillSha": "099181abf81f90c5755b335bae9e5d81003db799755d4d151e8e32ddb6bffee8",
+  "inputSha": "d39bfe379c30361e016b1e13f428b6a15ba206d32e90907f0c4d14daeef7e20e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n**Restore context**\n\n- **Route:** brief with `## Process state` and no `Ledger:` field, so `reference/restore-plan.md` \"Process-state restore\" applies.\n- **Active phase in the brief:** `ship`. The ship row runs as verify, and restoration stops at verify in_progress.\n- **No coordinated retry:** there is no `legs:` block, so the coordinated retry does not apply.\n- **No PR pairs:** the scan uses the ordinary base.\n- `S = resume: /work/project/.worktrees/parser/doc/specs/parser.md`\n- `R = resume: /tmp/ship-brief.md`\n- **Grant check (entry check 6):** the spec header is not `**Engine:** deferred`. It has exactly one `**Amend-grant:**` line, and its value is `none`, so no grant is active.\n\n**Tracker calls, in order**\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`. This arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })` returns PASS and stamps the plan. No plan repair is needed and no repair commit is made.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })`\n6. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })`\n7. `phase_tracker({ action: \"start\", phase: \"verify\" })`. The brief shows no substep, so there is no `substep` call. `start implement` is never called.\n8. Feasibility check before `init`:\n   - No task is `○`, so pending-suffix order holds.\n   - The implement auto-complete edge does not apply because the target is verify.\n9. `plan_tracker({ action: \"init\", tasks: [ { name: \"W1: parser contract\", status: \"complete\" }, { name: \"W1: optional adapter\", status: \"skipped\" }, { name: \"W2: parser implementation\", status: \"complete\" } ] })`\n\n**Restored state**\n\n- **Active phase:** `verify` (in_progress). Ship remains `○` pending.\n- **Phases:**\n  ```\n  Phases:\n    ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n    ⊘ plan (resume: /tmp/ship-brief.md)\n    ⊘ implement (resume: /tmp/ship-brief.md)\n    → verify\n    ○ ship\n  ```\n- **Task snapshot** (verbatim names, order and statuses):\n  ```\n    ✓ [0] W1: parser contract\n    ⊘ [1] W1: optional adapter\n    ✓ [2] W2: parser implementation\n  ```\n\nRestoration stops at verify and does not complete or skip it. `complete verify` needs a fresh `conformance-reviewer` dispatch, and `skip verify` would bypass a real gate. So the closure review re-runs before ship.\n\n**Printed lines**\n\n```\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary:** the flow hands off automatically to `verification-before-completion`, starting with the full conformance gate. Nothing is carried over from the earlier verify. The replay stops here, before any fresh verification, conformance review or delivery runs.\n",
+      "words": 364,
+      "wallMs": 16997,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The replay begins at `plan_check`; the arming prefix (`start brainstorm`, `skip brainstorm`, `start plan`) has already run and is not repeated.\n\n1. Call:\n   ```text\n   plan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })\n   ```\n   Result: `PASS`\n\n2. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })\n   ```\n\n3. Call:\n   ```text\n   phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })\n   ```\n\n4. Call:\n   ```text\n   phase_tracker({ action: \"start\", phase: \"verify\" })\n   ```\n\n5. Call:\n   ```text\n   plan_tracker({\n     action: \"init\",\n     tasks: [\n       { name: \"W1: parser contract\", status: \"complete\" },\n       { name: \"W1: optional adapter\", status: \"skipped\" },\n       { name: \"W2: parser implementation\", status: \"complete\" }\n     ]\n   })\n   ```\n\n6. Print:\n   ```text\n   Restored at verify in_progress, not ship. The closure review re-runs before ship.\n\n   Phases:\n     ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n     ⊘ plan (resume: /tmp/ship-brief.md)\n     ⊘ implement (resume: /tmp/ship-brief.md)\n     → verify\n     ○ ship\n\n   Plan: 3/3 done (1 skipped)\n\n     ✓ [0] W1: parser contract\n     ⊘ [1] W1: optional adapter\n     ✓ [2] W2: parser implementation\n\n   Continuation boundary: verification-before-completion, full conformance gate; nothing carried over. Do not start implement or ship. Fresh verification and delivery have not run.\n   Gate history not restored; re-validating `none` before any stage advance\n   No standing grant.\n   ```\n",
+      "words": 163,
+      "wallMs": 16380,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3240c5e6f99c8461223d4483f406d29d01e4085c6aefc885db44a6478e468ce5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "1b54b9bde89856bc006e6831ade1d67e829589fb1266fa1ec42036e51a4225b8",
+      "candidateOutputSha": "fae7cd8e954386e99658fc6608fac275316b891da4b42888425efa9911a7ffb0",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "On this ship-stage brief the After wording kept all three facts that Before held: the tracker sequence is identical and in the legal order (start brainstorm, skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), with no start implement or ship and no complete/skip of verify; restoration ends at verify in_progress with exactly the three tasks in order and statuses preserved, with no ledger, pending task or conformance task invented; and the gate boundary is intact (closure review reruns before ship, gate history not restored, `No standing grant.` printed, handoff to verification-before-completion for fresh conformance, nothing carried over from the earlier verify). After is slightly more explicit than Before in stating that no repair commit is made and that verify is neither completed nor skipped, which strengthens the gates and calls facts; keep those sentences. The only cosmetic risk is that After numbers the pre-init feasibility check as step 8 inside the 'Tracker calls' list, which could be misread as a tracker call; moving it back out of the numbered list (as Before did) would keep the call sequence unambiguous. None of the expected-to-move old-ledger facts are exercised by this case, so nothing here confirms or contradicts that part of the Change.",
+      "wallMs": 6168,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3240c5e6f99c8461223d4483f406d29d01e4085c6aefc885db44a6478e468ce5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "0d051c4115714e3e0d87da23028d043fe5ffbbdff887bc3d572e76342e576c6b",
+      "candidateOutputSha": "ef26ff4cf20421c73318c7417ced2ac1e4075457ca52059e998ebbe5e108838a",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: After keeps the same call order from plan_check through plan_tracker init, the same three-task snapshot restored at verify in_progress, and the same fresh-gate boundary (closure review re-runs, gate history not restored, No standing grant., handoff to verification-before-completion). Two facts hold more thinly than in Before, though. For calls, After compresses the arming prefix to a parenthetical (`start brainstorm`, `skip brainstorm`, `start plan`) without arguments, so the brainstorm skip reason survives only through the printed Phases line; Before wrote out the three phase_tracker calls in full. For gates, After drops Before's explicit \"No repair, repair receipt, or commit\" and \"do not complete or skip verify\", so both now hold only because nothing contradicts them, and \"fresh\" conformance is carried only by \"nothing carried over\". To keep these robust while still delivering the Change, have the wording require every tracker call, including already-run prefix calls, to be stated with full arguments, and keep an explicit no-repair/no-commit line after a passing plan_check plus a boundary sentence that names a fresh conformance gate and forbids completing or skipping verify. The opening announcement line was also dropped; restore it if the skill still requires it.",
+      "wallMs": 14272,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "bd83ab683e9feb51909d54f3889acac0a24b79d2"
+}

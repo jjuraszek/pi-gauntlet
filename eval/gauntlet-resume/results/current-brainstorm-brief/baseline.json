@@ -1,0 +1,34 @@
+{
+  "sample": "current-brainstorm-brief",
+  "arm": "baseline",
+  "skillSha": "6e01858b50281ea7acba837ddf61d810cd5a94c8ff4c54618310dd846bd87822",
+  "inputSha": "670f84358e1606ace0e1614307029b834aaa4a57ac4652eff2c77c4defa34468",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Resume of `/tmp/brainstorm-brief.md` (brainstorm stage)\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n## Call-table row\n\nThe brief's active phase is `→ brainstorm(spec-review)`. The `brainstorm` row of the call table is: `start brainstorm`; then `substep` if the brief shows one.\n\nThat row contains **no `plan_check`**. The brief also shows `No plan active.` and there is no plan or ledger. So I make no `plan_check` call, no `skip` calls and no `plan_tracker init`.\n\n## Checks before any tracker write\n\n- **PR pairs:** the brief has no `PR:` or `Pre-rework head:` pairs and no `Rework base:`. I make no `gh pr view` call and no Rework-record comparison.\n- **Coordinated admission:** none applies. The spec has one member and the brief has no `legs:` block.\n- **Spec resolution:** I use the Candidates rules from `reconstruction.md`. The single spec added after the candidate base is `/work/project/.worktrees/parser/doc/specs/parser.md`. I carry this path forward without re-resolving it.\n- **Entry check 6, deferred-header admission:** the header shows `**Engine:** waves`. This is not `**Engine:** deferred`, so there is no stop.\n- **Grant decoding:** this is exempt at the brainstorm stage. I skip it and print no grant line.\n- **Approval:** none is inferred. The human confirmed this is a draft still under review.\n\n## Tracker calls, in order\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` succeeded and armed the flow.\n2. `phase_tracker({ action: \"substep\", phase: \"brainstorm\", substep: \"spec-review\" })` succeeded.\n\n## Restored state\n\n- **Active phase:** `brainstorm`, with substep `spec-review`.\n- **Other phases:** `plan`, `implement`, `verify` and `ship` are all pending.\n- **Plan snapshot:** `No plan active.` I made no `plan_tracker` call.\n- **Gate history, closure-review evidence and fix rounds:** none restored.\n\n## Printed lines\n\n```\nGate history not restored; re-validating `none` before any stage advance\n```\n\nNo `Standing grant` line follows, because grant decoding was skipped for the brainstorm stage. No `Repaired plan` line is printed either, because no plan repair ran.\n\n## Continuation boundary\n\nWork continues in the brainstorming checklist (`../brainstorming/SKILL.md#checklist`), not through `/skill:brainstorming` entry, because that entry would reset both trackers.\n\nThe on-disk state chooses the step. Line 1 of `/work/project/.worktrees/parser/doc/specs/parser.md` is the spec title `# Parser design`, not a draft marker. So the checklist resumes at **step 8**, which is consistent with the `spec-review` substep.\n\nThe brainstorming skill owns the next question and its marker, including the human's design approval. I stop here and do no planning or later-stage work.\n",
+      "words": 375,
+      "wallMs": 14284,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nThe brief restores `brainstorm(spec-review)`, so its call-table route does not run `plan_check`. No plan or ledger is required.\n\n1. Call `phase_tracker({\"action\":\"start\",\"phase\":\"brainstorm\"})`.\n2. Call `phase_tracker({\"action\":\"substep\",\"phase\":\"brainstorm\",\"substep\":\"spec-review\"})`.\n\nRestored active phase: `brainstorm`, substep `spec-review`. All later phases remain pending.\n\nPlan snapshot: `No plan active.` No `plan_tracker init` call.\n\nGate history not restored; re-validating `none` before any stage advance\n\nContinue in the brainstorming checklist at **step 8**, because `/work/project/.worktrees/parser/doc/specs/parser.md` starts with a spec title, not a draft marker. Preserve its unapproved status. Do not invoke brainstorming’s reset-bearing entry or perform later-stage work.\n",
+      "words": 97,
+      "wallMs": 11168,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f7fb65cf70445fca42522dbe2391c5613b02e59d"
+}

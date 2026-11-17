@@ -1,65 +1,50 @@
-# eval report: gauntlet-resume (partial run: legacy-ledger-conversion)
+# gauntlet-resume eval report
 
-for: eb54f1bd24c8650f96efa70b2bf1f3fbd3fe11dcb0d1accd46a7fb10e7bf70ab
+for: cac2fd24472bb56415c0ff6a3027cacec468fb49c0b053ea5485292d06f6dd44
 
-## Current isolated conversion coverage
+## Scope
 
-`timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs` passes 9 tests with 0 failures. The test lives beside the other loop tests in `scripts/`. It extracts and executes the shipped Conversion recipe in disposable Git fixtures, not a test-only converter. The fixture proves exact legacy-label decoding after ledger base, commit-order decisions, two seed and two verification repairs, unchanged iterations/attempts/history, one ledger-only commit with the shared subject, and a byte-identical second-call no-op. A verification command containing the allowance text cannot move the inserted header. Dirty trees, a pending tuple and malformed historical iterations stop before mutation. The driver's unconverted-ledger stop is a source assertion, not an executed driver.
+Selected ticket #158 regression samples, the three C3 current-stage samples and the five C4 coordinated stops against `09c9f4e1`. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected. Unselected samples are historical evidence, not current passes. The bundle-free intent binding and judge-read intent body are unchanged.
 
-Only `legacy-ledger-conversion` was replayed: one eligibility decision varying returned-header presence, stopping before any conversion or tracker call. It names the shipped recipe for the eligible variant. The actual conversion and counts come from the local Git recipe test, not the model replies. No end-to-end or multi-stage replay ran.
+Only three selected samples bundle the restored loop driver. `ledger-tracker-recovery` reuses a byte-identical candidate record from `ef3d3387`; `ledger-tracker-verify` and `loop-ledger-brief` replay on their current fixtures. The other fifteen selected records are retained without replay because their assemblies do not include the changed file. No resume or handoff instruction file, sample, expected fact or word cap changes in this repair.
 
-| sample | model | verdict | judge ms | fact |
-|---|---|---|---|---|
-| legacy-ledger-conversion | anthropic/claude-opus-5-5 | improved | 6383 | eligibility: fails -> holds |
-| legacy-ledger-conversion | github-copilot/gpt-6.1-sol | improved | 4624 | eligibility: fails -> holds |
+Model columns show runner verdict and candidate facts held/total in the saved judgment. An inconclusive cell with a failed fact blocks completion even when the runner's confirmation mechanism declines to label it a confirmed regression.
 
-The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume legacy-ledger-conversion --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. The first run exited 0 in 18s (four replays, two judgments); after anchoring header insertion, the final run exited 0 in 15s (two candidate replays, two judgments, cached baselines). Neither run needed confirmation. Both controllers reaped their jobs, and both process groups and controllers were absent before their jobs entries were removed.
+| Sample | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
+|---|---|---|
+| legs-ok | unchanged; 1/1 | unchanged; 1/1 |
+| ledger-tracker-verify | unchanged; 6/6 | unchanged; 6/6 |
+| clean-pass-unchanged | unchanged; 3/3 | unchanged; 3/3 |
+| pending-owner-stops | unchanged; 4/4 | unchanged; 4/4 |
+| loop-ledger-brief | unchanged; 6/6 on a second Opus replay (the first failed `continuation` once) | unchanged; 6/6 |
+| ledger-tracker-recovery | improved; 6/6 | unchanged; 6/6 |
+| returned-line-recovery | unchanged; 1/1 | unchanged; 1/1 |
+| baseline-upgrade-preserves-statuses | unchanged; 3/3 | unchanged; 3/3 |
+| legs-receipt | unchanged; 2/2 | unchanged; 2/2 |
+| old-ledger-stops | improved; 3/3 | improved; 3/3 |
+| current-brainstorm-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-plan-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-ship-brief | unchanged; 3/3 | unchanged; 3/3 |
+| legs-membership | unchanged; 1/1 | unchanged; 1/1 |
+| legs-wrong-primary | unchanged; 1/1 | unchanged; 1/1 |
+| legs-home-mismatch | unchanged; 1/1 | unchanged; 1/1 |
+| legs-missing | unchanged; 4/4 | unchanged; 4/4 |
+| legs-wrong-repo | unchanged; 1/1 | unchanged; 1/1 |
 
-Current records are `results/legacy-ledger-conversion/baseline-isolated.json` and `candidate-isolated.json`; the test verifies their assembly, input, intent, fact and judgment hashes locally. The broad baseline/candidate records remain byte-identical historical evidence. The changed reconstruction assembly and intent invalidate the earlier returned-line-recovery currency check; its files and closed-row command were left untouched and require a separately authorized refresh, not a claim of current coverage here.
+## Evidence reuse and replay
 
-## Retained returned-line-recovery evidence (prior assembly)
+`ledger-tracker-recovery` is restored byte-for-byte from `ef3d3387`, before `a77b7b04`. Its instruction assembly is byte-identical to that revision and matches its saved `skillSha`; `case.md`, `expected.md`, `target.json` and judge-read intent body are also byte-identical. Current replay input and judgment identity hashes match. Both models hold 6/6; Opus's observed improvement on `rejected-return` is not an intended move.
 
-for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
+`ledger-tracker-verify` cannot reuse that revision's record because its case changes in `a77b7b04` to supply the observed cut-row label and ask for the producer. `loop-ledger-brief` also changes its case there to describe exactly one settled `returned:` tuple and no `pending:`. Their expected facts are unchanged. Both current baseline assemblies and replay input hashes match the saved baseline records, so no baseline-only pass is needed. Their candidate comparisons use `timeout -k 30 600 node eval/run.mjs gauntlet-resume <sample> --base 09c9f4e1` separately, never a target-wide sweep.
 
-The following coverage predates the conversion recipe and is historical, not current assembly evidence.
+Actual runner output for `ledger-tracker-verify`, exit 0: `gauntlet-resume: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 106s)`.
 
-### Prior isolated coverage
+Actual runner output for `loop-ledger-brief`, exit 1: `gauntlet-resume: inconclusive (report.md written; replay 2, judge 3, confirm 1, wall 152s)`.
 
-`timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs` passes 5 tests with 0 failures. The test lives beside the existing home-admission and worker-history tests in `scripts/`. It executes the documented Git discovery, snapshot, status and full-dispatch-range reads in a scratch checkout. Pending dispatch dirt, a clean child, a later code-only commit, dirty paths and an unavailable before-image are separate observations. Source assertions cover count preservation and settled/ambiguous-history rules; they do not execute a resume driver or its ledger writes.
+## First replay of the loop brief sample
 
-Only the model-dependent `returned-line-recovery` classification was replayed. It receives one clean home return with supplied passing admission checks, identifies the committed ledger's tuple and S before-image, preserves iterations 3 and attempts 1, and stops before restoration. No end-to-end resume, tracker refresh, mutation or ambiguous-history model scenario was run.
+`loop-ledger-brief`, model `anthropic/claude-opus-5-5`, fact `continuation`: the pre-fix candidate and baseline hold it; the first replay after the driver text was restored failed it. The judge says: "Only the continuation fact moved. After still renders the current rows, the last decision, allowance 4, iterations 5 and attempts 2 of 4, but it hands off to loop-implementation at \"step 9 -> Before each dispatch\" rather than step 5, and it makes the dispatch target conditional: row 1 only if HEAD holds an admitted `row 0 done | seeded ...` decision, otherwise seed. Before continued unconditionally at step 5 with row 1 as the target." A second replay of that one cell, run as `node eval/run.mjs gauntlet-resume loop-ledger-brief --base 09c9f4e1` after removing the saved Opus reply, holds all six facts on both models (`gauntlet-resume: unchanged (replay 1, judge 1, confirm 0)`); the saved record is that second reply, and the first failure is kept here as observed variance.
 
-| sample | model | verdict | judge ms | fact |
-|---|---|---|---|---|
-| returned-line-recovery | anthropic/claude-opus-5-5 | improved | 5743 | home: fails -> holds |
-| returned-line-recovery | github-copilot/gpt-6.1-sol | improved | 5325 | home: fails -> holds |
+On that first replay the runner performed one automatic confirmation and returned inconclusive. The saved candidate record is the second reply, in which `continuation` holds on both models; no assertion or expected fact changed. All other facts held by the ten affected samples before this repair remain held afterward.
 
-The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume returned-line-recovery --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. It exited 0 in 23s: four replays, two judgments, no confirmations. The controller reaped the job; its group and controller exited before its jobs entry was removed.
-
-The exact new runner records are retained as `results/returned-line-recovery/baseline-isolated.json` and `candidate-isolated.json`. The local test verifies their current assembly, input, intent, fact and judgment hashes and reuses them without model calls. The older `baseline.json` and `candidate.json` remain byte-identical because the closed source-wiring check explicitly pins their historical input mismatch; these filenames do not hold the isolated replay. This preserves that check and the old evidence without cloning a sample or changing the runner.
-
-## Prior source-wiring evidence
-
-The earlier selected check was `timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs`: 52 tests passed, 0 failed, including all 23 inventoried citation sites. It checked shared-reference citations, written recovery rules, isolated sample structure, docs isolation rules and evidence currency. It did not execute a resume or conversion driver. It was not rerun in this iteration.
-
-| Narrowed sample | Entry and output | Stop | Coverage |
-|---|---|---|---|
-| returned-line-recovery | One supplied clean home return -> classification and authority | Before ledger mutation, migration or tracker restoration | Current isolated decision replay above |
-| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Current isolated decision and Git-recipe checks above; broad records stay historical |
-
-## Historical evidence
-
-The broad `results/returned-line-recovery/{baseline,candidate}.json` and `results/legacy-ledger-conversion/{baseline,candidate}.json` remain unchanged. Their input hashes do not match the narrowed cases; they are historical, not current or end-to-end proof. Unrelated records, including plan-citation-subject, were not rerun.
-
-| historical sample | model | recorded verdict | judge ms |
-|---|---|---|---|
-| returned-line-recovery | anthropic/claude-opus-5-5 | improved | 20278 |
-| returned-line-recovery | github-copilot/gpt-6.1-sol | improved | 15373 |
-| legacy-ledger-conversion | anthropic/claude-opus-5-5 | improved | 8695 |
-| legacy-ledger-conversion | github-copilot/gpt-6.1-sol | improved | 7895 |
-
-Historical commands used `timeout -k 30 3600 node eval/run.mjs gauntlet-resume <sample> --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`, selecting each named sample separately. They exited 0 in 236s and 188s respectively; each made four replays and two judgments. They do not cover the narrowed inputs.
-
-## Remaining coverage
-
-Executable resume admission, companion recovery and verification-repair admission remain unproven here. The isolated conversion recipe proves legacy count preservation and idempotence only; it does not execute pending recovery, allowance migration, tracker restoration or any later workflow stage.
+Tool traces and the fifteen unaffected selected records are retained. Deterministic scoped tests check their bindings separately; text replays do not prove live tool execution.

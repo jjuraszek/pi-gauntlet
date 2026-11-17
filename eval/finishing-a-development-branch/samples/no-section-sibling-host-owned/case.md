@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 Workflow stage: Step 6, after a successful local squash-merge (option 3).
 
 # State

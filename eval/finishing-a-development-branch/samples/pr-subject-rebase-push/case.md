@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/finishing-a-development-branch/SKILL.md
 bundle+: skills/using-git-worktrees/reference/pr-head.md
 Invocation: `/skill:finishing-a-development-branch /work/widget/.worktrees/fix-timeout`.

@@ -1,0 +1,3 @@
+- calls: judged: After read-only admission, restores with phase_tracker start brainstorm, then phase_tracker substep spec-review, in that order; starts no other phase and makes no plan_check or plan_tracker init/refresh call.
+- snapshot: judged: Ends restoration at brainstorm in_progress with substep spec-review and No plan active; preserves the empty task list and does not infer draft approval or create a plan or ledger.
+- gates: judged: States that gate history is not restored and resumes the brainstorming checklist rather than its reset-bearing entry; reports no standing-grant line for this brainstorm-stage brief and carries no conformance or verification evidence forward.

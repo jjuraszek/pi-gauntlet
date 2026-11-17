@@ -1,0 +1,90 @@
+{
+  "sample": "current-brainstorm-brief",
+  "arm": "candidate",
+  "skillSha": "099181abf81f90c5755b335bae9e5d81003db799755d4d151e8e32ddb6bffee8",
+  "inputSha": "670f84358e1606ace0e1614307029b834aaa4a57ac4652eff2c77c4defa34468",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n**No `plan_check` on this route.** The brief has `## Process state` and no `Ledger:` field, so it follows `reference/restore-plan.md` \"Process-state restore\". Its active phase is `→ brainstorm(spec-review)`. The call table's brainstorm row is only `start brainstorm`, then `substep` if one is shown. That row has no `plan_check`, no plan resolution and no plan repair.\n\n**Spec resolution and check 6, before any tracker mutation:**\n- I resolved `<spec path>` through \"Candidates\" to `/work/project/.worktrees/parser/doc/specs/parser.md`. This is the single spec added after base. No plan or ledger pairs with it.\n- Deferred-header admission: the header reads `**Engine:** waves`, not `**Engine:** deferred`, so there is no stop.\n- Grant decoding is skipped because this is a brainstorm-stage brief. The `**Amend-grant:** none` line is not decoded and no grant line is printed.\n- The draft is not treated as approved. The human confirmed it is the draft under review.\n\n**Tracker calls, in order:**\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` arms the flow and succeeds.\n2. `phase_tracker({ action: \"substep\", phase: \"brainstorm\", substep: \"spec-review\" })` succeeds.\n\nThere is no `plan_tracker init` call, because the brief shows `No plan active.`.\n\n**Restored state:**\n- Active phase: `brainstorm`, substep `spec-review`.\n- `plan`, `implement`, `verify` and `ship` remain pending.\n- Plan snapshot: `No plan active.`\n\nPrinted:\n\n```\nGate history not restored; re-validating `none` before any stage advance\n```\n\nNo `Standing grant` line is printed, because grant decoding was skipped.\n\n**Continuation boundary.** I hand off to the [brainstorming checklist](../brainstorming/SKILL.md#checklist), not the `/skill:brainstorming` entry, which would reset both trackers. On-disk state picks the step:\n- Line 1 of the spec is the title `# Parser design`, not a draft marker.\n- So the resumed checklist picks up at step 8, the spec review and approval step, matching the `spec-review` substep.\n\nBrainstorming owns the next ask and its marker. Resume infers no approval and does no later-stage work.\n",
+      "words": 299,
+      "wallMs": 13652,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"substep\", phase: \"brainstorm\", substep: \"spec-review\" })`\n\nRestored state:\n```text\nPhases:\n  → brainstorm(spec-review)\n  ○ plan\n  ○ implement\n  ○ verify\n  ○ ship\n\nNo plan active.\n```\n\nNo `plan_check` call applies to the brainstorm row of the restore call table. No `plan_tracker init` is called because the saved snapshot is `No plan active.`\n\nGate history not restored; re-validating `none` before any stage advance\n\nContinuation boundary: the brainstorming checklist, step 8, because the spec starts with a spec title rather than a draft marker. Continue reviewing `/work/project/.worktrees/parser/doc/specs/parser.md` without treating it as approved. Do not invoke brainstorming’s reset-bearing entry. Grant decoding is skipped for this brainstorm-stage restore, so no standing-grant line is printed.\n",
+      "words": 120,
+      "wallMs": 14517,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b18e8d58aae4d91e5993752318d751e7867f074d7c46ffd52c9d1a162657c412",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "02d00c83108ca3b0f5e0746e156adff64667f827c0e68782ca529723bb9959e1",
+      "candidateOutputSha": "b4bf39219084dbb4884e437bc080f85b532f87127365d7778feaa0220cd76a29",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: After, like Before, makes exactly `phase_tracker start brainstorm` then `substep spec-review` after read-only admission, with no `plan_check` or `plan_tracker` call. Both end at brainstorm/spec-review with `No plan active.`, infer no approval, print the gate-history-not-restored line, omit the Standing grant line, and continue through the brainstorming checklist rather than the reset-bearing entry. The new routing through `reference/restore-plan.md` \"Process-state restore\" did not disturb any of this. After is slightly less explicit in two places: it drops Before's statement that gate history, closure-review evidence and fix rounds are not restored, and it no longer lists the PR-pair and coordinated-admission checks as not applicable. The facts still hold because nothing is carried forward, but to keep them robust the wording should keep an instruction to state that no gate, conformance or verification evidence is restored, and that no `plan_tracker` init or refresh is made when the brief shows `No plan active.`. The expected-to-move old-ledger facts are not exercised by this current-format brainstorm brief, so this case only confirms that the brainstorm path is preserved.",
+      "wallMs": 9423,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b18e8d58aae4d91e5993752318d751e7867f074d7c46ffd52c9d1a162657c412",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "a6f9d5d7e99a5579ac395761f3d01537ea25679ce8c2a61e64a2d56f6e450d06",
+      "candidateOutputSha": "9b7ab806567faf37045381878e074957de91b4d4d8f549a040619adcf7108c26",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: both outputs make exactly the two calls, `phase_tracker` start brainstorm and then substep spec-review, with no `plan_check` or `plan_tracker` call. Both end at brainstorm(spec-review) with `No plan active.`, keep the draft unapproved, state that gate history is not restored, and continue at checklist step 8 rather than the reset-bearing entry. After is slightly more explicit, because it reprints the full phase snapshot and says outright that grant decoding is skipped so no standing-grant line is printed; Before satisfied that part of the gates fact only by not printing such a line. To keep these facts stable, keep the wording that makes the brainstorm row skip `plan_check` and `plan_tracker init`, the verbatim gate-history line, and the explicit no-standing-grant statement for brainstorm-stage briefs. You could also have the output state `Active task: none` explicitly, since the empty task list is currently only implied by `No plan active.` The expected old-ledger-stops moves are not exercised by this current-format brainstorm brief, so this case says nothing about them.",
+      "wallMs": 8645,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "bd83ab683e9feb51909d54f3889acac0a24b79d2"
+}

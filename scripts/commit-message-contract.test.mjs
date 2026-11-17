@@ -78,8 +78,7 @@ const sites = [
   'skills/brainstorming/reference/spec-finalization.md',
   'skills/brainstorming/reference/amendment-surface.md',
   'skills/brainstorming/reference/legs.md',
-  'skills/gauntlet-resume/reference/brief-contract.md',
-  'skills/gauntlet-resume/reference/reconstruction.md',
+  'skills/gauntlet-resume/reference/plan-repair.md',
   'skills/finishing-a-development-branch/SKILL.md',
   'skills/finishing-a-development-branch/reference/legs.md',
   'skills/verification-before-completion/reference/conformance-check.md',
@@ -98,6 +97,7 @@ test('shared wording reference owns all five parts and ticket resolution', () =>
     assert.ok(text.includes(token), token);
   }
   assert.match(text, /\| Member pull request merge commit \|[^\n]+\n\| Base-sync merge commit \|[^\n]*`Sync with the fetched base`/);
+  assert.doesNotMatch(text, /Allowance migration on resume|Returns conversion on resume|Convert the ledger to a per-row allowance|Convert the ledger to ledger-held returns/);
 });
 
 for (const site of sites) {
@@ -126,7 +126,7 @@ test('spec, consent, housekeeping and citation-repair commits delegate wording',
   assert.match(fix, /wording: <absolute path>/);
   assert.match(fix, /ticket: <reference or none>/);
   assert.match(fix, /card's title/);
-  const repair = read('skills/gauntlet-resume/reference/brief-contract.md').split('### Citation repair')[1];
+  const repair = read('skills/gauntlet-resume/reference/plan-repair.md').split('### Citation repair')[1];
   assert.match(repair, /commit-message\.md/);
   assert.doesNotMatch(repair, /commit[^\n]+-m "resume:|subject is not `amend:`/);
 });
@@ -219,7 +219,7 @@ test('loop worker and dispatcher carry wording and ledger-held home attribution'
   assert.match(driver, /wording: <absolute path>/);
   assert.match(driver, /ticket: <reference or none>/);
   assert.match(driver, /returned: none/);
-  assert.match(driver, /ledger has no returned: line - resume through/);
+  assert.match(driver, /ledger has no returned: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it/);
   assert.doesNotMatch(driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0], /commit bod|subject `loop:/);
   assert.doesNotMatch(driver, /No committed tuple remains/);
 });
@@ -278,7 +278,7 @@ for (const [path, required, forbidden] of [
   ['skills/gatekeep-pr/reference/fix-wave.md', [/wording:/, /ticket:/, /return:/, /--git-dir/, /return file/], /subject `loop:|commit.body|malformed subject/],
   ['skills/gatekeep-pr/reference/post-selection-loop.md', [/--subject/, /--body-file/, /squash_merge_commit_message/, /--match-head-commit/, /rebase.*neither/], /(?:--squash|--merge) -m/],
   ['skills/chase-bug/hotfix.md', [/wording:/, /ticket:/, /return:/, /--git-dir/, /commit -F -/, /--title/, /--body-file/], /subject `loop:|commit.body|malformed subject|commit -m "fix:/],
-  ['skills/gauntlet-resume/reference/reconstruction.md', [/legacy-commit-labels:begin/, /legacy-commit-labels:end/, /returned: none/, /repair seed/, /Returns conversion on resume/], null],
+  ['skills/gauntlet-resume/reference/restore-loop.md', [/returned:.*pending:|pending:.*returned:/], /loop: (?:row|seed|migrate|repair)|commit bod|--format=%B/],
   ['skills/verification-before-completion/reference/conformance-check.md', [/Conformance gap fix/, /Convergence repair/, /wording:/, /ticket:/, /record.*SHA/i], /commit(?:s| name| with the message)?[^\n]*`conformance fix|oldest `conformance fix`/],
   ['skills/using-git-worktrees/reference/pr-head.md', [/Member pull request merge commit/, /merge --no-ff -F -/, /second parent/], /%H %P %s|canonical subject|merge PR #<N> head/],
 ]) {
@@ -286,11 +286,6 @@ for (const [path, required, forbidden] of [
     const source = read(path);
     for (const pattern of required) assert.match(source, pattern);
     if (forbidden) assert.doesNotMatch(source, forbidden);
-    if (path.endsWith('/reconstruction.md')) {
-      const active = source.replace(/<!-- legacy-commit-labels:begin -->[\s\S]*?<!-- legacy-commit-labels:end -->/, '');
-      assert.doesNotMatch(active, /loop: (?:row|seed|migrate|repair)|commit bod|--format=%B/);
-      assert.match(active, /returned:.*pending:|pending:.*returned:/);
-    }
   });
 }
 
@@ -313,7 +308,6 @@ for (const [targetName, sample, factId, historical] of [
   ['chase-bug', 'hotfix-return-file', 'admission', true],
   ['chase-bug', 'hotfix-plain-landing', 'message', false],
   ['gauntlet-resume', 'returned-line-recovery', 'home', true],
-  ['gauntlet-resume', 'legacy-ledger-conversion', 'eligibility', true],
 ]) {
   test(`historical saved replies: ${targetName}/${sample} validates recorded cells beside the isolated sample`, () => {
     const dir = `eval/${targetName}`;

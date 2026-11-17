@@ -1,5 +1,6 @@
 bundle-: agents/loop-implementer.md
 bundle+: skills/gauntlet-resume/reference/reconstruction.md
+bundle+: skills/finishing-a-development-branch/reference/commit-message.md
 
 Describe the driver actions for each independent snapshot. All ledgers have checks: commands and allowance: 4, a validated seed except F, row 1 failed attempts 1 and row 2 open attempts 0. Row 1's escalation marker is already spent. The saved ledger has iterations: 6; the persisted tuple is pending: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa and consumed iterations: 7. No evidence checks run in this exercise. Approval option 5 grants amendments, but no separate discard authorization is supplied.
 
@@ -13,7 +14,7 @@ D. Independently replace A's killed return with dispatch error, non-DONE, dirty 
 
 E. Companion immediate return and resume: row 1 maps to repo-b, the tuple carries repo-b and its pre-dispatch HEAD bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. The companion is dirty with two attributed child commits; unchanged home HEAD and only the expected bump/tuple dirt are observed. Both checkout before-images and exclusive write provenance are retained, job identity and exit observations match A. Resume has the home ledger before-image at the saved home HEAD and companion boundary from the tuple; no ambiguous history exists. State which checkout is reset and where the repair is committed without double counting. Separately handle missing provenance on resume and unrecoverable before-image; no human permission to discard has been supplied.
 
-F. Seed uses the same interrupted boundary as A, but rows 1 and 2 are open attempts 0 with empty evidence, row 3 is cut with deferred disposition, no seed decision exists, and iterations were 0 before dispatch. There are zero earlier loop: repair seed commits since base. State repaired rows, reason placement, consumed iteration, next target and hint. Independently use allowance 1: state the seed count and stop menu after recovery. Then with allowance 4 and two existing repair-seed commits, describe a clean attributed seed validation miss and whether its repair permits another seed dispatch.
+F. Seed uses the same interrupted boundary as A, but rows 1 and 2 are open attempts 0 with empty evidence, row 3 is cut with deferred disposition, no seed decision exists, and iterations were 0 before dispatch. There are zero earlier repair seed decision lines in the ledger. State repaired rows, reason placement, consumed iteration, next target and hint. Independently use allowance 1: state the seed count and stop menu after recovery. Then with allowance 4 and two existing repair seed decision lines, describe a clean attributed seed validation miss and whether its repair permits another seed dispatch.
 
 G. The dispatch tool reports error: Request aborted, with a zero-byte worker return file and no jobs file. No write or launch provenance exists. Use the original attempts 1 and allowance 4 snapshot. Under both approval options, state reset/clean, repair cells and the next dispatch in the same turn. Separately use allowance 10 and saved attempts 9 to state the stop after repair.
 

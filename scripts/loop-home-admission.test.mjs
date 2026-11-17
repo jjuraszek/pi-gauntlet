@@ -121,11 +121,14 @@ test('historical saved replies: home admission decisions, not a driver implement
         assert.equal(judgment.facts[fact]?.after, 'holds', fact);
       }
       const output = candidate.outputs[model].text;
-      const interrupted = output.split('## B.')[1].split('## C.')[0];
-      assert.ok(interrupted.includes('| 1 | failed | 1 | iteration 2: interrupted - wrong attribution |'));
+      // A case heading is `## B` plus any punctuation the reply chose; the values below are what is pinned.
+      const section = (from, to) => output.split(new RegExp(`^## ${from}\\b[^\\n]*$`, 'm'))[1].split(new RegExp(`^## ${to}\\b[^\\n]*$`, 'm'))[0];
+      const interrupted = section('B', 'C');
+      // The recovery rule fixes the row's four cells, not their rendering: a table row or a `row 1:` bullet.
+      assert.match(interrupted, /(?:\|\s*|\brow\s+)`?1`?\s*[|:]\s*`?failed`?\s*\|\s*`?1`?\s*\|\s*`?iteration 2: interrupted - wrong attribution`?\s*(?:\||$)/m);
       assert.ok(interrupted.includes('repair row 1 | interrupted - wrong attribution | iteration 3'));
       assert.ok(interrupted.includes('returned: none'));
-      const ordinary = output.split('## C.')[1].split('## D.')[0];
+      const ordinary = section('C', 'D');
       assert.ok(ordinary.includes('returned: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
       assert.match(ordinary, /repair row 1 \| [^\n]+ \| iteration 3/);
     });

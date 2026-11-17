@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 
 Replay these independent verify-step-1 snapshots using the supplied observations, not live calls. Single home ledger: all rows done, attempts preserved, allowance4, iterations900, no cap or pending, clean tree, implement complete, verify active. The ledger has checks: commands and verification: make check; its done-row evidence is `node --test parser.test.mjs; passed`. That selective gate exits 1 with `expected 2 got 1` in its scratch gate log. Option 4, Amend-grant none, no prior verification-repair marker and recoverable history. Describe calls, model, count, ledger invariants and exact human stop/menu where applicable.

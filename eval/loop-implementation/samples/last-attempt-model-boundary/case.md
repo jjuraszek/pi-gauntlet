@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 
 Replay these independent loop-driver snapshots, describing calls and durable edits without pretending tools ran. Option 4, Amend-grant none, seed validated, clean tree, no validation misses, prior child commits changed code. The only unresolved row is row 2, failed with evidence `unit; expected 2 got 1`. Entry already resolved loopEngine.escalateAfter:3; keep it held for these snapshots. Ledger allowance: 4, iterations: 6, no cap, no retry or escalation decisions, attempts 3. Report whether a dispatch occurs, model override, escalation marker, attempts and iterations after the decision. For every stop show the Problem line.

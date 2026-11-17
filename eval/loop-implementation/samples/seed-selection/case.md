@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 
 Act as the loop driver at Before each dispatch after an authorized restore. Tools are unavailable; describe calls without claiming execution. Treat each snapshot independently. Admission and recovery are complete, the clean named branch and ledger at HEAD are authoritative, and no pending tuple exists. checks: commands, iterations: 7 and allowance: 4 are present. All row attempts are 0 except E's completed target at attempts 1, no retry/escalation decisions exist and no boundary or stagnation stop applies. Do not validate returns or run checks; select the next dispatch and state its target, task iteration versus consumed iteration, durable changes and hint.
