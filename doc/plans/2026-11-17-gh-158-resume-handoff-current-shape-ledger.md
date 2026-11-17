@@ -35,3 +35,4 @@ row 3 failed | Verified C2 ordering and four C4 stop pairs; legs-wrong-repo has 
 row 3 done | Verified C2 reads coordinated rules before tracker writes and all five C4 stop pairs preserve their results on both replay models with fresh hashes. | nothing new to build on.
 repair verification | home 821f7ae | iteration 13
 amended | 1 item(s) | Refresh the two foreign-target records the commit wording change made stale
+amended | 1 item(s) | Rebind the gatekeep eval instead of replaying it
