@@ -597,6 +597,8 @@ Before gate work, gatekeep also checks the PR's main mechanism against six [appr
 
 With open approach blockers before gate work, the first report also previews a [rejection note](skills/gatekeep-pr/reference/reject.md#draft-note) after its problems: what this PR builds, why it does not fit this repo, and what to do instead. The note covers only those conflicts in under 180 words, headings included. The checked note is saved and hashed before display, so later previews and posting use the same bytes; no note appears without an open approach blocker. The first initial or obstacle menu offers `reject` after `deliver` and `assess`, regardless of authorship, draft state or close permission. A blocking ground that recommends rejection moves it to row 1, with one sentence naming the first such conflict; needless machinery alone leaves the ordinary recommendation in place. The row opens the saved-note menu without posting or closing anything.
 
+Choosing work removes `reject` before any dispatch or write, even when the action fails or an assess pick has no blockers to post. Later menus cannot restore it. Choosing `back` from the reject menu also removes it for the run, without posting, closing or clearing blockers. After a repair push, review checks carried conflicts for resolution and reviews the repair delta; it does not judge the whole approach again. See the [pick lifecycle](skills/gatekeep-pr/reference/post-selection-loop.md#pick-lifecycle).
+
 `/skill:housekeeping` also reads the optional root-level `REVIEW.md`. It reads repo
 rule sources from the working tree for directory, uncommitted, and unpushed runs,
 and from the merge-base commit for a PR run, never the PR head. Unlike gatekeep-pr, its fixed

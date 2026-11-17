@@ -142,7 +142,31 @@ test('the first action menu offers reject after assess and recommends evidence-b
   assert.match(loop, /never reset either inside a run/);
 });
 
-for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu']) {
+test('work picks withdraw reject before work and keep later review on carried closures', () => {
+  const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
+  const lifecycle = loop.split('\n### Pick lifecycle\n')[1]?.split('\n### ')[0];
+  assert.ok(lifecycle, 'the pick boundary must persist rejection eligibility before work');
+  for (const pick of ['deliver', 'deliver with nits', 'fix nits', 'assess', 'approve workflow run', 'approve', 'merge']) {
+    assert.ok(lifecycle.includes(`\`${pick}\``), `work-starting pick: ${pick}`);
+  }
+  assert.match(lifecycle, /work_started.*true.*persist.*before.*dispatch or external write/);
+  assert.match(lifecycle, /failed.*refused.*zero.blocker.*never reset/);
+  assert.match(lifecycle, /show evidence.*check <name>.*overrule <n>/);
+  assert.match(lifecycle, /delete.*note.*reject.*null/i);
+  assert.match(loop.split('\n### Next action\n')[1].split('\n### Post steps\n')[0], /Pick lifecycle.*before/);
+  const back = read('../skills/gatekeep-pr/reference/reject.md').split('\n## Back\n')[1];
+  assert.ok(back, 'back must withdraw rejection without starting work');
+  assert.match(back, /reject_withdrawn.*true.*persist/);
+  assert.match(back, /delete.*note.*reject.*null/i);
+  assert.match(back, /work_started.*unchanged/);
+  assert.match(back, /nothing.*posted.*closed/i);
+  const task = read('../skills/gatekeep-pr/reference/fix-wave.md').split('\n## Re-review task\n')[1].split('\n## Evidence after push\n')[0];
+  assert.match(task, /carried approach.*closure lines/);
+  assert.match(task, /never.*whole.PR approach.*after.*work_started/i);
+  assert.match(read('../skills/gatekeep-pr/reference/assessment.md'), /work_started == false/);
+});
+
+for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick']) {
   test(`${sample}: saved sample-scoped replies satisfy every approach fact`, () => {
     const root = `../eval/gatekeep-pr/`;
     const expectedText = read(`${root}samples/${sample}/expected.md`);
@@ -150,7 +174,7 @@ for (const sample of ['approach-conflict-report', 'approach-local-instance', 're
     const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
     const { text, bundle } = parseCase(read(`${root}samples/${sample}/case.md`));
     assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
-    if (sample === 'reject-row-first-menu') {
+    if (['reject-row-first-menu', 'reject-not-after-pick'].includes(sample)) {
       const target = JSON.parse(read(`${root}target.json`));
       const { drop } = parseCase(read(`${root}samples/${sample}/case.md`));
       target.skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));

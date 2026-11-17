@@ -192,6 +192,10 @@ previous report and delta from the caller; keep its ids (`P#`/`L#` in the wave,
 - Judge the listed prior items first against the current head; give each one
   closure line after the findings list: `<finding id>: resolved` or
   `<finding id>: open - <why>`. Emit the reviewer's native report as well.
+- Verify carried approach blockers through their closure lines against the repair;
+  never repeat the whole-PR approach judgment after `work_started` becomes true,
+  including after a repair push. Keep ordinary delta review and new source-backed
+  findings under the rules below.
 - Review code only inside `## Fix delta`. Report a new finding outside it as
   Critical or tag it `(outside fix delta)`; never promote an outside-delta
   non-Critical finding to a blocker.

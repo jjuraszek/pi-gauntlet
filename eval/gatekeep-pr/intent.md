@@ -1,4 +1,4 @@
-for: efed49c428c4c506ea1554fb5ec8c75c4b3332e28b4d5464d53c43e6bd04900e
+for: 95a42bce87a192356867744206934093414691d2f3d1df0010c1fed5f0b6812e
 
 ## Change
 
@@ -9,6 +9,12 @@ Select only teardown-own-run-folder for this change. At the supplied Teardown ch
 Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
 ## Approach change
+
+Persist work_started before every work pick's handler, including failures, refusals and zero-blocker assess. Delete the rejection note at that boundary and retain the flag across head moves and re-entry. Back from the rejection menu instead persists reject_withdrawn and returns without posting, closing or clearing blockers. Verify carried approach blockers through closure lines and the repair delta, never a fresh whole-PR approach judgment after work starts.
+
+Select reject-not-after-pick for isolated pick-boundary probes, failed delivery, assess, successful repair-push and back continuations. Refresh only approach-conflict-report and reject-row-first-menu because their existing deterministic checks bind the shared edited prompt assembly. Preserve every other sample's saved results as earlier evidence. Coverage is partial: no live GitHub writes, full rejection-step execution, overrule implementation or batch run.
+
+The first lifecycle replay holds all ten candidate facts, and the refreshed first-menu replay holds all eight. One refreshed note judgment rejects the literal Markdown heading markers despite the spec's required ### headings and the local heading assertion passing; do not change that contract. Unfenced means no code fence around the note, not bare heading lines. Preserve this candidate outside the checkout, normalize the edited reference's trailing blank line, and rerun only these same three samples for the final assembly. Keep their expectations and baselines unchanged.
 
 Check the main mechanism before gate work against six evidence-backed approach grounds. Require the spec's line-oriented approach appendix (builds, path/conflicts with or smaller, instead, replaces) alongside delta-bounded native findings. Validate entries in order, using the base-path existence check only for base-evidence grounds. Reject unknown grounds, missing paths or remedies, absent smaller alternatives, and disguised local repairs as approach blockers. Honor non-blocking base-rubric overlays. Render each validated conflict as one or two plain-language problem sentences without double counting or letting the native verdict suppress approach blockers. Keep each base citation on the conflict and omit a separate remedy sentence from the problem item rather than expanding it past two sentences.
 
@@ -21,6 +27,12 @@ The first selected candidate kept all note-shape facts but failed one model's no
 Select reject-row-first-menu for the menu edit: offer reject on the first initial or obstacle menu while an approach blocker remains, independent of close permission, authorship and draft state. Put it after deliver and assess unless an open ground recommends reject; then put it first and name the first such conflict in one sentence. Keep needless machinery on the ordinary recommendation path. Initialize the note and monotonic work/withdrawal fields for each new invocation. Run approach-conflict-report only to refresh its assembly-bound note evidence after these shared prompt edits; its fixture and expectations stay unchanged. Other saved samples remain earlier evidence; coverage excludes reject-menu execution and posting. The first menu replay passed its original judgments, but one reply appended GitHub's unrelated merge restriction to the rejection reason. Strengthen the obstacle fact and add a local assertion; keep omission and merge-withhold sentences before, not inside, the conflict-only recommendation. Rerun only this menu sample before the note assembly refresh.
 
 ## Expected to move
+
+- reject-not-after-pick/boundary: fails -> holds - Persist rejection withdrawal before work even when it fails.
+- reject-not-after-pick/other-picks: fails -> holds - Classify every work pick and keep inspection and dispositions outside the boundary.
+- reject-not-after-pick/closure: fails -> holds - Verify carried approach closures without judging the whole approach after a repair push.
+- reject-not-after-pick/back: fails -> holds - Withdraw reject on back without posting, closing or clearing its blocker.
+- reject-not-after-pick/continuation: fails -> holds - Keep later obstacle and assess-terminal menus free of reject.
 - reject-row-first-menu/recommended: fails -> holds - Promote reject for a base-evidenced conflict, using only the first qualifying conflict in the reason.
 - reject-row-first-menu/machinery: fails -> holds - Offer reject after deliver and assess without recommending it for needless machinery alone.
 - reject-row-first-menu/obstacle: fails -> holds - Offer and recommend reject on a first obstacle menu even without close or push permission.

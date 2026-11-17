@@ -30,11 +30,24 @@ Normalize the numeric selection to its rendered row; treat other strings through
 
 `show evidence` displays the proposal without settling anything.
 
+### Pick lifecycle
+
+For a valid normalized pick below, set `work_started` true and persist it before the pick's first dispatch or external write. Delete the saved note and set `reject` to null at that boundary. Keep the flag true after a failed or refused action, a zero-blocker assess, and every head move or re-entry; never reset it to regain rejection.
+
+| Pick | Record action |
+|---|---|
+| `deliver`, `deliver with nits`, `fix nits`, `assess`, `approve workflow run`, `approve`, `merge` | Set `work_started` true before entering the selected handler, even when it exits without doing work. Keep course selection and accounting under their existing owners. |
+| `reject`, `stop`, reject-menu steps | Leave `work_started` unchanged. |
+| `back` on the reject menu | Apply `reject.md` `## Back`; return without entering a work handler. |
+| Typed `show evidence`, `check <name> ...`, `overrule <n>`; invalid input | Leave `work_started` and `reject_withdrawn` unchanged. |
+
 ### Next action
 
 Recognize exact `show evidence`, `reply <n>`, and `check <name> flaky | real | ci-broken` before numeric lookup, on the states offering them. Show evidence through `report.md` `## What stays out` and re-render the same menu without settlement. Record check dispositions through findings.md; helpers never disposition a check.
 
 On own-merge, approved and closed-pr post menus, parse a comma-separated set of row numbers against the retained rendered mapping. Expand the combination to its member steps and collapse duplicates. Exact `reply <n>` on a post menu listing drafted replies selects drafted reply n, not menu row n. A number outside 1-N, stop combined with another number, or several numbers on any other menu asks one clarifying question naming the valid range and runs nothing. On a second invalid reply, leave the same menu waiting; emit no new question or `gauntlet: question` marker and run nothing. A sole stop runs Teardown. Persist valid picked steps and enter `### Post steps` before the live-course path below. Apply bare-numeric mapping from menu-layout unchanged on other menus; every other non-numeric string is a change request, including typed `deliver` even when a delivery row exists.
+
+Apply `### Pick lifecycle` to the valid normalized selection before any selected handler, including the post-step and contract-decision paths above. On a sole `back` pick from the reject menu, return through `reject.md` `## Back` instead of entering the live course.
 
 At this boundary and before each external write fetch actual body and live baseRefName with head/state. Compare live `baseRefName` against `consent.target.baseRefName`; an unreadable or changed base exits without overwriting `consent.target`. A same-head body edit invalidates old readiness and selected merge; narrowly recheck changed claims, preserving original intent. Refresh proposals against actual body.
 

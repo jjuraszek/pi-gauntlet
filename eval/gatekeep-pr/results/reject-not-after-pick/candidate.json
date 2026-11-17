@@ -1,0 +1,110 @@
+{
+  "sample": "reject-not-after-pick",
+  "arm": "candidate",
+  "skillSha": "78a972a24b85fce5262c46217d5a845dfbb24c810e737ac38ab305f5c53eee0b",
+  "inputSha": "777c2d12f81da93e0db56818756a8276d36e19b9275198f610a7079a076e3c52",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Ordering, all checkpoints:** the run record is saved to its state file before the pick's first helper dispatch or external write. At that same point the saved note /tmp/gatekeep-note.synthetic is deleted for work picks, or for `back`.\n\n## Pick boundary\n\n| Pick | work_started | course | reject / note | Other record effects |\n|---|---|---|---|---|\n| A: deliver | true | deliver | null / deleted | Caps stay 10/10. Usage stays 0/0. |\n| B: assess | true | assess | null / deleted | None |\n| C: deliver | true | deliver | null / deleted | Caps stay 10/10. Usage stays 0/0 at the boundary. |\n| D: back (reject menu) | false (unchanged) | null (unchanged) | null / deleted | reject_withdrawn becomes true. Usage and P1 are unchanged. |\n| deliver with nits | true | deliver-nits | null / deleted | None |\n| fix nits, course null | true | null (unchanged) | null / deleted | Saves `repair.wave.action: fix-nits` with selected payloads. Missing accounting is initialized. |\n| approve workflow run | true | unchanged | null / deleted | None |\n| approve | true | unchanged | null / deleted | None |\n| merge | true | unchanged | null / deleted | None |\n| assess, zero blockers | true | assess | null / deleted | Nothing is posted later. |\n| show evidence | unchanged | unchanged | unchanged | Re-renders the same menu. |\n| check test flaky | unchanged | unchanged | unchanged | Records a human check disposition only. No handler or command runs. |\n| overrule 1 | unchanged | unchanged | unchanged | None |\n| invalid input | unchanged | unchanged | unchanged | Asks one clarifying question and runs nothing. |\n| reject-menu step | unchanged | unchanged | unchanged | Uses the saved note's bytes. Neither flag changes. |\n\n## A - deliver, repair needs a fixture\n\n- **Outcome:** the repair attempt returned \"needs source fixture\" and made no source change.\n- **Usage:** no round was charged.\n- **Exit check:** an unchanged prerequisite leads to `stuck - needs source fixture`.\n- **Saved checkpoint:** the no-progress checkpoint records that missing fixture as the failed prerequisite. It links the helper result.\n- **Not run:** review, push and CI watch.\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR adds an indexing job for the widget catalog, and its description promises that new items become searchable. No written spec governs it, so the description's indexing promise is the contract; you are the author.\n\nOne problem still blocks merging. The indexing job keeps its own copy of the catalog, but the architecture document says the existing change feed is the single source for catalog updates (docs/architecture.md:12). The repair that removes the copy and reads the change feed could not proceed, because it needs a source fixture that is not in the repository.\n\nRetrying cannot succeed until that fixture exists. Reject is no longer offered because repair work has started. I recommend stop, because no other step can change the outcome while the fixture is missing.\n\nPick one:\n1. stop - remove the worktree and leave the PR as it is. [recommended]\n2. deliver - retry the repair after the source fixture is supplied; this adds ten more repair attempts and ten more sync attempts to this run.\n3. assess - post the problem to the PR as a review and make no repairs.\n\nType a number; show evidence prints the full record.\n\n## B - assess\n\n- **Write:** one COMMENT review was posted with `gh api --method POST repos/example/widgets/pulls/88/reviews`, pinned to commit aaaaaaa.\n- **Confirmation:** the response's commit matched the assessed head, so that review is now the baseline.\n- **Repairs:** none.\n\ngauntlet: gate=gatekeep-pr/assess-terminal recommended=1\n\nThis PR adds an indexing job for the widget catalog, and its description promises that new items become searchable. No written spec governs it, so the description's indexing promise is the contract; you are the author.\n\nOne problem blocks merging, and it is now posted on the PR. The indexing job keeps its own copy of the catalog, but the architecture document says the existing change feed is the single source for catalog updates (docs/architecture.md:12).\n\nMerge is not offered while this problem is open. You cannot approve your own PR. I recommend stop, because nothing has changed since the review was posted.\n\nPick one:\n1. stop - remove the worktree and leave the PR with the posted review. [recommended]\n2. deliver - remove the separate copy, read the change feed, rebase on main if needed, watch the checks, and continue until merge is offered.\n\nType a number; show evidence prints the full record.\n\n## C - deliver, repaired and pushed\n\n- **Repair:** one change-feed commit was admitted, and one round was charged.\n- **Review before the push:** the pre-push reviewer covered only the new commits, from aaaaaaa to the local head (`git diff aaaaaaa HEAD`). It closed P1 as resolved and found nothing new.\n- **Push:** a single push produced head bbbbbbb.\n- **After the push:** there was no whole-wave review and no claim recheck. The report is bound to the pre-push closure line for bbbbbbb.\n- **Checks at bbbbbbb:** the refresh, the exact-head CI result and the comment reconciliation showed no change. Every merge precondition held.\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds an indexing job for the widget catalog that now reads the existing change feed, so new items become searchable. No written spec governs it, and the indexing promise is covered; you are the author.\n\nNothing blocks merging. The separate catalog copy is gone, and the required checks passed on the pushed commit.\n\nYou cannot approve your own PR. I recommend merge, because every requirement for merging is met.\n\nPick one:\n1. merge - squash-merge PR 88 at the pushed commit. [recommended]\n2. stop - keep the worktree and leave the PR open.\n\nType a number; show evidence prints the full record.\n\n## D - back from reject\n\n- **Record:** reject_withdrawn is now true, and the note file is deleted. Nothing was posted or closed.\n- **Refresh:** the pre-menu refresh returned the same head with P1 still open.\n- **Next menu:** the initial template is rendered again, and reject stays absent for the rest of this run.\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nNothing was posted or closed. This PR adds an indexing job for the widget catalog, and its description promises that new items become searchable; no written spec governs it, and you are the author.\n\nOne problem blocks merging. The indexing job keeps its own copy of the catalog, but the architecture document says the existing change feed is the single source for catalog updates (docs/architecture.md:12).\n\nI recommend deliver, because the repair is drafted and needs no decision from you.\n\nPick one:\n1. deliver - remove the separate copy, read the change feed, rebase on main if needed, watch the checks, and repeat until merge is offered. [recommended]\n2. assess - post the problem to the PR as a review and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 1054,
+      "wallMs": 42324,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nEach checkpoint starts independently from its supplied snapshot. I save the valid selection and its record changes before dispatching a helper or making an external write; these entries do not restart provisioning or initialize a new tracker.\n\n| Checkpoint or boundary probe | Saved record changes |\n|---|---|\n| A: deliver | Set `work_started: true` and `course: deliver`; delete the saved note and set `reject: null`. Save the returned helper result and the unchanged `needs source fixture` prerequisite before rendering the obstacle menu. |\n| B: assess | Set `work_started: true` and `course: assess`; delete the saved note and set `reject: null`. Record the successful, head-pinned COMMENT review and its confirmed baseline. Keep the approach blocker open. |\n| C: deliver | Set `work_started: true` and `course: deliver`; delete the saved note and set `reject: null`. Retain the reviewer's resolved closure, successful push, and fresh evidence at the pushed head. |\n| D: reject-menu back | Keep `work_started: false` and `course: null`. Set `reject_withdrawn: true`, delete the saved note, and set `reject: null`. Keep the blocker and accounting unchanged. |\n| deliver with nits | Set `work_started: true` and `course: deliver-nits`. Stop before its handler. |\n| fix nits, initially no course | Set `work_started: true`; keep `course: null`. This is a one-iteration selection, not a standing delivery course. Stop before its handler. |\n| approve workflow run | Set `work_started: true`; leave the course unchanged. Stop before its handler. |\n| approve | Set `work_started: true`; leave the course unchanged. Do not set `approved_head` before approval succeeds. Stop before its handler. |\n| merge | Set `work_started: true`; leave the course unchanged. Stop before its handler. |\n| assess with zero blockers | Set `work_started: true` and `course: assess`, even though its handler would post nothing. Stop before its handler. |\n| show evidence | Leave `work_started`, course, and `reject_withdrawn` unchanged. |\n| check test flaky | Leave `work_started`, course, and `reject_withdrawn` unchanged. This probe records no check disposition. |\n| overrule 1 | Leave `work_started`, course, and `reject_withdrawn` unchanged. This probe overrules nothing. |\n| invalid input | Leave `work_started`, course, and `reject_withdrawn` unchanged; authorize no work. |\n| reject-menu step | Leave `work_started` and course unchanged. The step's retained mapping and prerequisites govern any authority; this probe posts, closes, and disposes nothing. |\n\nEvery valid work pick above also deletes the saved rejection note and clears `reject` before its handler. Inspection, invalid input, and reject-menu steps do not cross that work-start boundary.\n\n### A\n\nThe indexing change still maintains a separate catalog copy instead of consuming the existing change feed; you are its author. Its repair preserves the indexing promise, but completion now needs a source fixture.\n\nThe repair cannot continue without the source fixture. The helper made no source change, and no review, push, or CI watch followed; the unchanged prerequisite remains saved.\n\nYou cannot approve your own PR. Rejection is no longer available because repair work has started.\n\nI recommend stop because another repair attempt cannot proceed until the source fixture is available.\n\nPick one:\n1. stop - end this run without posting or making further changes. [recommended]\n2. deliver - continue after the source fixture becomes available, adding ten repair attempts and ten branch-sync attempts; the unchanged prerequisite still prevents another attempt.\n3. assess - post the open problem as a review and make no repairs.\n\nType a number; show evidence prints the full record.\n\ngauntlet: gate=gatekeep-pr/assess-terminal recommended=1\n\n### B\n\nThe indexing change maintains a separate catalog copy, and you are its author. The review identifies that this conflicts with the repository's existing change-feed architecture; the indexing promise remains in scope.\n\nOne problem remains: the indexing job keeps a second catalog copy contrary to the repository's architecture (docs/architecture.md:12). The COMMENT review was posted successfully at the commit being reviewed; no repair was authorized by that assessment.\n\nMerging and smaller-point repairs are not offered after assessment. You cannot approve your own PR, and rejection is no longer available because assessment work has started.\n\nI recommend stop because assessment is complete and nothing has changed since that choice.\n\nPick one:\n1. stop - end this assessment without further changes. [recommended]\n2. deliver - switch to repairing the catalog-copy problem, rebase on main if needed, watch CI, and continue until merge is offered.\n\nType a number; show evidence prints the full record.\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\n### C\n\nBefore the push, review covers the complete unpushed repair delta and verifies the carried problem's closure; it does not repeat the whole-PR approach judgment. After the push, the exact-head pre-push review supplies closure: there is no whole-wave review, and comment reconciliation has no delta requiring source review.\n\nThe indexing job now consumes the existing change feed instead of keeping a separate catalog copy, and you are its author. This preserves the PR's indexing promise without the conflicting second catalog.\n\nNothing blocks merging. CI and claim evidence are green for the pushed commit, the reviewer confirmed the problem is resolved, and all merge prerequisites pass.\n\nYou cannot approve your own PR.\n\nI recommend merge because the repaired change is ready and the repository permits squash merging.\n\nPick one:\n1. merge - squash-merge the reviewed change. [recommended]\n2. stop - leave the PR open without merging or cleaning up the checkout.\n\nType a number; show evidence prints the full record.\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\n### D\n\nNothing was posted or closed. The read-only refresh confirmed that the PR and its catalog-copy problem are unchanged; rejection remains unavailable for the rest of this run.\n\nThe indexing change maintains a separate catalog copy, and you are its author. The promised indexing behavior remains in scope, and replacing that copy with the existing change feed preserves it.\n\nOne problem blocks merging: the indexing job keeps a second catalog copy contrary to the repository's architecture (docs/architecture.md:12). The repair is settled by the PR's stated intent and needs no author decision.\n\nYou cannot approve your own PR.\n\nI recommend deliver because the scope-preserving repair is ready.\n\nPick one:\n1. deliver - repair the catalog-copy problem, rebase on main if needed, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the open problem as a review and make no repairs.\n3. stop - end this run without posting or repairing the PR.\n\nType a number; show evidence prints the full record.\n",
+      "words": 996,
+      "wallMs": 42964,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9224b49197743fcc05d9e643a8a60286f42f66bff94529138e770bd844110e63",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "098e737a00b8b6a534ca915ae043208b9a4657c315fa53dc024f230dee58f5eb",
+      "baselineOutputSha": "4d8474805a2561e937dade57c57a8d27ba9ac34182a00c2da8b027b7ddfd6353",
+      "candidateOutputSha": "279879c3cfc0f3f1c803345b29ccd08eeb10c88ce0d6e51becff8a8b9b2730d1",
+      "facts": {
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "other-picks": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "closure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "back": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "continuation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved three facts and lost none. The boundary fact moved because the single ordering sentence puts the record save and the note deletion before the first dispatch or external write, the table's reject/note column shows `null / deleted` for A, B and C, and A's menu says reject is no longer offered because work has started; Before set work_started but never mentioned the note. The other-picks fact moved because zero-blocker assess now sets work_started true (Before said false), while fix nits keeps course null and the five non-work probes stay unchanged. The back fact moved because D now states reject null, the note deleted and \"Nothing was posted or closed\"; Before only recorded reject_withdrawn. Closure and continuation already held in Before, which had the delta-bounded pre-push review with P1 as the prior report, one push, no whole-wave review afterwards, merge recommended, a fixture-naming obstacle menu and stop-recommended assess-terminal with no reject row, so the expected fails-to-holds movement on those two is not visible in these outputs. To keep them firm, keep the explicit \"no whole-wave review and no claim recheck\" line and the report bound to the pre-push closure line at the pushed head. Two things would tighten them: say outright that no fresh whole-PR approach judgment runs after the push, and restore a sentence like Before's \"Nothing is re-initialized\" so retention of work_started, course and usage across re-entry is stated rather than implied. A's deliver row (\"adds ten more repair attempts\") should read as a cap extension, not a usage reset.",
+      "wallMs": 15806,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9224b49197743fcc05d9e643a8a60286f42f66bff94529138e770bd844110e63",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "098e737a00b8b6a534ca915ae043208b9a4657c315fa53dc024f230dee58f5eb",
+      "baselineOutputSha": "de48fdc7ca818ba99aa11d6abcec5bbcd703e650dc1a2a61fc48b83dfa8a4c52",
+      "candidateOutputSha": "d1fc1f2eff7be824c5cf47889b81abdcfcadaed2cb042f59a43b1afdc138d32a",
+      "facts": {
+        "boundary": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "other-picks": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "closure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "back": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "continuation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved two facts. For boundary, each of A, B and C now deletes the saved note and sets reject null alongside work_started true before any dispatch or external write, where Before set only the flag. For back, D now persists reject_withdrawn true, deletes the note and states nothing was posted or closed, where Before said no rule authorized changing reject_withdrawn. The other three facts (other-picks, closure, continuation) already held in Before as written and still hold, so the sample did not show the expected fails-to-holds movement there; Before already set work_started before every work-pick handler, already limited C to delta-plus-closure review with no whole-diff review after the push, and already rendered reject-free obstacle and assess-terminal menus recommending stop. No fact regressed. To keep all five while delivering the Change, keep the explicit per-row 'delete the saved note and set reject: null' wording and D's opening 'Nothing was posted or closed' sentence. Two points to tighten: the gate header lines in After drifted, with the obstacle line above the record table and each later gate line above the next checkpoint's heading, so pin each gate line directly under its own checkpoint heading as Before did; and After's A and D drop Before's explicit 'One problem blocks merging' sentence or shorten its docs/architecture.md:12 citation context, so keep that sentence to make the open P1 unmistakable on every later menu.",
+      "wallMs": 15000,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "89ac14d1ccb21806a9387165c8da766c01043f38"
+}

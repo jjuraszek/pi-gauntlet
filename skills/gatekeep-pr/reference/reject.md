@@ -1,6 +1,6 @@
 # gatekeep-pr: rejection note
 
-Read from `findings.md` and `report.md` at step 5.
+Read from `findings.md` and `report.md` at step 5, and from the loop for a reject-menu `back` pick.
 
 ## Draft note
 
@@ -26,3 +26,7 @@ Run SKILL.md `### Output done-check` on the draft once before its first display.
 | No open approach blockers, or `work_started` or `reject_withdrawn` becomes true | Delete the file and set `reject` to null; omit the note. |
 
 Keep the post-time review composition rule in `findings.md` separate: it does not compose this note. Retain an unposted note after a failed or skipped note step or a reject-menu stop and name its path among unrun post payloads. Delete a posted note at teardown; delete the note on every ending outside the reject menu with the run's other temporary files.
+
+## Back
+
+Accept `back` only as a sole pick on the reject menu before any reject step has run. Set `reject_withdrawn` true and persist it, delete the saved note file and set `reject` to null. Leave `work_started`, course, usage and every blocker unchanged. State that nothing was posted or closed, then run the pre-menu refresh and re-render the first action menu through `menus.md`; its rejection predicate keeps `reject` absent for the rest of this run. Keep the ordinary blocker-based recommendation. Run no repair, review post, close or cleanup on this pick.
