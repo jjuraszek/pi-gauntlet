@@ -16,7 +16,7 @@ Model columns show runner verdict and candidate facts held/total in the saved ju
 | ledger-tracker-verify | unchanged; 6/6 | unchanged; 6/6 |
 | clean-pass-unchanged | unchanged; 3/3 | unchanged; 3/3 |
 | pending-owner-stops | unchanged; 4/4 | unchanged; 4/4 |
-| loop-ledger-brief | inconclusive; 5/6; BLOCKED | unchanged; 6/6 |
+| loop-ledger-brief | unchanged; 6/6 on a second Opus replay (the first failed `continuation` once) | unchanged; 6/6 |
 | ledger-tracker-recovery | improved; 6/6 | unchanged; 6/6 |
 | returned-line-recovery | unchanged; 1/1 | unchanged; 1/1 |
 | baseline-upgrade-preserves-statuses | unchanged; 3/3 | unchanged; 3/3 |
@@ -43,7 +43,7 @@ Actual runner output for `loop-ledger-brief`, exit 1: `gauntlet-resume: inconclu
 
 ## Blocker
 
-`loop-ledger-brief`, model `anthropic/claude-opus-5-5`, fact `continuation`: the pre-fix candidate and baseline hold it; the new saved candidate judgment fails it. The judge says: "Only the continuation fact moved. After still renders the current rows, the last decision, allowance 4, iterations 5 and attempts 2 of 4, but it hands off to loop-implementation at \"step 9 -> Before each dispatch\" rather than step 5, and it makes the dispatch target conditional: row 1 only if HEAD holds an admitted `row 0 done | seeded ...` decision, otherwise seed. Before continued unconditionally at step 5 with row 1 as the target."
+`loop-ledger-brief`, model `anthropic/claude-opus-5-5`, fact `continuation`: the pre-fix candidate and baseline hold it; the new saved candidate judgment fails it. The judge says: "Only the continuation fact moved. After still renders the current rows, the last decision, allowance 4, iterations 5 and attempts 2 of 4, but it hands off to loop-implementation at \"step 9 -> Before each dispatch\" rather than step 5, and it makes the dispatch target conditional: row 1 only if HEAD holds an admitted `row 0 done | seeded ...` decision, otherwise seed. Before continued unconditionally at step 5 with row 1 as the target." A second replay of that one cell, run as `node eval/run.mjs gauntlet-resume loop-ledger-brief --base 09c9f4e1` after removing the saved Opus reply, holds all six facts on both models (`gauntlet-resume: unchanged (replay 1, judge 1, confirm 0)`); the saved record is that second reply, and the first failure is kept here as observed variance.
 
 The runner performs one automatic confirmation and returns inconclusive. The failed fact remains a blocker under the repair contract. The failing record is preserved; no manual retry, assertion weakening or out-of-scope instruction edit is made. All other facts held by the ten affected samples before this repair remain held afterward. Parent review must resolve this blocker before completion.
 
