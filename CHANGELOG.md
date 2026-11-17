@@ -5,6 +5,7 @@
 ### Changed
 
 - Keep writing-plans' main-session instructions to the planning flow, pass four paths to the plan-writer, and load recovery questions only when needed. The child reads the complete plan-authoring contract before writing or repairing the plan, without a skill-file path. (#153)
+- pi-cohort peer floor raised to 8.4.0.
 
 ## v8.7.1 - 2026-11-16
 
