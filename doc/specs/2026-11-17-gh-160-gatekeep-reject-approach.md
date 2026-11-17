@@ -166,7 +166,7 @@ Paths below are relative to `skills/gatekeep-pr/` unless they start with another
 
 ### D0 Flow constraint
 
-The change adds no step, helper, tracker stage, course or menu archetype. `course` keeps `null | assess | deliver | deliver-nits`. The delivery body, round and sync caps, re-entry rules and the continuation record's existing fields are unchanged. The additions are: one reviewer output section, one blocker class, one action row, one post-archetype state with its terminal outcome `rejected`, one typed command, one disposition value, three record fields (`reject`, `work_started`, `blocker_numbers`), and one rendering rule for stuck blockers. The only new edge between menus is `back` (D5).
+The change adds no step, helper, tracker stage, course or menu archetype. `course` keeps `null | assess | deliver | deliver-nits`. The delivery body, round and sync caps, re-entry rules and the continuation record's existing fields are unchanged. The additions are: one reviewer output section, one blocker class, one action row, one post-archetype state with its terminal outcome `rejected`, one typed command, one disposition value, four record fields (`reject`, `work_started`, `reject_withdrawn`, `blocker_numbers`), and one rendering rule for stuck blockers. The only new edge between menus is `back` (D5).
 
 Remove: none.
 
@@ -439,7 +439,7 @@ The `stop` row names the worktree removal because the run then ends through `cle
 
 ### D7 Stuck-blocker sections (`report.md`, `SKILL.md`)
 
-At an obstacle or cap exit, every open blocker a repair attempt in this run returned unrepaired is rendered as a plain line `Problem <n>` followed by three sections, under 180 words per blocker from the first heading. The population does not depend on D6 eligibility: it is the blockers meeting D6's second-row condition plus a failing-check blocker whose repair came back without the check passing, including `### Exit check`'s `Same check red twice` exit. A payload-admission failure (D3) counts as returned unrepaired.
+At an obstacle or cap exit, every open blocker a repair attempt in this run returned unrepaired is rendered as a plain line `Problem <n>` followed by three sections, under 180 words per blocker from the first heading. The population does not depend on D6 eligibility: it is the blockers meeting D6's second-row condition plus a failing-check blocker whose repair came back without the check passing, including `### Exit check`'s `Same check red twice` exit. An approach blocker whose repair came back without a fix (D3 Repair) counts the same way.
 
 - `### What is blocked` - the problem in the reader's terms, keeping the supplied `path:line` and failing-test name.
 - `### Why the repair stopped` - what the repair tried and the one observed result (the failing test's output line, or the input that is missing), taken from the row's admitted decision lines, the helper's result, the no-progress checkpoint and the scoped-test output. An unknown cause is stated as unknown; nothing is invented.
