@@ -1,6 +1,7 @@
 # gauntlet-handoff: gauntlet-owned producer of `## Process state`, one brief contract shared with gauntlet-resume
 
 > **Superseded by:** [doc/specs/2026-09-25-resume-spec-seed.md](./2026-09-25-resume-spec-seed.md) - the "`.md` token is a brief-file, never widened to a scan" classification rule only
+> **Superseded by:** [doc/specs/2026-11-17-gh-158-resume-handoff-current-shape.md](./2026-11-17-gh-158-resume-handoff-current-shape.md) - the double-section refusal in "gauntlet-handoff/SKILL.md" and the one-grammar-file rule in "brief-contract.md" and "scripts/ci.mjs" (leg grammar lives in a second file) only
 
 Ticket: https://github.com/jjuraszek/pi-gauntlet/issues/40
 Cohort counterpart: https://github.com/jjuraszek/pi-cohort/issues/18 (flow-agnostic `handoff` skill with an append seam)
