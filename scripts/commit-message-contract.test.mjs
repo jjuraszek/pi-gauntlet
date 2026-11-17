@@ -74,6 +74,7 @@ const sites = [
   'skills/housekeeping/reference/fix.md',
   'skills/subagent-driven-development/SKILL.md',
   'skills/writing-plans/SKILL.md',
+  'skills/writing-plans/reference/plan-contract.md',
   'skills/brainstorming/reference/spec-finalization.md',
   'skills/brainstorming/reference/amendment-surface.md',
   'skills/brainstorming/reference/legs.md',
