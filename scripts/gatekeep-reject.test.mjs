@@ -166,6 +166,41 @@ test('work picks withdraw reject before work and keep later review on carried cl
   assert.match(read('../skills/gatekeep-pr/reference/assessment.md'), /work_started == false/);
 });
 
+test('approach-none-unchanged: no-conflict reports and menus match the pre-feature baseline', () => {
+  const root = '../eval/gatekeep-pr/';
+  const sample = 'approach-none-unchanged';
+  const expected = read(`${root}samples/${sample}/expected.md`);
+  const { facts } = parseExpected(expected);
+  const { text, bundle, drop } = parseCase(read(`${root}samples/${sample}/case.md`));
+  const baseline = JSON.parse(read(`${root}results/${sample}/baseline.json`));
+  const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
+  const target = JSON.parse(read(`${root}target.json`));
+  target.skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
+  assert.equal(candidate.skillSha, sha256(assemble(target, (path) => read(`../${path}`), bundle)));
+  assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
+  assert.equal(baseline.inputSha, candidate.inputSha);
+  assert.deepEqual(Object.keys(candidate.outputs), candidate.models.replay);
+  assert.equal(candidate.models.replay.length, 2);
+  const menuRows = (output) => [...output.matchAll(/^\d+\. ([a-z ]+) -/gm)].map((match) => match[1]);
+  for (const [model, output] of Object.entries(candidate.outputs)) {
+    const before = baseline.outputs[model];
+    const judgment = candidate.judge[model];
+    assert.equal(before.status, 'ok', model);
+    assert.equal(output.status, 'ok', model);
+    assert.equal(judgment.factsSha, sha256(expected), model);
+    assert.equal(judgment.baselineOutputSha, sha256(before.text), model);
+    assert.equal(judgment.candidateOutputSha, sha256(output.text), model);
+    assert.deepEqual(menuRows(output.text), ['merge', 'approve', 'stop', 'deliver', 'assess', 'stop', 'deliver', 'assess', 'stop']);
+    assert.deepEqual(menuRows(output.text), menuRows(before.text), model);
+    assert.equal((output.text.match(/Type a number; show evidence prints the full record\./g) ?? []).length, 3);
+    assert.doesNotMatch(output.text, /^### (?:What this PR builds|Why it does not fit this repo|What to do instead)|^\d+\. reject\b/gm);
+    for (const fact of facts) {
+      assert.equal(judgment.facts[fact.id]?.before, 'holds', `${model}/${fact.id}/baseline`);
+      assert.equal(judgment.facts[fact.id]?.after, 'holds', `${model}/${fact.id}/candidate`);
+    }
+  }
+});
+
 for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick']) {
   test(`${sample}: saved sample-scoped replies satisfy every approach fact`, () => {
     const root = `../eval/gatekeep-pr/`;

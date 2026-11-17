@@ -1,0 +1,110 @@
+{
+  "sample": "approach-none-unchanged",
+  "arm": "candidate",
+  "skillSha": "57222e4ecd47b66d2a23a6efe7e084566f69f6145be1198da2b5c0492d1cd3e3",
+  "inputSha": "a97a07abe87585dc22ecf60040069696937cf1944eee6346ddc756d2e7cc5942",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Checkpoint A** (integration: no blockers, no nits, no approach conflict, no rejection note. Tracker adds `report`, then `menu`. Verification and review both assessed `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.)\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nPR 88 adds an on-demand catalog download that runs through the existing export handler. Robin wrote it and you are a requested reviewer; there is no spec, so the PR is judged on its description, and the download is built, tested and documented as described.\n\nNothing blocks merging. The checks passed in CI on the commit being reviewed, and the review found no problems.\n\nI recommend merge because nothing blocks it and you have write access.\n\nPick one:\n1. merge - squash-merge the PR into main at the commit that was reviewed. [recommended]\n2. approve - approve the PR on GitHub as a requested reviewer, without merging.\n3. stop - leave the PR and the checkout as they are.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Checkpoint B** (integration: the Moderate finding becomes one blocker with a drafted source repair, no nits, no approach conflict, no rejection note. Tracker adds `report`, then `menu`. Verification and review both assessed `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.)\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nPR 88 adds an on-demand catalog download that runs through the existing export handler. Robin wrote it and you are a requested reviewer; there is no spec, so the PR is judged on its description, and the download is built, tested and documented except for the empty-catalog case below.\n\nOne problem blocks merging. When the catalog is empty, the download crashes with an error instead of returning an empty file, so a new store with no products cannot export anything (src/export.mjs:24). The test empty catalog download in src/export.test.mjs shows the failure. A repair is drafted that keeps the PR's intended behavior. The checks passed in CI on the commit being reviewed.\n\nI recommend deliver because the one problem has a ready repair and needs no decision from the author.\n\nPick one:\n1. deliver - apply the drafted fix, merge main into the branch if it falls behind, watch the checks, and continue until merge is offered. [recommended]\n2. assess - post the problem to the PR as a review and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Checkpoint C** (integration: no blockers, no nits, no approach conflict. The only withhold is the binding pending required check. Tracker adds `report`, then `menu`. Verification and review both assessed `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.)\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nPR 88 adds an on-demand catalog download that runs through the existing export handler. Robin wrote it and you are a requested reviewer; there is no spec, so the PR is judged on its description, and the download is built, tested and documented as described.\n\nMerging waits on one thing: the required check ci / test is still running on the commit being reviewed. The review found no problems, and no check has failed.\n\nI recommend deliver because the running test check is the only thing standing between this PR and merge.\n\nPick one:\n1. deliver - watch the required test check until it finishes, repair anything it reveals, merge main into the branch if it falls behind, and continue until merge is offered. [recommended]\n2. assess - post nothing, because the review found no problems, and stop without waiting for the check.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 574,
+      "wallMs": 29887,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Checkpoint A\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds an on-demand catalog download through the existing export handler. You are a requested reviewer, and the download behavior is covered by code, tests, and documentation.\n\nNothing blocks merging. The checks passed in CI for the commit being reviewed.\n\nI recommend merge because the promised behavior is covered and all merge prerequisites hold.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. approve - approve the PR without merging it.\n3. stop - leave the PR and checkout unchanged.\n\nType a number; show evidence prints the full record.\n\nCheckpoint B\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds an on-demand catalog download through the existing export handler. You are a requested reviewer, and the download behavior is covered except for handling an empty catalog.\n\nOne problem blocks merging: an empty catalog raises an exception instead of returning an empty download (src/export.mjs:24). The scoped test empty catalog download in src/export.test.mjs demonstrates the failure, even though the checks passed in CI for the commit being reviewed.\n\nI recommend deliver because a concrete source repair preserves the promised behavior and needs no author decision.\n\nPick one:\n1. deliver - apply the drafted repair, merge main into the branch if it falls behind, watch CI, and continue until merge is offered. [recommended]\n2. assess - post the problem as a review requesting changes and make no repairs.\n3. stop - end this assessment without changing the PR.\n\nType a number; show evidence prints the full record.\n\nCheckpoint C\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds an on-demand catalog download through the existing export handler. You are a requested reviewer, and the download behavior is covered by code, tests, and documentation.\n\nMerging waits on the required ci / test check, which is still running. Source review found no problems, but verification is not complete until that check finishes successfully.\n\nI recommend deliver because the running required check is the only thing preventing readiness.\n\nPick one:\n1. deliver - watch the required check and continue until merge is offered or a problem prevents progress. [recommended]\n2. assess - post nothing because there are no blockers, and finish the assessment without repairs.\n3. stop - end this assessment without changing the PR.\n\nType a number; show evidence prints the full record.\n",
+      "words": 369,
+      "wallMs": 20319,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "67b40edcab616f5e9f4e424d39de35ea22be2a065611a6a6b659dfd25e42f799",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "85b30af1cb62c85d59cf32282ec9fabc1ba375445fb90e8a31e7ea2ac44da46b",
+      "baselineOutputSha": "8ab35e8948bb8d82385d5a6a33afe26b910245b7946f03df68d831ffbf167e52",
+      "candidateOutputSha": "1e688b70dcfa5151d8f8d3b1e5191d34e1a7418069fc7af9391ad3fa5117eb13",
+      "facts": {
+        "report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "defect": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pending": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After keeps the two-sentence opening, the standing and problem paragraph, the single recommendation above Pick one, the same row order (merge/approve/stop for A, deliver/assess/stop for B and C), the gate line with recommended=1 and the exact hint, and it adds no reject row or rejection note inside any message. The one thing that came close is new in After: each checkpoint label now carries a parenthetical such as \"integration: no blockers, no nits, no approach conflict, no rejection note. Tracker adds `report`, then `menu`\" plus the full head SHA. I counted this as outside the report because it sits in the label before the gate line, but it is exactly the accounting, internal tracker vocabulary and absent-note narration the report fact forbids, and a stricter reader could fail report on it. To keep the no-conflict path identical to the baseline, say explicitly that when the approach appendix is none, integration and tracker steps are silent, that the absence of a conflict or note is never mentioned anywhere in the response (labels included), and that a checkpoint label is only its name. Smaller drift worth pinning down: B's report now states \"A repair is drafted\" in the problem paragraph as well as in the recommendation, and C's deliver row adds \"repair anything it reveals\"; both are harmless here, but wording that keeps repair status in the recommendation and row consequences limited to what the evidence supports would hold the register closer to Before.",
+      "wallMs": 17274,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "67b40edcab616f5e9f4e424d39de35ea22be2a065611a6a6b659dfd25e42f799",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "85b30af1cb62c85d59cf32282ec9fabc1ba375445fb90e8a31e7ea2ac44da46b",
+      "baselineOutputSha": "0bc3c204a0c2dddb143afffe385f9b1747942034691ea5cb5877ddc41f0d311d",
+      "candidateOutputSha": "dca3c4d130579724f815c82a3f057f08ee90bbe978e46703b8379d1e1de84787",
+      "facts": {
+        "report": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "defect": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "pending": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After keeps all five no-conflict facts that Before kept, which is the intended result for this regression sample. Each checkpoint still opens with exactly two sentences covering the on-demand download and the requested-reviewer role, then gives standing and any concrete problem, then one recommendation directly above Pick one. The menus keep the gate line with recommended=1, row 1 as the sole recommendation (merge for A, deliver for B and C), stop last, and the exact hint. No rejection note, reject row, approach-conflict explanation or overrule hint appears. The differences are only phrasing: the reviewer role moved into the second opening sentence, \"for the commit being reviewed\" was added, C now says outright that the check is still running, and the row consequences are reworded slightly. To keep this stable, keep the rejection-note and reject-row instructions explicitly conditional on an open approach blocker, and keep the two-sentence opening rule unchanged, since splitting the role into its own clause leaves little room before a third sentence would break the report fact.",
+      "wallMs": 9627,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "93191572eb9d6110ce903bc4d559eea121984274"
+}

@@ -10,6 +10,8 @@ Bind this intent to the current assembly after the commit-message contract and p
 
 ## Approach change
 
+Select only approach-none-unchanged for the no-conflict regression: compare a clean ready report, an ordinary repairable defect and binding pending CI with the pre-feature baseline. Keep the same report register, recommendations, numbered rows and hint when the reviewer appendix says none; add no rejection note or reject row. This test-only addition changes no skill wording. Preserve every other saved sample as earlier evidence; coverage is partial, with no live GitHub action or post-pick execution.
+
 Persist work_started before every work pick's handler, including failures, refusals and zero-blocker assess. Delete the rejection note at that boundary and retain the flag across head moves and re-entry. Back from the rejection menu instead persists reject_withdrawn and returns without posting, closing or clearing blockers. Verify carried approach blockers through closure lines and the repair delta, never a fresh whole-PR approach judgment after work starts.
 
 Select reject-not-after-pick for isolated pick-boundary probes, failed delivery, assess, successful repair-push and back continuations. Refresh only approach-conflict-report and reject-row-first-menu because their existing deterministic checks bind the shared edited prompt assembly. Preserve every other sample's saved results as earlier evidence. Coverage is partial: no live GitHub writes, full rejection-step execution, overrule implementation or batch run.

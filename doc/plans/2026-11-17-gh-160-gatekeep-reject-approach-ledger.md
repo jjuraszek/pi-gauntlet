@@ -3,9 +3,9 @@
 base: bae599d7e7dd4f864cb8f8a23ab11221f54717da
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 5 | home | 89ac14d1ccb21806a9387165c8da766c01043f38
+returned: 7 | home | 93191572eb9d6110ce903bc4d559eea121984274
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -15,7 +15,7 @@ returned: 5 | home | 89ac14d1ccb21806a9387165c8da766c01043f38
 | 4 | cut | 0 | deviates: an approach conflict the developer does not reject is a blocker - assess posts it and a delivery course repairs it, so it withholds merge until repaired or overruled by the developer |
 | 5 | done | 1 | timeout -k 30 90 node --test scripts/gatekeep-reject.test.mjs; 10 passed, 0 failed; reject-not-after-pick 10/10 facts and two assembly refreshes 24/24 facts; partial coverage, saved replays only |
 | 6 | cut | 0 | deviates: the request replaces the immediate post with a previewed note, then post and close on the last menu |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-reject.test.mjs; 11 passed, 0 failed; eval approach-none-unchanged 10 facts hold before and after across 2 models; partial coverage, three first-report checkpoints only |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1: define approach grounds and validate first-report conflicts
@@ -23,3 +23,4 @@ row 1 done | Added six approach grounds, validated the reviewer appendix, and re
 row 2 done | Added a saved, checked rejection note with three headed sections under 180 words to the first report. | Reuse reject.md's Draft note procedure and the extended approach-conflict-report fixture for menu previews and frozen-byte posting.
 row 3 done | Added reject to first initial and obstacle menus with conflict-only recommendations and ordinary ground-6 defaults. | Reuse menus.md's reject predicate and reject-row-first-menu fixtures when wiring picks and later-menu withdrawal.
 row 5 done | Persisted rejection withdrawal before work and on back, and kept repair-push reviews on carried blocker closures. | Reuse post-selection-loop.md's Pick lifecycle and reject-not-after-pick fixtures for later-menu and repair-push checks.
+row 7 done | Added no-conflict regression coverage for ready, ordinary-defect and pending-CI reports without changing skill behavior. | Reuse approach-none-unchanged fixtures and saved paired replays through scripts/gatekeep-reject.test.mjs.
