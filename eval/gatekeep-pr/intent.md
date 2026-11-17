@@ -1,4 +1,4 @@
-for: 95a42bce87a192356867744206934093414691d2f3d1df0010c1fed5f0b6812e
+for: 86302a9c7a19c3aab1d8ad8240749ebf93045b6d8c12319a93e1305ea2efe830
 
 ## Change
 
@@ -8,37 +8,17 @@ Select only teardown-own-run-folder for this change. At the supplied Teardown ch
 
 Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
-## Approach change
+Select only fix-row-file-observation for the model-owned admission decision: readable matching, missing, unreadable and mismatched file observations, with immediate attempts, pending, round-charge and deletion effects. Keep the external ledger pending-only. Execute transport recipes and companion parsing separately in scripts/loop-outside-return.test.mjs; no worker, review, push or whole-wave replay runs. Preserve fix-row-return-file and other historical sample evidence; coverage is partial. The remaining Change paragraphs describe separate retained work.
 
-Select only approach-none-unchanged for the no-conflict regression: compare a clean ready report, an ordinary repairable defect and binding pending CI with the pre-feature baseline. Keep the same report register, recommendations, numbered rows and hint when the reviewer appendix says none; add no rejection note or reject row. This test-only addition changes no skill wording. Preserve every other saved sample as earlier evidence; coverage is partial, with no live GitHub action or post-pick execution.
+Save missing unrun reply and coverage bodies at teardown before reporting paths or deleting drafts, including stops before Post steps. The stop-draft-files sample covers final and merge-queued stops with two in-memory replies. P4 authorizes one replay each of per-ref-settlement, reviewer-row-reopen, loop-worker, nit-batch-row, bypass-merge-pick-refused, bypass-merge-pick-revoked and gatekeep-pr-merge-state's bypass-eligible-check-pending and bound-viewer-green-ci for script-bound assembly freshness after teardown changed. P4's saved candidates retain these eight samples' outcomes. The preceding partial report covered the authorized bypass-merge-pick-revoked judgment refresh: all five facts hold on both saved replies, with no replay; earlier P4/P5 reports remain in Git. Other saved results remain earlier evidence. P5 seeded stop-draft-files once and ran its first candidate replay. That replay's anthropic/claude-opus-5-5 closing messages omitted the not-posted reason for both replies at both checkpoints, although the judge marked retained as holds; github-copilot/gpt-6.1-sol supplied the reason. P7 reran only stop-draft-files once after deleting the saved candidate, retaining the baseline and unchanged Teardown text and expected facts (ran P7-replay (1 of 2)). Direct inspection of the newest replies confirms both saved bodies are retained and all four closing messages name both paths with explicit reasons: "because you stopped" on anthropic/claude-opus-5-5 and "because you selected stop" on github-copilot/gpt-6.1-sol. All three candidate facts read holds for both models at the current assembly. The partial report covers only this sample; this outcome note follows the saved judgments without rejudging the replies.
 
-Persist work_started before every work pick's handler, including failures, refusals and zero-blocker assess. Delete the rejection note at that boundary and retain the flag across head moves and re-entry. Back from the rejection menu instead persists reject_withdrawn and returns without posting, closing or clearing blockers. Verify carried approach blockers through closure lines and the repair delta, never a fresh whole-PR approach judgment after work starts.
+Render three unlabeled report parts: a two-sentence behavior-based change/scope opening, standing and concrete problems, then a separate recommendation above Pick one. Keep raw evidence and repair/sync usage behind show evidence; D2 obstacle consequences may name additional attempts. Align the replay wrapper with that report rather than requesting sync and verdict labels.
 
-Select reject-not-after-pick for isolated pick-boundary probes, failed delivery, assess, successful repair-push and back continuations. Refresh only approach-conflict-report and reject-row-first-menu because their existing deterministic checks bind the shared edited prompt assembly. Preserve every other sample's saved results as earlier evidence. Coverage is partial: no live GitHub writes, full rejection-step execution, overrule implementation or batch run.
+Cover all seven action-row-one scenarios: pending progress, ruleset block, unchanged cap prerequisite, own source repair, another author's body-only deliver, author-only assess and a pending proposal with preserve contract recommended. Cover all thirteen post-menu-set-reply operations, including numeric unions, typed reply 2 versus row 2, invalid stop sets, failed-step continuation, nested release pause, queued-merge stop and retained not-run work. Preserve existing freshness and explicit-pick facts. Migrate stale supplied reports and action mappings in batch-failure-retry, batch-summary-queue, role-line-requested, no-arg-discovery-under-cap and menu-after-numbered-findings.
 
-The first lifecycle replay holds all ten candidate facts, and the refreshed first-menu replay holds all eight. One refreshed note judgment rejects the literal Markdown heading markers despite the spec's required ### headings and the local heading assertion passing; do not change that contract. Unfenced means no code fence around the note, not bare heading lines. Preserve this candidate outside the checkout, normalize the edited reference's trailing blank line, and rerun only these same three samples for the final assembly. Keep their expectations and baselines unchanged.
-
-Check the main mechanism before gate work against six evidence-backed approach grounds. Require the spec's line-oriented approach appendix (builds, path/conflicts with or smaller, instead, replaces) alongside delta-bounded native findings. Validate entries in order, using the base-path existence check only for base-evidence grounds. Reject unknown grounds, missing paths or remedies, absent smaller alternatives, and disguised local repairs as approach blockers. Honor non-blocking base-rubric overlays. Render each validated conflict as one or two plain-language problem sentences without double counting or letting the native verdict suppress approach blockers. Keep each base citation on the conflict and omit a separate remedy sentence from the problem item rather than expanding it past two sentences.
-
-Add a saved rejection note to the first report after its problems and before its recommendation. Require three headed sections under 180 words covering every open approach blocker and nothing else, with the ordinary role-first register and base citations. Done-check once before saving and hashing the note; display its bytes rather than composing again. Reuse an unchanged note and replace it only after a missing/unreadable file or a changed blocker set; remove it when no blocker remains or rejection is unavailable.
-
-The note edit selected approach-conflict-report, extending its isolated first-report checkpoint through the note preview and stopping before recommendations or menus. A model must compose a compact note from two different grounds in plain language; text assertions alone cannot establish its meaning or register. Reseed this sample's baseline after its bundle change. Verify headings, word count and saved judgments locally. Preserve approach-local-instance and every other sample's saved results as earlier evidence; coverage is partial, not rejection-menu, posting, closure or end-to-end persistence coverage. The new rejection-note reference is candidate-only at the supplied base.
-
-The first selected candidate kept all note-shape facts but failed one model's note-content fact: its component glosses followed their names. Tighten the note's role-first example and first-mention done-check, then rerun only approach-conflict-report with unchanged expectations and the saved baseline. Preserve the first candidate outside the checkout; the committed candidate records the latest wording, not a target-wide pass.
-
-Select reject-row-first-menu for the menu edit: offer reject on the first initial or obstacle menu while an approach blocker remains, independent of close permission, authorship and draft state. Put it after deliver and assess unless an open ground recommends reject; then put it first and name the first such conflict in one sentence. Keep needless machinery on the ordinary recommendation path. Initialize the note and monotonic work/withdrawal fields for each new invocation. Run approach-conflict-report only to refresh its assembly-bound note evidence after these shared prompt edits; its fixture and expectations stay unchanged. Other saved samples remain earlier evidence; coverage excludes reject-menu execution and posting. The first menu replay passed its original judgments, but one reply appended GitHub's unrelated merge restriction to the rejection reason. Strengthen the obstacle fact and add a local assertion; keep omission and merge-withhold sentences before, not inside, the conflict-only recommendation. Rerun only this menu sample before the note assembly refresh.
+Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
 
 ## Expected to move
-
-- reject-not-after-pick/boundary: fails -> holds - Persist rejection withdrawal before work even when it fails.
-- reject-not-after-pick/other-picks: fails -> holds - Classify every work pick and keep inspection and dispositions outside the boundary.
-- reject-not-after-pick/closure: fails -> holds - Verify carried approach closures without judging the whole approach after a repair push.
-- reject-not-after-pick/back: fails -> holds - Withdraw reject on back without posting, closing or clearing its blocker.
-- reject-not-after-pick/continuation: fails -> holds - Keep later obstacle and assess-terminal menus free of reject.
-- reject-row-first-menu/recommended: fails -> holds - Promote reject for a base-evidenced conflict, using only the first qualifying conflict in the reason.
-- reject-row-first-menu/machinery: fails -> holds - Offer reject after deliver and assess without recommending it for needless machinery alone.
-- reject-row-first-menu/obstacle: fails -> holds - Offer and recommend reject on a first obstacle menu even without close or push permission.
-- reject-row-first-menu/authority: fails -> holds - Keep a single conflict sentence and a write-free row consequence until the human picks a step.
 
 - teardown-own-run-folder/owned-block: fails -> holds - Invoke the marked ownership-checking block instead of composing cleanup commands.
 - teardown-own-run-folder/kept: fails -> holds - Move both drafts through KEEP before deletion and name the returned gate-kept paths with reasons.
@@ -103,17 +83,62 @@ Withhold merge while either exact artifact paired with the carried spec remains 
 ## Isolated merge-message command coverage
 
 The merge-command-quoting sample exercises one merge-commit command with an already composed subject and body; it executes nothing. It has no saved model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs`: the test executes only the three policy command templates with a capturing gh function, including optional admin arguments, quoted data and a body path with spaces. It reuses only the message examples from the historical merge-landed-message results, not their workflow claims or judgments. No new model call, real merge, GitHub behavior or workflow replay is covered.
-## Expected to move for approach coverage
 
-- approach-conflict-report/conflicts: fails -> holds - Render each validated conflict as a distinct blocker even with a native SHIP verdict.
-- approach-conflict-report/base-path: fails -> holds - Keep the base-branch evidence locator in the first report.
-- approach-conflict-report/smaller: fails -> holds - Explain the concrete smaller alternative without inventing a base rule.
-- approach-conflict-report/register: fails -> holds - Keep a two-sentence opening and one or two sentences per problem without internal IDs.
-- approach-conflict-report/note: fails -> holds - Preview a three-section rejection note under 180 words after the problems.
-- approach-conflict-report/note-content: fails -> holds - Explain both conflicts and their replacement remedies for a reader without the code open.
-- approach-conflict-report/frozen: fails -> holds - Check the note once, save and hash its bytes, then display that saved text.
-- approach-local-instance/validation: fails -> holds - Admit only complete supported whole-mechanism conflicts.
-- approach-local-instance/base-check: fails -> holds - Check the cited base file with cat-file after stripping its line suffix.
-- approach-local-instance/smaller: fails -> holds - Require a concrete outcome-preserving smaller change for needless machinery.
-- approach-local-instance/overlay: fails -> holds - Keep a ground explicitly mapped non-blocking as a nit, not a rejection ground.
-- approach-local-instance/missing-section: fails -> holds - Treat an absent requested approach appendix as an off-contract failure.
+## Approach change
+
+Implement reject's frozen-note menu, close permissions, ordered post/close/cleanup steps, back and rejected settlement. Add run-only overrule mapping and dispositions, failed-repair three-section reporting and contributor-safe closure and coverage. Dispatch remedy-only approach repairs on both harnesses and carry their closure inputs across every post-work review, including external head moves. Keep pre-work approach detection, first-report wording and ordinary no-conflict menus.
+
+## Expected to move for approach coverage
+- approach-conflict-report/conflicts: fails -> holds - validated approach entries block despite green native review
+- approach-conflict-report/base-path: fails -> holds - retain base evidence locators
+- approach-conflict-report/smaller: fails -> holds - explain the outcome-preserving smaller alternative
+- approach-conflict-report/register: fails -> holds - retain compact first-report register
+- approach-conflict-report/note: fails -> holds - preview the saved three-section note
+- approach-conflict-report/note-content: fails -> holds - explain both remedies in role-first language
+- approach-conflict-report/frozen: fails -> holds - check, save and hash before preview
+- approach-local-instance/validation: fails -> holds - validate approach entries before admission
+- approach-local-instance/base-check: fails -> holds - verify base path existence
+- approach-local-instance/smaller: fails -> holds - needless machinery requires a smaller alternative
+- approach-local-instance/overlay: fails -> holds - preserve explicit non-blocking overlays
+- approach-local-instance/missing-section: fails -> holds - missing required appendix stops the step
+- reject-row-first-menu/recommended: fails -> holds - first menu recommends reject for base evidence
+- reject-row-first-menu/machinery: fails -> holds - needless machinery alone preserves ordinary recommendation
+- reject-row-first-menu/obstacle: fails -> holds - first obstacle offers reject regardless of close or push rights
+- reject-row-first-menu/authority: fails -> holds - retain write-free pick and conflict-only recommendation
+- reject-not-after-pick/boundary: fails -> holds - withdraw rejection before work even when it fails
+- reject-not-after-pick/other-picks: fails -> holds - work classification excludes inspection and dispositions
+- reject-not-after-pick/back: fails -> holds - back withdraws rejection without writing or clearing blockers
+- reject-not-after-pick/continuation: fails -> holds - later work menus stay free of reject
+- reject-not-after-pick/closure: fails -> holds - remedy-only delivery dispatches and supplies closure inputs
+- reject-not-after-pick/external: fails -> holds - external head review preserves approach contributor closure IDs
+- approach-blocker-other-row/assess: fails -> holds - alternate assess choice posts open approach blockers
+- approach-blocker-other-row/dispatch: fails -> holds - both harnesses dispatch remedy-only work with scoped tests
+- approach-blocker-other-row/needs: fails -> holds - needs result retains the blocker and offers eligible overrule
+- reject-menu-note-preview/preview: fails -> holds - render full frozen note without a write
+- reject-menu-note-preview/rows: fails -> holds - permission-decoded close and ordered combination rows
+- reject-menu-note-preview/set: fails -> holds - selected steps execute once in canonical order
+- reject-menu-note-preview/settlement: fails -> holds - successful note or close settles rejected
+- reject-back/unchanged: fails -> holds - withdraw reject without helpers on unchanged head
+- reject-back/moved: fails -> holds - rejudge approach on moved pre-work head without restoring reject
+- reject-back/stop: fails -> holds - no-rejection stop uses non-final removal and stuck settlement
+- reject-step-failures/note-failure: fails -> holds - failed note suppresses close, not cleanup
+- reject-step-failures/close-failure: fails -> holds - posted note remains a successful rejection
+- reject-step-failures/changed: fails -> holds - byte hash and preview freshness prevent stale writes
+- reject-step-failures/cleanup: fails -> holds - cleanup alone uses stopped-at-reject without duplicate removal
+- reject-step-failures/permission: fails -> holds - unreadable close permission preserves the note action
+- reject-step-failures/invalid-set: fails -> holds - back and stop cannot combine with runnable steps
+- batch-reject-queue/queue: fails -> holds - parent queues rejection until children return
+- batch-reject-queue/back: fails -> holds - unchanged back avoids dispatch; moved back queues step 3
+- batch-reject-queue/answer: fails -> holds - parent queues overrule as a child answer
+- overrule-approach/same-flaw: fails -> holds - same-flaw contributors are set aside together
+- overrule-approach/independent: fails -> holds - independent contributors keep blocking
+- overrule-approach/mapping: fails -> holds - refuse invalid numbers without guessing
+- overrule-stuck-blocker/refusals: fails -> holds - enforce attempt and blocker-class eligibility
+- overrule-stuck-blocker/checkpoint: fails -> holds - re-render without resuming after eligible overrule
+- overrule-stuck-blocker/wave: fails -> holds - exclude overruled closure IDs without skipping commit review
+- overrule-stuck-blocker/review: fails -> holds - do not dismiss GitHub review or claim gap coverage
+- stuck-blocker-sections/sections: fails -> holds - render each unrepaired blocker in three sections
+- stuck-blocker-sections/mixed: fails -> holds - preserve numbering through mixed stuck and ordinary problems
+- stuck-blocker-sections/choices: fails -> holds - failing checks use check dispositions, not overrule
+- consent-no-progress-stop/f4: fails -> holds - retain no-progress stop and add the three-section explanation
+- row-exhaustion/sections: fails -> holds - exhausted rows render three-section blockers with eligible overrule

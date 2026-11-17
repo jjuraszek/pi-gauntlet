@@ -1,6 +1,6 @@
-# eval report: gatekeep-pr (partial runs: teardown-own-run-folder; approach-none-unchanged)
+# eval report: gatekeep-pr (partial runs: teardown-own-run-folder; batch-reject-queue)
 
-for: 95a42bce87a192356867744206934093414691d2f3d1df0010c1fed5f0b6812e
+for: 86302a9c7a19c3aab1d8ad8240749ebf93045b6d8c12319a93e1305ea2efe830
 
 ## Teardown change
 
@@ -10,25 +10,9 @@ Select only teardown-own-run-folder for this change. At the supplied Teardown ch
 
 ## Approach change
 
-wall: 48s
+wall: 72s
 
-Select only approach-none-unchanged for the no-conflict regression: compare a clean ready report, an ordinary repairable defect and binding pending CI with the pre-feature baseline. Keep the same report register, recommendations, numbered rows and hint when the reviewer appendix says none; add no rejection note or reject row. This test-only addition changes no skill wording. Preserve every other saved sample as earlier evidence; coverage is partial, with no live GitHub action or post-pick execution.
-
-Persist work_started before every work pick's handler, including failures, refusals and zero-blocker assess. Delete the rejection note at that boundary and retain the flag across head moves and re-entry. Back from the rejection menu instead persists reject_withdrawn and returns without posting, closing or clearing blockers. Verify carried approach blockers through closure lines and the repair delta, never a fresh whole-PR approach judgment after work starts.
-
-Select reject-not-after-pick for isolated pick-boundary probes, failed delivery, assess, successful repair-push and back continuations. Refresh only approach-conflict-report and reject-row-first-menu because their existing deterministic checks bind the shared edited prompt assembly. Preserve every other sample's saved results as earlier evidence. Coverage is partial: no live GitHub writes, full rejection-step execution, overrule implementation or batch run.
-
-The first lifecycle replay holds all ten candidate facts, and the refreshed first-menu replay holds all eight. One refreshed note judgment rejects the literal Markdown heading markers despite the spec's required ### headings and the local heading assertion passing; do not change that contract. Unfenced means no code fence around the note, not bare heading lines. Preserve this candidate outside the checkout, normalize the edited reference's trailing blank line, and rerun only these same three samples for the final assembly. Keep their expectations and baselines unchanged.
-
-Check the main mechanism before gate work against six evidence-backed approach grounds. Require the spec's line-oriented approach appendix (builds, path/conflicts with or smaller, instead, replaces) alongside delta-bounded native findings. Validate entries in order, using the base-path existence check only for base-evidence grounds. Reject unknown grounds, missing paths or remedies, absent smaller alternatives, and disguised local repairs as approach blockers. Honor non-blocking base-rubric overlays. Render each validated conflict as one or two plain-language problem sentences without double counting or letting the native verdict suppress approach blockers. Keep each base citation on the conflict and omit a separate remedy sentence from the problem item rather than expanding it past two sentences.
-
-Add a saved rejection note to the first report after its problems and before its recommendation. Require three headed sections under 180 words covering every open approach blocker and nothing else, with the ordinary role-first register and base citations. Done-check once before saving and hashing the note; display its bytes rather than composing again. Reuse an unchanged note and replace it only after a missing/unreadable file or a changed blocker set; remove it when no blocker remains or rejection is unavailable.
-
-The note edit selected approach-conflict-report, extending its isolated first-report checkpoint through the note preview and stopping before recommendations or menus. A model must compose a compact note from two different grounds in plain language; text assertions alone cannot establish its meaning or register. Reseed this sample's baseline after its bundle change. Verify headings, word count and saved judgments locally. Preserve approach-local-instance and every other sample's saved results as earlier evidence; coverage is partial, not rejection-menu, posting, closure or end-to-end persistence coverage. The new rejection-note reference is candidate-only at the supplied base.
-
-The first selected candidate kept all note-shape facts but failed one model's note-content fact: its component glosses followed their names. Tighten the note's role-first example and first-mention done-check, then rerun only approach-conflict-report with unchanged expectations and the saved baseline. Preserve the first candidate outside the checkout; the committed candidate records the latest wording, not a target-wide pass.
-
-Select reject-row-first-menu for the menu edit: offer reject on the first initial or obstacle menu while an approach blocker remains, independent of close permission, authorship and draft state. Put it after deliver and assess unless an open ground recommends reject; then put it first and name the first such conflict in one sentence. Keep needless machinery on the ordinary recommendation path. Initialize the note and monotonic work/withdrawal fields for each new invocation. Run approach-conflict-report only to refresh its assembly-bound note evidence after these shared prompt edits; its fixture and expectations stay unchanged. Other saved samples remain earlier evidence; coverage excludes reject-menu execution and posting. The first menu replay passed its original judgments, but one reply appended GitHub's unrelated merge restriction to the rejection reason. Strengthen the obstacle fact and add a local assertion; keep omission and merge-withhold sentences before, not inside, the conflict-only recommendation. Rerun only this menu sample before the note assembly refresh.
+Implement reject's frozen-note menu, close permissions, ordered post/close/cleanup steps, back and rejected settlement. Add run-only overrule mapping and dispositions, failed-repair three-section reporting and contributor-safe closure and coverage. Dispatch remedy-only approach repairs on both harnesses and carry their closure inputs across every post-work review, including external head moves. Keep pre-work approach detection, first-report wording and ordinary no-conflict menus.
 
 ## Teardown cells
 
@@ -46,12 +30,34 @@ Select reject-row-first-menu for the menu edit: offer reject on the first initia
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| approach-none-unchanged | anthropic/claude-opus-5-5 | unchanged | 17274 | report: holds -> holds (held); ready: holds -> holds (held); defect: holds -> holds (held); pending: holds -> holds (held); menu: holds -> holds (held) |
-| approach-none-unchanged | github-copilot/gpt-6.1-sol | unchanged | 9627 | report: holds -> holds (held); ready: holds -> holds (held); defect: holds -> holds (held); pending: holds -> holds (held); menu: holds -> holds (held) |
+| batch-reject-queue | anthropic/claude-opus-5-5 | improved | 10896 | queue: fails -> holds (intended change); back: fails -> holds (intended change); answer: fails -> holds (intended change) |
+| batch-reject-queue | github-copilot/gpt-6.1-sol | improved | 12940 | queue: fails -> holds (intended change); back: fails -> holds (intended change); answer: fails -> holds (intended change) |
 
 ## Approach feedback
 
-- approach-none-unchanged / anthropic/claude-opus-5-5: No fact moved: After keeps the two-sentence opening, the standing and problem paragraph, the single recommendation above Pick one, the same row order (merge/approve/stop for A, deliver/assess/stop for B and C), the gate line with recommended=1 and the exact hint, and it adds no reject row or rejection note inside any message. The one thing that came close is new in After: each checkpoint label now carries a parenthetical such as "integration: no blockers, no nits, no approach conflict, no rejection note. Tracker adds `report`, then `menu`" plus the full head SHA. I counted this as outside the report because it sits in the label before the gate line, but it is exactly the accounting, internal tracker vocabulary and absent-note narration the report fact forbids, and a stricter reader could fail report on it. To keep the no-conflict path identical to the baseline, say explicitly that when the approach appendix is none, integration and tracker steps are silent, that the absence of a conflict or note is never mentioned anywhere in the response (labels included), and that a checkpoint label is only its name. Smaller drift worth pinning down: B's report now states "A repair is drafted" in the problem paragraph as well as in the recommendation, and C's deliver row adds "repair anything it reveals"; both are harmless here, but wording that keeps repair status in the recommendation and row consequences limited to what the evidence supports would hold the register closer to Before.
-- approach-none-unchanged / github-copilot/gpt-6.1-sol: No fact moved: After keeps all five no-conflict facts that Before kept, which is the intended result for this regression sample. Each checkpoint still opens with exactly two sentences covering the on-demand download and the requested-reviewer role, then gives standing and any concrete problem, then one recommendation directly above Pick one. The menus keep the gate line with recommended=1, row 1 as the sole recommendation (merge for A, deliver for B and C), stop last, and the exact hint. No rejection note, reject row, approach-conflict explanation or overrule hint appears. The differences are only phrasing: the reviewer role moved into the second opening sentence, "for the commit being reviewed" was added, C now says outright that the check is still running, and the row consequences are reworded slightly. To keep this stable, keep the rejection-note and reject-row instructions explicitly conditional on an open approach blocker, and keep the two-sentence opening rule unchanged, since splitting the role into its own clause leaves little room before a third sentence would break the report fact.
+- batch-reject-queue / anthropic/claude-opus-5-5: All three facts moved from fails to holds, and Before held none of them, so nothing was lost. Before treated `reject`, `back` and `overrule 1` as undefined change requests, re-rendered the initial menu and called `rejected` an invalid outcome. After's wording makes reject a parent-owned terminal pick that waits until the round is collected, then renders `gauntlet: gate=gatekeep-pr/reject recommended=1` in its own message with the full saved note and a recommended note/close/cleanup row, with no child dispatch and cleanup run from /work/widgets rather than the removed worktree. Back now withdraws reject, deletes the note and leaves `work_started` false and P1 intact; the unchanged head gets a parent re-render with no reject row and no dispatch, while the moved head gets a step-3 report-mode dispatch that judges approach again and never restores reject. `overrule 1` is queued as #88's answer, recorded by the child against the last rendered numbering and re-rendered without resuming delivery, and the parent saves the rejected row before teardown and prints it only in the closing roster message. To keep this robust, state explicitly that the row is saved before the record is deleted (After says only "before tearing #88 down"), and keep the explicit lines that terminal steps dispatch no child and that the `gauntlet: retired` line carries no settlement row. In D, the claims that overrule deletes the note and leads straight to a final menu with merge go beyond what the facts need; keep them only if the procedure text specifies them, since they could conflict with ordinary-menu facts in other cases.
+- batch-reject-queue / github-copilot/gpt-6.1-sol: Before failed all three facts because its procedure had no reject, back or overrule actions: it treated each as a change request, rendered no reject menu and denied a `rejected` settlement. After moves all three. For queue, it holds `reject` as a parent-owned pick until PR 89's stop collects the round, then renders the menu under `gauntlet: gate=gatekeep-pr/reject recommended=1` with the full saved note and a recommended note/close/cleanup row, dispatches no child, and runs cleanup via `git -C /work/widgets`, not from the removed worktree. For back, B sets `reject_withdrawn`, deletes the note, leaves `work_started` false and the blocker untouched, and returns PR 88 with no dispatch; C dispatches step-3 re-entry on the moved head with whole-diff approach review and rejection still withdrawn. For answer, D queues `overrule 1`, has the child record it against the retained problem mapping and re-render without resuming delivery, and has the parent keep the `rejected` row before teardown and print it only in the final closing message. Three things are softer than the facts and worth tightening. First, the reject menu is announced with "The next message is…" inside the same output as the routing table and queue lines, so require the gate marker to be the first line of a genuinely separate message. Second, B says "retained report" but should say the retained report and its ordinary menu return. Third, D should say explicitly that the re-rendered report arrives in the next round and that the settlement row is retained before record deletion. Before held no fact, so there is nothing to preserve here.
 
 exit: 0
+
+## Selected sample evidence
+
+Coverage is limited to the 15 behavior-relevant samples below, not the full gatekeep-pr target. All 30 saved replay cells satisfy all 138 After facts; `scripts/gatekeep-reject.test.mjs` and `scripts/gatekeep-overrule.test.mjs` bind those cells to their current assembled bundles, inputs and expected facts. Each listed command is `node eval/run.mjs gatekeep-pr <sample>` and exited 0. No scope or merge-state model sample ran; their existing saved replies remain historical evidence.
+
+| Sample | Final verdict | Replay cells | After facts |
+|---|---|---|---|
+| reject-not-after-pick | improved | 2 | all hold |
+| approach-conflict-report | improved | 2 | all hold |
+| reject-row-first-menu | improved | 2 | all hold |
+| approach-blocker-other-row | improved | 2 | all hold |
+| stuck-blocker-sections | improved | 2 | all hold |
+| row-exhaustion | improved | 2 | all hold |
+| overrule-approach | improved | 2 | all hold |
+| reject-step-failures | improved | 2 | all hold |
+| approach-none-unchanged | unchanged | 2 | all hold |
+| approach-local-instance | improved | 2 | all hold |
+| reject-menu-note-preview | improved | 2 | all hold |
+| reject-back | improved | 2 | all hold |
+| overrule-stuck-blocker | improved | 2 | all hold |
+| consent-no-progress-stop | improved | 2 | all hold |
+| batch-reject-queue | improved | 2 | all hold |

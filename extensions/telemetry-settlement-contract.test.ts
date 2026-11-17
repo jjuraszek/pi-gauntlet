@@ -56,7 +56,7 @@ test("skill owners keep terminal rows after writes and cleanup", () => {
 
 test("gatekeep published gate markers and terminal settlements stay compatible", () => {
   const contract = read("doc/gate-contract.md");
-  for (const id of ["initial", "obstacle", "contract-exception", "final", "assess-terminal", "own-merge", "approved", "closed-pr", "merge-queued"]) {
+  for (const id of ["initial", "obstacle", "contract-exception", "final", "assess-terminal", "own-merge", "approved", "closed-pr", "reject", "merge-queued"]) {
     assert.ok(contract.includes(`| gatekeep-pr/${id} | gate | skills/gatekeep-pr/reference/menus.md |`), id);
   }
   assert.deepEqual(lintGateContract(fileURLToPath(new URL("../", import.meta.url))), []);
@@ -64,11 +64,11 @@ test("gatekeep published gate markers and terminal settlements stay compatible",
     .filter((line) => line.startsWith("| gatekeep-pr |"))
     .map((line) => line.split("|")[4].trim());
   assert.deepEqual([...new Set(terminals)].sort(), [
-    "gauntlet: done approved", "gauntlet: done merged", "gauntlet: done closed-pr",
+    "gauntlet: done approved", "gauntlet: done merged", "gauntlet: done closed-pr", "gauntlet: done rejected",
     "gauntlet: done final", "gauntlet: done merge-queued", "gauntlet: stuck",
     "gauntlet: done retired", "gauntlet: stuck retired",
   ].sort());
-  for (const outcome of ["approved", "merged", "closed-pr", "final", "merge-queued", "stuck - CI failed"]) {
+  for (const outcome of ["approved", "merged", "closed-pr", "rejected", "final", "merge-queued", "stuck - CI failed"]) {
     const marker = outcome.startsWith("stuck -") ? "gauntlet: stuck CI failed" : `gauntlet: done ${outcome}`;
     for (const ticket of [undefined, "#12"]) {
       const row = `#31@${head}: ${outcome}${ticket ? ` (${ticket})` : ""}`;
@@ -85,7 +85,7 @@ test("configuration names the settlement grammar and per-skill tokens", () => {
   assert.ok(docs.includes("<ref>: <outcome>[ (<ticket ref>)]"));
   for (const tokens of [
     ["shape-ticket", "written", "closed", "close failed (<operation>: <reason>)", "close by hand", "dropped", "declined", "stopped", "no-op", "unfetched"],
-    ["gatekeep-pr", "approved", "merged", "closed-pr", "final", "merge-queued", "stuck - <reason>"],
+    ["gatekeep-pr", "approved", "merged", "closed-pr", "rejected", "final", "merge-queued", "stuck - <reason>"],
     ["check-delivery", "delivered", "manual", "declined", "already recorded", "skipped", "failed - <reason>"],
   ]) {
     const row = docs.split("\n").find((line) => line.startsWith(`| ${tokens[0]} |`));

@@ -1,0 +1,120 @@
+{
+  "sample": "reject-step-failures",
+  "arm": "candidate",
+  "skillSha": "deda9ebea26e3b296f225b3b33fe136ce47750916c6e6bd1610a1f2e6cb2f204",
+  "inputSha": "cb7b388e1d083835cf2f2abb57e3e485cbbc844679422db63b60cfe8bb8fa16b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# gatekeep-pr reject-menu settlement for PR 88 in example/widgets\n\n**Shared execution order:** note, then close, then cleanup, regardless of the order typed.\n\n1. Before a picked note or close, run a freshness read: `gh pr view 88 -R example/widgets --json headRefOid,state,body,baseRefName`. Compare the result with the reviewed snapshot and the stored target.\n2. Before the note, hash the saved note file and compare it with `reject.note_sha256`.\n3. The note posts with `gh api --method POST repos/example/widgets/pulls/88/reviews -f commit_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -f event=REQUEST_CHANGES -f body=<saved file bytes>`. The viewer is not the author, so the event is REQUEST_CHANGES.\n4. Before close, re-read close permission. Close runs `gh pr close 88 -R example/widgets`, then reads back with `gh pr view 88 --json state`.\n5. Cleanup runs `cleanup.md` steps 1-3:\n   - The worktree is removed.\n   - The branch is kept because the PR is unmerged.\n   - The base pull is skipped.\n\nEach result is saved as it happens and printed once as `<label>: <result>`. Nothing is retried, and `work_started` does not change.\n\n| Row | Selected-step results | Terminal marker / settlement row | Note file | Worktree handling |\n|---|---|---|---|---|\n| A (2,3) | post the rejection note: failed - HTTP 403 review forbidden<br>close the PR: skipped - note not posted (nothing sent) | `gauntlet: stuck HTTP 403 review forbidden`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - HTTP 403 review forbidden` (Non-final stop) | Kept at /tmp/gatekeep-note.synthetic and named as unposted | Cleanup ran 0 times. Non-final stop removed the worktree once (`worktree: done`). No branch or base step ran. |\n| B (2,3) | post the rejection note: done (commit_id matched)<br>close the PR: failed - HTTP 403 close forbidden (readback OPEN, so no close is claimed) | `gauntlet: done rejected`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected` | Deleted at teardown because it was posted | Cleanup ran 0 times. The checkout stays as found at /work/widgets-pr-88 with its local branch. Unpicked cleanup is listed with its commands, and the failed close is listed as a not-run step. |\n| C (1) | post the rejection note: skipped - PR changed since review<br>close the PR: skipped - PR changed since review (this freshness skip is kept, not replaced with \"note not posted\")<br>cleanup: worktree: done; branch: skipped - PR not merged; base: skipped - PR not merged | `gauntlet: stuck PR changed since review`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - PR changed since review` (Non-final stop) | Kept and named | Cleanup ran 1 time. Non-final stop reuses the recorded result, reports the worktree as already removed, and inspects nothing. |\n| D (2) | post the rejection note: skipped - note changed since preview (nothing sent; posting it later needs a new preview) | `gauntlet: stuck note changed since preview`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - note changed since preview` | Kept and named as unposted | Cleanup ran 0 times. Non-final stop removed the worktree once. |\n| E (4) | cleanup: worktree: done; branch: skipped - PR not merged; base: skipped - PR not merged | `gauntlet: stuck stopped at reject`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - stopped at reject` | Kept and named | Cleanup ran 1 time. Non-final stop reports the worktree as already removed and does not handle it again. |\n| F (1) | post the rejection note: failed - HTTP 502 upstream error<br>close the PR: skipped - note not posted<br>cleanup: worktree: done; branch: skipped - PR not merged; base: skipped - PR not merged | `gauntlet: stuck HTTP 502 upstream error`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - HTTP 502 upstream error` | Kept and named | Cleanup ran 1 time. Non-final stop does not inspect the removed path. |\n| G | No step was picked; the menu is shown below | No terminal marker; still waiting | Kept, pending a pick | Not touched |\n| H (2,5) | Nothing ran; a clarification is shown below | No settlement; still waiting | Kept | Not touched |\n| I (3) | close the PR: done (permission re-read true; readback CLOSED). The note was not picked and was not required. | `gauntlet: done rejected`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected` | Kept and named as an unposted post payload | Cleanup ran 0 times. The checkout stays at /work/widgets-pr-88 with its branch, and the unpicked cleanup commands are listed. |\n| J (1) | post the rejection note: skipped - PR is MERGED<br>close the PR: skipped - PR is MERGED<br>cleanup: worktree: done; branch and base pull not run here | `gauntlet: stuck PR is MERGED`<br>`#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - PR is MERGED` (Non-final stop) | Kept and named | Cleanup ran 1 time. Non-final stop reports the worktree as already removed. The closing message says someone else merged the PR outside this run; it does not say this run merged or rejected it. |\n\nThe not-run sentences in each closing message repeat the literal commands for any unpicked or skipped cleanup work:\n\n- `git -C <primary> worktree remove --force /work/widgets-pr-88`\n- `git -C <primary> branch -D <branch>`\n- `git -C <primary> fetch origin` then `git -C <primary> pull --ff-only`\n\n**G - reject menu (close permission unreadable)**\n\ngauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\nA job copies the catalog.\n### Why it does not fit this repo\nThe change feed already supplies catalog edits, docs/architecture.md:12.\n### What to do instead\nConsume the change feed and remove the copy.\n\nThe permission to close this PR could not be read, so closing it is not offered.\n\nI recommend posting the note and cleaning up, because the note tells the author what to build instead and the checkout is no longer needed.\n\nPick one, or several separated by commas:\n1. post the rejection note, cleanup - rows 2 and 3. [recommended]\n2. post the rejection note - post the saved note above as a review requesting changes on the commit being reviewed.\n3. cleanup - remove /work/widgets-pr-88 (including untracked files). The local branch is kept and the main checkout is not pulled, because the PR is not merged.\n4. back - return to the first menu without posting or closing anything; rejecting this PR would then take a new run.\n5. stop - post and close nothing, and remove the eligible worktree /work/widgets-pr-88.\n\nType a number; show evidence prints the full record.\n\n**H - reply `2,5` at the original menu**\n\ngauntlet: question\n\nBack must be picked on its own, so I ran nothing. Reply with one or more of 1-4 separated by commas, or with 5 (back) or 6 (stop) by itself.\n\nStill-waiting behavior: the original six-row menu stays open with its saved mapping. No freshness read, write, cleanup, or settlement happens, and `work_started`, `reject_withdrawn` and `post_steps` stay unchanged. If the next reply is also invalid, the same menu keeps waiting without another question or `gauntlet: question` marker, and still nothing runs.\n",
+      "words": 1008,
+      "wallMs": 62521,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Each case starts independently from the shared snapshot. Cleanup counts below count executions, including automatic cleanup on a non-final stop.\n\n| Case | Selected-step results | Terminal marker and settlement row | Note retention | Cleanup count |\n|---|---|---|---|---|\n| A | post the rejection note: failed - HTTP 403 review forbidden. close the PR: skipped - note not posted; no close command is sent. Non-final stop removes the worktree. | gauntlet: stuck HTTP 403 review forbidden<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - HTTP 403 review forbidden | Retain /tmp/gatekeep-note.synthetic. | 1 |\n| B | post the rejection note: done. close the PR: failed - HTTP 403 close forbidden; the PR remains open. Terminal teardown leaves the unpicked worktree cleanup undone. | gauntlet: done rejected<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected | Delete the successfully posted note at teardown. | 0 |\n| C | post the rejection note: skipped - PR changed since review. close the PR: skipped - PR changed since review. Preserve both freshness skips; do not replace the close result with a dependency reason. Picked cleanup succeeds. | gauntlet: stuck PR changed since review<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - PR changed since review | Retain /tmp/gatekeep-note.synthetic. | 1 |\n| D | post the rejection note: skipped - note changed since preview. Send no review. Non-final stop removes the worktree. | gauntlet: stuck note changed since preview<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - note changed since preview | Retain /tmp/gatekeep-note.synthetic; its changed bytes have not been approved for posting. | 1 |\n| E | cleanup: done. Neither note nor close was picked. Non-final stop uses the saved cleanup result and does not inspect the removed path. | gauntlet: stuck stopped at reject<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - stopped at reject | Retain /tmp/gatekeep-note.synthetic. | 1 |\n| F | post the rejection note: failed - HTTP 502 upstream error. close the PR: skipped - note not posted. cleanup: done. Non-final stop uses the saved cleanup result without inspecting or removing the worktree again. | gauntlet: stuck HTTP 502 upstream error<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - HTTP 502 upstream error | Retain /tmp/gatekeep-note.synthetic. | 1 |\n| I | close the PR: done; readback confirms CLOSED. No note was picked or required. Terminal teardown leaves the unpicked worktree cleanup undone. | gauntlet: done rejected<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected | Retain the unposted note at /tmp/gatekeep-note.synthetic. | 0 |\n| J | post the rejection note: skipped - PR is MERGED. close the PR: skipped - PR is MERGED. Preserve both state skips. Picked cleanup succeeds; this run neither merged nor rejected the PR. | gauntlet: stuck PR is MERGED<br>#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - PR is MERGED | Retain /tmp/gatekeep-note.synthetic. | 1 |\n\nFor A, C, D, E, and F, cleanup removes the worktree, including untracked files, but leaves the local branch and does not pull the base because the PR is unmerged. For B and I, terminal teardown does not run unpicked cleanup. Every failed or skipped write is recorded once without retry.\n\n### G\n\ngauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\nA job copies the catalog.\n### Why it does not fit this repo\nThe change feed already supplies catalog edits, docs/architecture.md:12.\n### What to do instead\nConsume the change feed and remove the copy.\n\nThe permission to close this PR could not be read.\n\nI recommend posting the rejection note and cleaning up because those steps are available without permission to close the PR.\n\nPick one, or several separated by commas:\n1. post the rejection note, cleanup - rows 2 and 3. [recommended]\n2. post the rejection note - post the saved text as a request-changes review pinned to the commit being reviewed.\n3. cleanup - remove /work/widgets-pr-88, including untracked files; keep the local branch and skip the base pull because the PR is not merged.\n4. back - return to the assessment menu without posting, closing, or cleaning up; rejecting this PR afterward takes a new run.\n5. stop - post and close nothing; remove the eligible worktree and end this run.\n\nType a number; show evidence prints the full record.\n\n### H\n\ngauntlet: question\n\nWhich selection do you want from rows 1-6: note alone (2), back alone (5), or another valid selection, given that back cannot be combined with another step?\n\nNothing runs or settles. The original menu and its mapping remain unchanged while awaiting a valid selection.\n",
+      "words": 636,
+      "wallMs": 35845,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "6c57cee28adcf59712c91ee872db91f75f0208ff40fd637e6501815cd6db3032",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "7fad54b1dfa70ee158c2b3adfe6480e3e57ed80dbfc2028e82754cfe47c5281e",
+      "candidateOutputSha": "749a9b018b591ed16655ce8e508bfbbdf1507b938fa266359f740309c880b6ea",
+      "facts": {
+        "note-failure": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "close-failure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "changed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cleanup": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "permission": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "invalid-set": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved two facts and lost none. close-failure moved because After adds a `rejected` settlement: B now ends `done rejected` on the posted note despite the failed close (readback OPEN, failed close listed, note deleted at teardown) and I settles `rejected` on close alone, where Before had B as `stuck - close failed` and I as `closed-pr`. changed moved because After keeps the freshness reason on both steps: C's close is skipped as `PR changed since review` rather than Before's `the note was not posted`, D uses `note changed since preview`, and J skips both as `PR is MERGED` and settles stuck instead of Before's `done closed-pr`, with picked cleanup still running. The four facts Before already satisfied survive: failed-note rows stay stuck with the actual HTTP failure and close skipped as note not posted, E is `stuck - stopped at reject` with one cleanup, G states the unreadable permission and drops only the close row, and H gets one clarification with the menu still waiting. To keep them, preserve the explicit `Nothing is retried` rule, the wording that Non-final stop reuses the recorded cleanup result and does not inspect the removed path, and the retained-note statement on every unposted row. One thing to watch: in A and D, Non-final stop now removes the worktree although cleanup was not picked. No fact here forbids that, but say explicitly that this is the stop path's own removal, run once, so it is not read as an unpicked step or a retry.",
+      "wallMs": 15610,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "6c57cee28adcf59712c91ee872db91f75f0208ff40fd637e6501815cd6db3032",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "2261bdac64e9a23c0c95867b7c930e0c243163ec7629de927eba02d94408b4dd",
+      "candidateOutputSha": "7584349c9b46ec751c4be58d2493ffb65147ef78f83188472debab340176678e",
+      "facts": {
+        "note-failure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "close-failure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "changed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cleanup": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "permission": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "invalid-set": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Before refused rows A-G, I and J outright, saying the skill defined no reject menu, step rules or rejected settlement, so five facts failed there. The After wording supplies that contract and moves all five to holds. A and F print the real HTTP failure, skip close as note not posted, retain the note and settle stuck, with F reusing its single cleanup result. B and I settle rejected, with B's close failure listed, the PR left open and the posted note deleted. C, D and J skip with the freshness or state reason and still run picked cleanup. E ends stuck stopped at reject with branch and base untouched. G states that close permission could not be read, drops the close row, renumbers the remaining rows and prints the full note. The invalid-set fact held in Before only because it answered H from generic selection rules (one clarification, menu waiting, nothing run); I judged that on H's own text despite the whole-output stuck marker above it, which is a close call. After keeps it with a non-terminal question marker and an unchanged menu. To keep all six, preserve the single-clarification rule for back or stop combined with runnable steps, the 'note not posted' dependency skip as distinct from freshness skips, and the once-only cleanup record. One thing to tighten: in A and D cleanup was not picked, yet After shows the non-final stop removing the worktree with a count of 1. No fact here contradicts that, but say explicitly that this removal is the stop's own automatic cleanup rather than a selected step, so it cannot be read as a retry or an unpicked step executing.",
+      "wallMs": 17941,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

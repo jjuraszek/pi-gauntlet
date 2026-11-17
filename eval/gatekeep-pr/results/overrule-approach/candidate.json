@@ -1,0 +1,90 @@
+{
+  "sample": "overrule-approach",
+  "arm": "candidate",
+  "skillSha": "deda9ebea26e3b296f225b3b33fe136ce47750916c6e6bd1610a1f2e6cb2f204",
+  "inputSha": "2c7ee387c8261cf715ca64656103285aac0386f6c0f6b5be0b505b06c52c08c2",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Inspection\n\n| Snapshot | Command | Eligible IDs (marked overruled) | Not eligible or still open | Record and note changes |\n|---|---|---|---|---|\n| A | `overrule 1` against `[{n:1, ids:[P1,P2,P3]}]` | P1 (approach blocker), P2 and P3 (same flaw, set aside with P1) | none | P1/P2/P3 get `(dispositioned: overruled)` and are not marked resolved. No open approach blocker remains, so the note file `/tmp/gatekeep-note.synthetic` is deleted and `reject` is set to null. `work_started` stays false, `reject_withdrawn` stays false, course stays null, and usage and caps are unchanged. `blocker_numbers` becomes `[]`. |\n| B | `overrule 1` against `[{n:1, ids:[P1,P2,P3,L1]}]` | P1, P2, P3 | L1 is an independent requirement gap with no repair attempt in this run, so it stays open. | P1/P2/P3 get `(dispositioned: overruled)`. Problem 1 stays open because of L1. No open approach blocker remains, so the note file is deleted and `reject` is set to null. Flags, course and accounting are unchanged. `blocker_numbers` becomes `[{n:1, ids:[L1]}]`. |\n| C | `overrule 2`, then `overrule` | none | 2 is outside `[{n:1, ids:[P4]}]`. The bare `overrule` has no number. P4 is unattempted, so it could not be set aside anyway. | Nothing changes. There is no refresh, no record write, no note change and no question marker. |\n\nFor A and B, the only commands run are the pre-menu refresh reads:\n- `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,…`\n- `gh run list -R example/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json …`\n- Section A's fixed GraphQL query for close and bypass permission.\n\nThe head, body and base all match, so assessment stays bound to `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. The saved note file is then removed. No helper is dispatched and no repair, post, close, approval or merge happens. The tracker stays at its open `menu` stage. Nothing was posted by this run, so there is no review to dismiss.\n\nFor A, a later run starts fresh: this set-aside lasts only for this run, so a new run would report the second catalog copy as a problem again.\n\n---\n\n### A - updated report and menu\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds catalog indexing and safe CSV export, both of which its description promises, and you are its author. Both behaviors have working code and tests at the commit being reviewed, and nothing is left to observe after merge.\n\nNothing blocks merging, and the required checks passed in CI on this commit. You set aside one problem for this run: the PR builds a second copy of the catalog, while the architecture document says changes should flow through the change feed (docs/architecture.md:12). You cannot approve your own PR.\n\nI recommend merge because every required check passed and nothing else stands in the way.\n\nPick one:\n1. merge - squash-merge into main as one commit, with a message composed from the PR's title and description. [recommended]\n2. stop - leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n\n---\n\n### B - updated report and menu\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds catalog indexing and safe CSV export, both of which its description promises, and you are its author. Indexing is covered by code and tests, but safe CSV export is not complete yet because column headers are written without escaping.\n\nOne problem blocks merging: column headers that contain a comma or a quote go into the CSV unescaped, so a header like Size, cm splits into two columns and the export breaks its safe-export promise (src/export.js:31; the quotes headers test in test/export.test.js). You set aside one problem for this run: the PR builds a second copy of the catalog, while the architecture document says changes should flow through the change feed (docs/architecture.md:12).\n\nI recommend deliver because the header-escaping repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair the header escaping, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if it is clean and fully pushed.\n\nType a number; show evidence prints the full record.\n\n---\n\n### C - `overrule 2`\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nProblem 2 is not in the current report, so nothing was set aside.\n\nI recommend deliver because the missing-name repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair the missing-name crash, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if clean and fully pushed.\n\nType a number; show evidence prints the full record.\n\n---\n\n### C - `overrule`\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nNo problem number was given, so nothing was set aside.\n\nI recommend deliver because the missing-name repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair the missing-name crash, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if clean and fully pushed.\n\nType a number; show evidence prints the full record.\n",
+      "words": 843,
+      "wallMs": 45073,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The entry starts at the displayed report/menu boundary, so I initialize no tracker stages and dispatch no helpers. Verification is not repeated; the existing green evidence remains bound to aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.\n\nEach snapshot is independent.\n\n| Snapshot | Eligible contributors | Record and note changes |\n|---|---|---|\n| A: `overrule 1` | P1, P2, P3 | Mark all three overruled, not resolved. Replace the rendered blocker mapping with an empty list. Delete `/tmp/gatekeep-note.synthetic` and set `reject` to null; neither note nor reject remains. |\n| B: `overrule 1` | P1, P2, P3; not independent, unattempted L1 | Mark only the three eligible contributors overruled. Keep L1 open as problem 1. Delete `/tmp/gatekeep-note.synthetic` and set `reject` to null; neither note nor reject remains. |\n| C: `overrule 2` | None: 2 is absent from the current mapping | No state change, refresh, or note change. Do not consult the original mapping. |\n| C: `overrule` | None: no number supplied | No state change, refresh, or note change. P4 remains untouched. |\n\nFor A, I validate the saved record and resolve the command against the last displayed problem mapping, persist the accepted dispositions, and delete the saved note with `rm /tmp/gatekeep-note.synthetic`. I then run these read-only commands in order:\n\n1. `gh pr view 88 -R example/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`\n2. `gh run list -R example/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`\n3. `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=example -f r=widgets -F n=88`\n\nThe refresh matches. I persist the empty problem mapping and render final without resuming work.\n\nFor B, starting again from its independent original snapshot, I validate the record, resolve the displayed problem, persist only its eligible dispositions, and run `rm /tmp/gatekeep-note.synthetic`. I then run the same three refresh commands above, in the same order, persist the remaining problem mapping, and render initial without resuming work.\n\nFor each invalid C command, I check only its syntax and the retained current mapping. I run no command, dispatch no helper, and change nothing.\n\n### A\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR adds catalog indexing and safe CSV export, and you are its author. The CSV export behavior is covered, while the indexing design conflict has been set aside for this run.\n\nNothing blocks merging. You set aside one problem for this run: the second catalog copy conflicts with the architecture document's change-feed boundary (docs/architecture.md:12). You cannot approve your own PR.\n\nA later new run judges the conflict afresh; this decision does not carry forward.\n\nI recommend merge because verification passed and no unresolved problem blocks merging.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR open and keep the checkout as it is.\n\nType a number; show evidence prints the full record.\n\n### B\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR adds catalog indexing and safe CSV export, and you are its author. Safe CSV export remains incomplete because header escaping is missing.\n\nOne problem blocks merging: CSV headers are not escaped, so a header containing a quote can produce malformed output (src/export.js:31; test `quotes headers` in test/export.test.js). You set aside one problem for this run: the second catalog copy conflicts with the architecture document's change-feed boundary (docs/architecture.md:12).\n\nI recommend deliver because the header-escaping repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair CSV header escaping, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if clean and fully pushed.\n\nType a number; show evidence prints the full record.\n\n### C: `overrule 2`\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nProblem 2 is not in the current report, so nothing was set aside.\n\nI recommend deliver because the missing-name repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair the missing-name crash, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if clean and fully pushed.\n\nType a number; show evidence prints the full record.\n\n### C: `overrule`\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nNo problem number was given, so nothing was set aside.\n\nI recommend deliver because the missing-name repair fits the PR's promise and needs no decision from you.\n\nPick one:\n1. deliver - repair the missing-name crash, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the remaining problem as a review and make no repairs.\n3. stop - leave the PR open and remove this run's checkout if clean and fully pushed.\n\nType a number; show evidence prints the full record.\n",
+      "words": 769,
+      "wallMs": 89423,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a08f87bc8359e6dd942e0d62cd838935201718b93dc6ab6c7a797394948dec1e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "7aaf4a3310b0eaa7053c0de5bfa4e9d8282487a3effc569d87443e17d8dae141",
+      "candidateOutputSha": "7a82eb6908d9f9161866ae20f03b072f971977837c1ae7e778fcbcbd82894cfc",
+      "facts": {
+        "same-flaw": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mapping": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved all three facts from fails to holds, and nothing Before kept was lost. For same-flaw and independent, Before kept the note file, its hash and reject on record after the overrule, whereas After marks P1/P2/P3 as `(dispositioned: overruled)` without resolving them, deletes the note, sets reject to null once no open approach blocker remains, and in B leaves L1 as the sole entry in `blocker_numbers` with an initial deliver/assess/stop menu and no merge. For mapping, both outputs resolve against the current `[{n:1,ids:[P4]}]` and re-show the same menu with no state change or question marker, but Before's bare-`overrule` refusal said \"Overrule needs the number of the problem to set aside, and the current report lists only problem 1\", which steers the reader towards `overrule 1` on the ineligible P4. After's refusals (\"Problem 2 is not in the current report, so nothing was set aside\" and \"No problem number was given, so nothing was set aside\") avoid that. To keep this stable, the wording should say explicitly that a refusal sentence states only why the command was not applied and never names a valid problem number or implies an overrule would work, and that the remark about P4 being unattempted belongs only in the inspection table, as After has it. It should also keep explicit the rule that note deletion and reject clearing happen exactly when the last open approach contributor is overruled, and that the one-sentence set-aside line and the fresh-judgement note for a later run are stated; After put the later-run sentence outside the rendered report, which is fine here but worth pinning down.",
+      "wallMs": 15679,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a08f87bc8359e6dd942e0d62cd838935201718b93dc6ab6c7a797394948dec1e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "875f752efc3e9bdedeb1d03a92553c567ffcbe203f3dbc5be13c53742a425d4d",
+      "candidateOutputSha": "4c5ab090e11ed20efbc0932adb0957b4074953e3a7fae344a51e6e573d3cf599",
+      "facts": {
+        "same-flaw": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mapping": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before failed all three facts because it treated `overrule` as undefined and rendered no dispositions, reports or menus. After moves all three, and nothing Before held was lost. For same-flaw, A marks P1/P2/P3 overruled rather than resolved, deletes the note, nulls reject, names the set-aside conflict in one sentence, renders final with merge recommended, and says a later run judges afresh. For independent, B lifts only P1/P2/P3, keeps unattempted L1 as the sole blocker, and renders initial with deliver/assess/stop, no merge and no resumed course. For mapping, both C commands get a one-sentence refusal against the current [P4] mapping and the same menu, with no state change, no question marker and no overrule suggestion for P4. Two things in After are fragile. First, it narrates `rm` and three `gh` refresh commands as if executed, although the entry says to use no tools and the refresh already matches; a stricter reader could count that against the 'no write or dispatch' clause. Wording that says the note deletion and null reject are recorded state changes, and that the already-matching pre-menu refresh is reused, would be safer. Second, the C refusal turns repeat the gate line and the 'I recommend deliver' sentence. That is acceptable as part of the same menu, but the wording should make explicit that a refusal is one sentence plus the menu, not a re-rendered report, so the summary and problem paragraphs are never copied in.",
+      "wallMs": 12670,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

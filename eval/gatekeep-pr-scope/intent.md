@@ -1,10 +1,10 @@
-for: 4c17188a6671fdd06ff9ca0bd81ea24a4c284c3b0d96d06a8e9f95a86db08dce
+for: f621ccb14c23b74515a68c1cc4163b82c6282101070146cc7096f2ad157c37b9
 
 ## Change
 
 Scratch relocation changes the shared assembly only. Validate paths deterministically; preserve saved scope results as earlier evidence. No scope sample runs; the only selected model sample is gatekeep-pr/teardown-own-run-folder.
 
-Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
+Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
 Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
 

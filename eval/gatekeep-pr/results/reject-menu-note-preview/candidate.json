@@ -1,0 +1,100 @@
+{
+  "sample": "reject-menu-note-preview",
+  "arm": "candidate",
+  "skillSha": "deda9ebea26e3b296f225b3b33fe136ce47750916c6e6bd1610a1f2e6cb2f204",
+  "inputSha": "7deee3f57396bb2216330ead8681c3d1eefb50af4484e2b9e4c30f1a2c01c7a3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\n\nA nightly job keeps a second copy of the catalog for search.\n\n### Why it does not fit this repo\n\nThe change feed, the stream announcing catalog edits, is the existing catalog interface for other parts of the system, docs/architecture.md:12. A second copy can disagree with it.\n\n### What to do instead\n\nUpdate search from the change feed and remove the nightly copy.\n\nI recommend posting the note, closing the PR and removing the worktree, because a second catalog copy conflicts with the change feed and no repair keeps the PR's own design.\n\nPick one, or several separated by commas:\n1. post the rejection note, close the PR, cleanup - rows 2, 3 and 4. [recommended]\n2. post the rejection note - post the saved note above as a review requesting changes on PR 88, pinned to the commit that was reviewed.\n3. close the PR - run `gh pr close 88 -R example/widgets`, with no comment and no branch deletion.\n4. cleanup - remove /work/widgets-pr-88 (untracked files in it are deleted too); the local branch pr-88 is kept and main is not pulled, because the PR is not merged.\n5. back - return to the earlier menu with nothing posted or closed; rejecting this PR afterward takes a new run.\n6. stop - post and close nothing, remove /work/widgets-pr-88 and leave the PR open.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Execution transcript**\n\nHow the menu was reached. When you picked reject, the freshness check passed, the run record was saved with the reject menu marked open, and the pre-menu refresh ran. It re-read the PR's head, description and base, which were unchanged, and confirmed that you can still close the PR. The reject steps were saved before rendering with their labels, commands and payload file. Nothing was written to GitHub.\n\nHow the note post gets its body. The post does not compose any new text. It reads the saved file /tmp/gatekeep-note.synthetic, checks the file's SHA-256 against the stored hash from the preview, and sends those exact bytes, final newline included, as the review body.\n\nReply `1,2,4,2`:\n- Row 1 expands to rows 2, 3 and 4. After duplicates are dropped, the selected set is: post the note, close the PR, cleanup.\n- No back or stop is mixed in, so the reply is valid.\n- Reject-menu steps leave `work_started` false.\n- The picked flags are saved, and the steps run in step order: note, close, cleanup.\n\n1. Freshness guard for the note and close steps:\n   - `gh pr view 88 -R example/widgets --json headRefOid,state,body,baseRefName` showed head aaaaaaa, state OPEN, an unchanged body and base main.\n   - The fixed GraphQL permission query showed that `viewerCanClose` is true.\n2. Note hash check: `shasum -a 256 /tmp/gatekeep-note.synthetic` matched the stored hash. The pre-post wording check read the note and changed no bytes.\n3. Note post: `gh api --method POST repos/example/widgets/pulls/88/reviews -f commit_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -f event=REQUEST_CHANGES -F body=@/tmp/gatekeep-note.synthetic`. The event is request changes because the viewer is not the author. The response's commit matched the assessed head.\n4. Close: `gh pr close 88 -R example/widgets` exited zero. The readback `gh pr view 88 -R example/widgets --json state` returned CLOSED, and that state was recorded.\n5. Cleanup:\n   - `git -C /work/widgets-pr-88 status --porcelain --untracked-files=no` was empty, so the worktree was eligible for removal.\n   - `git -C /work/widgets worktree remove --force /work/widgets-pr-88` ran from the primary checkout, followed by `git -C /work/widgets worktree prune`.\n   - The branch was not deleted and main was not pulled, because the PR closed without merging.\n6. Settlement: the note posted and the close was confirmed, so the run settles as rejected through Teardown. Teardown deleted the posted note file, the run record and the helper output files.\n\n---\n\ngauntlet: done rejected\n#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected\n\nThe checkout /work/widgets-pr-88 was removed. The local branch pr-88 remains in the primary checkout /work/widgets.\n\npost the rejection note: done - review posted at aaaaaaa\nclose the PR: done - closed\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\n\nThe branch deletion was skipped because the PR closed without merging; to delete the branch yourself, run `git -C /work/widgets branch -D pr-88`. The base pull was skipped for the same reason; to update main yourself, run `git -C /work/widgets fetch origin` then `git -C /work/widgets pull --ff-only`.\n",
+      "words": 710,
+      "wallMs": 40011,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\n\nA nightly job keeps a second copy of the catalog for search.\n\n### Why it does not fit this repo\n\nThe change feed, the stream announcing catalog edits, is the existing catalog interface for other parts of the system, docs/architecture.md:12. A second copy can disagree with it.\n\n### What to do instead\n\nUpdate search from the change feed and remove the nightly copy.\n\nI recommend posting the note, closing the PR and cleaning up because the saved review explains the conflict and the worktree can be removed.\n\nPick one, or several separated by commas:\n1. post the rejection note, close the PR, cleanup - rows 2, 3 and 4. [recommended]\n2. post the rejection note - post the saved text as a request-changes review on this commit.\n3. close the PR - close example/widgets#88 without a comment or remote branch deletion.\n4. cleanup - remove /work/widgets-pr-88, including untracked files; keep pr-88 and skip pulling main because the PR is not merged.\n5. back - return without posting or closing; rejecting this PR afterward takes a new run.\n6. stop - post and close nothing; remove the eligible worktree and end this run.\n\nType a number; show evidence prints the full record.\n\n**Execution transcript for the later reply `1,2,4,2`**\n\nThe combination expands to note, close and cleanup. The individual selections add only duplicates, so each step runs once, in that execution order. I save the selected steps before execution; rejection leaves the course unset and does not change whether repair work has started. No tracker initialization, provisioning, assessment or helper dispatch runs in this entry.\n\n1. Before posting, run `gh pr view 88 -R example/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`. The commit, open state, description and base match the preview.\n2. Run `shasum -a 256 /tmp/gatekeep-note.synthetic`. The hash matches the saved preview, and the pre-post wording check leaves its bytes unchanged.\n3. Run `gh api --method POST repos/example/widgets/pulls/88/reviews -f commit_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -f event=REQUEST_CHANGES -F body=@/tmp/gatekeep-note.synthetic`. The `-F body=@...` argument reads the saved file as the request's body, including its final newline; the note is not composed again. The response confirms the reviewed commit. Save the successful result immediately.\n4. Before closing, repeat `gh pr view 88 -R example/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`. Everything still matches.\n5. Re-read close permission with `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=example -f r=widgets -F n=88`. Close permission remains true.\n6. Run `gh pr close 88 -R example/widgets`, then `gh pr view 88 -R example/widgets --json state`. The readback confirms CLOSED. Save that result immediately.\n7. For cleanup, run `git -C /work/widgets-pr-88 status --porcelain --untracked-files=no` and `git -C /work/widgets-pr-88 merge-base --is-ancestor HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Both checks pass; the supplied ownership match also permits removal.\n8. Run the recorded destroy command, `git -C /work/widgets worktree remove --force /work/widgets-pr-88`, then `git -C /work/widgets worktree prune`. Save cleanup's successful result. Run no branch deletion or base pull.\n9. Finish teardown without another worktree inspection or menu. Delete the successfully posted note and the run's temporary records and helper artifacts, if present; retain the completed results for settlement.\n\ngauntlet: done rejected\n#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected\n\npost the rejection note: done\nclose the PR: done\ncleanup: done\nworktree: done\nbranch: skipped - PR not merged\nbase: skipped - PR not merged\n\nRemoved /work/widgets-pr-88; local branch pr-88 remains.\n\nBranch deletion did not run because the PR was not merged: `git -C /work/widgets branch -D pr-88`.\nThe base update did not run because the PR was not merged: `git -C /work/widgets fetch origin` then `git -C /work/widgets pull --ff-only`.\n",
+      "words": 589,
+      "wallMs": 29184,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ee7b58e89ad4c6bb4e23317a93924cdc7e01d0b9e32be3543fe5a4232d7d4d99",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "46f71a26d55e329a5aad2fac12f0798f2b9fdbe6a821d5c948823e30b6d74271",
+      "candidateOutputSha": "7c15d493d5a0830d06cf0218a1a87e418670ca3923416ea62b671b4917a4c172",
+      "facts": {
+        "preview": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "set": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "settlement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All four facts moved from fails to holds, as expected, and Before held none of them, so After has nothing to regain. Preview moved because After prints the saved note in full under the gate marker, with its three headings and no code fence, followed by the recommendation and the comma-set prompt; Before only referred to the note. Rows moved because After adds the single back row before stop, names the note step 'post the rejection note', and has the cleanup row say that untracked files are deleted and that the unmerged branch pr-88 is kept. Set moved because the note POST now uses event=REQUEST_CHANGES (Before used COMMENT) with the saved file as body, the assessed commit_id and a check of the response commit, and the close row states no comment and no branch deletion. Settlement moved because After ends with 'gauntlet: done rejected' and the full-head '#88@…: rejected' row (Before ended 'closed-pr'), with per-step results and skipped branch and base reasons and no further menu. To keep these stable, keep the wording that requires the verbatim unfenced note before the recommendation, the fixed row order (combination, note, close, cleanup, back, stop), REQUEST_CHANGES for a non-author viewer with the response commit check, and rejected settlement whenever the note or close succeeds. Two smaller points to pin down: the transcript abbreviates the head to 'aaaaaaa' in the freshness and result lines, so consider requiring the full SHA wherever a head is shown, and the menu still ends with 'Type a number' after a comma-set prompt, which could be aligned.",
+      "wallMs": 11279,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ee7b58e89ad4c6bb4e23317a93924cdc7e01d0b9e32be3543fe5a4232d7d4d99",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "e5468ea9d7265b5ff580ce4a3bc68b6a23b5691c5ff844cee7a8aa6312a6ce8b",
+      "candidateOutputSha": "494be6bf6d329fdf5b0f6b0db0e4f23a7946193fb97825c784523a51f7d780b8",
+      "facts": {
+        "preview": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "set": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "settlement": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before held none of the four facts: it settled as stuck because no reject menu was defined, so there was nothing for After to lose and all four moved from fails to holds as expected. The frozen-note menu wording delivered the preview fact: After opens with `gauntlet: gate=gatekeep-pr/reject recommended=1`, prints the saved note verbatim with its three headings and no code fence, then gives a recommendation and a comma-set prompt. The rows fact holds because row 1 is the recommended note/close/cleanup combination, rows 2-4 are the individual steps, and back and stop each appear once, with no reply, coverage, wait or override rows; the cleanup row names untracked-file removal and keeping the unmerged `pr-88`. The set fact holds because `1,2,4,2` is expanded and deduplicated to note, close, cleanup once each, the POST uses `-F body=@/tmp/gatekeep-note.synthetic` with the assessed `commit_id` and `REQUEST_CHANGES`, the response's commit is confirmed, and the close carries no comment or branch deletion. The settlement fact holds because the ending is `gauntlet: done rejected` with `#88@<full head>: rejected`, per-step results, skipped branch and base reasons, and no further menu. To keep these stable, keep the wording that requires the note to be read from the saved file rather than recomposed, the canonical execution order regardless of reply order, and the explicit response-commit check. Two things could be tightened: the trailing line `Type a number; show evidence prints the full record.` sits after the comma-set prompt and slightly contradicts it, and the settlement prints both `cleanup: done` and `worktree: done`, which is redundant next to the skipped sub-steps.",
+      "wallMs": 11307,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

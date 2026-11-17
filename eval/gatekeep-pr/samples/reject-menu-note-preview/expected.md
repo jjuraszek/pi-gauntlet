@@ -1,0 +1,5 @@
+anonymized: true
+- preview: judged: The reject menu starts with its gate marker and recommended=1, prints the supplied note verbatim in full with its three Markdown headings and no code fence, then a recommendation and comma-set prompt. It does not recompose the note.
+- rows: judged: Row 1 combines post the rejection note, close the PR and cleanup, recommended; those three keep individual rows, then sole back and stop. No replies, coverage, wait or cleanup overrides appear. The cleanup row explains untracked removal and keeping the unmerged local branch.
+- set: judged: The reply 1,2,4,2 expands and deduplicates to note, close, cleanup once each in that order. The note POST uses the saved file bytes as body, the assessed commit_id and REQUEST_CHANGES; it checks response provenance. Close has no comment or branch deletion.
+- settlement: judged: The ending is gauntlet: done rejected with #88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected, not a closed-pr or merged outcome. It records individual results and skipped branch/base cleanup reasons; no further menu is rendered.

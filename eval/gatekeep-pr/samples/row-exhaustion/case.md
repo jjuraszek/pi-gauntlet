@@ -23,7 +23,7 @@ P1's last reviewer closure is open - zero still retries. Consecutive validation 
 
 ## Entry
 
-Process each independent checkpoint below from its stated state; do not combine them. Show the row disposition, persisted changes, and first next dispatch or obstacle. Do not invent a returned worker result. Keep all checkpoints together under 2000 words.
+Process each independent checkpoint below from its stated state; do not combine them. Show the row disposition, persisted changes, and first next dispatch or obstacle. Use a compact inspection table for A, B, D and E and shared dispatch fields so there is room to render the actual obstacle report and full menu at C and F, not a summary saying it was rendered. Keep inspection details outside those two rendered messages. Do not invent a returned worker result. Keep all checkpoints together under 2000 words.
 
 A. Continue from the ledger above. State which row runs next, what happens to P1 and its history, and what text P1's item carries if the user later explicitly selects a review post. Stop at the next dispatch, before a return.
 

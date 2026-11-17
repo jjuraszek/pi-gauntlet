@@ -43,11 +43,13 @@ For a valid normalized pick below, set `work_started` true and persist it before
 
 ### Next action
 
-Recognize exact `show evidence`, `reply <n>`, and `check <name> flaky | real | ci-broken` before numeric lookup, on the states offering them. Show evidence through `report.md` `## What stays out` and re-render the same menu without settlement. Record check dispositions through findings.md; helpers never disposition a check.
+Recognize exact `show evidence`, `reply <n>`, `overrule <n>`, and `check <name> flaky | real | ci-broken` before numeric lookup, on the states offering them. Show evidence through `report.md` `## What stays out` and re-render the same menu without settlement. Record check dispositions through findings.md; helpers never disposition a check. Handle overrule (including missing-number refusal) through `reject.md` `## Overrule` on initial, obstacle and assess-terminal; return directly to its render, never live-course continuation.
 
-On own-merge, approved and closed-pr post menus, parse a comma-separated set of row numbers against the retained rendered mapping. Expand the combination to its member steps and collapse duplicates. Exact `reply <n>` on a post menu listing drafted replies selects drafted reply n, not menu row n. A number outside 1-N, stop combined with another number, or several numbers on any other menu asks one clarifying question naming the valid range and runs nothing. On a second invalid reply, leave the same menu waiting; emit no new question or `gauntlet: question` marker and run nothing. A sole stop runs Teardown. Persist valid picked steps and enter `### Post steps` before the live-course path below. Apply bare-numeric mapping from menu-layout unchanged on other menus; every other non-numeric string is a change request, including typed `deliver` even when a delivery row exists.
+On own-merge, approved, closed-pr and reject post menus, parse a comma-separated set of row numbers against the retained rendered mapping. Expand the combination to its member steps and collapse duplicates. Exact `reply <n>` on a post menu listing drafted replies selects drafted reply n, not menu row n. A number outside 1-N, back or stop combined with another number, or several numbers on any other menu asks one clarifying question naming the valid range and runs nothing. On a second invalid reply, leave the same menu waiting; emit no new question or `gauntlet: question` marker and run nothing. A sole stop runs Teardown; reject-menu stop uses `reject.md` settlement. Persist valid picked steps and enter `### Post steps` before the live-course path below. Apply bare-numeric mapping from menu-layout unchanged on other menus; every other non-numeric string is a change request, including typed `deliver` even when a delivery row exists.
 
 Apply `### Pick lifecycle` to the valid normalized selection before any selected handler, including the post-step and contract-decision paths above. On a sole `back` pick from the reject menu, return through `reject.md` `## Back` instead of entering the live course.
+
+On a normalized reject pick enter `reject.md` `## Reject`. Route its picked steps and settlement there through Post steps, before any live-course path; preserve its preview freshness snapshot.
 
 At this boundary and before each external write fetch actual body and live baseRefName with head/state. Compare live `baseRefName` against `consent.target.baseRefName`; an unreadable or changed base exits without overwriting `consent.target`. A same-head body edit invalidates old readiness and selected merge; narrowly recheck changed claims, preserving original intent. Refresh proposals against actual body.
 
@@ -62,6 +64,8 @@ First report ready -> final with course unset. Before choosing initial for a not
 A final fix nits pick authorizes exactly one complete D3 iteration (required sync, review, push, watch and re-review included) and returns final or obstacle/cap without changing course. Before invoking the entry Exit check, persist `repair.wave.action: fix-nits` with selected_ids and payload snapshots in selected_payloads. Initialize missing accounting from fix-wave.md defaults for a course-unset final nit pick; never create a standing nit course. With course unset or deliver, dispatch the recorded nit work before readiness can return final. Keep the selection through repair/sync/review/push/watch/re-review; release the one-shot hold only after selected work and reconciliation complete, then evaluate fresh readiness. Obstacles and caps retain the checkpoint without fabricating completion. After that single iteration render final or the concrete obstacle/cap; later independent nits stay outside this selection.
 
 ### Post steps
+
+For the reject menu, execute and settle through `reject.md` `## Reject`, retaining this section's persisted mapping, step-order execution and immediate result recording; its freshness, hash, close-dependency and settlement rules override the ordinary post path below.
 
 Before rendering `menus.md` `## post`, persist one `post_steps` entry per known step: label, source, exact command or payload file, picked false and result null or its guard skip reason. Preserve the mapping and completed results across inspection or a nested skill pause; never replay completed steps. Save drafted reply and coverage bodies in files before showing their rows.
 
@@ -138,7 +142,7 @@ Treat pre-write comparison and readback as stale-write checks, not atomic compar
 
 All must hold before `merge` executes; a `merge` pick while one fails is refused naming it, and the menu re-renders:
 
-- every blocker fixed and pushed, or dispositioned `flaky` by the user
+- every blocker fixed and pushed, or dispositioned `flaky` or `overruled` by the user
 - verification evidence present for the assessed head per the brief's Evidence resolution table - a CI claim or a green local run; a table-sanctioned CI skip is evidence, and `not run` blocks only when the table required a fallback run that did not happen. Key evidence to the exact head SHA it was gathered on; after any head move, re-resolve evidence through `../verification-brief.md` Section B's Evidence resolution table for the new head only; a check run or local result bound to any other head is not an input.
 - a disposition for every material claim (`findings.md`); dispositions recorded before an own push carry to the pushed SHA except mixed-pass affected claims rechecked under `### Description repair`; `source: pending` evidence that never had a claim check withholds `merge`
 - evidence provenance clean (`findings.md` `## Provenance`): `worktree_root`, every `run_cwd`, and `head_sha` match on the local path
@@ -230,6 +234,8 @@ Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <p
 - [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked before prod deploy
 - [ ] <row 5 text verbatim> - elsewhere per spec: <repo>
 
+For scope rows with an overruled gap L# use `not covered - overruled in this run` instead of covered; apply only to that gap's row through `reject.md` `## Overrule`. A still-open contributor still blocks.
+
 A post is one write of that block, verbatim; a post that succeeded cannot be picked again in this run. `/skill:check-delivery` reads a posted block as any other comment, and the block's first line states that it amends nothing.
 
 ### Re-render
@@ -251,7 +257,7 @@ After every push or any mutation that can change readiness (fix wave pushed, PR 
 
 ### Pre-menu refresh
 
-Refresh `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh, using the recorded base repository and PR number; apply Section A's fail-closed decoding instead of retaining a cached true. On a head, body, or base mismatch across the reads, discard eligibility and refresh the matching snapshot before offering merge.
+Refresh `permissions.viewer_can_close` and `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh, using the recorded base repository and PR number; apply Section A's fail-closed decoding instead of retaining a cached true. On a head, body, or base mismatch across the reads, discard eligibility and refresh the matching snapshot before offering merge.
 
 Refresh read-only before step 5, first report included, and at each Re-render. Run one `gh pr view <N> --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests` and one `gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url`. Fold `gh pr view <N> --json headRefOid,body,baseRefName` into that read. Apply target/body freshness from Next action. While locally rewritten under a loop checkpoint compare remote to `repair.wave.sync.expected_remote_head`; preserve that expectation on mismatch and recover to `repair.wave.sync.pre_head` through Sync's restore/assert obstacle. An entry rewrite without a loop checkpoint keeps its own pre_head for comparison and recovery. An unmoved remote retains local-head source: pending until lease push; preserve the loop checkpoint through this read and any local-head assessment. On other head moves re-enter step 3. On an unchanged head replace merge state, bypass_eligible, reviewDecision, status_checks, actions_runs, and pr.review_requests together and re-derive `viewer.role` per Section A; reclassify via the brief's binding rule and re-resolve the Evidence resolution table. Pending to CI-sufficient dispatches a fresh helper in claim-check-only mode with a disposition for every material claim.
 
@@ -271,7 +277,7 @@ Before posting or committing any external payload, apply SKILL.md `### Output do
 
 ### Settlement rows
 
-Emit the terminal message only after the selected post set finishes or stop declines it; a report or menu is not settlement. Below its marker print one plain `#<N>@<head sha>: <outcome>[ (<ticket ref>)]` row per PR in roster order, singleton included. Use the full assessed `headRefOid`, not the merge commit or a shortened display SHA. Use the last gathered head when assessment could not start. Append the parenthetical only when the PR title or body's first line names a ticket under the overrides `## Issue tracker` `refs:` convention; otherwise omit it. Use exactly `approved`, `merged`, `closed-pr`, `final`, `merge-queued`, or `stuck - <reason>`, retaining the actual stop/error reason. Keep rows without bullets, code fences or emphasis; put checkout paths and cleanup results after them.
+Emit the terminal message only after the selected post set finishes or stop declines it; a report or menu is not settlement. Below its marker print one plain `#<N>@<head sha>: <outcome>[ (<ticket ref>)]` row per PR in roster order, singleton included. Use the full assessed `headRefOid`, not the merge commit or a shortened display SHA. Use the last gathered head when assessment could not start. Append the parenthetical only when the PR title or body's first line names a ticket under the overrides `## Issue tracker` `refs:` convention; otherwise omit it. Use exactly `approved`, `merged`, `closed-pr`, `rejected`, `final`, `merge-queued`, or `stuck - <reason>`, retaining the actual stop/error reason. Keep rows without bullets, code fences or emphasis; put checkout paths and cleanup results after them.
 
 For set mode, retain each row before deleting its PR record; print it only in the parent's closing message through `batch.md`'s retirement and final-settlement rules. Keep private child result lines unchanged.
 
@@ -318,9 +324,11 @@ For a validated record outside a run folder, skip the block: move and delete not
 
 Delete only through this block, by the exact run-folder path. Delete no OS-temp file or worktree stage folder; use no wildcard, prefix sweep or `find` for cleanup. All other drafts, the record, finding artifacts, helper outputs, logs and temporary description files leave with the run folder.
 
+For reject-menu completion or stop, resolve the three-row settlement in `reject.md` first. Start the message with `gauntlet: done rejected` only after a successful note post or confirmed close; use Non-final stop otherwise. Preserve its unposted note as a retained post payload.
+
 Start the message with `gauntlet: done approved` for post completion or stop on approved. Start the message with `gauntlet: done merged` for post completion or stop on own-merge. Start the message with `gauntlet: done closed-pr` for post completion or stop on closed-pr. Start the message with `gauntlet: done final` for stop on final. Start the message with `gauntlet: done merge-queued` for stop on merge-queued. Print the row from `### Settlement rows`, then the checkout path and local branch. Render reports through `report.md`; a report above a menu is not a terminal. Start the message with `gauntlet: stuck` followed by the actual error on any hard assertion failure, including a delegated fix-wave restore/assert failure; print the PR row with `stuck - <actual error>` below it and end with the actual error, without a continuation menu. In set mode use `batch.md`'s per-PR retirement marker until every PR retires.
 
-Delegate non-final stop (initial, assess terminal, obstacle, contract exception) to `cleanup.md` `## Non-final stop`. Keep terminal cleanup behind a selected post step; terminal stop leaves the checkout as found and reports its path and local branch. Render cleanup only on terminal templates; never run cleanup steps 2-4 for a non-final stop.
+Delegate non-final stop (initial, assess terminal, obstacle, contract exception, reject without successful note or close) to `cleanup.md` `## Non-final stop`. Keep terminal cleanup behind a selected post step; terminal stop leaves the checkout as found and reports its path and local branch. Render cleanup only on terminal templates; never run cleanup steps 2-4 for a non-final stop.
 
 After the terminal marker and settlement row, print the post-step results, then one sentence per unpicked, skipped or failed step naming its label, reason and command or payload path. Include skipped cleanup sub-steps. Keep these not-run sentences distinct from `<label>: <result>` lines. On stop, include every known drafted reply, coverage post, cleanup, PR-named action and override, stating whether it could run now or awaits the merge; keep the existing final and merge-queued outcomes. Retain the body files of unrun or failed posts and name them in these sentences. In set mode retain these sentences with the PR's row for the parent's closing message.
 

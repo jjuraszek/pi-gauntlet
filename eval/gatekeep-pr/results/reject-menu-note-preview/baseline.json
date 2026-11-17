@@ -1,0 +1,34 @@
+{
+  "sample": "reject-menu-note-preview",
+  "arm": "baseline",
+  "skillSha": "e9b9921fb78a9bb4db137f52e349949ad27a8f218b207cfd5fe07f9854ba404f",
+  "inputSha": "7deee3f57396bb2216330ead8681c3d1eefb50af4484e2b9e4c30f1a2c01c7a3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/reject recommended=1\n\nYou chose to reject this PR, so the checked note shown in the report is ready to post as is. The cleanup step can remove the review checkout, but it cannot delete the local branch pr-88 because the PR is not merged, and it cannot pull main for the same reason.\n\nI recommend all three steps, because the note explains the closure to the author and the checkout is no longer needed.\n\nPick one, or several separated by commas:\n1. post the note, close the PR, cleanup - rows 2, 3 and 4. [recommended]\n2. post the note - post the saved note in /tmp/gatekeep-note.synthetic as a review comment on example/widgets#88 for the commit being reviewed.\n3. close the PR - run `gh pr close 88 -R example/widgets` without merging.\n4. cleanup - run `git -C /work/widgets worktree remove --force /work/widgets-pr-88` (this also deletes untracked files there), then prune worktrees; branch deletion and the main pull are skipped because the PR is not merged.\n5. stop - run nothing and list each step with its command.\n\nType a number; show evidence prints the full record.\n\n---\n\n**Later reply: `1,2,4,2`**\n\nInterpretation: row 1 expands to rows 2, 3 and 4. The individual rows 2, 4 and 2 duplicate members already in that set. The collapsed set is post the note, close the PR, and cleanup. Each step runs once in menu step order, not reply order. The selection is valid, so no clarifying question is needed. I persist `post_steps` with all three picked and results null.\n\nHow the note obtains its body: it is not recomposed. The post uses the saved checked file /tmp/gatekeep-note.synthetic, which is the exact text the report printed. Before writing, I recompute its SHA-256 and require a match with the stored hash. Any mismatch would block the post.\n\nExecution transcript:\n\n1. Pre-write freshness: `gh pr view 88 -R example/widgets --json headRefOid,state,mergeable,mergeStateStatus,body,baseRefName`\n   - Result: head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, OPEN, body unchanged, base main. This matches the run record target.\n2. Note hash: `shasum -a 256 /tmp/gatekeep-note.synthetic`\n   - Result: matches the stored hash. The Output done-check passes.\n3. Post the note: `gh api --method POST repos/example/widgets/pulls/88/reviews -f commit_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -f event=COMMENT -F body=@/tmp/gatekeep-note.synthetic`\n   - The response commit_id equals the commit being reviewed.\n   - post the note: done\n4. Pre-write freshness: the same `gh pr view` read is unchanged.\n5. Close the PR: `gh pr close 88 -R example/widgets`\n   - Exit code 0.\n   - Readback `gh pr view 88 -R example/widgets --json state` returns CLOSED.\n   - close the PR: done\n6. Cleanup, worktree sub-step:\n   - The checkout is tracked-clean, owned by this run, not the primary checkout, and has no unpushed commits.\n   - `git -C /work/widgets worktree remove --force /work/widgets-pr-88` exits 0, then `git -C /work/widgets worktree prune` runs.\n   - worktree: done\n   - branch: skipped - PR not merged\n   - base: skipped - PR not merged\n   - cleanup: done (worktree removed; branch and base sub-steps skipped)\n7. Teardown: deletes the run record, helper outputs and their logs, and temporary body files. No post payloads remain to keep.\n\n---\n\ngauntlet: done closed-pr\n#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: closed-pr\n\npost the note: done\nclose the PR: done\ncleanup: done\n\nThe local branch pr-88 was not deleted because the PR was closed without merging; to delete it later, run `git -C /work/widgets branch -D pr-88`.\nMain was not pulled in the primary checkout because nothing was merged; to sync it later, run `git -C /work/widgets fetch origin` then `git -C /work/widgets pull --ff-only`.\nThe review checkout at /work/widgets-pr-88 was removed; the primary checkout at /work/widgets stays on main.\n",
+      "words": 569,
+      "wallMs": 28189,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck reject menu is not defined in the supplied instructions\n#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - reject menu is not defined in the supplied instructions\n\nThe supplied menus define no `reject` action or reject menu. Their multi-step selection rules apply only after merging, approval, or closure, so they do not authorize interpreting `1,2,4,2` for this open PR. Inventing a numbered mapping would invent permission to post a review or close the PR.\n\nThe note request would obtain its body from `/tmp/gatekeep-note.synthetic`, using the saved bytes after verifying their stored SHA-256, rather than composing a new note.\n\nNo steps were executed. The supplied successful outcomes do not replace the missing menu and selection contract. The worktree remains at `/work/widgets-pr-88` on `pr-88`; no branch deletion or base pull occurred.\n",
+      "words": 124,
+      "wallMs": 12986,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

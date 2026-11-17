@@ -6,6 +6,45 @@ import { assemble, inputSha, parseCase } from '../eval/lib/replay.mjs';
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), 'utf8');
 
+test('reject executes frozen steps and settles only a successful note or close', () => {
+  const reject = read('../skills/gatekeep-pr/reference/reject.md');
+  const menus = read('../skills/gatekeep-pr/reference/menus.md');
+  const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
+  const brief = read('../skills/gatekeep-pr/verification-brief.md');
+  const cleanup = read('../skills/gatekeep-pr/reference/cleanup.md');
+  const batch = read('../skills/gatekeep-pr/reference/batch.md');
+  assert.match(menus, /\| reject \|[^\n]*\| post \|/);
+  for (const phrase of ['## Reject', 'post the rejection note', 'close the PR', 'note changed since preview', 'PR changed since review', 'note not posted', 'stopped at reject', 'recommended=1', 'post_steps']) assert.ok(reject.includes(phrase), phrase);
+  assert.match(reject, /gh pr close <N> -R <base-owner>\/<base-repo>/);
+  assert.match(reject, /note_sha256/);
+  assert.match(reject, /Keep every freshness, state or permission skip recorded in step 1 unchanged/);
+  assert.match(reject, /Only when close remains eligible/);
+  assert.match(reject, /commit_id[\s\S]*event[\s\S]*body/);
+  assert.match(loop, /own-merge, approved, closed-pr and reject/);
+  assert.match(loop, /gauntlet: done rejected/);
+  assert.match(brief, /viewerCanClose/);
+  assert.match(brief, /viewer_can_close/);
+  assert.match(menus, /menu-only continuation of initial, obstacle or assess-terminal/);
+  assert.match(menus, /including ordinary `deliver`, use exactly one complete recommendation sentence/);
+  assert.match(menus, /do not apply the own-PR default before the after-assess rule/);
+  assert.match(cleanup, /already removed/);
+  assert.match(batch, /reject[\s\S]*parent-owned/);
+});
+
+test('remedy-only approach findings dispatch on both harnesses and survive external-head re-review', () => {
+  const wave = read('../skills/gatekeep-pr/reference/fix-wave.md');
+  const findings = read('../skills/gatekeep-pr/reference/findings.md');
+  const assessment = read('../skills/gatekeep-pr/reference/assessment.md');
+  assert.match(wave, /every open approach blocker[\s\S]*no drafted edit/);
+  assert.match(wave, /instead:[^\n]*derived AC/);
+  assert.match(wave, /tests exercising the replaced mechanism/);
+  assert.match(wave, /copy the derived AC text verbatim, including contributor IDs/);
+  assert.match(wave, /common finding\/evidence block identical on both harnesses/);
+  assert.match(findings, /never withhold.*dispatch.*pre-judging/i);
+  assert.match(assessment, /external head move/);
+  assert.match(assessment, /builds:[\s\S]*instead:[\s\S]*P#.*L#/);
+});
+
 test('approach rubric requires evidence and a replacement of the main mechanism', () => {
   const baseline = read('../skills/gatekeep-pr/review-baseline.md');
   const grounds = baseline.split('\n## Approach grounds\n')[1]?.split('\n## ')[0];
@@ -75,14 +114,15 @@ test('the first report previews a saved, checked rejection note without exposing
   for (const heading of ['What this PR builds', 'Why it does not fit this repo', 'What to do instead']) {
     assert.ok(note.includes(`### ${heading}`), heading);
   }
-  for (const rule of [/under 180 words/, /one short paragraph or one list/, /every open approach blocker and nothing else/, /everyday role before/, /base path trails/, /Output done-check/, /mktemp/, /note_sha256/, /same head/, /missing or unreadable/, /remaining blockers/, /reject_withdrawn/, /never rewrite/i]) {
+  for (const rule of [/under 180 words/, /Count whitespace-separated words including headings/, /short everyday role alone on later mentions/, /one short paragraph or one list/, /every open approach blocker and nothing else/, /everyday role before/, /base path trails/, /Output done-check/, /mktemp/, /note_sha256/, /same head/, /missing or unreadable/, /remaining blockers/, /reject_withdrawn/, /never rewrite/i]) {
     assert.match(note, rule);
   }
   assert.match(findings, /reject\.md.*Draft note/);
   assert.match(findings, /post.time composition.*does not apply.*rejection note/);
   assert.match(report, /saved note.*full.*unfenced/);
   assert.match(report, /after the problems and before the recommendation/);
-  assert.match(report, /one plain lead-in sentence/);
+  assert.match(report, /print exactly "Here is the saved rejection note\." as the one neutral lead-in sentence/);
+  assert.match(report, /Put no rationale, recommendation or claim that these problems cannot be repaired in the lead-in/);
   assert.match(report, /one drafted body printed outside `show evidence`/);
   assert.match(report, /Keep full drafted file edits, description bodies and replies.*behind that command/);
 });
@@ -201,7 +241,7 @@ test('approach-none-unchanged: no-conflict reports and menus match the pre-featu
   }
 });
 
-for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick']) {
+for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick', 'reject-menu-note-preview', 'reject-back', 'reject-step-failures', 'batch-reject-queue', 'approach-blocker-other-row']) {
   test(`${sample}: saved sample-scoped replies satisfy every approach fact`, () => {
     const root = `../eval/gatekeep-pr/`;
     const expectedText = read(`${root}samples/${sample}/expected.md`);
@@ -209,7 +249,7 @@ for (const sample of ['approach-conflict-report', 'approach-local-instance', 're
     const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
     const { text, bundle } = parseCase(read(`${root}samples/${sample}/case.md`));
     assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
-    if (['reject-row-first-menu', 'reject-not-after-pick'].includes(sample)) {
+    {
       const target = JSON.parse(read(`${root}target.json`));
       const { drop } = parseCase(read(`${root}samples/${sample}/case.md`));
       target.skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));

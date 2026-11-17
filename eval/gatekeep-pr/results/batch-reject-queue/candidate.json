@@ -1,0 +1,90 @@
+{
+  "sample": "batch-reject-queue",
+  "arm": "candidate",
+  "skillSha": "ba10553555b36847e123ee1d2d6db716603947ae18fe6fde7c822589ed168bdf",
+  "inputSha": "58aa67f1aa116cfa2d973da9167f32ec4edafbbbfc994ecfe6b81a513f3e597a",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Parent routing, PRs 88 and 89 (example/widgets)**\n\nNo tools are run. All children have returned `REPORT` with their record locators, and the parent keeps every record, report and note.\n\n| Case | Trigger | Routing | Child dispatch next round |\n|---|---|---|---|\n| A | #88 picks reject; #89 then picks stop | Both picks wait until the round is collected. The parent then renders #88's reject menu in its own message. #89's stop waits behind #88 in roster order. | None |\n| B | Sole `back`; head, body and base unchanged | The parent applies Back and re-renders #88's retained report and menu. #88 enters the next round. | None |\n| C | Sole `back`; head moved to bbbb… | #88 re-enters step 3 with the same record and judges approach again. | Yes, one report-mode child |\n| D | Typed `overrule 1` at #88's initial menu; #89 still pending | The command waits as #88's answer for the round. The child records it next round and re-renders. Delivery does not resume. | Yes, to record and re-render |\n\n---\n\n**A. Reject pick, then the round collects**\n\n1. #88 picks reject at its menu turn. This is a parent-owned terminal pick, so it waits. Picking reject does not change `work_started`, which stays false. The parent prints:\n   `Queued until all picks are collected (#88 reject, #89 pending)`\n2. In a new turn, the parent renders #89's report and its final menu. The developer picks stop, which also waits. The parent prints:\n   `Queued until all picks are collected (#88 reject, #89 stop)`\n3. The round is now collected. The parent works through the queued picks in roster order, starting with #88's reject:\n   - It re-reads #88's head, body and base. All are unchanged, and the base still matches the saved target of main.\n   - It sets `reject.menu_open` to true and saves it.\n   - It refreshes the PR's merge and permission state. The PR is still open, and you can still close it.\n   - It writes nothing.\n4. #89's stop stays queued behind #88 until the reject menu is answered.\n\nThe reject menu, as its own message:\n\ngauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\nA job copies the catalog for search.\n### Why it does not fit this repo\nThe change feed already supplies catalog edits, docs/architecture.md:12.\n### What to do instead\nConsume the change feed and remove the copy.\n\nI recommend posting the note, closing the PR and cleaning up, because the PR copies the catalog for search even though the repo's change feed already supplies those edits.\n\nPick one, or several separated by commas:\n1. post the rejection note, close the PR, cleanup - rows 2, 3 and 4. [recommended]\n2. post the rejection note - post the note above unchanged as a request-changes review on the commit being reviewed.\n3. close the PR - run `gh pr close 88 -R example/widgets` with no comment and no branch deletion.\n4. cleanup - remove /work/widgets-pr-88 with `git -C /work/widgets worktree remove --force /work/widgets-pr-88` (including untracked files); the local branch is kept and main is not pulled because the PR is not merged.\n5. back - return to the first menu without rejecting; nothing is posted or closed, and rejecting this PR afterwards takes a new run.\n6. stop - post and close nothing, remove /work/widgets-pr-88 (including untracked files), and leave the PR open.\n\nType a number; show evidence prints the full record.\n\n---\n\n**B. Back with nothing changed**\n\n1. The parent applies Back:\n   - It sets `reject_withdrawn` to true and saves it.\n   - It drops the reject menu's steps.\n   - It deletes /tmp/gatekeep-note.synthetic and sets `reject` to null.\n   - It leaves `work_started` (false), the unset course, usage and blocker P1 unchanged.\n2. It refreshes the PR's merge state. Head, body and base are still unchanged.\n3. It re-enters step 5 with the same problem and standing, running no helper.\n4. #89's queued stop then runs and #89 retires. Only #88 enters the next round.\n5. No child is dispatched. The parent re-renders #88's retained report without the note, and its first menu without a reject row, using the ordinary recommendation rules.\n6. The re-rendered report states that nothing was posted or closed. It also states that rejection was backed out and that rejecting this PR now takes a new run.\n\n**C. Back after an outside push**\n\n1. Back applies exactly as in B: the note is deleted, `reject` becomes null and `reject_withdrawn` becomes true.\n2. The refresh shows the head moved to bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, so #88 enters the next round for step-3 re-entry.\n3. The parent dispatches one foreground `pr-gatekeeper` child:\n   - mode: `report`\n   - cwd: /work/widgets-pr-88\n   - the same record and report paths, plus the procedure root\n   - `skill: \"gatekeep-pr\"`\n4. The child brings the worktree to bbbb… and checks HEAD. It refreshes prior-review ancestry, then runs a fresh Verify followed by a fresh Review, both on bbbb….\n5. Because `work_started` is still false, the step-4 review task again carries the whole-PR approach check. Its separate approach-only input is `git -C /work/widgets-pr-88 diff origin/main...bbbb…`.\n6. The child matches findings by conflict key. If the same approach conflict reappears, it keeps ID P1.\n7. Because `reject_withdrawn` is true, the child drafts no note and the menu offers no reject row.\n\n**D. Typed `overrule 1`**\n\n1. The command waits as #88's answer for the round, because #89's pick is still pending.\n2. No course starts and `work_started` stays false.\n3. Next round, the parent dispatches the child with this answer. The child records the overrule:\n   - It resolves 1 against the last rendered problem numbering, which maps to approach blocker P1.\n   - An approach blocker can be set aside at any time, so the child marks P1 overruled for this run only.\n   - No approach blocker remains, so the note is deleted and `reject` becomes null.\n4. The child refreshes the PR's merge state and renders without any dispatch, write or push. Delivery does not resume.\n5. With P1 as #88's only blocker and every merge prerequisite met, the next render is the final menu, where merge is available.\n6. The report adds one sentence saying you set aside that problem for this run.\n\n**Settlement after a successful note post**\n\n1. The note post counts as rejected settlement.\n2. The parent saves #88's row `#88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: rejected`, together with its not-run sentences, before tearing #88 down.\n3. It prints `gauntlet: retired #88 - rejected`, which carries no settlement row.\n4. The row first appears in the parent's closing message after every PR retires. That message starts `gauntlet: done retired` and lists both rows in roster order, with #89's `final` row after #88's.\n",
+      "words": 1065,
+      "wallMs": 60755,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "No tools run, no tracker is initialized, and no provisioning or child execution is simulated. These are independent routing checkpoints against the retained parent records.\n\n| Checkpoint | Parent routing |\n|---|---|\n| A | Queue PR 88's `reject`; do not open its reject menu while PR 89's answer is pending. After PR 89 selects `stop`, the round is collected. Reject remains parent-owned: refresh PR 88's unchanged snapshot and close permission, retain the saved note, and open its reject menu without posting, closing, or dispatching a child. PR 89's stop is also parent-owned. |\n| B | Accept sole `back` before any rejection step runs. Persist `reject_withdrawn: true`; leave `work_started: false`, course null, blockers, and accounting unchanged. Delete the saved note, clear the reject record, and drop reject-menu steps. Refresh the unchanged snapshot and return PR 88 to the next round with its retained report, without the note or reject row. No child is dispatched. State that nothing was posted or closed and that rejection now requires a new run. |\n| C | Apply the same back changes, but retain the observed new head, `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`. In the next round, dispatch a fresh `pr-gatekeeper` child in `/work/widgets-pr-88`, using the same continuation record and procedure root, for step-3 re-entry. It verifies the new head, then runs a fresh Review helper. Because `work_started` remains false, the approach check covers the whole `origin/main...bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb` diff; ordinary review keeps its prior-review ancestry boundary. Rejection remains withdrawn. |\n| D | Queue the exact answer `overrule 1` while PR 89's answer is pending; change no blocker yet. After collection, the execute child applies that direct human answer to the retained problem-number mapping and records the eligible approach blocker as set aside, not resolved. It refreshes and returns the updated report and final menu because no other problem remains; it does not resume delivery. Separately, after a successful parent note post and completion of the selected rejection steps, the parent retains PR 88's `rejected` settlement row and not-run sentences in the roster before teardown. They print only in the parent's final closing message after every PR retires. |\n\nQueued until all picks are collected (#88: reject; #89: pending)\n\nAfter PR 89 selects stop:\n\nQueued until all picks are collected (#88: reject; #89: stop)\n\nThe next message is PR 88's parent-owned reject menu. No rejection step has been selected.\ngauntlet: gate=gatekeep-pr/reject recommended=1\n\nHere is the saved rejection note.\n\n### What this PR builds\nA job copies the catalog for search.\n### Why it does not fit this repo\nThe change feed already supplies catalog edits, docs/architecture.md:12.\n### What to do instead\nConsume the change feed and remove the copy.\n\nI recommend posting the rejection note, closing the PR, and cleaning up its worktree because the saved note explains the design conflict and all three steps are available.\n\nPick one, or several separated by commas:\n1. post the rejection note, close the PR, cleanup - rows 2, 3 and 4. [recommended]\n2. post the rejection note - post the saved text as a review requesting changes on PR 88.\n3. close the PR - run `gh pr close 88 -R example/widgets` without a comment or branch deletion.\n4. cleanup - remove `/work/widgets-pr-88`, including untracked files, using `git -C /work/widgets worktree remove --force /work/widgets-pr-88`, then `git -C /work/widgets worktree prune`; keep the local branch and skip the base pull because the PR is not merged.\n5. back - post and close nothing, withdraw rejection for this run, and return to assessment.\n6. stop - post and close nothing; end this run for PR 88 and remove its eligible worktree, leaving its local branch.\n\nType a number; show evidence prints the full record.\n",
+      "words": 587,
+      "wallMs": 26584,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "da43bb5a9405b49ca509b0eb5d72b04591e824cac57844fb7679b5cb6959b97b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "2b6b6a3e9ae2ac9cc00ae578759dca2aef9f1465b2a37be8a09536a8c58645a0",
+      "candidateOutputSha": "e9a28e733f46dc375268ae4976d0d6f2d7ed4cd5101f030aeb8d8b9795cddbba",
+      "facts": {
+        "queue": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "back": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "answer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and Before held none of them, so nothing was lost. Before treated `reject`, `back` and `overrule 1` as undefined change requests, re-rendered the initial menu and called `rejected` an invalid outcome. After's wording makes reject a parent-owned terminal pick that waits until the round is collected, then renders `gauntlet: gate=gatekeep-pr/reject recommended=1` in its own message with the full saved note and a recommended note/close/cleanup row, with no child dispatch and cleanup run from /work/widgets rather than the removed worktree. Back now withdraws reject, deletes the note and leaves `work_started` false and P1 intact; the unchanged head gets a parent re-render with no reject row and no dispatch, while the moved head gets a step-3 report-mode dispatch that judges approach again and never restores reject. `overrule 1` is queued as #88's answer, recorded by the child against the last rendered numbering and re-rendered without resuming delivery, and the parent saves the rejected row before teardown and prints it only in the closing roster message. To keep this robust, state explicitly that the row is saved before the record is deleted (After says only \"before tearing #88 down\"), and keep the explicit lines that terminal steps dispatch no child and that the `gauntlet: retired` line carries no settlement row. In D, the claims that overrule deletes the note and leads straight to a final menu with merge go beyond what the facts need; keep them only if the procedure text specifies them, since they could conflict with ordinary-menu facts in other cases.",
+      "wallMs": 10896,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "da43bb5a9405b49ca509b0eb5d72b04591e824cac57844fb7679b5cb6959b97b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "dc74bf971f7338d744b5250a1dec20925af0a5b3013cea5c42c6ccc5e59bf832",
+      "candidateOutputSha": "c324681637386dac94481ac0701fae94ccdf7fe44e97e8cff4ae4ea641e06be3",
+      "facts": {
+        "queue": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "back": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "answer": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before failed all three facts because its procedure had no reject, back or overrule actions: it treated each as a change request, rendered no reject menu and denied a `rejected` settlement. After moves all three. For queue, it holds `reject` as a parent-owned pick until PR 89's stop collects the round, then renders the menu under `gauntlet: gate=gatekeep-pr/reject recommended=1` with the full saved note and a recommended note/close/cleanup row, dispatches no child, and runs cleanup via `git -C /work/widgets`, not from the removed worktree. For back, B sets `reject_withdrawn`, deletes the note, leaves `work_started` false and the blocker untouched, and returns PR 88 with no dispatch; C dispatches step-3 re-entry on the moved head with whole-diff approach review and rejection still withdrawn. For answer, D queues `overrule 1`, has the child record it against the retained problem mapping and re-render without resuming delivery, and has the parent keep the `rejected` row before teardown and print it only in the final closing message. Three things are softer than the facts and worth tightening. First, the reject menu is announced with \"The next message is…\" inside the same output as the routing table and queue lines, so require the gate marker to be the first line of a genuinely separate message. Second, B says \"retained report\" but should say the retained report and its ordinary menu return. Third, D should say explicitly that the re-rendered report arrives in the next round and that the settlement row is retained before record deletion. Before held no fact, so there is nothing to preserve here.",
+      "wallMs": 12940,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

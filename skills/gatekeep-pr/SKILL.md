@@ -51,7 +51,7 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 - Write one or two whole sentences per finding: what is wrong, then why it matters. In a posted review body, trail each finding with its file and line in parentheses. Name files, lines and checks only where the reader must open or type them; keep exact supplied failing-test locators with their blocker.
 - Omit empty sections. Use ASCII, American English, no hedges on checked facts and no intensifiers.
 - Keep explanatory prose free of field names, run ids, commit ids and repair or sync counters outside `show evidence`; translate internal vocabulary and leave records unchanged. Write thread replies as plain sentences.
-- Keep output unfenced. Preserve these exceptions verbatim: first-line markers, settlement rows, per-step result lines, typed commands, `[recommended]`, set queue/retirement lines, consent previews, the `AC coverage` heading and checkbox rows, and exact commands with substituted values in rows or closing messages. Keep repository-owned cleanup item text unchanged.
+- Keep output unfenced. Preserve these exceptions verbatim: first-line markers, settlement rows, per-step result lines, typed commands, `[recommended]`, set queue/retirement lines, consent previews, the rejection note's and stuck blocker's required `###` headings, the `Problem <n>` line, the `AC coverage` heading and checkbox rows, and exact commands with substituted values in rows or closing messages. Keep repository-owned cleanup item text unchanged.
 
 | Internal term | Say instead |
 |---|---|
@@ -70,6 +70,9 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 | conflicting / behind | the branch conflicts with, or is behind, the base branch |
 | evidence source ci / local | the checks ran in CI / on this machine |
 | cap reached | the repair attempts allowed for this run are used up |
+| approach conflict | the PR's design does not fit this repo |
+| overruled | you set this problem aside for this run |
+| stuck blocker | a problem the repair could not fix |
 | nit | a smaller point that does not block merging |
 | contradicted claim | the description says one thing and the code does another |
 | observable half | the part that can only be seen after merge |

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Execute reject's frozen-note review, permission-checked PR close and cleanup as separately selectable steps, with failure-safe settlement and parent-owned batch queueing. Let the developer overrule eligible problems for this run and explain unrepaired blockers in three short sections; dispatch approach remedies on both harnesses and retain their closure IDs across head moves. (#160)
+
 - Withdraw reject before a work pick runs and keep it absent after failures and later menus. Back from the rejection preview also withdraws it without posting or closing; repair-push reviews check carried blockers for resolution without judging the whole approach again. (#160)
 - Offer reject on the first initial or obstacle menu for open approach blockers, after deliver and assess. Recommend it for evidence-backed rejection grounds with one sentence naming the conflict; needless machinery alone keeps the ordinary recommendation, and the pick writes nothing. (#160)
 - Preview a rejection note after the first report's approach problems, with three headed sections under 180 words explaining the mechanisms, conflicts and replacement remedies. Save and hash the checked text once so later previews and posting use the same bytes. (#160)

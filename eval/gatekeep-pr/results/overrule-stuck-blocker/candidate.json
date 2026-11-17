@@ -1,0 +1,100 @@
+{
+  "sample": "overrule-stuck-blocker",
+  "arm": "candidate",
+  "skillSha": "deda9ebea26e3b296f225b3b33fe136ce47750916c6e6bd1610a1f2e6cb2f204",
+  "inputSha": "3a8f42eb429abbb3063701a0744207b862fadab61fe20e9fef66ca7c2bb7f74f",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Narration\n\nEvery case starts with the same work. I validate the run record (`state:` path) against the target example/widgets #88 on main. I then read the last rendered `blocker_numbers`. No case runs `mktemp`, dispatches a helper, pushes, or changes the tracker. An overrule closes no stage, and the assessed SHA stays `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. `work_started` and `reject_withdrawn` stay unchanged, and so do the course, round usage (2/10) and sync usage (0/10).\n\nWhen a case accepts the overrule, I run the pre-menu refresh read-only:\n\n1. `gh api graphql ... viewerPermission viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName ... -f o=example -f r=widgets -F n=88`\n2. `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,...,reviewRequests`\n3. `gh run list -R example/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`\n\nA refused overrule runs no refresh. It re-renders the same menu unchanged.\n\n| Case | Refusal or effect | Next menu state | Work runs? |\n|---|---|---|---|\n| A | Refused, because P1 has never been through a repair attempt. Reply: \"That problem can be set aside only after a repair attempt comes back without a fix.\" Nothing changes. | initial, same menu | No |\n| B | Refused, because a failing check is never overruled. Reply: \"A failing check cannot be set aside; use `check test flaky \\| real \\| ci-broken` instead.\" Nothing changes. | obstacle, same menu | No |\n| C | Accepted. P1 gets `(dispositioned: overruled)`, which settles the no-progress checkpoint because it names only P1. The refresh shows every merge precondition holds: exact-head green, squash permitted, clean and synced tree. I also run `gh api repos/example/widgets --jq '{allow_squash_merge,...}'` and the plan-free head tree lookup. | final, with merge on row 1 `[recommended]` and no approve row (own PR) | No; the course stays held but is not resumed |\n| D | Accepted for P1, and the checkpoint is settled. P2 stays open and repairable but is not dispatched. `blocker_numbers` becomes `[{n:1, ids:[P2]}]`. | obstacle again, rendered below | No; only a later numeric deliver resumes |\n| E | Accepted for L1, since its row is exhausted. L1 gets `(dispositioned: overruled)` but is not marked resolved. The checkpoint naming only L1's exhausted row is settled. P2, the footer defect, stays open and has had no repair attempt. `blocker_numbers` becomes `[{n:1, ids:[P2]}]`. | obstacle | No |\n| F | Accepted for P1, because its repair returned \"needs sample header\". The needs checkpoint is settled. The refresh still shows BLOCKED with `bypass_eligible` false and green checks. Review 501 is left in place; nothing is dismissed. | assess-terminal with an updated report; no merge row; `stop` recommended because no other row can change the outcome | No |\n\n### E: what the later delivery pass must review\n\nThis applies when a later numeric deliver pick authorizes a pass that repairs P2.\n\n- **Pre-push reviewer scope.** The reviewer covers `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..HEAD` with fix delta `git diff aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD`.\n  - It must inspect every retained commit.\n  - That includes the unpushed half-quoting commit left by L1's exhausted row, which is also where P2 lives.\n  - It also includes the new P2 repair commit.\n- **Previous report.** The reviewer's previous report lists only P2.\n- **Required closure IDs.** Only P2 is required.\n- **L1's status.** L1 is neither resolved nor open. It is excluded from:\n  - the required closure lines,\n  - missing or open reopening,\n  - carried retries,\n  - the push condition for a rewritten head.\n\n  Its row is never dispatched again.\n- **Eventual AC coverage lines:**\n  - [ ] exports quoted headers - not covered - overruled in this run\n  - [ ] ordinary rows - covered\n\n### F: what still blocks\n\nGitHub refuses the merge only because of this run's own request-changes review, review 501. You cannot use an admin override here, and the checks have passed. To clear it, dismiss that review on GitHub yourself. This run never dismisses it and offers no merge.\n\n---\n\n## D: rendered report and menu\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR, which you authored, changes the CSV export so names containing commas or quotes are wrapped in quotes, and stops a crash on records with no name. Neither behavior is covered yet: the quoting fix still fails its test, and the missing-name handling has not been repaired.\n\nOne problem blocks merging. When a record has no name, the name formatter crashes instead of writing an empty field, so a single customer row with a blank name stops the whole export (src/name.js:9). You set aside one problem for this run: the CSV quoting fix that the repair could not make pass, whose test exports quoted names still fails.\n\nI recommend deliver because the missing-name crash has a ready repair and has not been attempted yet.\n\nPick one:\n1. deliver - continue repairing the missing-name crash, rebase on main if needed, watch the checks and repeat until merge is offered; this adds ten more repair attempts and ten more branch updates to this run. [recommended]\n2. assess - post the remaining problem to the PR as a review comment and make no repairs.\n3. stop - remove the worktree unless it holds unpushed work, and leave the PR as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 796,
+      "wallMs": 57980,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Overrule boundary\n\nThese are six independent continuations of existing runs, not new invocations. I initialize no tracker stages, reset no accounting, and dispatch no helpers. Existing verification remains bound to aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; no new verification or review runs at this boundary.\n\nFor each reply, I validate the saved progress and resolve `overrule 1` against that snapshot's last displayed problem mapping. The command does not select or resume delivery.\n\n| Case | Refusal or effect | Next menu state | Does work run? |\n|---|---|---|---|\n| A | Refuse: this problem can be set aside only after a repair attempt comes back without a fix. Leave P1 and all progress unchanged; run no refresh. | Initial | No. |\n| B | Refuse: failing checks cannot be overruled. The `test` check still blocks, with `expected 3 rows got 2`; retain its checkpoint and offer `check test flaky \\| real \\| ci-broken`. Run no refresh. | Obstacle | No. |\n| C | Record P1 as overruled, not resolved. Settle the checkpoint because P1 is the only problem it names, then refresh. Every merge prerequisite now holds. | Final | Read-only refresh only; no repair, review, push, or merge. |\n| D | Record only P1 as overruled. Settle the checkpoint that names P1; leave P2 open and unattempted. Refresh confirms that P2 still needs repair. | Obstacle | Read-only refresh only. P2 is not dispatched. |\n| E | Record L1 as overruled, retain its exhausted-row history and partial commit, and leave independent P2 open. Refresh without resuming delivery. | Obstacle | Read-only refresh only. No review or push. |\n| F | Record P1 as overruled and settle its missing-input checkpoint. Refresh confirms that this run's request-changes review, review 501, still prevents merging. | Assess-terminal, with merging unavailable | Read-only refresh only. No dismissal, repair, approval, or merge. |\n\nFor C-F, after recording the eligible disposition, I run these read-only commands in order, scoped to `example/widgets`:\n\n1. `gh pr view 88 -R example/widgets --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`\n2. `gh run list -R example/widgets -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`\n3. `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=example -f r=widgets -F n=88`\n\nI validate the matching head, description, and base across those reads, refresh permissions and check standing, and preserve the existing verification and scope baseline. No command watches CI. No helper is dispatched, and repair usage and caps remain unchanged.\n\n### E: subsequent review boundary\n\nThis boundary performs no review or push. After a later numeric delivery selection authorizes repairing the footer, the pre-push reviewer must inspect the entire retained, unpushed change range:\n\n`git -C <PR-worktree> diff aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HEAD`\n\nThat includes both the earlier partial quoting commit and the subsequent footer repair, not just the newest commit. The fresh, read-only reviewer uses the PR worktree as its cwd, verifies its current HEAD before working, applies Section C and the merged review rubric, and receives the complete range as `## Fix delta`.\n\nThe previous-findings input requires a closure line for P2. L1 is excluded from required closure lines, carried retries, and rewritten-head push prerequisites; it remains overruled rather than resolved. Its retained code is still reviewed, and any new defect is judged under the ordinary fix-delta rules.\n\nThe eventual coverage lines are:\n\n- [ ] exports quoted headers - not covered - overruled in this run\n- [ ] ordinary rows - covered\n\nFor F, GitHub still blocks merging because this run's request-changes review remains active. The developer can dismiss review 501 on GitHub; I neither dismiss it nor offer merge.\n\n### D: rendered report and menu\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThis PR changes CSV exporting and name handling, and you are its author. CSV quoting and null-name handling remain incomplete; this snapshot establishes no other covered or deferred behavior.\n\nOne problem still needs fixing before this can merge: a null name causes a crash, for example when a caller supplies null instead of a name (src/name.js:9).\n\nYou set aside one problem for this run: CSV quoting at src/export.js:31, where `exports quoted names` still fails. That problem is not fixed, but it no longer blocks this run.\n\nThe remaining crash has not been repaired. Your overrule selection did not resume delivery or authorize work on it.\n\nI recommend deliver because the remaining null-name crash needs repair.\n\nPick one:\n1. deliver - continue repairing the null-name crash, add the allowed repair and sync attempts, rebase on main if needed, watch CI, and continue until merge is offered. [recommended]\n2. assess - post the remaining crash as a review and make no repairs.\n3. stop - end this run and remove the eligible worktree, leaving the PR unchanged.\n\nType a number; show evidence prints the full record.\n",
+      "words": 734,
+      "wallMs": 41465,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3a8bc9d85a8490da79a116dfa2351997877dad5af26254b7a69c4a36fb974d77",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "ccf4df998f74393deb67ccb50da3dc09e88c687a659b70fa85dfec1b54a45cf7",
+      "candidateOutputSha": "5172f596e3c7cc02bca63f20edd44fbe504c746c4b80308d557a87d12d57dab1",
+      "facts": {
+        "refusals": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "checkpoint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "wave": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "review": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before treated `overrule 1` as an unrecognised change request in every snapshot, so it gave no eligibility-based refusals for A and B, accepted nothing in C and D, kept L1 as a required closure line and push prerequisite with row 1 reported as `gap` in E, and kept P1 as an open blocker in F. The new run-only overrule wording moved all four facts. After refuses A for lack of a failed repair attempt and B by pointing to `check test flaky | real | ci-broken`. It accepts C and D, settling the checkpoint with counters and caps unchanged; C reaches final only after the merge preconditions are checked, and D re-renders the obstacle with P2 and a set-aside sentence without dispatching. In E it excludes L1 from closure IDs, reopening, carried retries and the rewritten-head push condition without marking it resolved, while the reviewer still inspects every retained commit and P2, and the coverage lines read `not covered - overruled in this run` and `covered`. In F it leaves review 501 in place, names it as this run's request-changes review, tells the developer to dismiss it on GitHub and offers no merge. The weakest point is F: After labels the next state `assess-terminal with an updated report` instead of explicitly calling it a GitHub-side obstacle, so the fact holds only through the \"what still blocks\" paragraph. Wording that requires the report to state that the remaining block is GitHub-side would make this robust. Separately, D's deliver row says it \"adds ten more repair attempts and ten more branch updates\"; this did not fail a fact because it describes a later pick, but the wording should make clear that the overrule itself leaves counters and caps untouched. Before held none of these facts, so nothing was lost.",
+      "wallMs": 19849,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3a8bc9d85a8490da79a116dfa2351997877dad5af26254b7a69c4a36fb974d77",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "f268ec87c97b16b55f76f59a8df9a7b38079f327b14cb7f74af3b4721b5c15da",
+      "candidateOutputSha": "6fcca31b3297853dbab93a5f3b548292c9135722b63263da39602f4a2cde2cc6",
+      "facts": {
+        "refusals": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "checkpoint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "wave": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "review": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before treated `overrule 1` as an undefined command and refused all six rows, so no fact held there: A's refusal cited the wrong reason, C and D accepted nothing, E kept L1 required everywhere and called row 1 a gap, and F told the developer to supply the header and seek re-review. The After wording moved all four, and no fact Before kept was lost. A and B now refuse for the right reasons (attempt required; check dispositions instead) with no state change. C settles the checkpoint, keeps usage and caps, and reaches final. D sets aside only P1 and re-renders the obstacle with P2, a set-aside sentence and no dispatch. E drops L1 from closure lines, carried retries and the rewritten-head push prerequisite without calling it resolved, still reviews the full unpushed range and P2, and gives the two coverage lines. F leaves review 501 in place and points the developer to dismissing it on GitHub, with no dismissal or merge offer. Two of these hold on a lenient reading, so tighten the wording there. For E, say explicitly that a missing or open L1 closure line cannot reopen the finding; the output only implies it through the exclusion from required closure lines. For F, the output labels the next state \"Assess-terminal, with merging unavailable\"; have the wording call it the GitHub-side obstacle outright, naming this run's request-changes review as the sole blocker. Also consider trimming the verbatim `gh` refresh commands the output emits in a no-tools exercise; they spend the word budget without supporting any fact.",
+      "wallMs": 14881,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}
