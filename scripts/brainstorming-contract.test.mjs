@@ -230,6 +230,73 @@ test('plan-writer reads one complete contract before writing on four paths', () 
   }
 });
 
+test('writing-plans callers and anchors resolve to the partitioned contract', () => {
+  const failures = [];
+  const prose = text => text.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm, '');
+  const headingIds = text => {
+    const counts = new Map();
+    return [...prose(text).matchAll(/^#{1,6}\s+(.+?)\s*#*$/gm)].map(([, heading]) => {
+      const slug = heading.toLowerCase().replace(/<[^>]*>/g, '')
+        .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, '').replace(/\s/g, '-');
+      const count = counts.get(slug) ?? 0;
+      counts.set(slug, count + 1);
+      return count ? `${slug}-${count}` : slug;
+    });
+  };
+  const checkLink = (path, href) => {
+    if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) return;
+    const target = new URL(href, new URL(`../${path}`, import.meta.url));
+    const anchor = decodeURIComponent(target.hash.slice(1));
+    target.hash = '';
+    try {
+      const text = readFileSync(target, 'utf8');
+      if (anchor && !headingIds(text).includes(anchor)) failures.push(`${path}: missing anchor ${href}`);
+    } catch {
+      failures.push(`${path}: unreadable link ${href}`);
+    }
+  };
+  for (const path of ['skills/writing-plans/SKILL.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/writing-plans/reference/open-questions.md']) {
+    for (const [, href] of prose(read(path)).matchAll(/\]\(([^\s)]+)\)/g)) checkLink(path, href);
+  }
+  for (const dir of ['skills', 'agents', 'doc']) {
+    for (const name of readdirSync(new URL(`../${dir}/`, import.meta.url), { recursive: true }).filter(name => name.endsWith('.md'))) {
+      const path = `${dir}/${name}`;
+      const text = read(path);
+      for (const [, href] of text.matchAll(/\]\(([^\s)]*plan-contract\.md#[^\s)]+)\)/g)) checkLink(path, href);
+      if (dir === 'doc') continue;
+      for (const line of text.split('\n')) {
+        if (/five absolute paths|five-path|plan skill/i.test(line)) failures.push(`${path}: retired five-path input`);
+        if (/writing-plans[^\n]*SKILL\.md/.test(line) && /## (?:File Structure|Leg routing|Wave Grouping|Bite-Sized Task Granularity|Plan Document Header|Task Structure|Spec Coverage Table|No Placeholders|Self-Review|Remember)/.test(line)) failures.push(`${path}: retired skill heading`);
+        for (const [, href] of line.matchAll(/\]\(([^\s)]*writing-plans\/SKILL\.md#[^\s)]+)\)/g)) checkLink(path, href);
+      }
+    }
+  }
+  assert.deepEqual(failures, []);
+  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file \(`plan-contract\.md`\) at the supplied path/);
+  for (const [path, count] of [
+    ['skills/brainstorming/reference/amendment-surface.md', 2],
+    ['skills/subagent-driven-development/reference/implement-amendments.md', 1],
+    ['skills/gauntlet-resume/reference/brief-contract.md', 1],
+  ]) assert.equal((read(path).match(/four absolute paths \(worktree, approved spec, plan, plan contract\)/g) ?? []).length, count, path);
+  const resume = read('skills/gauntlet-resume/reference/brief-contract.md');
+  for (const row of resume.split('\n').filter(line => line.startsWith('| `- Task N:') || line.startsWith('| Global or contamination rows'))) {
+    assert.match(row, /writing-plans\/reference\/open-questions\.md/);
+  }
+  const ci = read('scripts/ci.mjs');
+  for (const [, file, token] of ci.matchAll(/\["(skills\/writing-plans\/[^"\n]+)", "([^"\n]+)", true\]/g)) {
+    if (!read(file).includes(token)) failures.push(`CI token ${token} is absent from ${file}`);
+  }
+  assert.deepEqual(failures, []);
+  for (const sample of ['leg-checkout-by-branch', 'pr-subject-threads', 'pr-subject-sync-repair']) {
+    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    assert.equal(Object.keys(record.outputs).length, 2, sample);
+    for (const [model, output] of Object.entries(record.outputs)) {
+      assert.equal(output.status, 'ok', `${sample}/${model}`);
+      for (const [fact, result] of Object.entries(record.judge[model].facts)) assert.equal(result.after, 'holds', `${sample}/${model}/${fact}`);
+    }
+  }
+});
+
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));

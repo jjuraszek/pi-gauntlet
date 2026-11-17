@@ -362,11 +362,12 @@ for (const [targetName, sample, factIds] of [
 
 test('plan task, plan handoff and wave commit sites delegate wording without templates', () => {
   const plan = read('skills/writing-plans/SKILL.md');
+  const contract = read('skills/writing-plans/reference/plan-contract.md');
   const wave = read('skills/subagent-driven-development/SKILL.md');
   const prerequisites = read('skills/subagent-driven-development/reference/prerequisites.md');
   assert.match(wave, /Read \[wave prerequisites\]\(\.\/reference\/prerequisites\.md\) at its absolute path now; stop if unreadable/);
-  for (const text of [plan, wave, prerequisites]) assert.doesNotMatch(text, /commit -m "plan:|<imperative subject> \(ref/);
-  assert.match(plan.slice(plan.indexOf('**Step 6: Commit**'), plan.indexOf('## Spec Coverage Table')), /commit-message\.md/);
+  for (const text of [plan, contract, wave, prerequisites]) assert.doesNotMatch(text, /commit -m "plan:|<imperative subject> \(ref/);
+  assert.match(contract.slice(contract.indexOf('**Step 6: Commit**'), contract.indexOf('## Spec anchors')), /commit-message\.md/);
   assert.match(plan.slice(plan.indexOf('## Execution Handoff')), /commit-message\.md/);
   assert.match(wave.slice(wave.indexOf('7. **Commit.**'), wave.indexOf('`WAVE_BASE_SHA` is fixed')), /commit-message\.md/);
   assert.match(prerequisites, /spec H1/);
