@@ -1,4 +1,4 @@
-for: 608506f9098b388f13077a38216beabcc32451afa287f8576917434ab068f68c
+for: 2195e16221a840f4a917c3f6b8af35f6a849784d0edbccae03fde1f892d3310a
 
 ## Change
 
@@ -6,7 +6,7 @@ Relocate the summary file's mint in spec-finalization.md's User Review Gate to t
 
 Remove two unused ledger-conversion bookkeeping sentences from the shared commit wording file, skills/finishing-a-development-branch/reference/commit-message.md. No behavior of this target is meant to change. C8 selects only pr-body-drafted-row and post-action-sorted for candidate replies at base 3171d0e124e361836d163217ff976af02c86cf2f, preserving their saved baselines and target.json. These samples check model-authored acceptance rows and housekeeping classification, which deterministic assembly checks cannot establish; they stop at spec-writing, not workflow execution. Coverage is sample-scoped.
 
-The binding above is a placeholder until it is re-derived on the finished rebased tree. The saved report and candidate records retain the base side's newer runs, not evidence for the combined assembly. Fresh replays of only pr-body-drafted-row and post-action-sorted are authorized after the rebase completes; they replace those records and re-derive the binding. The following paragraphs retain earlier intent and coverage, not additional replay authorization.
+Rebind this intent to the combined assembly on the rebased tree. Replay only post-action-sorted and pr-body-drafted-row, serially to preserve each partial report, using the runner's default merge-base and cache rules. No bundle selection or fact changes require baseline-only seeding. These samples test model-authored acceptance rows and operator-step classification at the supplied spec-writing checkpoint; assembly assertions cannot prove those authored decisions. Keep all other records as earlier-revision evidence, not current coverage. The following paragraphs retain earlier intent and coverage, not additional replay authorization.
 
 ### Prior delivery-stage and commit-message context (not current replay authorization)
 
@@ -371,3 +371,19 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - nested-rules/walk: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the gpt candidate renders the scout cwd/rules walk in prose instead of the exact listing the fact keys on, on text the amendment-surface edit never touched; follow-up work outside this ticket. Enforce the new coordinated-flow must-hold fact: Scouts run in their own worktrees; repo-a Rules includes root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md; repo-b rules remain separate.
 - nested-rules/bounded: fails -> holds - Enforce the new coordinated-flow must-hold fact: Dedupes symlinked root CLAUDE.md by realpath, excludes untouched pkg-y/AGENTS.md and second-hop.md; reports missing outside.md without inventing contents.
 - nested-rules/unresolved: fails -> holds - Enforce the new coordinated-flow must-hold fact: Unknown touched paths retain root rules and emit Rules: root only - paths unresolved, leaving task path walks to plan-writer.
+
+## Rebased replay outcomes
+
+Both selected samples were replayed on the rebased tree. The first comparison completion lines follow verbatim; adding this outcome note requires a judgment-only cache update on the same saved primary replies. Records cover both samples; the final partial report covers pr-body-drafted-row only. No other sample is replayed.
+
+`node eval/run.mjs brainstorming post-action-sorted`:
+
+```text
+brainstorming: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 33s)
+```
+
+`node eval/run.mjs brainstorming pr-body-drafted-row`:
+
+```text
+brainstorming: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 30s)
+```

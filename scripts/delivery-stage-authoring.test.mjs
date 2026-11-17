@@ -13,6 +13,14 @@ import { MODELS } from '../eval/lib/models.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 
+for (const name of ['brainstorming', 'gatekeep-pr', 'loop-implementation']) {
+  test(`${name}: intent binds to the current bundle-free assembly`, () => {
+    const target = JSON.parse(read(`eval/${name}/target.json`));
+    const binding = read(`eval/${name}/intent.md`).trimStart().split('\n')[0];
+    assert.equal(binding, `for: ${sha256(assemble(target, read))}`);
+  });
+}
+
 for (const [name, sample] of [
   ['shape-ticket', 'pr-body-proof'],
   ['brainstorming', 'pr-body-drafted-row'],
