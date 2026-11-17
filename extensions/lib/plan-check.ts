@@ -1233,9 +1233,11 @@ function coordinatedMetadata(lines: string[], legs: ReturnType<typeof parseLegs>
   const sha = /^[a-f0-9]{7,40}$/;
   const base = one("base", sha);
   const iterations = one("iterations", /^(?:0|[1-9]\d*)$/);
-  const budgets = [...header("allowance"), ...header("cap")];
-  if (budgets.length !== 1) add(budgets[0]?.i ?? 0, "expected exactly one allowance or cap header");
-  else if (!/^[1-9]\d*$/.test(budgets[0].value) || !Number.isSafeInteger(Number(budgets[0].value))) add(budgets[0].i, "allowance or cap must be a positive safe integer");
+  const caps = header("cap");
+  if (caps.length) add(caps[0].i, "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it");
+  const budgets = header("allowance");
+  if (budgets.length !== 1) add(budgets[0]?.i ?? 0, "expected exactly one allowance header");
+  else if (!/^[1-9]\d*$/.test(budgets[0].value) || !Number.isSafeInteger(Number(budgets[0].value))) add(budgets[0].i, "allowance must be a positive safe integer");
   if (!Number.isSafeInteger(Number(iterations))) add(0, "iterations must be a safe integer");
   for (const [i, l] of lines.entries()) {
     const m = /^(base|seeded) ([^:]+):/.exec(l);

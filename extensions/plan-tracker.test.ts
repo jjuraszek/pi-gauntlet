@@ -549,9 +549,9 @@ test("allowance labels count retry decisions, preserve identity and render on ev
   assert.equal(raised.details.tasks.find(t => t.name === "row 5 (repo-b)")!.label, `1/7: ${descriptions[4]} (repo-b)`);
   assert.equal(raised.details.tasks.length, result.details.tasks.length);
   writeFileSync(path, text.replace("allowance: 4", "cap: 49"));
-  const legacy = await h.call({ action: "refresh", path });
-  assert.equal(legacy.details.error, undefined);
-  assert.deepEqual(legacy.details.tasks.filter(t => t.name.startsWith("row ")).map(t => t.label),
+  const withoutAllowance = await h.call({ action: "refresh", path });
+  assert.equal(withoutAllowance.details.error, undefined);
+  assert.deepEqual(withoutAllowance.details.tasks.filter(t => t.name.startsWith("row ")).map(t => t.label),
     descriptions.map((description, i) => `${description} (${[2, 4].includes(i) ? "repo-b" : "repo-a"})`));
 });
 
