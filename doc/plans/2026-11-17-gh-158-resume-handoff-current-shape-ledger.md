@@ -3,16 +3,18 @@
 base: 2fec03a78deb7343441354d76dd9c625b5a86efc
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | 6a9b8dc50f9b1a1289716ffa8f37c7433651cbc6
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | open | 0 | |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
-| 4 | open | 0 | |
+| 4 | open | 0 | timeout -k 30 10 python3 -c 'assert (files := [*__import__("pathlib").Path("skills/gauntlet-resume").rglob("*.md"), *__import__("pathlib").Path("skills/gauntlet-handoff").rglob("*.md")]) and not (hits := [(str(path), term) for path in files for term in ("legacy", "migrat", "conversion") if term in path.read_text().lower()]), locals().get("hits", "No instruction files selected")'; exit 1: AssertionError with 7 forbidden-term hits across 3 resume files; reconstruction.md still contains Legacy repair markers and Legacy pending recovery; structural seed only, not a read trace |
 | 5 | cut | 0 | deviates: the request removes backward compatibility, so such a ledger stops instead of converting |
 
 ## Decisions
+
+row 0 done | seeded 1 rows, closed 0 on baseline | row 4
