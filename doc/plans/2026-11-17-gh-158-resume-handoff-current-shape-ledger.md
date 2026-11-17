@@ -34,3 +34,4 @@ row 3 failed | Prepared a valid coordinated fixture and a saved-evidence check; 
 row 3 failed | Verified C2 ordering and four C4 stop pairs; legs-wrong-repo has a failing primary judgment despite a passing confirmation. | Keep C2 and four passing pairs; refresh legs-wrong-repo judgments in the primary session, then rerun scripts/resume-coordinated-evidence.test.mjs.
 row 3 done | Verified C2 reads coordinated rules before tracker writes and all five C4 stop pairs preserve their results on both replay models with fresh hashes. | nothing new to build on.
 repair verification | home 821f7ae | iteration 13
+amended | 1 item(s) | Refresh the two foreign-target records the commit wording change made stale
