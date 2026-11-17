@@ -276,10 +276,12 @@ test('writing-plans callers and anchors resolve to the partitioned contract', ()
   for (const [path, count] of [
     ['skills/brainstorming/reference/amendment-surface.md', 2],
     ['skills/subagent-driven-development/reference/implement-amendments.md', 1],
-    ['skills/gauntlet-resume/reference/brief-contract.md', 1],
+    ['skills/gauntlet-resume/reference/plan-repair.md', 1],
   ]) assert.equal((read(path).match(/four absolute paths \(worktree, approved spec, plan, plan contract\)/g) ?? []).length, count, path);
-  const resume = read('skills/gauntlet-resume/reference/brief-contract.md');
-  for (const row of resume.split('\n').filter(line => line.startsWith('| `- Task N:') || line.startsWith('| Global or contamination rows'))) {
+  const resume = read('skills/gauntlet-resume/reference/plan-repair.md');
+  const baselineRows = resume.split('\n').filter(line => line.startsWith('| `- Task N:') || line.startsWith('| Global or contamination rows'));
+  assert.equal(baselineRows.length, 2, 'both baseline failure continuations exist');
+  for (const row of baselineRows) {
     assert.match(row, /writing-plans\/reference\/open-questions\.md/);
   }
   const ci = read('scripts/ci.mjs');
