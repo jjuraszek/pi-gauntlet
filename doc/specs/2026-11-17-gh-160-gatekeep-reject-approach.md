@@ -1,7 +1,8 @@
 # Gatekeep-pr rejects a PR over its approach, lets the developer overrule a blocker, and explains stuck blockers
 
 **Goal:** When a PR's design does not fit the repo, `/skill:gatekeep-pr` names each approach conflict as a blocker, shows a readable rejection note, and offers a `reject` row whose last menu posts that note and closes the PR; the developer can set a named blocker aside with a typed `overrule <n>`, and a blocker the repair could not fix is explained in three headed sections so that decision rests on readable context.
-**Amend-grant:** none
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Engine:** loop
 **Ticket:** #160
 **Date:** 2026-11-17
 **Predecessor:** none
@@ -57,6 +58,8 @@ Answer: "A, just make sure blockers which doesn't have clear way forward are bet
 **Cut question 3 (ticket row 5), asked after the critique pass.** The row says: "No menu rendered after a pick offers `reject`, and the approach is not judged again after a repair push." The second half holds: once any work starts (a repair, a posted review, an approval, a merge), the approach is not judged again and `reject` is gone. The first half does not hold as approved, because `reject` and `back` are picks, and the first menu that `back` returns to offers `reject` again. How should the spec carry this row? A) in-scope - as the ticket wrote it: `back` still returns to the first menu with the same report, but that menu no longer offers `reject`; rejecting after backing out means running the gate again B) deviates: `back` returns to the first menu unchanged, `reject` included; only a pick that started work removes it C) deferred: name the ticket or spec that would own it D) repair the ticket - /skill:shape-ticket #160 row 5 says no menu after a pick offers `reject`; `back` re-renders the first menu with `reject`. Recommendation: A.
 Answer: "A"
 
+**Change request at the review gate, after the critique pass.** User: "is it still allow fixing all the blockers? it should! even bad design might have good idea badly implemented, right?" - the spec then refused to dispatch a repair for an approach remedy that did not fit the payload rule. Changed: a delivery course dispatches the repair of every open approach blocker (D3 Repair).
+
 The flow answer is quoted in the list above.
 
 ### Research behind the grounds
@@ -104,7 +107,7 @@ Not checked, with what the design assumes:
 - A live `gh pr close` and a live `viewerCanClose` read on a real PR: no PR was closed. A false or unreadable value omits the close step.
 - A live multi-PR run: `batch.md` was read, no set was run. The parent queues a reject pick and owns its menu like every other terminal pick.
 - "Many sessions end with an issue that cannot be fixed without input" (user): the four exits exist; no run history was read, so frequency is unknown.
-- Whether a delivery course can repair a ground 1-5 conflict inside the existing payload rule ("smallest in-repo edit ... never adds infrastructure, a dependency, or a new module"): when the remedy does not fit, payload admission in D3 records what is needed, no repair is dispatched, and the blocker takes D6 and D7.
+- Whether a repair worker can realize a ground 1-5 remedy within the repair budget: no approach repair was run. The design dispatches it like any blocker (D3 Repair); a repair that comes back without a fix takes the existing exits with D7 and D6.
 - The exact command that dismisses a pull-request review on GitHub: not looked up. D6 fixes only that the gate shows that action and never runs it; the implementer reads the current GitHub REST documentation for it before writing the sentence.
 
 ## Acceptance criteria
@@ -172,7 +175,7 @@ Add:
 - `review-baseline.md`: `## Approach grounds` and one severity row (D1).
 - `verification-brief.md`: the approach contract in Section C (D2), `viewer_can_close` in Section A's fixed query and permissions block (D5), the `reject`, `work_started`, `reject_withdrawn` and `blocker_numbers` record fields (D4, D6).
 - `reference/assessment.md`: the whole-PR input for the approach judgment in `## Step-4 review task` (D2); in `## Helpers`, the `## Approach conflicts` section as part of the step-4 output contract whenever the approach contract was appended (D3).
-- `reference/findings.md`: approach blockers, entry validation, payload admission for the `instead:` remedy, the rejection-note payload and its exemption from post-time body composition, the `overruled` disposition (D3, D6).
+- `reference/findings.md`: approach blockers, entry validation, the repair of the `instead:` remedy, the rejection-note payload and its exemption from post-time body composition, the `overruled` disposition (D3, D6).
 - `reference/report.md`: the note in the first report, the stuck-blocker sections and the mixed layout, the carve-out in `## What stays out` (D3, D7).
 - `reference/menus.md`: the `reject` action row, its recommendation rule and tie-break, the `reject` state and marker, the reject-menu step rows, the overrule hint (D4, D5, D6).
 - `reference/reject.md` (new): `## Reject` (pick, menu execution, `back`, settlement) and `## Overrule` (parsing, eligibility, effect) (D5, D6).
@@ -184,7 +187,7 @@ Add:
   - `### Teardown`: the `gauntlet: done rejected` branch, `reject` in the non-final-stop delegation list, and the note file in the deletion and retention rules.
   - `### Merge course`: one AC-coverage outcome line.
   The file stays under 50,000 bytes; procedure text beyond these clauses lives in `reject.md`.
-- `reference/fix-wave.md`: approach blockers as closure-only prior items under their minted ids in `## Review before push` and `## Re-review task` (D2); overruled ids left out of the required closure ids, row reopening, the carried set and `## Evidence after push`'s rewritten-head push condition (D6).
+- `reference/fix-wave.md`: the approach blocker's derived AC and evidence pack in `### Finding artifacts` (D3); approach blockers as closure-only prior items under their minted ids in `## Review before push` and `## Re-review task` (D2); overruled ids left out of the required closure ids, row reopening, the carried set and `## Evidence after push`'s rewritten-head push condition (D6).
 - `reference/cleanup.md`: `reject` among the templates `## Non-final stop` enters for, and the skip of its worktree handling when the cleanup step already ran in the picked set (D5).
 - `reference/batch.md`: queueing of a reject pick and an overrule answer (D8).
 - `SKILL.md`: wording-table entries (D7).
@@ -254,7 +257,7 @@ An entry that fails a check mints no approach blocker and prints one `show evide
 
 **Blocker.** Each valid entry mints one `P#` blocker carrying its ground, its conflict key (D2) and its `A<n>` as provenance. `## Namespaces` lists approach conflict among blocker contents. The one-defect rule applies: a native finding or an open prior item (`R#`) for the same defect merges into that blocker and keeps its own id in the ledger. A merged contributor is recorded `same flaw` when closing it needs the entry's `instead:` remedy - a native finding on the mechanism `builds:` names, or a prior-review item that posted the same conflict - and shares the approach blocker's eligibility in D6. A contributor the one-defect rule combined for another reason (a requirement gap, a contradicted claim, a failing check) is independent and keeps its own prerequisites.
 
-**Payload admission.** The existing payload rule is unchanged and binds the `instead:` remedy like any finding: the smallest in-repo edit, never added infrastructure, a dependency or a new module. A remedy that fits is drafted as the blocker's payload and goes through ordinary repair. A remedy that does not fit gets no payload: step 5 records the blocker `open - needs <the redesign or input, named concretely>`. A delivery course then dispatches no row and no native helper for it, charges no round and no row attempt, and takes `post-selection-loop.md` `### Exit check`'s existing `needs <what>` row (`stuck - needs <what>`) at its first evaluation; the obstacle renders the blocker through D7. Overruling it (D6) lets a numeric `deliver` continue with the other blockers.
+**Repair.** A delivery course repairs every open approach blocker; step 5 never withholds a dispatch by pre-judging the remedy. The finding to close is the entry's `instead:` remedy, with `builds:`, the base path and the tests in the diff that exercise the replaced mechanism (or `no scoped test`) as its evidence pack. On pi that is the row's derived AC (`fix-wave.md` `### Finding artifacts`) and the worker chooses the fix; on Claude Code the helper works from that text when step 5 drafted no concrete edit. Step 5 drafts a concrete payload only when the remedy is a contained edit. Row dispatch, budgets, admission, round charging, the pre-push review and its closure line (D2) are the ordinary ones. The payload rule is unchanged and read against the remedy: the smallest in-repo edit that realizes `instead:` and keeps the behavior the PR promises, never added infrastructure, a dependency or a new module. A worker that cannot realize the remedy inside those limits returns as any worker does today - `needs <what>`, `contract exception: <why>`, or failed attempts up to the row's allowance - after its attempt, and the blocker takes the existing exit, D7's sections and D6. Picking `deliver` sets `work_started` (D4), so that run does not offer `reject` again.
 
 **Report.** In part two of the first report each approach blocker is one or two sentences naming what the PR builds and what it conflicts with, with the base path trailing the claim (ground 6: the smaller alternative and why the added machinery is unnecessary). Ticket row 1 binds this.
 
@@ -515,7 +518,7 @@ Example of a mixed report's problems part (synthetic; problem 1 is not stuck, pr
 - Every approach blocker overruled: the note file is deleted and the `reject` row disappears (D3, D6).
 - A combined blocker with an independent, ineligible contributor: only the eligible contributors are lifted. A `same flaw` contributor (a native finding or prior-review item for the same conflict) is lifted with its approach blocker (D3, D6).
 - An overruled blocker in a later run: not remembered; the conflict is judged again (D6).
-- A remedy the payload rule cannot express: no payload is drafted and no row is dispatched or charged; the blocker is `open - needs <what>`, a delivery course exits through the existing `needs` obstacle, and the blocker takes D6 and D7 (D3).
+- A remedy the worker cannot realize: the repair is dispatched and charged like any other; a `needs <what>` return, a contract exception or an exhausted row takes the existing exit, and the blocker takes D7 and D6 (D3).
 - A prior review that already posted an approach item: the new entry merges into that item's blocker under the one-defect rule (D3).
 
 ## Tests
@@ -525,7 +528,7 @@ Eval samples live under `eval/gatekeep-pr/samples/<name>/`; each line names the 
 - The first report names each conflict with its base path, and a needless-machinery conflict with its smaller alternative and why the machinery is unnecessary - sample `approach-conflict-report`
 - The report carries the note: three headings in order, under 180 words, one paragraph or list per section, no internal ids - sample `approach-conflict-report`
 - `reject` is listed after `deliver` and `assess`; with a ground 1-5 conflict it is row 1 with one sentence naming the conflict; with only ground 6 it is offered and not recommended - sample `reject-row-first-menu`
-- Picking `assess` posts the approach blocker in the review; picking `deliver` dispatches the repair of a remedy the payload rule admits; a remedy it does not admit dispatches no row, charges no attempt and exits `stuck - needs <what>` with the three sections; merge is withheld while either is open - sample `approach-blocker-other-row`
+- Picking `assess` posts the approach blocker in the review; picking `deliver` dispatches the repair of every open approach blocker with its `instead:` remedy as the finding to close, including a remedy that replaces the main mechanism and has no drafted edit; a repair returned `needs <what>` exits `stuck - needs <what>` with the three sections; merge is withheld while the blocker is open - sample `approach-blocker-other-row`
 - Assess-terminal and an obstacle under a set course offer no `reject`; the pre-push review gives closure lines for approach blockers under their minted `P#`/`L#` ids, a `resolved` line closes the blocker, and no new conflict is minted; after a `fix nits` push a new head is not judged for approach - sample `reject-not-after-pick`
 - The reject menu shows the full note text identical to the report's, row 1 combines note, close and cleanup, a comma-separated set runs its steps once in step order, the posted `body` is the saved file's bytes, and the settlement is `rejected` - sample `reject-menu-note-preview`
 - A reviewer output whose approach section reads `none` renders today's report, menu and hint - sample `approach-none-unchanged`
