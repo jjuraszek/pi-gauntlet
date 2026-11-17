@@ -1,4 +1,5 @@
 bundle+: skills/loop-implementation/SKILL.md
+bundle+: skills/loop-implementation/reference/interrupted-recovery.md
 bundle+: skills/brainstorming/reference/amendment-surface.md
 bundle+: skills/gauntlet-resume/reference/brief-contract.md
 

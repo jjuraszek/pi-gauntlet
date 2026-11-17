@@ -1,15 +1,23 @@
-# eval report: finishing-a-development-branch (no samples run)
+# finishing-a-development-branch eval report
 
 for: 0b33e80b6e55e743612dd0a68371ad83fe996f6db03302a13fe1bc6eab8d3f4e
 
-## Change
+## Scope
 
-Keep finishing recovery on the shared current-format pending-recovery owner after the resume engine split. Preserve once-only recording, refresh, counters, settled-return handling and committed pre-strip ledger recovery. Load coordinated rules only for multi-leg runs. Old cap or missing-returned ledgers stop as unsupported; finishing does not convert them.
+Selected ticket #158 finishing-recovery samples with moved owner files. Both samples ran baseline-only and comparison against `09c9f4e1`. `reference/commit-message.md` is no longer incorrectly declared new: that file exists at the baseline. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected.
 
-## Sample-scoped coverage
+Model columns show runner verdict and candidate facts held/total in its recorded judgment. An `unchanged` verdict is not a claim that every expected fact holds. Sample-scoped baseline and candidate JSON files under `results/<sample>/` are the evidence.
 
-No finishing-a-development-branch sample ran in this change. The selected `ledger-pending-return` and bundle-reseed `ledger-post-strip` runs were not started because `gauntlet-resume/legs-ok` confirmed a candidate regression on `github-copilot/gpt-6.1-sol`. The user required stopping rather than changing facts or skills. Existing result records remain prior evidence, not current coverage. This is not a target-wide pass.
+| Sample | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
+|---|---|---|
+| ledger-pending-return | unchanged; 6/6 | inconclusive; 5/6 |
+| ledger-post-strip | regressed; 4/5 | regressed; 3/5 |
 
-Both samples still need baseline-only reseeding after their owner-file bundle changes, followed by full selected runs. Use baseline `09c9f4e1` and isolate shared report writes.
+## Findings
 
-See [the resume report](../gauntlet-resume/report.md) for the failed fact and both candidate quotations. C5-C7 remain unselected.
+- `ledger-pending-return`: the gpt-6.1-sol primary judgment fails `once`; its confirmation holds the fact. One `--refresh-judgments` run leaves the verdict inconclusive. The primary reply says "refresh once" without explicitly naming the absolute ledger path and the absence of a child rerun. No instruction or expected fact changed to hide the disagreement.
+- `ledger-post-strip`: Opus regresses on `logs`; the candidate does not visibly retain gate output inline. gpt-6.1-sol's primary judgment regresses on `squash` and `failed-receipt`; its candidate uses unresolved primary-path placeholders instead of `/work/repo-a` and `/work/repo-b` for the post-strip gates and retry. Its confirmation holds `squash` but still fails `failed-receipt`. Both model cells retain a confirmed regression and remain unresolved.
+
+## Reproduction
+
+After repairing or diagnosing the red behavior, run `EVAL_CONCURRENCY=2 node eval/run.mjs finishing-a-development-branch <sample> --base 09c9f4e1 --baseline-only`, then the same command without `--baseline-only`, selecting only a sample listed above. The pending-return judgment refresh was already used once on the current input.

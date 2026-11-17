@@ -2,41 +2,40 @@
 
 for: 744c342bd45985d3b8442ec1ee0394cfe41af4b3959fa4369f7b475ebb1af16b
 
-## Change
+## Scope
 
-Resume accepts only current-format briefs and ledgers. The entry point routes to stage and engine owners; coordinated rules load only for multi-leg runs. Old ledgers stop without conversion or mutation. Implement-stage and verify-stage restoration preserve their distinct phase sequences, recovery evidence and task statuses.
+Selected ticket #158 regression samples, the three C3 current-stage samples and the five C4 coordinated stops. Every listed sample ran baseline-only and comparison against `09c9f4e1`. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected. The four target intent files already describe this change and remain bound to the current bundle-free assembly.
 
-## Sample-scoped coverage
+Model columns show the runner verdict and candidate facts held/total in its recorded judgment. An `unchanged` or `improved` verdict is not a claim that every expected fact holds. Sample-scoped baseline and candidate JSON files under `results/<sample>/` are the evidence.
 
-This is not a target-wide pass. Every listed sample ran with `EVAL_CONCURRENCY=2`, `--base 09c9f4e1`, and a separate shared clone passed through `--root`: baseline-only first, then the full run. At most four samples ran concurrently; their result directories were copied back without competing report writes. No judgment-only refresh was needed because no cell ended inconclusive. The runner automatically performed confirmation replays for regressions.
+| Sample | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
+|---|---|---|
+| legs-ok | unchanged; 1/1 | unchanged; 1/1 |
+| ledger-tracker-verify | improved; 5/6 | inconclusive; 3/6 |
+| clean-pass-unchanged | unchanged; 3/3 | unchanged; 3/3 |
+| pending-owner-stops | unchanged; 4/4 | unchanged; 4/4 |
+| loop-ledger-brief | unchanged; 6/6 | unchanged; 6/6 |
+| ledger-tracker-recovery | improved; 6/6 | unchanged; 6/6 |
+| returned-line-recovery | unchanged; 1/1 | unchanged; 1/1 |
+| baseline-upgrade-preserves-statuses | unchanged; 3/3 | unchanged; 3/3 |
+| legs-receipt | unchanged; 2/2 | improved; 2/2 |
+| old-ledger-stops | improved; 3/3 | improved; 3/3 |
+| current-brainstorm-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-plan-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-ship-brief | unchanged; 3/3 | unchanged; 3/3 |
+| legs-membership | unchanged; 1/1 | unchanged; 1/1 |
+| legs-wrong-primary | unchanged; 1/1 | unchanged; 1/1 |
+| legs-home-mismatch | unchanged; 1/1 | unchanged; 1/1 |
+| legs-missing | unchanged; 4/4 | unchanged; 4/4 |
+| legs-wrong-repo | unchanged; 1/1 | unchanged; 1/1 |
 
-| Sample | Baseline exit | Full-run exit | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
-|---|---|---|---|---|
-| loop-ledger-brief | 0 | 0 | unchanged | unchanged |
-| pending-owner-stops | 0 | 0 | unchanged | unchanged |
-| clean-pass-unchanged | 0 | 0 | unchanged | unchanged |
-| ledger-tracker-recovery | 0 | 0 | improved | unchanged |
-| returned-line-recovery | 0 | 0 | unchanged | unchanged |
-| ledger-tracker-verify | 0 | 1 | error: confirmation exceeded word cap | regressed |
-| baseline-upgrade-preserves-statuses | 0 | 0 | unchanged | unchanged |
-| legs-ok | 0 | 1 | unchanged | regressed |
-| legs-receipt | 0 | 0 | unchanged | improved |
-| old-ledger-stops | 0 | 0 | improved | improved |
-| current-brainstorm-brief | 0 | 0 | unchanged | unchanged |
-| current-plan-brief | 0 | 0 | unchanged | unchanged |
+## Findings
 
-Every expected fact holds on the candidate for the ten samples whose full runs exited 0. `ledger-tracker-verify` and `legs-ok` do not satisfy the acceptance condition.
+- `legs-ok`: the base brief-contract rule, "Announce per-leg HEAD and dirty drift against live trees without stopping; identify each leg", remains in `skills/gauntlet-resume/reference/coordinated.md`. Its case no longer drops `reference/reconstruction.md`, which the route reads. Both models hold `drift` on the repaired assembly.
+- `ledger-tracker-verify`: the case includes the driver's `reference/interrupted-recovery.md`, which pending recovery reads. The base rule "copy plan_tracker status verbatim" remains in `reference/brief-contract.md`; settled/interrupted/unknown handling remains in `reference/restore-loop.md`. No instruction file changed.
+- `mixed-verify` fails in both arms: the F/F-repair saved list puts pending G3 before failed Conformance review, contradicting the preserved pending-suffix feasibility rule. The expected fact still requires restoration in that observed order. No expected fact was weakened or deleted to resolve this conflict.
+- On gpt-6.1-sol, `verification-pending` also fails in both arms. `labels` regresses in the primary judgment, while its successful confirmation disagrees; one `--refresh-judgments` run leaves the verdict inconclusive. The primary reply abbreviates the cut-row refresh instead of printing its full criterion description. `ambiguous-home-history` now holds on both models. The prior Opus word-cap error is absent from the current record.
 
-## Stop evidence
+## Reproduction
 
-- `results/legs-ok/candidate.json`, gpt-6.1-sol, `drift`: confirmed holds -> fails. The candidate announces informational drift but stops after `plan_check` instead of finishing restoration and dispatch. Confirmation: "I cannot narrate its exact arguments or a result-dependent continuation without inventing them."
-- `results/ledger-tracker-verify/candidate.json`, gpt-6.1-sol: confirmed holds -> fails for `labels` and `ambiguous-home-history`; `mixed-verify` and `verification-pending` fail before and after. The candidate says: "No phase calls, `plan_check`, `init`, refresh, ledger changes, or fresh-review dispatch occur." It rejects F's observed mixed task order because pending G3 precedes failed Conformance review. K omits the producer's verbatim status-copy statement. J's interrupted branch omits the full repair state.
-- The same sample's opus initial judgment reports `mixed-verify` holds -> fails and `ambiguous-home-history` fails -> fails. Confirmation returned 1841 words against the 1800-word cap, so its final verdict is error, with judgment currency keys cleared. It is not accepted evidence.
-
-New samples stopped being scheduled as soon as the `legs-ok` regression was recorded; already-running samples finished. No skill, agent, expected fact or word cap was changed to obtain a pass.
-
-## Remaining selected coverage
-
-Not started: `current-ship-brief`, `legs-membership`, `legs-wrong-primary`, `legs-home-mismatch`, `legs-missing`, `legs-wrong-repo`. Existing records for these samples remain stale after the bundle changes. The other targets' reports enumerate the selected handoff, finishing and loop samples not started. Design 9's complete fourteen-sample requirement and the complete C3/C4 refresh remain unmet. C5-C7 remain unselected.
-
-C1/C2 read-trace evidence remains in `tool-traces/single-leg.md` and `tool-traces/coordinated.md`; text replays do not replace those traces. Repair the observed restoration failures before resuming the selected sample runs, then regenerate this report from the resulting sample-scoped records.
+Run `EVAL_CONCURRENCY=2 node eval/run.mjs gauntlet-resume <sample> --base 09c9f4e1 --baseline-only`, then the same command without `--baseline-only`, selecting only a sample listed above. The unresolved verify sample requires a decision about its contradictory saved task order before another paid run; its judgment refresh was already used once on the current input.
