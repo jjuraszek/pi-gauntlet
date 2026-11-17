@@ -24,6 +24,8 @@ Take the first matching row. Resolve BLOCKED through `post-selection-loop.md` `#
 
 ## Recommendation
 
+Before the pins below, with `reject` offered and an open approach blocker whose ground recommends reject in the merged rubric, recommend `reject`. Use the first such blocker in report order. Put one sentence naming only that conflict immediately above `Pick one:`; add no other rejection explanation to the menu. Keep merge withholds and row-omission explanations in their own sentences before the recommendation, not inside it. With only ground-6 (needless machinery) blockers, offer `reject` and choose the recommendation through the existing rules below.
+
 Choose from the findings, including obstacle and cap exits. Apply these pins in order: contract-exception recommends `preserve contract`; when no available non-stop row can change the outcome, recommend `stop`; else use rule 3's own-PR action default. Treat bot-authored heads as someone else's. An unchanged failed prerequisite still blocks after a cap extension; a cap with a changed prerequisite does not force stop.
 
 Without a pin, use the first match:
@@ -43,10 +45,13 @@ Otherwise choose the available row that settles this PR with the fewest human st
 | `deliver` | Helpers, positive maxFixRounds, head_pushable true | Run the persistent delivery course to readiness, obstacle or cap; use `fix-wave.md` accounting. |
 | `deliver with nits` | Delivery available and nits remain | Store deliver-nits; include all current and subsequently minted nits. |
 | `assess` | Initial or obstacle | Post open blockers with locators as one head-pinned review through `post-selection-loop.md` `### Fix wave`; with zero blockers post nothing. Render assess-terminal, without repair or sync; keep C# replies behind reply. |
+| `reject` | Initial or obstacle; `work_started == false`; `reject_withdrawn == false`; at least one open approach blocker; PR `OPEN` | Open the reject menu through `reject.md`. Write nothing. |
 | `approve workflow run` | Held run on assessed head; viewer_permission WRITE, MAINTAIN or ADMIN | Run `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, refresh and watch under the course. |
 | `accept contract change` | Pending recorded proposal | Invoke its owning amendment through `### Contract decision`; replace the baseline only after completion. |
 | `preserve contract` | Pending recorded proposal | Reject the proposal, keep the named requirement and independent blockers, resume scope-preserving authorized work without the rejected payload this re-run. |
 | `stop` | Always | Run `### Teardown`; non-final stop delegates to `cleanup.md` `## Non-final stop`. |
+
+Keep non-recommended `reject` directly after the offered `deliver` and `assess` rows, before the remaining action rows. Apply its availability equally to the first initial or obstacle menu; it does not depend on close permission, authorship or draft state. Describe its consequence as showing the saved note again with steps to post it and close the PR, with nothing written until a step is picked.
 
 Show the proposal. Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop` before numbering. Describe delivery sync as rebase for the viewer's own PR, merge main into the branch for someone else's or a bot's.
 

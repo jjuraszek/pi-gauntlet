@@ -91,6 +91,9 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - consent.target: { base_repository, number, baseRefName }
 - scope: <selected scope block from `reference/assessment.md`, including original_intent for source: pr; replace only through Contract decision>
 - course: null | assess | deliver | deliver-nits
+- work_started: false | true   # initialize false for a new invocation; never reset inside a run
+- reject_withdrawn: false | true   # initialize false for a new invocation; never reset inside a run
+- reject: null | { note_path, note_sha256, menu_open: false | true }   # initialize null; reference/reject.md owns the saved note
 - repair.rounds_cap: null | <nonnegative integer>
 - repair.syncs_used: <nonnegative integer, initially 0>
 - repair.syncs_cap: null | <nonnegative integer>

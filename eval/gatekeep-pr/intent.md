@@ -1,4 +1,4 @@
-for: 67a1add5db553b8ef88f0e348087ea8264706b4952e47bb50fe5fdad560de27d
+for: efed49c428c4c506ea1554fb5ec8c75c4b3332e28b4d5464d53c43e6bd04900e
 
 ## Change
 
@@ -14,11 +14,17 @@ Check the main mechanism before gate work against six evidence-backed approach g
 
 Add a saved rejection note to the first report after its problems and before its recommendation. Require three headed sections under 180 words covering every open approach blocker and nothing else, with the ordinary role-first register and base citations. Done-check once before saving and hashing the note; display its bytes rather than composing again. Reuse an unchanged note and replace it only after a missing/unreadable file or a changed blocker set; remove it when no blocker remains or rejection is unavailable.
 
-Select only approach-conflict-report for this edit, extending its isolated first-report checkpoint through the note preview and stopping before recommendations or menus. A model must compose a compact note from two different grounds in plain language; text assertions alone cannot establish its meaning or register. Reseed this sample's baseline after its bundle change. Verify headings, word count and saved judgments locally. Preserve approach-local-instance and every other sample's saved results as earlier evidence; coverage is partial, not rejection-menu, posting, closure or end-to-end persistence coverage. The new rejection-note reference is candidate-only at the supplied base.
+The note edit selected approach-conflict-report, extending its isolated first-report checkpoint through the note preview and stopping before recommendations or menus. A model must compose a compact note from two different grounds in plain language; text assertions alone cannot establish its meaning or register. Reseed this sample's baseline after its bundle change. Verify headings, word count and saved judgments locally. Preserve approach-local-instance and every other sample's saved results as earlier evidence; coverage is partial, not rejection-menu, posting, closure or end-to-end persistence coverage. The new rejection-note reference is candidate-only at the supplied base.
 
 The first selected candidate kept all note-shape facts but failed one model's note-content fact: its component glosses followed their names. Tighten the note's role-first example and first-mention done-check, then rerun only approach-conflict-report with unchanged expectations and the saved baseline. Preserve the first candidate outside the checkout; the committed candidate records the latest wording, not a target-wide pass.
 
+Select reject-row-first-menu for the menu edit: offer reject on the first initial or obstacle menu while an approach blocker remains, independent of close permission, authorship and draft state. Put it after deliver and assess unless an open ground recommends reject; then put it first and name the first such conflict in one sentence. Keep needless machinery on the ordinary recommendation path. Initialize the note and monotonic work/withdrawal fields for each new invocation. Run approach-conflict-report only to refresh its assembly-bound note evidence after these shared prompt edits; its fixture and expectations stay unchanged. Other saved samples remain earlier evidence; coverage excludes reject-menu execution and posting. The first menu replay passed its original judgments, but one reply appended GitHub's unrelated merge restriction to the rejection reason. Strengthen the obstacle fact and add a local assertion; keep omission and merge-withhold sentences before, not inside, the conflict-only recommendation. Rerun only this menu sample before the note assembly refresh.
+
 ## Expected to move
+- reject-row-first-menu/recommended: fails -> holds - Promote reject for a base-evidenced conflict, using only the first qualifying conflict in the reason.
+- reject-row-first-menu/machinery: fails -> holds - Offer reject after deliver and assess without recommending it for needless machinery alone.
+- reject-row-first-menu/obstacle: fails -> holds - Offer and recommend reject on a first obstacle menu even without close or push permission.
+- reject-row-first-menu/authority: fails -> holds - Keep a single conflict sentence and a write-free row consequence until the human picks a step.
 
 - teardown-own-run-folder/owned-block: fails -> holds - Invoke the marked ownership-checking block instead of composing cleanup commands.
 - teardown-own-run-folder/kept: fails -> holds - Move both drafts through KEEP before deletion and name the returned gate-kept paths with reasons.

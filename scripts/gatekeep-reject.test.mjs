@@ -116,7 +116,33 @@ test('approach-conflict-report: each saved note has three compact sections at th
   }
 });
 
-for (const sample of ['approach-conflict-report', 'approach-local-instance']) {
+test('the first action menu offers reject after assess and recommends evidence-backed grounds', () => {
+  const menus = read('../skills/gatekeep-pr/reference/menus.md');
+  const action = menus.split('\n## action\n')[1].split('\n## final\n')[0];
+  const rows = [...action.matchAll(/^\| `([^`]+)` \|/gm)].map((match) => match[1]);
+  assert.equal(rows.indexOf('reject'), rows.indexOf('assess') + 1);
+  assert.ok(rows.indexOf('deliver') < rows.indexOf('reject'));
+  const reject = action.split('\n').find((line) => line.startsWith('| `reject` |'));
+  for (const rule of [/Initial or obstacle/, /work_started.*false/, /reject_withdrawn.*false/, /open approach blocker/, /OPEN/, /Write nothing/]) {
+    assert.match(reject, rule);
+  }
+  assert.match(action, /close permission, authorship or draft state/);
+  const recommendation = menus.split('\n## Recommendation\n')[1].split('\n## action\n')[0];
+  assert.match(recommendation, /Before the pins below/);
+  assert.match(recommendation, /ground recommends reject/);
+  assert.match(recommendation, /first.*report order/);
+  assert.match(recommendation, /one sentence.*conflict.*Pick one:/);
+  assert.match(recommendation, /only.*ground.?6.*existing rules/);
+  const brief = read('../skills/gatekeep-pr/verification-brief.md');
+  const loop = read('../skills/gatekeep-pr/reference/post-selection-loop.md');
+  for (const field of ['work_started', 'reject_withdrawn']) {
+    assert.ok(brief.includes(`- ${field}: false | true`));
+    assert.ok(loop.includes(`${field} false`));
+  }
+  assert.match(loop, /never reset either inside a run/);
+});
+
+for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu']) {
   test(`${sample}: saved sample-scoped replies satisfy every approach fact`, () => {
     const root = `../eval/gatekeep-pr/`;
     const expectedText = read(`${root}samples/${sample}/expected.md`);
@@ -124,7 +150,22 @@ for (const sample of ['approach-conflict-report', 'approach-local-instance']) {
     const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
     const { text, bundle } = parseCase(read(`${root}samples/${sample}/case.md`));
     assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
+    if (sample === 'reject-row-first-menu') {
+      const target = JSON.parse(read(`${root}target.json`));
+      const { drop } = parseCase(read(`${root}samples/${sample}/case.md`));
+      target.skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
+      assert.equal(candidate.skillSha, sha256(assemble(target, (path) => read(`../${path}`), bundle)));
+    }
     assert.equal(Object.keys(candidate.outputs).length, 2);
+    if (sample === 'reject-row-first-menu') {
+      for (const [model, output] of Object.entries(candidate.outputs)) {
+        const reasons = output.text.split('\n').filter((line) => /I recommend reject\b/.test(line));
+        for (const reason of reasons) {
+          assert.doesNotMatch(reason, /GitHub|BLOCKED|cannot (?:push|close)|helpers/i,
+            `${model}: the reject recommendation names only the conflict`);
+        }
+      }
+    }
     for (const [model, output] of Object.entries(candidate.outputs)) {
       assert.equal(output.status, 'ok', model);
       const judgment = candidate.judge[model];
