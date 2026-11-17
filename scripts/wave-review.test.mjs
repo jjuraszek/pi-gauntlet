@@ -223,7 +223,9 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
   const result = captureTree(checkout, scratch);
   assert.notEqual(result.status, 0);
   assert.equal(result.stdout, '');
-  assert.deepEqual(readdirSync(scratch), []);
+  const stageScratch = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet', 'tmp');
+  assert.ok(existsSync(stageScratch), 'failed tree capture uses checkout-local Git scratch');
+  assert.deepEqual(readdirSync(stageScratch).filter(name => name.startsWith('fix-delta-index.')), []);
 });
 
 
