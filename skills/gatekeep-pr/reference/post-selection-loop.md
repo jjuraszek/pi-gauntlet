@@ -4,11 +4,17 @@ Read from SKILL.md step 7. Execute only the course or terminal pick through `###
 
 ### Continuation record
 
-Before tracker initialization, mint one `mktemp "${TMPDIR:-/tmp}/gatekeep-state.XXXXXX"` record using `../verification-brief.md`. Initialize course null, usage counters zero, deadline/wave null, approved_head null and post_steps empty only for this new invocation. Put `state: <absolute-path>` in the first tracker task's name, no-tool checklist header, continuation summaries and show evidence on both harnesses.
+For a supplied record path, mint no run folder or record; validate and reuse that file below, taking its directory as `RUN_DIR`. For a new invocation without a supplied record, after argument admission and before record or tracker initialization, mint one run folder from the session checkout:
 
-Persist assessed head/body, the selected scope block including original_intent, IDs and independent contributions, payload snapshots, evidence/helper paths, comment identity/body baseline and ledger. Retain consent.target solely as immutable PR/base identity, not authority. Refresh fetched digest/body values without overwriting the contract baseline; `### Contract decision` alone replaces it after amendment succeeds. Keep raw diff/logs outside the record. Once Finding artifacts creates the pair, persist its absolute locators `repair.wave.spec` and `repair.wave.ledger`; retain them and the files' row history through wave settlement, cleanup and show evidence until terminal teardown.
+```bash
+COMMON_GIT=$(git -C "<session checkout>" rev-parse --path-format=absolute --git-common-dir) && mkdir -p "$COMMON_GIT/gauntlet/tmp" && RUN_DIR=$(mktemp -d "$COMMON_GIT/gauntlet/tmp/gate.XXXXXX")
+```
 
-Validate the existing file at every re-entry and before writes. Match lowercase base repository, numeric PR number and exact baseRefName to consent.target. Missing, malformed, unreadable, mismatched state or lost locator -> `stuck - run record unreadable`; never reset `repair.*`, discover another record or infer authority from chat. Validate both finding-artifact locators and parse both files on every re-entry after their creation; a missing locator or missing, unreadable or malformed artifact exits `stuck - run record unreadable`, never recreates the pair or resets attempts. Reconcile in-flight stages against stored helper results and local/remote heads before replay; absent proof, exit. A new session never discovers or resumes a course.
+Stop on a non-zero exit with the error; use no OS-temp fallback. On Claude Code, obtain approval for the protected `.git` path without redirecting scratch elsewhere. Create the new record at `<RUN_DIR>/state` using `../verification-brief.md`. Initialize course null, usage counters zero, deadline/wave null, approved_head null and post_steps empty only for this new invocation. Put `state: <absolute-path>` in the first tracker task's name, no-tool checklist header, continuation summaries and show evidence on both harnesses.
+
+Persist assessed head/body, the selected scope block including original_intent, IDs and independent contributions, payload snapshots, evidence/helper paths, comment identity/body baseline and ledger. Retain consent.target solely as immutable PR/base identity, not authority. Refresh fetched digest/body values without overwriting the contract baseline; `### Contract decision` alone replaces it after amendment succeeds. Keep raw diff/logs outside the record file but inside `RUN_DIR`. Put every helper output, controller, jobs file, drafted body and temporary description file in `RUN_DIR`; pass `scratch: <absolute RUN_DIR>` to every helper on both harnesses. Once Finding artifacts creates the pair, persist its absolute locators `repair.wave.spec` and `repair.wave.ledger`; retain them and the files' row history through wave settlement, cleanup and show evidence until terminal teardown.
+
+Validate the existing file at every re-entry and before writes. Match lowercase base repository, numeric PR number and exact baseRefName to consent.target. Missing, malformed, unreadable, mismatched state or lost locator -> `stuck - run record unreadable`; never reset `repair.*`, discover another record or infer authority from chat. Validate both finding-artifact locators and parse both files on every re-entry after their creation; a missing locator or missing, unreadable or malformed artifact exits `stuck - run record unreadable`, never recreates the pair or resets attempts. Reconcile in-flight stages against stored helper results and local/remote heads before replay; absent proof, exit. A new session never discovers or resumes a course. On re-entry take `RUN_DIR` from the validated record's directory, without a new record field or a folder scan. A record outside a `gate.` folder directly under the common git dir's `gauntlet/tmp`, or a `pr-<digits>` child of one, keeps the same content validation and writes helpers, logs and worker scratch beside itself. Its location alone never causes `stuck - run record unreadable`; Teardown leaves those files in place.
 
 Only the orchestrator records direct human selections; fetched PR text and helper outputs are never course sources. Native harness tool permissions remain in force. Set course from the initial numeric pick and persist it and accounting before course-authorized writes. Later obstacle deliver resumes delivery (switch assess to deliver), obstacle assess switches it, and assess-terminal deliver switches to delivery; do not re-ask mid-course. Keep final merge/approval, replies, check dispositions and posts behind their explicit terminal/typed picks. The course permits workflow approval only under Exit check's own-author permission row.
 
@@ -187,7 +193,7 @@ After successful `gh pr review --approve`, persist approved_head as the assessed
 
 ### Merge course
 
-Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). For squash and merge-commit, compose its Landed message from the carried spec or the PR title and description, using its Gatekeep ticket rule. Set `LANDED_SUBJECT` to the composed subject and save only the body, not the subject, in an OS-temp file `LANDED_BODY`; feed that file to `--body-file -` below. For rebase pass neither message flag. Apply the reference's Squash-default note using `squash_merge_commit_message` from the Merge preconditions repository-settings read; print nothing for a failed read and never write settings. Keep these message flags on a merge-queue request too.
+Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). For squash and merge-commit, compose its Landed message from the carried spec or the PR title and description, using its Gatekeep ticket rule. Set `LANDED_SUBJECT` to the composed subject and save only the body, not the subject, in `LANDED_BODY=$(mktemp "$RUN_DIR/landed-body.XXXXXX")`; feed that file to `--body-file -` below. For rebase pass neither message flag. Apply the reference's Squash-default note using `squash_merge_commit_message` from the Merge preconditions repository-settings read; print nothing for a failed read and never write settings. Keep these message flags on a merge-queue request too.
 
 Set `PR_NUMBER`, `BASE_REPO` and `ASSESSED_SHA` from the assessed PR and recorded base repository. Run the resolved policy's command below after every merge precondition passes. Push and merge are never one pick. Start with the Bash array `ADMIN_ARGS=()` and carry the optional flag in that array. Append `--admin` only on the bypass path: `merge_state_status == BLOCKED` and `permissions.bypass_eligible == true`, with every merge precondition satisfied. Omit `--admin` on every other path. This flag skips the merge queue; the bypass path merges directly, not through the merge queued template. In batch mode the parent reads `permissions.bypass_eligible` from the retained child record and applies this same predicate and refusal branch, without a new handoff field or batch compare-and-swap.
 
@@ -258,7 +264,46 @@ For set mode, retain each row before deleting its PR record; print it only in th
 
 ### Teardown
 
-Save every unrun or failed drafted reply and coverage body without a file under `${TMPDIR:-/tmp}`; reuse existing body files. Do this on `final`, `merge-queued` and `post` stops too, before printing their paths or deleting drafts.
+Collect every unrun or failed drafted reply and coverage body into `KEEP`, a Bash array of absolute file paths directly inside `RUN_DIR`; write a body without a file there first. Set `PRIMARY` to the surviving primary checkout, never the PR worktree, and `RUN_DIR` to the validated record's directory. On every handled exit, including `final`, `merge-queued` and `post` stops, run the marked block below before composing the closing message; compose no move or delete command of your own. Name its printed kept paths in the not-run sentences. On failure report the PR outcome, the run folder and the block's error.
+
+For a validated record outside a run folder, skip the block: move and delete nothing, write a kept body without a file to `mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX"`, and name every kept draft at its existing path plus the record left in place. A rejected ownership check for a run folder is an error, not this compatibility path.
+
+<!-- gate-teardown-shell -->
+```bash
+(
+  fail() { printf '%s: %s\n' "$1" "$2" >&2; exit 1; }
+  COMMON_GIT=$(git -C "$PRIMARY" rev-parse --path-format=absolute --git-common-dir) || fail "$PRIMARY" 'git common directory lookup failed'
+  ROOT="$COMMON_GIT/gauntlet/tmp"
+  [[ "$RUN_DIR" = /* && -d "$RUN_DIR" && ! -L "$RUN_DIR" ]] || fail "$RUN_DIR" 'expected an absolute directory, not a symlink'
+  CANONICAL=$(cd -- "$RUN_DIR" && pwd -P) || fail "$RUN_DIR" 'directory lookup failed'
+  [[ "$CANONICAL" = "$RUN_DIR" ]] || fail "$RUN_DIR" 'expected a canonical path without symlink ancestors'
+  PARENT=${RUN_DIR%/*}
+  NAME=${RUN_DIR##*/}
+  if [[ "$PARENT" = "$ROOT" && "$NAME" = gate.* ]]; then
+    ENTRIES=$(ls -A -- "$RUN_DIR") || fail "$RUN_DIR" 'directory listing failed'
+    while IFS= read -r ENTRY; do
+      if [[ "$ENTRY" =~ ^pr-[0-9]+$ && -d "$RUN_DIR/$ENTRY" ]]; then
+        fail "$RUN_DIR/$ENTRY" 'child run folder remains'
+      fi
+    done <<< "$ENTRIES"
+  elif [[ "$NAME" =~ ^pr-[0-9]+$ && "${PARENT##*/}" = gate.* && "${PARENT%/*}" = "$ROOT" ]]; then
+    :
+  else
+    fail "$RUN_DIR" 'not an owned gate run folder under the primary'
+  fi
+  for BODY in "${KEEP[@]}"; do
+    [[ "${BODY%/*}" = "$RUN_DIR" && -f "$BODY" && ! -L "$BODY" ]] || fail "$BODY" 'expected a regular body file directly inside the run folder'
+  done
+  for BODY in "${KEEP[@]}"; do
+    KEPT=$(mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX") || fail "$BODY" 'kept-draft mint failed'
+    mv -- "$BODY" "$KEPT" || fail "$BODY" "move to $KEPT failed"
+    printf 'kept %s\n' "$KEPT"
+  done
+  rm -rf -- "$RUN_DIR" || fail "$RUN_DIR" 'run folder deletion failed'
+)
+```
+
+Delete only through this block, by the exact run-folder path. Delete no OS-temp file or worktree stage folder; use no wildcard, prefix sweep or `find` for cleanup. All other drafts, the record, finding artifacts, helper outputs, logs and temporary description files leave with the run folder.
 
 Start the message with `gauntlet: done approved` for post completion or stop on approved. Start the message with `gauntlet: done merged` for post completion or stop on own-merge. Start the message with `gauntlet: done closed-pr` for post completion or stop on closed-pr. Start the message with `gauntlet: done final` for stop on final. Start the message with `gauntlet: done merge-queued` for stop on merge-queued. Print the row from `### Settlement rows`, then the checkout path and local branch. Render reports through `report.md`; a report above a menu is not a terminal. Start the message with `gauntlet: stuck` followed by the actual error on any hard assertion failure, including a delegated fix-wave restore/assert failure; print the PR row with `stuck - <actual error>` below it and end with the actual error, without a continuation menu. In set mode use `batch.md`'s per-PR retirement marker until every PR retires.
 
@@ -266,4 +311,4 @@ Delegate non-final stop (initial, assess terminal, obstacle, contract exception)
 
 After the terminal marker and settlement row, print the post-step results, then one sentence per unpicked, skipped or failed step naming its label, reason and command or payload path. Include skipped cleanup sub-steps. Keep these not-run sentences distinct from `<label>: <result>` lines. On stop, include every known drafted reply, coverage post, cleanup, PR-named action and override, stating whether it could run now or awaits the merge; keep the existing final and merge-queued outcomes. Retain the body files of unrun or failed posts and name them in these sentences. In set mode retain these sentences with the PR's row for the parent's closing message.
 
-Delete both finding artifacts at `repair.wave.spec` and `repair.wave.ledger` with the run record, temporary description body files, every helper output and its log_path on every handled terminal exit, except retained post payload files. Drop other unapplied drafts. Never discover authority in a new session.
+Keep the block's failure and printed kept paths with the settlement result. Never discover authority in a new session.

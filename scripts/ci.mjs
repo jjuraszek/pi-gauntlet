@@ -550,7 +550,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), R("scripts/delivery-stage-authoring.test.mjs"), R("eval/conformance-reviewer/ci-step-is-the-change.test.mjs"), R("eval/conformance-reviewer/legs-verification-line.test.mjs"), R("eval/conformance-reviewer/prompt-stage-sentence.test.mjs"), R("eval/conformance-reviewer/stage-exclusion.test.mjs"), R("eval/spec-council-applier/pr-description-finding.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gate-teardown.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), R("scripts/delivery-stage-authoring.test.mjs"), R("eval/conformance-reviewer/ci-step-is-the-change.test.mjs"), R("eval/conformance-reviewer/legs-verification-line.test.mjs"), R("eval/conformance-reviewer/prompt-stage-sentence.test.mjs"), R("eval/conformance-reviewer/stage-exclusion.test.mjs"), R("eval/spec-council-applier/pr-description-finding.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
   ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source, delivery-stage authoring and eval contracts pass");
 } catch (e) {
   fail(`happy-path, wave-review, PR comment, brainstorming, delivery-stage authoring or eval regression checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
@@ -608,6 +608,15 @@ try {
   );
   if (offenders.length) fail("stage skills must carry the worktree path, not cd into it:\n    " + offenders.join("\n    "));
   else ok("stage skills carry the worktree path by value");
+}
+
+{
+  const { lintTempPathScope } = await import("./stage-skill-lint.mjs");
+  const offenders = lintTempPathScope(root).map(
+    (hit) => `${hit.file}:${hit.line} [${hit.rule}] ${hit.text}`,
+  );
+  if (offenders.length) fail("gauntlet scratch must stay under its owning Git directory:\n    " + offenders.join("\n    "));
+  else ok("gauntlet scratch paths stay under their owning Git directories");
 }
 
 {

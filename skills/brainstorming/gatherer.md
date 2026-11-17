@@ -6,11 +6,15 @@ operator sees after gather is questionary question one. Do not announce, do not 
 
 ## Dispatch
 
-Mint a temp dir outside the worktree (never committed):
+Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the home worktree. Mint this stage's directory in its Git metadata:
 
 ```bash
-GATHER_DIR=$(mktemp -d)
+SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
+GATHER_DIR=$(mktemp -d "$SCRATCH/gather.XXXXXX") || exit 1
 ```
+
+For each companion scout, resolve `SCRATCH` from that leg's checkout and mint its own `GATHER_DIR` with the same template. Pass each scout its leg-local absolute output path; keep context-builder in home's directory. Retain all minted paths for cleanup.
 
 Read [reference/legs.md](reference/legs.md) for the settled member order and rules walk.
 Expand the scout task below once per leg, home first, using that leg's worktree
@@ -258,11 +262,11 @@ only when the trigger rule never fired>
 The marker line is **line 1, verbatim**. Then clean up and clear the substep:
 
 ```bash
-rm -rf "$GATHER_DIR"
+rm -rf -- "$GATHER_DIR"
 ```
 
 ```
 phase_tracker({ action: "substep", phase: "brainstorm", substep: null })
 ```
 
-The questionary runs under plain `brainstorm`.
+Repeat cleanup for each retained companion directory by its exact absolute path. The questionary runs under plain `brainstorm`.

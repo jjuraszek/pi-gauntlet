@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import * as stageSkillLint from "./stage-skill-lint.mjs";
 
 const { STAGE_SKILL_DIRS, lintStageSkill } = stageSkillLint;
@@ -77,4 +78,41 @@ try {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-console.log("stage-skill-lint fixtures pass");
+const stage = "skills/loop-implementation/SKILL.md";
+const gate = "skills/gatekeep-pr/reference/assessment.md";
+assert.deepEqual(stageSkillLint.TEMP_PATH_SCOPE, [
+  ...STAGE_SKILL_DIRS,
+  "skills/gatekeep-pr",
+  "skills/roasting-the-spec",
+  "skills/verification-before-completion",
+  "agents/loop-implementer.md",
+]);
+for (const [file, text, count] of [
+  [stage, "mktemp", 1],
+  [stage, "`mktemp -d`", 1],
+  [stage, 'mktemp "$SCRATCH/a.XXXXXX" then `mktemp`', 1],
+  ["skills/brainstorming/gatherer.md", 'mktemp "gauntlet/tmp/report.XXXXXX"', 0],
+  ["skills/brainstorming/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp)).XXXXXX"', 1],
+  ["skills/brainstorming/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp "$SCRATCH/nested.XXXXXX")).XXXXXX"', 0],
+  [gate, 'mktemp "gauntlet/tmp/report.XXXXXX"', 1],
+  [gate, 'mktemp "$RUN_DIR/a.XXXXXX" then `mktemp -d`', 1],
+  [gate, 'mktemp "$SCRATCH/a.XXXXXX"', 1],
+  [stage, 'mktemp "$SCRATCH/a.XXXXXX"', 0],
+  [stage, 'mktemp "/tmp/$SCRATCH/a.XXXXXX"', 1],
+  ["skills/gatekeep-pr/reference/post-selection-loop.md", 'read "${TMPDIR:-/tmp}/gate-kept.XXXXXX-extra"', 1],
+  [stage, 'mktemp -d "$GIT_DIR/gauntlet/tmp/a.XXXXXX"', 0],
+  [gate, 'mktemp "$RUN_DIR/a.XXXXXX"', 0],
+  [gate, 'mktemp -d "$COMMON_GIT/gauntlet/tmp/gate.XXXXXX"', 0],
+  [stage, "Read `${TMPDIR:-/tmp}/loop-base-0.jobs`", 1],
+  ["skills/loop-implementation/reference/return-file.md", 'mktemp -d "${TMPDIR:-/tmp}/gauntlet.XXXXXX"', 0],
+  ["skills/gatekeep-pr/reference/post-selection-loop.md", 'mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX"', 0],
+  [gate, 'mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX"', 2],
+  [stage, 'mktemp "$SCRATCH/a.XXXXXX" and ${TMPDIR:-/tmp}', 1],
+]) {
+  const findings = stageSkillLint.lintTempPaths(text, file);
+  assert.equal(findings.length, count, `${file}: ${text}`);
+  assert.ok(findings.every((finding) => finding.rule === "temp-path" && finding.line === 1));
+}
+const root = dirname(dirname(fileURLToPath(import.meta.url)));
+assert.deepEqual(stageSkillLint.lintTempPathScope(root), [], "all stage and gate mints use their owned scratch root");
+console.log("stage path lint passes");

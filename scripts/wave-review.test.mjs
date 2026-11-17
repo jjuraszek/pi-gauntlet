@@ -39,6 +39,8 @@ test('integrated wave contract uses implementers then one post-gate wave review'
   assert.doesNotMatch(wave, /agent: "(?:spec-reviewer|code-reviewer)"|SPEC_VERDICT_SCHEMA|CODE_VERDICT_SCHEMA/);
   for (const token of ['WAVE_VERDICT_SCHEMA', 'repair-base-shell', 'rebuild: task <n> - delta apply failed', 'failed[n]', 'converged[n]', 'escalated[n]', '4 + N', 'Compact report: findings and footer only, at most 150 lines']) assert.ok(skill.includes(token), token);
   assert.ok(wave.indexOf('**Test gate.**') < wave.indexOf('**Review.**'));
+  assert.ok(wave.includes('<REPORT_DIR>/wave<w>-gate-<i>.log'));
+  assert.ok(skill.includes('mktemp "$SCRATCH/fix-delta-index.XXXXXX"'));
   assert.match(skill, /limit: 300/);
   assert.match(skill, /no `context: "fresh"`/);
   assert.match(skill, /initial patch.*fails[\s\S]*staged[\s\S]*stop/);
@@ -183,7 +185,10 @@ test('tree delta is repair-only regardless of committed, staged or unstaged repa
   const before = captureTree(checkout, scratch);
   assert.equal(before.status, 0, before.stderr);
   assert.equal(git(checkout, 'status', '--porcelain'), implementationStatus);
-  assert.deepEqual(readdirSync(scratch), []);
+  const stageScratch = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet', 'tmp');
+  assert.ok(existsSync(stageScratch), 'tree capture uses checkout-local Git scratch');
+  assert.deepEqual(readdirSync(stageScratch), []);
+  assert.deepEqual(readdirSync(scratch), [], 'OS temp stays untouched');
   git(checkout, 'commit', '-qm', 'implementation');
   const implementation = git(checkout, 'rev-parse', 'HEAD');
   // The expected patch is independent of the capture and includes no implementation hunk.
@@ -202,7 +207,8 @@ test('tree delta is repair-only regardless of committed, staged or unstaged repa
     assert.equal(delta, expected, state);
     deltas.push(delta);
     assert.equal(git(checkout, 'status', '--porcelain'), status, state);
-    assert.deepEqual(readdirSync(scratch), [], state);
+    assert.deepEqual(readdirSync(stageScratch), [], state);
+    assert.deepEqual(readdirSync(scratch), [], `${state}: OS temp untouched`);
   }
   assert.equal(new Set(deltas).size, 1);
 });
@@ -217,7 +223,9 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
   const result = captureTree(checkout, scratch);
   assert.notEqual(result.status, 0);
   assert.equal(result.stdout, '');
-  assert.deepEqual(readdirSync(scratch), []);
+  const stageScratch = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet', 'tmp');
+  assert.ok(existsSync(stageScratch), 'failed tree capture uses checkout-local Git scratch');
+  assert.deepEqual(readdirSync(stageScratch).filter(name => name.startsWith('fix-delta-index.')), []);
 });
 
 

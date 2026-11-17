@@ -1,6 +1,7 @@
 # gatekeep-pr fix wave on the loop-implementer
 
 > **Superseded by:** [doc/specs/2026-11-14-single-commit-message-contract.md](./2026-11-14-single-commit-message-contract.md) - the `loop: row <n> <done|failed>` subject requirement and the commit-body result block in "Row dispatch" and "Harness" only
+> **Superseded by:** [doc/specs/2026-11-17-gh-161-per-gauntlet-temp-space.md](./2026-11-17-gh-161-per-gauntlet-temp-space.md) - the OS-temp row output path in "Row dispatch" only
 
 **Goal:** Replace the plan-bound `implementer` worker in gatekeep-pr's fix wave with the autonomous `loop-implementer` driven from a parent-owned companion ledger, one row per selected blocker finding and one batched row for `fix nits`, without changing the wave's round accounting, sync, review-before-push, push, prior-review tracking, or multi-PR handling.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.

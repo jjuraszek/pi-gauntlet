@@ -1,6 +1,10 @@
-for: e1e225cdb64943b738dc7141ca88d07a92c425fcaa4a97d0cfbfd802400fbeb5
+for: 2c664b0797642faa5d439af3968eb4bb2476158cb51780618d461a6b20a24643
 
 ## Change
+
+Relocate the summary file's mint in spec-finalization.md's User Review Gate to the checkout-local gauntlet scratch folder. This path relocation changes no must-hold fact of pr-body-drafted-row or post-action-sorted. Rerun exactly those two samples serially with their existing baselines and unchanged expected.md facts; preserve all other evidence. These tool-free checkpoints prove authored sections, not filesystem behavior or target-wide coverage. The deterministic currency check is scripts/delivery-stage-authoring.test.mjs.
+
+### Prior delivery-stage and commit-message context (not current replay authorization)
 
 Distinguish pull-request text as stage proof from text the change produces, and sort operator steps before every spec-writing branch. Run only pr-body-drafted-row and post-action-sorted against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit, with a baseline-only run first for the bundled drafting sample. Keep each committed behavior, copy ticket rows verbatim, and place the admin's after-merge secret step in the labeled Design paragraph rather than an acceptance row or Tests requirement. Remove the obsolete new-file markers for the commit-message reference, which exists at this base, without changing assembly content. Preserve prior evidence and facts; these tool-free checkpoints prove authored sections, not live writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs. The initial drafting comparison stopped on an unspecified Self-Review read in one replay; supply that successful prerequisite observation in both new fixtures without changing facts or weakening the read gate. Reseed the changed bundled case before its comparison, and reuse the unchanged base for every run.
 

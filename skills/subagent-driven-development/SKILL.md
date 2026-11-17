@@ -52,7 +52,9 @@ Substitute a shell-quoted checkout path for `{{CHECKOUT}}` and run the entire bl
 <!-- fix-delta-tree-shell -->
 ```bash
 FD_ROOT={{CHECKOUT}}
-FD_INDEX=$(mktemp) || exit 1
+SCRATCH="$(git -C "$FD_ROOT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
+FD_INDEX=$(mktemp "$SCRATCH/fix-delta-index.XXXXXX") || exit 1
 cp "$(git -C "$FD_ROOT" rev-parse --path-format=absolute --git-path index)" "$FD_INDEX" || { rm -f "$FD_INDEX"; exit 1; }
 GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" add -A && GIT_INDEX_FILE="$FD_INDEX" git -C "$FD_ROOT" write-tree
 FD_STATUS=$?
@@ -116,7 +118,7 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
 1. **Independence check.** Assert pairwise-disjoint manifest `files`: only Test/Test may share a path. Split overlaps into singleton waves. Trust the plan for runtime-resource disjointness; capture `WAVE_BASE_SHA` with `git -C <worktree> rev-parse HEAD`, print `wave <w> base <sha>` and hold it.
 2. **Dispatch.** One one-step chain whose single `parallel` step contains only implementers, one item per task: `subagent({ async: false, context: "fresh", cwd: <worktree>, chain: [{ parallel: [{ agent: "implementer", as: "impl_<n>", outputSchema: IMPLEMENTER_STATUS_SCHEMA, output: "<REPORT_DIR>/wave<w>-task<n>.md", outputMode: "file-only", task: ... }], worktree: true, concurrency: 4, stopOn: { path: "/status", in: ["BLOCKED", "NEEDS_CONTEXT", "DONE_WITH_CONCERNS"] } }] })`. Use step `stopOn` to expose `## Outputs` structured JSON in the tool-result text; top-level `tasks` has no item schema and is not used. For manifest `"mode":"in-place"`: `cwd` the branch checkout, no `worktree:`, the wave union as `SCOPED_TEST_COMMANDS`. Payload is `planPath`, task anchor, spec path, `Leg:` with additive `Rules:` per [Leg routing](#leg-routing), `SCOPED_TEST_COMMANDS` (the task's own `tests` for isolated waves), status protocol. Dispatch no reviewer step after the implementers.
 3. **Read and integrate.** Read each child's structured output and report under the bound above; print `wave <w> task <n> <status> report <path> patch <path>`. Isolated waves: before integrating `DONE` / `DONE_WITH_CONCERNS`, require an `Artifacts:` patch path and a successful `test -s <patch>`. A missing or zero-byte initial patch takes the transition-table repair row; apply nothing and retain siblings. A nonempty patch -> `git -C <worktree> apply --index <patch>` in plan index order, print `wave <w> integrated task <n>`; a nonempty initial patch that fails to apply prints `wave <w> task <n> apply failed`, leaves every already-integrated sibling staged, and stops with a stop note listing which tasks are integrated and which failed - no automatic rebuild (the human may ask for one, which runs the rebuild recipe below). In-place waves: nothing to apply; the checkout already carries the work. `BLOCKED` / `NEEDS_CONTEXT` -> the takeable-decision ladder below.
-4. **Test gate.** Run each manifest test for the wave union separately, logs to `gate-<i>.log`; print `wave <w> gate <i> exit <code>`. A red gate enters step 6 as a gate repair for every task whose `files` the failing test belongs to (the manifest's `tests` owner), before any review; the review in step 5 runs only on a green gate.
+4. **Test gate.** Run each manifest test for the wave union separately, logs to `<REPORT_DIR>/wave<w>-gate-<i>.log`; print `wave <w> gate <i> exit <code>`. A red gate enters step 6 as a gate repair for every task whose `files` the failing test belongs to (the manifest's `tests` owner), before any review; the review in step 5 runs only on a green gate.
 5. **Review.** One `wave-reviewer` dispatch per wave, doc-only waves included (`context: "fresh"`, `async: false`, read-only, one-step carrier with `WAVE_VERDICT_SCHEMA` and `stopOn: { path: "/verdict", in: ["FIX_FIRST", "REJECT"] }`), `cwd` the integrated tree after `git -C <worktree> add -A`, with `planPath`, the wave's task `anchors`, `Spec:` (absolute home spec), `Leg:` with additive `Rules:` per [Leg routing](#leg-routing), `BASE_SHA: <WAVE_BASE_SHA>`, `HEAD_SHA: WORKTREE`, and the wave union as `SCOPED_TEST_COMMANDS` (`none` for a doc-only wave, so the reviewer runs nothing and applies the clause table and documentation checks only). Record the review tree per `## Fix delta`; print `wave <w> review <k> verdict <value> report <path> tree <sha>`. `SHIP` -> step 7; `FIX_FIRST` -> step 6; `REJECT` -> hard stop with a stop note.
 6. **Repair round.** Attribute each finding to a task: the task whose manifest `files` contain the finding's file, else the tasks in the structured `touchedTasks`; a finding with neither a file inside any wave task's `files` nor a `touchedTasks` owner stops with `Recommendation: spec/plan amendment` through [delegated amendments](./reference/implement-amendments.md) - findings are never dropped from a repair payload. For each attributed task, dispatch one `implementer` on the current tree with the findings block or gate log as its task text, the prior report path under `## Previous review report`, the task's anchors, and `SCOPED_TEST_COMMANDS` (isolated: the task's own `tests`; in-place: the wave union), through the one-step carrier with no `context: "fresh"` override and no prior-patch path:
    - *Isolated waves* use the repair-base recipe below: a committed snapshot of the current integrated tree (every integrated patch, every applied repair delta, added files included), so the dispatch root is clean and pi-cohort's exported patch is exactly the repair delta. The snapshot carries the current tree forward; it is not the rebuild below and discards nothing. Dispatch with `cwd: <RP_TREE>`, `worktree: true`; the delta is the `Artifacts:` patch at `<Artifacts dir>/worktree-diffs/step-0/task-0-implementer.patch`. Apply it to the integrated tree with `git -C <worktree> apply --index <delta>`; print `wave <w> repair <k> task <n> <status> report <path> delta <path> applied <yes|no>`; then `git -C <worktree> worktree remove --force <RP_TREE>`.
@@ -133,7 +135,9 @@ Run every plan task through this loop in a wave of N >= 1 tasks. Run waves in se
 ```bash
 RP_ROOT={{WORKTREE}}
 RP_BASE={{BASE_SHA}}
-RP_DIR=$(mktemp -d) || exit 1
+SCRATCH="$(git -C "$RP_ROOT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
+RP_DIR=$(mktemp -d "$SCRATCH/repair.XXXXXX") || exit 1
 RP_TREE="$RP_DIR/tree"
 git -C "$RP_ROOT" add -A || exit 1
 git -C "$RP_ROOT" diff --binary --cached "$RP_BASE" > "$RP_DIR/integrated.patch" || exit 1
@@ -243,7 +247,7 @@ PREFLIGHT_STATUS=$?
 ```
 
 
-Create `REPORT_DIR` with `mktemp -d`. Forward predecessor status and report paths across dependent waves; never paste task text.
+Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the owning implementation checkout. Create `REPORT_DIR` with `mktemp -d "$SCRATCH/reports.XXXXXX"`; use it for reports and scoped-gate logs. Forward predecessor status and report paths across dependent waves; never paste task text.
 
 ### Chain stopped or failed
 

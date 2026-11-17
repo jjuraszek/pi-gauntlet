@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, mkdtempSync, writeFileSync, existsSync, mkdirSync, symlinkSync } from 'node:fs';
+import { readFileSync, mkdtempSync, writeFileSync, existsSync, mkdirSync, realpathSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -29,7 +29,7 @@ function run(command, { token = command.split(/\s+/)[0], duration = '2s', header
     if (env.PATH === '/nonexistent') {
       const bin = join(root, 'bin');
       mkdirSync(bin);
-      for (const name of ['git', 'mktemp', 'tail']) symlinkSync(spawnSync('bash', ['-c', `command -v ${name}`], { encoding: 'utf8' }).stdout.trim(), join(bin, name));
+      for (const name of ['git', 'mkdir', 'mktemp', 'tail']) symlinkSync(spawnSync('bash', ['-c', `command -v ${name}`], { encoding: 'utf8' }).stdout.trim(), join(bin, name));
       env.PATH = bin;
     }
     const bindings = { HP_WORKTREE: repo, HP_COMMAND: command.replaceAll('{MARKER}', quote(marker)).replaceAll('{ROOT}', quote(root)), HP_TOKEN: token, HP_DURATION: duration, HP_ROW: 'demo', HP_HEADER: header };
@@ -46,6 +46,7 @@ function run(command, { token = command.split(/\s+/)[0], duration = '2s', header
     assert.equal(result.status, 0, result.stderr);
     const match = result.stdout.match(/summary: (.+)\noutcome: (.+)\n/);
     assert.ok(match, result.stdout);
+    assert.ok(match[1].startsWith(join(realpathSync(repo), '.git', 'gauntlet', 'tmp') + '/'), match[1]);
     const summary = readFileSync(match[1], 'utf8');
     assert.equal(summary.split('\n')[0], match[2]);
     assert.match(summary, /\nhead: [0-9a-f]+\nrow: demo/);

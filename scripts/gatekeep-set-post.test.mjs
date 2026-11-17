@@ -15,7 +15,7 @@ test("set post menus reserve shared cleanup for the last merged PR and retire af
   assert.match(batch, /Omit it from later menus and skip it in queued picks only after its command runs with a recorded result, never because an earlier pick is queued/);
   assert.match(batch, /shared item.*at most once.*set/s);
   assert.match(batch, /all selected post steps finish.*retire.*no re-render/s);
-  assert.match(batch, /per-PR not-run sentences.*final message/s);
+  assert.match(batch, /Retain its settlement row and not-run sentences.*parent roster for the final message/);
   assert.doesNotMatch(batch, /Cleanup does not retire|re-render with cleanup gone|post\/evidence\/stop rows retained|decision-menu\.md/);
 });
 

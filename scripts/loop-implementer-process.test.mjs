@@ -13,7 +13,7 @@ test('worker bounds blocking calls and fences owned-session cleanup', () => {
     'timeout -k 30 <n>', 'at most 600 seconds', 'foreground command, a poll, a wait',
     'Preflight python3 and timeout', 'start_new_session=True',
     '["timeout", "-k", "30", "3600", ...command]',
-    '${TMPDIR:-/tmp}/loop-<base SHA>-<iteration>.jobs',
+    '<SCRATCH>/loop-<base SHA>-<iteration>.jobs',
     'pre-bump task iteration', 'OS-observed process start identity',
     'each poll in a separate tool call', 'Recheck identity and command immediately before signaling',
     'cleanup incomplete', 'timed out after <n> s',

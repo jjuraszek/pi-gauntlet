@@ -35,6 +35,7 @@ function historicalModels(candidate, baseline) {
 }
 
 const driver = read('skills/loop-implementation/SKILL.md');
+const holds = read('skills/loop-implementation/reference/driver-holds.md');
 const recovery = read('skills/loop-implementation/reference/interrupted-recovery.md');
 const validation = driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0];
 
@@ -50,7 +51,6 @@ test('home admission written contract limits attribution and all header deltas',
   assert.match(validation, /attempts \+1, nonempty bounded evidence/);
   assert.match(validation, /set equality between changed rows and rows with exactly one new decision line, target first/);
   assert.match(validation, /inspect no commit message/);
-  const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
   assert.doesNotMatch(holds, /format=%[sbB]|--grep/);
   assert.doesNotMatch(boundary, /format=%[sbB]|commit body's first two lines/);
 
@@ -171,7 +171,7 @@ test('home Git recipes expose each attribution fixture and restore the before-im
     git('commit', '-qm', 'An arbitrary message unrelated to attribution');
     assert.equal(execute(driver, 'git -C "<worktree>" status --porcelain'), '', name);
     assert.equal(execute(driver, 'git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count'), '1', name);
-    assert.equal(execute(driver, 'git show <sha>:<ledger path>'), committed.trimEnd(), name);
+    assert.equal(execute(holds, 'git show <sha>:<ledger path>'), committed.trimEnd(), name);
     execute(recovery, 'git -C "<worktree>" reset --hard HEAD_BEFORE');
     execute(recovery, 'git -C "<worktree>" clean -fd');
     assert.equal(git('rev-parse', 'HEAD'), before, name);

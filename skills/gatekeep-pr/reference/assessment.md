@@ -98,7 +98,7 @@ Verify (step 3) and Review (step 4) each run as a fresh helper with `cwd` the pr
 
 Pass both Verify and Review the refreshed digest and its exact `headRefOid` as the assessed head. Bind verification, review, and subsequent integration/report to that same pushed head after sync; preserve the `rebased locally` local-HEAD exception in `sync.md` `## Re-gather`.
 
-Before step 3, mint the two output paths outside the worktree - `mktemp "${TMPDIR:-/tmp}/gatekeep-verify.XXXXXX"` and `mktemp "${TMPDIR:-/tmp}/gatekeep-review.XXXXXX"` - and pass each to its helper; delete both at teardown (`post-selection-loop.md` `### Teardown`).
+Before step 3, mint the two output paths in the validated record's directory - `mktemp "$RUN_DIR/verify.XXXXXX"` and `mktemp "$RUN_DIR/review.XXXXXX"` - and pass each to its helper with `scratch: <absolute RUN_DIR>`; teardown owns both (`post-selection-loop.md` `### Teardown`).
 
 | Step | Helper | Detail |
 |---|---|---|

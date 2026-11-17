@@ -139,7 +139,9 @@ for (const [name, text, patterns] of [
     /non-zero.*never fall back/, /preconditions 4-5/, /rebase confirmation: yes \| no \| not asked/,
   ]],
   ['handoff and foreground batch', batch, [
-    /gatekeep-roster\.XXXXXX/, /`course` null/, /`repair.rounds_used` and `repair.syncs_used` zero/, /`repair.rounds_cap` and `repair.syncs_cap` to `2 x`/, /approved_head.*null/,
+    /Write the roster at `<RUN_DIR>\/roster`/, /<RUN_DIR>\/pr-<N>\/state/, /<RUN_DIR>\/pr-<N>\/report/,
+    /`teardown: removed`/, /`teardown: kept <path> - <error>`/, /every entry says `teardown: removed`/,
+    /`course` null/, /`repair.rounds_used` and `repair.syncs_used` zero/, /`repair.rounds_cap` and `repair.syncs_cap` to `2 x`/, /approved_head.*null/,
     /async: false/, /context: "fresh"/, /skill: "gatekeep-pr"/,
     /level: "none"/, /the gatekeep child result line is the handoff contract/,
     /skip the fetch, run no worktree add, verify HEAD/,
@@ -258,8 +260,8 @@ test('gatekeeper leaves model knobs unset and has no skill discovery machinery',
 test('assessment.md dispatches Verify and Review as fresh helpers with no inline path', () => {
   assert.ok(!/\binline\b(?!\s+comments?\b)/i.test(assessment), 'no inline path remains');
   assert.ok(assessment.includes('## Helpers'));
-  assert.ok(assessment.includes('gatekeep-verify.XXXXXX'));
-  assert.ok(assessment.includes('gatekeep-review.XXXXXX'));
+  assert.ok(assessment.includes('mktemp "$RUN_DIR/verify.XXXXXX"'));
+  assert.ok(assessment.includes('mktemp "$RUN_DIR/review.XXXXXX"'));
   assert.match(assessment, /head_pushable/);
   assert.match(assessment, /push --dry-run --no-verify --no-follow-tags/);
   assert.match(assessment, /dispatched sequentially - never `worktree: true`/);
@@ -480,7 +482,7 @@ test('verification-brief.md gathers permissions, treats held runs as pending, an
   assert.match(sectionB, /^\| Held run \|/m);
   assert.match(sectionB, /`approve workflow run`/);
   assert.match(sectionB, /local run: no conclusive check`, `local run: held run not approvable`,\s+`local run: local verification: always`/);
-  assert.match(sectionB, /log_path: <file under \$\{TMPDIR:-\/tmp\}/);
+  assert.match(sectionB, /log_path: <file in RUN_DIR holding the full captured output>/);
   assert.match(sectionB, /^\| Fix wave \|[^\n]*reference\/fix-wave\.md/m);
   assert.ok(!sectionB.includes('`action_required`/`error` block'), 'action_required is no longer a blocking conclusion');
   assert.ok(!brief.includes('raw_tail'), 'the orchestrator reads log_path, never a tail');
@@ -715,7 +717,18 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
 
 test('course state replaces grants and preserves immutable target and original intent', () => {
   assert.match(brief, /gh repo view <base-repository> --json nameWithOwner/);
-  assert.match(loop, /gatekeep-state\.XXXXXX/);
+  const root = new URL('../skills/gatekeep-pr/', import.meta.url);
+  const instructions = readdirSync(root, { recursive: true }).filter(path => path.endsWith('.md'))
+    .map(path => readFileSync(new URL(path, root), 'utf8')).join('\n');
+  assert.equal((instructions.match(/mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/g) || []).length, 1);
+  assert.doesNotMatch(assessment, /mktemp -d/);
+  assert.match(fixWave, /write the derived spec and companion ledger together at `<record path>-spec\.md` and `<record path>-ledger\.md`, beside the continuation record in `RUN_DIR`/);
+  assert.match(loop, /Put every helper output, controller, jobs file, drafted body and temporary description file in `RUN_DIR`/);
+  assert.ok(loop.includes('mktemp "$RUN_DIR/landed-body.XXXXXX"'));
+  assert.match(loop, /Create the new record at `<RUN_DIR>\/state`/);
+  assert.match(loop, /For a supplied record path, mint no run folder or record; validate and reuse that file below, taking its directory as `RUN_DIR`/);
+  assert.match(loop, /Its location alone never causes `stuck - run record unreadable`/);
+  assert.match(skill, /mktemp "\$RUN_DIR\/<role>\.XXXXXX"/);
   assert.match(loop, /first tracker task's name/);
   assert.match(loop, /Only the orchestrator records direct human selections/);
   assert.match(loop, /Native harness tool permissions remain in force/);

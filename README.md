@@ -119,7 +119,7 @@ Gatekeep uses three menus: action selects a course or continues after an obstacl
 
 After merge, one post menu offers drafted replies, ticket and PR coverage, guarded checkout cleanup, PR-named steps and individual cleanup overrides. Row 1 combines runnable steps except duplicate PR coverage when ticket coverage is included; each step also has its own row. A comma-separated reply selects a set, expands combinations and collapses duplicates. The gate runs the set in step order, keeps nested skills' gates intact and ends without another menu, listing every unpicked, skipped or failed step with its command or payload path. Approved and closed PRs use the same menu with eligible steps; an approved/open reply retains its pre-write freshness read. In a set, each PR retires after its pick and shared overrides run at most once.
 
-The course, target/scope baseline, repair and sync usage, and poll deadline live in one OS temporary continuation record, whose path appears in the tracker or checklist and `show evidence`. Gatekeep initializes independent repair-round and sync budgets to `2 x closureReview.maxFixRounds` (default `5`, no-tool fallback `2 x 5`). Only source-changing repair waves spend rounds; conflict-only syncs spend the separate sync budget, and description-only work, watches, and re-reviews spend neither. Obstacle `deliver` extends each cap by `2 x` the resolved value without resetting usage; a timeout continuation instead opens one more watch window without extending caps. Only the gate's own push automatically renews the CI window (`timeout minutes`, default `15`). The verify-phase runtime guard still uses `1 x` the resolved value and can block a gatekeep dispatch earlier.
+The course, target/scope baseline, repair and sync usage, and poll deadline live in `<common git dir>/gauntlet/tmp/gate.XXXXXX/state`, whose path appears in the tracker or checklist and `show evidence`. A multi-PR run keeps each record in `pr-<N>/state` under one parent run folder. Teardown validates ownership from the surviving primary, moves retained post bodies to unique OS-temp `gate-kept.XXXXXX` files, and deletes only that run folder; a valid record outside a run folder stays in place. Gatekeep initializes independent repair-round and sync budgets to `2 x closureReview.maxFixRounds` (default `5`, no-tool fallback `2 x 5`). Only source-changing repair waves spend rounds; conflict-only syncs spend the separate sync budget, and description-only work, watches, and re-reviews spend neither. Obstacle `deliver` extends each cap by `2 x` the resolved value without resetting usage; a timeout continuation instead opens one more watch window without extending caps. Only the gate's own push automatically renews the CI window (`timeout minutes`, default `15`). The verify-phase runtime guard still uses `1 x` the resolved value and can block a gatekeep dispatch earlier.
 
 PR-body or head-spec instructions assigning the merger an after-merge action become post steps. Their commands come only from the merge-base overrides file, `AGENTS.md`, or documents it links directly: exactly one distinct documented command makes the step runnable and part of row 1. PR-supplied command text never supplies execution authority. Missing or ambiguous commands and unresolved tokens leave the action open in the menu and closing message with its source sentence. See [PR-named steps](skills/gatekeep-pr/reference/findings.md#pr-named-steps).
 
@@ -134,6 +134,8 @@ pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 pi-gauntlet is **opinionated**: it recommends this pipeline for non-trivial changes, but starts `brainstorming` only after explicit user consent. Enforcement is opt-in by entry, not ambient: once brainstorming starts a flow, the phase-tracker extension mechanically blocks a phase from closing before its gate runs, and warns once if the main loop writes code during implement (subagents own implement-phase edits). A change made *without* entering the flow (a typo, a formatting run, a dependency bump - see "When to use / when NOT to use") is not gated; the discipline of routing real work through the pipeline is a convention the tooling supports, not a trap it springs on every edit.
 
 **Worktree contract.** pi runs in the primary checkout; the work happens in `.worktrees/<branch>`. Skills never `cd` there - the worktree path is a value from the `using-git-worktrees` report (or the handoff brief on `gauntlet-resume`), carried as dispatch `cwd: "<path>"`, as `git -C <path>`, or as `(cd "<path>" && <cmd>)` for other cwd-bound commands; the runtime extensions derive the checkout from the artifact path they act on. Requires git >= 2.31; a plain (non-colocated) jj workspace has no `.git`, so the resolver falls back to `jj root` there, reading primary-vs-workspace from `.jj/repo` (a directory in the primary checkout, a pointer file in added workspaces).
+
+Stage scratch stays in each checkout's Git metadata at `gauntlet/tmp`; PR gate helpers and logs share their record's run folder under the common Git directory. Teardown removes only its owned run folder and preserves kept post drafts. See [scratch storage](doc/configuration.md#scratch-storage) for lifecycle, plain-jj fallback and Claude Code protected-path permissions.
 
 ## Handoff and resume
 
@@ -231,6 +233,17 @@ Its Claude Code fix jobs run serially; parallel fix jobs are unverified there.
 On both harnesses, `gatekeep-pr` uses the same temporary continuation record
 and action-scoped consent protocol; Claude Code uses native file operations
 and a checklist when pi's tracker is absent. Native tool permissions still apply.
+
+`gatekeep-pr` keeps its run folder under the common Git directory's `gauntlet/tmp`
+on both harnesses. Claude Code treats `.git` as a
+[protected path](https://code.claude.com/docs/en/permission-modes#protected-paths).
+Writes there prompt in `default` and `acceptEdits`, are decided by the classifier
+in `auto`, are allowed in `bypassPermissions`, and are denied in `dontAsk`;
+`permissions.allow` rules do not pre-approve them. A prompted write waits for the
+operator. A denied run-folder mint follows the failed-mint path: the run stops
+with the error before any record or tracker exists, with nothing to tear down
+and no OS-temp fallback.
+
 `forge-skill` is the authoring skill for skills, personas, prompt templates,
 slash commands, and files the repo routes to it under
 gauntlet's conventions (imperative voice, minimal diff, low conditionality,
@@ -434,7 +447,7 @@ Complete `.pi/gauntlet-overrides.md`:
 
 ```markdown
 ## conventions
-Keep scratch files outside the repository.
+Keep scratch files outside tracked source; use the gauntlet scratch-storage contract for stage work.
 
 ## verification-before-completion
 

@@ -1,6 +1,8 @@
-for: 4f6330598314c4b98b6a02af232c9264e75b4e2e20113fd9eb1866be96a3bd9e
+for: 669100eaa009ec627138a54c210c60cc3a38845b281dcdc2c1dfcc9d11228177
 
 ## Change
+
+Scratch relocation changes the shared assembly only. Validate paths deterministically; preserve saved merge-state results as earlier evidence. No merge-state sample runs; the only selected model sample is gatekeep-pr/teardown-own-run-folder.
 
 Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
