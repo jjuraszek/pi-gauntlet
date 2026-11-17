@@ -717,7 +717,10 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
 
 test('course state replaces grants and preserves immutable target and original intent', () => {
   assert.match(brief, /gh repo view <base-repository> --json nameWithOwner/);
-  assert.match(loop, /mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/);
+  assert.equal((loop.match(/mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/g) || []).length, 1);
+  assert.doesNotMatch(assessment, /mktemp -d/);
+  assert.match(loop, /Put every helper output, controller, jobs file, drafted body and temporary description file in `RUN_DIR`/);
+  assert.ok(loop.includes('mktemp "$RUN_DIR/landed-body.XXXXXX"'));
   assert.match(loop, /Create the new record at `<RUN_DIR>\/state`/);
   assert.match(loop, /For a supplied record path, mint no run folder or record; validate and reuse that file below, taking its directory as `RUN_DIR`/);
   assert.match(loop, /Its location alone never causes `stuck - run record unreadable`/);

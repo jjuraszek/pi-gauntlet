@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { dirname, join } from 'node:path';
@@ -23,30 +23,101 @@ const write = (path, contents) => {
   writeFileSync(path, contents);
 };
 
-function teardown(primary, runDir, keep = []) {
+function teardown(primary, runDir, keep = [], variables = {}) {
   const block = reference.match(/<!-- gate-teardown-shell -->\s*```bash\n([\s\S]*?)\n\s*```/);
   assert.ok(block, 'gate teardown must ship the marked gate-teardown-shell block');
   return run('bash', ['-c', `KEEP=(${keep.map(quote).join(' ')})\n${block[1]}`], {
-    PRIMARY: primary, RUN_DIR: runDir,
+    PRIMARY: primary, RUN_DIR: runDir, ...variables,
   });
 }
 
-function fixture() {
+function fixture({ linked = false } = {}) {
   const scratch = mkdtempSync(join(tmpdir(), 'gate-teardown-'));
   const primary = join(scratch, "primary's checkout");
   mkdirSync(primary);
   git(primary, 'init', '-q', '-b', 'fixture');
   git(primary, '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', 'commit', '--allow-empty', '-qm', 'Start the teardown fixture');
   const checkout = join(scratch, 'linked checkout');
-  git(primary, 'worktree', 'add', '-q', '--detach', checkout, 'HEAD');
-  const common = git(checkout, 'rev-parse', '--path-format=absolute', '--git-common-dir');
+  if (linked) git(primary, 'worktree', 'add', '-q', '--detach', checkout, 'HEAD');
+  const common = git(primary, 'rev-parse', '--path-format=absolute', '--git-common-dir');
   const root = join(common, 'gauntlet/tmp');
   mkdirSync(root, { recursive: true });
   return { scratch, primary, checkout, root };
 }
 
+test('stage scratch resolves checkout-local Git metadata and refuses a failed lookup', () => {
+  const { primary, checkout, scratch } = fixture({ linked: true });
+  const reference = readFileSync(new URL('../skills/loop-implementation/reference/return-file.md', import.meta.url), 'utf8');
+  const block = reference.match(/<!-- stage-scratch-shell -->\s*```bash\n([\s\S]*?)\n```/)?.[1];
+  assert.ok(block, 'shared scratch recipe exists');
+  for (const root of [primary, checkout]) {
+    const path = run('bash', ['-c', `${block}\nprintf '%s' "$SCRATCH"`], { CHECKOUT: root });
+    assert.equal(path, join(git(root, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet/tmp'));
+    assert.ok(existsSync(path));
+    assert.equal(git(root, 'status', '--porcelain'), '');
+  }
+  assert.throws(() => run('bash', ['-c', block], { CHECKOUT: scratch }), /not a git repository/);
+});
+
+test('fenced stage mints derive scratch without inherited shell state', () => {
+  const { checkout } = fixture({ linked: true });
+  const expected = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet/tmp');
+  for (const [file, variable, role] of [
+    ['brainstorming/gatherer.md', 'GATHER_DIR', 'gather'],
+    ['brainstorming/reference/spec-finalization.md', 'SUMMARY_PATH', 'spec-summary'],
+    ['roasting-the-spec/SKILL.md', 'COUNCIL_DIR', 'council'],
+  ]) {
+    const text = readFileSync(new URL(`../skills/${file}`, import.meta.url), 'utf8');
+    const block = [...text.matchAll(/```bash\n([\s\S]*?)\n```/g)].find(match => match[1].includes(`${variable}=$(mktemp`))?.[1];
+    assert.ok(block, `${file} mint block exists`);
+    const path = run('bash', ['-c', `unset SCRATCH\n${block}\nprintf '%s' "$${variable}"`], { CHECKOUT: checkout });
+    assert.equal(dirname(path), expected, file);
+    assert.ok(path.startsWith(join(expected, `${role}.`)), file);
+    assert.ok(existsSync(path), file);
+  }
+  assert.equal(git(checkout, 'status', '--porcelain'), '');
+});
+
+test('kept reply and coverage drafts survive a later run exit', () => {
+  const { primary, root, scratch } = fixture();
+  const first = mkdtempSync(join(root, 'gate.'));
+  const bodies = ['reply.body', 'coverage.body'];
+  for (const name of bodies) write(join(first, name), name);
+  const paths = teardown(primary, first, bodies.map(name => join(first, name)), { TMPDIR: scratch })
+    .split('\n').map(line => line.replace(/^kept /, ''));
+  assert.equal(paths.length, 2);
+  assert.ok(paths.every(path => path.startsWith(join(scratch, 'gate-kept.'))));
+  assert.equal(existsSync(first), false);
+  const later = mkdtempSync(join(root, 'gate.'));
+  teardown(primary, later);
+  assert.equal(existsSync(later), false);
+  assert.deepEqual(paths.map(path => readFileSync(path, 'utf8')), bodies);
+});
+
+for (const [command, condition] of [['mktemp', /kept-draft mint failed/], ['mv', /move to .*gate-kept\..* failed/]]) {
+  test(`failed kept-draft ${command} retains the run and its unmoved body`, () => {
+    const { primary, root, scratch } = fixture();
+    const folder = mkdtempSync(join(root, 'gate.'));
+    const body = join(folder, 'reply.body');
+    write(body, 'reply');
+    const shims = join(scratch, 'shims');
+    const shim = join(shims, command);
+    write(shim, '#!/bin/sh\nexit 1\n');
+    chmodSync(shim, 0o755);
+    assert.throws(() => teardown(primary, folder, [body], { PATH: `${shims}:${env.PATH}`, TMPDIR: scratch }), error => {
+      assert.notEqual(error.status, 0);
+      assert.ok(error.stderr.toString().startsWith(`${body}: `));
+      assert.match(error.stderr.toString(), condition);
+      assert.equal(error.stdout.toString(), '');
+      return true;
+    });
+    assert.ok(existsSync(folder));
+    assert.equal(readFileSync(body, 'utf8'), 'reply');
+  });
+}
+
 test('teardown removes only the first gate run and the second still reads its saved progress', () => {
-  const { primary, checkout, root } = fixture();
+  const { primary, checkout, root } = fixture({ linked: true });
   const first = mkdtempSync(join(root, 'gate.'));
   const second = mkdtempSync(join(root, 'gate.'));
   const artifacts = [
@@ -143,7 +214,7 @@ test('selected teardown replay retains hash-verified passing facts', () => {
 });
 
 test('teardown derives ownership from the primary after the PR worktree is removed', () => {
-  const { primary, checkout, root } = fixture();
+  const { primary, checkout, root } = fixture({ linked: true });
   const runDir = mkdtempSync(join(root, 'gate.'));
   write(join(runDir, 'state'), 'saved progress');
   git(primary, 'worktree', 'remove', checkout);

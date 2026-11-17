@@ -102,9 +102,11 @@ subagent({ agent: "worker", context: "fresh", async: false, cwd: "<abs worktree 
 
 After self-review and the critique pass (council or worker, both already applied to the spec - see [Spec Council](#spec-council)), dispatch the spec-only summarizer over the **applied** spec, then commit the spec on the worktree branch and stop. The summary is folded into the one human gate, not a new gate.
 
-Read [stage scratch](../../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the home worktree. Mint an absolute path there, then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
+Read [scratch folder](../../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the home worktree. Mint an absolute path there, then dispatch the summarizer on a fresh context, reading only the spec, writing to that path via file-only output (no `model:` - it inherits the main loop unless a preset sets `subagents.agentOverrides.spec-summarizer.model`):
 
 ```bash
+SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
 SUMMARY_PATH=$(mktemp "$SCRATCH/spec-summary.XXXXXX") || exit 1
 ```
 
@@ -141,7 +143,7 @@ Evaluate the summary in two stages (the **Degrade path** referenced in each is d
 Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" })` once for this gate. Retain `maxIterationsPerRow` (default 4) as `<n>` for the loop row's `--allowance=N` default. Render any settings warning as one adjacent line. Stop on an unavailable settings tool; never guess the allowance. Beside this lookup, call `phase_tracker({ action: "status" })` once before the summary `Read`. Retain the numeric percentage from its `Context:` line; treat a missing `Context:` line, `Context: unknown`, or a failed call as unknown and never stop for a missing reading.
 
 1. **From the dispatch tool result, before the `Read`.** If the result is **not** an `"Output saved to: <path> (<N> KB, <M> lines)"` reference (an exit-0 save error returns the save error plus a `Full reply preserved at` / `not preserved` pointer, no inline output), or the reference reports under ~500 bytes, or over ~45 KB (the `Read` truncates at 50KB / 2000 lines, so a larger file cannot render whole) - skip the `Read` and take the degrade path. Use the reference's reported figures; do not re-derive them.
-2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim immediately after the gate marker. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a `/tmp` read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
+2. **The `Read` itself, as the last content-producing tool call before composing the gate.** `Read` `$SUMMARY_PATH` and paste its contents verbatim immediately after the gate marker. If the `Read` fails, returns 0 bytes, or reports truncation - take the degrade path. The `Read` must be last: pi-condense does not protect a scratch-folder read, so any turn boundary between the `Read` and the render lets the read result be pruned, reproducing the bug.
 
 **Degrade path** - reach the gate with a one-line "summary generation failed" note; never paraphrase from the file-only reference, never render a stub as the canonical summary.
 

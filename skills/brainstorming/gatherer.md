@@ -6,9 +6,11 @@ operator sees after gather is questionary question one. Do not announce, do not 
 
 ## Dispatch
 
-Read [stage scratch](../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the home worktree. Mint this stage's directory in its Git metadata:
+Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the home worktree. Mint this stage's directory in its Git metadata:
 
 ```bash
+SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
 GATHER_DIR=$(mktemp -d "$SCRATCH/gather.XXXXXX") || exit 1
 ```
 

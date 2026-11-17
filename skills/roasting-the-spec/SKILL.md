@@ -49,15 +49,17 @@ Resolve `../brainstorming/reference/documentation-impact.md` relative to this lo
 
 ### 1 — Fan out to members
 
-Read [stage scratch](../loop-implementation/reference/return-file.md#stage-scratch) with `CHECKOUT` = the home worktree. Create the council directory there and use its absolute path as `<tmpdir>` below:
+Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the checkout holding the spec under review (`<wt>`); use the invocation checkout for a standalone council. Create the council directory there and use its absolute path as `<tmpdir>` below:
 
 ```bash
+SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
+mkdir -p "$SCRATCH" || exit 1
 COUNCIL_DIR=$(mktemp -d "$SCRATCH/council.XXXXXX") || exit 1
 ```
 
 Dispatch one member per configured model, in parallel, each writing its critique into that dir. Do **not** read these files' findings content yourself — they are for the chair. The only permitted parent access is the mechanical structural probe below (existence plus header regex, no content ingestion, no adjudication).
 
-Pass the worktree path (the value brainstorming carries from the `using-git-worktrees` Step 4 report) as `cwd:` on every dispatch below - a child otherwise inherits pi's launch dir (the primary checkout), not the worktree.
+Pass that checkout path as `cwd:` on every dispatch below - a child otherwise inherits pi's launch dir, not the reviewed spec's checkout.
 
 ```
 subagent({
