@@ -1,6 +1,8 @@
-for: 88304db645d565b5eacef6c37f59e32264a447d06203ce0f4508e89152edb51b
+for: 3bfc60ac4466dce917da9a12dc57d017ed4db0c77cb867fb4c907708a28873b2
 
 ## Change
+
+Preserve current-format single-repository brief restoration in current-brainstorm-brief, current-plan-brief, and current-ship-brief. Keep the ordered tracker calls, active phase/substep, exact task snapshot, and fresh-gate boundary unchanged against 09c9f4e1. Run these three C3 paired replays only from the primary session; the loop worker prepares fixtures and the local recorded-output check. These text samples do not prove instruction-read bytes or live tracker mutation, and unrun records provide no behavior evidence.
 
 Admit a legacy pending companion verification repair from its commit-body tuple and iteration through a verification-only attribution check, not the row/seed parser or a new-format return file. Preserve the valid repair, settle it once with the current ledger-decision marker and convert afterward without another charge. Add legacy-pending-verification for the parent's selected model check; this child runs only scripts/loop-legacy-conversion.test.mjs and does not launch model workers. Its disposable Git fixtures execute attribution and conversion, not the full resume driver. Preserve existing model records as historical partial coverage.
 
