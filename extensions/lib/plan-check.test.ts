@@ -17,8 +17,19 @@ const ledger = (rows = ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | do
   "# Ledger - loop engine\n**Spec:** `doc/specs/test.md`\nbase: abc\nverification: check\niterations: 0\n\n| row | status | attempts | evidence |\n|---|---|---|---|\n" + rows.map(r => `| ${r} |`).join("\n") + "\n\n## Decisions\n";
 
 test("ledger admission bypasses task checks and permits empty open evidence", () => {
-  for (const input of [ledger(), ...["cap: 97", "allowance: 4"].map(header => ledger().replace("iterations: 0\n", `iterations: 0\n${header}\n`))]) {
+  for (const input of [ledger(), ledger().replace("iterations: 0\n", "iterations: 0\nallowance: 4\n")]) {
     assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, []);
+  }
+});
+test("single-repository ledger rejects cap headers as unsupported even with an allowance", () => {
+  for (const header of ["cap: 97", "cap: 97\ncap: 97", "allowance: 4\ncap: 97"]) {
+    const input = ledger().replace("iterations: 0\n", `iterations: 0\n${header}\n`);
+    assert.deepEqual(checkPlan(input, ledgerSpec, { exists: () => false, glob: () => [] }).findings, [{
+      check: "ledger",
+      line: lineOf(input, "cap: 97"),
+      text: "cap: 97",
+      reason: "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it",
+    }], header);
   }
 });
 test("ledger admission ignores returned attribution and repair and amended decisions", () => {

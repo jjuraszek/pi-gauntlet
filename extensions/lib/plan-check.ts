@@ -1233,8 +1233,6 @@ function coordinatedMetadata(lines: string[], legs: ReturnType<typeof parseLegs>
   const sha = /^[a-f0-9]{7,40}$/;
   const base = one("base", sha);
   const iterations = one("iterations", /^(?:0|[1-9]\d*)$/);
-  const caps = header("cap");
-  if (caps.length) add(caps[0].i, "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it");
   const budgets = header("allowance");
   if (budgets.length !== 1) add(budgets[0]?.i ?? 0, "expected exactly one allowance header");
   else if (!/^[1-9]\d*$/.test(budgets[0].value) || !Number.isSafeInteger(Number(budgets[0].value))) add(budgets[0].i, "allowance must be a positive safe integer");
@@ -1297,6 +1295,8 @@ function checkLedger(planText: string, specText: string): PlanCheckFinding[] {
   const expectedDispositions = coordinated ? pairs.map(pair => dispositions[pair.ac - 1]) : dispositions;
   const lines = planText.split("\n");
   const add = (i: number, reason: string) => findings.push({ check: "ledger", line: i + 1, text: lines[i] ?? "", reason });
+  const cap = lines.findIndex(line => line.startsWith("cap:"));
+  if (cap >= 0) add(cap, "ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it");
   if (coordinated) coordinatedMetadata(lines, ownership.legs, pairs, add);
   const header = lines.findIndex(l => /^\|\s*row\s*\|\s*status\s*\|\s*attempts\s*\|\s*evidence\s*\|$/.test(l));
   if (header < 0) {
