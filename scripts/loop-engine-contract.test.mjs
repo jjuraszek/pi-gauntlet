@@ -242,8 +242,9 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
 test('driver holds capture grant and leg paths outside the dispatch loop', () => {
   const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
-  const holds = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
-  assert.ok(holds, 'Driver holds section after Entry');
+  const pointer = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
+  assert.equal(pointer?.trim(), 'Read [driver holds](reference/driver-holds.md) in full now at its absolute path; stop if unreadable.');
+  const holds = readFileSync(new URL('skills/loop-implementation/reference/driver-holds.md', root), 'utf8');
   for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
   assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
   assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);

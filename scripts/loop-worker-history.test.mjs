@@ -68,7 +68,7 @@ test('written stuck-row rule selects tuple changes, excludes parent decisions an
     'the last two attempts changed nothing outside the ledger',
     'a different selected target carries none',
   ]) assert.ok(dispatch.includes(sentence), sentence);
-  const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
+  const holds = readFileSync(new URL('../skills/loop-implementation/reference/driver-holds.md', import.meta.url), 'utf8');
   assert.doesNotMatch(holds, /format=%[sbB]|--grep/);
   assert.doesNotMatch(dispatch, /format=%[sbB]|--grep/);
 });

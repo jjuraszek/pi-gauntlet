@@ -49,9 +49,7 @@ For resume, use the admitted ledger, its base and verification command, and dura
 
 ## Driver holds
 
-After seeding, restrict driver reads during implement to the ledger (including saved or committed ledger snapshots), the child's return file (one file reference), git boundary commands (`status --porcelain`, `rev-list --count`, `rev-parse`, `log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>`, ledger snapshots via `git show <sha>:<ledger path>`, and `rev-list --reverse --ancestry-path <S>..HEAD` plus `show --format= --name-only <worker sha>` in the tuple's owning checkout), the child's jobs file, OS process start identity and command, `ps -o pgid= -p <pid>`, `kill`, skill resources at their absolute paths and the overrides file. Keep rows by status, iterations, allowance, the last decision, the decoded amendment grant and each leg's checkout path for dispatch, handoff and stops. Use Entry's captured grant, row dispositions and membership throughout the loop.
-
-Never read the spec, source files, test output or logs inside the implement loop. Never diagnose a failure's cause; carry the child's evidence into the next dispatch or human stop. Inside the implement loop, end a turn only with a stop header from ## Human stop; follow every intermediate report with the next ordered-table action in the same turn. The only log-read exception is the last 20 lines at the human stop in After the loop step 1. Leave spec reads for seed, authorized restore and the amendment action below, outside the loop.
+Read [driver holds](reference/driver-holds.md) in full now at its absolute path; stop if unreadable.
 
 ## Before each dispatch
 
