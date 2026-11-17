@@ -11,7 +11,7 @@ This target replays planning instructions: a fresh `plan-writer` dispatch with f
 
 | Sample | Must hold |
 |---|---|
-| leg-checkout-by-branch | Resolve all four task path kinds and baseline commands in the companion found by branch; keep the home plan and stop when no tree holds the branch. Selects the child replay role, drops the parent skill slice and bundles the shared leg reference; covers omitted and literal recorded home. |
+| leg-checkout-by-branch | Resolve all four task path kinds and baseline commands in the companion found by branch; keep the home plan and stop when no tree holds the branch. Selects the child replay role, drops the parent skill slice and bundles the shared leg reference; covers omitted and literal recorded home. The case asks for every Files kind per path and scopes the final reply line to case A. |
 | pr-subject-threads | Keep one task per fix thread, style-only headers and scoped verification unions; retain merge-first ordering, dispositions and ordinary gates. Bundles the verification skill. |
 | pr-subject-sync-repair | Complete interrupted home/member replay before thread tasks, persist the rework base through the amendment path and retain merge-mode control. Bundles the PR-head reference and execution skill. |
 | all-singleton-plan | Three singleton waves without Solo lines pass the parent check; ordered tracker initialization leads directly to execution without mode selection. |
