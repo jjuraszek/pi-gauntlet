@@ -183,6 +183,8 @@ Remove: every bare `mktemp` and every `${TMPDIR:-/tmp}` mint or read in the line
 | `skills/finishing-a-development-branch/reference/verification-set.md:16` | `LOG_DIR=$(mktemp -d)` | `mktemp -d "$SCRATCH/gates.XXXXXX"`, `CHECKOUT` the home worktree, or the home primary when the home worktree is absent (the fresh-session retry at `:30`); post-squash runs (`:34`) keep writing to that `LOG_DIR` |
 | `skills/finishing-a-development-branch/SKILL.md:265` | scratch body file with `mktemp` outside the repo | `mktemp "$SCRATCH/pr-body.XXXXXX"`, `CHECKOUT` `$WORKTREE`, the home worktree that step pushes from |
 
+The scratch edits put `skills/loop-implementation/SKILL.md` over the 45,000-byte ceiling asserted at `scripts/loop-boundary-integration.test.mjs:30` and `scripts/loop-conformance-grant.test.mjs:30` (44,918 bytes before this change). Move one self-contained block of that file, wording unchanged, into a new file under `skills/loop-implementation/reference/` that the driver reads in full at its absolute path at the block's old position, as it does `reference/interrupted-recovery.md`; tests that read the moved text read the new file. The ceiling itself stays.
+
 Finish Step 6, the gate's worktree cleanup and housekeeping gain no delete step: removing the worktree removes its `SCRATCH` (claim 22). A stage that deletes its own minted path today keeps that delete.
 
 ### Gate run folder
@@ -280,7 +282,9 @@ Add: `eval/gatekeep-pr/samples/teardown-own-run-folder` (`case.md`, `expected.md
 - Both drafts are passed as `KEEP` paths, so they move to `gate-kept.` files before the delete, and the closing message names those two paths.
 - No command deletes a path in the OS temp folder.
 
-**Paid action.** `node eval/run.mjs gatekeep-pr teardown-own-run-folder`, and `node eval/run.mjs gatekeep-pr teardown-own-run-folder --baseline-only` to seed that sample's baseline, run by the implementer from the worktree; inputs are that one sample directory, and each run makes `pi` model calls. Approving this spec authorizes these runs for the whole flow - seed, rows, repairs and finish, reruns of this sample included - without per-step permission prompts. No other sample or target runs.
+**Paid action.** `node eval/run.mjs gatekeep-pr teardown-own-run-folder`, and `node eval/run.mjs gatekeep-pr teardown-own-run-folder --baseline-only` to seed that sample's baseline, run by the implementer from the worktree; inputs are that one sample directory, and each run makes `pi` model calls. Approving this spec authorizes these runs for the whole flow - seed, rows, repairs and finish, reruns of this sample included - without per-step permission prompts.
+
+The summary-path edit in `skills/brainstorming/reference/spec-finalization.md` sits inside the `## User Review Gate` slice that `eval/brainstorming/target.json` assembles, so the saved candidate replies of `brainstorming/pr-body-drafted-row` and `brainstorming/post-action-sorted` no longer match the skill text, and `scripts/delivery-stage-authoring.test.mjs` (run by `npm test`) requires both to be current. Rerun exactly those two, one after the other because they share `eval/brainstorming/report.md`: `node eval/run.mjs brainstorming pr-body-drafted-row` and `node eval/run.mjs brainstorming post-action-sorted`, run by the implementer from the worktree, with `eval/brainstorming/intent.md` naming this change as a path relocation that leaves both samples' facts unchanged. The user authorized these runs after approval (`don't ask about any paid eval`); reruns of these two samples are covered the same way. No other sample or target runs.
 
 ## Errors and edge cases
 

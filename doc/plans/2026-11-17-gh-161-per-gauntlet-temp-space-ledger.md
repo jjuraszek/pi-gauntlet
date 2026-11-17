@@ -19,3 +19,4 @@ row 1 done | Added owned gate folders and a checked teardown block that preserve
 row 2 done | Relocated stage and gate scratch, aligned worker recovery paths, and added temp-path lint and storage docs. | Reuse return-file.md's stage-scratch-shell and scripts/stage-skill-lint.test.mjs to check checkout-local storage and gate artifact lifetimes.
 row 3 done | Checked that kept reply and coverage drafts survive another gate run's teardown. | nothing new to build on
 amended | 1 item(s) | Description file location
+amended | 2 item(s) | Brainstorming samples made stale by the summary path
