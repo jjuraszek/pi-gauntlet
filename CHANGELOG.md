@@ -4,7 +4,7 @@
 
 ### Changed
 
-- Keep writing-plans' main-session instructions to the planning flow, pass four paths to the plan-writer, and load recovery questions only when needed. Plan-authoring rules live in one child-only contract. (#153)
+- Keep writing-plans' main-session instructions to the planning flow, pass four paths to the plan-writer, and load recovery questions only when needed. The child reads the complete plan-authoring contract before writing or repairing the plan, without a skill-file path. (#153)
 
 ## v8.7.1 - 2026-11-16
 

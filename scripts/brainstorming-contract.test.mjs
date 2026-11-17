@@ -208,6 +208,28 @@ test('writing-plans keeps flow in the skill and child rules in the plan contract
   }
 });
 
+test('plan-writer reads one complete contract before writing on four paths', () => {
+  const writer = read('agents/plan-writer.md');
+  assert.match(writer, /four absolute paths: the worktree, the approved spec, the plan path, and the plan contract file/);
+  assert.match(writer, /Keep the four-path inputs/);
+  assert.doesNotMatch(writer, /SKILL\.md|plan skill|skill's (?:Self-Review|Baseline)/);
+  const procedure = writer.slice(writer.indexOf('## Procedure'), writer.indexOf('## Rules'));
+  assert.match(procedure, /2\. Read the whole plan contract file \(`plan-contract\.md`\)/);
+  assert.match(procedure, /5\. Run Baseline from the plan contract's `## Self-review \(before handoff\)`/);
+  assert.match(procedure, /6\. Run the deterministic checker and judgment checks in the plan contract's `## Self-review \(before handoff\)`/);
+  for (const sample of ['child-reads-one-contract', 'removal-lists-delete', 'maintenance-after-delete', 'baseline-fails-on-base']) {
+    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    assert.equal(Object.keys(record.outputs).length, 2, sample);
+    for (const [model, output] of Object.entries(record.outputs)) {
+      assert.equal(output.status, 'ok', `${sample}/${model}`);
+      const facts = record.judge[model].facts;
+      assert.ok(Object.keys(facts).length > 0, `${sample}/${model}`);
+      if (sample === 'child-reads-one-contract') assert.deepEqual(Object.keys(facts).sort(), ['four-paths', 'no-skill-read', 'reads-contract']);
+      for (const [fact, result] of Object.entries(facts)) assert.equal(result.after, 'holds', `${sample}/${model}/${fact}`);
+    }
+  }
+});
+
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));

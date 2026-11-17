@@ -2,7 +2,7 @@ bundle+: agents/plan-writer.md
 
 Role: plan-writer. Compare two independent maintenance dispatches against the same committed plan below. Narrate the reads, writes, baseline handling and checker calls for each pass; show Task 1's resulting Files block in each pass and the mode's final reply. Do not execute live tools.
 
-Home: /workspace/app. Spec: /workspace/app/doc/specs/retire.md. Plan: /workspace/app/doc/plans/retire.md. Plan skill: /workspace/tools/skills/writing-plans/SKILL.md. Plan contract: /workspace/tools/skills/writing-plans/reference/plan-contract.md.
+Home: /workspace/app. Spec: /workspace/app/doc/specs/retire.md. Plan: /workspace/app/doc/plans/retire.md. Plan contract: /workspace/tools/skills/writing-plans/reference/plan-contract.md.
 
 Observed state for both dispatches:
 - HEAD is abc1234. Task 1 is completed; its removals and source changes are committed. `git status --porcelain --untracked-files=all` is empty before maintenance. No in-flight source edits or unknown dirty paths exist.
