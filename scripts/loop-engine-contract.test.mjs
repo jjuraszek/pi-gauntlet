@@ -172,7 +172,7 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'omit the model override on every later authorized attempt',
     'including every attempt up to a raised effective allowance', 'never resolve another row escalation or append a second marker',
     'With no marker and recoverable history, apply the threshold predicate',
-    'a previously missing model has not spent escalation',
+    'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
   assert.ok(driver.includes('reference/interrupted-recovery.md'));
   const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
@@ -233,7 +233,7 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
   for (const token of ["shared allowance across failing legs", 'Success only after every leg passes']) assert.ok(reference.includes(token), token);
   assert.ok(Buffer.byteLength(reference) < 50000);
   assert.ok(reference.split('\n').length < 2000);
-  assert.ok(driver.includes('Keep single-member ledger bytes unchanged, with no coordinated metadata'));
+  assert.ok(driver.includes('legacy and single-member ledger bytes unchanged'));
   const legacySkeleton = driver.match(/```markdown\n([\s\S]*?)```/)[1];
   assert.doesNotMatch(legacySkeleton, /Leg mapping|base repo-|seeded repo-|pending:|legs:|--leg/);
   assert.ok(driver.includes('single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument'));

@@ -4,24 +4,21 @@ for: a0884ca933d96ad47df4de3cc79e567ff17754b66eef8bf8c283a3e228fcc652
 
 ## Scope
 
-Selected ticket #158 finishing-recovery samples with moved owner files. Both samples ran baseline-only and comparison against `09c9f4e1`. `reference/commit-message.md` is no longer incorrectly declared new: that file exists at the baseline. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected.
+Selected ticket #158 finishing-recovery samples against `09c9f4e1`. Both samples bundle the loop driver with its protected history and legacy-and-single-member clauses restored. The bundle-free intent binding and judge-read intent body are unchanged. Coverage is sample-scoped, not a target-wide pass; C5-C7 remain unselected.
 
-Model columns show runner verdict and candidate facts held/total in its recorded judgment. An `unchanged` or `improved` verdict is not a claim that every expected fact holds. Sample-scoped baseline and candidate JSON files under `results/<sample>/` are the evidence.
+| Sample | Evidence | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
+|---|---|---|---|
+| ledger-pending-return | replayed; exit 0 | improved; 6/6 | unchanged; 6/6 |
+| ledger-post-strip | restored from ef3d3387 | unchanged; 5/5 | unchanged; 5/5 |
 
-| Sample | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
-|---|---|---|
-| ledger-pending-return | improved; 6/6 | unchanged; 6/6 |
-| ledger-post-strip | unchanged; 5/5 | unchanged; 5/5 |
+## Evidence and findings
 
-## Findings
+`ledger-post-strip` uses a candidate record restored byte-for-byte from `ef3d3387`, before `a77b7b04`. Its instruction assembly is byte-identical to that revision and matches its saved `skillSha`; `case.md`, `expected.md`, `target.json` and judge-read intent body are byte-identical too. Its replay input and judgment identity hashes match current inputs. No paid replay is needed for this sample.
 
-- No fact that holds in the baseline arm fails in the candidate arm in either recorded judgment; both models hold every fact of both samples in the candidate arm.
-- Both cases bundle `skills/loop-implementation/SKILL.md`, which lost five clauses that named a ledger conversion, a legacy grant or a migrated row, so both candidate arms reran. `ledger-post-strip` reran against its existing baseline with no case or fact change.
-- `ledger-pending-return`, fixture: the case now also bundles `skills/loop-implementation/reference/interrupted-recovery.md`, byte-identical to `09c9f4e1`. Its step 3 is the only owner of the failed-row evidence `iteration <i>: interrupted - <reason>` with the reason `<k> commits` that the `rejection` fact quotes; the driver says to read it in full, and without it neither arm could know the cell. Case A now asks how the return-file path is recomputed and which of its lines are matched, and case C asks for both reset targets, the repaired row 2 cells and the repair decision, so the `admission` and `rejection` observables are requested rather than volunteered. The case changed, so both arms reran: baseline-only first, then the comparison.
-- `ledger-pending-return`, `rejection`, expected fact: it read "evidence iteration 3: interrupted - 2 commits, appends one matching repair decision". With the reference bundled, both models wrote `iteration 2: interrupted - 2 commits` in the row and `repair row 2 | interrupted - 2 commits | iteration 3` as the decision, in both arms. That is the rule: step 3 writes the row evidence with the dispatch iteration `<i>` (the task carried `iteration: 2`) and the decision with the consumed count (3). `loop-implementation` `interrupted-child-redispatch` `row-budget` ("evidence iteration 6 ... iterations 7") and `scripts/loop-home-admission.test.mjs` (`iteration 2` in the row, `iteration 3` in the decision) pin the same pair. The fact now names both literals: "evidence iteration 2: interrupted - 2 commits, appends the one decision repair row 2 | interrupted - 2 commits | iteration 3". The saved replies were rejudged against it without a replay; both models hold it in both arms.
-- `ledger-pending-return`, gpt-6.1-sol: `admission` and `rejection` now hold in both arms; before the fixture repair both failed in both arms. Opus is `improved` on `once` because this judgment fails the saved baseline reply, which names one refresh without the absolute ledger path; the candidate reply names the path. The move is not an intended one.
-- `ledger-post-strip`: both models hold 5/5. `reference/verification-set.md` and `reference/legs.md`, which own its rules, are in both assemblies and differ from `09c9f4e1` only by one link target.
+`ledger-pending-return` cannot reuse that revision's record: `a77b7b04` changes its case, expected fact and bundle to supply the interrupted-recovery owner. The current fixture and assertions are retained. The candidate comparison ran with `timeout -k 30 600 node eval/run.mjs finishing-a-development-branch ledger-pending-return --base 09c9f4e1`, exit 0. Actual runner output: `finishing-a-development-branch: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 51s)`. The current baseline inputs are unchanged, so the existing baseline record is retained without a baseline-only pass.
+
+Both models hold every candidate fact in both samples. No fact held in the baseline or in the pre-fix candidate is lost. Opus's `once` improvement is observed, not an intended move: the candidate names the absolute ledger refresh path, which the saved baseline does not. No expected fact, word cap or assertion changed in this repair. Text replays inspect supplied recovery and delivery observations; they do not prove live Git or tracker execution.
 
 ## Reproduction
 
-Run `EVAL_CONCURRENCY=2 node eval/run.mjs finishing-a-development-branch <sample> --base 09c9f4e1 --baseline-only`, then the same command without `--baseline-only`, selecting only a sample listed above. Each cell is its first reply on the current input; `ledger-pending-return` was rejudged once after the `rejection` literal was corrected.
+Restore only `eval/finishing-a-development-branch/results/ledger-post-strip/candidate.json` from `ef3d3387` after checking its assembly, fixture and judgment identities. Replay only `ledger-pending-return` with the command above if needed. Reseed a baseline only when its input changes. Unselected samples are historical evidence, not a current target-wide pass.
