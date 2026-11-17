@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep PR gate records in distinct run folders under the common git directory. Teardown validates ownership, moves kept drafts out before deleting its exact folder, and preserves sibling runs and records outside run folders. Multi-PR retirement removes each child independently and keeps the parent when a child remains. (#161)
+
 ## v8.7.2 - 2026-11-17
 
 ### Changed

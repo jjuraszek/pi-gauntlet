@@ -1,6 +1,10 @@
-for: e290cbf5e851ff41e2cfe209a36702d56efab8fca2d02ffbcf194e174d993a62
+for: 9b402d47a362a756f32726ee82298d0e94cb99162ce36365f9b7f92e1f519ed6
 
 ## Change
+
+Select only teardown-own-run-folder for this change. At the supplied Teardown checkpoint, run the marked block with the surviving primary and this run's literal absolute folder; pass both drafts as KEEP and name the returned gate-kept paths. Never delete the sibling run or OS-temp files. This no-tool sample proves command narration only; scripts/gate-teardown.test.mjs executes the filesystem checks. Gate mint and stage-file path moves receive deterministic coverage only, not model samples. Preserve every other sample's saved evidence as earlier-revision coverage; this is not a target-wide pass. The older course-stop-cleanup f4, batch-cleanup-stop c3 and stop-draft-files retained facts are stale against the record-outside-run-folder compatibility rule; move their fixtures into run folders before their next selected run, but do not edit or rerun them here.
+
+## Retained earlier coverage
 
 Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 
@@ -16,6 +20,11 @@ Require an executable command for every unrun cleanup sub-step in the closing me
 
 ## Expected to move
 
+- teardown-own-run-folder/owned-block: fails -> holds - Invoke the marked ownership-checking block instead of composing cleanup commands.
+- teardown-own-run-folder/kept: fails -> holds - Move both drafts through KEEP before deletion and name the returned gate-kept paths with reasons.
+- teardown-own-run-folder/no-sweep: holds -> holds - Keep cleanup free of wildcard or prefix sweeps.
+- teardown-own-run-folder/sibling: holds -> holds - Leave the second run's saved progress untouched.
+- teardown-own-run-folder/os-temp: holds -> holds - Delete no OS-temp path, including older-package artifacts.
 - merge-plan-file-withheld/lookup: fails -> holds - Preserve the failed tree-lookup error and both paired paths instead of inferring absence from an empty result or a deletion diff; no model replay is recorded.
 - merge-landed-message/message: fails -> holds - Compose only a plain landed message from supplied outcomes; no policy choice, settings read or delivery simulation. This hypothesis has no current isolated replay.
 - fix-row-return-file/admission: fails -> holds - Classify the present file as admissible and the absent file as a validation miss, without trusting message attribution or applying later accounting. This hypothesis has no current isolated replay.

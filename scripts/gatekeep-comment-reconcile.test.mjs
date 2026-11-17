@@ -139,7 +139,9 @@ for (const [name, text, patterns] of [
     /non-zero.*never fall back/, /preconditions 4-5/, /rebase confirmation: yes \| no \| not asked/,
   ]],
   ['handoff and foreground batch', batch, [
-    /gatekeep-roster\.XXXXXX/, /`course` null/, /`repair.rounds_used` and `repair.syncs_used` zero/, /`repair.rounds_cap` and `repair.syncs_cap` to `2 x`/, /approved_head.*null/,
+    /Write the roster at `<RUN_DIR>\/roster`/, /<RUN_DIR>\/pr-<N>\/state/, /<RUN_DIR>\/pr-<N>\/report/,
+    /`teardown: removed`/, /`teardown: kept <path> - <error>`/, /every entry says `teardown: removed`/,
+    /`course` null/, /`repair.rounds_used` and `repair.syncs_used` zero/, /`repair.rounds_cap` and `repair.syncs_cap` to `2 x`/, /approved_head.*null/,
     /async: false/, /context: "fresh"/, /skill: "gatekeep-pr"/,
     /level: "none"/, /the gatekeep child result line is the handoff contract/,
     /skip the fetch, run no worktree add, verify HEAD/,
@@ -715,7 +717,11 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
 
 test('course state replaces grants and preserves immutable target and original intent', () => {
   assert.match(brief, /gh repo view <base-repository> --json nameWithOwner/);
-  assert.match(loop, /gatekeep-state\.XXXXXX/);
+  assert.match(loop, /mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/);
+  assert.match(loop, /Create the new record at `<RUN_DIR>\/state`/);
+  assert.match(loop, /For a supplied record path, mint no run folder or record; validate and reuse that file below, taking its directory as `RUN_DIR`/);
+  assert.match(loop, /Its location alone never causes `stuck - run record unreadable`/);
+  assert.match(skill, /mktemp "\$RUN_DIR\/<role>\.XXXXXX"/);
   assert.match(loop, /first tracker task's name/);
   assert.match(loop, /Only the orchestrator records direct human selections/);
   assert.match(loop, /Native harness tool permissions remain in force/);
