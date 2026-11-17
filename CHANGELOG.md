@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.8.0 - 2026-11-17
 
 - Execute reject's frozen-note review, permission-checked PR close and cleanup as separately selectable steps, with failure-safe settlement and parent-owned batch queueing. Let the developer overrule eligible problems for this run and explain unrepaired blockers in three short sections; dispatch approach remedies on both harnesses and retain their closure IDs across head moves. (#160)
 
