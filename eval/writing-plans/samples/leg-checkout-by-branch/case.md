@@ -1,4 +1,7 @@
 bundle+: skills/brainstorming/reference/legs.md
+bundle-: skills/writing-plans/SKILL.md
+
+Role: plan-writer
 
 Evaluate the plan contract as the plan-writer, not the parent orchestrator. This is a text-only exercise: narrate the checkout lookup and path-resolution calls using the supplied observations, then show the single-task plan fragment (home header, Files, Tests, baseline and steps) you would write for A. State what changes for B and what you do for C. Treat the observations as measured; make no live-tool or file-write claims. Keep the whole response under 900 words.
 

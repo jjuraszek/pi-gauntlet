@@ -287,6 +287,11 @@ test('writing-plans callers and anchors resolve to the partitioned contract', ()
     if (!read(file).includes(token)) failures.push(`CI token ${token} is absent from ${file}`);
   }
   assert.deepEqual(failures, []);
+  const legCase = read('eval/writing-plans/samples/leg-checkout-by-branch/case.md');
+  assert.match(legCase, /^bundle-: skills\/writing-plans\/SKILL\.md$/m,
+    'the child replay must not receive parent dispatch instructions');
+  assert.match(legCase.replace(/^(bundle[+-]:[^\n]*\n)+\s*/, ''), /^Role: plan-writer\n/,
+    'select the replay child branch instead of the parent no-write branch');
   for (const sample of ['leg-checkout-by-branch', 'pr-subject-threads', 'pr-subject-sync-repair']) {
     const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
     assert.equal(Object.keys(record.outputs).length, 2, sample);
