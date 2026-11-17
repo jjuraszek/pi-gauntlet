@@ -17,6 +17,12 @@ Preserve:
 
 For eligible BLOCKED readiness, omit the blocked comment and explain the admin override through `menus.md` `## final`. For WRITE or MAINTAIN, name override eligibility, not admin rights. With unreadable eligibility and green CI, say required checks passed independently of GitHub's block. Otherwise say GitHub blocks this actor from merging; never invent a named rule. Keep `bypass_eligible` and its value in the digest's permissions only, including when answering `show evidence`. Resolve other unavailable actions through `menus.md` and explain their actual missing prerequisites in prose, not a separate omission line.
 
+## Approach problems
+
+In part two of the first report, state each validated approach blocker in one or two sentences total. For base-evidence grounds, report only `builds:` and `conflicts with:`, with the base path and optional line trailing the conflict. Keep `instead:` in the evidence pack; omit the remedy from this problem item. For example: "The PR adds a second import queue, but the existing task runner owns imports (doc/architecture.md:18)." Substitute the actual mechanism, conflict and citation; do not copy the example's facts. For needless machinery, combine `builds:` with `smaller:`: name the machinery, the smaller alternative and why it gives the same result. Omit a separate `instead:` sentence here too. Count sentences across the whole item and cut restatement rather than adding a third. Keep the opening exactly two sentences; do not repeat the problems there. Use the ordinary plain-language problem list, not separate explanation headings.
+
+Render these blockers regardless of the native verdict or green CI. Do not double-count a blocker merged with a native or prior-review finding; retain independent ordinary blockers and nits. Keep `A<n>`, contributor IDs and ground numbers behind `show evidence`. A dropped entry or non-blocking overlay adds no approach problem to this list.
+
 ## Standing
 
 Put part three's recommendation sentence and reason immediately above `Pick one:`; follow `menus.md`. Name a running required check or unchanged obstacle, not readiness. Translate verdict and exit state into prose.

@@ -3,13 +3,13 @@
 base: bae599d7e7dd4f864cb8f8a23ab11221f54717da
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
-returned: seed | home | 4be4174d90d61655d77a55b80d4c8af5ce0f2d11
+returned: 1 | home | bff65c9d65f5b46c336939ed5d6fa577c5e08631
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | timeout -k 30 30 node --test scripts/gatekeep-reject.test.mjs; 1 test failed; review-baseline.md lacks the Approach grounds section |
+| 1 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-reject.test.mjs; 4 passed, 0 failed; 22 model facts hold across approach-conflict-report and approach-local-instance; partial coverage, saved replays only |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | cut | 0 | deviates: an approach conflict the developer does not reject is a blocker - assess posts it and a delivery course repairs it, so it withholds merge until repaired or overruled by the developer |
@@ -19,3 +19,4 @@ returned: seed | home | 4be4174d90d61655d77a55b80d4c8af5ce0f2d11
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1: define approach grounds and validate first-report conflicts
+row 1 done | Added six approach grounds, validated the reviewer appendix, and reported conflicts with base evidence or smaller alternatives. | Reuse scripts/gatekeep-reject.test.mjs and the two approach eval fixtures when adding rejection notes and menus.

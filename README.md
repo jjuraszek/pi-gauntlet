@@ -593,6 +593,8 @@ it; everything it doesn't name stays baseline. Severities it introduces but does
 map to blocking/non-blocking are treated as **blocking** (fail-safe), noted in the
 gate's output.
 
+Before gate work, gatekeep also checks the PR's main mechanism against six [approach grounds](skills/gatekeep-pr/review-baseline.md#approach-grounds): a second mechanism, an architecture-boundary crossing, an unjustified reversal, a weakened guard, a symptom-level fix, or needless machinery. The first five need base-branch file evidence; needless machinery needs a concrete smaller change preserving the intended outcome. A local repair remains an ordinary finding. Valid blocking conflicts appear in the first report as one or two sentences explaining the mechanism and its conflict, with base-file evidence or the concrete smaller alternative. A base-branch `REVIEW.md` mapping can downgrade a named ground to a nit.
+
 `/skill:housekeeping` also reads the optional root-level `REVIEW.md`. It reads repo
 rule sources from the working tree for directory, uncommitted, and unpushed runs,
 and from the merge-base commit for a PR run, never the PR head. Unlike gatekeep-pr, its fixed

@@ -1,0 +1,34 @@
+{
+  "sample": "approach-conflict-report",
+  "arm": "baseline",
+  "skillSha": "0c8fcc1cde3bc5dd201276bd8b09ce9820f0b097dbcef363fe24d82b231b5973",
+  "inputSha": "7ad41371e037cc9d27f7bf5e5e42edb154625a0a8607342546f664d03a03fdf5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Narration from step 5 (Verify and Review are already done)**\n\nStep 5 starts. Verification and review both assessed commit aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. The tracker was initialized earlier with `gather, provision, verify`. No `--rebase` was passed, so there is no `sync` stage. `review` was added and closed when step 4 ran. I now `add` the `report` stage.\n\n1. **Pre-menu refresh (read-only).**\n   - I run `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`.\n   - I run `gh run list -R <owner>/<repo> -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`.\n   - I run Section A's fixed GraphQL query for `viewerPermission`, `viewerCanUpdateBranch`, `viewerCanMergeAsAdmin`, `headRefOid`, `body` and `baseRefName`.\n   - Head, body and base are unchanged against `consent.target`. I replace merge state, bypass eligibility, review decision, status checks, Actions runs and review requests together. I re-derive `viewer.role` as requested reviewer.\n   - No check is pending or failing. The exact-head CI evidence still resolves as CI-sufficient, so no claim-check-only helper is needed.\n2. **Provenance.** The evidence source is CI. Its `head_sha` equals the assessed head, so there are no local-run paths to check.\n3. **Scope outcomes.** The scope source is pr, so I judge the stated intent:\n   - Updating the index on catalog changes is covered.\n   - On-demand export is covered.\n   - The claims stay `matched`.\n   - The diff adds no content outside the stated intent.\n4. **Approach conflicts.** I check the cited contract at the base. `git cat-file -e origin/main:docs/architecture.md` exits 0, and line 12 states that the catalog store owns catalog data and other consumers use its change feed.\n   - The nightly job keeps its own copy of the catalog, which contradicts the documented architecture. Under the triage bar this is a repo-enforced convention, so it is a blocker. Internal `P1`, locator `docs/architecture.md:12`.\n   - The source shows the export queue, scheduler and worker are unnecessary because the existing handler can stream the download. This fails the baseline's Minimal property. Both conflicts replace a main mechanism, so the second one is also kept as a blocker (`P2`).\n   - Both findings are deduplicated: each is one defect and one blocker. The reviewer's \"instead\" directions are recorded as drafted payloads under show evidence. Nothing is applied, and the worktree stays tracked-clean.\n5. I read `report.md` and render parts one and two. I stop before the recommendation and the menu.\n\n---\n\nThis PR updates the search index whenever catalog entries change and lets operators export the index on demand. No spec is attached, so the PR's own description sets the scope: both behaviors are built and tested, the checks passed in CI, and you are a requested reviewer.\n\nTwo problems block merging, even though the behavior works.\n\n1. The index is kept current by a nightly job that maintains its own copy of the catalog. The architecture document says other parts of the system must receive catalog changes through the catalog store's change feed (docs/architecture.md:12). A second copy can drift from the real catalog, so search could show entries that were already changed or removed. Updating the index from the change feed would remove both the copy and the nightly job.\n2. On-demand export runs through a new queue, scheduler and background worker, but operators only need a download when they ask for one. The existing export handler can stream that download directly and give the same result. Keeping the extra machinery adds parts to run and maintain for no gain.\n",
+      "words": 541,
+      "wallMs": 29443,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "This PR updates the search index when catalog entries change and lets operators download the index on demand. Both behaviors are implemented and tested, and you are a requested reviewer.\n\nOne problem blocks merging even though CI passed. The nightly indexing job maintains its own catalog table, but the documented architecture assigns catalog ownership to the catalog store and directs consumers through its change feed (docs/architecture.md:12). The separate table introduces a second catalog ownership mechanism instead of following that documented boundary.\n\nOne smaller point does not block merging: on-demand downloads use a lasting export queue, scheduler and worker even though the existing export handler can stream the same download directly. Those background components add maintenance work without providing behavior the PR promises beyond an on-demand download.\n",
+      "words": 126,
+      "wallMs": 18537,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "bff65c9d65f5b46c336939ed5d6fa577c5e08631"
+}

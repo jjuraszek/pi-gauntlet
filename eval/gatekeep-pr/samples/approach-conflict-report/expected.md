@@ -1,0 +1,5 @@
+- conflicts: judged: The report names both approach conflicts as separate merging problems despite the native SHIP verdict: the second catalog copy conflicts with the existing owner's change feed, and the export queue, scheduler and worker are unnecessary for on-demand downloads.
+- base-path: judged: The second-copy problem cites docs/architecture.md:12 on the base branch, trailing the claim it supports, not a PR-head path or an invented prohibition.
+- smaller: judged: The complexity problem names streaming from the existing export handler as the concrete simpler alternative, explains that it preserves on-demand downloads, and explains why the queue and background worker are unnecessary.
+- register: judged: The report describes each problem in one or two whole sentences for a reader without the code open, preserves the two-sentence change/scope opening, and does not show A1/A2 or P/L ledger ids in its report prose.
+- boundary: judged: Stops after the problems without rendering a rejection note, recommendation or menu or performing a helper dispatch, repair or external write.

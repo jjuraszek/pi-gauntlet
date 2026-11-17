@@ -14,6 +14,7 @@ Baseline mapping:
 | Doc drift beyond wording (a doc describes behavior the code does not have, or omits an operation or parameter the code adds) | blocking |
 | Doc drift, wording-only (typo, label, phrasing with the same meaning) | nit |
 | Security issues | blocking |
+| Approach conflict (an entry under Approach grounds that passes both tests) | blocking |
 | Prose/style/label cleanup | nit |
 
 A repo-root `REVIEW.md` may remap any of these, or add project-specific concerns with their own severity. Its mapping **always wins** on conflict with this file. Any severity a rubric (baseline or repo) names but does not map fails safe to **blocking**; "blocking" and "blocker" name the same class, "non-blocking" and "nit" the other.
@@ -32,6 +33,26 @@ Generic properties evaluated on every reviewed change, independent of language o
 | Testing | Tests cover behavior, not implementation details; assertions are real (they can fail); a new executable code path shipped without a real test is **blocking**; a documentation-only obligation is judged against the promised doc text |
 | Docs | Documentation agrees with the code it describes and with the PR/issue prose describing the change |
 | Security | No secrets in the diff, no missing authorization checks, no injection vectors |
+
+## Approach grounds
+
+An approach conflict requires replacing the PR's main mechanism while preserving its intended outcome. A remedy that edits only part of the diff without replacing that mechanism is an ordinary finding, not an approach conflict. Personal taste, an unsupported preference, or a different design the reviewer likes is not a ground.
+
+| Ground | Name | Definition | Required evidence | Recommends reject |
+|---|---|---|---|---|
+| 1 | Second mechanism | A new way to do what the repo or its framework already does. | The existing mechanism in a base-branch file. | yes |
+| 2 | Architecture boundary | The main mechanism crosses a boundary the repo keeps explicit. | The base-branch rule or owning interface and the way the PR crosses it. | yes |
+| 3 | Unjustified reversal | Replaces a recorded decision or working behavior with no justification in the spec or PR description. | The base-branch decision record or working behavior. | yes |
+| 4 | Weakened guard | The approach gets its result by weakening a check or guard the repo relies on. | The base-branch guard and the protection the approach removes. | yes |
+| 5 | Symptom-level fix | Fixes where the problem shows, or only the reported example, instead of where it starts. | The base-branch owning layer or an uncovered input. | yes |
+| 6 | Needless machinery | The PR adds infrastructure, a dependency, a new module, or a new abstraction when a smaller change to an existing file or path delivers the same outcome. | A concrete smaller change that preserves the intended outcome. | no |
+
+Two validity tests bind every entry:
+
+1. Base evidence: grounds 1-5 cite a file that exists on the base branch in `path:`. An external or framework decision qualifies only through a base-branch file that configures or records it; a framework name or outside citation alone is insufficient. Ground 6 instead names the concrete smaller change and preserved outcome in `smaller:`, with no path.
+2. Main mechanism: `replaces:` reads `main mechanism`, and `instead:` removes or replaces what `builds:` names. A remedy that edits only part of the diff is an ordinary finding.
+
+A base-branch `REVIEW.md` overlay can add or drop a ground, change its evidence, or change whether it recommends reject. An added ground with no recommendation value defaults to no. An overlay naming a ground as non-blocking downgrades validated entries for it to nits: no note and no `reject` based on that ground. Grounds the overlay does not name keep the baseline mapping.
 
 ## Claim-verification principles
 

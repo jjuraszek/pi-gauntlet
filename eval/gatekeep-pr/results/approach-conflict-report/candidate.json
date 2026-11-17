@@ -1,0 +1,110 @@
+{
+  "sample": "approach-conflict-report",
+  "arm": "candidate",
+  "skillSha": "348c0db16c1b8fb6be08e430ce2ba224b9626d875c3ac58f18463257c59d66e3",
+  "inputSha": "7ad41371e037cc9d27f7bf5e5e42edb154625a0a8607342546f664d03a03fdf5",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Step 5: integrate and report** (assessed head `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, with worktree `/work/widgets-pr-88`)\n\n1. **Tracker.** I `add` the `report` stage and start it. Earlier stages are already closed.\n\n2. **Pre-menu refresh.** These reads run before integration, and all of them succeed:\n   - `gh pr view 88 --json headRefOid,state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup,body,baseRefName,number,title,author,isDraft,headRefName,isCrossRepository,files,additions,deletions,commits,reviews,closingIssuesReferences,headRepository,maintainerCanModify,url,mergeCommit,reviewRequests`\n   - `gh run list -R <owner>/<repo> -c aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa --json databaseId,status,conclusion,workflowName,url`\n   - The fixed Section A GraphQL query re-reads `bypass_eligible`.\n   - Head, body and base are unchanged, so merge state, reviewDecision, checks, actions runs and review requests are replaced together. `viewer.role` stays requested reviewer, and CI stays CI-sufficient on the assessed head.\n\n3. **Provenance.** CI evidence is bound to the assessed head, so there are no local provenance checks.\n\n4. **Scope and claims.** Scope comes from the PR, not a spec, and the retained original intent is the contract. Both stated behaviors have code and real tests, so both are judged covered. Every claim matched, and no `P#` comes from claims or checks.\n\n5. **Approach-conflict validation.** `work_started` is false, and the merged rubric is the shipped baseline. The native verdict, SHIP, is not an input.\n   - **A1, Second mechanism.** The ground is in the rubric, and it is a base-evidence ground with `path:` present. With `:12` stripped, I run `git -C /work/widgets-pr-88 cat-file -e origin/main:docs/architecture.md`, which exits 0. `instead:` is present, and `replaces: main mechanism` holds because the remedy removes the catalog copy and the nightly job that `builds:` names. The entry is valid, so I mint blocker **P1** with conflict key `Second mechanism + docs/architecture.md`, provenance A1, and `overruled: false`.\n   - **A2, Needless machinery.** The ground is in the rubric, and it is a smaller-change ground, so I skip `cat-file`. `smaller:` is concrete and preserves the outcome. `instead:` is present, and `replaces: main mechanism` holds because the remedy removes the queue, scheduler and worker. The entry is valid, so I mint blocker **P2** with conflict key `Needless machinery`, provenance A2, and `overruled: false`.\n   - No entries are dropped, and there is no overlay that could downgrade either ground. There are no native findings or prior items to merge, so P1 and P2 stay separate blockers.\n\n6. **Drafted payloads.** I keep each blocker's `builds:` and `instead:` in its evidence pack. Nothing is applied, and the worktree stays tracked-clean.\n\n---\n\nThis PR updates the search index whenever catalog entries change, and it lets operators download the index on demand. You are a requested reviewer, and both behaviors the PR describes are built and tested.\n\nTwo problems block merging, even though the checks passed in CI on the commit being reviewed and the description matches the code.\n\n1. The PR adds a nightly job that keeps its own copy of the catalog in a new table to update the index. The architecture document says the catalog store owns the catalog and other consumers receive changes through its change feed (docs/architecture.md:12).\n2. The PR adds a lasting export queue, a scheduler and a background worker to serve on-demand downloads. Extending the existing export handler to stream the download on request would give operators the same export without that extra machinery.\n",
+      "words": 503,
+      "wallMs": 22085,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "This PR updates the search index when catalog entries change and lets operators export it on demand; you are a requested reviewer. Both behaviors are implemented and tested, covering the PR's stated intent.\n\nTwo problems block merging, although CI passed for the commit being reviewed.\n\n1. The nightly indexing job keeps its own catalog table, but other consumers receive catalog changes through the catalog store's change feed (docs/architecture.md:12).\n2. The PR adds a lasting export queue, scheduler and worker for on-demand downloads. Extending the existing export handler to stream downloads on request gives operators the same export without a queue or background worker.\n",
+      "words": 103,
+      "wallMs": 8780,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "759c1fa2676e0285b4946a8261d9a1340559d9017c4717f73ca6393db33db073",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0c84821164df1139f61b37d31c67dc73e2bcc406a112f9d696d28e24c1d21034",
+      "baselineOutputSha": "c970e1069d12d94c6d8bde0d09f587b5d53ce5e4d8dfa8b2a6c238398d58fb86",
+      "candidateOutputSha": "c6f5ced344be813760a0192d6cafbd6e46e0a2a2dbe42c179a15ee959bec696c",
+      "facts": {
+        "conflicts": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "base-path": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "smaller": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "register": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "On this sample only `register` moved: Before already named both conflicts as separate blockers despite SHIP, cited docs/architecture.md:12 trailing the claim, and gave the streaming alternative, so the expected fails -> holds moves for `conflicts`, `base-path` and `smaller` do not show here. `register` moved because the two-sentence cap and the instruction to omit a separate remedy sentence cut Before's four-sentence and three-sentence problem items down to two each, while the two-sentence opening stayed and the A1/A2 and P1/P2 ids stayed in the narration, out of the report prose. The cost is that After's items are thinner and two facts now hold only narrowly. Item 1 sets what the PR builds beside the architecture rule without saying the copy conflicts with or bypasses the change feed. Item 2 leaves the reason the queue and worker are unnecessary to the phrase \"the same export without that extra machinery\", having dropped Before's explicit \"operators only need a download when they ask for one\". To keep these safe, require within the two-sentence cap that the base-evidence item state the contradiction outright (for example, \"this bypasses the change feed that the architecture document says other consumers must use (docs/architecture.md:12)\"), and that the smaller-change item give the reason in a clause (\"operators only need a download when they ask, so the queue and background worker add nothing\"). Keep the wording that holds ledger ids to the narration and stops the report before any recommendation or menu.",
+      "wallMs": 16546,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "759c1fa2676e0285b4946a8261d9a1340559d9017c4717f73ca6393db33db073",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0c84821164df1139f61b37d31c67dc73e2bcc406a112f9d696d28e24c1d21034",
+      "baselineOutputSha": "7209b6332252bb794991895a67614f8ecebdea9dca1ad249c31ea4e030135fb2",
+      "candidateOutputSha": "8138225c71c6cbca67b1a75a502ac21e752a899bf0fb22151db62de222e2a84f",
+      "facts": {
+        "conflicts": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "base-path": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "smaller": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "register": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The only fact that moved is conflicts. Before demoted the export queue, scheduler and worker to a \"smaller point [that] does not block merging\", whereas After states \"Two problems block merging, although CI passed\" and lists both as separate items, so the native SHIP verdict no longer suppresses the second approach conflict. On the text alone, Before already satisfied base-path, smaller, register and boundary: it carried the trailing docs/architecture.md:12 citation, named streaming from the existing handler, kept a two-sentence opening with no ledger ids, and stopped before any recommendation or menu. Those expected moves did not show as fails -> holds here. After keeps all four, but two of them hold thinly. Item 1 relies on a bare \"but\" to carry the conflict, so keep wording that requires saying the PR's copy bypasses the owner's change feed, with the base citation trailing that claim. Item 2 only implies why the queue and worker are unnecessary through \"the same export without a queue or background worker\", so keep wording that requires stating the smaller alternative preserves the on-demand download and that the extra machinery adds nothing the PR promises. Both fit within the two-sentence limit without adding a separate remedy sentence.",
+      "wallMs": 12014,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "bff65c9d65f5b46c336939ed5d6fa577c5e08631"
+}

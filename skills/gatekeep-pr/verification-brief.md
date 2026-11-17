@@ -336,6 +336,25 @@ withhold pre-composed merge exactly like a `pending` row (delivery step 4 watche
 No such comment -> no reviewer workflow known -> no window check;
 `show evidence` says `reviewer workflow: unknown`.
 
+**Approach output (step 4, before gate work).** With caller-supplied `work_started == false`, perform a whole-PR approach check on `origin/<baseRefName>...<headRefOid>` and the source behind it. Keep native findings delta-bounded for an ancestor review; the separately labeled whole-PR diff grounds only the approach judgment. Do not repeat this check in pre-push wave review or after gate work starts.
+
+Use `review-baseline.md` `## Approach grounds` with the merged rubric and overrides file resolved at the merge-base by `reference/assessment.md` `## Configuration` and `## PR gate`. Read `AGENTS.md` and the documents it links directly (one hop) at `origin/<baseRefName>`. No other document grounds an architecture rule or recorded decision. The native verdict (`SHIP`, `FIX_FIRST`, `REJECT`) is never an input to the approach judgment.
+
+Append this caller-required section after the native report and any closure lines. Keep each field on one line; emit the literal `none` when no entry passes both rubric validity tests.
+
+```text
+## Approach conflicts
+A<n>: <ground name from the rubric>
+builds: <the PR's main mechanism, one sentence>
+path: <base-branch path[:line]>
+conflicts with: <what exists at that path, one sentence>
+smaller: <the smaller change and why it preserves the PR's outcome>
+instead: <the remedy that replaces the main mechanism>
+replaces: main mechanism | part of the diff
+```
+
+Emit `path:` and `conflicts with:` exactly for base-evidence grounds (1-5); the path holds only a file and optional `:line`. Emit `smaller:` instead for needless machinery (6), with no path. An overlay-added ground uses a path unless its evidence column names a smaller change. Use the rubric's main-mechanism test; local repairs remain native findings. The orchestrator validates the appendix through `reference/findings.md` `## Approach conflicts`, independently of the native verdict.
+
 **Output format:** emit the reviewer persona's native output contract
 (verdict plus Critical/Moderate/Minor findings). Append `reference/fix-wave.md`
 `## Re-review task` for a pre-push wave or an ancestor step-4 dispatch

@@ -31,6 +31,27 @@ The `design` section is always part of the judged contract: a Design requirement
 
 Treat a human body rewording dropping a mechanism sentence as a description defect; repair the description without amending untouched spec requirements. Keep spec-owned scope and independent mechanism blockers in force. Record a real proposed contract change and its paused continuation through `post-selection-loop.md` `### Contract decision`; limit it to the requested obligation, not omitted description mechanisms.
 
+## Approach conflicts
+
+Validate the step-4 `## Approach conflicts` appendix before the first report while `work_started == false`. The literal `none` adds nothing; a missing section is off-contract helper output under `assessment.md`: quote the failure and offer `stop`, rendering no report or menu from it. Use the merged rubric, never the native verdict, to judge the appendix.
+
+Check each entry in this order; stop at its first failure:
+
+| Check | Drop reason |
+|---|---|
+| Ground is in the merged rubric | `unknown ground` |
+| Base-evidence ground has `path:` | `no base path` |
+| `git -C <worktree> cat-file -e origin/<baseRefName>:<path>` succeeds, after stripping any `:line` suffix | `base path missing: <path>` |
+| Smaller-change ground has a concrete `smaller:` preserving the intended outcome; skip `cat-file` entirely for this ground | `no smaller change` |
+| `instead:` is present | `no remedy` |
+| `replaces:` reads `main mechanism` and `instead:` removes or replaces what `builds:` names | `remedy edits part of the diff` |
+
+A failed check mints no approach blocker and prints one `show evidence` line `approach entry dropped - <reason>`. Keep native findings on the same code at their own severity. A valid entry whose ground the base-branch overlay makes non-blocking yields nits, with no note and no `reject` from that ground.
+
+Each other valid entry becomes a `P#` blocker carrying its ground, conflict key and `A<n>` provenance, with `overruled: false` on first admission. The conflict key is the ground name plus the base path without its line, or the ground name alone for smaller-change grounds. Reuse a matching blocker's ID and overruled disposition on pre-work head rejudgment; merge duplicate pathless entries under the one-defect rule. Close unmatched approach blockers as no longer reported without reusing their IDs. Never mint a new approach conflict after `work_started` becomes true.
+
+A native `SHIP` verdict or green CI never downgrades a validated approach blocker; needless machinery is blocking too unless the overlay changes its severity. Under **One defect, one blocker**, merge a native finding or prior item about the same defect while retaining all contributor IDs. Mark a contributor `same flaw` when closing it needs the `instead:` remedy (a native finding on the mechanism or a prior item posting the same conflict); independent requirement, claim or check contributors keep their own prerequisites. Keep the entry's `builds:`, `instead:` and evidence in its evidence pack. Render each open approach blocker once through `report.md`, alongside independent ordinary blockers and nits.
+
 ## PR-named steps
 
 At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Leave observation-only acceptance or verification clauses and automatic deploy or release notes to `/skill:check-delivery`, not post steps.
@@ -52,7 +73,7 @@ Every finding is one of two:
 
 | Namespace | Contents | Gates merge |
 |---|---|---|
-| blocker | code defects, security, untested new path, `contradicted` claim, AC `gap`, scope creep (diff content traceable to no `in-scope` row, no `design` clause, and no stated intent), doc drift beyond wording (a doc now describes behavior the code does not have, or omits an operation or parameter the code adds), failed gate or undispositioned failing check | yes |
+| blocker | validated approach conflicts, code defects, security, untested new path, `contradicted` claim, AC `gap`, scope creep (diff content traceable to no `in-scope` row, no `design` clause, and no stated intent), doc drift beyond wording (a doc now describes behavior the code does not have, or omits an operation or parameter the code adds), failed gate or undispositioned failing check | yes |
 | nit | wording-only doc drift (typo, label, phrasing with the same meaning), style, reuse of an existing helper, naming | no; take-or-leave at the menu; untracked after the run |
 
 Behavior the spec keeps in scope is a blocker until its mechanism ships; a row the spec defers or deviates is settled, and settled scope lifts no `REVIEW.md` blocker, failing check, contradicted claim, or merge precondition.
