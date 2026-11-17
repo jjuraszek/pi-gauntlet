@@ -1,7 +1,7 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "9d7ec666a302e834399d8f716c3c8ed28c727715be9cb42ddde09d456e563f19",
+  "skillSha": "291d36b72a5a4ed8301d97eb710e87dcbd6802c57e97a1a5b5b2975c25e4e58e",
   "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
   "kind": "text",
   "assembly": "concat",
@@ -11,24 +11,24 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1's baseline fails on def5678: the existing test fails before any plan change.\n\n- Command: `node --test tests/timeout.test.ts`\n- Exit: 1\n- Summary: `tests 1, pass 0, fail 1: existing timeout lookup failed`\n\nThe plan is paused (phase `plan` in progress, substep `plan-write`). How should I proceed?\n\nfix-first - run `/skill:shape-ticket` to fix the existing timeout lookup failure on the base, then come back to this plan\nnarrow <filter> - limit Task 1's Tests to a filter or path that excludes the failing case. Nothing supports a specific filter yet, so please name one.\namend - change the approved spec's Task 1 test obligation through the amendment path\n\nRecommendation: fix-first - the only test in the anchored file fails on the untouched base, so narrowing would leave Task 1 with nothing to test, and nothing suggests the spec is wrong.\n",
-      "words": 136,
-      "wallMs": 6741,
+      "text": "gauntlet: question\nTask 1's test command, `node --test tests/timeout.test.ts`, already fails on the base commit `def5678`, before any plan work runs. It exits 1 with this summary: `tests 1, pass 0, fail 1: existing timeout lookup failed`. The plan pauses here; no wave work has started. How do you want to proceed?\n\n- `fix-first`: run `/skill:shape-ticket` for the existing timeout-lookup failure on the base. Its own gate applies. After that fix lands, I bring the advanced base into this worktree, rerun the baseline, and resume planning.\n- `narrow <filter>`: limit Task 1's Tests to a filter or path that excludes the failing case. The evidence does not support a filter: the file has one test and that test fails, so narrowing would leave nothing to check. To choose this, please name the filter.\n- `amend`: amend the approved spec (`/work/app/doc/specs/timeout.md`) through the amendment surface to account for the failing baseline.\n\nRecommendation: fix-first. The only test in Task 1's own command fails on the base, so the plan has no passing baseline to build on until that failure is fixed.\n",
+      "words": 176,
+      "wallMs": 7524,
       "mechanical": {
         "first-line": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\nTask 1’s baseline command `node --test tests/timeout.test.ts` failed on `def5678` (exit 1): existing timeout lookup failed. Runner summary: 1 test, 0 passed, 1 failed.\n\nfix-first - Run `/skill:shape-ticket` for the existing baseline failure; this plan stays paused.\nnarrow <filter> - Provide a concrete test filter or path; the supplied evidence does not establish a safe narrower scope.\namend - Amend the approved spec through brainstorming’s amendment procedure.\n\nRecommendation: fix-first - The existing timeout lookup fails before implementation, so repair the baseline first.\n\nPlanning remains `in_progress` at `plan-write`, awaiting your choice.\n",
+      "text": "gauntlet: question\nTask 1’s baseline command, `node --test tests/timeout.test.ts`, fails on `def5678` (exit 1): existing timeout lookup failed.\n\n```text\ntests 1, pass 0, fail 1: existing timeout lookup failed\n```\n\nfix-first — Run `/skill:shape-ticket` for the existing failure, then leave this plan paused.\nnarrow <filter> — Supply a concrete test filter or path; the current evidence does not establish a safe narrower scope.\namend — Amend the approved spec through the amendment workflow.\n\nRecommendation: fix-first - repair the existing failure before planning the timeout change.\n\nPlanning remains paused in `plan-write` pending your choice.\n",
       "words": 88,
-      "wallMs": 7682,
+      "wallMs": 8938,
       "mechanical": {
         "first-line": "holds"
       }
@@ -36,11 +36,11 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
+      "factsSha": "cc984f06bf989fe011eea7ac3b3518b1e2a8dc04e885177232748487ef317eb9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "c4dade8a3f8f707e18459d5b8b037d34032261a166d1213c1581ba7787592239",
-      "candidateOutputSha": "65563d099b4917e117c645473601d2fb141f7512e5144ffbaac204cd15fbe151",
+      "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+      "baselineOutputSha": "65ea74132e0ba7218bc55f200c43fa9a868be70f0b80dd4838e1b784b32f0289",
+      "candidateOutputSha": "d0497257dae50b1527508c08ef3a5024f09b6578d354c282407b5c096f9e115e",
       "facts": {
         "failure": {
           "before": "holds",
@@ -63,16 +63,18 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: After still names Task 1, the `node --test tests/timeout.test.ts` command and exit 1 as the base failure, lists fix-first, narrow and amend one per line followed by a Recommendation line, and states the plan is paused in phase `plan` in progress with substep `plan-write`. The only weakening is on pause: Before explicitly said \"Nothing has been stamped and `plan_tracker` is not initialized\", while After leaves a careful reader to infer that from \"paused\"; a judge reading strictly for the absence of stamping/initialization could see that as under-evidenced. To keep the tightened wording while locking the pause fact, restore a one-line closing such as \"Plan stays `in_progress` (substep `plan-write`); nothing stamped, `plan_tracker` not initialized, waiting for your choice.\" Also consider keeping the `Task: Task 1` bullet alongside Command/Exit so the failure triple is visible in the evidence block itself rather than only in the opening sentence.",
-      "wallMs": 12724,
-      "verdict": "unchanged"
+      "feedback": "No fact moved between Before and After: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure; both offer fix-first, narrow and amend one per line followed by a Recommendation line; and both leave planning paused with no plan_tracker init, stamping or completion. After's changes are cosmetic here (prose failure summary instead of a bulleted block, bulleted options with colons instead of dashes, the spec path added to amend), and none of them affects a fact. Note that After drops the explicit statement that phase `plan` stays in progress at `plan-write` and says only that the plan pauses and no wave work has started; that still satisfies the pause fact as written, but keeping one short clause such as 'the plan is unchanged and planning stays paused at plan-write' would make the retained substep unambiguous. Also keep the three options strictly one per line with the Recommendation line immediately after, and keep Task, command and exit code together in the opening sentence, since those are what the failure and menu facts rest on. The expected-to-move fact (reading open-questions.md before the menu) is not observable in this non-narrated sample, so this case neither confirms nor contradicts it.",
+      "wallMs": 6003,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
+      "factsSha": "cc984f06bf989fe011eea7ac3b3518b1e2a8dc04e885177232748487ef317eb9",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "4330c5eec7058483df74560a9fb1f3c7bf3f527ad44a0fde313fa33176eadea4",
-      "baselineOutputSha": "ba3c29aa2384a62cefe9f960db20af48357b8f90ac26df11a4fca763cf35231c",
-      "candidateOutputSha": "88f1ff78a4939f134ddd6354edc77b436010c69bfa42f6289a4469caec7a1184",
+      "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+      "baselineOutputSha": "ef5979c5ab06e1536f241954c9fe98d044fd15178bc7e178e013d1feaea7f6d4",
+      "candidateOutputSha": "917958c91604aec1585688b07e7730b99411f66adac0d3f33e74e5d7f2d9ac2c",
       "facts": {
         "failure": {
           "before": "holds",
@@ -95,10 +97,229 @@
           "label": "held"
         }
       },
-      "feedback": "After preserves every fact Before held: it names Task 1, the exact command `node --test tests/timeout.test.ts`, and exit 1 as the base failure on def5678; it lists fix-first, narrow, and amend each on its own line followed by a Recommendation line; and it closes with planning remaining `in_progress` at `plan-write` awaiting the human's choice, with no tracker init, stamping, or completion marking. The only differences are cosmetic rewordings (collapsing the failure bullets into a sentence, 'amendment procedure' vs 'process', 'does not establish a safe narrower scope'), none of which moves a fact. No wording change is needed for this control sample; if anything, keeping the Before bullet layout (Command/Exit/Result) makes the failure provenance slightly easier to scan, but the After sentence form remains fully conformant.",
-      "wallMs": 4975,
-      "verdict": "unchanged"
+      "feedback": "No fact moved between Before and After: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure; both list fix-first, narrow and amend one per line followed by a Recommendation line; and both leave planning paused in `plan-write` awaiting the human with no plan_tracker init, stamping or completion. The After differences are cosmetic (verbatim fenced evidence block instead of a prose summary, 'amendment workflow' instead of 'brainstorming's amendment flow', slightly reworded recommendation and pause line). To keep these facts stable while delivering the partition, keep the open-questions reference explicit that the question's first content line names the task, the exact Tests command and the exit code, that the three options each occupy a single line immediately followed by a single Recommendation line, and that the closing line states planning stays paused in the current substep with no continuation action. Note that this sample is the user-facing-only output, so it shows no evidence either way about the narrated read of open-questions.md before the menu; that expected move must be confirmed by the narrated replay, not this case.",
+      "wallMs": 5340,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     }
   },
-  "repoSha": "930250b6881e8ce45c7169414227b8cb83059490"
+  "repoSha": "86b28b9cdd486677fecac1d2517e6a0eaa544e28",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "gate-line-first",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "96e1e1507d8d8ac1de0586b6159ae61602ecb55ea7fa0d9628d3f9975fb4c4e7",
+      "candidateSkillSha": "291d36b72a5a4ed8301d97eb710e87dcbd6802c57e97a1a5b5b2975c25e4e58e",
+      "inputSha": "dad4216a7c8c200b506422e517993fe001294bc0afdd56f8666b26563b237c55",
+      "factsSha": "cc984f06bf989fe011eea7ac3b3518b1e2a8dc04e885177232748487ef317eb9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-2"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "65ea74132e0ba7218bc55f200c43fa9a868be70f0b80dd4838e1b784b32f0289",
+            "payloadSha": "1e96aeaac4f661dfa568547b0d7ea9671719f49380349b60e614a6eac5a946c6"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "ef5979c5ab06e1536f241954c9fe98d044fd15178bc7e178e013d1feaea7f6d4",
+            "payloadSha": "b80fdd520e05183e626f04f7ac7f50882c907f60f0bc280cdb5992caa113b125"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "d0497257dae50b1527508c08ef3a5024f09b6578d354c282407b5c096f9e115e",
+            "payloadSha": "2a8a8f55dbcbbd75c647bf4bea4639684dc9681c391555a9bf94895edd8193d4"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "917958c91604aec1585688b07e7730b99411f66adac0d3f33e74e5d7f2d9ac2c",
+            "payloadSha": "69af1089a89eaf4b779a8c1ddca570aa1b4b0d63b2aad9a009b98aaacfc230a9"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+        "baselineOutputSha": "65ea74132e0ba7218bc55f200c43fa9a868be70f0b80dd4838e1b784b32f0289",
+        "candidateOutputSha": "d0497257dae50b1527508c08ef3a5024f09b6578d354c282407b5c096f9e115e",
+        "facts": {
+          "failure": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "pause": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "first-line": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Both outputs name Task 1, `node --test tests/timeout.test.ts` and exit 1, and both list fix-first, narrow and amend one per line followed by a Recommendation line, so failure and menu are kept. What moved is pause: Before states outright that the plan is unchanged and phase `plan` remains in progress at `plan-write`, whereas After only says \"The plan pauses here; no wave work has started\" and never states that the phase stays in_progress or that the plan-write substep is retained, so a reader cannot confirm the retained state from the text. After's fix-first line also says it will \"resume planning\", which is fine, but it does not substitute for the explicit state statement. To keep pause while still delivering the partition, have the wording that drives the user-facing recovery question (now reached via open-questions.md) require an explicit state sentence in the opening lines, e.g. \"The plan is unchanged, nothing is stamped or marked complete, and phase `plan` remains in_progress at substep `plan-write`\"; this sentence likely lived in SKILL.md text that was moved or trimmed in the deduplication, so restore it in whichever file the parent reads before rendering the menu.",
+        "wallMs": 6359,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "gauntlet: question\nTask 1's baseline fails on the current base before any change from this plan. Command: `node --test tests/timeout.test.ts` on `def5678` exits 1 with `tests 1, pass 0, fail 1: existing timeout lookup failed`. How should I proceed?\n\n`fix-first`: run `/skill:shape-ticket` for the failing timeout lookup on the base, which has its own approval gate. The plan stays paused until that fix lands and the worktree picks up the new base.\n`narrow <filter>`: narrow Task 1's Tests to a filter or path that leaves out the failing lookup. The evidence points to no safe filter, since the file holds only that one failing test, so please supply one if you choose this option.\n`amend`: amend the approved spec to account for the failing timeout lookup, through the spec amendment process.\n\nRecommendation: fix-first - the failure is an existing timeout lookup on the base itself, and it is the file's only test, so narrowing would leave Task 1 with no test.\n",
+          "words": 160,
+          "wallMs": 7715,
+          "mechanical": {
+            "first-line": "holds"
+          },
+          "judgeWallMs": 14301,
+          "facts": {
+            "failure": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "menu": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "pause": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "first-line": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            }
+          },
+          "feedback": "No fact moved between Before and After. Both name Task 1, `node --test tests/timeout.test.ts` and exit 1 on `def5678` as the base failure. Both give fix-first, narrow and amend one per line, followed by a Recommendation line. Both end on a question and wait, with no plan_tracker init, stamping or completion. The pause fact is weaker in After, though, and was a close call: Before said outright that planning is paused, the plan is unchanged and phase `plan` remains in progress at `plan-write`. After dropped that sentence, so the retained state is only implied by the question and by 'The plan stays paused' inside the fix-first option. To keep this fact safe while still delivering the reader partition and the conditional open-questions.md read, have the wording require one explicit state line in the user-facing question, such as 'Planning is paused; the plan is unchanged and phase `plan` stays in_progress at `plan-write`.' Keep the one-option-per-line menu and the separate Recommendation line as they are."
+        },
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "e8dcb67068b8c9a9b21d9ee0bf62ddeb46040046f654032ca946809b027512f1",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+        "baselineOutputSha": "ef5979c5ab06e1536f241954c9fe98d044fd15178bc7e178e013d1feaea7f6d4",
+        "candidateOutputSha": "917958c91604aec1585688b07e7730b99411f66adac0d3f33e74e5d7f2d9ac2c",
+        "facts": {
+          "failure": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "pause": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "first-line": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved between Before and After: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure; both list fix-first, narrow and amend one per line followed by a Recommendation line; and both end by stating planning remains paused in `plan-write` awaiting the human's choice, with no plan_tracker init, stamping or completion mentioned. The After differences are cosmetic (the evidence is shown as a verbatim text block instead of a paraphrased results sentence, 'amendment workflow' replaces 'brainstorming's amendment flow', and the recommendation rationale is reworded). To keep these facts stable while delivering the partition, keep the wording in the open-questions reference that requires the task number, exact Tests command and exit code in the first line, the three options one per line immediately followed by a Recommendation line, and an explicit closing pause statement naming the retained substep; consider having that pause line also say the phase stays in_progress, since both outputs only imply it by saying planning remains paused in `plan-write`. Note that this user-facing-only output cannot show whether the reference was read before the menu was rendered, so the expected reads-open-questions movement is not observable in this case.",
+        "wallMs": 6102,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "cc984f06bf989fe011eea7ac3b3518b1e2a8dc04e885177232748487ef317eb9",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+        "baselineOutputSha": "65ea74132e0ba7218bc55f200c43fa9a868be70f0b80dd4838e1b784b32f0289",
+        "candidateOutputSha": "d0497257dae50b1527508c08ef3a5024f09b6578d354c282407b5c096f9e115e",
+        "facts": {
+          "failure": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "pause": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "first-line": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved between Before and After: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure; both offer fix-first, narrow and amend one per line followed by a Recommendation line; and both leave planning paused with no plan_tracker init, stamping or completion. After's changes are cosmetic here (prose failure summary instead of a bulleted block, bulleted options with colons instead of dashes, the spec path added to amend), and none of them affects a fact. Note that After drops the explicit statement that phase `plan` stays in progress at `plan-write` and says only that the plan pauses and no wave work has started; that still satisfies the pause fact as written, but keeping one short clause such as 'the plan is unchanged and planning stays paused at plan-write' would make the retained substep unambiguous. Also keep the three options strictly one per line with the Recommendation line immediately after, and keep Task, command and exit code together in the opening sentence, since those are what the failure and menu facts rest on. The expected-to-move fact (reading open-questions.md before the menu) is not observable in this non-narrated sample, so this case neither confirms nor contradicts it.",
+        "wallMs": 6003,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "cc984f06bf989fe011eea7ac3b3518b1e2a8dc04e885177232748487ef317eb9",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "d71cc6e2c9327595223c22bf6ef80c89f7bcc1164ccc4973007d50e152be442a",
+        "baselineOutputSha": "ef5979c5ab06e1536f241954c9fe98d044fd15178bc7e178e013d1feaea7f6d4",
+        "candidateOutputSha": "917958c91604aec1585688b07e7730b99411f66adac0d3f33e74e5d7f2d9ac2c",
+        "facts": {
+          "failure": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "menu": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "pause": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "first-line": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved between Before and After: both name Task 1, `node --test tests/timeout.test.ts` and exit 1 as the base failure; both list fix-first, narrow and amend one per line followed by a Recommendation line; and both leave planning paused in `plan-write` awaiting the human with no plan_tracker init, stamping or completion. The After differences are cosmetic (verbatim fenced evidence block instead of a prose summary, 'amendment workflow' instead of 'brainstorming's amendment flow', slightly reworded recommendation and pause line). To keep these facts stable while delivering the partition, keep the open-questions reference explicit that the question's first content line names the task, the exact Tests command and the exit code, that the three options each occupy a single line immediately followed by a single Recommendation line, and that the closing line states planning stays paused in the current substep with no continuation action. Note that this sample is the user-facing-only output, so it shows no evidence either way about the narrated read of open-questions.md before the menu; that expected move must be confirmed by the narrated replay, not this case.",
+        "wallMs": 5340,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    }
+  }
 }

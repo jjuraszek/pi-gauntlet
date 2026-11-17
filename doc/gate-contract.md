@@ -27,9 +27,9 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | brainstorming/user-review-gate | gate | skills/brainstorming/reference/spec-pr.md | ## Publish row 4 | 4 - create-only retry |
 | brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## 4. Human batch - one menu | item-letter |
 | brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## Worked example | item-letter |
-| writing-plans/step-6-baseline-failure | question | skills/writing-plans/SKILL.md | ## Author the plan | X) options |
-| writing-plans/step-6-baseline-dirty | question | skills/writing-plans/SKILL.md | ## Author the plan | X) options |
-| writing-plans/step-6-contract-questions | question | skills/writing-plans/SKILL.md | ## Author the plan | X) options |
+| writing-plans/step-6-baseline-failure | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
+| writing-plans/step-6-baseline-dirty | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
+| writing-plans/step-6-contract-questions | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
 | subagent-driven-development/stop-note | question | skills/subagent-driven-development/stop-note.md | ## Template | free |
 | loop-implementation/human-stop | question | skills/loop-implementation/SKILL.md | ## Human stop | free |
 | loop-implementation/discard-authorization | question | skills/loop-implementation/SKILL.md | ## Human stop | free |
