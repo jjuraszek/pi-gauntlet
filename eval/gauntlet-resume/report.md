@@ -2,7 +2,10 @@
 
 for: 6793622816dbb53ad61a84f32f0aac16314bdf80e481224134aa1a6a0b8bb36d
 
-wall: 29s
+wall: 6s
+
+refresh: complete; sample: legs-wrong-repo; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](results/legs-wrong-repo/candidate.json)
 
 ## Change
 
@@ -80,12 +83,12 @@ Cover coordinated-flow membership, recorded per-leg contracts, checkout-local ru
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| legs-wrong-repo | anthropic/claude-opus-5-5 | unchanged | 5319 | stop: holds -> holds (intended but unchanged) |
-| legs-wrong-repo | github-copilot/gpt-6.1-sol | inconclusive | 5884 | stop: holds -> fails (regression) |
+| legs-wrong-repo | anthropic/claude-opus-5-5 | unchanged | 4871 | stop: holds -> holds (intended but unchanged) |
+| legs-wrong-repo | github-copilot/gpt-6.1-sol | unchanged | 4682 | stop: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- legs-wrong-repo / anthropic/claude-opus-5-5: The stop fact holds in both outputs: each stops at coordinated admission before any tracker write, names repo-b, and gives the observed common directory /work/repo-c/.git against the expected /work/repo-b/.git, treating it as a stop rather than informational drift. After does not move the fact, but it is slightly weaker in two ways: it no longer acknowledges that the branch and copied leg header match (Before at least showed the membership check passing), and it prints the "I'm using the gauntlet-resume skill" announcement after the stuck line, which reads oddly for a run that has stopped. To keep this fact robust under the split, have coordinated.md state that the common-directory comparison stops admission even when branch and the companion Home header match, that the stop line must name the leg plus both expected and observed common directories, and that no tracker call, plan_check or closing line follows; also make the announcement order explicit so it precedes the stop line rather than trailing it.
-- legs-wrong-repo / github-copilot/gpt-6.1-sol: Before named repo-b, gave both expected (/work/repo-b/.git) and observed (/work/repo-c/.git) common directories, and then stated explicitly "Stop before any tracker write. No `plan_check` call." After still prints the stuck line naming repo-b with both directories, but it drops the explicit stop statement entirely: nothing in the After text says the run halts or that no tracker write or plan_check occurs, and it ends on the "I'm using the gauntlet-resume skill to continue an interrupted flow" line, which a reader can take as continuing. Because the fact requires the output to show a stop before tracker writes, After fails on that half even though the naming half is intact. The route split likely moved the 'stop before any tracker write' instruction out of the text read on this path (e.g. into coordinated.md or restore-loop.md without the closing stop wording); restore in the coordinated admission rule, or in SKILL.md's closing line, an instruction that after printing the stuck line for a common-directory mismatch the narration must state that it stops there with no tracker write and no plan_check call, and keep the expected/observed directory wording as is.
+- legs-wrong-repo / anthropic/claude-opus-5-5: The fact holds in both outputs: After still stops at the companion identity check before any tracker write, names repo-b, and prints both the observed common directory (/work/repo-c/.git) and the expected one (/work/repo-b/.git), treating it as an identity stop rather than informational drift, so the route split did not move this fact. Two small differences are worth noting for robustness. After no longer narrates the membership check or mentions that the branch and copied leg header match, and it drops the remediation sentence telling the user how to repoint the leg; none of that is required by the fact, but explicitly saying the stop occurs despite the matching branch and Home header would make the 'despite' clause unmistakable. After also prints the 'I'm using the gauntlet-resume skill' announcement after the stuck line inside the same printed block, which reads oddly ordered; keep the coordinated.md wording that puts the stop line last and states expected/observed common directories with the leg name so this fact stays held.
+- legs-wrong-repo / github-copilot/gpt-6.1-sol: Both outputs satisfy the stop fact: each names repo-b, gives the expected common directory /work/repo-b/.git and the observed /work/repo-c/.git, and ends at the stuck line without narrating any tracker call, so the matching branch and copied leg header are not treated as sufficient. The difference is that Before states the boundary outright ('Stop before any tracker write. No plan_check call.') and shows the common-dir probe, whereas After only implies the stop by ending after the stuck message. That implicit stop is enough for the fact to hold here, but it is more fragile; to keep it robust while delivering the route split, have coordinated.md (or the SKILL.md restore rules) instruct the narration to state explicitly that it stops before any tracker write or plan_check after printing the stuck line, and keep the expected/observed common-directory wording in the message.
 
-exit: 1
+exit: 0
