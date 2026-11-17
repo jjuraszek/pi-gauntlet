@@ -3,13 +3,13 @@
 base: 2fec03a78deb7343441354d76dd9c625b5a86efc
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 2 | home | bcd96dff1eebf6fa04b3580406859cc6f06c36e4
+returned: 1 | home | 999a037996185be9c1d4f4af76b2ab70eb48f674
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 1 | reopened by amendment: C1 primary-session read traces authorized; route and byte requirements remain |
+| 1 | failed | 2 | timeout -k 30 30 node --test scripts/resume-read-traces.test.mjs; unreachable: C1 ledger and task-plan tool-enabled traces missing - primary session using eval/gauntlet-resume/tool-traces/README.md; 1 passed, 2 failed: scratch artifacts pass checkPlan, saved captures absent; bookkeeping discovery timed out after 10 s |
 | 2 | done | 3 | timeout -k 30 30 node --test scripts/resume-current-stages.test.mjs; 7 passed, 0 failed; C3 brainstorm, plan and ship pairs hold calls, snapshots and gates on both replay models; instruction, input and judgment hashes are current |
 | 3 | open | 0 | |
 | 4 | open | 0 | timeout -k 30 10 python3 -c 'assert (files := [*__import__("pathlib").Path("skills/gauntlet-resume").rglob("*.md"), *__import__("pathlib").Path("skills/gauntlet-handoff").rglob("*.md")]) and not (hits := [(str(path), term) for path in files for term in ("legacy", "migrat", "conversion") if term in path.read_text().lower()]), locals().get("hits", "No instruction files selected")'; exit 1: AssertionError with 7 forbidden-term hits across 3 resume files; reconstruction.md still contains Legacy repair markers and Legacy pending recovery; structural seed only, not a read trace |
@@ -24,3 +24,4 @@ row 2 failed | Checked the saved resume fixtures and found no recorded plan-stag
 amended | 2 item(s) | Restore row 1 and authorize C1-C4 primary-session evidence
 row 2 failed | Prepared three C3 stage fixtures and a freshness-bound paired-replay check; primary-session replay records are still missing. | Reuse current-*-brief samples with --base 09c9f4e1 in the primary session, then run scripts/resume-current-stages.test.mjs; do not recreate fixtures.
 row 2 done | Verified current brainstorm, plan and ship paired replays preserve tracker calls, task snapshots and gate boundaries with fresh hashes. | nothing new to build on.
+row 1 failed | Prepared valid ledger and task-plan scratch fixtures and a freshness-bound C1 read-trace check. | Reuse tool-traces/prepare.mjs; split restore references, then capture C1 JSON traces in the primary session; do not substitute text replays.
