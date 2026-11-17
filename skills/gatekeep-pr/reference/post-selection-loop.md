@@ -317,7 +317,7 @@ For a validated record outside a run folder, skip the block: move and delete not
 
 Delete only through this block, by the exact run-folder path. Delete no OS-temp file or worktree stage folder; use no wildcard, prefix sweep or `find` for cleanup. All other drafts, the record, finding artifacts, helper outputs, logs and temporary description files leave with the run folder.
 
-For reject-menu completion or stop, apply `reject.md`'s settlement and note-retention rules. Start with `gauntlet: done rejected` only after a successful note post or confirmed close; otherwise use Non-final stop.
+For reject-menu completion or stop, apply `reject.md`'s settlement and note-retention rules. Start the message with `gauntlet: done rejected` only after a successful note post or confirmed close; otherwise use Non-final stop.
 
 Start the message with `gauntlet: done approved` for post completion or stop on approved. Start the message with `gauntlet: done merged` for post completion or stop on own-merge. Start the message with `gauntlet: done closed-pr` for post completion or stop on closed-pr. Start the message with `gauntlet: done final` for stop on final. Start the message with `gauntlet: done merge-queued` for stop on merge-queued. Print the row from `### Settlement rows`, then the checkout path and local branch. Render reports through `report.md`; a report above a menu is not a terminal. Start the message with `gauntlet: stuck` followed by the actual error on any hard assertion failure, including a delegated fix-wave restore/assert failure; print the PR row with `stuck - <actual error>` below it and end with the actual error, without a continuation menu. In set mode use `batch.md`'s per-PR retirement marker until every PR retires.
 
