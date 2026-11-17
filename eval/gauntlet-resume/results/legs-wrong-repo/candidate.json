@@ -1,7 +1,7 @@
 {
   "sample": "legs-wrong-repo",
   "arm": "candidate",
-  "skillSha": "0c6e9f16a75b6b41568ac8bb6ad86d7b8e5b1a868217f5d638f969a3bb30dba1",
+  "skillSha": "d63574dbb4b658ba994fe5eac001a5c73c8661f668b16cbf52e3cce0b9b09902",
   "inputSha": "40a960450aaf7581f93522d830749ce5e79dfb41e8ee59331e447ffdbd3027c7",
   "kind": "text",
   "assembly": "headed",
@@ -11,22 +11,22 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck coordinated admission: leg repo-b worktree /work/repo-b/.worktrees/feature-shared-change has git common dir /work/repo-c/.git, expected the declared primary's /work/repo-b/.git\n\nEntry check 3b (Coordinated admission) ran before any tracker write. These are the calls made, in order:\n\n1. **Read** `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` to get the `## Legs` blocks.\n   - The order is `### Leg: repo-a`, then `### Leg: repo-b`.\n   - The brief's `legs:` order is repo-a, then repo-b. Membership and order match.\n2. **Parse** the sibling `git@github.com:acme/repo-b.git` from the home overrides with shape-ticket's shared parser.\n   - NAME is `repo-b`, so the declared primary is `/work/repo-b`.\n3. **Run** `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`.\n   - Result: `/work/repo-b/.git`.\n4. **Run** `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`.\n   - Result: `/work/repo-c/.git`.\n   - This does not match the declared primary, so admission stops here.\n\nPrinted stop details:\n\n```\nLeg: repo-b\nWorktree: /work/repo-b/.worktrees/feature-shared-change\nExpected git common dir (declared primary /work/repo-b): /work/repo-b/.git\nObserved git common dir: /work/repo-c/.git\n```\n\nA companion's common-dir mismatch blocks admission; it is not informational drift.\n\nWhat did not happen:\n- No branch, `**Home:**` tuple, receipt or drift checks ran for repo-b.\n- No `phase_tracker` or `plan_tracker` mutation was made.\n- `start brainstorm` and `plan_check` were not run, and `plan_tracker init` was not called.\n- The W1 complete / W2 in_progress snapshot was not restored.\n\nTo continue, point repo-b's leg at a worktree of the declared primary `/work/repo-b`, or correct the sibling declaration. Then re-run `/skill:gauntlet-resume`.\n",
-      "words": 214,
-      "wallMs": 11404,
+      "text": "Coordinated admission (entry check 3b) runs before `plan_check` and before any tracker write. It stops at the companion identity check, so the call-table step is never reached.\n\n**Tool calls, in order**\n\n1. Parse the home overrides' selected sibling `git@github.com:acme/repo-b.git` with shape-ticket's shared parser.\n   - NAME is `repo-b`.\n   - The declared primary is `<home PRIMARY parent>/repo-b`, which is `/work/repo-b`.\n2. `realpath \"$(git -C /work/repo-b rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-b/.git`\n3. The brief records an explicit `worktree:` path for repo-b. I keep it as recorded and do not run a lookup.\n4. `realpath \"$(git -C /work/repo-b/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"`\n   - Result: `/work/repo-c/.git`\n5. Compare the two results. The companion worktree's common directory does not equal the declared primary's. This is an identity stop, not informational drift.\n\n**Printed**\n\n```\ngauntlet: stuck leg repo-b: worktree /work/repo-b/.worktrees/feature-shared-change has git common directory /work/repo-c/.git; expected the declared primary's /work/repo-b/.git\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Not run**\n\n- No `phase_tracker` or `plan_tracker` call (no `start brainstorm`, skip, start or `init`).\n- No `plan_check` and no plan repair.\n- No closing line and no `Standing grant` line.\n\nThe session stays idle with nothing mutated.\n",
+      "words": 183,
+      "wallMs": 10185,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\ngauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git; expected declared primary common directory /work/repo-b/.git.\n",
-      "words": 27,
-      "wallMs": 7709,
+      "text": "gauntlet: stuck repo-b worktree /work/repo-b/.worktrees/feature-shared-change has canonical git common directory /work/repo-c/.git; expected /work/repo-b/.git.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n",
+      "words": 23,
+      "wallMs": 8288,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
-      "baselineOutputSha": "cdc350cac565f2ac361289e8168a4a24912c899f0d6cde9cf512409b886967f1",
-      "candidateOutputSha": "66f92f07505e9e653f34310fe77739a9cc70f16249710e8429142230135b07df",
+      "intentSha": "840dae648a8c13b558d0a75278d4524663f162ce43dc0f05f8db0d0e15b52564",
+      "baselineOutputSha": "6c468df0320d8eb4e7d30ba1c2a6e60e4e58eb33dbac0f3f8247936f9df85fcc",
+      "candidateOutputSha": "65068bb758108cfb719a02a90b77a6bc075519699aa02f7c520cce886a0728ff",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,27 +44,43 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Nothing moved: both outputs stop at coordinated admission before any phase_tracker/plan_tracker write, name leg repo-b, and report the expected common dir /work/repo-b/.git against the observed /work/repo-c/.git, treating it as a hard stop rather than informational drift despite the matching branch and copied leg header. After adds a structured stop block (Leg / Worktree / Expected / Observed) and lists the unrun branch and **Home:** tuple checks explicitly, which makes the fact easier to verify; Before additionally includes the sibling-declaration derivation in the printed message, which After omits but is not required by the fact. Keep After as is; if you want parity with Before, add the declared-sibling origin to the stop block.",
-      "wallMs": 6069,
+      "feedback": "The stop fact holds in both outputs: each stops at coordinated admission before any tracker write, names repo-b, and gives the observed common directory /work/repo-c/.git against the expected /work/repo-b/.git, treating it as a stop rather than informational drift. After does not move the fact, but it is slightly weaker in two ways: it no longer acknowledges that the branch and copied leg header match (Before at least showed the membership check passing), and it prints the \"I'm using the gauntlet-resume skill\" announcement after the stuck line, which reads oddly for a run that has stopped. To keep this fact robust under the split, have coordinated.md state that the common-directory comparison stops admission even when branch and the companion Home header match, that the stop line must name the leg plus both expected and observed common directories, and that no tracker call, plan_check or closing line follows; also make the announcement order explicit so it precedes the stop line rather than trailing it.",
+      "wallMs": 5319,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "f7a4662db5c73e04d535033c22aee536e5e75f31852952c29ff8ac5affbd28ea",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
-      "baselineOutputSha": "369304cc0a2ec2d17e2bcf119f6ad8333da6992c42970e5f2855e9f7a2a2880e",
-      "candidateOutputSha": "011f873191b7e1b198167b3189fd70d2e3d79e318a8a382005ff31a5d25a182f",
+      "intentSha": "840dae648a8c13b558d0a75278d4524663f162ce43dc0f05f8db0d0e15b52564",
+      "baselineOutputSha": "519b9900115c6ee2088a7d0ffa8c07c7494a5c55456fc492ce067c72a923ca11",
+      "candidateOutputSha": "841622a2f727c5af0ca3d7b26d236353690db9102ab10752c3d4d6f8e430d86b",
       "facts": {
         "stop": {
           "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "after": "fails",
+          "label": "regression"
         }
       },
-      "feedback": "Both outputs name repo-b and the expected (/work/repo-b/.git) versus observed (/work/repo-c/.git) common directories in a gauntlet stuck message and show no tracker writes, so the fact holds in each; the After wording trimmed the narrated read-only shell calls and the explicit closing sentence ('Stop before any tracker write. Do not call plan_check, repair the plan, or continue restoration.'), which is what makes the stop unambiguous. To keep the fact robust while delivering the terser header-migration/coordinated-flow change, retain at minimum one explicit line after the stuck message stating that the run stops before any tracker write and does not call plan_check or continue restoration; dropping the realpath observations is fine, but the explicit stop statement should stay so a reader does not have to infer the stop from the output simply ending.",
-      "wallMs": 8833,
-      "verdict": "unchanged"
+      "feedback": "Before named repo-b, gave both expected (/work/repo-b/.git) and observed (/work/repo-c/.git) common directories, and then stated explicitly \"Stop before any tracker write. No `plan_check` call.\" After still prints the stuck line naming repo-b with both directories, but it drops the explicit stop statement entirely: nothing in the After text says the run halts or that no tracker write or plan_check occurs, and it ends on the \"I'm using the gauntlet-resume skill to continue an interrupted flow\" line, which a reader can take as continuing. Because the fact requires the output to show a stop before tracker writes, After fails on that half even though the naming half is intact. The route split likely moved the 'stop before any tracker write' instruction out of the text read on this path (e.g. into coordinated.md or restore-loop.md without the closing stop wording); restore in the coordinated admission rule, or in SKILL.md's closing line, an instruction that after printing the stuck line for a common-directory mismatch the narration must state that it stops there with no tracker write and no plan_check call, and keep the expected/observed directory wording as is.",
+      "wallMs": 5884,
+      "verdict": "inconclusive",
+      "confirmation": {
+        "status": "ok",
+        "text": "gauntlet: stuck repo-b repository identity mismatch: expected canonical git common directory /work/repo-b/.git; observed /work/repo-c/.git for /work/repo-b/.worktrees/feature-shared-change.\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\nStop at coordinated admission. No tracker calls, `plan_check`, or writes.\n",
+        "words": 36,
+        "wallMs": 9719,
+        "mechanical": {},
+        "judgeWallMs": 4592,
+        "facts": {
+          "stop": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "The stop fact holds in both outputs: each names repo-b, gives the expected common directory /work/repo-b/.git and the observed /work/repo-c/.git, and stops before any tracker write or plan_check call, without treating the matching branch or copied leg header as sufficient. The After wording did not move this fact; it was expected to go fails -> holds, but Before already satisfied it, so the split delivers no observable change on this sample. After drops the narrated common-dir probe command and its result that Before showed; this does not affect the fact as written, but if you want the output to keep showing how the observation was obtained, have coordinated.md say to narrate the common-dir check for the leg before printing the stuck line. Keep the explicit sentence that names the repo with both expected and observed common directories and the explicit 'no tracker calls/writes' stop statement, since those are what carry the fact."
+      }
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "2b6186d076ec7a72d52e9188714c4ebb9e477a36"
 }
