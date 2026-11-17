@@ -201,7 +201,7 @@ A run mints once per invocation, then creates its record at `<RUN_DIR>/state`. A
 | Finding spec and ledger | `<RUN_DIR>/state-spec.md`, `<RUN_DIR>/state-ledger.md` (the existing `<record path>-spec.md` / `-ledger.md` rule, unchanged) |
 | Every helper output (verify, review, row, any other role) | `mktemp "<RUN_DIR>/<role>.XXXXXX"` |
 | A helper's captured log (`log_path`) | a file in the directory of that helper's own output path |
-| Description body file for `gh pr edit --body-file` (`reference/post-selection-loop.md:110`, no location named today) | `mktemp "<RUN_DIR>/description.XXXXXX"` |
+| Description body file for `gh pr edit --body-file` (`reference/post-selection-loop.md:110`, no location named today) | a file inside `<RUN_DIR>` under the Continuation record rule "Put every helper output, controller, jobs file, drafted body and temporary description file in `RUN_DIR`"; no fixed name |
 | Merge-message body `LANDED_BODY` (`reference/post-selection-loop.md:190`, an OS-temp file today) | `mktemp "<RUN_DIR>/landed-body.XXXXXX"` |
 | Drafted reply and coverage bodies | files in `RUN_DIR` |
 | A fix worker's controller files, captured logs and jobs file | files in `RUN_DIR`, through the row task's `scratch:` line (below) |
