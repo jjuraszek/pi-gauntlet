@@ -1,8 +1,10 @@
-for: 36b739ace2de2336fc7e7857f98befeb234939c196b5b32ba4fd70374e0c0e3b
+for: 0930339c24a9c22624a4f2f995492ac03846cef310ebb6c825f04a901900bff9
 
 ## Change
 
 Select only teardown-own-run-folder for this change. At the supplied Teardown checkpoint, run the marked block with the surviving primary and this run's literal absolute folder; pass both drafts as KEEP and name the returned gate-kept paths. Never delete the sibling run or OS-temp files. This no-tool sample proves command narration only; scripts/gate-teardown.test.mjs executes the filesystem checks. Gate mint and stage-file path moves receive deterministic coverage only, not model samples. Gate helpers, verification logs, worker controllers and merge bodies use RUN_DIR; stages use checkout-local SCRATCH. scripts/stage-skill-lint.test.mjs checks every scoped file and the shared Git recipe; script fixtures cover happy-path logs and wave indexes. Preserve every other sample's saved results as historical records of earlier revisions; this is not a target-wide pass. Preserve fix-row-return-file and other historical sample evidence; coverage is partial. The saved fix-row-file-observation results also remain historical records, not coverage of this change. The older course-stop-cleanup f4, batch-cleanup-stop c3 and stop-draft-files retained facts are stale against the record-outside-run-folder compatibility rule; move their fixtures into run folders before their next selected run, but do not edit or rerun them here.
+
+Rebind this intent after two unused ledger-conversion bookkeeping sentences left the shared commit-message reference; no gatekeep instruction changed and no model replay ran for this rebinding. The saved loop-worker record predates the current fix-wave return contract and stays as earlier-revision evidence. The binding above is a placeholder until it is re-derived on the finished rebased tree.
 
 ## Retained earlier coverage
 

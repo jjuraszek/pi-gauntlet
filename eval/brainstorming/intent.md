@@ -1,8 +1,12 @@
-for: 2c664b0797642faa5d439af3968eb4bb2476158cb51780618d461a6b20a24643
+for: 608506f9098b388f13077a38216beabcc32451afa287f8576917434ab068f68c
 
 ## Change
 
 Relocate the summary file's mint in spec-finalization.md's User Review Gate to the checkout-local gauntlet scratch folder. This path relocation changes no must-hold fact of pr-body-drafted-row or post-action-sorted. Rerun exactly those two samples serially with their existing baselines and unchanged expected.md facts; preserve all other evidence. These tool-free checkpoints prove authored sections, not filesystem behavior or target-wide coverage. The deterministic currency check is scripts/delivery-stage-authoring.test.mjs.
+
+Remove two unused ledger-conversion bookkeeping sentences from the shared commit wording file, skills/finishing-a-development-branch/reference/commit-message.md. No behavior of this target is meant to change. C8 selects only pr-body-drafted-row and post-action-sorted for candidate replies at base 3171d0e124e361836d163217ff976af02c86cf2f, preserving their saved baselines and target.json. These samples check model-authored acceptance rows and housekeeping classification, which deterministic assembly checks cannot establish; they stop at spec-writing, not workflow execution. Coverage is sample-scoped.
+
+The binding above is a placeholder until it is re-derived on the finished rebased tree. The saved report and candidate records retain the base side's newer runs, not evidence for the combined assembly. Fresh replays of only pr-body-drafted-row and post-action-sorted are authorized after the rebase completes; they replace those records and re-derive the binding. The following paragraphs retain earlier intent and coverage, not additional replay authorization.
 
 ### Prior delivery-stage and commit-message context (not current replay authorization)
 
