@@ -122,7 +122,8 @@ test('historical saved replies: home admission decisions, not a driver implement
       }
       const output = candidate.outputs[model].text;
       const interrupted = output.split('## B.')[1].split('## C.')[0];
-      assert.ok(interrupted.includes('| 1 | failed | 1 | iteration 2: interrupted - wrong attribution |'));
+      // The recovery rule fixes the row's four cells, not their rendering: a table row or a `row 1:` bullet.
+      assert.match(interrupted, /(?:\|\s*|\brow\s+)`?1`?\s*[|:]\s*`?failed`?\s*\|\s*`?1`?\s*\|\s*`?iteration 2: interrupted - wrong attribution`?\s*(?:\||$)/m);
       assert.ok(interrupted.includes('repair row 1 | interrupted - wrong attribution | iteration 3'));
       assert.ok(interrupted.includes('returned: none'));
       const ordinary = output.split('## C.')[1].split('## D.')[0];
