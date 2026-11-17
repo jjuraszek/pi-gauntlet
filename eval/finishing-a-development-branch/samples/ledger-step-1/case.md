@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/finishing-a-development-branch/SKILL.md
 bundle+: skills/loop-implementation/SKILL.md
 # Input

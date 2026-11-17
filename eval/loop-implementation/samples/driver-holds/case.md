@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
 Use independent synthetic checkpoints. Narrate actions without tools, and name every file category you read at each checkpoint. You are the loop driver, not the worker. Use the supplied observations rather than inventing a repair. No gate run or reviewer dispatch occurs here.

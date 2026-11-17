@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 
 Replay this home-only driver snapshot, then a separate child-side continuation using the bundled loop-implementer persona. Keep the two roles distinct: the child's diagnostic trace is evaluation output, not a transcript or payload the driver receives. Tools are unavailable; describe prescribed operations without claiming they ran.

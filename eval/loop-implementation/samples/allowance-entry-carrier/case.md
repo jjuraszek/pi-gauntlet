@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
 No tools: narrate only Entry's budget selection and source echo for each independent observation. Do not dispatch, run verification or perform migration. All fresh branches have an approved spec, clean named worktrees, a resolved verification command and no ledger. The settings tool returns maxIterationsPerRow 7.

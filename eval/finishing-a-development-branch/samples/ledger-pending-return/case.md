@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/gauntlet-resume/reference/reconstruction.md
 bundle+: skills/loop-implementation/SKILL.md
 bundle+: skills/loop-implementation/reference/coordinated-legs.md

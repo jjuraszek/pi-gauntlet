@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle+: skills/brainstorming/reference/legs.md
 # Input
 

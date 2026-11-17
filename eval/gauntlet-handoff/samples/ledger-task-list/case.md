@@ -1,3 +1,8 @@
+bundle-: skills/gauntlet-resume/reference/reconstruction.md
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/restore-plan.md
+bundle-: skills/gauntlet-resume/reference/plan-repair.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 # Input
 
 Use these synthetic observations as tool results and narrate the handoff actions with the appended brief tail. Treat the cases independently; execute no tools. Human invokes gauntlet-handoff --key loop. Cohort is installed and writes /tmp/pi-handoff/loop.md with the six core headings ending at Skills loaded. Run worktree /work/app/.worktrees/loop is the confirmed single-member home; no hotfix context, no Rework record. Ledger doc/plans/run-ledger.md begins # Ledger - loop engine, **Spec:** `doc/specs/run.md`, iterations4, allowance4. Spec AC 1 is Verify loop behavior and recovery; AC 2 is Reject malformed allowance replies. The brief remains one file.

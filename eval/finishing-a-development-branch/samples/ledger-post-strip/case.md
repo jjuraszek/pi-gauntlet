@@ -1,5 +1,6 @@
 bundle+: skills/finishing-a-development-branch/SKILL.md
 bundle+: skills/finishing-a-development-branch/reference/legs.md
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle+: skills/gauntlet-resume/reference/brief-contract.md
 bundle+: skills/loop-implementation/SKILL.md
 # Input

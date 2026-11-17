@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/brainstorming/reference/legs.md
 bundle+: skills/finishing-a-development-branch/reference/legs.md
 bundle+: skills/finishing-a-development-branch/SKILL.md

@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 
 Replay these independent driver snapshots without pretending tools ran. Option 4, Amend-grant none, validated seed, checks: commands, clean tree except stated returns, only row 2 unresolved. Allowance is 10, held escalateAfter is 3, implModel resolves to review/strong, ordinary worker model is worker/default. History is recoverable. Every ordinary admitted failed return has a valid attributed single commit and changes tracked code, so neither stagnation window triggers. No other boundaries block dispatch. Distinguish an omitted model override from explicitly selecting a model.

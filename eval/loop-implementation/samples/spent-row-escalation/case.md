@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 
 Replay these independent loop-driver snapshots, describing calls, counters, durable escalation decisions and next action without pretending tools ran. Option 4, Amend-grant none, seed validated, clean tree except where stated, no stagnation or validation-miss streak. Row 2 is the only unresolved row, failed with evidence `unit; expected 2 got 1`. Settings would resolve implModel `review/strong`. Ordinary implementer resolution is `worker/default`. Distinguish an omitted call-time model override from explicitly selecting the escalation model. All ledgers have allowance: 4 and no cap unless a changed header is stated. An admitted failed child increments attempts once. No other boundaries block dispatch.

@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 
 Act as the loop driver at seed return admission. Tools are unavailable; describe calls without claiming execution. Treat each snapshot independently. Do not select ordinary work after a valid return; report only the validation-miss window for that continuation.

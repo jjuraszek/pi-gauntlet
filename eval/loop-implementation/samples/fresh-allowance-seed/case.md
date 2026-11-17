@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
 No tools: narrate only fresh Entry through the stamped skeleton commit and initial refresh, stopping before seed evidence or any dispatch. Each independent branch starts from an approved spec, a clean named worktree, resolved verification command check, and no existing ledger. Show the budget header beside iterations and the reason for its value.

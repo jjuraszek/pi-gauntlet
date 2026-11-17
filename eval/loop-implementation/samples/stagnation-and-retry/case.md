@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/loop-implementation/reference/coordinated-legs.md
 All snapshots are independent, single-home, clean admitted boundaries with checks: commands, a validated seed, iterations:12, and held escalateAfter:3. Settings resolves implModel. Every row not named is done. Do not diagnose code. For each snapshot state the next ordered-table action, target/hint/model, and durable changes; show the user-facing stop only when required.
 

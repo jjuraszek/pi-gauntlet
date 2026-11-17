@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 
 Act only at seed return admission. Stop after admission or rejection, before seed retry or target selection. Tools are unavailable; narrate the calls, not successful execution. Treat each snapshot independently.
