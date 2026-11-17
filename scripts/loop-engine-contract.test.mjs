@@ -735,7 +735,6 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     'loop-implementation/scaled-cap-grant': ['rows +50', 'allowance:4', 'retry 24'],
     'loop-implementation/cap-and-exit-verification': ['iterations:200', 'allowance:2'],
     'loop-implementation/funding': ['rows +2', 'fund 2 fix rounds'],
-    'loop-implementation/legacy-cap': ['cap97', 'maxIterationsPerRow4', 'unavailable loopEngine settings tool'],
     'loop-implementation/row-progress': ['allowance:4'],
     'loop-implementation/stagnation-and-retry': ['allowance:3', 'allowance:8', 'failed attempts3, below its allowance'],
     'loop-implementation/leg-iteration': ['allowance 4'],
@@ -752,7 +751,6 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     'gauntlet-resume/ledger-tracker-recovery': ['allowance:4'],
     'gauntlet-resume/ledger-tracker-verify': ['allowance:4', 'row 3 | 2/5: Verify loop behavior and recovery', 'row 3 | 2/6: Verify loop behavior and recovery'],
     'gauntlet-handoff/ledger-task-list': ['allowance4', 'row 1 | 0/4: Verify loop behavior and recovery', 'row 2 | Reject malformed allowance replies'],
-    'gauntlet-resume/legacy-cap-brief': ['cap:'],
   };
   for (const target of ['spec-gate', 'brainstorming']) {
     const gateReplay = readFileSync(new URL(`eval/${target}/replay.md`, root), 'utf8');
@@ -765,7 +763,7 @@ test('eval-allowance-contract: approved fixtures retain IDs and exercise the all
     const expected = readFileSync(new URL('expected.md', dir), 'utf8');
     for (const token of tokens) assert.ok(input.includes(token), `${id}: ${token}`);
     assert.match(expected, /^- [\w-]+: judged:/m, `${id}: judged facts`);
-    if (!sample.startsWith('legacy-')) assert.doesNotMatch(input, /\bcap:\s*\d|iterations \d+, cap \d/);
+    assert.doesNotMatch(input, /\bcap:\s*\d|iterations \d+, cap \d/);
   }
   const scaled = readFileSync(new URL('eval/loop-implementation/samples/scaled-cap-grant/expected.md', root), 'utf8');
   for (const id of ['stop', 'grant', 'parse', 'independent', 'windows', 'entry', 'validation']) {
@@ -820,6 +818,22 @@ test('configuration-allowance: documented gate and entry behavior matches instru
   assert.match(entry, /Use that value over step 1's setting; with no carrier use `maxIterationsPerRow`/);
   assert.match(entry, /Ignore the carrier once a ledger exists; resume uses its header only/);
   assert.match(readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8'), /same allowance seed value and source echo as the home driver's Entry step 4/);
+});
+
+test('unsupported-ledger evals require admission stops without conversion', () => {
+  const recovery = 'recovery: doc/configuration.md "Loop engine operations"';
+  const suffix = 'unsupported ledger format; finish this run on the pi-gauntlet release that wrote it';
+  for (const [sample, sentences] of [
+    ['loop-implementation/returned-line-admission', ['ledger has no returned: line']],
+    ['loop-implementation/retired-budgets', ['ledger has no allowance: line']],
+    ['gauntlet-resume/old-ledger-stops', ['ledger has no returned: line', 'ledger carries a cap: line']],
+  ]) {
+    const [target, name] = sample.split('/');
+    const expected = readFileSync(new URL(`eval/${target}/samples/${name}/expected.md`, root), 'utf8');
+    for (const sentence of sentences) assert.ok(expected.includes(`${sentence} - ${suffix}`), `${sample}: ${sentence}`);
+    assert.ok(expected.includes(recovery), `${sample}: recovery line`);
+    assert.doesNotMatch(expected, /resume through \/skill:gauntlet-resume|routes through gauntlet-resume/);
+  }
 });
 
 test('an unconverted ledger stops before the ordered dispatch table', () => {

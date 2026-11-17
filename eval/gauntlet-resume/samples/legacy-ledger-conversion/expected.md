@@ -1,1 +1,0 @@
-- eligibility: judged: A selects the supplied Conversion recipe with the shared sentence Convert the ledger to ledger-held returns. B leaves the ledger untouched and selects no conversion commit. Stops at classification without executing recovery, decoding repair history, editing a ledger or refreshing trackers.
