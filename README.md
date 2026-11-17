@@ -233,6 +233,17 @@ Its Claude Code fix jobs run serially; parallel fix jobs are unverified there.
 On both harnesses, `gatekeep-pr` uses the same temporary continuation record
 and action-scoped consent protocol; Claude Code uses native file operations
 and a checklist when pi's tracker is absent. Native tool permissions still apply.
+
+`gatekeep-pr` keeps its run folder under the common Git directory's `gauntlet/tmp`
+on both harnesses. Claude Code treats `.git` as a
+[protected path](https://code.claude.com/docs/en/permission-modes#protected-paths).
+Writes there prompt in `default` and `acceptEdits`, are decided by the classifier
+in `auto`, are allowed in `bypassPermissions`, and are denied in `dontAsk`;
+`permissions.allow` rules do not pre-approve them. A prompted write waits for the
+operator. A denied run-folder mint follows the failed-mint path: the run stops
+with the error before any record or tracker exists, with nothing to tear down
+and no OS-temp fallback.
+
 `forge-skill` is the authoring skill for skills, personas, prompt templates,
 slash commands, and files the repo routes to it under
 gauntlet's conventions (imperative voice, minimal diff, low conditionality,
