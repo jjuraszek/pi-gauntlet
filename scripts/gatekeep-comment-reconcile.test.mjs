@@ -717,8 +717,12 @@ test('SKILL.md names the pre-menu refresh at step 5 and in the red flags', () =>
 
 test('course state replaces grants and preserves immutable target and original intent', () => {
   assert.match(brief, /gh repo view <base-repository> --json nameWithOwner/);
-  assert.equal((loop.match(/mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/g) || []).length, 1);
+  const root = new URL('../skills/gatekeep-pr/', import.meta.url);
+  const instructions = readdirSync(root, { recursive: true }).filter(path => path.endsWith('.md'))
+    .map(path => readFileSync(new URL(path, root), 'utf8')).join('\n');
+  assert.equal((instructions.match(/mktemp -d "\$COMMON_GIT\/gauntlet\/tmp\/gate\.XXXXXX"/g) || []).length, 1);
   assert.doesNotMatch(assessment, /mktemp -d/);
+  assert.match(fixWave, /write the derived spec and companion ledger together at `<record path>-spec\.md` and `<record path>-ledger\.md`, beside the continuation record in `RUN_DIR`/);
   assert.match(loop, /Put every helper output, controller, jobs file, drafted body and temporary description file in `RUN_DIR`/);
   assert.ok(loop.includes('mktemp "$RUN_DIR/landed-body.XXXXXX"'));
   assert.match(loop, /Create the new record at `<RUN_DIR>\/state`/);
