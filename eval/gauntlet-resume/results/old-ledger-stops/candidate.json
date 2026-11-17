@@ -1,0 +1,90 @@
+{
+  "sample": "old-ledger-stops",
+  "arm": "candidate",
+  "skillSha": "eb2595f0b0f55083c088786890af841f020a8547b24efec7f11ac181e3358450",
+  "inputSha": "5ef7124773b5e71c96d6f09ab0178b80392de2318ac2786831c02222332e3690",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**A**\n\n```\ngauntlet: stuck ledger has no returned: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it\nrecovery: doc/configuration.md \"Loop engine operations\"\n```\n\n**B**\n\n```\ngauntlet: stuck ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it\nrecovery: doc/configuration.md \"Loop engine operations\"\n```\n",
+      "words": 52,
+      "wallMs": 4437,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: stuck ledger has no returned: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it\nrecovery: doc/configuration.md \"Loop engine operations\"\n\ngauntlet: stuck ledger carries a cap: line - unsupported ledger format; finish this run on the pi-gauntlet release that wrote it\nrecovery: doc/configuration.md \"Loop engine operations\"\n",
+      "words": 50,
+      "wallMs": 5871,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "deeaaf0e6d66763ba4c035b936c406c0fb69d6f3fe8ca1e3cdf474334da96ad8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "709c27ca3dff86a61585b113ca71102b2cbb09db649ca44a8ae6d88a9e80bc26",
+      "candidateOutputSha": "0b0f47632662e074edd259c41639c94df88c777229ff00bbcb5f94729690b34a",
+      "facts": {
+        "missing-returned": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cap-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-mutation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved missing-returned and cap-first because it prints the exact unsupported-format sentence and the recovery pointer for each case, where Before only left placeholders and said restore-loop.md and the admission contract were missing from its context. So the gain comes from the After wording putting the stop strings and their order (cap: before the missing-header checks) where the model can read them; keep those literal strings and that explicit ordering in the loaded reference. no-mutation did not move as expected: Before already stopped both cases at admission, before the confirmation question, any tracker call, write, conversion, settings query, refresh, dispatch or verification, and it declined the teammate's header repair, so it holds in both. After holds it only implicitly, by printing nothing but the two stops, which is what the case's Output section asked for. To keep this fact robust where the output is less constrained, keep an explicit sentence in the After wording that an unsupported-format stop happens before confirmation and any tracker call and permits no conversion, header synthesis or ledger write.",
+      "wallMs": 8438,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "deeaaf0e6d66763ba4c035b936c406c0fb69d6f3fe8ca1e3cdf474334da96ad8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
+      "baselineOutputSha": "172fbedbe46915061be9e1185d9fdb595897055aa51e5205028a988c5f3e8e27",
+      "candidateOutputSha": "628aa89959913e6c3a29b280c901f0fdb53e91f0795de58054ef08786465d6c2",
+      "facts": {
+        "missing-returned": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "cap-first": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-mutation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moved missing-returned and cap-first by emitting the exact stop sentences ('gauntlet: stuck' + 'ledger has no returned: line' / 'ledger carries a cap: line' + '- unsupported ledger format; finish this run on the pi-gauntlet release that wrote it') and the exact recovery pointer to doc/configuration.md \"Loop engine operations\", with no conversion, migration, or header-repair offer; Before used paraphrased stops and ad hoc recovery advice ('restore a valid ledger', 'recover or explicitly migrate'), which fails the exact-wording facts and, in B, offers migration. no-mutation did not move as expected: Before already stopped at admission in both cases and showed no write, conversion commit, tracker call, settings query, dispatch or verification, so it holds on its own text in both outputs; if you want that fact to discriminate, the sample needs an input where the old wording actually converts or calls the tracker. Two small points to keep stable: After prints the stop on one line ('gauntlet: stuck ledger has...') rather than visibly separating 'gauntlet: stuck' from the sentence, and it drops the A/B labels the Output section asks for, relying on order; having the wording specify the line break after 'gauntlet: stuck' and per-case labels would make the facts hold more robustly while still delivering the Change, and keeping the cap: check explicitly ordered before missing allowance:/returned: checks preserves cap-first.",
+      "wallMs": 6957,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "d29017cd4890792ba0988aa39c9c601c5840795e"
+}

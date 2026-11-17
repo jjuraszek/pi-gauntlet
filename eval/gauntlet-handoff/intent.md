@@ -1,11 +1,7 @@
-for: 5da2d7c1c4aae855f456e27ff00cddb9e4707b5d58ba8066c9a16da4ea62a1cc
+for: a34caf993ea20dd022504a69aa0f33f2eb1ff3f825d0f14fc145e10b787950c4
 
 ## Change
 
-Drop exactly the trailing phase_tracker status line when it starts with `Context: ` before appending Process state. Copy every other phase-status line and the complete plan-status output verbatim. Keep the byte-exact brief layout, tracker grammar, example block, and resume parser unchanged. Cover the change with the synthetic status-context-line replay; it narrates supplied observations, not live tool execution. Run only this sample and preserve all other report rows as prior evidence, not current coverage.
+Produce only the current handoff brief format through the single gauntlet-handoff entry point. Read the shared brief grammar without loading engine restoration or plan repair rules, and load coordinated grammar only for a multi-leg run. Preserve verbatim phase and task snapshots, current Ledger: attribution, the final gate-history boundary and the home-bound ordered leg metadata needed by resume. Keep cohort delegation, read-only tracker access and the one-section append unchanged. Selected ledger-task-list and multi-repo text replays inspect supplied observations and brief production decisions, not live cohort or tracker execution; coverage is sample-scoped, not a target-wide pass.
 
 ## Expected to move
-
-- status-context-line/context-tail: fails -> holds - Omit only the trailing Context reading while copying all remaining status text verbatim.
-- status-context-line/unchanged-grammar: fails -> holds - Preserve the shared layout and terminal gate-history line without adding a brief field.
-- status-context-line/read-only: holds -> holds - Keep tracker reads, cohort's core, the single brief append, and the final resume report unchanged.

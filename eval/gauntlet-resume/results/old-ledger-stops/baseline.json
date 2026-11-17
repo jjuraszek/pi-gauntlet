@@ -1,0 +1,34 @@
+{
+  "sample": "old-ledger-stops",
+  "arm": "baseline",
+  "skillSha": "c7df661b3376501449561e27c69bebc3a3f683441038c7711f48095208efdb62",
+  "inputSha": "5ef7124773b5e71c96d6f09ab0178b80392de2318ac2786831c02222332e3690",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Ledger admission stops for A and B (exact wording unavailable)\n\nI can't give the exact stop and recovery lines. The text you asked me to reproduce is not in the material I have:\n\n- `skills/gauntlet-resume/reference/restore-loop.md` is empty in my context.\n- `reference/reconstruction.md` \"Spec with ledger\" and the loop driver's admission/repair contract are cited but not included.\n\nBelow is the decision for each case based on the ordering the skill does give me. The placeholders mark where the canonical strings belong.\n\n**Shared boundary for both cases:** stop at Ledger admission when the ledger is first read. That is before the confirmation question, `plan_check`, any tracker call, any write or conversion, and any settings query, refresh, dispatch or verification.\n\n---\n\n**A**\n\n- **What's wrong:** The header has `allowance: 4` but no `returned:` line. The allowance boundary needs both fields, so this header shape is unsupported.\n- **First stop:** admission stop for the missing `returned:` header, with this ledger path: `doc/plans/plants-ledger.md`.\n- **Printed:** `<exact admission stop line for missing returned header — from the loop driver's admission contract>`, then `<its exact recovery line>`.\n- **What does not happen:** The ledger is not admitted. Pending recovery, migration and allowance validation do not run, because they come after admission.\n\n---\n\n**B**\n\n- **What's wrong:** The header has the legacy `cap: 12` and neither an `allowance:` nor a `returned:` line.\n- **First stop:** the unsupported `cap:` header shape is the first admission stop. It is not a \"missing allowance\" or \"missing returned\" stop, because the unknown `cap:` field is the earliest mismatch.\n- **Printed:** `<exact admission stop line for the unsupported cap header>`, then `<its exact recovery line>`.\n- **Teammate's suggestion:** Declined. Adding the missing headers would be a ledger write outside the permitted paths. Resume may write the ledger only through pending recovery and the loop driver's admission/repair contract, and admission has already stopped. Converting `cap` to `allowance` would also invent a value the skill must not infer.\n\n---\n\nTo get the verbatim stop and recovery lines, please supply the loop driver's admission section or the contents of `restore-loop.md`. I'll then fill in the exact text for A and B.\n",
+      "words": 341,
+      "wallMs": 12696,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "A. Stop: ledger has `allowance:` but no `returned:` header.\nRecovery: restore a valid ledger with both headers; do not infer `returned`.\n\nB. Stop: unsupported legacy `cap:` ledger.\nRecovery: recover or explicitly migrate the legacy ledger; do not bypass this stop by adding missing `allowance:` and `returned:` headers.\n",
+      "words": 47,
+      "wallMs": 20739,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d29017cd4890792ba0988aa39c9c601c5840795e"
+}
