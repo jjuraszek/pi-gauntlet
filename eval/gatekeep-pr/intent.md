@@ -1,4 +1,4 @@
-for: a245ffbf58002f07302a27a7db7ba19ffef7f506683436e944670dfc45512944
+for: 36b739ace2de2336fc7e7857f98befeb234939c196b5b32ba4fd70374e0c0e3b
 
 ## Change
 
@@ -17,6 +17,8 @@ Render three unlabeled report parts: a two-sentence behavior-based change/scope 
 Cover all seven action-row-one scenarios: pending progress, ruleset block, unchanged cap prerequisite, own source repair, another author's body-only deliver, author-only assess and a pending proposal with preserve contract recommended. Cover all thirteen post-menu-set-reply operations, including numeric unions, typed reply 2 versus row 2, invalid stop sets, failed-step continuation, nested release pause, queued-merge stop and retained not-run work. Preserve existing freshness and explicit-pick facts. Migrate stale supplied reports and action mappings in batch-failure-retry, batch-summary-queue, role-line-requested, no-arg-discovery-under-cap and menu-after-numbered-findings.
 
 Require an executable command for every unrun cleanup sub-step in the closing message; a retained path substitutes for a command only for post text. Validate post-menu-set-reply/closing-commands and restore menu-after-numbered-findings' adjoining-list numeric remapping and pre-action echo. This review round runs post-menu-set-reply twice, menu-after-numbered-findings once, per-ref-settlement once, and refreshes bypass-merge-pick-refused, bypass-merge-pick-revoked and gate-line-first once each. Gate 2 uses ledger row 2's first evidence segment, not the obsolete assertion extracted by the earlier worker. Preserve loop-worker's earlier replay disclosure and the existing wave-closure-retry and course-deliver-no-mid-menu f2 failures; those results are not rerun here.
+
+This evidence refresh covers only reject-not-after-pick, adding its post-fix-nits-push checkpoint at a different assessed head. Coverage is partial; no other sample is replayed and the skill bundle is unchanged.
 
 ## Expected to move
 
@@ -83,3 +85,64 @@ Withhold merge while either exact artifact paired with the carried spec remains 
 ## Isolated merge-message command coverage
 
 The merge-command-quoting sample exercises one merge-commit command with an already composed subject and body; it executes nothing. It has no saved model result. Local evidence is `timeout -k 30 90 node --test scripts/gatekeep-merge-message.test.mjs`: the test executes only the three policy command templates with a capturing gh function, including optional admin arguments, quoted data and a body path with spaces. It reuses only the message examples from the historical merge-landed-message results, not their workflow claims or judgments. No new model call, real merge, GitHub behavior or workflow replay is covered.
+
+## Approach change
+
+Implement reject's frozen-note menu, close permissions, ordered post/close/cleanup steps, back and rejected settlement. Add run-only overrule mapping and dispositions, failed-repair three-section reporting and contributor-safe closure and coverage. Dispatch remedy-only approach repairs on both harnesses and carry their closure inputs across every post-work review, including external head moves. Keep pre-work approach detection, first-report wording and ordinary no-conflict menus. Bind approach remedies to the same no-infrastructure, no-dependency and no-new-module payload limit as every finding; return needs through each harness's existing tail when a remedy cannot fit.
+
+## Expected to move for approach coverage
+- approach-conflict-report/conflicts: fails -> holds - validated approach entries block despite green native review
+- approach-conflict-report/base-path: fails -> holds - retain base evidence locators
+- approach-conflict-report/smaller: fails -> holds - explain the outcome-preserving smaller alternative
+- approach-conflict-report/register: fails -> holds - retain compact first-report register
+- approach-conflict-report/note: fails -> holds - preview the saved three-section note
+- approach-conflict-report/note-content: fails -> holds - explain both remedies in role-first language
+- approach-conflict-report/frozen: fails -> holds - check, save and hash before preview
+- approach-local-instance/validation: fails -> holds - validate approach entries before admission
+- approach-local-instance/base-check: fails -> holds - verify base path existence
+- approach-local-instance/smaller: fails -> holds - needless machinery requires a smaller alternative
+- approach-local-instance/overlay: fails -> holds - preserve explicit non-blocking overlays
+- approach-local-instance/missing-section: fails -> holds - missing required appendix stops the step
+- reject-row-first-menu/recommended: fails -> holds - first menu recommends reject for base evidence
+- reject-row-first-menu/machinery: fails -> holds - needless machinery alone preserves ordinary recommendation
+- reject-row-first-menu/obstacle: fails -> holds - first obstacle offers reject regardless of close or push rights
+- reject-row-first-menu/authority: fails -> holds - retain write-free pick and conflict-only recommendation
+- reject-not-after-pick/boundary: fails -> holds - withdraw rejection before work even when it fails
+- reject-not-after-pick/other-picks: fails -> holds - work classification excludes inspection and dispositions
+- reject-not-after-pick/back: fails -> holds - back withdraws rejection without writing or clearing blockers
+- reject-not-after-pick/continuation: fails -> holds - later work menus stay free of reject
+- reject-not-after-pick/closure: fails -> holds - remedy-only delivery dispatches and supplies closure inputs
+- reject-not-after-pick/external: fails -> holds - external head review preserves approach contributor closure IDs
+- reject-not-after-pick/fix-nits-head: fails -> holds - a fix-nits push changes the assessed head without a fresh approach appendix, approach judgment or reject row
+- approach-blocker-other-row/assess: fails -> holds - alternate assess choice posts open approach blockers
+- approach-blocker-other-row/dispatch: fails -> holds - both harnesses dispatch remedy-only work with scoped tests
+- approach-blocker-other-row/payload-limit: fails -> holds - approach remedies retain the common payload limit and use needs returns when it cannot be met
+- approach-blocker-other-row/needs: fails -> holds - needs result retains the blocker and offers eligible overrule
+- reject-menu-note-preview/preview: fails -> holds - render full frozen note without a write
+- reject-menu-note-preview/rows: fails -> holds - permission-decoded close and ordered combination rows
+- reject-menu-note-preview/set: fails -> holds - selected steps execute once in canonical order
+- reject-menu-note-preview/settlement: fails -> holds - successful note or close settles rejected
+- reject-back/unchanged: fails -> holds - withdraw reject without helpers on unchanged head
+- reject-back/moved: fails -> holds - rejudge approach on moved pre-work head without restoring reject
+- reject-back/stop: fails -> holds - no-rejection stop uses non-final removal and stuck settlement
+- reject-step-failures/note-failure: fails -> holds - failed note suppresses close, not cleanup
+- reject-step-failures/close-failure: fails -> holds - posted note remains a successful rejection
+- reject-step-failures/changed: fails -> holds - byte hash and preview freshness prevent stale writes
+- reject-step-failures/cleanup: fails -> holds - cleanup alone uses stopped-at-reject without duplicate removal
+- reject-step-failures/permission: fails -> holds - unreadable close permission preserves the note action
+- reject-step-failures/invalid-set: fails -> holds - back and stop cannot combine with runnable steps
+- batch-reject-queue/queue: fails -> holds - parent queues rejection until children return
+- batch-reject-queue/back: fails -> holds - unchanged back avoids dispatch; moved back queues step 3
+- batch-reject-queue/answer: fails -> holds - parent queues overrule as a child answer
+- overrule-approach/same-flaw: fails -> holds - same-flaw contributors are set aside together
+- overrule-approach/independent: fails -> holds - independent contributors keep blocking
+- overrule-approach/mapping: fails -> holds - refuse invalid numbers without guessing
+- overrule-stuck-blocker/refusals: fails -> holds - enforce attempt and blocker-class eligibility
+- overrule-stuck-blocker/checkpoint: fails -> holds - re-render without resuming after eligible overrule
+- overrule-stuck-blocker/wave: fails -> holds - exclude overruled closure IDs without skipping commit review
+- overrule-stuck-blocker/review: fails -> holds - do not dismiss GitHub review or claim gap coverage
+- stuck-blocker-sections/sections: fails -> holds - render each unrepaired blocker in three sections
+- stuck-blocker-sections/mixed: fails -> holds - preserve numbering through mixed stuck and ordinary problems
+- stuck-blocker-sections/choices: fails -> holds - failing checks use check dispositions, not overrule
+- consent-no-progress-stop/f4: fails -> holds - retain no-progress stop and add the three-section explanation
+- row-exhaustion/sections: fails -> holds - exhausted rows render three-section blockers with eligible overrule

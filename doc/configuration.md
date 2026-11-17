@@ -369,7 +369,7 @@ The final assistant message starts with `gauntlet: done ...` or `gauntlet: stuck
 | Skill | Ref | Outcome tokens |
 |---|---|---|
 | shape-ticket | Ticket ref returned by a successful create or enrichment; supplied ref for repair; draft title only for a dropped or declined create without a ticket | `written`, `closed`, `close failed (<operation>: <reason>)`, `close by hand`, `dropped`, `declined`, `stopped`, `no-op`, `unfetched` |
-| gatekeep-pr | `#<N>@<head sha>` using the full assessed `headRefOid`, in singleton and set mode | `approved`, `merged`, `closed-pr`, `final`, `merge-queued`, `stuck - <reason>` |
+| gatekeep-pr | `#<N>@<head sha>` using the full assessed `headRefOid`, in singleton and set mode | `approved`, `merged`, `closed-pr`, `rejected`, `final`, `merge-queued`, `stuck - <reason>` |
 | check-delivery | Supplied ticket ref, in singleton and set mode | `delivered`, `manual`, `declined`, `already recorded`, `skipped`, `failed - <reason>` |
 
 Ticket refs include `#N`, `owner/repo#N`, tracker keys such as `ABC-123`, and issue URLs. Gatekeep rows append ` (<ticket ref>)` only when the PR title or body's first line names the ticket under the overrides `## Issue tracker` `refs:` convention; no match means no annotation. The row parser also accepts PR URLs. It matches outcomes at the line end, preserving colons in a draft title or failure reason. Other explanations go on separate lines; headings and cleanup lines such as `worktree: done` are not items. A keyless create records `kind: ticket` with no `key`.

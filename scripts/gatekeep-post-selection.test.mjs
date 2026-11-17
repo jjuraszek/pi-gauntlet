@@ -34,7 +34,7 @@ test('post picks expand and deduplicate only after validating the whole reply', 
     /comma-separated set of row numbers against the retained rendered mapping/,
     /Expand the combination to its member steps and collapse duplicates/,
     /Exact `reply <n>`.*selects drafted reply n, not menu row n/,
-    /number outside 1-N, stop combined with another number.*asks one clarifying question.*runs nothing/,
+    /number outside 1-N, back or stop combined with another number.*asks one clarifying question.*runs nothing/,
     /On a second invalid reply, leave the same menu waiting; emit no new question or `gauntlet: question` marker/,
     /Show evidence.*re-render the same menu without settlement/,
   ]) assert.match(next, rule);

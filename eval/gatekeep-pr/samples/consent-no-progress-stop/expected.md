@@ -1,2 +1,2 @@
 anonymized: true
-- f4: judged: The unchanged failed scoped-test prerequisite and still-open P1 yield a no-progress obstacle, not a silent retry or readiness based on green CI.
+- f4: judged: The unchanged failed scoped-test prerequisite and still-open P1 yield a no-progress obstacle, not a silent retry or readiness based on green CI. Problem 1 uses the three ### sections What is blocked, Why the repair stopped and What you can do, under 180 words from its first heading, retaining src/guard.ts:18 and the signature-comparison test, quoting the supplied observed equality-fallback result rather than inventing a cause. Its choices match available deliver-after-input-change, assess, stop and overrule 1; no automatic retry runs.

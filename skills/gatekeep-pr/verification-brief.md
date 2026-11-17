@@ -55,7 +55,7 @@ Read-only. Fixed `gh` command set - do not substitute ad hoc queries:
 gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
-gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch, bypass_eligible; a null field is recorded as `unreadable`
+gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch, bypass_eligible, viewer_can_close; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff <N>
 gh api repos/{owner}/{repo}/pulls/<N>/reviews --paginate     # REST review ids join inline comments; prior-review selection source
@@ -91,18 +91,22 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - consent.target: { base_repository, number, baseRefName }
 - scope: <selected scope block from `reference/assessment.md`, including original_intent for source: pr; replace only through Contract decision>
 - course: null | assess | deliver | deliver-nits
+- work_started: false | true   # initialize false for a new invocation; never reset inside a run
+- reject_withdrawn: false | true   # initialize false for a new invocation; never reset inside a run
+- reject: null | { note_path, note_sha256, menu_open: false | true }   # initialize null; reference/reject.md owns the saved note
 - repair.rounds_cap: null | <nonnegative integer>
 - repair.syncs_used: <nonnegative integer, initially 0>
 - repair.syncs_cap: null | <nonnegative integer>
 - repair.rounds_used: <nonnegative integer, initially 0>
 - repair.poll_deadline: null | <absolute timestamp for the watch window; reference/post-selection-loop.md ### Wait course>
 - repair.wave: null | { pre_wave_head, pushed_head, selected_ids, selected_payloads, sync: null | { pre_head, expected_remote_head }, action: fix-nits?, affected_claims, round_start_head, counted: false | true, counted_head, checkpoint_history: [], stage: apply | review | push, no_progress: { failed_prerequisite, observed_value, result_path }? }
+- blocker_numbers: [ { n, ids } ]   # replace at each report render; map visible problem numbers to ledger contributor ids
 - approved_head: null | <sha>   # set by reference/post-selection-loop.md when gh pr review --approve exits 0; selects the approved template
 - post_steps: [ { label, source, command: null | <exact command>, payload_file: null | <absolute path>, picked: false | true, result: null | <result> } ]   # reference/post-selection-loop.md ### Post steps; preserve mapping and results through nested gates
 - pr.review_requests: [ { __typename: User, login } | { __typename: Team, name, slug } ]   # raw reviewRequests entries
 - viewer: { login, is_author, role }
 - prior_review: null | { id, state, commit, submitted_at, body, inline[ { id, path, original_line, body } ], delta: ancestor | not ancestor (<reason>) | unset }
-- permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, bypass_eligible, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-read, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh before and after the single watch, compare-and-swap), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/menus.md row tables)
+- permissions: { viewer_permission, is_cross_repository, maintainer_can_modify, merge_state_status, can_update_branch, bypass_eligible, viewer_can_close, head_url, head_ref, head_pushable }   # head_pushable is set in step 2 after provisioning (reference/assessment.md); merge_state_status is `BLOCKED`, `BEHIND`, `UNKNOWN`, `unreadable` (null), or any other GitHub value (`CLEAN`, `UNSTABLE`, `HAS_HOOKS`, `DIRTY`) and is written only from a `gh pr view` invocation that names `mergeStateStatus` (this call, the step-2 re-read, the step-2b re-gather (`reference/sync.md`), the pre-menu refresh before and after the single watch, compare-and-swap), never from an ad hoc GraphQL query or `gh pr list`, and never from a reply carrying `errors`; any field that cannot be read is the literal `unreadable`; menu availability derives from this block (reference/menus.md row tables)
 - status_checks: [ { name, kind, status, conclusion, required, url, workflowName } ]   # kind: check_run | status_context | unreadable, from the rollup entry's __typename; evidence semantics: Section B Evidence resolution; workflowName from the CheckRun rollup entry (absent on StatusContext)
 - actions_runs: [ { databaseId, status, conclusion, workflowName, url } ]   # from the fixed gh run list call on the assessed head
 - comments: { inline[ { id, updated_at, user_type, body, ... } ], top_level[ { id, updated_at, user_type, body, ... } ], review_threads[]? }   # retain REST body for source-review deltas; C# identity diffs on id/updated_at, Section C gates placeholder detection on user_type
@@ -151,6 +155,8 @@ uses (`https://github.com/<nameWithOwner>.git` or `git@github.com:<nameWithOwner
 a null `headRepository` (deleted fork) gives `unreadable`;
 `head_ref` is `headRefName`. `viewer_permission` is the GraphQL
 `viewerPermission` (null when authenticated as an App -> `unreadable`);
+Decode `viewer_can_close` from GraphQL `viewerCanClose`: true alone establishes permission; false stays false; null, missing, non-boolean or a failed/error-bearing response becomes `unreadable`. Re-read it at pre-menu refresh; never infer it from authorship or repository role.
+
 `can_update_branch` is `viewerCanUpdateBranch`. Set `bypass_eligible` from the viewer-relative GraphQL `viewerCanMergeAsAdmin`: true alone establishes eligibility; false stays false; null, missing, non-boolean, or a failed/error-bearing response becomes `unreadable`. Never infer bypass eligibility from `viewer_permission` or a repository role. Keep this field in the fixed GraphQL query, not `gh pr view --json`; apply eligibility only through `reference/post-selection-loop.md` `### Merge preconditions`.
 
 That `mergeStateStatus` reflects the viewer's own standing is an observation (an exempt viewer reads `UNSTABLE` on a review-required PR), not a documented guarantee; GitHub documents `BLOCKED` only as "the merge is blocked" with no per-rule attribution, so the gate never names which rule blocks. A non-`BLOCKED` value never approves a merge, it only leaves the `merge` row available to the preconditions (`reference/post-selection-loop.md`).
@@ -335,6 +341,25 @@ new head. Render a run with `status != completed` through `reference/report.md`'
 withhold pre-composed merge exactly like a `pending` row (delivery step 4 watches it).
 No such comment -> no reviewer workflow known -> no window check;
 `show evidence` says `reviewer workflow: unknown`.
+
+**Approach output (step 4, before gate work).** With caller-supplied `work_started == false`, perform a whole-PR approach check on `origin/<baseRefName>...<headRefOid>` and the source behind it. Keep native findings delta-bounded for an ancestor review; the separately labeled whole-PR diff grounds only the approach judgment. Do not repeat this check in pre-push wave review or after gate work starts.
+
+Use `review-baseline.md` `## Approach grounds` with the merged rubric and overrides file resolved at the merge-base by `reference/assessment.md` `## Configuration` and `## PR gate`. Read `AGENTS.md` and the documents it links directly (one hop) at `origin/<baseRefName>`. No other document grounds an architecture rule or recorded decision. The native verdict (`SHIP`, `FIX_FIRST`, `REJECT`) is never an input to the approach judgment.
+
+Append this caller-required section after the native report and any closure lines. Keep each field on one line; emit the literal `none` when no entry passes both rubric validity tests.
+
+```text
+## Approach conflicts
+A<n>: <ground name from the rubric>
+builds: <the PR's main mechanism, one sentence>
+path: <base-branch path[:line]>
+conflicts with: <what exists at that path, one sentence>
+smaller: <the smaller change and why it preserves the PR's outcome>
+instead: <the remedy that replaces the main mechanism>
+replaces: main mechanism | part of the diff
+```
+
+Emit `path:` and `conflicts with:` exactly for base-evidence grounds (1-5); the path holds only a file and optional `:line`. Emit `smaller:` instead for needless machinery (6), with no path. An overlay-added ground uses a path unless its evidence column names a smaller change. Use the rubric's main-mechanism test; local repairs remain native findings. The orchestrator validates the appendix through `reference/findings.md` `## Approach conflicts`, independently of the native verdict.
 
 **Output format:** emit the reviewer persona's native output contract
 (verdict plus Critical/Moderate/Minor findings). Append `reference/fix-wave.md`

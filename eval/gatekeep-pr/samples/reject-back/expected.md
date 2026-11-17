@@ -1,0 +1,4 @@
+anonymized: true
+- unchanged: judged: A persists reject_withdrawn true, clears reject post_steps, deletes the note and nulls reject without changing work_started, course, usage or P1. It refreshes and re-enters step 5 without a helper, posting, closing or cleanup. Its initial menu keeps the same problem, deliver recommended, assess and stop, no reject or note, and states rejecting now takes a new run.
+- moved: judged: B retains withdrawal and false work_started, re-enters step 3 at the moved head and judges approach again, reusing the matching conflict ID. The returned menu still has no reject or note; it does not treat the head move as work or a new rejection opportunity.
+- stop: judged: C removes the eligible worktree once, keeps branch and base untouched, retains and names the unposted note, ends gauntlet: stuck stopped at reject and #88@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: stuck - stopped at reject. It posts and closes nothing and renders no further menu.

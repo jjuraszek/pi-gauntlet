@@ -1,0 +1,90 @@
+{
+  "sample": "stuck-blocker-sections",
+  "arm": "candidate",
+  "skillSha": "50f4d7356b695ed8f49dc8ab8b384e891e0f0c61eeed7b14bc82a328e39fa65a",
+  "inputSha": "b1da2ad7c9834d91a9ff6ccc57cd0674e27985c2899f31dea270ffba654b3604",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nTwo problems block merging, and the repair stopped because its last attempts on the export problem made no progress.\n\n1. The import accepts a CSV file with no header row, so a file missing its column names still loads. The test \"requires header\" in test/import.test.js covers this case (src/import.js:41).\n\nProblem 2\n\n### What is blocked\n\nThe CSV export drops any row whose name contains a comma, so a list with three people comes out with two rows (src/export.js:31). The test \"exports quoted names\" in test/export.test.js fails with: expected 3 rows, got 2.\n\n### Why the repair stopped\n\nThe repair changed how the export puts quote marks around names, twice. Each time the test still failed with \"expected 3 rows, got 2\", and the repair undid its own edits. Why the row goes missing is still unknown, so another attempt would repeat the same guess.\n\n### What you can do\n\n- deliver: continues the repair work, but tries this problem again only after something about its failure changes, such as a new commit or a clue to the cause.\n- assess: posts both problems on the PR as a review and repairs nothing.\n- stop: removes the local checkout and leaves the PR as it is.\n- overrule 2: sets this problem aside for this run; problem 1 still blocks merging.\n\nI recommend stop because no other choice can change the outcome until the cause of the lost row is known.\n\nPick one:\n1. stop - remove the local checkout and leave the PR and its branch as they are. [recommended]\n2. deliver - continue the repair with more repair and sync attempts added; it retries the export problem only after its failure changes.\n3. assess - post both problems to the PR as a review and make no repairs.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nOne problem blocks merging, and the repair has used up the attempts allowed for it.\n\nProblem 1\n\n### What is blocked\n\nThe CSV export writes a quote mark inside a column header as a raw quote instead of an escaped one (src/export.js:15). The test \"quotes headers\" in test/export.test.js fails with: expected escaped quote, got raw quote.\n\n### Why the repair stopped\n\nThe repair used all four attempts allowed for this problem. The recorded attempts adjusted how quote marks are escaped, and the last one still produced a raw quote where the test expected an escaped one. The cause is unknown.\n\n### What you can do\n\n- deliver: continues the delivery work, but does not reopen this problem's repair, which has used its attempts. Adding more repair rounds does not change that.\n- assess: posts this problem on the PR as a review and repairs nothing.\n- stop: removes the local checkout and leaves the PR as it is.\n- overrule 1: sets this problem aside for this run.\n\nI recommend stop because no other choice can fix the header quoting in this run.\n\nPick one:\n1. stop - remove the local checkout and leave the PR and its branch as they are. [recommended]\n2. deliver - continue the delivery work with more attempts added; it does not try the exhausted header repair again.\n3. assess - post the problem to the PR as a review and make no repairs.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nOne problem blocks merging: the test check failed twice the same way with no source change in between.\n\nProblem 1\n\n### What is blocked\n\nThe test check fails. The test \"exports quoted names\" in test/export.test.js reports: expected 3 rows, got 2.\n\n### Why the repair stopped\n\nThe check came back red twice, and no new source repair was pushed between the two runs. The repair therefore has nothing new to try. Why a row goes missing is unknown.\n\n### What you can do\n\n- check test flaky | real | ci-broken: records how you classify this failure. Marking it flaky lifts it, and a later deliver can then continue. Marking it real or ci-broken keeps it blocking until the check passes.\n- deliver: continues the repair work only after the check or your classification of it changes.\n- assess: posts this problem on the PR as a review and repairs nothing.\n- stop: removes the local checkout and leaves the PR as it is.\n\nI recommend stop because no choice here can change the failing check until you classify it.\n\nPick one:\n1. stop - remove the local checkout and leave the PR and its branch as they are. [recommended]\n2. deliver - continue the repair with more repair and sync attempts added; it resumes only after the failing check or its classification changes.\n3. assess - post the problem to the PR as a review and make no repairs.\n\nType a number; show evidence prints the full record. check test flaky | real | ci-broken\n",
+      "words": 805,
+      "wallMs": 49926,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nTwo problems block merging.\n\nProblem 1. Import accepts a CSV without a header at src/import.js:41, contrary to test requires header in test/import.test.js. A headerless file passes validation when it should be rejected; this problem has not been repaired in this run.\n\n## Stuck blockers\n\nProblem 2\n\n### What is blocked\nCSV export drops names containing commas at src/export.js:31. Test exports quoted names in test/export.test.js still reports \"expected 3 rows, got 2.\"\n\n### Why the repair stopped\nThe helpers changed quoting twice, but the test still failed, so they restored their edits. Why a row is lost is unknown, and the failed test remains unchanged.\n\n### What you can do\n- Deliver adds repair and sync attempts but retries only after the failed prerequisite changes.\n- Assess posts both problems as a review without repairing them.\n- Stop ends this run without changing the PR.\n- `overrule 2` sets the export problem aside for this run; the import problem remains blocking.\n\nI recommend stop because the export test still fails and no changed prerequisite permits another repair attempt.\n\nPick one:\n1. stop - end this run without changing the PR and remove an eligible worktree. [recommended]\n2. deliver - add repair and sync attempts, then continue only after the failed prerequisite changes; an unchanged failure stops again.\n3. assess - post both problems as a review and make no repairs.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nOne problem blocks merging.\n\n## Stuck blockers\n\nProblem 1\n\n### What is blocked\nCSV export leaves a quote unescaped in a header at src/export.js:15. Test quotes headers in test/export.test.js reports \"expected escaped quote, got raw quote.\"\n\n### Why the repair stopped\nThe recorded repairs adjusted quote escaping, but the last observed result still contained the raw quote. The allowed repair attempts for this problem are exhausted, and no changed input is known.\n\n### What you can do\n- Deliver adds repair and sync attempts but does not reopen this exhausted repair; raising the run's allowance alone cannot retry it.\n- Assess posts the problem as a review without repairing it.\n- Stop ends this run without changing the PR.\n- `overrule 1` sets this problem aside for this run without marking it fixed.\n\nI recommend stop because this repair has exhausted its allowed attempts and adding attempts to the run does not reopen it.\n\nPick one:\n1. stop - end this run without changing the PR and remove an eligible worktree. [recommended]\n2. deliver - add repair and sync attempts and continue only after a failed prerequisite changes; the exhausted repair remains closed to further attempts.\n3. assess - post the problem as a review and make no repairs.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n---\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\n\nThe required check test still fails and blocks merging.\n\n## Stuck blockers\n\nProblem 1\n\n### What is blocked\nThe automatic check test fails on test exports quoted names in test/export.test.js: \"expected 3 rows, got 2.\" Exporting quoted names still produces fewer rows than expected.\n\n### Why the repair stopped\nSource repair did not clear the failure. The run stopped after observing the check fail twice without a source change between those failures; the missing row's cause is unknown.\n\n### What you can do\n- Deliver adds repair and sync attempts but retries only after the failed prerequisite changes.\n- Assess posts the failing check as a review without repairing it.\n- Stop ends this run without changing the PR.\n- `check test flaky | real | ci-broken` records your classification of the failure. Only flaky sets the check aside without a passing result.\n\nI recommend stop because the check still fails and no changed prerequisite permits another repair attempt.\n\nPick one:\n1. stop - end this run without changing the PR and remove an eligible worktree. [recommended]\n2. deliver - add repair and sync attempts, then continue only after the failed prerequisite changes; an unchanged failure stops again.\n3. assess - post the failing check as a review and make no repairs.\n\nType a number; show evidence prints the full record. check <name> flaky | real | ci-broken\n",
+      "words": 674,
+      "wallMs": 33503,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4da76bb520d16ede579e4eebe745a5ef6d54773e3886ae3ed31513cb54edb91b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "3403494ec323ae2223cb20e37eb570146a9b3fe2290afb9547dfee59e6691e65",
+      "candidateOutputSha": "ef41a2b8beb7a353f17120d93294c7a6d6eb3f84c6de3a502ecac5f0ebd8adaa",
+      "facts": {
+        "sections": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choices": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and Before held none of them, so nothing regressed. What moved them: After gives each attempted blocker a \"Problem n\" label followed by the three ### headings, with locators, the quoted failure and an explicit \"cause is unknown\". It keeps A's unattempted problem 1 as a short numbered item ahead of the sectioned problem 2. It adds a per-action \"What you can do\" list carrying \"overrule 2\" in A, \"overrule 1\" in B, and the check dispositions with no overrule in C. Before rendered plain paragraphs with no headings and no overrule at all. Three things are fragile and worth tightening. First, each stuck block is under 180 words only if counted through the last \"What you can do\" bullet (about 164, 146 and 140 words); the recommendation and the \"Pick one\" list restate deliver, assess and stop, so a reader who counts those lines would see the limit broken and each action listed twice. Say explicitly that the block ends at the last bullet, or have the numbered menu not repeat the consequences. Second, B's deliver is worded as \"continues the delivery work\" without the changed-input condition, although the exhausted problem is the sole blocker; state that deliver is a retry only after the failure input changes, as A and C do. Third, C adds consequences for flaky, real and ci-broken that the supplied results do not state, and A's problem 1 no longer says that no repair was attempted, which Before did; restrict the wording to supplied facts and keep the unattempted status in the short item.",
+      "wallMs": 36222,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4da76bb520d16ede579e4eebe745a5ef6d54773e3886ae3ed31513cb54edb91b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "baa7056113b72fa54399c190466d51bcbcab04bd41bd02fc6bb6995cc4891017",
+      "candidateOutputSha": "c15f3d83454f9e93d40b746cb9abc7fa8799cf5858e5df58e8ab33e1371c308a",
+      "facts": {
+        "sections": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choices": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, as the Change intended, and Before held none of them, so nothing was lost. Before rendered every attempted finding as plain prose with no Problem n or three ### sections, and offered neither overrule in A and B nor the check command as a listed choice in C. After adds Problem n with What is blocked, Why the repair stopped and What you can do, keeps the file and test locators, quotes the failed output, and says the lost row's cause is unknown without inventing one. It keeps A's unattempted problem 1 as a short numbered item ahead of the stuck problem 2, lists overrule 2 and overrule 1 with consequences, gives C the check test flaky | real | ci-broken command with no overrule, and puts a one-sentence recommendation above Pick one with no merge or reject. Two things are worth pinning down in the wording so these stay held. First, state that the 180-word limit covers the three sections only: each block is roughly 110 words on that reading, but about 200 if the recommendation and Pick one list are counted, because deliver, assess and stop appear both as bullets and as numbered picks. Either say the bullets and the menu are separate, or have the bullets carry only the finding's own command. Second, say whether Problem n is itself a heading or a plain label, and keep the explicit sentence that adding run attempts does not reopen an exhausted repair.",
+      "wallMs": 18502,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

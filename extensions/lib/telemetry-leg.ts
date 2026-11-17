@@ -33,7 +33,7 @@ const legSkill = (name: string | undefined): LegSkill | undefined => skills.find
 const ticketRef = (ref: string) => trackerRefs(ref).includes(ref);
 const outcomes: Record<LegSkill, string> = {
   "shape-ticket": "written|created|closed|close failed \\(.*\\)|close by hand|dropped|declined|stopped|no-op|unfetched",
-  "gatekeep-pr": "approved|merged|closed-pr|final|merge-queued|stopped|stuck - .+",
+  "gatekeep-pr": "approved|merged|closed-pr|rejected|final|merge-queued|stopped|stuck - .+",
   "check-delivery": "delivered|manual|declined|already recorded|skipped|failed - .+",
 };
 

@@ -31,6 +31,33 @@ The `design` section is always part of the judged contract: a Design requirement
 
 Treat a human body rewording dropping a mechanism sentence as a description defect; repair the description without amending untouched spec requirements. Keep spec-owned scope and independent mechanism blockers in force. Record a real proposed contract change and its paused continuation through `post-selection-loop.md` `### Contract decision`; limit it to the requested obligation, not omitted description mechanisms.
 
+## Approach conflicts
+
+Validate the step-4 `## Approach conflicts` appendix before the first report while `work_started == false`. The literal `none` adds nothing; a missing section is off-contract helper output under `assessment.md`: quote the failure and offer `stop`, rendering no report or menu from it. Use the merged rubric, never the native verdict, to judge the appendix.
+
+Check each entry in this order; stop at its first failure:
+
+| Check | Drop reason |
+|---|---|
+| Ground is in the merged rubric | `unknown ground` |
+| Base-evidence ground has `path:` | `no base path` |
+| `git -C <worktree> cat-file -e origin/<baseRefName>:<path>` succeeds, after stripping any `:line` suffix | `base path missing: <path>` |
+| Smaller-change ground has a concrete `smaller:` preserving the intended outcome; skip `cat-file` entirely for this ground | `no smaller change` |
+| `instead:` is present | `no remedy` |
+| `replaces:` reads `main mechanism` and `instead:` removes or replaces what `builds:` names | `remedy edits part of the diff` |
+
+A failed check mints no approach blocker and prints one `show evidence` line `approach entry dropped - <reason>`. Keep native findings on the same code at their own severity. A valid entry whose ground the base-branch overlay makes non-blocking yields nits, with no note and no `reject` from that ground.
+
+Each other valid entry becomes a `P#` blocker carrying its ground, conflict key and `A<n>` provenance, with `overruled: false` on first admission. The conflict key is the ground name plus the base path without its line, or the ground name alone for smaller-change grounds. Reuse a matching blocker's ID and overruled disposition on pre-work head rejudgment; merge duplicate pathless entries under the one-defect rule. Close unmatched approach blockers as no longer reported without reusing their IDs. Never mint a new approach conflict after `work_started` becomes true.
+
+A native `SHIP` verdict or green CI never downgrades a validated approach blocker; needless machinery is blocking too unless the overlay changes its severity. Under **One defect, one blocker**, merge a native finding or prior item about the same defect while retaining all contributor IDs. Mark a contributor `same flaw` when closing it needs the `instead:` remedy (a native finding on the mechanism or a prior item posting the same conflict); independent requirement, claim or check contributors keep their own prerequisites. Keep the entry's `builds:`, `instead:` and evidence in its evidence pack. Render each open approach blocker once through `report.md`, alongside independent ordinary blockers and nits. Read `reject.md` `## Draft note` now to prepare or reuse the rejection note before rendering.
+
+After work starts, integrate the carried approach contributor closures supplied by assessment on every step-4 re-entry, external head moves included: a `resolved` line closes only its ID; an open or missing line retains it. Preserve all IDs and dispositions without rejudging approach or minting a new conflict. Keep independent contributors open until their own closure.
+
+### Repair
+
+A delivery course repairs every open approach blocker; never withhold a dispatch by pre-judging whether its remedy is feasible. A main-mechanism replacement needs no drafted edit: use `instead:` as the finding to close, with `builds:`, base evidence or smaller alternative and tests exercising the replaced mechanism in the evidence pack. Set `target: file` and dispatch on both harnesses through `fix-wave.md`, charging and admitting it like any finding. Preserve every contributor ID. A needs result, contract exception or exhausted row takes its ordinary exit, never an unchanged retry or merge; render unrepaired blockers through `report.md` and offer overrule under `reject.md` when eligible.
+
 ## PR-named steps
 
 At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Leave observation-only acceptance or verification clauses and automatic deploy or release notes to `/skill:check-delivery`, not post steps.
@@ -52,7 +79,7 @@ Every finding is one of two:
 
 | Namespace | Contents | Gates merge |
 |---|---|---|
-| blocker | code defects, security, untested new path, `contradicted` claim, AC `gap`, scope creep (diff content traceable to no `in-scope` row, no `design` clause, and no stated intent), doc drift beyond wording (a doc now describes behavior the code does not have, or omits an operation or parameter the code adds), failed gate or undispositioned failing check | yes |
+| blocker | validated approach conflicts, code defects, security, untested new path, `contradicted` claim, AC `gap`, scope creep (diff content traceable to no `in-scope` row, no `design` clause, and no stated intent), doc drift beyond wording (a doc now describes behavior the code does not have, or omits an operation or parameter the code adds), failed gate or undispositioned failing check | yes |
 | nit | wording-only doc drift (typo, label, phrasing with the same meaning), style, reuse of an existing helper, naming | no; take-or-leave at the menu; untracked after the run |
 
 Behavior the spec keeps in scope is a blocker until its mechanism ships; a row the spec defers or deviates is settled, and settled scope lifts no `REVIEW.md` blocker, failing check, contradicted claim, or merge precondition.
@@ -91,6 +118,8 @@ For an ancestor step-4 review, match each live inline `C#` comment id to `prior_
 
 ## Dispositions
 
+For finding-based blockers, apply `reject.md` `## Overrule`: persist `(dispositioned: overruled)` on eligible contributor IDs only. Omit those IDs from open assess bodies, delivery work and later blocker counts without marking them resolved. Preserve independent contributors, run-only memory and requirement-gap coverage exclusions. Check dispositions below remain separate; overrule never lifts a failing check.
+
 Any blocking conclusion in the resolved check set (required or not - `../verification-brief.md` Section B, Evidence resolution table) withholds `merge` until the user dispositions it, and mints a `P#` - except the reviewer check, whose exception the brief's Section B defines (one `show evidence` line `reviewer check <name> failed - inert`). A **binding** pending check (`../verification-brief.md` Section B, binding classification) mints nothing and is not dispositionable: merge waits until it turns green, or `merge_state_status` leaves `BLOCKED`, or it converts to a failing check with its own `P#`. A not-binding pending check withholds nothing; render it through `report.md` under `show evidence` only, as `<name> pending - not binding this viewer (merge_state_status <value>)`; the `required` field stays gathered and no longer withholds on its own.
 
 | Disposition | Annotation on the `P#` |
@@ -108,8 +137,8 @@ Record dispositions only from direct human check commands. A flaky disposition f
 
 Step 5 drafts, never applies. For every blocker with a file-level fix - code and doc drift alike - draft the concrete edit as a payload keyed to the finding's internal ID. Draft nit payloads under `deliver-nits` or a terminal `fix nits` pick: print them in the `show evidence` payload shape and dispatch the wave in the same pick with no second confirmation; before that pick `show evidence` prints only the payloads that exist. For every replyable `C#`, draft the reply. The worktree stays tracked-clean (`git status --porcelain --untracked-files=no` empty) at every menu render; a payload is applied only under a delivery course or a terminal `fix nits` pick (the same path for code and docs) and dropped at teardown otherwise. A `P#` carried by a `rebased locally` sync record is drafted like any blocker, from the helper's test output and `git show <stopped commit>`; a `P#` whose smallest fix needs another repo, infrastructure, or a credential stays open. Keep the stored scope baseline authoritative; route a worker needing a contract change through `fix-wave.md`'s harness-specific `contract exception` return without changing it.
 
-Extend each finding-keyed evidence pack with `target: file | description`. For file targets retain the concrete edit and scoped test files. For description targets store `{ finding_id, contributor_ids, assessed_head, original_body, old_text, new_text, replacement_body, source_evidence }` with exact old-to-new text and unrelated body text preserved. Keep independent contributions under all their IDs when one finding combines a claim and test/scope/check gap; close only source-backed resolved claim contributions, never the whole combined finding from a body edit. Judge source: pr gaps against original_intent, not the shortened body.
+Extend each finding-keyed evidence pack with `target: file | description`. For file targets retain the concrete edit and scoped test files; an approach target instead carries its remedy-only evidence pack under Repair when no drafted edit exists. For description targets store `{ finding_id, contributor_ids, assessed_head, original_body, old_text, new_text, replacement_body, source_evidence }` with exact old-to-new text and unrelated body text preserved. Keep independent contributions under all their IDs when one finding combines a claim and test/scope/check gap; close only source-backed resolved claim contributions, never the whole combined finding from a body edit. Judge source: pr gaps against original_intent, not the shortened body.
 
 A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module. A failure caused outside the repo (image pull, toolchain, credentials, external service) gets the smallest in-repo workaround with its reason in one sentence; a skip never removes a test an AC row relies on. Keep a finding whose smallest fix needs another repo, infrastructure, or a credential open with the `loop-implementer` failed decision's `needs <what>` second slot on pi, or the native helper's `open - needs <what>` sentence on Claude Code. A delivery course applies a description payload alongside the file payloads through `post-selection-loop.md` `### Description repair`; show compact exact old-to-new text under the blocker and the full replacement body under `show evidence`. Apply a requested factual clarification only within selected course work; mint no fake blocker. Never draft an unsolicited style rewrite.
 
-Compose a posted review body at post time from the blockers being addressed through SKILL.md `## Wording rules`. For a carried open blocker backed by a pi row, include `open - <last decision line>` on its item so the next run's prior review retains the failed-attempt knowledge.
+Compose a posted review body at post time from the blockers being addressed through SKILL.md `## Wording rules`. This post-time composition rule does not apply to the rejection note: use the saved bytes from `reject.md` `## Draft note`. For a carried open blocker backed by a pi row, include `open - <last decision line>` on its item so the next run's prior review retains the failed-attempt knowledge.

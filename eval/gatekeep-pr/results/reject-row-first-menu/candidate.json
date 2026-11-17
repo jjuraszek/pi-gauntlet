@@ -1,0 +1,100 @@
+{
+  "sample": "reject-row-first-menu",
+  "arm": "candidate",
+  "skillSha": "108e4b046c03b8650d063a8d076af2a671330ac6aaef105ac04d9c0cd63acd19",
+  "inputSha": "b1f2b7a919affb7535333b492882e7ad12e27dbdf76757d864bc30dcd7c14085",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Checkpoint A\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\nI recommend reject because the PR keeps a second copy of the catalog for indexing, while the repo's architecture gives the catalog a single owner (docs/architecture.md:12).\n\nPick one:\n1. reject - show the saved rejection note again with the steps to post it and close the PR; nothing is written until you pick a step. [recommended]\n2. deliver - repair the two problems, rebase on main, watch CI, and repeat until merge is offered.\n3. assess - post both problems to the PR as one review and make no repairs.\n4. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\nCheckpoint B\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\nI recommend deliver because the smaller replacement is already settled: remove the export queue, scheduler and worker, and have the existing export handler stream the same download.\n\nPick one:\n1. deliver - replace the queue with streaming from the existing export handler, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the problem to the PR as a review and make no repairs.\n3. reject - show the saved rejection note again with the steps to post it and close the PR; nothing is written until you pick a step.\n4. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\nCheckpoint C\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nI recommend reject because the indexing job writes directly to the catalog's private table, while the architecture requires reading the catalog's public change feed (docs/architecture.md:21).\n\nPick one:\n1. reject - show the saved rejection note again with the steps to post it and close the PR; nothing is written until you pick a step. [recommended]\n2. assess - post the problem to the PR as a review requesting changes and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n",
+      "words": 357,
+      "wallMs": 21985,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Checkpoint A\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\nI recommend reject because the separate indexing copy breaks the catalog's one-owner rule.\n\nPick one:\n1. reject - show the saved note again with steps to post it and close the PR; write nothing until a step is picked. [recommended]\n2. deliver - repair blockers, rebase on main, watch CI, and repeat until merge is offered.\n3. assess - post the open problems as a review and make no repairs.\n4. stop - end this run without posting or repairing the PR.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\nCheckpoint B\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\nI recommend deliver because the download can stream from the existing handler without the queue, scheduler, and worker.\n\nPick one:\n1. deliver - repair blockers, rebase on main, watch CI, and repeat until merge is offered. [recommended]\n2. assess - post the open problem as a review and make no repairs.\n3. reject - show the saved note again with steps to post it and close the PR; write nothing until a step is picked.\n4. stop - end this run without posting or repairing the PR.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\nCheckpoint C\n\ngauntlet: gate=gatekeep-pr/obstacle recommended=1\nI recommend reject because the indexing job writes directly to the catalog's private table across its documented ownership boundary.\n\nPick one:\n1. reject - show the saved note again with the available steps to post it; write nothing until a step is picked. [recommended]\n2. assess - post the open problem as a review and make no repairs.\n3. stop - end this run without posting or repairing the PR.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n",
+      "words": 297,
+      "wallMs": 20759,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c666f1de40a06ed78780441281073a7eb43213c7b80049bd5e7801820c27c026",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "61cc83c1bec55ef8baef5eae0616cc2fbbf2d9f84e401deef44e7a6406dbce10",
+      "candidateOutputSha": "3a360c7af315ad4f976f1eba699144698ece41ba1baba128b3ee96bbb3b8084d",
+      "facts": {
+        "recommended": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "machinery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "obstacle": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before satisfied none of the four facts: it never offered a reject row, recommended deliver in A and assess in C, led C with the GitHub merge restriction and missing permissions, used multi-sentence recommendations, and had no overrule clause in the hint. After moves all four to holds. In A and C reject is row 1 and the sole recommendation, with a single sentence naming only the first conflict in report order plus its base citation. In B deliver stays recommended, with reject offered third and no rejection rationale. Every hint carries the `overrule <n> sets problem <n> aside for this run` clause, and every reject row says nothing is written until a step is picked. No fact that Before held was lost, since Before held none. To keep these robust, keep the wording that limits the recommendation sentence to exactly one sentence naming only the first approach conflict, and that keeps merge restrictions and permission limits out of it. Two small risks remain. In C the reject row still promises steps to 'close the PR' although the viewer cannot close; wording such as 'choose which posting or closing steps are available' would avoid implying a close right while still describing the menu. The hint's overrule clause also lacks a terminating period or separator, so fixing the exact hint string in the wording would stop it drifting.",
+      "wallMs": 10222,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c666f1de40a06ed78780441281073a7eb43213c7b80049bd5e7801820c27c026",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89dc63dbf0d2c8af524ae392b4efb1e7ac14c48d8e81a8f1d7c411bbdcb59827",
+      "baselineOutputSha": "beb026d3089f801503051e003b1ecd7fa149832e3073d12a726ab220297d6c94",
+      "candidateOutputSha": "b95372e750b639d1301794cfd32190075adb9cb185507c168e6f4219bb40c794",
+      "facts": {
+        "recommended": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "machinery": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "obstacle": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "authority": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All four facts fail in Before and hold in After; Before kept none, so nothing regressed. Before never offered reject (A and C recommended deliver and assess, B omitted the reject row) and its hint lacked the overrule clause, while C's sentence leaned on the merge restriction and missing permissions. After moves each fact: A puts reject first as the sole recommendation with a sentence naming only the one-owner conflict; B keeps deliver recommended with reject offered third and no rejection rationale; C recommends reject on the private-table write alone, keeps assess, omits deliver and ends on stop. Every hint carries the overrule clause and every reject row says nothing is written until a step is picked. To keep this stable, fix the reject-row consequence as explicit wording (opens a menu showing the saved note with post/close steps, writes nothing on this pick), since C's variant already drifts to 'available steps to post it'. Also state outright that the recommendation sentence names only the first conflict in report order and never permissions or merge restrictions, and that the overrule clause appears in the hint whenever an approach blocker is open, even before any repair attempt.",
+      "wallMs": 10041,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "66ba6268ae9d6b53195bd798298c2166058b7d64"
+}

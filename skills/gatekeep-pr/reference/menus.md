@@ -4,7 +4,7 @@ Read at step 6; execute picks through `post-selection-loop.md` `### Next action`
 
 Render every menu in full: the standing sentence, every available row as `<n>. <verb> - <consequence>`, then the hint. Never narrate or summarize a menu. Quote a numeric pick only after the rendered menu. Move the recommended action to row 1 before numbering every menu, including child and batch menus; tag only it `[recommended]`. Keep non-recommended stop last; other rows follow table order. Append ` recommended=1` to each gate line. Emit one first line per turn: the parent batch-summary marker for combined nonterminal child menus, each terminal post menu's marker in its own message. Keep runtime guard text inside the obstacle body, not a second marker.
 
-Use `Pick one:` except for post combinations. Hint: `Type a number; show evidence prints the full record.` Append `check <name> flaky | real | ci-broken` for failing checks. Keep show evidence hint-only. Omit unavailable rows with a sentence from Missing rows; never suffix a disabled row. Under deliver, render no menu before an exit except contract exception.
+Use `Pick one:` except for post combinations. Hint: `Type a number; show evidence prints the full record.` Append `check <name> flaky | real | ci-broken` for failing checks. On initial, obstacle and assess-terminal only, append the literal `overrule <n> sets problem <n> aside for this run` when at least one rendered blocker is eligible under `reject.md` `## Overrule`; print placeholders literally. Never recommend overrule or add a row for it. Keep show evidence hint-only. Omit unavailable rows with a sentence from Missing rows; never suffix a disabled row. Under deliver, render no menu before an exit except contract exception.
 
 ## States
 
@@ -16,6 +16,7 @@ Take the first matching row. Resolve BLOCKED through `post-selection-loop.md` `#
 | merge-queued | This run's merge returned another state | post | All except wait and stop | Start the message with `gauntlet: gate=gatekeep-pr/merge-queued` |
 | approved | approved_head equals assessed head | post | Coverage, PR-named steps, wait | Start the message with `gauntlet: gate=gatekeep-pr/approved` |
 | closed-pr | PR no longer OPEN | post | Own-merge coverage, wait; mark merge-dependent steps skipped on closed-unmerged | Start the message with `gauntlet: gate=gatekeep-pr/closed-pr` |
+| reject | A reject pick, until back, stop or the picked steps finish | post | Drafted replies, coverage, PR-named steps, cleanup overrides, wait | Start the message with `gauntlet: gate=gatekeep-pr/reject` |
 | contract-exception | Pending contract proposal | action | All except accept contract change, preserve contract and stop | Start the message with `gauntlet: gate=gatekeep-pr/contract-exception` |
 | final | Readiness exit, including ready first report with course unset | final | deliver | Start the message with `gauntlet: gate=gatekeep-pr/final` |
 | obstacle | Obstacle or cap exit, including course unset with undispositionable BLOCKED | action | Contract rows, deliver with nits | Start the message with `gauntlet: gate=gatekeep-pr/obstacle` |
@@ -24,7 +25,13 @@ Take the first matching row. Resolve BLOCKED through `post-selection-loop.md` `#
 
 ## Recommendation
 
-Choose from the findings, including obstacle and cap exits. Apply these pins in order: contract-exception recommends `preserve contract`; when no available non-stop row can change the outcome, recommend `stop`; else use rule 3's own-PR action default. Treat bot-authored heads as someone else's. An unchanged failed prerequisite still blocks after a cap extension; a cap with a changed prerequisite does not force stop.
+For a menu-only continuation of initial, obstacle or assess-terminal after its report and any note preview were already displayed, render only the gate line, the one recommendation sentence, prompt, rows and hint. Repeat no standing, permission, missing-row or obstacle explanation in that menu-only continuation; those facts stay in the displayed report or show evidence.
+
+For every action, including ordinary `deliver`, use exactly one complete recommendation sentence immediately before `Pick one:`. Follow it with no second explanation or remedy sentence; put remedy details in the existing row consequence or the earlier report. Check this boundary before displaying the menu.
+
+Before the pins below, with `reject` offered and an open approach blocker whose ground recommends reject in the merged rubric, recommend `reject`. Use the first such blocker in report order. Put one sentence naming only that conflict immediately above `Pick one:`; add no other rejection explanation to the menu. Keep merge withholds and row-omission explanations in their own sentences before the recommendation, not inside it. With only ground-6 (needless machinery) blockers, offer `reject` and choose the recommendation through the existing rules below.
+
+Choose from the findings, including obstacle and cap exits. Apply these pins in order: contract-exception recommends `preserve contract`; when no available non-stop row can change the outcome, recommend `stop`. Otherwise use the ordered rules below; do not apply the own-PR default before the after-assess rule. Treat bot-authored heads as someone else's. An unchanged failed prerequisite still blocks after a cap extension; a cap with a changed prerequisite does not force stop.
 
 Without a pin, use the first match:
 
@@ -43,10 +50,13 @@ Otherwise choose the available row that settles this PR with the fewest human st
 | `deliver` | Helpers, positive maxFixRounds, head_pushable true | Run the persistent delivery course to readiness, obstacle or cap; use `fix-wave.md` accounting. |
 | `deliver with nits` | Delivery available and nits remain | Store deliver-nits; include all current and subsequently minted nits. |
 | `assess` | Initial or obstacle | Post open blockers with locators as one head-pinned review through `post-selection-loop.md` `### Fix wave`; with zero blockers post nothing. Render assess-terminal, without repair or sync; keep C# replies behind reply. |
+| `reject` | Initial or obstacle; `work_started == false`; `reject_withdrawn == false`; at least one open approach blocker; PR `OPEN` | Open the reject menu through `reject.md`. Write nothing. |
 | `approve workflow run` | Held run on assessed head; viewer_permission WRITE, MAINTAIN or ADMIN | Run `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, refresh and watch under the course. |
 | `accept contract change` | Pending recorded proposal | Invoke its owning amendment through `### Contract decision`; replace the baseline only after completion. |
 | `preserve contract` | Pending recorded proposal | Reject the proposal, keep the named requirement and independent blockers, resume scope-preserving authorized work without the rejected payload this re-run. |
 | `stop` | Always | Run `### Teardown`; non-final stop delegates to `cleanup.md` `## Non-final stop`. |
+
+Keep non-recommended `reject` directly after the offered `deliver` and `assess` rows, before the remaining action rows. Apply its availability equally to the first initial or obstacle menu; it does not depend on close permission, authorship or draft state. Describe its consequence as showing the saved note again with steps to post it and close the PR, with nothing written until a step is picked.
 
 Show the proposal. Offer `accept contract change`, `preserve contract` `[recommended]`, then `stop` before numbering. Describe delivery sync as rebase for the viewer's own PR, merge main into the branch for someone else's or a bot's.
 
@@ -72,6 +82,10 @@ Choose the recommendation through `## Recommendation`; print its `[recommended]`
 | `stop` | Always | Run Teardown; keep final stop distinct from non-final assess-terminal stop. |
 
 For eligible BLOCKED readiness, explain that GitHub requires an admin override and required checks passed. Render `merge - <policy>-merge using your admin override.` Keep one merge row, no bypass row. Use merge policy solely as the command flag selector, never approval or sync strategy; spec approval history configures no menu. Keep the resolved source, head, check results and merge state under show evidence, not a report line or hint parenthetical.
+
+## reject
+
+Render and execute through `reject.md` `## Reject`. Use its saved-note preview, note/close/cleanup steps, combination mapping, sole back/stop picks and settlement rules, not the ordinary post step list below.
 
 ## post
 

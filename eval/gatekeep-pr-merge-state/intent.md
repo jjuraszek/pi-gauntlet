@@ -1,10 +1,10 @@
-for: 669100eaa009ec627138a54c210c60cc3a38845b281dcdc2c1dfcc9d11228177
+for: c5ab59c91919ca5c218954b46b0a28fc1e078c4541d5e010372d4d54b6bd8af1
 
 ## Change
 
 Scratch relocation changes the shared assembly only. Validate paths deterministically; preserve saved merge-state results as earlier evidence. No merge-state sample runs; the only selected model sample is gatekeep-pr/teardown-own-run-folder.
 
-Bind this intent to the current assembly after the commit-message contract and plain-word link-label repair. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
+Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no merge-state model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
 Keep merge preconditions, exact-head CI evidence and fresh viewer-relative bypass eligibility unchanged. Render the ordinary merge row as using your admin override when eligible, explain required checks passed in plain prose, and leave raw merge-state and review-decision fields under show evidence. Keep one merge row and no bypass row. The replay wrapper requests three unlabeled report parts rather than field labels or raw accounting.
 

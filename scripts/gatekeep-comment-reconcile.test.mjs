@@ -475,7 +475,7 @@ test('verification-brief.md drops the merge-proof rule and the ticket fetch', ()
 test('verification-brief.md gathers permissions, treats held runs as pending, and hands the orchestrator log paths', () => {
   const sectionA = section(brief, '## Section A', '## Section B');
   assert.ok(!sectionA.includes('--jq .viewerPermission'), 'REST viewerPermission read must go');
-  assert.ok(sectionA.includes("gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin headRefOid body baseRefName } } }'"));
+  assert.ok(sectionA.includes("gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }'"));
   assert.match(sectionA, /headRepository,maintainerCanModify,mergeStateStatus/);
   assert.match(sectionA, /head_pushable/);
   const sectionB = section(brief, '## Section B', '## Section C');
@@ -502,7 +502,8 @@ test('check-delivery takes no input from the pre-merge gate', () => {
 });
 
 test('fix-wave.md owns the wave: fresh helpers, pre-push review, local conflict check', () => {
-  assert.match(fixWave, /A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module\./);
+  assert.match(fixWave, /For every finding, use the smallest in-repo payload that turns it green and keeps the promised behavior; it never adds infrastructure, a dependency, or a new module\./);
+  assert.match(fixWave, /For an approach finding, treat the reviewer's instead: remedy as the finding to close/);
   assert.ok(!fixWave.includes('then re-polls'), 'approve workflow run re-enters the refresh');
   assert.match(fixWave, /one fresh implementer helper/);
   assert.match(fixWave, /claim-check-only mode/);
@@ -520,7 +521,7 @@ test('fix-wave.md owns the wave: fresh helpers, pre-push review, local conflict 
   assert.match(fixWave, /merge-tree --write-tree/);
   assert.doesNotMatch(fixWave, /`update branch`/);
   assert.match(fixWave, /local run: no conclusive check/);
-  assert.match(fixWave, /On a locally rewritten head push only when every carried `P#` has a `resolved` closure line/);
+  assert.match(fixWave, /On a locally rewritten head push only when every carried non-overruled `P#` has a `resolved` closure line/);
   assert.match(fixWave, /entry-time `rebased locally` record without a loop checkpoint[\s\S]*--force-with-lease=<head_ref>:<pre_head>/);
   assert.match(fixWave, /git push --no-follow-tags --force-with-lease=<head_ref>:<expected_remote_head> <head_url> HEAD:refs\/heads\/<head_ref>/);
   assert.ok(!/\binline\b/i.test(fixWave));
@@ -553,7 +554,7 @@ test('historical saved replies: eligible BLOCKED and current viewer-relative aut
   assert.match(gather, /false stays false; null, missing, non-boolean, or a failed\/error-bearing response becomes `unreadable`/);
   assert.match(gather, /Never infer bypass eligibility from `viewer_permission`/);
   const refresh = section(loop, '### Pre-menu refresh\n', '### Wait course\n');
-  assert.match(refresh, /Refresh `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh/);
+  assert.match(refresh, /Refresh `permissions.viewer_can_close` and `permissions.bypass_eligible` through Section A's fixed GraphQL query on every pre-menu refresh/);
   const final = section(menus, '## final\n', '## post\n');
   assert.match(final, /merge - <policy>-merge using your admin override/);
   assert.match(final, /GitHub requires an admin override and required checks passed/);
@@ -791,9 +792,9 @@ test('three archetypes own menus and typed dispatch is not row authority', () =>
   for (const path of ['SKILL.md', 'verification-brief.md', 'review-baseline.md', ...readdirSync(new URL('reference/', root)).filter(p => p.endsWith('.md')).map(p => `reference/${p}`)]) {
     assert.doesNotMatch(readFileSync(new URL(path, root), 'utf8'), /decision-menu/, path);
   }
-  assert.deepEqual([...menus.matchAll(/^## (.+)$/gm)].map(m => m[1]), ['States', 'Recommendation', 'action', 'final', 'post', 'Missing rows', 'batch summary']);
+  assert.deepEqual([...menus.matchAll(/^## (.+)$/gm)].map(m => m[1]), ['States', 'Recommendation', 'action', 'final', 'reject', 'post', 'Missing rows', 'batch summary']);
   const states = section(menus, '## States\n', '## Recommendation\n');
-  for (const [archetype, ids] of Object.entries({ action: ['initial', 'obstacle', 'contract-exception'], final: ['final', 'assess-terminal'], post: ['own-merge', 'approved', 'closed-pr', 'merge-queued'] })) {
+  for (const [archetype, ids] of Object.entries({ action: ['initial', 'obstacle', 'contract-exception'], final: ['final', 'assess-terminal'], post: ['own-merge', 'approved', 'closed-pr', 'reject', 'merge-queued'] })) {
     for (const id of ids) assert.match(states, new RegExp(`^\\| ${id} \\|[^\\n]*\\| ${archetype} \\|[^\\n]*Start the message with \x60gauntlet: gate=gatekeep-pr/${id}\x60`, 'm'));
   }
   const nonterminal = section(menus, '## action\n', '## post\n');
@@ -896,7 +897,8 @@ test('non-final stop removes only owned tracked-clean pushed trees without termi
   const stop = section(cleanup, '## Non-final stop\n');
   assert.match(stop, /discarding those commits is a separate explicit human decision - never a consequence of `stop`/);
   for (const pattern of [
-    /initial, assess-terminal, obstacle, or contract-exception/,
+    /initial, assess-terminal, obstacle, contract-exception, or reject/,
+    /cleanup already ran.*skip all worktree inspection and removal/,
     /git -C <worktree\.path> reset --hard <pre_head>.*HEAD == <pre_head>.*clean tree/,
     /created and reused/i, /not the primary/, /status --porcelain --untracked-files=no/,
     /merge-base --is-ancestor HEAD <last pushed head>/,

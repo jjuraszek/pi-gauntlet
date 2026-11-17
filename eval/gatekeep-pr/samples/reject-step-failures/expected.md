@@ -1,0 +1,7 @@
+anonymized: true
+- note-failure: judged: A prints the actual note failure and skips close as note not posted, retains the note, and ends stuck with the note failure, not rejected. F does the same after executing picked cleanup once; Non-final stop skips inspection/removal already recorded and does not retry note or close.
+- close-failure: judged: B ends rejected because the note succeeded even though close failed, keeps the PR open, lists the failed close and deletes the posted note at teardown. I closes without a note because close alone was explicitly picked and also settles rejected.
+- changed: judged: C skips note and close as PR changed since review; D skips note as note changed since preview. Neither sends unseen bytes or settles rejected. J skips note and close as PR is MERGED, never claiming this run merged or rejected it. Picked eligible cleanup still runs after skipped steps.
+- cleanup: judged: E runs cleanup once but ends stuck stopped at reject, never rejected; branch and base remain untouched and the unposted note is retained. No failure row blindly retries a step.
+- permission: judged: G states close permission could not be read, omits close while retaining note, cleanup, back and stop and their runnable combination, and prints the full note. It does not infer permission from role.
+- invalid-set: judged: H refuses back combined with note with one clarification naming valid choices, runs nothing and leaves the same menu waiting, with no terminal settlement or course start.
