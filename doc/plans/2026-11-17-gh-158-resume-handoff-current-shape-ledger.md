@@ -6,7 +6,6 @@ checks: commands
 iterations: 13
 allowance: 10
 returned: 3 | home | 124c4c93afe477d932eca1703d36abcca1231b1f
-pending: verify | home | f7fb65cf70445fca42522dbe2391c5613b02e59d
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -34,3 +33,4 @@ row 1 done | Verified fresh C1 ledger and task-plan traces restore through the s
 row 3 failed | Prepared a valid coordinated fixture and a saved-evidence check; C2 is absent and five C4 baseline hashes are stale. | Reuse tool-traces/coordinated.md for primary C2/C4 capture, then run scripts/resume-coordinated-evidence.test.mjs; do not recreate fixtures or retry without fresh records.
 row 3 failed | Verified C2 ordering and four C4 stop pairs; legs-wrong-repo has a failing primary judgment despite a passing confirmation. | Keep C2 and four passing pairs; refresh legs-wrong-repo judgments in the primary session, then rerun scripts/resume-coordinated-evidence.test.mjs.
 row 3 done | Verified C2 reads coordinated rules before tracker writes and all five C4 stop pairs preserve their results on both replay models with fresh hashes. | nothing new to build on.
+repair verification | home 821f7ae | iteration 13
