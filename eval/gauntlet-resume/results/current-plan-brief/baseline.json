@@ -1,0 +1,34 @@
+{
+  "sample": "current-plan-brief",
+  "arm": "baseline",
+  "skillSha": "e4b1831bfe900aa69c6b3782687d55fe17a50edb413f1dbef2763058396334ed",
+  "inputSha": "027d4e827b137e3ec0fe7411382da9117d93d4c91ae155a01f250344197e2a69",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n## Correction: no `plan_check` on this route\n\nThe brief's active phase is `plan(author)`. The `plan` row of the call table does not include `plan_check`, so none runs. `plan_check` only applies to the implement, verify and ship rows. No plan file exists yet, and the plan-writer has not produced one. Because no plan exists, there is also no `## Plan repair` step.\n\n## Admission already settled (read-only)\n\n- **Check 1:** the session is idle.\n- **Check 2:** the worktree `/work/project/.worktrees/parser` exists.\n- **Check 3:** both checkouts share the git common directory `/work/project/.git`.\n- **Check 4:** live HEAD and dirt match the brief, so there is no drift.\n- **Check 5:** `## Skills loaded: none`, so nothing is loaded.\n- **Spec:** resolved to `/work/project/.worktrees/parser/doc/specs/parser.md`. It is the single candidate, added after base. The human confirmed it. It has no PR pairs and no Rework record.\n- **Check 6:** the header is not `**Engine:** deferred`. It has exactly one `**Amend-grant:**` line, and its value is `none`, so there is no grant.\n\n## Tracker calls, in order\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `phase_tracker({ action: \"substep\", substep: \"author\" })`\n\nThere is no `plan_tracker init`, because the brief shows `No plan active.`\n\n## Restored state\n\n- **Phases:**\n  - `⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)`\n  - `→ plan(author)`\n  - `○ implement`\n  - `○ verify`\n  - `○ ship`\n- **Plan snapshot:** `No plan active.`\n- **Active task:** none.\n\n## Printed lines\n\n```\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\nNo `Repaired plan:` receipt is printed, because no repair ran.\n\n## Continuation boundary\n\nThe flow hands off to the writing-plans body. Its own `start plan` call is skipped because plan is already in_progress, and its reset-bearing entry is not used. The replay stops here, before the plan-writer authors anything.\n",
+      "words": 291,
+      "wallMs": 12291,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nThe active phase is `plan`, so its call-table row does **not** call `plan_check`. No plan file is required for this restore.\n\nTracker calls, in order:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })\nphase_tracker({ action: \"start\", phase: \"plan\" })\nphase_tracker({ action: \"substep\", substep: \"author\" })\n```\n\nRestored state:\n```text\nPhases:\n  ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n  → plan(author)\n  ○ implement\n  ○ verify\n  ○ ship\n\nNo plan active.\n```\n\nNo `plan_tracker init` call: the saved snapshot is `No plan active.` No repair or commit occurs.\n\nPrint:\n```text\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary:** hand off automatically to the **writing-plans body**, with `/work/project/.worktrees/parser` as the worktree and `/work/project/.worktrees/parser/doc/specs/parser.md` as the approved spec. Skip its `start plan` call because `plan(author)` is already in progress. Stop this replay here, before the plan writer performs new work.\n",
+      "words": 148,
+      "wallMs": 12677,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f9380bcfd6def3fa0e24bceacce36064941c1187"
+}

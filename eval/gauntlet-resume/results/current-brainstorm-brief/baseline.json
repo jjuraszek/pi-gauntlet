@@ -1,0 +1,34 @@
+{
+  "sample": "current-brainstorm-brief",
+  "arm": "baseline",
+  "skillSha": "e4b1831bfe900aa69c6b3782687d55fe17a50edb413f1dbef2763058396334ed",
+  "inputSha": "670f84358e1606ace0e1614307029b834aaa4a57ac4652eff2c77c4defa34468",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Gauntlet resume: brainstorm-stage brief\n\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n\n## Before any tracker write\n\n**Brief parse**\n- The process state shows exactly one `→` line: `brainstorm(spec-review)`.\n- The plan block is `No plan active.` and there is no `Ledger:` field.\n- There are no PR pairs and no coordinated block, so the PR-identity fetch and coordinated admission do not apply.\n\n**Spec resolution**\n- The Candidates rules resolve a single spec, added after base: `/work/project/.worktrees/parser/doc/specs/parser.md`\n- I carry this path forward without re-resolving it.\n\n**Entry check 6, deferred-header admission (brainstorm stage)**\n- The header has `**Engine:** waves`, not `**Engine:** deferred`, so there is no stop.\n- Grant decoding is exempt for a brainstorm-stage brief. I ignore the `**Amend-grant:** none` line and will print no grant line.\n\n**Approval**\n- The spec's presence implies no approval. The human confirmed it is a draft under review.\n\n**No plan_check**\n- The call table's `brainstorm` row runs no `plan_check`. There is no plan or ledger to check.\n\n## Tracker calls (call table, `brainstorm` row, in order)\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` arms the flow. It succeeds.\n2. `phase_tracker({ action: \"substep\", phase: \"brainstorm\", substep: \"spec-review\" })` restores the substep the brief shows. It succeeds.\n\nThere are no other calls:\n- No `skip` calls, because no phase precedes brainstorm.\n- No `plan_tracker init`, because `No plan active.` means no init call.\n- No refresh, because there is no ledger.\n\n## Restored state\n\n- **Active phase:** `→ brainstorm(spec-review)`. Plan, implement, verify and ship stay `○`.\n- **Plan snapshot:** `No plan active.`\n\n## Printed lines\n\n```\nGate history not restored; re-validating `none` before any stage advance\n```\n\nNo `Standing grant` line is printed, because grant decoding was skipped for the brainstorm stage. No `Repaired plan` receipt is printed, because plan repair did not run.\n\n## Continuation boundary\n\nThe flow continues in the brainstorming checklist (`../brainstorming/SKILL.md#checklist`), not through the `/skill:brainstorming` entry, which would reset both trackers.\n\n- Line 1 of the spec file is the spec title `# Parser design`, not a draft marker.\n- Per the continuation table, that means **checklist step 8**.\n- Brainstorming owns that step's next ask and its marker.\n\nThe draft remains unapproved. I stop here and do no later-stage work.\n",
+      "words": 342,
+      "wallMs": 13261,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nCall:\n```json\nphase_tracker({\"action\":\"start\",\"phase\":\"brainstorm\"})\nphase_tracker({\"action\":\"substep\",\"phase\":\"brainstorm\",\"substep\":\"spec-review\"})\n```\n\nRestored state:\n```text\nPhases:\n  → brainstorm(spec-review)\n  ○ plan\n  ○ implement\n  ○ verify\n  ○ ship\n\nNo plan active.\n```\n\nNo `plan_check` or `plan_tracker init` call applies to this brainstorm-stage brief. Grant decoding is skipped, so no standing-grant line is printed.\n\nPrint:\n```text\nGate history not restored; re-validating `none` before any stage advance\n```\n\nContinue in the brainstorming checklist at **step 8**, because the spec’s first line is a spec title, not a draft marker. Carry `/work/project/.worktrees/parser/doc/specs/parser.md` forward as the unapproved draft. Do not invoke brainstorming’s reset-bearing entry, infer approval, or start a later phase.\n",
+      "words": 102,
+      "wallMs": 9864,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f9380bcfd6def3fa0e24bceacce36064941c1187"
+}

@@ -1,0 +1,34 @@
+{
+  "sample": "current-ship-brief",
+  "arm": "baseline",
+  "skillSha": "e4b1831bfe900aa69c6b3782687d55fe17a50edb413f1dbef2763058396334ed",
+  "inputSha": "d39bfe379c30361e016b1e13f428b6a15ba206d32e90907f0c4d14daeef7e20e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Ship-stage resume: restore stops at verify in progress\n\nThe brief's active phase is `ship` with a task plan, no ledger and a single member. The call table therefore routes it **as verify**. Restoration stops with verify in progress, because `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate.\n\n**Resolved inputs:**\n- `S` = `resume: /work/project/.worktrees/parser/doc/specs/parser.md`\n- `R` = `resume: /tmp/ship-brief.md`\n- `planPath` = `/work/project/.worktrees/parser/doc/plans/parser.md`\n- Entry check 6 found `**Engine:** waves`, so there is no deferred stop. `**Amend-grant:** none` means no grant.\n\n**Tracker calls, in order:**\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })` arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })` returns PASS. No plan repair runs, no receipt is printed and nothing is committed.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })`\n6. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })`\n7. `phase_tracker({ action: \"start\", phase: \"verify\" })`\n   - `start implement` is never called.\n   - The brief shows no substep, so there is no `substep` call.\n8. The feasibility checks before `init` pass:\n   - No task is `○`, so pending-suffix order holds.\n   - The target is verify, not implement, so the auto-complete edge does not apply.\n9. `plan_tracker({ action: \"init\", tasks: [ { name: \"W1: parser contract\", status: \"complete\" }, { name: \"W1: optional adapter\", status: \"skipped\" }, { name: \"W2: parser implementation\", status: \"complete\" } ] })`\n\n**Restored state:**\n- Phases:\n  - `⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)`\n  - `⊘ plan (resume: /tmp/ship-brief.md)`\n  - `⊘ implement (resume: /tmp/ship-brief.md)`\n  - `→ verify`\n  - `○ ship`\n- Tasks, with names, order and statuses unchanged from the brief:\n  - `✓ [0] W1: parser contract`\n  - `⊘ [1] W1: optional adapter`\n  - `✓ [2] W2: parser implementation`\n\nThis ship-stage brief resumes at verify. The closure review (fresh conformance) re-runs before ship.\n\n**Printed lines:**\n\n```\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary:** the next step is `/skill:verification-before-completion`, which runs the full conformance gate with nothing carried over. The replay stops here, before any fresh verification, conformance dispatch or delivery runs.\n",
+      "words": 312,
+      "wallMs": 13115,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Already performed to reach the stated `plan_check` boundary:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })\nphase_tracker({ action: \"start\", phase: \"plan\" })\n```\n\nContinue with these calls, in order:\n\n```text\nplan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })\n```\n\nResult: `PASS`. No repair receipt or commit.\n\n```text\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })\nphase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })\nphase_tracker({ action: \"start\", phase: \"verify\" })\nplan_tracker({\n  action: \"init\",\n  tasks: [\n    { name: \"W1: parser contract\", status: \"complete\" },\n    { name: \"W1: optional adapter\", status: \"skipped\" },\n    { name: \"W2: parser implementation\", status: \"complete\" }\n  ]\n})\n```\n\nPrint, in order:\n\n```text\nPhases:\n  ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n  ⊘ plan (resume: /tmp/ship-brief.md)\n  ⊘ implement (resume: /tmp/ship-brief.md)\n  → verify\n  ○ ship\n\nPlan: 3/3 done (1 skipped)\n\n  ✓ [0] W1: parser contract\n  ⊘ [1] W1: optional adapter\n  ✓ [2] W2: parser implementation\n\nRestored at verify in_progress; the closure review re-runs before ship.\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary:** Hand off automatically to `verification-before-completion` for full whole-deliverable conformance verification, with no gate history, closure-review evidence, or fix rounds carried over. Stop this replay here, before executing fresh verification or delivery.\n",
+      "words": 177,
+      "wallMs": 19478,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f9380bcfd6def3fa0e24bceacce36064941c1187"
+}

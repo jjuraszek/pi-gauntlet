@@ -1,0 +1,90 @@
+{
+  "sample": "current-ship-brief",
+  "arm": "candidate",
+  "skillSha": "e4b1831bfe900aa69c6b3782687d55fe17a50edb413f1dbef2763058396334ed",
+  "inputSha": "d39bfe379c30361e016b1e13f428b6a15ba206d32e90907f0c4d14daeef7e20e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Restore: ship-stage brief, task-plan engine, resumed at verify**\n\nThe brief's active phase is `ship`. This is a single-member spec with no Rework record and no stripped coordinated plan, so the coordinated retry route does not apply. The ship row restores **as verify** and stops with verify in_progress.\n\nThe resolved inputs are:\n- **Spec path:** `/work/project/.worktrees/parser/doc/specs/parser.md`\n- **Plan path:** `/work/project/.worktrees/parser/doc/plans/parser.md`\n- **Skip reasons:**\n  - `S = resume: /work/project/.worktrees/parser/doc/specs/parser.md`\n  - `R = resume: /tmp/ship-brief.md`\n\nCheck 6 ran on the carried spec path. The header is `**Engine:** waves`, so there is no deferred stop. There is exactly one `**Amend-grant:** none` line, so there is no grant.\n\n**Tracker calls, in order**\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`. This arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `plan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })` returns PASS and stamps the armed flow. No plan repair runs and no commit is made.\n5. `phase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })`\n6. `phase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })`. `start implement` is never called.\n7. `phase_tracker({ action: \"start\", phase: \"verify\" })`. The brief shows no substep, so there is no `substep` call.\n   - `complete verify` would need a fresh conformance dispatch.\n   - `skip verify` would bypass a real gate.\n   - So ship is not reached.\n8. The feasibility check passes:\n   - There are no `○` tasks, so pending-suffix order holds.\n   - The implement auto-complete edge does not apply at verify.\n9. `plan_tracker({ action: \"init\", tasks: [...] })` restores the saved snapshot verbatim:\n   - `{ name: \"W1: parser contract\", status: \"complete\" }`\n   - `{ name: \"W1: optional adapter\", status: \"skipped\" }`\n   - `{ name: \"W2: parser implementation\", status: \"complete\" }`\n\n**Restored state**\n\n```\nPhases:\n  ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n  ⊘ plan (resume: /tmp/ship-brief.md)\n  ⊘ implement (resume: /tmp/ship-brief.md)\n  → verify\n  ○ ship\n\nPlan: 3/3 done (1 skipped)\n\n  ✓ [0] W1: parser contract\n  ⊘ [1] W1: optional adapter\n  ✓ [2] W2: parser implementation\n```\n\nThe prior phases show `⊘ (resume: …)` even though the brief showed `✓`. Gate history, closure-review evidence and fix rounds are not restored.\n\n**Printed lines**\n\n```\nThis ship-stage brief resumes at verify; the closure review (fresh conformance) re-runs before ship.\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary**\n\nActive after restore is **verify without `Ledger:`**. It continues in `/skill:verification-before-completion`, which runs the full conformance gate with nothing carried over. A fresh `conformance-reviewer` dispatch is required before `complete verify` and before any ship or finishing step.\n\nThe replay stops here, before running fresh verification or delivery.\n",
+      "words": 384,
+      "wallMs": 16217,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nArming calls leading to the supplied `plan_check` boundary:\n\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })\nphase_tracker({ action: \"start\", phase: \"plan\" })\n```\n\nContinue with:\n\n```text\nplan_check({ planPath: \"/work/project/.worktrees/parser/doc/plans/parser.md\" })\n```\n\nResult: PASS.\n\n```text\nphase_tracker({ action: \"skip\", phase: \"plan\", reason: \"resume: /tmp/ship-brief.md\" })\nphase_tracker({ action: \"skip\", phase: \"implement\", reason: \"resume: /tmp/ship-brief.md\" })\nphase_tracker({ action: \"start\", phase: \"verify\" })\nplan_tracker({\n  action: \"init\",\n  tasks: [\n    { name: \"W1: parser contract\", status: \"complete\" },\n    { name: \"W1: optional adapter\", status: \"skipped\" },\n    { name: \"W2: parser implementation\", status: \"complete\" }\n  ]\n})\n```\n\nRestored active phase: `verify` in_progress, with no substep. Ship remains pending; the closure review re-runs before ship.\n\nComplete restored task snapshot:\n\n```text\nPlan: 3/3 done (1 skipped)\n\n  ✓ [0] W1: parser contract\n  ⊘ [1] W1: optional adapter\n  ✓ [2] W2: parser implementation\n```\n\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n\nContinuation boundary: hand off to `verification-before-completion` for the full conformance gate, carrying over no gate evidence. Replay stops here, before fresh verification or delivery.\n",
+      "words": 165,
+      "wallMs": 11228,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3240c5e6f99c8461223d4483f406d29d01e4085c6aefc885db44a6478e468ce5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "165e5f4933c19174786abf1a500760139dfd105eba537d844a9bfdba4efdead8",
+      "baselineOutputSha": "22f31c5ffe32c4109020e81d1b7cb5854ac2a3c0a1beaa09bad2336e00f29202",
+      "candidateOutputSha": "409c39f377a0e98150f2bbf2fd296baa8d6c6302e04c5afaf7efb005191ee716",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "All three facts hold in both outputs, so the After wording preserved current-format ship-brief restoration as the Change intends and nothing moved. Both outputs give the same ordered chain (start brainstorm, skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), never start implement or ship, and never complete or skip verify. Both end at verify in_progress with exactly the three tasks in saved order and status, with no ledger, pending or conformance task invented. Both state the closure review reruns before ship, that gate history is not restored, print 'No standing grant.', hand off to verification-before-completion with nothing carried over, and make no repair commit. After is slightly more explicit on the gates fact, since it adds that closure-review evidence and fix rounds are not restored and that a fresh conformance-reviewer dispatch is required before complete verify. One small point to watch: After says plan_check 'stamps the armed flow' and drops Before's 'no receipt is printed' note; this does not break any fact here, but keep the explicit 'no plan repair, no commit' sentence and the three printed lines verbatim so the gates fact stays robust. To keep all facts stable, retain the numbered call list with full arguments, the explicit 'start implement is never called' and 'ship is not reached' statements, and the verbatim task snapshot.",
+      "wallMs": 6310,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3240c5e6f99c8461223d4483f406d29d01e4085c6aefc885db44a6478e468ce5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "165e5f4933c19174786abf1a500760139dfd105eba537d844a9bfdba4efdead8",
+      "baselineOutputSha": "ff4c2f67276722d011ba7efadf7e30435306f6c5978e326eeb427344d2458684",
+      "candidateOutputSha": "5666210c96c63e334a4cb8f88263b15f21ff1d6ae42bc93e8e049b7f0aad1d1e",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: After keeps the same ordered tracker calls (start brainstorm, skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), ends at verify in_progress with the exact three-task snapshot, and still states that closure review re-runs before ship, gate history is not restored, 'No standing grant.', and the handoff to verification-before-completion with no gate evidence carried over. The differences are cosmetic: After drops the rendered Phases block and the explicit 'No repair receipt or commit' line, and shortens 'no gate history, closure-review evidence, or fix rounds carried over' to 'carrying over no gate evidence'. These still satisfy the gates fact because no repair commit is made and the fresh-conformance handoff is explicit, but to keep the margin safe, retain an explicit 'no repair commit' statement after the plan_check PASS and keep the wording that the saved verify-complete glyph supplies no reusable gate or closure-review evidence, alongside the verbatim 'Gate history not restored' and 'No standing grant.' lines and the explicit 'verify in_progress, ship pending' statement.",
+      "wallMs": 5851,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9380bcfd6def3fa0e24bceacce36064941c1187"
+}

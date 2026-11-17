@@ -1,65 +1,89 @@
-# eval report: gauntlet-resume (partial run: legacy-ledger-conversion)
+# eval report: gauntlet-resume (partial run: current-ship-brief)
 
-for: eb54f1bd24c8650f96efa70b2bf1f3fbd3fe11dcb0d1accd46a7fb10e7bf70ab
+for: 3bfc60ac4466dce917da9a12dc57d017ed4db0c77cb867fb4c907708a28873b2
 
-## Current isolated conversion coverage
+wall: 24s
 
-`timeout -k 30 120 node --test scripts/loop-legacy-conversion.test.mjs` passes 9 tests with 0 failures. The test lives beside the other loop tests in `scripts/`. It extracts and executes the shipped Conversion recipe in disposable Git fixtures, not a test-only converter. The fixture proves exact legacy-label decoding after ledger base, commit-order decisions, two seed and two verification repairs, unchanged iterations/attempts/history, one ledger-only commit with the shared subject, and a byte-identical second-call no-op. A verification command containing the allowance text cannot move the inserted header. Dirty trees, a pending tuple and malformed historical iterations stop before mutation. The driver's unconverted-ledger stop is a source assertion, not an executed driver.
+## Change
 
-Only `legacy-ledger-conversion` was replayed: one eligibility decision varying returned-header presence, stopping before any conversion or tracker call. It names the shipped recipe for the eligible variant. The actual conversion and counts come from the local Git recipe test, not the model replies. No end-to-end or multi-stage replay ran.
+Preserve current-format single-repository brief restoration in current-brainstorm-brief, current-plan-brief, and current-ship-brief. Keep the ordered tracker calls, active phase/substep, exact task snapshot, and fresh-gate boundary unchanged against 09c9f4e1. Run these three C3 paired replays only from the primary session; the loop worker prepares fixtures and the local recorded-output check. These text samples do not prove instruction-read bytes or live tracker mutation, and unrun records provide no behavior evidence.
 
-| sample | model | verdict | judge ms | fact |
+Admit a legacy pending companion verification repair from its commit-body tuple and iteration through a verification-only attribution check, not the row/seed parser or a new-format return file. Preserve the valid repair, settle it once with the current ledger-decision marker and convert afterward without another charge. Add legacy-pending-verification for the parent's selected model check; this child runs only scripts/loop-legacy-conversion.test.mjs and does not launch model workers. Its disposable Git fixtures execute attribution and conversion, not the full resume driver. Preserve existing model records as historical partial coverage.
+
+Make the legacy Returns conversion an executable Python/Git recipe in reconstruction's marked converter. Decode exact ledger-touching seed and verification repair subjects after base, preserve all existing bytes except the returned header and appended decisions, and commit once with the shared sentence. Run only legacy-ledger-conversion for eligibility and recipe selection; scripts/loop-legacy-conversion.test.mjs proves the actual isolated conversion, preserved counts and second-call no-op. Preserve all unrelated model records; the changed reconstruction assembly and intent make their currency checks stale until separately refreshed.
+
+Select only returned-line-recovery to classify one supplied clean home return from its committed ledger tuple and before-image, without incrementing counts again. Run scripts/loop-home-resume.test.mjs for the written pending/ambiguity rules and actual Git discovery, before-image and full-range reads; neither it nor a narrated decision executes a resume driver or its ledger writes. Keep legacy-ledger-conversion and unrelated records as historical evidence; the remaining Change paragraphs describe separate retained work.
+
+Compose citation-repair messages with the shared bookkeeping recipe. Keep path-scoped commits only for initially tracked clean plans; preserve dirty/untracked repairs for the next task commit and keep the saved task snapshot. Run only plan-citation-subject for this change; narrated composition and continuation are partial coverage, not live restoration or a target-wide pass. Preserve earlier sample records.
+Resolve a brief's missing companion location through the declared primary's branch-location rule, not a recorded home pattern. Use a found tree for all remaining admission checks; retain explicit brief paths and live receipt admission. The legs-missing sample replaces its recorded-home stop fact and adds found-tree, Home-tuple mismatch and explicit-path variants. Only legs-missing is selected for this change; narrated supplied observations do not prove live restoration, and unrelated saved results remain partial historical evidence.
+
+
+Defer migration and final validation only through the missing-history or dirty-tree stops; render a retained pending row only at a missing-history stop. Preserve unconditional repair and the existing exhaustion stops.
+
+Recover wrong home commit attribution from a recoverable on-disk tuple and before-image through common interrupted recovery without a human turn. Reset home to the tuple HEAD, write one counted home repair, then migrate the clean tuple-free legacy ledger. Add migration-recovery G for this boundary; keep the no-tuple admission question unchanged. Recover companion attribution and home-boundary failures from a recoverable tuple by resetting companion and home, then repairing only home. Before accepting an ambiguous no-tuple return as interrupted, disclose every affected commit and dirty path and that the answer authorizes their discard. Selected row-13 samples exercise these paths; other saved records remain partial historical coverage.
+Route confirmed interrupted home and companion returns through the loop driver's unconditional recovery before allowance checks or migration. Recover even with unrelated writes, missing checkout provenance or absent launch history; keep the no-tuple attribution admission question and unrecoverable before-images as separate stops. Migrate interrupted-ownership, migration-recovery B/D and ledger-tracker-recovery B/C/D to reset/clean at the tuple SHA, a single failed-attempt repair with the consumed iteration, then refresh and the ordered table. Clean tuple-free legacy ledgers migrate after recovery. Add the common interrupted-recovery procedure to each selected sample's bundle. Deterministic brief-contract assertions cover these narrated contracts; selected model replay remains for row 13, and retained model records do not prove the changed facts.
+
+telemetry-branch-seed for: 976cc8cc5f2a17edf3f607fd299e935bd1cc9e08c6bcc5575f012b262ff2695c
+
+Read the seed's shipped evidence from `<git common dir>/gauntlet/telemetry/<spec>.yaml`, or `<jj root>/.jj/gauntlet/telemetry/<spec>.yaml` when Git resolution fails and `jj root` succeeds. When the local record is absent, fetch `gauntlet/telemetry` from the configured telemetry remote and read `<owner>/<repo>/brainstorming/<spec>.yaml`; retain the last fetched ref on fetch failure and degrade to the local-only check without a fetched ref. Extend telemetry-branch-seed with branch-only shipped, cached abandoned and unavailable-branch cases. Preserve local-record authority and the stop before worktree, tracker or gate work. Validate deterministically without model runs; existing model records do not cover the added cases. Recompute target and sample assembly pins with the runner helpers; the target pin stays unchanged because seed.md is sample-bundled.
+
+Replace the superseded full-command expectations in legacy-cap-brief and ledger-tracker-verify with loop-owned gate-set continuation. Give those fixtures checks: commands and selective row evidence while preserving allowance migration, mixed task restoration and admission boundaries.
+
+
+Route restored verify/ship Ledger briefs to After the loop step 1 and the loop skill's Gate set section, with no separate resume-owned gate run. Update loop-ledger-brief's closed-row verify snapshots, replace its once-per-leg gate wording with the gate set, and add gate-owner for fresh-session logs and no CI-command fallback. Preserve phase restoration, mixed tasks and fresh conformance; focused sample execution covers this continuation.
+
+Migrate the non-legacy loop-ledger-brief, loop-ledger-worktree, ledger-tracker-recovery and ledger-tracker-verify snapshots to allowance headers while preserving all recovery, attribution and phase facts. Legacy cap fixtures remain migration tests. Validate fixtures deterministically during recovery and defer behavior-selected model checks to the parent; retain recovered records without claiming coverage of the amended fixtures. Never run full targets, including at completion.
+
+Migrate cap-only ledgers at the shared allowance boundary after unmigrated pending recovery and before final validation/refresh. Preserve counters, decisions, original-phase continuation and every recovery gate. Resolve loopEngine exactly once at every authorized restore boundary to capture escalateAfter in driver memory; clean legacy migration reuses that read for maxIterationsPerRow. With an existing allowance, the read supplies escalateAfter only: never re-resolve the allowance, reseed or make a second migration commit, and ignore stale run allowance carriers. Rewrite durable-cap and legacy-cap-brief facts for the approved replacement of cap restoration/grants by header-only migration; add migration-recovery for clean/dirty home returns, companion admission, interruption, ambiguity and exhausted rows. Keep attribution admission separate from unconditional interrupted cleanup. Run only selected samples; deterministic migration checks do not replace model replay.
+
+Extract canonical ledger identity from status rows with a separate description suffix, retaining legacy numeric-prefix forms before restoring names or comparing a ledger snapshot. Keep the producer's verbatim status copy and every Gn/non-ledger name intact; refresh recomputes criterion descriptions and current allowance without duplicate tasks or false drift. Extend ledger-tracker-verify with verify/ship snapshots in both forms, a changed denominator, a cut row description and a coordinated description containing pipes and row-like text. Preserve fact IDs and unrelated task names. Deterministic tracker and brief-grammar checks cover the implementation; select only this sample for the parent's later model check and retain existing model records unchanged.
+
+Recover home return attribution from the child commit body when a restart finds no pending tuple on disk or in session memory. Distinguish settled home admission from interruption using an existing post-admission snapshot bound to a clean HEAD, ancestry and an unchanged ledger, or a confirmed parent disposition; ordinary admission has no parent ledger commit. Ask before phase/task restoration or ledger mutation when later commits or dirty changes leave admission ambiguous. For confirmed interrupted returns, validate the full pre-dispatch-SHA..HEAD range, including a child behind unrelated live HEAD; recover dirt or extra commits through the driver's unconditional failed-attempt repair and stop before refresh when attribution cannot be recovered. Extend ledger-tracker-recovery with settled-home-verify and ambiguous-home-history facts: preserve an admitted child across a later code-only verification commit, or ask rather than replaying an unproven return. Keep clean admission, missing-attribution stops, settled parent repair/amendment and restore facts; use the approved failed-attempt recovery for dirty/multiple-commit returns. Reuse existing snapshot fields and the companion attribution prefix without a new carrier. Parent verify owns model runs, assembly-hash updates and result records.
+
+Restore ledger-derived tasks after legal phase reconstruction and pending recovery, before unresolved dirty-tree stops. Implement uses one ledger-path refresh without init; verify/ship restores the full saved mixed list before refresh, preserving Gn states and fresh conformance. Recover clean attributed home returns without double counting; reset rejected child changes and project the failed-attempt repair before continuation. Require explicit authorization for a verify-phase re-bound, an on-disk row close and a gate rerun. The new synthetic ledger-tracker-recovery sample checks these narrated boundaries, not live tool execution.
+
+Approved replacements (holds -> replaced), limited to these existing facts; all other expected facts stay byte-identical:
+
+| Sample/fact | Replacement |
+|---|---|
+| loop-ledger-worktree/restore | One refresh after implement start, no init. |
+| durable-cap/route | One refresh after implement start, no init, no reseed. |
+| loop-ledger-brief/consumer | Implement start then one ledger-path refresh. |
+| loop-ledger-brief/verify-ledger | Restore saved mixed statuses when present, then refresh; legacy No plan active goes directly to refresh; delegate the gate set to the loop skill and retain fresh conformance. |
+| legacy-cap-brief/continue | No reseed; one refresh. |
+| loop-no-ledger/route | No writing-plans or plan_tracker init; refresh follows Entry step 5's implement start. |
+
+Recover the active base-tracked spec/plan pair through the brief's PR identities in its Rework record despite an empty added-file diff; use Rework base as the tracked plan's evidence boundary, retaining exclusions and human confirmation.
+
+Carry an optional full Rework base after all consecutive ordered PR/head pairs and use it as reconstruction scan base when present. Keep the first-home-head fallback and ordinary no-pair behavior, home-only branch validation, ordered identity/member-spec exclusion and task/gate restoration. Extend the single/list brief samples without weakening their stable facts; synthetic narration is not live restoration evidence and no failed candidate must-hold is accepted.
+
+Restore allowance from migrated ledgers; migrate legacy cap headers only after clean recovery, preserving counters and history. Keep completed-ledger migration and original-phase continuation. Treat old cap decisions as inert and retries as one each, not stored ceilings. durable-cap and legacy-cap-brief now exercise this replacement rather than cap restoration or cap grants.
+
+Restore loop runs from the existing ledger: pair by its Spec header, prefer it to a task plan, validate before implement, preserve counters/retry data, recover interrupted pending returns, and stop on invalid state or dirt with no pending tuple. Produce and consume the contract-owned loop brief fields. With Engine loop and no ledger, arm through brainstorm start/skip after check 6 before driver Entry steps 1-5. Keep the unchanged Entry mapping explicit: settings and maxIterationsPerRow at step 1, verification at step 2, driver plan skip at step 3, ledger creation at step 4, then ledger check, seed commit and implement start at step 5. Use the resolved spec path in the exact plan-skip reason `resume: <spec> (loop engine)`. Give valid ledger brief fields precedence over retained `No plan active.` and admit the ledger instead of phase-only restoration.
+
+PR-subject baseline: `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`. Handoff carries the PR identity and full pre-rework head only for a rework spec. Resume binds that identity to the live PR branch before tracker writes and selects rework artifacts from the pre-rework head, excluding the PR's earlier spec from added candidates. Ordinary briefs and bare worktrees keep their existing behavior.
+
+Resume routes baseline-line and substantive baseline-form open-questions findings to a fresh foreground plan-writer with Findings: rerun baseline before citation classification. The parent rechecks, returns to the originating restore with snapshot task identities and statuses on PASS, and retains plan in_progress without tracker initialization while presenting the fix-first/narrow/amend menu or restore-and-rerun on remaining baseline failures. Contract questions use the answers path. Citation repair retains its mechanical table and rollback. Discovery applies the shared menu-layout contract when presenting candidates and resolving numeric picks.
+
+Resume verify-stage Ledger briefs, including ship-stage briefs restored at verify, in loop-implementation's After the loop from the gate set after the restored start verify, retaining whole-diff review, happy path when triggered, fresh conformance and finishing with the saved mixed task list restored before a ledger-path refresh.
+
+Carry all PR/head pairs consecutively in record order, home first, while retaining terminal gate history. Validate actual worktree branch against home before tracker writes and reject branch or pair-order mismatch with both observations. Reconstruct from home's original head; member-spec exclusions remain authoritative through plan pairing. Preserve untouched single-PR and ordinary no-pair reconstruction, grants, snapshots and gate-history checks. The named pr-list-brief sample contains pr-list-brief-mismatch and pr-list-brief-order variants. New narrated cases are setup-only coverage until genuine before/after outcomes establish a move; held/pre-existing facts are not wording improvements and must-hold facts are not relaxed. The current run uses the runner's merge-base baseline; the explicit baseline above describes the earlier single-PR edit.
+
+Add deferred-spec-stop with sample-local entry-check instructions and an explicit before-check-6 replay override. Cover bare tree, brief, process state, seed and incomplete brainstorm after push/create failure; grant exemptions do not bypass admission. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not live tracker restoration or before/after improvement. Every new candidate fact must hold regardless of aggregate verdict; retain existing facts and authorized directions. Task 1 retains the original-base deterministic red/green proof.
+
+Cover home-bound coordinated admission, informational HEAD/dirt drift, membership/branch/header/repository stops, missing-tree live receipts, stripped-plan retry and companion-seed refusal before tracker mutation. These are intended fact movements, not observed model results.
+Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| legacy-ledger-conversion | anthropic/claude-opus-5-5 | improved | 6383 | eligibility: fails -> holds |
-| legacy-ledger-conversion | github-copilot/gpt-6.1-sol | improved | 4624 | eligibility: fails -> holds |
+| current-ship-brief | anthropic/claude-opus-5-5 | unchanged | 6310 | calls: holds -> holds (held); snapshot: holds -> holds (held); gates: holds -> holds (held) |
+| current-ship-brief | github-copilot/gpt-6.1-sol | unchanged | 5851 | calls: holds -> holds (held); snapshot: holds -> holds (held); gates: holds -> holds (held) |
 
-The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume legacy-ledger-conversion --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. The first run exited 0 in 18s (four replays, two judgments); after anchoring header insertion, the final run exited 0 in 15s (two candidate replays, two judgments, cached baselines). Neither run needed confirmation. Both controllers reaped their jobs, and both process groups and controllers were absent before their jobs entries were removed.
+## Feedback
 
-Current records are `results/legacy-ledger-conversion/baseline-isolated.json` and `candidate-isolated.json`; the test verifies their assembly, input, intent, fact and judgment hashes locally. The broad baseline/candidate records remain byte-identical historical evidence. The changed reconstruction assembly and intent invalidate the earlier returned-line-recovery currency check; its files and closed-row command were left untouched and require a separately authorized refresh, not a claim of current coverage here.
+- current-ship-brief / anthropic/claude-opus-5-5: All three facts hold in both outputs, so the After wording preserved current-format ship-brief restoration as the Change intends and nothing moved. Both outputs give the same ordered chain (start brainstorm, skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), never start implement or ship, and never complete or skip verify. Both end at verify in_progress with exactly the three tasks in saved order and status, with no ledger, pending or conformance task invented. Both state the closure review reruns before ship, that gate history is not restored, print 'No standing grant.', hand off to verification-before-completion with nothing carried over, and make no repair commit. After is slightly more explicit on the gates fact, since it adds that closure-review evidence and fix rounds are not restored and that a fresh conformance-reviewer dispatch is required before complete verify. One small point to watch: After says plan_check 'stamps the armed flow' and drops Before's 'no receipt is printed' note; this does not break any fact here, but keep the explicit 'no plan repair, no commit' sentence and the three printed lines verbatim so the gates fact stays robust. To keep all facts stable, retain the numbered call list with full arguments, the explicit 'start implement is never called' and 'ship is not reached' statements, and the verbatim task snapshot.
+- current-ship-brief / github-copilot/gpt-6.1-sol: No fact moved: After keeps the same ordered tracker calls (start brainstorm, skip brainstorm with the spec-path reason, start plan, plan_check on the absolute plan path, skip plan and skip implement with the brief reason, start verify, then plan_tracker init), ends at verify in_progress with the exact three-task snapshot, and still states that closure review re-runs before ship, gate history is not restored, 'No standing grant.', and the handoff to verification-before-completion with no gate evidence carried over. The differences are cosmetic: After drops the rendered Phases block and the explicit 'No repair receipt or commit' line, and shortens 'no gate history, closure-review evidence, or fix rounds carried over' to 'carrying over no gate evidence'. These still satisfy the gates fact because no repair commit is made and the fresh-conformance handoff is explicit, but to keep the margin safe, retain an explicit 'no repair commit' statement after the plan_check PASS and keep the wording that the saved verify-complete glyph supplies no reusable gate or closure-review evidence, alongside the verbatim 'Gate history not restored' and 'No standing grant.' lines and the explicit 'verify in_progress, ship pending' statement.
 
-## Retained returned-line-recovery evidence (prior assembly)
-
-for: 74c1aa1ddce1af0e935d8ab0a674b520bb7fb074aed9aa179672293b7e96c3de
-
-The following coverage predates the conversion recipe and is historical, not current assembly evidence.
-
-### Prior isolated coverage
-
-`timeout -k 30 120 node --test scripts/loop-home-resume.test.mjs` passes 5 tests with 0 failures. The test lives beside the existing home-admission and worker-history tests in `scripts/`. It executes the documented Git discovery, snapshot, status and full-dispatch-range reads in a scratch checkout. Pending dispatch dirt, a clean child, a later code-only commit, dirty paths and an unavailable before-image are separate observations. Source assertions cover count preservation and settled/ambiguous-history rules; they do not execute a resume driver or its ledger writes.
-
-Only the model-dependent `returned-line-recovery` classification was replayed. It receives one clean home return with supplied passing admission checks, identifies the committed ledger's tuple and S before-image, preserves iterations 3 and attempts 1, and stops before restoration. No end-to-end resume, tracker refresh, mutation or ambiguous-history model scenario was run.
-
-| sample | model | verdict | judge ms | fact |
-|---|---|---|---|---|
-| returned-line-recovery | anthropic/claude-opus-5-5 | improved | 5743 | home: fails -> holds |
-| returned-line-recovery | github-copilot/gpt-6.1-sol | improved | 5325 | home: fails -> holds |
-
-The selected action was `timeout -k 30 3600 node eval/run.mjs gauntlet-resume returned-line-recovery --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`. It exited 0 in 23s: four replays, two judgments, no confirmations. The controller reaped the job; its group and controller exited before its jobs entry was removed.
-
-The exact new runner records are retained as `results/returned-line-recovery/baseline-isolated.json` and `candidate-isolated.json`. The local test verifies their current assembly, input, intent, fact and judgment hashes and reuses them without model calls. The older `baseline.json` and `candidate.json` remain byte-identical because the closed source-wiring check explicitly pins their historical input mismatch; these filenames do not hold the isolated replay. This preserves that check and the old evidence without cloning a sample or changing the runner.
-
-## Prior source-wiring evidence
-
-The earlier selected check was `timeout -k 30 120 node --test scripts/commit-message-contract.test.mjs`: 52 tests passed, 0 failed, including all 23 inventoried citation sites. It checked shared-reference citations, written recovery rules, isolated sample structure, docs isolation rules and evidence currency. It did not execute a resume or conversion driver. It was not rerun in this iteration.
-
-| Narrowed sample | Entry and output | Stop | Coverage |
-|---|---|---|---|
-| returned-line-recovery | One supplied clean home return -> classification and authority | Before ledger mutation, migration or tracker restoration | Current isolated decision replay above |
-| legacy-ledger-conversion | Supplied clean tuple-free ledger -> eligibility, varying only returned-header presence | Before decoding, writing, committing or refreshing | Current isolated decision and Git-recipe checks above; broad records stay historical |
-
-## Historical evidence
-
-The broad `results/returned-line-recovery/{baseline,candidate}.json` and `results/legacy-ledger-conversion/{baseline,candidate}.json` remain unchanged. Their input hashes do not match the narrowed cases; they are historical, not current or end-to-end proof. Unrelated records, including plan-citation-subject, were not rerun.
-
-| historical sample | model | recorded verdict | judge ms |
-|---|---|---|---|
-| returned-line-recovery | anthropic/claude-opus-5-5 | improved | 20278 |
-| returned-line-recovery | github-copilot/gpt-6.1-sol | improved | 15373 |
-| legacy-ledger-conversion | anthropic/claude-opus-5-5 | improved | 8695 |
-| legacy-ledger-conversion | github-copilot/gpt-6.1-sol | improved | 7895 |
-
-Historical commands used `timeout -k 30 3600 node eval/run.mjs gauntlet-resume <sample> --base 04389adbc9a13d809c958d34ff2d96f3247f6a19`, selecting each named sample separately. They exited 0 in 236s and 188s respectively; each made four replays and two judgments. They do not cover the narrowed inputs.
-
-## Remaining coverage
-
-Executable resume admission, companion recovery and verification-repair admission remain unproven here. The isolated conversion recipe proves legacy count preservation and idempotence only; it does not execute pending recovery, allowance migration, tracker restoration or any later workflow stage.
+exit: 0

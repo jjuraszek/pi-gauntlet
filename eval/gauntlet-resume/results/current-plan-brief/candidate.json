@@ -1,0 +1,90 @@
+{
+  "sample": "current-plan-brief",
+  "arm": "candidate",
+  "skillSha": "e4b1831bfe900aa69c6b3782687d55fe17a50edb413f1dbef2763058396334ed",
+  "inputSha": "027d4e827b137e3ec0fe7411382da9117d93d4c91ae155a01f250344197e2a69",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\n## Restore narration\n\n**Pre-arming checks (read-only)**\n- Entry checks 1–5 passed. The session is idle, the worktree `/work/project/.worktrees/parser` exists, and both checkouts share the git common directory `/work/project/.git`. Live HEAD and dirt match the brief, so there is no drift. The brief reports `## Skills loaded: none`, so no skills were loaded.\n- Spec resolved through Candidates to `/work/project/.worktrees/parser/doc/specs/parser.md`. It is the only spec added after base, and the human confirmed it.\n- Entry check 6 ran on that path:\n  - The header is `**Engine:** waves`, not `deferred`, so admission passes.\n  - It has exactly one `**Amend-grant:**` line, with value `none`, so there is no grant.\n- The brief has no PR pairs, so the PR identity and Rework record checks are skipped.\n\n**Call table, `plan` row.** The active phase is `→ plan(author)`. This row has no `plan_check` step: it runs `start brainstorm`, `skip brainstorm S`, `start plan`, then `substep`. No plan file exists yet, so there is nothing to check.\n\n1. `phase_tracker({ action: \"start\", phase: \"brainstorm\" })`. This arms the flow.\n2. `phase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })`\n3. `phase_tracker({ action: \"start\", phase: \"plan\" })`\n4. `phase_tracker({ action: \"substep\", phase: \"plan\", substep: \"author\" })`\n\nThere is no `plan_tracker` call. The brief shows `No plan active.`, so there is no `init`, and there is no ledger to refresh.\n\n**Restored state**\n- Phases:\n  - ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n  - → plan(author)\n  - ○ implement\n  - ○ verify\n  - ○ ship\n- Brainstorm shows as skipped (⊘), not complete (✓). Completing it would fabricate gated history.\n- Plan snapshot: `No plan active.` The task list is empty.\n\n**Printed lines**\n```\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\n**Continuation boundary.** Next is the writing-plans body. It skips its own `start plan` call, because plan is already in progress, and it does not enter through the reset-bearing skill entry. The plan-writer, spec, and plan steps are owned by writing-plans from here. The replay stops at this boundary, before any plan-writer dispatch or authoring work.\n",
+      "words": 320,
+      "wallMs": 12644,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Print:\n```text\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nThe brief’s active phase is `plan(author)`. The plan row has no `plan_check` call; no plan exists to check.\n\nTracker calls, in order:\n```text\nphase_tracker({ action: \"start\", phase: \"brainstorm\" })\nphase_tracker({ action: \"skip\", phase: \"brainstorm\", reason: \"resume: /work/project/.worktrees/parser/doc/specs/parser.md\" })\nphase_tracker({ action: \"start\", phase: \"plan\" })\nphase_tracker({ action: \"substep\", phase: \"plan\", substep: \"author\" })\n```\n\nRestored state:\n```text\nPhases:\n  ⊘ brainstorm (resume: /work/project/.worktrees/parser/doc/specs/parser.md)\n  → plan(author)\n  ○ implement\n  ○ verify\n  ○ ship\n\nNo plan active.\n```\n\nNo `plan_tracker init` call: the saved snapshot is `No plan active.`\n\nPrint:\n```text\nGate history not restored; re-validating `none` before any stage advance\nNo standing grant.\n```\n\nContinue into the **writing-plans body**, with `/work/project/.worktrees/parser` as the worktree and `/work/project/.worktrees/parser/doc/specs/parser.md` as the approved spec. Skip its `start plan` call because plan is already in progress.\n\n**Replay stops at that continuation boundary, before the plan writer does new work.**\n",
+      "words": 140,
+      "wallMs": 11537,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c62a34fef468645547d59c9821c02a93290bd7be758b21fad15b2de68ffd601d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "165e5f4933c19174786abf1a500760139dfd105eba537d844a9bfdba4efdead8",
+      "baselineOutputSha": "5842c563977d95ea010cd5ac027c026123ab585a45bcb9463e062bcc9eda24f0",
+      "candidateOutputSha": "03af6e593c4d1313cdae71ef871e9f83b0a490912f26b6f5d16931adcb4abda8",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "None of the three facts moved: both outputs give the same four ordered phase_tracker calls (start brainstorm, skip brainstorm with reason resume: /work/project/.worktrees/parser/doc/specs/parser.md, start plan, substep author) with no plan_check, plan_tracker init/refresh, or start implement; both end at plan in_progress with substep author, No plan active, an empty task snapshot and brainstorm skipped rather than completed; and both print the gate-history-not-restored line and No standing grant., then continue in the writing-plans body without a tracker reset or a repeated start plan, restoring no verification or conformance evidence. This matches the Change's intent to preserve current-plan-brief restoration unchanged. Minor differences in After are harmless: the substep call now carries an extra phase: \"plan\" argument, the explicit 'Active task: none' line is replaced by 'The task list is empty', and After adds an explicit note that brainstorm is skipped rather than completed, which if anything strengthens the snapshot fact. To keep these facts stable, keep the wording that fixes the plan row's call order with the exact skip reason, the explicit statements that no plan_check or plan_tracker call occurs, the verbatim No plan active. snapshot, the two printed lines, and the boundary sentence saying writing-plans skips its own start plan and avoids the reset-bearing entry; consider restoring the explicit 'Active task: none' line so the empty task snapshot is stated in the brief's own terms.",
+      "wallMs": 6931,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c62a34fef468645547d59c9821c02a93290bd7be758b21fad15b2de68ffd601d",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "165e5f4933c19174786abf1a500760139dfd105eba537d844a9bfdba4efdead8",
+      "baselineOutputSha": "b50bdf217ba2217c0bdccf5af98b3bc9ad029f5b6f0b7d7a951708fd5cb3ab40",
+      "candidateOutputSha": "ae04e3ddf3be547e5a06b2020dd6fa5e8ddf6ec1fff8d506d8b94a9ab2586655",
+      "facts": {
+        "calls": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "snapshot": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gates": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "None of the three facts moved: both outputs give the same four ordered tracker calls (start brainstorm, skip brainstorm with the resume: spec-path reason, start plan, substep author), make no plan_check, plan_tracker init/refresh or start implement call, end at plan in_progress with substep author and 'No plan active.', state that gate history is not restored, print 'No standing grant.', and continue into the writing-plans body while skipping its start plan call. The only textual differences in After are an added phase: \"plan\" argument on the substep call, the dropped sentence 'No repair or commit occurs.', and 'Continue into' replacing 'hand off automatically to'; none of these changes a fact, and this is the expected outcome since this sample (current-plan-brief) is meant to be preserved, not moved. To keep it stable, keep the wording that fixes the plan-row call order with no plan_check, the explicit 'No plan_tracker init' statement tied to the saved 'No plan active.' snapshot, the gate-history line followed by 'No standing grant.', and the instruction to skip the writing-plans body's start plan; consider restoring an explicit 'no repair or commit' statement and keeping the substep call signature consistent with the tracker's actual schema so the added phase argument does not drift into a different call shape.",
+      "wallMs": 5766,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9380bcfd6def3fa0e24bceacce36064941c1187"
+}
