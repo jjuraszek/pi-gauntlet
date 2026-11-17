@@ -3,15 +3,15 @@
 base: 2fec03a78deb7343441354d76dd9c625b5a86efc
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
-returned: 3 | home | 212c1112a67a3e9b64f1ec4f0e860f6549878fd0
+returned: 3 | home | 19e88d3db5b5900ca3f4465e0c7318f86d433915
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 5 | timeout -k 30 30 node --test scripts/resume-read-traces.test.mjs; 3 passed, 0 failed; both saved C1 captures match current instructions and exclude coordinated.md; ledger and task-plan read sets meet the 42000-byte and 37000-byte ceilings |
 | 2 | done | 3 | timeout -k 30 30 node --test scripts/resume-current-stages.test.mjs; 7 passed, 0 failed; C3 brainstorm, plan and ship pairs hold calls, snapshots and gates on both replay models; instruction, input and judgment hashes are current |
-| 3 | failed | 1 | timeout -k 30 30 node --test scripts/resume-coordinated-evidence.test.mjs; unreachable: C2 tool-enabled trace missing - primary session using tool-traces/coordinated.md; scratch fixture admits with production checkPlan; five C4 baseline assembly hashes are stale against 09c9f4e1 |
+| 3 | failed | 2 | timeout -k 30 30 node --test scripts/resume-coordinated-evidence.test.mjs; 6 passed, 1 failed; legs-wrong-repo github-copilot/gpt-6.1-sol candidate stop fact is fails instead of holds; confirmation holds but saved primary judgment remains inconclusive |
 | 4 | done | 0 | timeout -k 30 10 python3 -c 'assert (files := [*__import__("pathlib").Path("skills/gauntlet-resume").rglob("*.md"), *__import__("pathlib").Path("skills/gauntlet-handoff").rglob("*.md")]) and not (hits := [(str(path), term) for path in files for term in ("legacy", "migrat", "conversion") if term in path.read_text().lower()]), locals().get("hits", "No instruction files selected")'; exit 0: no legacy, migrat or conversion term in any resume or handoff instruction file; the old-format headings are deleted, so no route can read them; a ledger with cap: or without allowance: or returned: stops at ledger admission |
 | 5 | cut | 0 | deviates: the request removes backward compatibility, so such a ledger stops instead of converting |
 
@@ -31,3 +31,4 @@ row 1 failed | Split resume rules into restore-loop, restore-plan, plan-repair a
 row 4 done | Removed every old-format rule from the resume and handoff files; a ledger with cap: or without allowance: or returned: now stops at ledger admission. | Reuse scripts/resume-routes.test.mjs for route ceilings and forbidden terms; restore-loop.md "Ledger admission" holds the stop sentences.
 row 1 done | Verified fresh C1 ledger and task-plan traces restore through the split engine routes without reading coordinated rules and stay within both byte ceilings. | nothing new to build on.
 row 3 failed | Prepared a valid coordinated fixture and a saved-evidence check; C2 is absent and five C4 baseline hashes are stale. | Reuse tool-traces/coordinated.md for primary C2/C4 capture, then run scripts/resume-coordinated-evidence.test.mjs; do not recreate fixtures or retry without fresh records.
+row 3 failed | Verified C2 ordering and four C4 stop pairs; legs-wrong-repo has a failing primary judgment despite a passing confirmation. | Keep C2 and four passing pairs; refresh legs-wrong-repo judgments in the primary session, then rerun scripts/resume-coordinated-evidence.test.mjs.
