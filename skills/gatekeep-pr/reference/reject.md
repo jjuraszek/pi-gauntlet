@@ -16,7 +16,7 @@ Write exactly these three headings in this order, with one short paragraph or on
 
 Keep the whole note under 180 words, headings included. Use `../../chase-bug/reference/verdict-report.md` `## Register`: write for a reader with neither the code nor the run's notes open; state each component's everyday role before its name, expand necessary shorthand, and keep internal IDs out. Introduce components role-first even in the first section: "the process that starts work at set times, the scheduler". Apply the same rule to the existing components named in remedies: introduce "the stream of catalog edits, the change feed" and "the entry that serves downloads on request, the export handler" before using either name. Use a short everyday role alone on later mentions, such as "download entry", "edit stream" or "request list", not the full first-introduction phrase. Count whitespace-separated words including headings before the done-check; require fewer than 180, shortening repeated role phrases rather than dropping a blocker or remedy. Before saving, read the note alone and rewrite every first mention whose name precedes its role. A base path trails the claim it supports. Cut restatement, not a conflict or the remedy; keep all three sections. Leave ordinary blockers, nits, menus and process narration outside the note.
 
-Run SKILL.md `### Output done-check` on the draft once before its first display. Save the checked text to `mktemp "${TMPDIR:-/tmp}/gatekeep-note.XXXXXX"`, calculate its SHA-256 from the saved bytes, and persist `reject: { note_path, note_sha256, menu_open: false }` in the run record. Display that file in full through `report.md`, not a second composition. From this preview onward, the file's bytes are the note for every display and the posted review's `body`; never rewrite the saved note during display or at post time. A pre-post done-check verifies it without editing it.
+Run SKILL.md `### Output done-check` on the draft once before its first display. Save the checked text to `mktemp "$RUN_DIR/gatekeep-note.XXXXXX"`, calculate its SHA-256 from the saved bytes, and persist `reject: { note_path, note_sha256, menu_open: false }` in the run record. Display that file in full through `report.md`, not a second composition. From this preview onward, the file's bytes are the note for every display and the posted review's `body`; never rewrite the saved note during display or at post time. A pre-post done-check verifies it without editing it.
 
 | Observed event | File and record action |
 |---|---|
@@ -25,7 +25,7 @@ Run SKILL.md `### Output done-check` on the draft once before its first display.
 | Open approach blockers change after an overrule or head-move rejudgment | Delete the old file, redraft from the remaining blockers, done-check, save and hash; display the new preview. |
 | No open approach blockers, or `work_started` or `reject_withdrawn` becomes true | Delete the file and set `reject` to null; omit the note. |
 
-Keep the post-time review composition rule in `findings.md` separate: it does not compose this note. Retain an unposted note after a failed or skipped note step or a reject-menu stop and name its path among unrun post payloads. Delete a posted note at teardown; delete the note on every ending outside the reject menu with the run's other temporary files.
+Keep the post-time review composition rule in `findings.md` separate: it does not compose this note. Use `post-selection-loop.md` `### Teardown` for note retention and deletion: add `reject.note_path` to `KEEP` for an unposted note at a reject-menu ending, and name the kept path it prints among unrun post payloads. Leave posted notes and notes on endings outside the reject menu out of `KEEP`, for teardown with the run's other temporary files.
 
 ## Reject
 
@@ -59,7 +59,7 @@ Settle once all picked steps finish, or stop declines them:
 | Neither succeeded, and picked note or close failed or was skipped | Non-final stop with the first such step's reason in execution order. |
 | Neither note nor close picked, including cleanup alone, or stop | Non-final stop with `stopped at reject`. |
 
-Retain unposted note files and name them in not-run sentences; delete a successfully posted note at teardown. A result showing cleanup already ran prevents Non-final stop from inspecting or removing that worktree again; use its retained result and path. In set mode let the parent retain the settlement row and not-run sentences before retiring the PR.
+Apply Draft note's retention rule at teardown. A result showing cleanup already ran prevents Non-final stop from inspecting or removing that worktree again; use its retained result and path. In set mode let the parent retain the settlement row and not-run sentences before retiring the PR.
 
 ## Overrule
 
