@@ -3,13 +3,13 @@
 base: 2fec03a78deb7343441354d76dd9c625b5a86efc
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
-returned: 1 | home | 4d57405281ff83efb1629b381ce8686ac8c011fa
+returned: 1 | home | 30a6fcf42c726851e531666467e19283db33ab0f
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | failed | 4 | timeout -k 30 30 node --test scripts/resume-read-traces.test.mjs; unreachable: C1 ledger and task-plan traces captured on the split references - primary session using eval/gauntlet-resume/tool-traces/README.md; 1 passed, 2 failed: saved captures predate the split and read neither restore-loop.md nor restore-plan.md; split built: scripts/resume-routes.test.mjs 8 passed, loop route 41,875 bytes, plan route 36,510 |
+| 1 | done | 5 | timeout -k 30 30 node --test scripts/resume-read-traces.test.mjs; 3 passed, 0 failed; both saved C1 captures match current instructions and exclude coordinated.md; ledger and task-plan read sets meet the 42000-byte and 37000-byte ceilings |
 | 2 | done | 3 | timeout -k 30 30 node --test scripts/resume-current-stages.test.mjs; 7 passed, 0 failed; C3 brainstorm, plan and ship pairs hold calls, snapshots and gates on both replay models; instruction, input and judgment hashes are current |
 | 3 | open | 0 | |
 | 4 | done | 0 | timeout -k 30 10 python3 -c 'assert (files := [*__import__("pathlib").Path("skills/gauntlet-resume").rglob("*.md"), *__import__("pathlib").Path("skills/gauntlet-handoff").rglob("*.md")]) and not (hits := [(str(path), term) for path in files for term in ("legacy", "migrat", "conversion") if term in path.read_text().lower()]), locals().get("hits", "No instruction files selected")'; exit 0: no legacy, migrat or conversion term in any resume or handoff instruction file; the old-format headings are deleted, so no route can read them; a ledger with cap: or without allowance: or returned: stops at ledger admission |
@@ -29,3 +29,4 @@ row 1 failed | Rechecked the C1 trace fixture: both saved engine captures are ab
 row 1 escalated | implModel round | allowed attempts 10
 row 1 failed | Split resume rules into restore-loop, restore-plan, plan-repair and coordinated references under the 42,000 and 37,000 ceilings; saved C1 traces predate the split. | Keep the split and recapture both C1 traces in a primary session before redispatch; row 2's C3 replays are now stale, and Design 8-9 eval, plan-check.ts and commit-message.md edits remain open.
 row 4 done | Removed every old-format rule from the resume and handoff files; a ledger with cap: or without allowance: or returned: now stops at ledger admission. | Reuse scripts/resume-routes.test.mjs for route ceilings and forbidden terms; restore-loop.md "Ledger admission" holds the stop sentences.
+row 1 done | Verified fresh C1 ledger and task-plan traces restore through the split engine routes without reading coordinated rules and stay within both byte ceilings. | nothing new to build on.
