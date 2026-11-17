@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.7.3 - 2026-11-17
 
 - Keep stage scratch in each checkout's Git metadata and PR gate records, helpers and logs together in distinct common-dir run folders. Temp-path lint checks every stage and the loop worker. Teardown validates ownership, moves kept drafts out before deleting its exact folder, and preserves sibling runs and records outside run folders. Multi-PR retirement removes each child independently and keeps the parent when a child remains. (#161)
 
