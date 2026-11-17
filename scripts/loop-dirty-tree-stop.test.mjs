@@ -29,7 +29,7 @@ test('only typed discard resets dirt and resumes the suspended entry or restore 
     'git -C "<checkout>" clean -fd',
     "at fresh entry continue Entry step 4's ledger write and step 5",
     '`plan_check`, skeleton commit, implement start, refresh',
-    'on a restore finish eligible migration, final allowance validation and the refresh',
+    'on a restore finish final allowance validation and the refresh',
     '## Before each dispatch` in implement or `## After the loop` step 1 in verify',
     'Never jump to the ordered table before a ledger is seeded and admitted',
     'Any other reply preserves the tree and keeps the stop open',
