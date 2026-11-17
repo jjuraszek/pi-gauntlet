@@ -502,7 +502,7 @@ test('check-delivery takes no input from the pre-merge gate', () => {
 });
 
 test('fix-wave.md owns the wave: fresh helpers, pre-push review, local conflict check', () => {
-  assert.match(fixWave, /For an ordinary finding, a payload is the smallest in-repo edit that turns it green and keeps the promised behavior; it never adds infrastructure, a dependency, or a new module\./);
+  assert.match(fixWave, /For every finding, use the smallest in-repo payload that turns it green and keeps the promised behavior; it never adds infrastructure, a dependency, or a new module\./);
   assert.match(fixWave, /For an approach finding, treat the reviewer's instead: remedy as the finding to close/);
   assert.ok(!fixWave.includes('then re-polls'), 'approve workflow run re-enters the refresh');
   assert.match(fixWave, /one fresh implementer helper/);

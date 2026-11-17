@@ -1,4 +1,4 @@
-for: 86302a9c7a19c3aab1d8ad8240749ebf93045b6d8c12319a93e1305ea2efe830
+for: 4429f02212eb7e0ae54618f5a701325a107cace343770f43aaec651007029e39
 
 ## Change
 
@@ -86,7 +86,7 @@ The merge-command-quoting sample exercises one merge-commit command with an alre
 
 ## Approach change
 
-Implement reject's frozen-note menu, close permissions, ordered post/close/cleanup steps, back and rejected settlement. Add run-only overrule mapping and dispositions, failed-repair three-section reporting and contributor-safe closure and coverage. Dispatch remedy-only approach repairs on both harnesses and carry their closure inputs across every post-work review, including external head moves. Keep pre-work approach detection, first-report wording and ordinary no-conflict menus.
+Implement reject's frozen-note menu, close permissions, ordered post/close/cleanup steps, back and rejected settlement. Add run-only overrule mapping and dispositions, failed-repair three-section reporting and contributor-safe closure and coverage. Dispatch remedy-only approach repairs on both harnesses and carry their closure inputs across every post-work review, including external head moves. Keep pre-work approach detection, first-report wording and ordinary no-conflict menus. Bind approach remedies to the same no-infrastructure, no-dependency and no-new-module payload limit as every finding; return needs through each harness's existing tail when a remedy cannot fit.
 
 ## Expected to move for approach coverage
 - approach-conflict-report/conflicts: fails -> holds - validated approach entries block despite green native review
@@ -113,6 +113,7 @@ Implement reject's frozen-note menu, close permissions, ordered post/close/clean
 - reject-not-after-pick/external: fails -> holds - external head review preserves approach contributor closure IDs
 - approach-blocker-other-row/assess: fails -> holds - alternate assess choice posts open approach blockers
 - approach-blocker-other-row/dispatch: fails -> holds - both harnesses dispatch remedy-only work with scoped tests
+- approach-blocker-other-row/payload-limit: fails -> holds - approach remedies retain the common payload limit and use needs returns when it cannot be met
 - approach-blocker-other-row/needs: fails -> holds - needs result retains the blocker and offers eligible overrule
 - reject-menu-note-preview/preview: fails -> holds - render full frozen note without a write
 - reject-menu-note-preview/rows: fails -> holds - permission-decoded close and ordered combination rows
