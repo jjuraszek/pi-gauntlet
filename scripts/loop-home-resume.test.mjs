@@ -36,6 +36,7 @@ function historicalModels(candidate, baseline) {
 const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
 const pending = reconstruction.split('\n### Pending recovery\n')[1].split('\n### Returns conversion\n')[0];
 const driver = read('skills/loop-implementation/SKILL.md');
+const holds = read('skills/loop-implementation/reference/driver-holds.md');
 
 test('home resume written rules preserve the original boundary and consumed counts', () => {
   for (const text of [
@@ -131,7 +132,7 @@ test('resume Git reads retain S as the before-image across later commits and dir
       cwd: checkout, env, encoding: 'utf8', timeout: 45_000,
     }).trimEnd();
   };
-  const snapshot = sha => execute(driver, 'git show <sha>:<ledger path>', sha);
+  const snapshot = sha => execute(holds, 'git show <sha>:<ledger path>', sha);
   const discover = () => execute(pending, "git -C <worktree> log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>");
   const count = () => execute(driver, 'git -C "<worktree>" rev-list HEAD_BEFORE..HEAD --count');
   const dirt = () => execute(reconstruction, 'git -C <worktree> status --porcelain');

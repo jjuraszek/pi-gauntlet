@@ -7,6 +7,7 @@ import test from 'node:test';
 
 const driver = readFileSync(new URL('../skills/loop-implementation/SKILL.md', import.meta.url), 'utf8');
 const stagnation = readFileSync(new URL('../skills/loop-implementation/reference/empty-child-stagnation.md', import.meta.url), 'utf8');
+const holds = readFileSync(new URL('../skills/loop-implementation/reference/driver-holds.md', import.meta.url), 'utf8');
 const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0] + '\n' + stagnation;
 const ledgerPath = 'docs/ledger.md';
 const env = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',
@@ -38,7 +39,7 @@ function ledger({ returned = 'none', attempts = 1, status = 'failed', decision =
 // Execute the shipped recipes, not a JavaScript reimplementation of stagnation.
 // The instructions own selection and hint rendering; assertions below pin their rule.
 function recipe(checkout, text, values) {
-  assert.ok((driver + '\n' + stagnation).includes(`\`${text}\``), `missing production recipe: ${text}`);
+  assert.ok((driver + '\n' + stagnation + '\n' + holds).includes(`\`${text}\``), `missing production recipe: ${text}`);
   let command = text;
   for (const [token, value] of Object.entries(values)) command = command.replaceAll(token, value);
   assert.doesNotMatch(command, /<[^>]+>/, 'substitute every recipe input');
@@ -68,7 +69,6 @@ test('written stuck-row rule selects tuple changes, excludes parent decisions an
     'the last two attempts changed nothing outside the ledger',
     'a different selected target carries none',
   ]) assert.ok(dispatch.includes(sentence), sentence);
-  const holds = readFileSync(new URL('../skills/loop-implementation/reference/driver-holds.md', import.meta.url), 'utf8');
   assert.doesNotMatch(holds, /format=%[sbB]|--grep/);
   assert.doesNotMatch(dispatch, /format=%[sbB]|--grep/);
 });
