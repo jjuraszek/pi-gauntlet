@@ -171,6 +171,30 @@ test('baseline implement-only maintenance preserves staged repairs and truthful 
   for (const marker of ['identified execution tree', 'nonzero executed-test count', 'zero tests', 'original per-leg declarations', 'no endpoint-tree equivalence']) assert.ok(skill.includes(marker), marker);
 });
 
+test('writing-plans keeps flow in the skill and child rules in the plan contract', () => {
+  const text = read('skills/writing-plans/SKILL.md');
+  const removedHeadings = new Set([
+    '## File Structure',
+    '## Leg routing',
+    '## Wave Grouping',
+    '## Bite-Sized Task Granularity',
+    '## Plan Document Header',
+    '## Task Structure',
+    '## Spec Coverage Table',
+    '## No Placeholders',
+    '## Self-Review (Before Handoff)',
+    '## Remember',
+  ]);
+  assert.deepEqual(text.split('\n').filter((line) => removedHeadings.has(line)), [],
+    'child-only authoring headings must not load into the main session');
+  assert.doesNotMatch(text, /Plan skill/i);
+  const templates = [...text.matchAll(/^\s*> (Write the implementation plan[^\n]*)$/gm)];
+  assert.equal(templates.length, 1, 'one fixed child dispatch template');
+  assert.equal(templates[0][1],
+    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to reference/plan-contract.md>`.',
+    'the child prompt carries only the four paths, never authoring rules');
+});
+
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
   const text = read('skills/writing-plans/SKILL.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));
