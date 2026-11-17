@@ -1,7 +1,7 @@
 {
   "sample": "legs-membership",
   "arm": "candidate",
-  "skillSha": "bbdfe05a750f62397534922bb16140b74ab485368e2232b219f15aeb47170d94",
+  "skillSha": "843b5ba6f539825c32975dd3814fef7589bbda77aa0caf1be5ca3a47ad4dc2ef",
   "inputSha": "17f0a9d5af5a2513cf88c07f1cc7ba13b937906e98acea9a23c4f9f42e6dfd30",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Each observation is a separate run. In all three, check 3 (same-repository binding) has passed against run home `/work/repo-a`. `reference/coordinated.md` has been read in full because the brief carries a `legs:` block. Check 3b, Coordinated admission, runs before any tracker write.\n\nThe comparison is the same in every run. The home spec at `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md` is resolved through \"Candidates\", with no approval inferred. Its `### Leg:` blocks, in order, are `repo-a, repo-b`. The brief's `legs:` entries are compared with that list exactly, in order. A mismatch stops the run before any per-leg directory, branch or tuple check, `phase_tracker` or `plan_tracker` call, or `plan_check`.\n\n---\n\n### Run A (brief `legs:` = repo-b, repo-a)\n\nThe brief and the spec list the same members in a different order, so the legs are reordered. Printed:\n\n```\ngauntlet: stuck coordinated admission: brief leg order does not match the home spec - reordered legs repo-a, repo-b (brief puts repo-b first; home spec order is home first); brief legs: repo-b, repo-a; home spec legs: repo-a, repo-b\n```\n\nNo tracker mutation and no `plan_check` were made, and the run ends.\n\n---\n\n### Run B (brief `legs:` = repo-a)\n\nThe spec's leg `repo-b` has no matching brief entry, so a leg is missing. Printed:\n\n```\ngauntlet: stuck coordinated admission: brief membership is missing leg repo-b; brief legs: repo-a; home spec legs: repo-a, repo-b\n```\n\nNo tracker mutation and no `plan_check` were made, and the run ends.\n\n---\n\n### Run C (brief `legs:` = repo-a, repo-b, repo-c)\n\nThe brief entry `repo-c` has no `### Leg:` block in the home spec, so the brief has an extra leg. Printed:\n\n```\ngauntlet: stuck coordinated admission: brief membership has extra leg repo-c not in the home spec; brief legs: repo-a, repo-b, repo-c; home spec legs: repo-a, repo-b\n```\n\nNo tracker mutation and no `plan_check` were made, and the run ends.\n\n---\n\nNone of the three runs reaches the call-table step. There is no `start brainstorm`, no `plan_check({ planPath })`, no `plan_tracker init`, and no closing line or standing-grant line, because no restore succeeded.\n",
-      "words": 319,
-      "wallMs": 12356,
+      "text": "# Coordinated admission: three independent runs\n\nAll three runs share the same steps up to the membership comparison:\n\n1. **Check 3: same-repository binding against the run home.** This passed, as given.\n   - Session common dir: `realpath \"$(git rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-a/.git`\n   - Home common dir: `realpath \"$(git -C /work/repo-a/.worktrees/feature-shared-change rev-parse --path-format=absolute --git-common-dir)\"` → `/work/repo-a/.git`\n2. **Check 3b: resolve the home spec through \"Candidates\".** The home spec resolves to `/work/repo-a/.worktrees/feature-shared-change/doc/specs/shared.md`, which is approved.\n3. **Read the spec's `## Legs`.** The ordered `### Leg:` blocks are `repo-a`, `repo-b`.\n4. **Compare the brief's `legs:` membership with that list**, in order and exactly.\n\nEach run fails step 4, so each stops before any further check. None of the following happen in any run:\n- parsing the companion's sibling URL or validating common dir, branch or `**Home:**` tuple\n- the check 4 drift notice\n- check 6\n- any `phase_tracker` or `plan_tracker` call\n- `plan_check`\n\n## Run A: brief lists repo-b, repo-a\n\nPrinted message:\n\n```\ngauntlet: stuck legs membership mismatch: reordered legs repo-a, repo-b - brief legs: repo-b, repo-a; home spec legs (doc/specs/shared.md): repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nNo tracker state was changed.\n```\n\n## Run B: brief lists repo-a only\n\nPrinted message:\n\n```\ngauntlet: stuck legs membership mismatch: missing leg repo-b - brief legs: repo-a; home spec legs (doc/specs/shared.md): repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nNo tracker state was changed.\n```\n\n## Run C: brief lists repo-a, repo-b, repo-c\n\nPrinted message:\n\n```\ngauntlet: stuck legs membership mismatch: extra leg repo-c - brief legs: repo-a, repo-b, repo-c; home spec legs (doc/specs/shared.md): repo-a, repo-b\nI'm using the gauntlet-resume skill to continue an interrupted flow.\nNo tracker state was changed.\n```\n\nBecause no run reached the restore calls, there is no closing line, grant line or post-restore continuation. The brief's `W2: reader` / W1-complete snapshot stays unrestored in all three runs.\n",
+      "words": 293,
+      "wallMs": 12660,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Run A\n\n```text\ngauntlet: stuck ordered membership mismatch: repo-b precedes repo-a in the brief; brief [repo-b, repo-a], spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nStop before any tracker write or `plan_check` call. No tool calls.\n\n### Run B\n\n```text\ngauntlet: stuck ordered membership mismatch: repo-b is missing from the brief; brief [repo-a], spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nStop before any tracker write or `plan_check` call. No tool calls.\n\n### Run C\n\n```text\ngauntlet: stuck ordered membership mismatch: repo-c is extra in the brief; brief [repo-a, repo-b, repo-c], spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\nStop before any tracker write or `plan_check` call. No tool calls.\n",
-      "words": 123,
-      "wallMs": 16092,
+      "text": "### Run A\n```text\ngauntlet: stuck coordinated membership mismatch: reordered legs repo-b and repo-a; brief [repo-b, repo-a], home spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\nNo tool calls or tracker writes; stop before `plan_check`.\n\n### Run B\n```text\ngauntlet: stuck coordinated membership mismatch: missing leg repo-b; brief [repo-a], home spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\nNo tool calls or tracker writes; stop before `plan_check`.\n\n### Run C\n```text\ngauntlet: stuck coordinated membership mismatch: extra leg repo-c; brief [repo-a, repo-b, repo-c], home spec [repo-a, repo-b].\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\nNo tool calls or tracker writes; stop before `plan_check`.\n",
+      "words": 113,
+      "wallMs": 10794,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
       "baselineOutputSha": "184317940a508c1663fedc0c223ee76d0d1e98d819500cb7e354f1c919d60223",
-      "candidateOutputSha": "f1170d982bf1e57b516758628be4e79bf84b9e2299d90af28ce341492645f2aa",
+      "candidateOutputSha": "66b68b858e79832dcc8defc24f566d5954831f0b7e24a38adf2eaa71e2e0dc30",
       "facts": {
         "stop": {
           "before": "holds",
@@ -44,8 +44,8 @@
           "label": "held"
         }
       },
-      "feedback": "The stop fact holds in both outputs: After, like Before, stops each of the three runs at coordinated admission before any tracker write, names the mismatch kind (reordered for A, missing repo-b for B, extra repo-c for C), prints both ordered lists (brief legs and home spec legs) in each stuck line, and never edits membership. Nothing in the After wording moved this fact; the changed stuck-line phrasing ('coordinated admission: ...; brief legs: ...; home spec legs: ...') still carries the mismatch kind and both lists. To keep it safe, retain the requirement that each stuck line names the kind (reordered/missing/extra), the affected leg, and both ordered lists verbatim, and keep the explicit statement that no tracker call or membership edit occurs. One small risk: Run A's parenthetical ('home spec order is home first') adds interpretation that is not needed; keeping the line to the kind plus the two lists would be less prone to drift. The expected-to-move old-ledger facts are not exercised by this case, so this sample gives no evidence about them.",
-      "wallMs": 4963,
+      "feedback": "The stop fact holds in both outputs: After still stops each of the three runs at the membership comparison before any tracker call, names the reordered/missing/extra leg, prints both ordered lists (brief legs and home spec legs) in each stuck line, and never edits membership; it even adds an explicit 'No tracker state was changed.' line. Nothing in the After wording moved this fact. Minor drift to watch: the stuck-line wording changed ('coordinated membership mismatch: leg repo-b reordered' became 'legs membership mismatch: reordered legs repo-a, repo-b'), so Run A now names the whole list as reordered rather than a specific leg, and each stop now appends the 'I'm using the gauntlet-resume skill to continue an interrupted flow.' announcement after the stuck line, which reads oddly for a run that stops and continues nothing. To keep this fact robust while delivering the single-entry-point change, keep the wording that requires the mismatch kind, the affected leg and both ordered lists in the stuck line, state that the stop precedes any tracker write, and consider placing the skill announcement before admission rather than after a stop message.",
+      "wallMs": 5102,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -53,7 +53,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "13c3f9ed5cd58ef6f4841e31f9b724ee90e4c64c712149431f0de7f1e16a057e",
       "baselineOutputSha": "76318fc8029d2c310fd3ae2b1f9659bc39d6bb139197c6454526fba3f42cb733",
-      "candidateOutputSha": "8c62eaa1f84e260e7487fbef4fb0124739d40a34e7929b84ab68e7088492c238",
+      "candidateOutputSha": "790d49870f93a6844cf74f45cdc00940178db5ea76583b4b07120d641f93d3f3",
       "facts": {
         "stop": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "The stop fact holds in both outputs: in each of runs A, B and C, After still stops before any tracker write or plan_check, makes no tool calls, names the specific discrepancy (repo-b precedes repo-a, repo-b missing, repo-c extra), prints both ordered lists (brief and spec), and never edits membership. The After wording changed only the label, from 'reordered legs / missing leg / extra leg' to a generic 'ordered membership mismatch' followed by a descriptive clause; the fact survives because the clause still says precedes/missing/extra and names the leg. To keep this fact safe, keep that per-case clause and both bracketed lists mandatory in the stop line; if you want a closer match to the fact's vocabulary, retain the explicit words 'reordered', 'missing' and 'extra' along with 'leg' rather than relying on 'precedes' for the reordered case. Nothing in the old-ledger changes affected this case.",
-      "wallMs": 4408,
+      "feedback": "The stop fact holds in both outputs: in each of runs A, B and C, After still names the specific mismatch (reordered, missing repo-b, extra repo-c), prints both ordered lists (brief and home spec), stops before any tracker write or plan_check, and makes no membership edit. The After wording only added a 'coordinated membership mismatch' prefix and relabelled 'spec lists' as 'home spec', neither of which moved the fact. To keep it safe, retain the explicit mismatch kind with the offending leg name, both lists in their original order, and the explicit statement that no tracker writes occurred. Note that this case does not exercise the old-ledger facts expected to move, so it gives no evidence either way about the Change's intended effect.",
+      "wallMs": 3577,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "af1abb89a252e7374a7bd9f6bbedb5b808adaa92"
+  "repoSha": "bd83ab683e9feb51909d54f3889acac0a24b79d2"
 }

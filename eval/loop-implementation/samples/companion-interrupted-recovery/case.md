@@ -1,5 +1,6 @@
 bundle-: agents/loop-implementer.md
 bundle+: skills/gauntlet-resume/reference/reconstruction.md
+bundle+: skills/finishing-a-development-branch/reference/commit-message.md
 
 Narrate only the supplied observations, not live tool execution. Home repo-a and companion repo-b have validated seeds and stable membership/mapping. The home ledger has checks: commands, allowance:4, saved iterations:6 and persisted iterations:7 with pending: 2 | repo-b | bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. Row 1 maps to repo-a and is done attempts 1; row 2 maps to repo-b and is failed attempts 1 with a spent escalation marker; row 3 maps to repo-a and is open attempts 0. Before-images, per-leg bases, Rules and checkout paths are retained. Home HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa is unchanged; its only dirt is the exact iteration bump and tuple. Companion HEAD_BEFORE is the tuple HEAD.
 

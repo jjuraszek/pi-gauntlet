@@ -1,10 +1,10 @@
 # gauntlet-handoff eval report
 
-for: a34caf993ea20dd022504a69aa0f33f2eb1ff3f825d0f14fc145e10b787950c4
+for: 4fc7088fcc8387ab9e5e16c1f3dc6f530467050c444aad864bd57d0954851e87
 
 ## Scope
 
-Selected ticket #158 handoff-production regressions. Both samples ran baseline-only and comparison against `09c9f4e1`, including the `multi-repo` assembly with its moved owner file. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected.
+Selected ticket #158 handoff-production regressions. Both samples ran baseline-only and comparison against `09c9f4e1`, including the `multi-repo` assembly with its moved owner file. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected. Both cases drop `reference/restore-loop.md` with `bundle-`, so the sentence restored there for `gauntlet-resume` `ledger-tracker-verify` leaves both assemblies and both records unchanged; only the target-level `for:` hash moved.
 
 Model columns show runner verdict and candidate facts held/total. The sample-scoped baseline and candidate JSON files under `results/<sample>/` are the evidence.
 

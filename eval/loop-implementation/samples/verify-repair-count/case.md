@@ -1,4 +1,5 @@
 bundle+: skills/gauntlet-resume/reference/reconstruction.md
+bundle+: skills/finishing-a-development-branch/reference/commit-message.md
 
 Replay these supplied observations, not live operations. Use at most 1800 words. Give the shared repair task, marker and rerun protocol once, then a numbered table of snapshot differences; keep every requested variant and exact stop menu without repeating the shared protocol for each. Reference the shared protocol by its name in variant rows instead of restating it. All ledger rows are done or cut, checks: commands, verification: make ci, iterations:40, allowance:3. The gate set is home-A, companion-B, home-C in that order; every command is a selective node --test file. Held mapping resolves home /work/home and companion /work/companion; bases, Rules, spec and saved ledger are available. Both checkouts start clean. escalationLoop.implModel resolves. Approval option 4 with no amend permission; repeat under option 5. There is one repair verification decision line in the home ledger, no pending tuple. A row has two old retry lines; all row attempts and decisions must remain unchanged.
 

@@ -1,5 +1,6 @@
 bundle-: agents/loop-implementer.md
 bundle+: skills/gauntlet-resume/reference/reconstruction.md
+bundle+: skills/finishing-a-development-branch/reference/commit-message.md
 
 Describe the driver actions for each independent snapshot. All ledgers have checks: commands and allowance: 4, a validated seed except F, row 1 failed attempts 1 and row 2 open attempts 0. Row 1's escalation marker is already spent. The saved ledger has iterations: 6; the persisted tuple is pending: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa and consumed iterations: 7. No evidence checks run in this exercise. Approval option 5 grants amendments, but no separate discard authorization is supplied.
 
