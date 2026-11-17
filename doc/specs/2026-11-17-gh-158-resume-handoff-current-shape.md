@@ -174,7 +174,7 @@ A ledger with `cap:` and neither `allowance:` nor `returned:` therefore prints t
 
 Resume writes no migration or conversion commit and reads no commit subject or body. The header check runs once, at admission; the post-migration validation step goes with the migration.
 
-`extensions/lib/plan-check.ts` `coordinatedMetadata` requires exactly one `allowance` header holding a positive safe integer. A `cap` header no longer counts as the budget header, so a multi-repo ledger with `cap:` and no `allowance:` fails the check. The single-repo ledger check stays as it is. Run `npm run build:bins` and commit the regenerated bundles.
+`extensions/lib/plan-check.ts` `coordinatedMetadata` requires exactly one `allowance` header holding a positive safe integer. A `cap` header no longer counts as the budget header, so a multi-repo ledger with `cap:` and no `allowance:` fails the check. The admission every ledger passes also rejects a `cap:` header, so a single-repo ledger carrying one fails the check too; the single-repo ledger check is otherwise unchanged. Run `npm run build:bins` and commit the regenerated bundles.
 
 Briefs get no old-format detection. Remove the numeric-prefix task label form and the `legacy plain names` clause: a ledger task row matching `^(row \d+(?: \(\S+\))?) \| .+$` restores capture 1, and every other task name restores byte-identical. Remove the clause for a ledger brief without task rows; the general rule stays that `No plan active.` means no `init` and a ledger still refreshes.
 
