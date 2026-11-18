@@ -1182,7 +1182,7 @@
   });
 
   test("rebinding after an observed read leaves it with its original run", async (t) => {
-    for (const mode of ["valid record / worktree write", "invalid record / plan_check"]) {
+    for (const mode of ["same record / worktree write", "valid record / worktree write", "invalid record / plan_check"]) {
       await t.test(mode, async () => {
         const h = harness();
         const invalid = mode === "invalid record / plan_check";
@@ -1200,8 +1200,16 @@
         }
         await h.writeSpec("doc/specs/a.md");
         await h.read("first", legSkill, "text");
-        const original = h.readRecord().derived;
-        assert.equal(original.skill_read_coverage, invalid ? "invalid" : "complete");
+        const original = h.readRecord();
+        assert.equal(original.derived.skill_read_coverage, invalid ? "invalid" : "complete");
+        if (mode === "same record / worktree write") {
+          await h.writeSpec(".worktrees/x/doc/specs/a.md");
+          const shared = h.readRecord();
+          assert.equal(shared.run_id, original.run_id);
+          assert.equal(shared.derived.skill_read_coverage, "complete");
+          assert.deepEqual(shared.derived.phases.brainstorm?.skill_reads, [pendingRead]);
+          return;
+        }
         if (invalid) {
           await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
         } else {

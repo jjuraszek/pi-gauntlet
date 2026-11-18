@@ -437,7 +437,7 @@
     };
 
     const bind = async (target: Binding, snap: SettingsSnapshot) => {
-      if (record) {
+      if (record && target.file !== recordRel) {
         flush(true);
         unbind();
       }
@@ -448,7 +448,7 @@
       boundSpec = specRel;
       recordRel = target.file;
       predecessorLinks.clear();
-      record = loadOrCreate(specRel);
+      record ??= loadOrCreate(specRel);
       for (const link of record.supersedes ?? []) {
         if (!isSafeSpecLink(link, snap.specDirs)) continue;
         const predecessor = deps.fs.readFile(abs(link));
