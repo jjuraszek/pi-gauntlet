@@ -1,12 +1,12 @@
-# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single; no-arg-discovery-over-cap; no-arg-discovery-cc-multi)
+# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single; no-arg-discovery-over-cap; no-arg-discovery-cc-multi; no-arg-discovery-zero; no-arg-discovery-under-cap)
 
 for: b4c3e87a48a91b0d054276b7c3d70f18ef067d00b2f7faba105f2863e516a6c8
 
-wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-discovery-over-cap); 23s (no-arg-discovery-cc-multi)
+wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-discovery-over-cap); 23s (no-arg-discovery-cc-multi); 19s (no-arg-discovery-zero); 66s (no-arg-discovery-under-cap)
 
 ## Change
 
-Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. Coverage ends before provisioning and excludes report wording and typed PR arguments.
+Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. The under-cap replay checks that a team request without a membership match stays in the admitted set, and the zero replay checks that an empty search prints no list. Neither checks the wording of a new report or a typed list.
 
 ## Cells
 
@@ -20,6 +20,10 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 | no-arg-discovery-over-cap | github-copilot/gpt-6.1-sol | improved | 5723 | f1: fails -> holds (intended change) |
 | no-arg-discovery-cc-multi | anthropic/claude-opus-5-5 | improved | 7386 | f1: fails -> holds (intended change) |
 | no-arg-discovery-cc-multi | github-copilot/gpt-6.1-sol | improved | 4011 | f1: fails -> holds (intended change) |
+| no-arg-discovery-zero | anthropic/claude-opus-5-5 | unchanged | 9337 | f1: holds -> holds (held) |
+| no-arg-discovery-zero | github-copilot/gpt-6.1-sol | unchanged | 4950 | f1: holds -> holds (held) |
+| no-arg-discovery-under-cap | anthropic/claude-opus-5-5 | unchanged | 9203 | f1: holds -> holds (held) |
+| no-arg-discovery-under-cap | github-copilot/gpt-6.1-sol | unchanged | 9368 | f1: holds -> holds (held) |
 
 ## Feedback
 
@@ -31,5 +35,8 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 
 - no-arg-discovery-over-cap: Both replays list six linked PRs once in size order, then send a separate stop ending with `multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6` and the plain numbers. Neither baseline printed the linked list. [Saved replies and judge feedback](results/no-arg-discovery-over-cap/candidate.json).
 - no-arg-discovery-cc-multi: Both replays list three linked PRs before the marked harness stop, with `discovered, smallest first: 101, 97, 112` last. Neither baseline printed the list. One candidate also narrates internal steps before the rendered messages; f1 checks the messages, not the absence of narration. [Saved replies and judge feedback](results/no-arg-discovery-cc-multi/candidate.json).
+
+- no-arg-discovery-zero: Both replays kept the empty-search stop after the login and membership reads failed. Neither printed a list or fell back to the current branch. [Saved replies and judge feedback](results/no-arg-discovery-zero/candidate.json).
+- no-arg-discovery-under-cap: Both replays kept #97 in size order after 100 drafts and said `by robin, review requested` without claiming membership. The fixture supplies the first two menu picks so all three reports can print without executing a pick. [Saved replies and judge feedback](results/no-arg-discovery-under-cap/candidate.json).
 
 exit: 0

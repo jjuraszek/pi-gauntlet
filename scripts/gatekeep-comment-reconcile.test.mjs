@@ -208,7 +208,7 @@ test('PR sets route before the unchanged single-PR steps', () => {
     'at most 12 words', 'first 300 characters', 'no ticket',
     String.raw`https://linear\\.app/`, 'review-requested query', 'gh api user/teams --paginate',
   ]) assert.ok(discovery.includes(text), `Missing discovery list format: ${text}`);
-  assert.doesNotMatch(discovery, /user-review-requested|direct-request/);
+  assert.doesNotMatch(brief, /user-review-requested|direct-request/);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
@@ -965,6 +965,20 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
     assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']);
+    if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap'].includes(sample)) {
+      assert.ok(input.includes('Review-requested query rows:') && input.includes('gh api user/teams'));
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        if (sample.endsWith('under-cap')) {
+          assert.match(output.text, /\[#97\]\(https:\/\/github\.com\/acme\/widgets\/pull\/97\) \+2 -2, by robin, review requested, no ticket - /);
+        } else {
+          assert.doesNotMatch(output.text, /^Open PRs? to gate[:,]/m);
+        }
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
     if (sample === 'no-arg-discovery-single') {
       const heading = 'Open PR to gate:';
       assert.ok(brief.includes(heading));
