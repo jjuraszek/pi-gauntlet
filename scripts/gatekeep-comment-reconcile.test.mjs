@@ -141,6 +141,9 @@ for (const [name, text, patterns] of [
     /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
     /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
+  ['typed list after the single gather', section(brief, '### Gather fixed commands\n', '## Section B'), [
+    /`PR to gate:`/, /\bonce per invocation\b/,
+  ]],
   ['typed list after the set gather', batch, [
     /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
     /\.linearRefs = \[\(\.title \+ " " \+ \(\.body \/\/ ""\)\)/, /\.body \|= \(\. \/\/ ""\)\[0:300\]/,
@@ -203,15 +206,22 @@ test('PR sets route before the unchanged single-PR steps', () => {
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
-  const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq';
+  const discoveryLines = discovery.split('\n');
+  const projection = [
+    `projection='map(if (.isDraft == true or .reviewDecision == "APPROVED" or .reviewDecision == "CHANGES_REQUESTED") then {number,isDraft,reviewDecision,additions,deletions}`,
+    String.raw`else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]`,
+    `| .body |= (. // "")[0:300]) end)'`,
+  ].join(' ');
+  assert.ok(discoveryLines.includes(projection), 'Discovery projection must extract linearRefs before trimming body');
+  const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection"';
   for (const source of ['--author @me', "--search 'review-requested:@me'"]) {
-    assert.ok(discovery.includes(`gh pr list -R <owner/repo> ${source} ${listArgs}`));
+    assert.ok(discoveryLines.includes(`gh pr list -R <owner/repo> ${source} ${listArgs}`), `Discovery ${source} must use the declared projection`);
   }
   for (const text of [
     'Open PRs to gate, smallest first:',
     '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
     'at most 12 words', 'first 300 characters', 'no ticket',
-    String.raw`https://linear\\.app/`, 'review-requested query', 'gh api user/teams --paginate',
+    'review-requested query', 'gh api user/teams --paginate',
   ]) assert.ok(discovery.includes(text), `Missing discovery list format: ${text}`);
   assert.doesNotMatch(brief, /user-review-requested|direct-request/);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
