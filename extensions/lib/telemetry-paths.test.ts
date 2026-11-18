@@ -42,6 +42,8 @@ test("skill read keys follow canonical containment without publishing source dir
     mkdirSync(join(root, "reference"), { recursive: true });
     writeFileSync(join(root, file), "private body");
   }
+  const skill = join(nested, "SKILL.md");
+  writeFileSync(skill, "");
   const digest = (s: string) => createHash("sha256").update(s).digest("hex");
   const source = (root: string) => `source:${digest(realpathSync(root))}:skills/`;
   const key = (path: string) => skillReadPath(dir, path, own);
@@ -53,6 +55,7 @@ test("skill read keys follow canonical containment without publishing source dir
   for (const path of [join(nested, file), relative(dir, join(nested, file)), `@${join(nested, file)}`, `~/${relative(homedir(), join(nested, file))}`, join(dir, "alias/skills", file)]) {
     assert.equal(key(path), source(nested) + file, path);
   }
+  assert.equal(key(skill), source(nested) + "SKILL.md");
   assert.equal(key(join(own, file)), `pi-gauntlet:skills/${file}`);
   for (const [disk, requested] of [["reader\u2019s.md", "reader's.md"], ["clock\u202fPM.md", "clock PM.md"]]) {
     writeFileSync(join(own, disk), "text");
