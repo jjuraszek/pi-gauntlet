@@ -448,6 +448,38 @@ function foldAccumulators(a, b) {
   return out;
 }
 var validLegs = (legs) => Array.isArray(legs) && legs.every((leg) => leg && typeof leg.repo === "string" && leg.repo.trim().length > 0 && (typeof leg.sha === "string" && leg.sha.trim().length > 0 && leg.pr === void 0 || typeof leg.pr === "string" && /^https?:\/\/\S+$/.test(leg.pr) && leg.sha === void 0));
+var isMapObject = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+function skillReadBytes(phaseMaps) {
+  let total = 0;
+  for (const phases of phaseMaps) {
+    if (!isMapObject(phases)) return;
+    for (const phase of Object.values(phases)) {
+      if (!isMapObject(phase)) return;
+      if (!Object.hasOwn(phase, "skill_reads")) continue;
+      if (!Array.isArray(phase.skill_reads)) return;
+      for (const read of phase.skill_reads) {
+        if (!isMapObject(read)) return;
+        const { path, bytes } = read;
+        if (typeof path !== "string" || !/^(?:pi-gauntlet|source:(?:lex-)?[a-f0-9]{64}):skills\//.test(path) || path.split("/").some((part) => !part || part === "." || part === "..") || /[\x00-\x1f\x7f]/.test(path) || typeof bytes !== "number" || !Number.isSafeInteger(bytes) || bytes < 0) return;
+        total += bytes;
+        if (!Number.isSafeInteger(total)) return;
+      }
+    }
+  }
+  return total;
+}
+function skillReadCoverage(rec) {
+  const coverage = rec.derived?.skill_read_coverage;
+  if (coverage !== void 0 && coverage !== "complete" && coverage !== "partial") return "invalid";
+  const phases = rec.derived?.phases;
+  if ((coverage !== void 0 || phases !== void 0) && skillReadBytes([phases]) === void 0) return "invalid";
+  const sessionPhases = Object.values(rec.accumulators ?? {}).map((block) => block?.phases).filter((phases2) => phases2 !== void 0);
+  return skillReadBytes(sessionPhases) === void 0 ? "invalid" : coverage;
+}
+function clearSkillReads(phases) {
+  if (!isMapObject(phases)) return;
+  for (const phase of Object.values(phases)) if (isMapObject(phase)) delete phase.skill_reads;
+}
 function newRecord(o) {
   return { schema: 1, spec: o.spec, run_id: o.runId, branch: o.branch, status: "in_progress", created_at: o.now, sessions: [o.session], derived: { engine: "waves", duration_s: 0, phases: {}, personas: {}, conformance_loops: 0, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, amendments: 0, spec_edits_after_ship: 0, spec_writes: {}, events_dropped: 0 }, accumulators: {}, events: [] };
 }
@@ -475,6 +507,7 @@ function derive(rec, now) {
     else if (cur.started_at) phases[e.name] = { ...cur, completed_at: e.ts, duration_s: seconds(cur.started_at, e.ts) };
   }
   for (const k of Object.keys(acc.phases)) phases[k] = compact({ ...phases[k] ?? {}, ...acc.phases[k] });
+  if (rec.derived.skill_read_coverage === "invalid") clearSkillReads(phases);
   const live = liveShipEvent(rec.events);
   return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, skill_read_coverage: rec.derived.skill_read_coverage, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : void 0, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, verification_runs: rec.derived.verification_runs, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped });
 }
@@ -538,7 +571,16 @@ function parseRecord(text) {
   const accumulators = Object.fromEntries(Object.entries(d.accumulators ?? {}).flatMap(
     ([session, block]) => block && typeof block === "object" && !Array.isArray(block) ? [[session, { ...emptyAccumulators(), ...block }]] : []
   ));
-  return { ...d, sessions: Array.isArray(d.sessions) ? d.sessions : [], derived: d.derived ?? newRecord({ spec: d.spec, session: "", now: d.created_at ?? "", runId: d.run_id }).derived, accumulators, events: Array.isArray(d.events) ? d.events : [] };
+  const rec = { ...d, sessions: Array.isArray(d.sessions) ? d.sessions : [], derived: d.derived ?? newRecord({ spec: d.spec, session: "", now: d.created_at ?? "", runId: d.run_id }).derived, accumulators, events: Array.isArray(d.events) ? d.events : [] };
+  if (skillReadCoverage(rec) === "invalid") {
+    rec.derived.skill_read_coverage = "invalid";
+    clearSkillReads(rec.derived.phases);
+    for (const block of Object.values(accumulators)) {
+      if (!isMapObject(block.phases)) block.phases = {};
+      clearSkillReads(block.phases);
+    }
+  }
+  return rec;
 }
 
 // src/bins/gauntlet-telemetry-seal.mjs

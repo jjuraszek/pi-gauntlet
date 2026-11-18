@@ -91,7 +91,7 @@ export function foldAccumulators(a: Accumulators, b: Accumulators): Accumulators
 
 export interface DiffSummary { base: string; commits: number; buckets: Record<string, BucketStat> }
 export interface Derived {
-  engine: "loop" | "waves"; iterations?: number; skill_read_coverage?: "complete" | "partial";
+  engine: "loop" | "waves"; iterations?: number; skill_read_coverage?: "complete" | "partial" | "invalid";
   duration_s: number; phases: Partial<Record<PhaseKey, PhaseAcc & { started_at?: string; completed_at?: string; duration_s?: number; model?: string; thinking?: string }>>;
   personas: Record<string, PersonaAcc>; reviews?: Record<string, ReviewAcc>; conformance_loops: number; conformance_open_gaps?: number; gates: Gates & { ship_option?: string };
   plan?: { tasks: number; complete: number; failed: number; skipped: number }; tests?: { command: string; result: "pass" | "fail" }; verification_runs?: number; amendments: number;
@@ -111,6 +111,46 @@ export interface TelemetryRecord {
   supersedes?: string[]; fixes?: string[]; versions?: Record<string, string>; author?: { name?: string; email?: string }; agent_overrides?: Record<string, unknown>;
   sessions: string[]; derived: Derived; accumulators: Record<string, Accumulators>; events: TelemetryEvent[];
 }
+const isMapObject = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === "object" && !Array.isArray(value);
+
+function skillReadBytes(phaseMaps: unknown[]): number | undefined {
+  let total = 0;
+  for (const phases of phaseMaps) {
+    if (!isMapObject(phases)) return;
+    for (const phase of Object.values(phases)) {
+      if (!isMapObject(phase)) return;
+      if (!Object.hasOwn(phase, "skill_reads")) continue;
+      if (!Array.isArray(phase.skill_reads)) return;
+      for (const read of phase.skill_reads) {
+        if (!isMapObject(read)) return;
+        const { path, bytes } = read;
+        if (typeof path !== "string" || !/^(?:pi-gauntlet|source:(?:lex-)?[a-f0-9]{64}):skills\//.test(path) ||
+            path.split("/").some(part => !part || part === "." || part === "..") || /[\x00-\x1f\x7f]/.test(path) ||
+            typeof bytes !== "number" || !Number.isSafeInteger(bytes) || bytes < 0) return;
+        total += bytes;
+        if (!Number.isSafeInteger(total)) return;
+      }
+    }
+  }
+  return total;
+}
+
+export function skillReadCoverage(rec: Partial<TelemetryRecord>): Derived["skill_read_coverage"] {
+  const coverage = rec.derived?.skill_read_coverage;
+  if (coverage !== undefined && coverage !== "complete" && coverage !== "partial") return "invalid";
+  const phases = rec.derived?.phases;
+  if ((coverage !== undefined || phases !== undefined) && skillReadBytes([phases]) === undefined) return "invalid";
+  // The derived copy and the combined session data describe the same reads, not additive totals.
+  const sessionPhases = Object.values(rec.accumulators ?? {}).map(block => block?.phases).filter(phases => phases !== undefined);
+  return skillReadBytes(sessionPhases) === undefined ? "invalid" : coverage;
+}
+
+function clearSkillReads(phases: Accumulators["phases"]): void {
+  if (!isMapObject(phases)) return;
+  for (const phase of Object.values(phases)) if (isMapObject(phase)) delete phase.skill_reads;
+}
+
 export function newRecord(o: { spec: string; session: string; now: string; runId: string; branch?: string }): TelemetryRecord {
   return { schema: 1, spec: o.spec, run_id: o.runId, branch: o.branch, status: "in_progress", created_at: o.now, sessions: [o.session], derived: { engine: "waves", duration_s: 0, phases: {}, personas: {}, conformance_loops: 0, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, amendments: 0, spec_edits_after_ship: 0, spec_writes: {}, events_dropped: 0 }, accumulators: {}, events: [] };
 }
@@ -132,6 +172,7 @@ export function derive(rec: TelemetryRecord, now: string): Derived {
     else if (cur.started_at) phases[e.name] = { ...cur, completed_at: e.ts, duration_s: seconds(cur.started_at, e.ts) };
   }
   for (const k of Object.keys(acc.phases) as PhaseKey[]) phases[k] = compact({ ...(phases[k] ?? {}), ...acc.phases[k] });
+  if (rec.derived.skill_read_coverage === "invalid") clearSkillReads(phases);
   const live = liveShipEvent(rec.events);
   return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, skill_read_coverage: rec.derived.skill_read_coverage, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : undefined, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, verification_runs: rec.derived.verification_runs, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped }) as Derived;
 }
@@ -194,5 +235,15 @@ export function parseRecord(text: string): TelemetryRecord | undefined {
       ? [[session, { ...emptyAccumulators(), ...block }]]
       : []
   )) as Record<string, Accumulators>;
-  return { ...(d as TelemetryRecord), sessions: Array.isArray(d.sessions) ? d.sessions : [], derived: d.derived ?? newRecord({ spec: d.spec, session: "", now: d.created_at ?? "", runId: d.run_id }).derived, accumulators, events: Array.isArray(d.events) ? d.events : [] };
+  const rec = { ...(d as TelemetryRecord), sessions: Array.isArray(d.sessions) ? d.sessions : [], derived: d.derived ?? newRecord({ spec: d.spec, session: "", now: d.created_at ?? "", runId: d.run_id }).derived, accumulators, events: Array.isArray(d.events) ? d.events : [] };
+  if (skillReadCoverage(rec) === "invalid") {
+    // Keep invalid distinct from legacy absence so a resumed read cannot restore coverage.
+    rec.derived.skill_read_coverage = "invalid";
+    clearSkillReads(rec.derived.phases);
+    for (const block of Object.values(accumulators)) {
+      if (!isMapObject(block.phases)) block.phases = {};
+      clearSkillReads(block.phases);
+    }
+  }
+  return rec;
 }

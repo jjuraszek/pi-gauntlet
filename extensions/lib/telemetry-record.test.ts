@@ -252,6 +252,37 @@ test("derivation and YAML retain every measured read outside capped events", () 
   assert.deepEqual(derived.phases.plan?.skill_reads, skill_reads);
 });
 
+test("malformed persisted measurements stay unmeasured after resume and derivation", () => {
+  const rec = newRecord({ spec: "doc/specs/a.md", session: "s1", now: "2026-01-01T00:00:00Z", runId: "r" });
+  const read = { path: "pi-gauntlet:skills/a.md", bytes: 1 };
+  const good = { plan: { compactions: 1, skill_reads: [read] } };
+  const cases = [
+    { name: "unknown coverage", coverage: "unknown" },
+    { name: "null coverage", coverage: null },
+    { name: "derived non-list", derivedPhases: { ...good, verify: { skill_reads: "bad" } } },
+    { name: "session non-entry", sessionPhases: { verify: { skill_reads: [null] } } },
+    { name: "session invalid path", sessionPhases: { verify: { skill_reads: [{ ...read, path: "/tmp/a.md" }] } } },
+    { name: "session invalid bytes", sessionPhases: { verify: { skill_reads: [{ ...read, bytes: -1 }] } } },
+    { name: "session total overflow", sessionPhases: { verify: { skill_reads: [{ ...read, bytes: Number.MAX_SAFE_INTEGER }] } } },
+  ];
+  for (const { name, coverage = "complete", derivedPhases = good, sessionPhases = {} } of cases) {
+    const stored = { ...rec, derived: { ...rec.derived, skill_read_coverage: coverage, phases: derivedPhases }, accumulators: { s1: { phases: sessionPhases }, s2: { phases: good } } };
+    const loaded = parseRecord(JSON.stringify(stored))!;
+    assert.equal(loaded.run_id, rec.run_id, name);
+    for (const { phases } of [loaded.derived, ...Object.values(loaded.accumulators)]) {
+      assert.ok(Object.values(phases).every(phase => !Object.hasOwn(phase, "skill_reads")), name);
+    }
+    const total = foldAccumulators(loaded.accumulators.s1, loaded.accumulators.s2);
+    loaded.accumulators = { total, resumed: { ...emptyAccumulators(), phases: { verify: { skill_reads: [read] } } } };
+    loaded.derived.skill_read_coverage ??= "partial";
+    loaded.derived = derive(loaded, rec.created_at);
+    assert.equal(loaded.derived.skill_read_coverage, "invalid", name);
+    assert.equal(loaded.derived.phases.plan?.compactions, 1, name);
+    assert.equal(loaded.derived.phases.verify?.skill_reads, undefined, name);
+    assert.equal(parseRecord(serializeRecord(loaded))!.derived.skill_read_coverage, "invalid", name);
+  }
+});
+
 test("derive and YAML preserve verification runs and legacy absence", () => {
   for (const count of [undefined, 0, 4]) {
     const rec = newRecord({ spec: "doc/specs/a.md", session: "s1", now: "2026-09-17T10:00:00Z", runId: "r1" });

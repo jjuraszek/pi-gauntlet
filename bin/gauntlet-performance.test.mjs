@@ -206,9 +206,9 @@ test("skill reads: selected runs rank portable paths across all phases and keep 
   const first = "pi-gauntlet:skills/alpha/SKILL.md";
   const second = "pi-gauntlet:skills/beta/reference/legs.md";
   const other = `source:${"a".repeat(64)}:skills/alpha/SKILL.md`;
-  const add = (name, coverage, phases, version = "2.0.0", run_id = name) => write(root, `${name}.yaml`, JSON.stringify({
+  const add = (name, coverage, phases, version = "2.0.0", run_id = name, accumulators) => write(root, `${name}.yaml`, JSON.stringify({
     schema: 1, spec: `doc/specs/${name}.md`, run_id, versions: { "pi-gauntlet": version },
-    derived: { skill_read_coverage: coverage, phases },
+    derived: { skill_read_coverage: coverage, phases }, accumulators,
   }));
   const read = (path, bytes) => ({ path, bytes });
   const plan = (...entries) => ({ plan: { skill_reads: entries } });
@@ -223,7 +223,11 @@ test("skill reads: selected runs rank portable paths across all phases and keep 
     ...[read("/absolute.md", 3), read("pi-gauntlet:skills/../other", 8), read(first, -1), read(first, 0.5), read(first, "7")]
       .map(entry => ["complete", plan(read(second, 1), entry)]),
   ];
-  malformed.forEach(([coverage, phases], i) => add(`bad-${i}`, coverage, phases));
+  malformed.push(
+    ["complete", plan(read(first, Number.MAX_SAFE_INTEGER), read(second, 1))],
+    ["complete", plan(read(first, 1)), { stale: { phases: { verify: { skill_reads: {} } } } }],
+  );
+  malformed.forEach(([coverage, phases, accumulators], i) => add(`bad-${i}`, coverage, phases, undefined, undefined, accumulators));
   const args = ["--since", "2.0.0"];
   const rows = json(root, args).runs;
   assert.equal(rows.length, 3 + malformed.length);

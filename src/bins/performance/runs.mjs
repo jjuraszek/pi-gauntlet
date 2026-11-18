@@ -1,4 +1,4 @@
-import { PHASES, dash, findingsCell, fmtCost, fmtCount, fmtMin, obj, table } from "./shared.mjs";
+import { PHASES, dash, findingsCell, fmtCost, fmtCount, fmtMin, table } from "./shared.mjs";
 
 export const key = "runs";
 const HEADER = ["run_id", "repo", "spec", "version", "status", "engine", "iterations", "wall", "b/p/i/v/s min", "tokens", "cost", "models", "disp", "disp/task", "coord", "grants", "reopens", "loops", "findings", "council", "big"];
@@ -11,19 +11,11 @@ const runRow = (r) => [
   r.big_calls === null ? dash(null) : `${r.big_calls}/${r.big_write_share === null ? "-" : `${Math.round(r.big_write_share * 100)}%`}`,
 ];
 function summarizeReads(coverage, phases) {
-  if ((coverage !== "complete" && coverage !== "partial") || !obj(phases)) return;
+  if (coverage !== "complete" && coverage !== "partial") return;
   const files = new Map();
   let total = 0;
   for (const phase of Object.values(phases)) {
-    if (!obj(phase)) return;
-    if (!Object.hasOwn(phase, "skill_reads")) continue;
-    if (!Array.isArray(phase.skill_reads)) return;
-    for (const read of phase.skill_reads) {
-      if (!obj(read)) return;
-      const { path, bytes } = read;
-      if (typeof path !== "string" || !/^(?:pi-gauntlet|source:(?:lex-)?[a-f0-9]{64}):skills\//.test(path) ||
-          path.split("/").some(part => !part || part === "." || part === "..") || /[\x00-\x1f\x7f]/.test(path) ||
-          !Number.isSafeInteger(bytes) || bytes < 0) return;
+    for (const { path, bytes } of phase.skill_reads ?? []) {
       const file = files.get(path) ?? { path, bytes: 0, reads: 0 };
       file.bytes += bytes;
       file.reads++;
@@ -31,7 +23,6 @@ function summarizeReads(coverage, phases) {
       total += bytes;
     }
   }
-  if (!Number.isSafeInteger(total)) return;
   const ranked = [...files.values()].sort((a, b) => b.bytes - a.bytes || (a.path < b.path ? -1 : 1));
   return { coverage, total_bytes: total, files: ranked.map(file => ({ ...file, share: total ? file.bytes / total : null })) };
 }

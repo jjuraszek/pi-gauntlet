@@ -215,6 +215,32 @@ test("seal preserves council and measured skill reads through the shipped stamp"
   assert.deepEqual(derived.phases.plan.skill_reads, skill_reads);
 });
 
+test("seal publishes runs with malformed session reads without reporting file evidence", (t) => {
+  const skill_reads = [{ path: "pi-gauntlet:skills/a.md", bytes: 42 }];
+  const root = repo(t, { record: RECORD.replace("  phases: {}", `  skill_read_coverage: complete\n  phases: ${JSON.stringify({ verify: { skill_reads } })}`)
+    .replace("accumulators: {}", `accumulators: ${JSON.stringify({ s1: { phases: { plan: { compactions: 1, skill_reads: {} }, verify: { skill_reads } } } })}`) });
+  const result = run(root, ["--spec", SPEC]);
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(result.lines, [`sealed ${recPath(root)}`], result.stderr);
+  const { derived } = record(root);
+  assert.equal(derived.phases.plan.compactions, 1);
+  assert.ok(Object.values(derived.phases).every(phase => !Object.hasOwn(phase, "skill_reads")));
+
+  const performance = join(dirname(CLI), "gauntlet-performance.mjs");
+  const digest = (...args) => {
+    const r = spawnSync(process.execPath, [performance, ...args], { cwd: root, encoding: "utf8", env: { ...process.env, ...GIT_ENV, PI_CODING_AGENT_DIR: EMPTY_AGENT } });
+    assert.equal(r.status, 0, r.stderr);
+    return r.stdout;
+  };
+  const [shipped] = JSON.parse(digest("--json")).runs;
+  assert.equal(shipped.run_id, "r-1");
+  assert.equal(shipped.status, "shipped");
+  assert.equal(Object.hasOwn(shipped, "skill_reads"), false);
+  const text = digest();
+  assert.match(text, /runs \(1\)/);
+  assert.doesNotMatch(text, /skill reads:/);
+});
+
 test("--spec resolves absolute, symlinked and dot-relative checkout paths", async (t) => {
   for (const form of ["absolute", "symlink", "relative"]) await t.test(form, (t) => {
     const root = repo(t);
