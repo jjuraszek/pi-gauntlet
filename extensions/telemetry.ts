@@ -145,21 +145,36 @@
 
   // ---- replay ------------------------------------------------------------------------
 
+  type BindingInput = { tool: "resume" | "plan_check" | "read" | "write" | "edit"; path: string; brainstorming?: boolean };
+  type SpecLocation = { toplevel: string; rel: string; via: "git" | "jj" };
+  type Binding = SpecLocation & { dir: string; file: string };
+  type BindingStep = { input: BindingInput; cwd: string; settings: SettingsSnapshot };
   interface ReplayResult {
     phases: PhaseMap;
     gauntletEntered: boolean;
-    planCheckSpec?: string;
-    lastSpecWrite?: string;
+    bindings: BindingInput[];
     lastPlanTasks?: { name?: string; status: string }[];
+  }
+
+  function bindingInput(tool: string | undefined, input: unknown, details: unknown, brainstorming: boolean, specDirs: readonly string[], planDirs: readonly string[], cwd?: string): BindingInput | undefined {
+    if (tool === "plan_check") {
+      const d = details as { status?: string; specPath?: unknown } | undefined;
+      if (d?.status === "pass" && typeof d.specPath === "string" && d.specPath) return { tool, path: d.specPath };
+    } else if (tool === "read" || tool === "write" || tool === "edit") {
+      const path = (input as { path?: unknown } | undefined)?.path;
+      if (typeof path !== "string") return;
+      const normalized = toPosix(cwd ? resolve(cwd, path) : path);
+      if ((tool !== "read" && isSpecPath(normalized, specDirs)) || isPlanPath(normalized, planDirs)) return { tool, path, brainstorming };
+    }
   }
 
   // gauntlet-resume's reconstruction skips brainstorm with `resume: <spec path>`; the path
   // is the bind candidate on that route because no spec write follows.
   const RESUME_REASON_RE = /^resume: (\S+)$/;
-  export function resumeSpecOf(phases: PhaseMap | undefined, specDirs: readonly string[]): string | undefined {
+  export function resumeSpecOf(phases: PhaseMap | undefined, specDirs: readonly string[], cwd?: string): string | undefined {
     const b = phases?.brainstorm;
-    const m = b?.status === "skipped" && typeof b.reason === "string" ? RESUME_REASON_RE.exec(b.reason) : null;
-    return m && isSpecPath(toPosix(m[1]), specDirs) ? m[1] : undefined;
+    const path = b?.status === "skipped" && typeof b.reason === "string" ? RESUME_REASON_RE.exec(b.reason)?.[1] : undefined;
+    return path && isSpecPath(toPosix(cwd ? resolve(cwd, path) : path), specDirs) ? path : undefined;
   }
 
   const afterPlanActivity = (phases: PhaseMap, tasks: { status: string }[]): PhaseMap =>
@@ -168,8 +183,8 @@
   // Walks the session branch like phase-tracker.ts: tracker results set the phase
   // map and the flow-entry marker; bind candidates are taken only while armed
   // and dropped on reset. Silent: no events are emitted.
-  export function replayBranch(entries: Iterable<unknown>, specDirs: readonly string[]): ReplayResult {
-    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false };
+  export function replayBranch(entries: Iterable<unknown>, specDirs: readonly string[], planDirs = planDirsFor(specDirs), cwd?: string): ReplayResult {
+    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false, bindings: [] };
     const calls = new Map<string, { name: string; args: unknown }>();
     for (const raw of entries) {
       const entry = raw as { type?: string; message?: { role?: string; content?: unknown; toolName?: string; toolCallId?: string; isError?: boolean; details?: unknown } };
@@ -187,24 +202,21 @@
         out.phases = d.phases;
         out.gauntletEntered = nextGauntletEntered(out.gauntletEntered, d.action ?? "", d.phases.brainstorm.status);
         if (d.action === "reset") {
-          out.planCheckSpec = undefined;
-          out.lastSpecWrite = undefined;
+          out.bindings = [];
           out.lastPlanTasks = undefined;
         }
-        const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs) : undefined;
-        if (out.gauntletEntered && resumed) out.lastSpecWrite = resumed;
+        const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs, cwd) : undefined;
+        if (out.gauntletEntered && resumed) out.bindings.push({ tool: "resume", path: resumed });
       } else if (msg.toolName === "plan_tracker") {
         const d = msg.details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
         if (d && !d.error && Array.isArray(d.tasks)) {
           out.lastPlanTasks = d.tasks;
           out.phases = afterPlanActivity(out.phases, d.tasks);
         }
-      } else if (msg.toolName === "plan_check") {
-        const d = msg.details as { status?: string; specPath?: string } | undefined;
-        if (out.gauntletEntered && d?.status === "pass" && typeof d.specPath === "string") out.planCheckSpec = d.specPath;
-      } else if ((msg.toolName === "write" || msg.toolName === "edit") && msg.toolCallId) {
-        const p = (calls.get(msg.toolCallId)?.args as { path?: unknown } | undefined)?.path;
-        if (out.gauntletEntered && typeof p === "string" && isSpecPath(toPosix(p), specDirs)) out.lastSpecWrite = p;
+      } else if (out.gauntletEntered && out.phases.ship.status !== "complete") {
+        const call = msg.toolCallId ? calls.get(msg.toolCallId) : undefined;
+        const input = bindingInput(msg.toolName, call?.name === msg.toolName ? call?.args : undefined, msg.details, out.phases.brainstorm.status === "in_progress", specDirs, planDirs, cwd);
+        if (input) out.bindings.push(input);
       }
     }
     return out;
@@ -233,11 +245,11 @@
     let readGap = false;
     // A disabled capture gap belongs to its run even if navigation drops the binding.
     const pendingCoverageDowngrades = new Set<string>();
-    // A candidate can be scoped to its absolute spec path without opening a record.
-    const pendingCandidateGaps = new Set<string>();
-    let disabledBindingGap: "unknown" | "scoped" | undefined;
-    // Keep binding inputs, not tool results: disabled calls never feed telemetry counters or events.
-    const deferredBindings: ((snap: SettingsSnapshot) => Promise<void>)[] = [];
+    let disabledGap = false;
+    // Journal only binding inputs, with paths resolved against the cwd that produced them.
+    let deferredBindings: BindingStep[] = [];
+    let deferredReplay: BindingStep[] = [];
+    const outgoingBindings: { initial?: Binding; writtenRun?: string; replay: BindingStep[]; live: BindingStep[] }[] = [];
     let reconciling: Promise<void> | undefined;
     const readCalls = new Map<string, { cwd: string; input: { path?: unknown } }>();
     let settingsWarned = false;
@@ -248,19 +260,11 @@
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
     const noteReadGap = () => {
-      if (!record) disabledBindingGap ??= "unknown";
-      else if (record.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+      disabledGap = true;
+      if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
     };
 
-    const rememberCandidateGap = (cwd: string, spec: string) => {
-      pendingCandidateGaps.add(resolve(cwd, spec));
-      if (!record) disabledBindingGap = "scoped";
-    };
-
-    const deferBinding = (cwd: string, spec: string | undefined, apply: (snap: SettingsSnapshot) => Promise<void>) => {
-      if (spec) rememberCandidateGap(cwd, spec);
-      deferredBindings.push(apply);
-    };
+    const bindingStep = (input: BindingInput, cwd: string, settings: SettingsSnapshot): BindingStep => ({ input, cwd, settings });
 
     const observeSettings = (s: SettingsSnapshot): SettingsSnapshot | undefined => {
       if (!s.telemetry.enabled) {
@@ -279,8 +283,7 @@
       if (isSubagentChild()) return undefined;
       const snap = observeSettings(settings ?? deps.settings(ctx.cwd));
       if (!snap) return undefined;
-      if (disabledBindingGap === "scoped") disabledBindingGap = undefined;
-      if (!reconciling && deferredBindings.length) {
+      if (!reconciling && (disabledGap || outgoingBindings.length)) {
         reconciling = reconcileBindings(snap).finally(() => { reconciling = undefined; });
       }
       await reconciling;
@@ -289,7 +292,7 @@
 
     // Resolves a tool path (relative to ctx.cwd or absolute) to its owning checkout and
     // checkout-relative key. undefined outside any checkout.
-    const locate = async (cwd: string, p: string): Promise<{ toplevel: string; rel: string; via: "git" | "jj" } | undefined> => {
+    const locate = async (cwd: string, p: string): Promise<SpecLocation | undefined> => {
       const candidateAbs = isAbsolute(p) ? p : resolve(cwd, p);
       const co = await checkoutOf(candidateAbs, deps.git, deps.jj);
       const rel = co ? repoRelativeToolPath(co.toplevel, cwd, p) : undefined;
@@ -327,6 +330,12 @@
     const recordWritable = () => !!toplevel && deps.fs.exists(toplevel)
       && !!recordRel && (!recordWritten || deps.fs.exists(recordRel)) && !sealedAt(recordRel);
 
+    const writeRecordFile = (target: string, run: TelemetryRecord) => {
+      deps.fs.mkdirp(dirname(target));
+      deps.fs.writeFile(target + ".tmp", serializeRecord(run));
+      deps.fs.rename(target + ".tmp", target);
+    };
+
     const writeRecord = () => {
       if (!record || !recordRel || frozen) return;
       const target = recordRel;
@@ -342,11 +351,8 @@
       }
       record.derived = derive(record, deps.now());
       try {
-        deps.fs.mkdirp(dirname(target));
-        deps.fs.writeFile(target + ".tmp", serializeRecord(record));
-        deps.fs.rename(target + ".tmp", target);
+        writeRecordFile(target, record);
         recordWritten = true;
-        pendingCandidateGaps.delete(abs(record.spec));
         if (record.derived.skill_read_coverage === "partial") pendingCoverageDowngrades.delete(record.run_id);
       } catch (e) {
         pushEvent({ kind: "warning", message: `record write failed: ${String((e as Error).message ?? e).split("\n")[0]}` });
@@ -359,7 +365,7 @@
       const rel = recordPathFor(currentDir, specRel);
       const existing = deps.fs.readFile(rel);
       const parsed = existing ? parseRecord(existing) : undefined;
-      const missedReads = readGap || pendingCandidateGaps.has(abs(specRel));
+      const missedReads = readGap || disabledGap;
       if (parsed) {
         // fold stale live blocks (sessions that died without shutdown) into total
         for (const k of Object.keys(parsed.accumulators)) {
@@ -400,23 +406,30 @@
       return records;
     };
 
-    const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj", deferred = false) => {
-      if (via === "git" && shippedRecords(specToplevel, snap).has(specRel)) return;
-      let metadataDir = join(specToplevel, ".jj");
+    const bindingFor = async (loc: SpecLocation, snap: SettingsSnapshot, observed: boolean): Promise<Binding | undefined> => {
+      const { toplevel, rel, via } = loc;
+      if (via === "git" && shippedRecords(toplevel, snap).has(rel)) return;
+      let metadataDir = join(toplevel, ".jj");
       if (via === "git") {
-        const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], specToplevel);
+        const common = await deps.git(["rev-parse", "--path-format=absolute", "--git-common-dir"], toplevel);
         if (common.code !== 0 || !common.stdout.trim()) {
-          warn(`record bind skipped: git common dir unavailable: ${common.stderr.trim().split("\n")[0]}`);
+          if (observed) warn(`record bind skipped: git common dir unavailable: ${common.stderr.trim().split("\n")[0]}`);
           return;
         }
         metadataDir = common.stdout.trim();
       }
-      if (deferred || disabledBindingGap === "unknown") rememberCandidateGap(specToplevel, specRel);
-      toplevel = specToplevel;
-      checkoutVia = via;
-      currentDir = join(metadataDir, "gauntlet", "telemetry");
+      const dir = join(metadataDir, "gauntlet", "telemetry");
+      return { ...loc, dir, file: recordPathFor(dir, rel) };
+    };
+
+    const bind = async (target: Binding, snap: SettingsSnapshot) => {
+      if (record) unbind();
+      const { rel: specRel } = target;
+      toplevel = target.toplevel;
+      checkoutVia = target.via;
+      currentDir = target.dir;
       boundSpec = specRel;
-      recordRel = recordPathFor(currentDir, specRel);
+      recordRel = target.file;
       predecessorLinks.clear();
       record = loadOrCreate(specRel);
       for (const link of record.supersedes ?? []) {
@@ -477,8 +490,12 @@
       record.fixes = links.fixes.length ? links.fixes : undefined;
     };
 
-    const isDraftOrMissing = (specRel: string): boolean => {
-      const body = deps.fs.readFile(abs(specRel));
+    const currentBinding = (): Binding | undefined => boundSpec && toplevel && checkoutVia && recordRel
+      ? { rel: boundSpec, toplevel, via: checkoutVia, dir: currentDir, file: recordRel }
+      : undefined;
+
+    const isDraftOrMissing = (spec: SpecLocation): boolean => {
+      const body = deps.fs.readFile(join(spec.toplevel, spec.rel));
       return body === undefined || body.split("\n")[0] === CONTEXT_DRAFT_MARKER;
     };
 
@@ -503,38 +520,121 @@
       return true;
     };
 
-    const selectSpec = async (loc: Awaited<ReturnType<typeof locate>>, snap: SettingsSnapshot) => {
-      if (!loc || !canBind() || (loc.rel === boundSpec && loc.toplevel === toplevel)) return;
-      if (record) unbind();
-      await bind(loc.rel, snap, loc.toplevel, loc.via);
+    const bindingDecision = async (tool: BindingInput["tool"], loc: SpecLocation | undefined, snap: SettingsSnapshot, current: Binding | undefined, brainstorming: boolean, observed: boolean): Promise<Binding | "move" | undefined> => {
+      if (!loc || (loc.rel === current?.rel && loc.toplevel === current.toplevel)) return;
+      const spec = isSpecPath(loc.rel, snap.specDirs);
+      if (tool === "plan_check" || tool === "resume") {
+        if (tool === "plan_check" || (!current && spec)) return bindingFor(loc, snap, observed);
+      } else if (tool !== "read" && spec) {
+        if (!current || loc.toplevel !== current.toplevel) return bindingFor(loc, snap, observed);
+        if (tool === "write" && brainstorming && isDraftOrMissing(current)) return "move";
+      } else if (!current && isPlanPath(loc.rel, snap.planDirs)) {
+        const path = planSpecHeader(deps.fs.readFile(join(loc.toplevel, loc.rel)) ?? "");
+        const rel = path && repoRelativeToolPath(loc.toplevel, loc.toplevel, path);
+        if (rel && deps.fs.exists(join(loc.toplevel, rel))) return bindingFor({ ...loc, rel }, snap, observed);
+      }
     };
 
-    const bindCandidate = async (cwd: string, path: string, snap: SettingsSnapshot) => {
-      if (boundSpec || !canBind()) return;
-      const loc = await locate(cwd, path);
-      if (loc && isSpecPath(loc.rel, snap.specDirs)) await selectSpec(loc, snap);
+    const resolveStep = async ({ input, cwd, settings }: BindingStep, current: Binding | undefined, observed = false) => {
+      const loc = await locate(cwd, input.path);
+      const decision = await bindingDecision(input.tool, loc, settings, current, !!input.brainstorming, observed);
+      return { loc, decision };
+    };
+
+    const applyBinding = async (decision: Binding | "move" | undefined, loc: SpecLocation | undefined, snap: SettingsSnapshot, observed: boolean) => {
+      if (decision === "move") return rebind(loc!.rel, observed);
+      if (!decision) return false;
+      await bind(decision, snap);
+      return true;
+    };
+
+    const readBinding = (target: Binding) => {
+      const text = deps.fs.readFile(target.file);
+      return text ? parseRecord(text) : undefined;
+    };
+
+    // Replay selects a binding, without creating or moving intermediate records.
+    const replayBinding = async (steps: BindingStep[]) => {
+      let current: Binding | undefined;
+      for (const step of steps) {
+        const old = current && readBinding(current);
+        if (old && old.status !== "in_progress") break;
+        const { loc, decision } = await resolveStep(step, current);
+        if (decision === "move") {
+          // A rename that already ran left no record at the source.
+          if (!deps.fs.exists(current!.file)) {
+            const rel = loc!.rel;
+            current = { ...current!, rel, file: recordPathFor(current!.dir, rel) };
+          }
+        } else if (decision) current = decision;
+      }
+      return current;
+    };
+
+    const downgradeBinding = (target: Binding) => {
+      const old = readBinding(target);
+      if (old?.status !== "in_progress" || old.derived.skill_read_coverage !== "complete") return;
+      old.derived.skill_read_coverage = "partial";
+      try {
+        writeRecordFile(target.file, old);
+        pendingCoverageDowngrades.delete(old.run_id);
+      } catch {
+        pendingCoverageDowngrades.add(old.run_id);
+      }
+    };
+
+    const reconcileOutgoing = async () => {
+      for (const { initial, writtenRun, replay, live } of outgoingBindings.splice(0)) {
+        if (initial && writtenRun && readBinding(initial)?.run_id !== writtenRun) continue;
+        let current = initial ?? await replayBinding(replay);
+        if (!initial && current) downgradeBinding(current);
+        for (const step of live) {
+          const old = current && readBinding(current);
+          if (old && old.status !== "in_progress") break;
+          const { decision } = await resolveStep(step, current);
+          // A stale event may identify an existing measurement, but cannot move it.
+          if (decision && decision !== "move") {
+            current = decision;
+            downgradeBinding(current);
+          }
+        }
+      }
     };
 
     const reconcileBindings = async (snap: SettingsSnapshot) => {
+      await reconcileOutgoing();
+      if (!disabledGap) return;
       if (record && !recordWritable()) {
         readCalls.clear();
         frozen = true;
       }
-      while (canBind() && deferredBindings.length) {
-        await deferredBindings.shift()!(snap);
-        flush();
+      if (canBind() && deferredReplay.length) {
+        const target = await replayBinding(deferredReplay);
+        if (target) {
+          await bind(target, snap);
+          flush();
+        }
       }
-      deferredBindings.length = 0;
+      for (const step of deferredBindings) {
+        if (!canBind()) break;
+        const { loc, decision } = await resolveStep(step, currentBinding());
+        if (await applyBinding(decision, loc, snap, false)) flush();
+      }
+      deferredReplay = [];
+      deferredBindings = [];
+      readGap ||= !record;
+      disabledGap = false;
     };
 
     // ---- phase mirror ----
     const clearRunState = () => {
-      deferredBindings.length = 0;
+      deferredBindings = [];
+      deferredReplay = [];
       unbind();
       readCalls.clear();
       liveReadEntry = false;
       readGap = false;
-      disabledBindingGap = undefined;
+      disabledGap = false;
       lastPlanTasks = undefined;
       pendingTest.clear();
       buffer = [];
@@ -550,14 +650,17 @@
       gauntletEntered = entered;
       if (details.phases.ship.status === "complete") {
         readCalls.clear();
-        deferredBindings.length = 0;
+        deferredBindings = [];
+        deferredReplay = [];
       }
-      if (action === "skip" && canBind() && lastCtx) {
-        const resumed = resumeSpecOf(details.phases, settings.specDirs);
-        const { cwd } = lastCtx;
-        if (resumed && !boundSpec) {
-          if (snap) await bindCandidate(cwd, resumed, snap);
-          else deferBinding(cwd, resumed, s => bindCandidate(cwd, resumed, s));
+      if (!replay && action === "skip" && canBind() && details.phases.ship.status !== "complete" && lastCtx) {
+        const resumed = resumeSpecOf(details.phases, settings.specDirs, lastCtx.cwd);
+        if (resumed) {
+          const step = bindingStep({ tool: "resume", path: resumed }, lastCtx.cwd, settings);
+          if (snap) {
+            const { loc, decision } = await resolveStep(step, currentBinding(), true);
+            await applyBinding(decision, loc, snap, true);
+          } else deferredBindings.push(step);
         }
       }
       if (!snap) {
@@ -611,14 +714,24 @@
     // Same lifecycle set as phase-tracker.ts: every navigation rebuilds marker, phases, and
     // binding from the target branch in order.
     const reconstruct = async (ctx: ExtensionContext) => {
-      lastCtx = ctx;
       if (isSubagentChild()) return;
       const settings = deps.settings(ctx.cwd);
       const snap = observeSettings(settings);
-      if (snap) flush();
-      // Do not infer the destination of a disabled gap from the incoming branch.
-      const lostPending = disabledBindingGap === undefined && (hasSkillReads(pending.phases) || (!record && readGap));
+      if (snap) {
+        await reconciling;
+        flush();
+      }
+      if (!frozen && (deferredReplay.length || deferredBindings.length)) {
+        outgoingBindings.push({
+          initial: currentBinding(), writtenRun: recordWritten ? record?.run_id : undefined,
+          replay: deferredReplay, live: deferredBindings,
+        });
+      }
+      if (snap) await reconcileOutgoing();
+      // Unscoped disabled gaps cannot follow navigation to an unrelated binding.
+      const lostPending = !disabledGap && (hasSkillReads(pending.phases) || (!record && readGap));
       clearRunState();
+      lastCtx = ctx;
       amendmentOpen = false;
       const nextSession = ctx.sessionManager.getSessionId();
       const sameSession = nextSession === sessionId;
@@ -627,21 +740,21 @@
         guardWarned = false;
       }
       sessionId = nextSession;
-      const replay = replayBranch(ctx.sessionManager.getBranch(), settings.specDirs);
+      const replay = replayBranch(ctx.sessionManager.getBranch(), settings.specDirs, settings.planDirs, ctx.cwd);
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
-      const candidate = canBind() ? replay.planCheckSpec ?? replay.lastSpecWrite : undefined;
       readGap = gauntletEntered && sameSession && lostPending;
-      const { cwd } = ctx;
+      if (!canBind()) return;
+      const steps = replay.bindings.map(input => bindingStep(input, ctx.cwd, settings));
       if (!snap) {
-        if (candidate) deferBinding(cwd, candidate, s => bindCandidate(cwd, candidate, s));
-        else if (gauntletEntered) noteReadGap();
+        deferredReplay = steps;
+        noteReadGap();
         return;
       }
-      if (!candidate) return;
-      await bindCandidate(cwd, candidate, snap);
-      if (record) {
+      const target = await replayBinding(steps);
+      if (target) {
+        await bind(target, snap);
         const status = replay.phases.brainstorm.status;
         if (status === "complete" || status === "skipped") {
           await applyPhaseDetails({ action: status === "complete" ? "complete" : "skip", phases: replay.phases }, snap, true);
@@ -678,7 +791,10 @@
         return undefined;
       }
       if (!snap) {
-        if (canBind() && !event.isError) rememberBinding(event, ctx.cwd, settings);
+        if (canBind() && !event.isError) {
+          const input = bindingInput(event.toolName, event.input, event.details, phases.brainstorm.status === "in_progress", settings.specDirs, settings.planDirs, ctx.cwd);
+          if (input) deferredBindings.push(bindingStep(input, ctx.cwd, settings));
+        }
         return undefined;
       }
       if (event.toolName === "subagent" && legAcc()) {
@@ -693,7 +809,10 @@
         const spec = specLoc?.rel;
         const plan = planLoc?.rel;
         const pass = d?.status === "pass";
-        if (pass) await selectSpec(specLoc, snap);
+        if (pass && canBind()) {
+          const decision = await bindingDecision("plan_check", specLoc, snap, currentBinding(), false, true);
+          if (decision && decision !== "move") await bind(decision, snap);
+        }
         live().gates.plan_rounds += 1;
         pushEvent({ kind: "plan_check", pass, spec, plan });
         flush();
@@ -726,80 +845,18 @@
       return undefined;
     });
 
-    const rememberBinding = (event: ToolResultEvent, cwd: string, settings: SettingsSnapshot) => {
-      const tool = event.toolName;
-      if (tool === "plan_check") {
-        const d = event.details as { status?: string; specPath?: string } | undefined;
-        const path = d?.specPath;
-        if (d?.status === "pass" && typeof path === "string" && path) {
-          deferBinding(cwd, path, async snap => selectSpec(await locate(cwd, path), snap));
-        }
-      } else if (tool === "read" || tool === "write" || tool === "edit") {
-        const path = (event.input as { path?: unknown }).path;
-        if (typeof path !== "string") return;
-        const absPath = toPosix(resolve(cwd, path));
-        const specWrite = tool !== "read" && isSpecPath(absPath, settings.specDirs);
-        if (!specWrite && !isPlanPath(absPath, settings.planDirs)) return;
-        const brainstorming = phases.brainstorm.status === "in_progress";
-        // A plan header or a write against another bound spec needs I/O to prove a new binding.
-        deferBinding(cwd, specWrite && !boundSpec ? path : undefined, async snap => {
-          const loc = await locate(cwd, path);
-          if (loc) await onSpecInteraction(tool, loc, snap, brainstorming);
-        });
-      }
-    };
-
-    // Without an event, reconcile only the binding, not the disabled call's observations.
-    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, snap: SettingsSnapshot, brainstorming: boolean, event?: ToolResultEvent): Promise<unknown> => {
-      const rel = loc.rel;
-      if (!boundSpec) {
-        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs)) {
-          await bind(rel, snap, loc.toplevel, loc.via, !event);
-          if (!boundSpec || !event) return undefined;
-          const patch = onBoundSpecWrite(tool, rel, event);
-          flush();
-          return patch;
-        } else if (isPlanPath(rel, snap.planDirs)) {
-          const spec = planSpecHeader(deps.fs.readFile(join(loc.toplevel, rel)) ?? "");
-          const specRel = spec ? repoRelativeToolPath(loc.toplevel, loc.toplevel, spec) : undefined;
-          if (specRel && deps.fs.exists(join(loc.toplevel, specRel))) {
-            await bind(specRel, snap, loc.toplevel, loc.via, !event);
-            if (event) flush();
-          }
-        }
-        return undefined;
-      }
-      if (loc.toplevel !== toplevel) {
-        // Another checkout: a fresh run, never a rename of this record.
-        if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && (loc.via === "jj" || !shippedRecords(loc.toplevel, snap).has(rel))) {
-          unbind();
-          await bind(rel, snap, loc.toplevel, loc.via, !event);
-          if (!boundSpec || !event) return undefined;
-          const patch = onBoundSpecWrite(tool, rel, event);
-          flush();
-          return patch;
-        }
-        return undefined;
-      }
-      if (tool === "read") return undefined;
-      if (rel === boundSpec) {
-        if (!event) return undefined;
-        const patch = onBoundSpecWrite(tool, rel, event);
+    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: SpecLocation, snap: SettingsSnapshot, brainstorming: boolean, event: ToolResultEvent): Promise<unknown> => {
+      const decision = canBind() ? await bindingDecision(tool, loc, snap, currentBinding(), brainstorming, true) : undefined;
+      const changed = await applyBinding(decision, loc, snap, true);
+      if (tool !== "read" && loc.toplevel === toplevel && loc.rel === boundSpec) {
+        const patch = onBoundSpecWrite(tool, loc.rel, event);
         flush();
-        return patch;
+        return decision === "move" ? undefined : patch;
       }
-      if (tool === "write" && isSpecPath(rel, snap.specDirs) && brainstorming && isDraftOrMissing(boundSpec)) {
-        const moved = rebind(rel, !!event);
-        if (event) {
-          if (moved) onBoundSpecWrite(tool, rel, event);
-          flush();
-        }
-        return undefined;
-      }
-      if (event && tool === "edit" && isSpecPath(rel, snap.specDirs)) {
-        onOtherSpecEdit(rel, event, snap.specDirs);
+      if (tool === "edit" && loc.toplevel === toplevel && isSpecPath(loc.rel, snap.specDirs)) {
+        onOtherSpecEdit(loc.rel, event, snap.specDirs);
         flush();
-      }
+      } else if (changed || decision === "move") flush();
       return undefined;
     };
 

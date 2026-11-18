@@ -1,5 +1,5 @@
   import assert from "node:assert/strict";
-  import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+  import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
   import { tmpdir } from "node:os";
   import { join } from "node:path";
   import { after, test } from "node:test";
@@ -262,7 +262,7 @@
     assert.equal(h.gitWrites().length, 0);
   });
 
-  test("replayBranch uses the last successful phase snapshot, plan pass, and paired successful spec write", () => {
+  test("replayBranch keeps successful binding inputs in transcript order", () => {
     const successfulPhases = P({ brainstorm: "complete", plan: "in_progress" });
     const ignoredPhases = P({ brainstorm: "complete", plan: "complete" });
     const replay = replayBranch([
@@ -283,8 +283,11 @@
     ], ["doc/specs", "docs/specs"]);
     assert.deepEqual(replay.phases, successfulPhases);
     assert.equal(replay.gauntletEntered, true);
-    assert.equal(replay.planCheckSpec, "/repo/doc/specs/a.md");
-    assert.equal(replay.lastSpecWrite, "doc/specs/a.md");
+    assert.deepEqual(replay.bindings.map(({ tool, path }) => [tool, path]), [
+      ["plan_check", "/repo/doc/specs/old.md"],
+      ["plan_check", "/repo/doc/specs/a.md"],
+      ["write", "doc/specs/a.md"],
+    ]);
   });
 
   test("replayBranch: candidates are only taken while armed; reset clears them; edit counts; skip brainstorm resume: binds", () => {
@@ -297,25 +300,27 @@
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "/repo/doc/specs/a.md" } } },
     ], ["doc/specs", "docs/specs"]);
     assert.equal(unarmed.gauntletEntered, false);
-    assert.equal(unarmed.lastSpecWrite, undefined);
-    assert.equal(unarmed.planCheckSpec, undefined);
+    assert.deepEqual(unarmed.bindings, []);
     const armed = replayBranch([
       ...write("w0", "doc/specs/before.md"),
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       ...write("w1", "doc/specs/a.md", "edit"),
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([armed.gauntletEntered, armed.lastSpecWrite], [true, "doc/specs/a.md"]);
+    assert.equal(armed.gauntletEntered, true);
+    assert.deepEqual(armed.bindings, [{ tool: "edit", path: "doc/specs/a.md", brainstorming: true }]);
     const reset = replayBranch([
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       ...write("w1", "doc/specs/a.md"),
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "reset", phases: P() } } },
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([reset.gauntletEntered, reset.lastSpecWrite], [false, undefined]);
+    assert.equal(reset.gauntletEntered, false);
+    assert.deepEqual(reset.bindings, []);
     const resumed = replayBranch([
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "skip", phases: { ...P({ brainstorm: "skipped" }), brainstorm: { status: "skipped", reason: "resume: /repo/doc/specs/a.md" } } } } },
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([resumed.gauntletEntered, resumed.lastSpecWrite], [true, "/repo/doc/specs/a.md"]);
+    assert.equal(resumed.gauntletEntered, true);
+    assert.deepEqual(resumed.bindings, [{ tool: "resume", path: "/repo/doc/specs/a.md" }]);
   });
 
   test("session resume restores the last successful plan snapshot for reopen counting", async () => {
@@ -345,8 +350,8 @@
       { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "w1", name: "write", arguments: { path: "design/specs/a.md" } }] } },
       { type: "message", message: { role: "toolResult", toolName: "write", toolCallId: "w1", isError: false } },
     ];
-    assert.equal(replayBranch(branch, ["design/specs"]).lastSpecWrite, "design/specs/a.md");
-    assert.equal(replayBranch(branch, ["doc/specs"]).lastSpecWrite, undefined);
+    assert.equal(replayBranch(branch, ["design/specs"]).bindings[0]?.path, "design/specs/a.md");
+    assert.deepEqual(replayBranch(branch, ["doc/specs"]).bindings, []);
   });
 
   test("session_start replay binds from plan_check details with no spec write, extends sessions, preserves run_id", async () => {
@@ -860,7 +865,7 @@
     const plan = "doc/plans/a.md";
     const check = { toolName: "plan_check", details: { status: "pass", specPath: spec }, isError: false };
     const replay = [entry, { type: "message", message: { role: "toolResult", ...check } }];
-    for (const route of ["replay", "live resume skip", "live spec write", "live spec edit", "live plan check", "reconciled plan read", "unresolved plan read"] as const) {
+    for (const route of ["replay", "live resume skip", "live spec write", "live spec edit", "live plan check", "shutdown before navigation", "enabled navigation", "disabled navigation"] as const) {
       await t.test(route, async () => {
         const original = await boundInBrainstorm();
         const other = await boundInBrainstorm();
@@ -893,24 +898,129 @@
           }
         }
         await h.read("missed", legSkill, "ignored");
-        if (route === "live resume skip") await h.emit("session_tree", {});
+        if (route === "live resume skip" || route === "disabled navigation") {
+          h.ctx.cwd = other.root;
+          await h.emit("session_tree", {});
+        }
         assert.deepEqual(h.recorderIo(), io);
         assert.deepEqual(readFileSync(original.recordPath()), before);
 
         h.setEnabled(true);
-        if (route === "reconciled plan read") await h.emit("session_shutdown", {});
+        if (route === "shutdown before navigation") await h.emit("session_shutdown", {});
         h.setBranch(returnBranch);
         h.ctx.cwd = other.root;
         await h.emit("session_tree", {});
         assert.equal(other.readRecord().derived.skill_read_coverage, "complete");
+        assert.equal(original.readRecord().derived.skill_read_coverage, "partial");
         h.ctx.cwd = original.root;
         await h.emit("session_tree", {});
         const restored = original.readRecord();
         assert.equal(restored.run_id, runId);
-        assert.equal(restored.derived.skill_read_coverage, route === "unresolved plan read" ? "complete" : "partial");
+        assert.equal(restored.derived.skill_read_coverage, "partial");
         assert.deepEqual(Object.values(restored.derived.phases).flatMap(p => p.skill_reads ?? []), []);
       });
     }
+  });
+
+  test("a disabled resume skip wins over a later same-checkout spec edit", async t => {
+    const a = "doc/specs/a.md";
+    const b = "doc/specs/b.md";
+    const skipped = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${a}` } };
+    const edit = { toolName: "edit", toolCallId: "edit", input: { path: b }, isError: false };
+    const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+    const branch = [entry, result({ toolName: "phase_tracker", details: { action: "skip", phases: skipped } }),
+      { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "edit", name: "edit", arguments: { path: b } }] } },
+      result(edit)];
+    for (const route of ["live", "replay"] as const) {
+      await t.test(route, async () => {
+        const original = await boundInBrainstorm();
+        await original.phaseResult("reset", P());
+        await original.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await original.writeSpec(b);
+        const before = readFileSync(original.recordPath(b), "utf8");
+        const h = harness({ enabled: false, sessionId: "s2" });
+        h.ctx.cwd = original.root;
+        const io = h.recorderIo();
+        if (route === "replay") {
+          h.setBranch(branch);
+          await h.emit("session_start", {});
+        } else {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.phaseResult("skip", skipped);
+          await h.emit("tool_result", edit);
+        }
+        await h.read("missed", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        h.setEnabled(true);
+        await h.emit("session_shutdown", {});
+        assert.equal(h.readRecord(a).derived.skill_read_coverage, "partial");
+        assert.equal(readFileSync(original.recordPath(b), "utf8"), before);
+        h.setBranch([entry, result({ toolName: "plan_check", details: { status: "pass", specPath: b } })]);
+        await h.emit("session_tree", {});
+        assert.equal(h.readRecord(b).derived.skill_read_coverage, "complete");
+      });
+    }
+  });
+
+  test("disabled switches retain outgoing paths and do not reopen stale records", async () => {
+    const first = await boundInBrainstorm();
+    const second = await boundInBrainstorm();
+    const terminal = await boundInBrainstorm();
+    const sealed = terminal.readRecord();
+    sealed.status = "shipped";
+    writeFileSync(terminal.recordPath(), serializeRecord(sealed));
+    const before = readFileSync(terminal.recordPath(), "utf8");
+    writeFileSync(join(first.root, "doc/plans/p.md"), "**Spec:** doc/specs/a.md\n");
+    const h = harness({ enabled: false });
+    const io = h.recorderIo();
+    for (const [session, checkout] of [first, second, terminal].entries()) {
+      h.ctx.cwd = join(checkout.root, "doc");
+      h.ctx.sessionManager.getSessionId = () => `outgoing-${session}`;
+      await h.emit("session_switch", {});
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      if (checkout === terminal) {
+        const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
+        await check("specs/a.md");
+        await check("specs/absent.md");
+      } else if (checkout === second) {
+        await h.phaseResult("skip", { ...P(), brainstorm: { status: "skipped", reason: "resume: specs/a.md" } });
+      } else {
+        await h.read("plan", "plans/p.md", "header");
+      }
+      await h.read("missed", legSkill, "ignored");
+    }
+    h.ctx.cwd = h.root;
+    h.ctx.sessionManager.getSessionId = () => "incoming";
+    await h.emit("session_switch", {});
+    assert.deepEqual(h.recorderIo(), io);
+
+    h.setEnabled(true);
+    await h.emit("session_shutdown", {});
+    assert.equal(first.readRecord().derived.skill_read_coverage, "partial");
+    assert.equal(second.readRecord().derived.skill_read_coverage, "partial");
+    assert.equal(readFileSync(terminal.recordPath(), "utf8"), before);
+    assert.equal(existsSync(terminal.recordPath("doc/specs/absent.md")), false);
+    assert.equal(existsSync(h.recordPath()), false);
+  });
+
+  test("a removed outgoing record cannot transfer its disabled gap to another record", async () => {
+    const h = await boundInBrainstorm();
+    const a = "doc/specs/a.md";
+    const b = "doc/specs/b.md";
+    await h.phaseResult("reset", P());
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec(b);
+    const before = readFileSync(h.recordPath(b), "utf8");
+    const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
+    await check(a);
+    h.setEnabled(false);
+    await check(b);
+    unlinkSync(h.recordPath(a));
+    await h.emit("session_tree", {});
+    h.setEnabled(true);
+    await h.emit("session_shutdown", {});
+    assert.equal(existsSync(h.recordPath(a)), false);
+    assert.equal(readFileSync(h.recordPath(b), "utf8"), before);
   });
 
   test("reset or navigation while disabled disarms the old run without writing", async () => {
