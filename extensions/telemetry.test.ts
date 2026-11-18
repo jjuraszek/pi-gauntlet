@@ -1,5 +1,5 @@
   import assert from "node:assert/strict";
-  import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+  import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
   import { tmpdir } from "node:os";
   import { dirname, join } from "node:path";
   import { after, test } from "node:test";
@@ -806,10 +806,10 @@
     assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
   });
 
-  test("disabled replay retains the coverage gap for its checkout and spec across navigation", async t => {
+  test("disabled replay retains the coverage gap for its checkout and spec across navigation or reset", async t => {
     const spec = "doc/specs/a.md";
     const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
-    for (const route of ["plan check", "spec write", "resume skip", "legacy record"] as const) {
+    for (const route of ["plan check", "spec write", "resume skip", "legacy record", "resume skip then reset"] as const) {
       await t.test(route, async () => {
         const original = await boundInBrainstorm();
         const legacy = route === "legacy record";
@@ -828,7 +828,7 @@
         if (route === "spec write") {
           replay.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "write", name: "write", arguments: { path: spec } }] } });
           replay.push(result({ toolName: "write", toolCallId: "write" }));
-        } else if (route === "resume skip") {
+        } else if (route === "resume skip" || route === "resume skip then reset") {
           const phases = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
           replay.push(result({ toolName: "phase_tracker", details: { action: "skip", phases } }));
         } else {
@@ -838,12 +838,24 @@
         h.setBranch(replay);
         await h.emit("session_start", {});
         await h.read("missed", legSkill, "ignored");
-        h.setBranch([]);
-        await h.emit("session_tree", {});
+        if (route === "resume skip then reset") await h.phaseResult("reset", P());
+        else {
+          h.setBranch([]);
+          await h.emit("session_tree", {});
+        }
         assert.deepEqual(h.recorderIo(), io);
         assert.deepEqual(readFileSync(original.recordPath()), before);
 
         h.setEnabled(true);
+        if (route === "resume skip then reset") {
+          await h.read("disarmed", legSkill, "ignored");
+          const restored = h.readRecord();
+          assert.equal(restored.derived.skill_read_coverage, "partial");
+          record.derived.skill_read_coverage = "partial";
+          assert.deepEqual(restored, record);
+          assert.deepEqual(readdirSync(dirname(h.recordPath())), ["a.yaml"]);
+          return;
+        }
         h.setBranch(route === "plan check"
           ? [entry, result({ toolName: "plan_check", details: { status: "pass", specPath: spec } })]
           : [entry]);
