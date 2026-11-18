@@ -964,6 +964,20 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
     assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']);
+    if (sample === 'no-arg-discovery-single') {
+      const heading = 'Open PR to gate:';
+      assert.ok(brief.includes(heading));
+      const expected = read(`${root}/expected.md`);
+      assert.ok(expected.includes(heading), 'f1 must require the singular list heading');
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        assert.ok(output.text.includes(heading));
+        assert.equal(saved.judge[model].factsSha, sha256(expected));
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
     assert.match(read('../eval/gatekeep-pr/replay.md'), /argument resolution with no PR token/);
   });
 }
