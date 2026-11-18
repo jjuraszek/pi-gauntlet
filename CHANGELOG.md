@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Require pi-cohort 8.4.2 or newer.
 - Show a linked list of the open PRs `/skill:gatekeep-pr` discovers before gating begins. Include requests to your teams and name the matching team alongside the PR's size, ticket and a short description. Typing one or more PR numbers shows the same list in input order. The list needs no reply. Each report names your teams asked to review, including when you are also the author or a requested reviewer.
 
 ## v8.8.1 - 2026-11-18
