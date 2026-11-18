@@ -1,6 +1,6 @@
 import './gatekeep-bypass-pick.test.mjs';
 import './gatekeep-post-selection.test.mjs';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
@@ -215,9 +215,28 @@ test('PR sets route before the unchanged single-PR steps', () => {
   ].join(' ');
   assert.ok(discoveryLines.includes(projection), 'Discovery projection must extract linearRefs before trimming body');
   const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection"';
-  for (const source of ['--author @me', "--search 'review-requested:@me'"]) {
-    assert.ok(discoveryLines.includes(`gh pr list -R <owner/repo> ${source} ${listArgs}`), `Discovery ${source} must use the declared projection`);
+  const block = section(discovery, '```bash\n', '\n```').replaceAll('<owner/repo>', 'acme/widgets');
+  const gh = `gh() {
+    case "$5 $6" in
+      '--author @me') echo '[{"number":7}]'; echo 'gh: author search failed' >&2; return 1 ;;
+      '--search review-requested:@me') echo '[]' ;;
+      *) return 2 ;;
+    esac
+  }`;
+  for (const [query, status, stdout, stderr] of [
+    ['--author @me', 1, '', 'gh: author search failed\n'],
+    ["--search 'review-requested:@me'", 0, '[]\n', ''],
+  ]) {
+    const result = spawnSync('bash', ['-c', `${gh}\n${block.replace('<query>', query)}`], { encoding: 'utf8' });
+    assert.equal(result.status, status, query);
+    assert.equal(result.stdout, stdout, query);
+    assert.equal(result.stderr, stderr, query);
+    assert.ok(discovery.includes('`' + query + '`'));
   }
+  assert.ok(block.includes(`gh pr list -R acme/widgets <query> ${listArgs}`));
+  assert.match(discovery, /two separate shell calls/);
+  assert.match(discovery, /discovery failed: <first gh error line>/);
+  assert.match(discovery, /For zero matches or a discovery failure print no list/);
   for (const text of [
     'Open PRs to gate, smallest first:',
     '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
