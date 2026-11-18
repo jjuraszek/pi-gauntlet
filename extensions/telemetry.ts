@@ -632,11 +632,11 @@
       disabledGap = false;
     };
 
-    const preserveOutgoingBinding = (live: BindingStep[] = []) => {
-      if (!frozen && (deferredReplay.length || live.length)) {
+    const preserveOutgoingBinding = () => {
+      if (!frozen && (deferredReplay.length || deferredBindings.length)) {
         outgoingBindings.push({
           initial: currentBinding(), writtenRun: recordWritten ? record?.run_id : undefined,
-          replay: deferredReplay, live,
+          replay: deferredReplay, live: deferredBindings,
         });
       }
     };
@@ -681,7 +681,6 @@
       if (!snap) {
         phases = details.phases;
         if (action === "reset") {
-          // Reset abandons live bind attempts, not the coverage gap of a resumed run.
           preserveOutgoingBinding();
           clearRunState();
         }
@@ -740,7 +739,7 @@
         await reconciling;
         flush();
       }
-      preserveOutgoingBinding(deferredBindings);
+      preserveOutgoingBinding();
       if (snap) await reconcileOutgoing();
       // Unscoped disabled gaps cannot follow navigation to an unrelated binding.
       const lostPending = !disabledGap && (hasSkillReads(pending.phases) || (!record && readGap));

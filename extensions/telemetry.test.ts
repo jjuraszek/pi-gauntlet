@@ -806,11 +806,14 @@
     assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
   });
 
-  test("disabled replay retains the coverage gap for its checkout and spec across navigation or reset", async t => {
+  test("disabled bindings retain the coverage gap for their checkout and spec across navigation or reset", async t => {
     const spec = "doc/specs/a.md";
+    const skipped = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
     const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
-    for (const route of ["plan check", "spec write", "resume skip", "legacy record", "resume skip then reset"] as const) {
+    for (const route of ["plan check", "spec write", "resume skip", "legacy record", "replay resume skip then reset", "live resume skip then reset"] as const) {
       await t.test(route, async () => {
+        const live = route === "live resume skip then reset";
+        const reset = live || route === "replay resume skip then reset";
         const original = await boundInBrainstorm();
         const legacy = route === "legacy record";
         if (!legacy) await original.read("first", legSkill, "text");
@@ -824,21 +827,25 @@
 
         const h = harness({ enabled: false });
         h.ctx.cwd = original.root;
-        const replay: unknown[] = [entry];
-        if (route === "spec write") {
-          replay.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "write", name: "write", arguments: { path: spec } }] } });
-          replay.push(result({ toolName: "write", toolCallId: "write" }));
-        } else if (route === "resume skip" || route === "resume skip then reset") {
-          const phases = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
-          replay.push(result({ toolName: "phase_tracker", details: { action: "skip", phases } }));
-        } else {
-          replay.push(result({ toolName: "plan_check", details: { status: "pass", specPath: join(original.root, spec) } }));
-        }
         const io = h.recorderIo();
-        h.setBranch(replay);
-        await h.emit("session_start", {});
+        if (live) {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.phaseResult("skip", skipped);
+        } else {
+          const replay: unknown[] = [entry];
+          if (route === "spec write") {
+            replay.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "write", name: "write", arguments: { path: spec } }] } });
+            replay.push(result({ toolName: "write", toolCallId: "write" }));
+          } else if (route === "resume skip" || reset) {
+            replay.push(result({ toolName: "phase_tracker", details: { action: "skip", phases: skipped } }));
+          } else {
+            replay.push(result({ toolName: "plan_check", details: { status: "pass", specPath: join(original.root, spec) } }));
+          }
+          h.setBranch(replay);
+          await h.emit("session_start", {});
+        }
         await h.read("missed", legSkill, "ignored");
-        if (route === "resume skip then reset") await h.phaseResult("reset", P());
+        if (reset) await h.phaseResult("reset", P());
         else {
           h.setBranch([]);
           await h.emit("session_tree", {});
@@ -847,10 +854,11 @@
         assert.deepEqual(readFileSync(original.recordPath()), before);
 
         h.setEnabled(true);
-        if (route === "resume skip then reset") {
+        if (reset) {
           await h.read("disarmed", legSkill, "ignored");
           const restored = h.readRecord();
           assert.equal(restored.derived.skill_read_coverage, "partial");
+          assert.deepEqual(restored.derived.phases.brainstorm?.skill_reads, [pendingRead]);
           record.derived.skill_read_coverage = "partial";
           assert.deepEqual(restored, record);
           assert.deepEqual(readdirSync(dirname(h.recordPath())), ["a.yaml"]);
