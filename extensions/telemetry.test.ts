@@ -587,6 +587,22 @@
     assert.equal(phases.brainstorm?.skill_reads, undefined);
   });
 
+  test("a tab in a skill filename survives reload without hiding reads from other phases", { skip: process.platform === "win32" }, async () => {
+    const h = await boundInBrainstorm();
+    await h.read("ordinary", legSkill, "text");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    mkdirSync(join(h.root, "skills"));
+    for (const name of ["chapter\ttwo.md", "chapter%09two.md"]) {
+      const file = join(h.root, "skills", name);
+      writeFileSync(file, "ref");
+      await h.read(name, file, "ref");
+    }
+    const { skill_read_coverage, phases } = h.readRecord().derived;
+    assert.equal(skill_read_coverage, "complete");
+    assert.deepEqual(phases.brainstorm?.skill_reads, [pendingRead]);
+    assert.deepEqual(phases.unphased?.skill_reads?.map(r => [r.path.split("/").at(-1), r.bytes]), [["chapter%09two.md", 3], ["chapter%2509two.md", 3]]);
+  });
+
   test("direct and nested reads count their final results once, in the phase active at completion", async () => {
     const h = harness({ piVersion: "1.5.0" });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));

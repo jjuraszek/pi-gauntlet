@@ -49,7 +49,8 @@ function skillsRoot(file: string): string | undefined {
 }
 
 const digest = (root: string) => createHash("sha256").update(root).digest("hex");
-const suffix = (root: string, file: string) => relative(root, file).split(sep).join("/");
+// Escape control characters for single-line display and literal % to keep filenames distinct.
+const suffix = (root: string, file: string) => relative(root, file).split(sep).join("/").replace(/[%\x00-\x1f\x7f]/g, encodeURIComponent);
 const inside = (rel: string) => rel !== "" && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel);
 
 export function skillReadPath(cwd: string, input: string, ownSkills: string): string | undefined {
