@@ -33,14 +33,27 @@
     const gitCwds: string[] = [];
     const jjCalls: string[][] = [];
     const readFileCalls: string[] = [];
+    let refReads = 0;
+    let fsCalls = 0;
+    const recorderIo = () => ({ git: gitCalls.length, jj: jjCalls.length, fs: fsCalls, refs: refReads });
     const specDirs = resolveFlowGuards({}).specDirs;
     const fetchedRecords = new Map<string, string>();
     let clock = Date.parse("2026-09-17T10:00:00Z");
     let enabled = o.enabled ?? true;
     const deps: Deps = {
       telemetryRepo: () => "test/repo",
-      readTelemetryBranch: () => ({ records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) }),
-      fs: { ...realFs, readFile: (p) => { readFileCalls.push(p); return realFs.readFile(p); } },
+      readTelemetryBranch: () => {
+        refReads++;
+        return { records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) };
+      },
+      fs: {
+        readFile: p => { fsCalls++; readFileCalls.push(p); return realFs.readFile(p); },
+        writeFile: (p, body) => { fsCalls++; realFs.writeFile(p, body); },
+        rename: (from, to) => { fsCalls++; realFs.rename(from, to); },
+        mkdirp: p => { fsCalls++; realFs.mkdirp(p); },
+        exists: p => { fsCalls++; return realFs.exists(p); },
+        unlink: p => { fsCalls++; realFs.unlink(p); },
+      },
       now: () => new Date((clock += 1000)).toISOString().replace(/\.\d{3}Z$/, "Z"),
       git: async (args, cwd) => {
         gitCalls.push(args);
@@ -111,7 +124,7 @@
       await emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
       await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
     };
-    return { read, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    return { read, recorderIo, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -639,11 +652,151 @@
     }
   });
 
+  test("re-enable resolves binding changes without recording disabled calls", async (t) => {
+    for (const route of ["plan check", "spec edit", "plan read", "resume skip", "worktree write", "draft rename"] as const) {
+      await t.test(route, async () => {
+        const h = harness();
+        const a = "doc/specs/a.md";
+        const b = "doc/specs/b.md";
+        const bound = route === "plan check" || route === "worktree write" || route === "draft rename";
+        const rename = route === "draft rename";
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        if (bound) {
+          await h.writeSpec(a, rename ? "# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing\n" : "# Spec\n");
+          await h.read("first", legSkill, "1");
+        }
+        const before = bound && readFileSync(h.recordPath(a));
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        switch (route) {
+          case "plan check":
+            await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "pass", specPath: b } });
+            await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "fail", specPath: a } });
+            break;
+          case "spec edit":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            await h.emit("tool_result", { toolName: "edit", input: { path: b }, isError: false });
+            break;
+          case "plan read":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            writeFileSync(join(h.root, "doc/plans/b.md"), `**Spec:** ${b}\n`);
+            await h.read("plan", "doc/plans/b.md", "header");
+            break;
+          case "resume skip":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            await h.phaseResult("skip", { ...P(), brainstorm: { status: "skipped", reason: `resume: ${b}` } });
+            break;
+          case "worktree write":
+            await h.writeSpec(`.worktrees/x/${b}`);
+            break;
+          case "draft rename":
+            await h.writeSpec(b);
+            break;
+        }
+        if (route !== "resume skip") await h.phaseResult("complete", P({ brainstorm: "complete" }));
+        const phase = route === "worktree write" ? "verify" : "unphased";
+        if (phase === "verify") {
+          await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+        }
+        await h.read("disabled", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a)), before);
+        assert.equal(existsSync(h.recordPath(b)), false);
+        h.setEnabled(true);
+        await h.read("next", legSkill, "text");
+        const next = h.readRecord(b);
+        assert.equal(next.derived.skill_read_coverage, "partial");
+        assert.deepEqual(next.derived.phases[phase]?.skill_reads, [pendingRead]);
+        assert.deepEqual(next.derived.phases.brainstorm?.skill_reads?.map(r => r.bytes), rename ? [1] : undefined);
+        assert.equal(next.derived.spec_writes.brainstorm?.count, rename ? 1 : undefined);
+        assert.equal(next.derived.gates.plan_rounds, 0);
+        assert.equal(next.events.some(e => e.kind === "spec_renamed" || (e.kind === "phase" && ["complete", "skip"].includes(e.action))), false);
+        if (bound && !rename) {
+          const original = h.readRecord(a).derived;
+          assert.equal(original.skill_read_coverage, "partial");
+          assert.deepEqual(original.phases.brainstorm?.skill_reads?.map(r => r.bytes), [1]);
+          assert.equal(original.phases.unphased?.skill_reads, undefined);
+        } else assert.equal(existsSync(h.recordPath(a)), false);
+      });
+    }
+  });
+
+  test("the recorder resumes after implement completion with no active phase", async (t) => {
+    for (const mode of ["live bound", "ordinary completion", "live unbound", "live unbound enabled", "replay enabled", "replay disabled"] as const) {
+      await t.test(mode, async () => {
+        const h = harness();
+        const a = "doc/specs/a.md";
+        const start = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
+        const done = { toolName: "plan_tracker", isError: false, details: { tasks: [{ status: "complete" }] } };
+        if (mode === "live bound" || mode === "ordinary completion") {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.writeSpec(a);
+          await h.phaseResult("start", start);
+        }
+        const before = existsSync(h.recordPath()) && readFileSync(h.recordPath());
+        const io = h.recorderIo();
+        const enabled = mode.endsWith("enabled");
+        const unbound = mode.startsWith("live unbound");
+        h.setEnabled(enabled);
+        if (mode.startsWith("replay")) {
+          const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+          h.setBranch([
+            entry,
+            result({ toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/old.md" } }),
+            result({ toolName: "plan_check", details: { status: "pass", specPath: a } }),
+            result({ toolName: "phase_tracker", details: { action: "start", phases: start } }),
+            result(done),
+          ]);
+          await h.emit("session_start", {});
+        } else {
+          if (unbound) {
+            await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+            await h.phaseResult("start", start);
+          }
+          if (mode === "ordinary completion") {
+            await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete" }));
+          } else await h.emit("tool_result", done);
+        }
+        if (!enabled) {
+          assert.deepEqual(h.recorderIo(), io);
+          assert.deepEqual(existsSync(h.recordPath()) && readFileSync(h.recordPath()), before);
+        }
+        h.setEnabled(true);
+        await h.read("next", legSkill, "text");
+        if (unbound) await h.writeSpec(a);
+        const { derived: d, events } = h.readRecord();
+        assert.deepEqual(d.phases.unphased?.skill_reads, [pendingRead]);
+        assert.equal(d.phases.implement?.skill_reads, undefined);
+        assert.equal(d.plan, undefined);
+        assert.equal(d.skill_read_coverage, mode === "live unbound enabled" ? "complete" : "partial");
+        assert.equal(events.some(e => e.kind === "phase" && e.name === "implement" && e.action === "complete"), mode === "live unbound enabled");
+        assert.equal(existsSync(h.recordPath("doc/specs/old.md")), false);
+      });
+    }
+  });
+
+  test("ship completion while disabled prevents deferred binding and disarms reads", async () => {
+    const h = await boundInBrainstorm();
+    const before = readFileSync(h.recordPath());
+    const io = h.recorderIo();
+    h.setEnabled(false);
+    await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
+    assert.deepEqual(h.recorderIo(), io);
+    assert.deepEqual(readFileSync(h.recordPath()), before);
+    h.setEnabled(true);
+    await h.read("after ship", legSkill, "ignored");
+    assert.equal(h.readRecord().derived.skill_read_coverage, "partial");
+    assert.deepEqual(Object.values(h.readRecord().derived.phases).flatMap(p => p.skill_reads ?? []), []);
+    assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
+  });
+
   test("reset or navigation while disabled disarms the old run without writing", async () => {
     for (const transition of ["reset", "session_tree"] as const) {
       const h = await boundInBrainstorm();
       const before = readFileSync(h.recordPath());
       h.setEnabled(false);
+      await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/abandoned.md" } });
       if (transition === "reset") await h.phaseResult("reset", P());
       else await h.emit("session_tree", { type: "session_tree" });
       await h.read("disabled", legSkill, "ignored");
@@ -654,6 +807,7 @@
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
       await h.writeSpec("doc/specs/b.md");
       assert.deepEqual(readFileSync(h.recordPath()), before, transition);
+      assert.equal(existsSync(h.recordPath("doc/specs/abandoned.md")), false, transition);
       const phases = h.readRecord("doc/specs/b.md").derived.phases;
       assert.deepEqual(Object.values(phases).flatMap(phase => phase.skill_reads ?? []), [], transition);
     }

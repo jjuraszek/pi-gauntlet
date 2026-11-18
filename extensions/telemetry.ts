@@ -130,6 +130,7 @@
     const telemetry = resolveTelemetry(gauntlet);
     const { specDirs } = resolveFlowGuards(gauntlet);
     const planDirs = planDirsFor(specDirs);
+    if (!telemetry.enabled) return { telemetry, specDirs, planDirs, errors, versions: {} };
     const sm = SettingsManager.create(root, getAgentDir());
     const layer = (s: unknown) => ((s as { subagents?: { agentOverrides?: unknown } })?.subagents?.agentOverrides ?? undefined) as Record<string, unknown> | undefined;
     const preset = layer(sm.getGlobalSettings());
@@ -161,8 +162,11 @@
     return m && isSpecPath(toPosix(m[1]), specDirs) ? m[1] : undefined;
   }
 
-  // Walks the session branch like phase-tracker.ts: successful phase_tracker results set
-  // the phase map and the flow-entry marker; bind candidates are taken only while armed
+  const afterPlanActivity = (phases: PhaseMap, tasks: { status: string }[]): PhaseMap =>
+    implementAutoCompletes(phases, tasks) ? { ...phases, implement: { status: "complete" } } : phases;
+
+  // Walks the session branch like phase-tracker.ts: tracker results set the phase
+  // map and the flow-entry marker; bind candidates are taken only while armed
   // and dropped on reset. Silent: no events are emitted.
   export function replayBranch(entries: Iterable<unknown>, specDirs: readonly string[]): ReplayResult {
     const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false };
@@ -176,7 +180,7 @@
           if (c?.type === "toolCall" && c.id && c.name) calls.set(c.id, { name: c.name, args: c.arguments });
         continue;
       }
-      if (msg.role !== "toolResult") continue;
+      if (msg.role !== "toolResult" || msg.isError) continue;
       if (msg.toolName === "phase_tracker") {
         const d = msg.details as { action?: string; phases?: PhaseMap; error?: string } | undefined;
         if (!d?.phases || d.error) continue;
@@ -185,16 +189,20 @@
         if (d.action === "reset") {
           out.planCheckSpec = undefined;
           out.lastSpecWrite = undefined;
+          out.lastPlanTasks = undefined;
         }
         const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs) : undefined;
         if (out.gauntletEntered && resumed) out.lastSpecWrite = resumed;
       } else if (msg.toolName === "plan_tracker") {
         const d = msg.details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
-        if (d && !d.error && Array.isArray(d.tasks)) out.lastPlanTasks = d.tasks;
+        if (d && !d.error && Array.isArray(d.tasks)) {
+          out.lastPlanTasks = d.tasks;
+          out.phases = afterPlanActivity(out.phases, d.tasks);
+        }
       } else if (msg.toolName === "plan_check") {
         const d = msg.details as { status?: string; specPath?: string } | undefined;
         if (out.gauntletEntered && d?.status === "pass" && typeof d.specPath === "string") out.planCheckSpec = d.specPath;
-      } else if ((msg.toolName === "write" || msg.toolName === "edit") && !msg.isError && msg.toolCallId) {
+      } else if ((msg.toolName === "write" || msg.toolName === "edit") && msg.toolCallId) {
         const p = (calls.get(msg.toolCallId)?.args as { path?: unknown } | undefined)?.path;
         if (out.gauntletEntered && typeof p === "string" && isSpecPath(toPosix(p), specDirs)) out.lastSpecWrite = p;
       }
@@ -223,6 +231,9 @@
     let gauntletEntered = false;
     let liveReadEntry = false;
     let readGap = false;
+    // Keep binding inputs, not tool results: disabled calls never feed telemetry counters or events.
+    const deferredBindings: ((snap: SettingsSnapshot) => Promise<void>)[] = [];
+    let reconciling: Promise<void> | undefined;
     const readCalls = new Map<string, { cwd: string; input: { path?: unknown } }>();
     let settingsWarned = false;
     let sessionId = "";
@@ -235,6 +246,7 @@
       if (!s.telemetry.enabled) {
         if (gauntletEntered) readGap = true;
         readCalls.clear();
+        pendingTest.clear();
         return undefined;
       }
       if (readGap && record?.derived.skill_read_coverage === "complete") {
@@ -243,14 +255,23 @@
       }
       return s;
     };
-    const enabledSettings = (ctx: ExtensionContext) => isSubagentChild() ? undefined : observeSettings(deps.settings(ctx.cwd));
+    const enabledSettings = async (ctx: ExtensionContext, settings?: SettingsSnapshot) => {
+      if (isSubagentChild()) return undefined;
+      const snap = observeSettings(settings ?? deps.settings(ctx.cwd));
+      if (!snap) return undefined;
+      if (!reconciling && deferredBindings.length) {
+        reconciling = reconcileBindings(snap).finally(() => { reconciling = undefined; });
+      }
+      await reconciling;
+      return snap;
+    };
 
     // Resolves a tool path (relative to ctx.cwd or absolute) to its owning checkout and
     // checkout-relative key. undefined outside any checkout.
-    const locate = async (ctx: ExtensionContext, p: string): Promise<{ toplevel: string; rel: string; via: "git" | "jj" } | undefined> => {
-      const candidateAbs = isAbsolute(p) ? p : resolve(ctx.cwd, p);
+    const locate = async (cwd: string, p: string): Promise<{ toplevel: string; rel: string; via: "git" | "jj" } | undefined> => {
+      const candidateAbs = isAbsolute(p) ? p : resolve(cwd, p);
       const co = await checkoutOf(candidateAbs, deps.git, deps.jj);
-      const rel = co ? repoRelativeToolPath(co.toplevel, ctx.cwd, p) : undefined;
+      const rel = co ? repoRelativeToolPath(co.toplevel, cwd, p) : undefined;
       return co && rel ? { toplevel: co.toplevel, rel, via: co.via } : undefined;
     };
 
@@ -282,15 +303,13 @@
       return !!parsed && parsed.status !== "in_progress";
     };
 
+    const recordWritable = () => !!toplevel && deps.fs.exists(toplevel)
+      && !!recordRel && (!recordWritten || deps.fs.exists(recordRel)) && !sealedAt(recordRel);
+
     const writeRecord = () => {
       if (!record || !recordRel || frozen) return;
-      if (!toplevel || !deps.fs.exists(toplevel)) {
-        readCalls.clear();
-        frozen = true;
-        return;
-      }
       const target = recordRel;
-      if ((recordWritten && !deps.fs.exists(target)) || sealedAt(target)) {
+      if (!recordWritable()) {
         readCalls.clear();
         frozen = true;
         return;
@@ -436,44 +455,83 @@
       return body === undefined || body.split("\n")[0] === CONTEXT_DRAFT_MARKER;
     };
 
-    const rebind = async (newSpec: string): Promise<boolean> => {
+    const rebind = (newSpec: string, observed: boolean): boolean => {
       const from = recordRel!;
       const to = recordPathFor(currentDir, newSpec);
       if (deps.fs.exists(to)) {
-        warn(`record move skipped: ${to} already exists`);
+        if (observed) warn(`record move skipped: ${to} already exists`);
         return false;
       }
       try {
         deps.fs.mkdirp(dirname(to));
         deps.fs.rename(from, to);
       } catch (e) {
-        warn(`record move failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
+        if (observed) warn(`record move failed: ${String((e as Error).message ?? e).split("\n")[0]}`);
         return false;
       }
-      pushEvent({ kind: "spec_renamed", from: boundSpec!, to: newSpec });
+      if (observed) pushEvent({ kind: "spec_renamed", from: boundSpec!, to: newSpec });
       boundSpec = newSpec;
       recordRel = to;
       record!.spec = newSpec;
       return true;
     };
 
+    const selectSpec = async (loc: Awaited<ReturnType<typeof locate>>, snap: SettingsSnapshot) => {
+      if (!loc || !canBind() || (loc.rel === boundSpec && loc.toplevel === toplevel)) return;
+      if (record) unbind();
+      await bind(loc.rel, snap, loc.toplevel, loc.via);
+    };
+
+    const bindCandidate = async (cwd: string, path: string, snap: SettingsSnapshot) => {
+      if (boundSpec || !canBind()) return;
+      const loc = await locate(cwd, path);
+      if (loc && isSpecPath(loc.rel, snap.specDirs)) await selectSpec(loc, snap);
+    };
+
+    const reconcileBindings = async (snap: SettingsSnapshot) => {
+      if (record && !recordWritable()) {
+        readCalls.clear();
+        frozen = true;
+      }
+      while (canBind() && deferredBindings.length) {
+        await deferredBindings.shift()!(snap);
+        flush();
+      }
+      deferredBindings.length = 0;
+    };
+
     // ---- phase mirror ----
     const clearRunState = () => {
+      deferredBindings.length = 0;
       unbind();
       readCalls.clear();
       liveReadEntry = false;
       readGap = false;
+      lastPlanTasks = undefined;
+      pendingTest.clear();
       buffer = [];
       pending = emptyAccumulators();
     };
 
-    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot | undefined, replay = false) => {
+    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, settings: SettingsSnapshot, replay = false) => {
       if (!details?.phases || details.error) return;
       const action = details.action ?? "";
+      const snap = settings.telemetry.enabled ? settings : undefined;
       const entered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
       if (!gauntletEntered && entered && snap && !replay) liveReadEntry = true;
       gauntletEntered = entered;
-      if (details.phases.ship.status === "complete") readCalls.clear();
+      if (details.phases.ship.status === "complete") {
+        readCalls.clear();
+        deferredBindings.length = 0;
+      }
+      if (action === "skip" && canBind() && lastCtx) {
+        const resumed = resumeSpecOf(details.phases, settings.specDirs);
+        const { cwd } = lastCtx;
+        if (resumed) {
+          if (snap) await bindCandidate(cwd, resumed, snap);
+          else deferredBindings.push(s => bindCandidate(cwd, resumed, s));
+        }
+      }
       if (!snap) {
         phases = details.phases;
         if (action === "reset") clearRunState();
@@ -481,11 +539,6 @@
         return;
       }
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
-      if (action === "skip" && !boundSpec && canBind() && lastCtx) {
-        const resumed = resumeSpecOf(details.phases, snap.specDirs);
-        const loc = resumed ? await locate(lastCtx, resumed) : undefined;
-        if (loc && isSpecPath(loc.rel, snap.specDirs)) await bind(loc.rel, snap, loc.toplevel, loc.via);
-      }
       if (action === "grant_fix_rounds") {
         live().gates.fix_round_grants += 1;
         pushEvent({ kind: "gate", gate: "fix_round_grant", rounds: typeof details.rounds === "number" ? details.rounds : undefined });
@@ -538,7 +591,6 @@
       const lostPending = hasSkillReads(pending.phases) || (!record && readGap);
       clearRunState();
       amendmentOpen = false;
-      pendingTest.clear();
       const nextSession = ctx.sessionManager.getSessionId();
       const sameSession = nextSession === sessionId;
       if (!sameSession) {
@@ -551,11 +603,16 @@
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
       readGap = gauntletEntered && (!snap || (sameSession && lostPending));
-      if (!snap || !canBind()) return;
+      if (!canBind()) return;
       const candidate = replay.planCheckSpec ?? replay.lastSpecWrite;
-      const loc = candidate ? await locate(ctx, candidate) : undefined;
-      if (loc && isSpecPath(loc.rel, snap.specDirs)) {
-        await bind(loc.rel, snap, loc.toplevel, loc.via);
+      if (!candidate) return;
+      const { cwd } = ctx;
+      if (!snap) {
+        deferredBindings.push(s => bindCandidate(cwd, candidate, s));
+        return;
+      }
+      await bindCandidate(cwd, candidate, snap);
+      if (record) {
         const status = replay.phases.brainstorm.status;
         if (status === "complete" || status === "skipped") {
           await applyPhaseDetails({ action: status === "complete" ? "complete" : "skip", phases: replay.phases }, snap, true);
@@ -569,7 +626,7 @@
 
     pi.on("session_shutdown", async (_event, ctx) => {
       readCalls.clear();
-      const snap = enabledSettings(ctx);
+      const snap = await enabledSettings(ctx);
       if (!snap || !record) return;
       const liveBlock = record.accumulators[sessionId];
       if (liveBlock) {
@@ -584,13 +641,21 @@
       if (text) return pendingWarnings.deliver(event, text);
       lastCtx = ctx;
       if (isSubagentChild()) return undefined;
-      const snap = observeSettings(deps.settings(ctx.cwd));
+      const settings = deps.settings(ctx.cwd);
+      const snap = await enabledSettings(ctx, settings);
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
-        await applyPhaseDetails(event.details as never, snap);
+        await applyPhaseDetails(event.details as never, settings);
         return undefined;
       }
-      if (!snap) return undefined;
+      if (event.toolName === "plan_tracker" && !event.isError) {
+        await onPlanTracker(event.details, settings);
+        return undefined;
+      }
+      if (!snap) {
+        if (canBind() && !event.isError) rememberBinding(event, ctx.cwd, settings);
+        return undefined;
+      }
       if (event.toolName === "subagent" && legAcc()) {
         await onSubagentResult(event.details, event.content, event.isError);
         return undefined;
@@ -598,15 +663,12 @@
       if (!record && !canBind()) return undefined;
       if (event.toolName === "plan_check" && !event.isError) {
         const d = event.details as { status?: string; specPath?: string; planPath?: string } | undefined;
-        const specLoc = d?.specPath ? await locate(ctx, d.specPath) : undefined;
-        const planLoc = d?.planPath ? await locate(ctx, d.planPath) : undefined;
+        const specLoc = d?.specPath ? await locate(ctx.cwd, d.specPath) : undefined;
+        const planLoc = d?.planPath ? await locate(ctx.cwd, d.planPath) : undefined;
         const spec = specLoc?.rel;
         const plan = planLoc?.rel;
         const pass = d?.status === "pass";
-        if (pass && canBind() && specLoc && (specLoc.rel !== boundSpec || specLoc.toplevel !== toplevel)) {
-          if (record) unbind();
-          await bind(specLoc.rel, snap, specLoc.toplevel, specLoc.via);
-        }
+        if (pass) await selectSpec(specLoc, snap);
         live().gates.plan_rounds += 1;
         pushEvent({ kind: "plan_check", pass, spec, plan });
         flush();
@@ -614,20 +676,16 @@
       }
       if ((event.toolName === "write" || event.toolName === "edit" || event.toolName === "read") && !event.isError) {
         const rawPath = (event.input as { path?: unknown }).path;
-        const loc = typeof rawPath === "string" ? await locate(ctx, rawPath) : undefined;
+        const loc = typeof rawPath === "string" ? await locate(ctx.cwd, rawPath) : undefined;
         if (!loc) {
           if (typeof rawPath === "string" && isSpecPath(toPosix(rawPath), snap.specDirs)) warn(`spec ${rawPath} is outside a git checkout; telemetry not recorded`);
           return undefined;
         }
-        return onSpecInteraction(event.toolName, loc, event, snap);
+        return onSpecInteraction(event.toolName, loc, snap, phases.brainstorm.status === "in_progress", event);
       }
       if (event.toolName === "subagent") {
         if (phaseNow() === "brainstorm") onCouncilResults(event.details, event.content);
         await onSubagentResult(event.details, event.content, event.isError);
-        return undefined;
-      }
-      if (event.toolName === "plan_tracker" && !event.isError) {
-        await onPlanTracker(event.details, snap);
         return undefined;
       }
       if (event.toolName === "bash") {
@@ -643,13 +701,34 @@
       return undefined;
     });
 
-    // Binding + spec-write bookkeeping; the bound-spec hooks are defined in block 2.
-    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, event: ToolResultEvent, snap: SettingsSnapshot): Promise<unknown> => {
+    const rememberBinding = (event: ToolResultEvent, cwd: string, settings: SettingsSnapshot) => {
+      const tool = event.toolName;
+      if (tool === "plan_check") {
+        const d = event.details as { status?: string; specPath?: string } | undefined;
+        const path = d?.specPath;
+        if (d?.status === "pass" && typeof path === "string" && path) {
+          deferredBindings.push(async snap => selectSpec(await locate(cwd, path), snap));
+        }
+      } else if (tool === "read" || tool === "write" || tool === "edit") {
+        const path = (event.input as { path?: unknown }).path;
+        if (typeof path !== "string") return;
+        const absPath = toPosix(resolve(cwd, path));
+        if (!isPlanPath(absPath, settings.planDirs) && (tool === "read" || !isSpecPath(absPath, settings.specDirs))) return;
+        const brainstorming = phases.brainstorm.status === "in_progress";
+        deferredBindings.push(async snap => {
+          const loc = await locate(cwd, path);
+          if (loc) await onSpecInteraction(tool, loc, snap, brainstorming);
+        });
+      }
+    };
+
+    // Without an event, reconcile only the binding, not the disabled call's observations.
+    const onSpecInteraction = async (tool: "write" | "edit" | "read", loc: { toplevel: string; rel: string; via: "git" | "jj" }, snap: SettingsSnapshot, brainstorming: boolean, event?: ToolResultEvent): Promise<unknown> => {
       const rel = loc.rel;
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs)) {
           await bind(rel, snap, loc.toplevel, loc.via);
-          if (!boundSpec) return undefined;
+          if (!boundSpec || !event) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
           flush();
           return patch;
@@ -658,7 +737,7 @@
           const specRel = spec ? repoRelativeToolPath(loc.toplevel, loc.toplevel, spec) : undefined;
           if (specRel && deps.fs.exists(join(loc.toplevel, specRel))) {
             await bind(specRel, snap, loc.toplevel, loc.via);
-            flush();
+            if (event) flush();
           }
         }
         return undefined;
@@ -668,7 +747,7 @@
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && (loc.via === "jj" || !shippedRecords(loc.toplevel, snap).has(rel))) {
           unbind();
           await bind(rel, snap, loc.toplevel, loc.via);
-          if (!boundSpec) return undefined;
+          if (!boundSpec || !event) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
           flush();
           return patch;
@@ -677,16 +756,20 @@
       }
       if (tool === "read") return undefined;
       if (rel === boundSpec) {
+        if (!event) return undefined;
         const patch = onBoundSpecWrite(tool, rel, event);
         flush();
         return patch;
       }
-      if (tool === "write" && isSpecPath(rel, snap.specDirs) && phases.brainstorm.status === "in_progress" && isDraftOrMissing(boundSpec)) {
-        if (await rebind(rel)) onBoundSpecWrite(tool, rel, event);
-        flush();
+      if (tool === "write" && isSpecPath(rel, snap.specDirs) && brainstorming && isDraftOrMissing(boundSpec)) {
+        const moved = rebind(rel, !!event);
+        if (event) {
+          if (moved) onBoundSpecWrite(tool, rel, event);
+          flush();
+        }
         return undefined;
       }
-      if (tool === "edit" && isSpecPath(rel, snap.specDirs)) {
+      if (event && tool === "edit" && isSpecPath(rel, snap.specDirs)) {
         onOtherSpecEdit(rel, event, snap.specDirs);
         flush();
       }
@@ -788,19 +871,24 @@
       flush();
     };
 
-    const onPlanTracker = async (details: unknown, snap: SettingsSnapshot) => {
-      const d = details as { tasks?: { name?: string; status: string }[]; error?: string; action?: string } | undefined;
+    const onPlanTracker = async (details: unknown, settings: SettingsSnapshot) => {
+      const d = details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
       if (!d || d.error || !Array.isArray(d.tasks)) return;
-      const reopens = countReopens(lastPlanTasks, d.tasks);
+      const previous = lastPlanTasks;
+      lastPlanTasks = d.tasks;
+      const next = afterPlanActivity(phases, d.tasks);
+      if (!settings.telemetry.enabled || (!record && !canBind())) {
+        phases = next;
+        return;
+      }
+      const reopens = countReopens(previous, d.tasks);
       if (reopens) {
         live().gates.task_reopens += reopens;
         pushEvent({ kind: "gate", gate: "task_reopen" });
       }
-      lastPlanTasks = d.tasks;
-      if (record && implementAutoCompletes(phases, d.tasks)) {
-        record.derived.plan = planTotals(d.tasks);
-        const next: PhaseMap = { ...phases, implement: { status: "complete" } };
-        await applyPhaseDetails({ action: "complete", phases: next }, snap);
+      if (next !== phases) {
+        if (record) record.derived.plan = planTotals(d.tasks);
+        await applyPhaseDetails({ action: "complete", phases: next }, settings);
         return;
       }
       if (record) flush();
@@ -821,13 +909,13 @@
 
     pi.on("tool_call", async (event, ctx) => {
       lastCtx = ctx;
-      const snap = enabledSettings(ctx);
+      const snap = await enabledSettings(ctx);
       if (!snap) return undefined;
       if (event.toolName === "read" && canBind()) readCalls.set(event.toolCallId, { cwd: ctx.cwd, input: event.input });
       if (event.toolName === "write") {
         const rawPath = (event.input as { path?: unknown }).path;
         if (typeof rawPath === "string" && phases.brainstorm.status === "in_progress") {
-          const loc = await locate(ctx, rawPath);
+          const loc = await locate(ctx.cwd, rawPath);
           if (loc?.via === "git" && isSpecPath(loc.rel, snap.specDirs)) {
             const shippedAt = shippedRecords(loc.toplevel, snap).get(loc.rel);
             if (shippedAt) return { block: true, reason: guardReason(loc.rel, shippedAt, "refs/telemetry/records") };
@@ -851,11 +939,11 @@
       }
       return undefined;
     });
-    pi.on("tool_execution_end", (event, ctx) => {
-      if (event.toolName !== "read") return;
+    pi.on("tool_execution_end", async (event, ctx) => {
+      if (event.toolName !== "read" || !await enabledSettings(ctx)) return;
       const call = readCalls.get(event.toolCallId);
       readCalls.delete(event.toolCallId);
-      if (!enabledSettings(ctx) || !canBind() || event.isError || typeof call?.input.path !== "string") return;
+      if (!canBind() || event.isError || typeof call?.input.path !== "string") return;
       const path = skillReadPath(call.cwd, call.input.path, ownSkills);
       if (!path || !Array.isArray(event.result?.content)) return;
       let bytes: number | undefined;
@@ -872,7 +960,7 @@
     });
     pi.on("message_end", async (event, ctx) => {
       lastCtx = ctx;
-      if (!enabledSettings(ctx)) return;
+      if (!await enabledSettings(ctx)) return;
       const msg = event.message as { role?: string; usage?: unknown; content?: unknown };
       if (msg.role !== "assistant") return;
       addPhaseTokens(usageToTokens(msg.usage));
@@ -885,7 +973,7 @@
     });
 
     pi.on("turn_end", async (_event, ctx) => {
-      if (!enabledSettings(ctx)) return;
+      if (!await enabledSettings(ctx)) return;
       const tokens = ctx.getContextUsage?.()?.tokens;
       if (typeof tokens !== "number") return;
       const acc = phaseAcc();
@@ -893,7 +981,7 @@
     });
 
     pi.on("input", async (event, ctx) => {
-      if (!enabledSettings(ctx)) return undefined;
+      if (!await enabledSettings(ctx)) return undefined;
       amendmentOpen = false;
       if (!record || event.source === "extension" || event.text.trimStart().startsWith("/")) return undefined;
       const k = phaseNow();
@@ -906,20 +994,20 @@
 
     pi.on("model_select", async (event, ctx) => {
       lastCtx = ctx;
-      if (!enabledSettings(ctx) || phaseNow() === "unphased") return;
+      if (!await enabledSettings(ctx) || phaseNow() === "unphased") return;
       pushEvent({ kind: "config_change", model: `${event.model.provider}/${event.model.id}` });
       flush();
     });
 
     pi.on("thinking_level_select", async (event, ctx) => {
       lastCtx = ctx;
-      if (!enabledSettings(ctx) || phaseNow() === "unphased") return;
+      if (!await enabledSettings(ctx) || phaseNow() === "unphased") return;
       pushEvent({ kind: "config_change", thinking: String(event.level) });
       flush();
     });
 
     pi.on("session_compact", async (_event, ctx) => {
-      if (!enabledSettings(ctx)) return;
+      if (!await enabledSettings(ctx)) return;
       const acc = phaseAcc();
       acc.compactions = (acc.compactions ?? 0) + 1;
       flush();
