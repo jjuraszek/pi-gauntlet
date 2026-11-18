@@ -186,6 +186,10 @@ test('PR sets route before the unchanged single-PR steps', () => {
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
+  for (const text of [
+    'Open PRs to gate, smallest first:',
+    '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
+  ]) assert.ok(discovery.includes(text), `Missing discovery list format: ${text}`);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
