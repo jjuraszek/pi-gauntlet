@@ -1,12 +1,12 @@
-# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single)
+# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single; no-arg-discovery-over-cap; no-arg-discovery-cc-multi)
 
 for: b4c3e87a48a91b0d054276b7c3d70f18ef067d00b2f7faba105f2863e516a6c8
 
-wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single)
+wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-discovery-over-cap); 23s (no-arg-discovery-cc-multi)
 
 ## Change
 
-Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. Coverage ends before provisioning and excludes report wording and typed PR arguments.
+Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. Coverage ends before provisioning and excludes report wording and typed PR arguments.
 
 ## Cells
 
@@ -16,6 +16,10 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 | no-arg-discovery-note | github-copilot/gpt-6.1-sol | improved | 7267 | n1: fails -> holds (intended change); n2: fails -> holds (intended change); n3: fails -> holds (intended change); n4: holds -> holds (held) |
 | no-arg-discovery-single | anthropic/claude-opus-5-5 | improved | 7555 | f1: fails -> holds (intended change) |
 | no-arg-discovery-single | github-copilot/gpt-6.1-sol | improved | 5194 | f1: fails -> holds (intended change) |
+| no-arg-discovery-over-cap | anthropic/claude-opus-5-5 | improved | 7622 | f1: fails -> holds (intended change) |
+| no-arg-discovery-over-cap | github-copilot/gpt-6.1-sol | improved | 5723 | f1: fails -> holds (intended change) |
+| no-arg-discovery-cc-multi | anthropic/claude-opus-5-5 | improved | 7386 | f1: fails -> holds (intended change) |
+| no-arg-discovery-cc-multi | github-copilot/gpt-6.1-sol | improved | 4011 | f1: fails -> holds (intended change) |
 
 ## Feedback
 
@@ -24,5 +28,8 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 
 - no-arg-discovery-single / anthropic/claude-opus-5-5: f1 moved from fails to holds as expected. Before narrated both `gh pr list -R acme/widgets` commands and handed the origin URL to the single-PR path without waiting, but it explicitly showed the human nothing, so the `Open PR to gate:` heading and the linked entry were missing. After keeps everything Before had: both queries are bound to origin with `-R acme/widgets` despite `GH_REPO=other/project`, PR 999 is not used as a fallback, there is no batch dispatch or stop error, and only `https://github.com/acme/widgets/pull/101` is handed off. It adds the singular heading and one entry, `[#101](https://github.com/acme/widgets/pull/101) +1 -1, yours, no ticket - raise the default retry timeout for slow requests`, with no pasteable numbers line and no pause. To keep this stable, the wording should continue to state that the one-match list is an intermediate message with nothing awaited, that the pasteable line belongs only to the multi-PR set path, and that the handoff token is the origin URL rather than a bare number. One thing to check: After now runs `gh api user/teams` and the overrides or ticket lookup even for a single authored PR; if that is intended, keep it described as display-only so it cannot introduce a stop or a question before the handoff.
 - no-arg-discovery-single / github-copilot/gpt-6.1-sol: The After wording moved f1 by making the parent render the discovery message itself: it prints the `Open PR to gate:` heading and a single linked entry for #101 carrying +1 -1, yours, no ticket and a short summary of the retry change. Before printed only a `Selected PR #101` sentence, with no heading, link, size, ownership or ticket wording. Both outputs already narrated the two `gh pr list` commands with `-R acme/widgets` despite `GH_REPO`, handed only the origin URL to the single-PR Gather path, and avoided a pasteable numbers line, a wait for a reply, batch dispatch and a discovery stop error, so nothing Before kept was lost. To keep this stable, keep the explicit instruction that the singular list is printed before the handoff and that the single-PR case continues immediately with the origin-bound URL, with the pasteable line reserved for the multi-PR set. One thing to watch: After changed the review query from `user-review-requested:@me` to `review-requested:@me` and added the teams lookup and overrides read. That does not affect f1, but confirm the search qualifier change is intended.
+
+- no-arg-discovery-over-cap: Both replays list six linked PRs once in size order, then send a separate stop ending with `multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6` and the plain numbers. Neither baseline printed the linked list. [Saved replies and judge feedback](results/no-arg-discovery-over-cap/candidate.json).
+- no-arg-discovery-cc-multi: Both replays list three linked PRs before the marked harness stop, with `discovered, smallest first: 101, 97, 112` last. Neither baseline printed the list. One candidate also narrates internal steps before the rendered messages; f1 checks the messages, not the absence of narration. [Saved replies and judge feedback](results/no-arg-discovery-cc-multi/candidate.json).
 
 exit: 0

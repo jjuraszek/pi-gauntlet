@@ -143,6 +143,7 @@ for (const [name, text, patterns] of [
   ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
+    /After successful admission of a discovered set, print that plain-number line once/,
     /positional issue/, /duplicate identities/, /origin/, /Claude Code/,
     /print exactly: `multi-PR mode requires pi's nested dispatch`/,
     /parallel\.maxTasks/, /default `8`/, /never chunk/i,
@@ -974,6 +975,20 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         assert.ok(output.text.includes(heading));
+        assert.equal(saved.judge[model].factsSha, sha256(expected));
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
+    if (['no-arg-discovery-over-cap', 'no-arg-discovery-cc-multi'].includes(sample)) {
+      const expected = read(`${root}/expected.md`);
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        const [list, stop] = output.text.trim().split(/\n\s*---\s*\n/).slice(-2);
+        assert.match(list, /^Open PRs to gate, smallest first:/);
+        assert.match(stop, /^gauntlet: stuck .+\n/);
+        assert.match(stop, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
         assert.equal(saved.judge[model].factsSha, sha256(expected));
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }

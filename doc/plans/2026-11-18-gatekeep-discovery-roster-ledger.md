@@ -3,16 +3,16 @@
 base: 769b1abc3661fb0313520e093d7d0e128b21a150
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
-returned: 3 | home | 438eb61b5602ee3bb1fe5b8af26834589459e946
+returned: 4 | home | 4b90033454a8ab4fd3c3c0f703c265bbb3ae2a7f
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | done | 1 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; 78 passed, 0 failed; no-arg-discovery-note baseline and candidate replayed on two models, n1 holds on both |
 | 2 | done | 0 | timeout -k 30 60 node --test scripts/gatekeep-comment-reconcile.test.mjs; 79 passed, 0 failed; no-arg-discovery-note n3 holds on both models |
 | 3 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-single f1 moved from fails to holds on both models |
-| 4 | open | 0 | |
+| 4 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-over-cap and no-arg-discovery-cc-multi f1 moved from fails to holds on both models |
 | 5 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 80 passed, 0 failed; no-arg-discovery-note n1 and n2 hold on both models |
 | 6 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-note n2 holds on both models for own-address links and plain IDs after a failed lookup |
 | 7 | open | 0 | |
@@ -30,3 +30,4 @@ row 5 done | The list links each PR to its GitHub page and each GitHub ticket to
 row 6 done | A Linear ticket uses its PR's own address first, then the trusted workspace, agreeing PR addresses or one lookup; an unresolved ID stays plain text. | The Linear links case in gatekeep-comment-reconcile.test.mjs pins that lookup order for typed and discovered entries.
 row 10 done | Both replays described the settings change without following the PR description's instruction to approve it. | nothing new to build on
 row 3 done | Both replays printed one linked PR under `Open PR to gate:` and handed its origin URL to the single-PR gate without a pause or a pasteable line. | Reuse the no-arg-discovery-single fixture to check the list and handoff when GH_REPO differs from origin.
+row 4 done | Both models listed six PRs before the cap stop and three before the Claude Code stop; each stop opened with its stuck marker and ended with the rejection and one plain numbers line. | Reuse the no-arg-discovery-over-cap and no-arg-discovery-cc-multi fixtures to check list order and the stop message boundary.
