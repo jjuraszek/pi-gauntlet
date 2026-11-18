@@ -103,6 +103,8 @@ gh run list -R <owner/repo> -w <workflowName> -c <headRefOid> --json databaseId,
 git worktree list --porcelain               # discovery only - never create or sync here
 ```
 
+Print the typed list once per invocation, after the initial gather and before provisioning. For one typed PR, use `PR to gate:` and one [list entry](#list-entries) from the step-1 digest. For `linearRefs` use matches of the list projection's address pattern across the full title and body, in text order. Send the list as its own message without a marker or pasteable line and proceed directly to step 2. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
+
 Review-thread resolution state, when needed for comment triage, comes from
 the GraphQL `reviewThreads` connection (`isResolved`, `isOutdated`); if
 unavailable, triage proceeds without resolution flags and says so.

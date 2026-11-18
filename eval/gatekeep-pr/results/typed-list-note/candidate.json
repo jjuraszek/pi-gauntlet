@@ -1,0 +1,90 @@
+{
+  "sample": "typed-list-note",
+  "arm": "candidate",
+  "skillSha": "fa02ed2dd4dcb48e85b6531d8a86a2a86dc73a1b32bb3e6bd6da9f4da292fa52",
+  "inputSha": "7c31230896e1aa196af873361c055762b91a0154ea832c09f09ec4abb41486d8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Run A: `112 101`\n\n**Argument resolution.** There are two PR tokens and no `--rebase`, so the set-routing row applies and I follow `reference/batch.md`.\n\n**Admission (no effects yet):**\n- There is no positional issue reference.\n- #112 and #101 are distinct identities in origin `acme/widgets`.\n- The harness is pi.\n- The cap comes from pi-cohort `parallel.maxTasks` (4), and 2 is at most 4.\n- The roster is admitted in typed order: 112, 101.\n- This is a typed set, so I print no `discovered, smallest first:` line.\n\n**Commands, in order:**\n\n1. I mint the parent `RUN_DIR` through `post-selection-loop.md` `### Continuation record` from the session checkout. It succeeds. No roster or per-PR records exist yet.\n2. I gather #112:\n   `gh pr view 112 --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq '<linearRefs projection, body cut to 300>'`\n   It returns the first row: head `bbbbbbb…`, base `main`, same-repo, OPEN.\n3. I gather #101 with the same command for `101`. It returns head `aaaaaaa…`, base `main`, same-repo, OPEN.\n4. `gh api user --jq .login` returns `alex`.\n5. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` returns `acme/reviewers`.\n6. I read the ticket-display config:\n   - `git symbolic-ref --short refs/remotes/origin/HEAD` resolves the default branch.\n   - `git show <ref>:<path>` runs for `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md` and `doc/gauntlet-overrides.md`. None has a tracker override, so Linear is allowed.\n   - No Linear lookup is needed, because both tickets resolve from GitHub references.\n\n**Building the list entries:**\n- **#112**\n  - Author is pat and there are no pending requests, so the reason is `by pat`.\n  - The first closing reference is origin issue #22.\n- **#101**\n  - Author is alex, which matches the viewer, so the reason is `yours`.\n  - There is no closing reference. The branch `gh-45-retry` starts with `gh-45`, so the ticket is origin issue #45.\n\n**Message the human sees (its own message, no marker, no wait):**\n\nPRs to gate:\n- [#112](https://github.com/acme/widgets/pull/112) +300 -80, by pat, [#22](https://github.com/acme/widgets/issues/22) - centralize settings reads through a single resolver\n- [#101](https://github.com/acme/widgets/pull/101) +3 -1, yours, [#45](https://github.com/acme/widgets/issues/45) - raise the default retry timeout for slow requests\n\n**Next step:** serial provisioning in the primary checkout.\n- I run `git fetch origin` once. There are no fork PRs, so there is no `pull/<N>/head` fetch.\n- I apply the gitignore-first rule if the resolved worktree home is inside the primary.\n- I provision `pr-112` and then `pr-101` one at a time, verifying `HEAD == headRefOid`.\n- No other-author rebase confirmation is asked, because `--rebase` is absent.\n\nI stop here.\n\n---\n\n# Run B: `97`\n\n**Argument resolution.** There is one PR token, so this is the single-PR path. There is no issue argument and no `--rebase`.\n\n**Setup:**\n- I mint the run folder and initialize its continuation record.\n- I `init` `plan_tracker` with `gather, provision, verify`. There is no `sync` stage because `--rebase` is absent.\n- `gather` is in progress.\n\n**Step 1 Gather, the fixed commands in order (all succeed):**\n\n1. `gh pr view 97 --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests`\n2. `gh run list -R acme/widgets -c <headRefOid> --json databaseId,status,conclusion,workflowName,url`\n3. `gh api user --jq .login` returns `alex`.\n4. `gh api user/teams --paginate --jq …` returns `acme/reviewers`.\n5. `gh api graphql …` reads `viewerPermission`, `viewerCanUpdateBranch`, `viewerCanMergeAsAdmin` and `viewerCanClose`.\n6. `gh repo view <base-repository> --json nameWithOwner` returns `acme/widgets`.\n7. `gh pr diff 97`\n8. `gh api repos/acme/widgets/pulls/97/reviews --paginate` reads the reviews, which are the source for the prior review.\n9. `gh api repos/acme/widgets/pulls/97/comments --paginate`\n10. `gh api repos/acme/widgets/issues/97/comments --paginate`\n11. `git worktree list --porcelain` finds no worktree for #97.\n\n**Digest facts derived from the gather:**\n- `viewer.is_author` is false.\n- `viewer.role` is requested reviewer, because the pending User request is for alex.\n- `issue_ref` is null. I checked:\n  - the explicit argument: none\n  - closing references: empty\n  - branch `csv-export`, title, body and commits: no reference\n\n**Ticket display:**\n- I read the default branch via `git symbolic-ref --short refs/remotes/origin/HEAD` and `git show` of the three override paths. There is no tracker override.\n- No reference is found, so the ticket shows as `no ticket`. No Linear lookup is needed because there is no ID to resolve.\n\n**Message the human sees (its own message, no marker, no wait):**\n\nPR to gate:\n- [#97](https://github.com/acme/widgets/pull/97) +40 -12, by robin, requested from you, no ticket - add a csv export button for the widget list\n\n**Next step:** I close `gather` and start step 2, Provision + configure (`reference/assessment.md`). That step:\n- provisions the worktree for `csv-export`,\n- resolves config from the merge-base,\n- selects the scope from the PR's stated intent, because there is no ticket or spec reference.\n\nI stop here.\n",
+      "words": 702,
+      "wallMs": 28905,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Run A: `112 101`\n\n1. Run `git remote get-url origin`, which returns `git@github.com:acme/widgets.git`.\n2. Read the active pi-cohort configuration: `parallel.maxTasks` is 4. Admit the two distinct PRs in argument order, #112 then #101. Both belong to origin; there is no positional issue reference.\n3. Create the parent run folder with `mktemp -d \"${TMPDIR:-/tmp}/gate.XXXXXX\"` and initialize its continuation record before progress tracking. Use the resulting absolute directory as `RUN_DIR`.\n4. Run the parent gather command first for `112`, then for `101`:\n\n   `gh pr view <N> --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq '(.linearRefs = [(.title + \" \" + (.body // \"\")) | scan(\"https://linear\\\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)\") | {key: .[0], id: (.[1] | ascii_upcase)}]) | .body |= (. // \"\")[0:300]'`\n\n   These return the supplied rows without changing their order.\n\n5. Run `gh api user --jq .login`, returning `alex`.\n6. Run `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'`, returning `acme/reviewers`.\n7. Run `git symbolic-ref --short refs/remotes/origin/HEAD`. Against the returned default-branch ref, check the overrides in order with:\n   - `git show <ref>:.pi/gauntlet-overrides.md`\n   - `git show <ref>:gauntlet-overrides.md`\n   - `git show <ref>:doc/gauntlet-overrides.md`\n\n   Stop that search at the first existing file. The supplied result establishes no tracker override. Both tickets can be displayed directly, so no Linear lookup runs.\n\n8. Record the roster in argument order. Initialize the parent tracker with `pr-112 state: <RUN_DIR>/pr-112/state` and `pr-101 state: <RUN_DIR>/pr-101/state`; neither task is in progress yet. Do not initialize child assessment stages or child continuation records before provisioning.\n\nSend this intermediate message, without a marker:\n\nPRs to gate:\n- [#112](https://github.com/acme/widgets/pull/112) +300 -80, by pat, [#22](https://github.com/acme/widgets/issues/22) - centralize settings reads through one resolver\n- [#101](https://github.com/acme/widgets/pull/101) +3 -1, yours, [#45](https://github.com/acme/widgets/issues/45) - raise the default retry timeout for slow requests\n\n**Next step:** Provision serially in roster order, beginning with the parent's single `git fetch origin`. Stop before running it. No helper has been dispatched.\n\n## Run B: `97`\n\n1. Create a separate run folder with `mktemp -d \"${TMPDIR:-/tmp}/gate.XXXXXX\"` and initialize its continuation record.\n2. Initialize the tracker stages `gather`, `provision`, and `verify`, then start `gather`. There is no `sync` stage because the invocation does not include `--rebase`.\n3. Run the fixed PR read:\n\n   `gh pr view 97 --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests`\n\n4. Using the returned head, run:\n\n   `gh run list -R acme/widgets -c <returned headRefOid> --json databaseId,status,conclusion,workflowName,url`\n\n5. Run `gh api user --jq .login`, returning `alex`.\n6. Run `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'`, returning `acme/reviewers`.\n7. Run the fixed permissions query:\n\n   `gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=acme -f r=widgets -F n=97`\n\n8. Run `gh repo view acme/widgets --json nameWithOwner`.\n9. Run `gh pr diff 97`.\n10. Run `gh api repos/acme/widgets/pulls/97/reviews --paginate`.\n11. Run `gh api repos/acme/widgets/pulls/97/comments --paginate`.\n12. Run `gh api repos/acme/widgets/issues/97/comments --paginate`.\n13. Run `git worktree list --porcelain`, confirming no existing PR worktree.\n14. Resolve the issue reference from the gathered data: none is named. Record that result without inventing requirements.\n15. Run `git symbolic-ref --short refs/remotes/origin/HEAD` and check the returned default-branch ref for the overrides in the same search order:\n    - `git show <ref>:.pi/gauntlet-overrides.md`\n    - `git show <ref>:gauntlet-overrides.md`\n    - `git show <ref>:doc/gauntlet-overrides.md`\n\n    Stop at the first existing file. No tracker override or ticket lookup changes the display.\n\n16. Finish the digest and mark `gather` complete. The viewer is a requested reviewer, not the author.\n\nSend this intermediate message, without a marker:\n\nPR to gate:\n- [#97](https://github.com/acme/widgets/pull/97) +40 -12, by robin, requested from you, no ticket - add a csv export button for the widget list\n\n**Next step:** Step 2, Provision + configure. Stop before starting it. No verification has run, no SHA has been assessed by a helper, and no helper or menu has been dispatched or rendered.\n",
+      "words": 574,
+      "wallMs": 43447,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fbf738402ad3d49765718d8bc5aebdabca52ed5b354ea38f73e0794c798076b1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eadb6b84cd49b7891dd4443a647a40ff8faff7253910b61c798cd853251bdcd8",
+      "baselineOutputSha": "20cbbd16813870c6b839a62c90ed81287c2b0be14d06c21be0c2fa2b2966c320",
+      "candidateOutputSha": "a9d0517bde761434e9280358e03c0b49c45c9abc638446662fc4a2aa314c1895",
+      "facts": {
+        "e1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "e2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "e3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved all three facts by having the parent render a pre-provisioning list as its own message: Run A prints `PRs to gate:` with linked entries in typed order (#112 +300 -80, by pat, linked issue #22; then #101 +3 -1, yours, issue #45 derived from the `gh-45-retry` branch), each with a short change phrase, no `discovered, smallest first:` line, and an explicit no-wait handoff to serial provisioning; Run B prints the singular `PR to gate:` with a linked #97, +40 -12, `by robin, requested from you`, `no ticket`, and a CSV-export phrase before any worktree is created. Before printed no list at all ('Messages the human sees: None'), so e1 and e3 failed, and e2 failed because there was no #112 entry reading `by pat`, even though Before did omit the discovered line and did not pause. Nothing Before held was lost. To keep this stable, keep the wording that explicitly ties the list to 'after gather, before provisioning', 'own message, no marker, no wait', typed order for explicit sets, and the rule that an author with no pending request renders as `by <login>` with no request wording; note that After now adds a viewer-login read, a team read, and override-path reads to the typed-set path that Before explicitly skipped, so if those extra reads are not intended for typed sets, state which of them the list entry actually requires.",
+      "wallMs": 6572,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fbf738402ad3d49765718d8bc5aebdabca52ed5b354ea38f73e0794c798076b1",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "eadb6b84cd49b7891dd4443a647a40ff8faff7253910b61c798cd853251bdcd8",
+      "baselineOutputSha": "a956aace2761714cd126241dec1d599ce9c58f5b774f2a923596ab2bba3ac4bc",
+      "candidateOutputSha": "1da24738ba94c1536f3c96a071189207c52e441e459590b3cad56c9972d07aba",
+      "facts": {
+        "e1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "e2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "e3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and Before held none of them, so nothing was lost. Before closed each run with a prose sentence (\"I will assess #112's shared settings resolver, then #101's...\") with no heading, links, sizes, author or ticket. After instead prints `PRs to gate:` / `PR to gate:` with one linked entry per PR, in typed order for Run A (#112 before #101, not size-sorted), each carrying +/- counts, role wording, a linked ticket or `no ticket`, and a short change phrase. What made this possible is the wider parent gather (url, title, body, additions, deletions, closingIssuesReferences, reviewRequests) plus the viewer-login read, which give `by pat` with no request wording, `yours` for #101, and `requested from you` for #97. After also prints no `discovered, smallest first:` line and asks no question, going straight to naming provisioning as the next step; the \"Stop before running it\" text reads as the replay's stopping point, not a pause for the human. Two things to keep stable: issue #45 on #101 comes only from the branch name `gh-45-retry` (closing references are empty), so the wording should keep stating that a branch-derived ticket is linked like a closing reference; and the instruction to continue to provisioning without waiting should stay explicit so the list is never read as a confirmation prompt.",
+      "wallMs": 9714,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a8534a1a4159c1866cd1980fac89a70d9301f66e"
+}

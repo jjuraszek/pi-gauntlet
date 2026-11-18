@@ -3,9 +3,9 @@
 base: 769b1abc3661fb0313520e093d7d0e128b21a150
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 8 | home | 5e8a756fa44d7db1ccb378bb15bc2ead637dc634
+returned: 11 | home | a8534a1a4159c1866cd1980fac89a70d9301f66e
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -19,8 +19,8 @@ returned: 8 | home | 5e8a756fa44d7db1ccb378bb15bc2ead637dc634
 | 8 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 82 passed, 0 failed; role-line-team t1, t3 and t4 moved from fails to holds on both models for discovered and typed PRs, authors and direct requests; role-line-requested r1-r4 held on both models |
 | 9 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 82 passed, 0 failed; role-line-team t2 moved from fails to holds on both models for a failed membership read and two pending teams |
 | 10 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-note n4 holds on both models for an instruction to approve in the PR description |
-| 11 | open | 0 | |
-| 12 | open | 0 | |
+| 11 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 84 passed, 0 failed; typed-list-note e1 and e2 moved from fails to holds on both models for linked entries in typed order before provisioning without a pasteable line or pause |
+| 12 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 84 passed, 0 failed; typed-list-note e3 moved from fails to holds on both models for a single linked entry after gathering and before provisioning |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
@@ -34,3 +34,5 @@ row 4 done | Both models listed six PRs before the cap stop and three before the
 row 7 done | Both models listed team-only PRs, named the viewer's team on a slug match, and said only `review requested` when no membership matched. | Reuse the no-arg-discovery-under-cap fixture to check that an unmatched team request stays in the admitted set without a membership claim.
 row 8 done | Both models named the viewer's requested teams in the two-sentence opening on discovered and typed PRs, including alongside authorship or a direct request. | Reuse the role-line-team snapshots to check team disclosure after a same-head refresh without replaying discovery or menus.
 row 9 done | Both models said team memberships could not be read and named both requested teams in order without claiming either belonged to the viewer. | Reuse the team-unreadable assertion in gatekeep-comment-reconcile.test.mjs to check the fallback when memberships cannot be read.
+row 11 done | Both models listed #112 before the smaller #101, linked both PRs and tickets, and continued to provisioning without a pasteable numbers line or a pause. | Reuse the typed-list-note fixture to check input order, ticket links and the handoff from the gather to provisioning.
+row 12 done | Both models printed one linked entry for typed PR #97 after gathering it and before creating its worktree. | nothing new to build on

@@ -15,7 +15,7 @@ Sixty-eight synthetic digest samples test command and helper narration through t
 | `skills/gatekeep-pr/verification-brief.md` |
 | `skills/gatekeep-pr/reference/assessment.md` |
 
-The batch and no-argument discovery samples cover these cases:
+The batch, discovery and typed-list samples cover these cases:
 
 | Sample | Must-hold behavior |
 |---|---|
@@ -30,6 +30,7 @@ The batch and no-argument discovery samples cover these cases:
 | `no-arg-discovery-failed` | A failed query or a result reaching the query limit stops discovery without a current-branch fallback. |
 | `no-arg-discovery-under-cap` | Keep eligible rows beyond the first 100, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
 | `no-arg-discovery-note` | Render one linked entry per kept PR, name the request source, summarize untrusted text, and continue through admission without a reply. |
+| `typed-list-note` | Start with two PR numbers out of size order and one number alone. Show the gathered entries before provisioning without a pasteable line or a reply. |
 
 All these samples use a local `bundle+` line for `skills/gatekeep-pr/reference/batch.md`. The four `batch-` samples and only `no-arg-discovery-under-cap` among the discovery samples also bundle `agents/pr-gatekeeper.md`. Neither file is in the global `target.json` manifest. The note, single-match and two rejection samples omit later gate stages with `bundle-` lines. Bundled files must be committed and readable at the pinned baseline before capture: the runner rejects a `bundle+` file absent at that base.
 

@@ -141,6 +141,11 @@ for (const [name, text, patterns] of [
     /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
     /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
+  ['typed list after the set gather', batch, [
+    /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
+    /\.linearRefs = \[\(\.title \+ " " \+ \(\.body \/\/ ""\)\)/, /\.body \|= \(\. \/\/ ""\)\[0:300\]/,
+    /`PRs to gate:`/, /in typed order/, /print no `discovered, smallest first:` line/i,
+  ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
     /After successful admission of a discovered set, print that plain-number line once/,
@@ -958,7 +963,8 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
 
 const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap', 'note'].map((suffix) => `no-arg-discovery-${suffix}`);
 const roleFacts = { 'role-line-requested': ['r1', 'r2', 'r3', 'r4'], 'role-line-team': ['t1', 't2', 't3', 't4'] };
-for (const sample of [...discoverySamples, ...Object.keys(roleFacts)]) {
+const typedFacts = ['e1', 'e2', 'e3'];
+for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-list-note']) {
   test(`discovery and role replay structure: ${sample}`, () => {
     const root = `../eval/gatekeep-pr/samples/${sample}`;
     const input = readOrEmpty(`${root}/case.md`);
@@ -970,14 +976,16 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts)]) {
     assert.deepEqual(bundle, wanted);
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
-    assert.deepEqual(facts.facts.map((fact) => fact.id), roleFacts[sample] ?? (sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']));
-    if (roleFacts[sample]) {
+    const replayFacts = sample === 'typed-list-note' ? typedFacts : roleFacts[sample];
+    assert.deepEqual(facts.facts.map((fact) => fact.id), replayFacts ?? (sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']));
+    if (sample === 'typed-list-note') assert.match(read('../eval/gatekeep-pr/replay.md'), /start with typed PR tokens/);
+    if (replayFacts) {
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
       const replies = historicalReplies(saved);
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model] of replies) {
         assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
-        for (const id of roleFacts[sample]) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
+        for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
       }
     }
     if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap'].includes(sample)) {
