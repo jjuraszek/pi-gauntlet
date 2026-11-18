@@ -68,11 +68,9 @@ export function skillReadPath(cwd: string, input: string, ownSkills: string): st
     const trusted = suffix(realpathSync(ownSkills), target);
     if (inside(trusted)) return `pi-gauntlet:skills/${trusted}`;
     const openedRoot = opened === file ? lexicalRoot : skillsRoot(opened)!;
-    const root = realpathSync(openedRoot);
+    const root = skillsRoot(target) ?? realpathSync(openedRoot);
     const canonical = suffix(root, target);
-    if (inside(canonical)) return `source:${digest(root)}:skills/${canonical}`;
-    const escaped = skillsRoot(target);
-    return escaped ? `source:${digest(escaped)}:skills/${suffix(escaped, target)}` : `source:${digest(root)}:skills/${suffix(openedRoot, opened)}`;
+    return `source:${digest(root)}:skills/${inside(canonical) ? canonical : suffix(openedRoot, opened)}`;
   } catch {
     return `source:lex-${digest(lexicalRoot)}:skills/${suffix(lexicalRoot, file)}`;
   }

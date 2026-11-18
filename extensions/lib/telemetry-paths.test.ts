@@ -49,10 +49,12 @@ test("skill read keys follow canonical containment without publishing source dir
   const key = (path: string) => skillReadPath(dir, path, own);
   mkdirSync(join(dir, "alias"));
   symlinkSync(nested, join(dir, "alias/skills"), "dir");
+  const nestedLink = join(copy, "link.md");
+  symlinkSync(join(nested, file), nestedLink);
   symlinkSync(join(copy, file), join(own, "escape.md"));
   writeFileSync(join(dir, "outside.md"), "unrelated");
   symlinkSync(join(dir, "outside.md"), join(own, "outside.md"));
-  for (const path of [join(nested, file), relative(dir, join(nested, file)), `@${join(nested, file)}`, `~/${relative(homedir(), join(nested, file))}`, join(dir, "alias/skills", file)]) {
+  for (const path of [join(nested, file), relative(dir, join(nested, file)), `@${join(nested, file)}`, `~/${relative(homedir(), join(nested, file))}`, join(dir, "alias/skills", file), nestedLink]) {
     assert.equal(key(path), source(nested) + file, path);
   }
   assert.equal(key(skill), source(nested) + "SKILL.md");
