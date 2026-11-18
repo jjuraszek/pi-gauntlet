@@ -21,7 +21,7 @@
 
   type Handler = (event: any, ctx: any) => unknown;
 
-  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string } = {}) {
+  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; piVersion?: string } = {}) {
     const root = mkdtempSync(join(tmpdir(), "telemetry-test-"));
     tempDirs.push(root);
     mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -63,7 +63,7 @@
         if (args[0] === "ls-files") return { code: 0, stdout: "", stderr: "" };
         return { code: 0, stdout: "", stderr: "" };
       },
-      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
+      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: o.piVersion ?? "0.85.1" } }),
       // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
       jj: async (args, cwd) => {
         jjCalls.push(args);
@@ -520,6 +520,31 @@
     assert.deepEqual(rec.derived.personas.implementer?.tokens, { input: 20, output: 3, cache_read: 0, cache_write: 0, cost: 0 });
     assert.deepEqual(rec.derived.plan, { tasks: 2, complete: 1, failed: 0, skipped: 1 });
     assert.equal(rec.derived.amendments, 7);
+  });
+
+  test("the run records the skill and reference bytes returned in their respective phases", async () => {
+    const h = harness({ piVersion: "1.5.0" });
+    const read = async (toolCallId: string, file: string, text: string) => {
+      const call = { toolName: "read", toolCallId };
+      const input = { path: join(import.meta.dirname, "../skills/brainstorming", file) };
+      const result = { content: [{ type: "text", text }], details: {} };
+      await h.emit("tool_execution_start", { type: "tool_execution_start", ...call, args: input });
+      await h.emit("tool_call", { type: "tool_call", ...call, input });
+      await h.emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
+      await h.emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
+    };
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    await read("skill", "SKILL.md", "skill text");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+    await read("reference", "reference/legs.md", "reference text");
+    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
+    const { brainstorm, verify } = h.readRecord().derived.phases;
+    assert.deepEqual([brainstorm?.skill_reads, verify?.skill_reads], [
+      [{ path: "pi-gauntlet:skills/brainstorming/SKILL.md", bytes: 10 }],
+      [{ path: "pi-gauntlet:skills/brainstorming/reference/legs.md", bytes: 14 }],
+    ]);
   });
 
   test("message_end appends one cache triplet per parent call; child usage is excluded from parent_calls but still summed into tokens", async () => {
