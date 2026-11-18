@@ -15,7 +15,7 @@
   import { fileURLToPath } from "node:url";
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
-  import type { ExtensionAPI, ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
+  import type { ExtensionAPI, ExtensionContext, SessionEntry, ToolResultEvent } from "@earendil-works/pi-coding-agent";
   import { DEFAULT_TELEMETRY_DIR, DEFAULT_TEST_COMMANDS, planDirsFor, resolveFlowGuards, resolveTelemetry, settingsErrorWarning, type TelemetryResolved } from "./lib/gauntlet-settings.ts";
   import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
   import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
@@ -224,6 +224,15 @@
 
   // ---- extension -----------------------------------------------------------------------
 
+  const readCoverageCheckpoint = "pi-gauntlet:skill-read-checkpoint";
+  function lastReadCheckpoint(branch: SessionEntry[], session: string) {
+    const index = branch.findLastIndex(e => e.type === "custom" && e.customType === readCoverageCheckpoint);
+    const close = branch[index];
+    const data = close?.type === "custom" ? close.data as { session?: string; run?: string } | undefined : undefined;
+    if (data?.session !== session || typeof data.run !== "string") return;
+    // Conversation entries advance during disabled turns; startup metadata does not break coverage.
+    return { run: data.run, gap: branch.findLastIndex(e => e.type === "message") > index };
+  }
   const ownSkills = fileURLToPath(new URL("../skills", import.meta.url));
   const hasSkillReads = (phases: Accumulators["phases"]) => Object.values(phases).some(p => p?.skill_reads?.length);
   const isSubagentChild = (): boolean => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") > 0;
@@ -254,6 +263,7 @@
     const readCalls = new Map<string, { cwd: string; input: { path?: unknown } }>();
     let settingsWarned = false;
     let sessionId = "";
+    let resumedClose: ReturnType<typeof lastReadCheckpoint>;
     const guardCache = new Map<string, Map<string, string>>();
     let guardWarned = false;
     let currentDir = "";
@@ -391,6 +401,11 @@
         parsed.spec = specRel;
         if (parsed.derived.skill_read_coverage === "complete" && (missedReads || pendingCoverageDowngrades.get(parsed.run_id) === rel)) {
           parsed.derived.skill_read_coverage = "partial";
+        }
+        if (resumedClose?.run === parsed.run_id && parsed.status === "in_progress" && parsed.derived.skill_read_coverage === "complete") {
+          if (resumedClose.gap) parsed.derived.skill_read_coverage = "partial";
+          else pi.appendEntry(readCoverageCheckpoint); // New messages now belong to this enabled recorder.
+          resumedClose = undefined;
         }
         if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
         return parsed;
@@ -762,7 +777,9 @@
         guardWarned = false;
       }
       sessionId = nextSession;
-      const replay = replayBranch(ctx.sessionManager.getBranch(), settings.specDirs, settings.planDirs, ctx.cwd);
+      const branch = ctx.sessionManager.getBranch();
+      if (!sameSession) resumedClose = snap ? lastReadCheckpoint(branch, sessionId) : undefined;
+      const replay = replayBranch(branch, settings.specDirs, settings.planDirs, ctx.cwd);
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
@@ -791,7 +808,11 @@
     pi.on("session_shutdown", async (_event, ctx) => {
       readCalls.clear();
       const snap = await enabledSettings(ctx);
-      if (snap) flush(true);
+      if (!snap) return;
+      flush(true);
+      if (!frozen && record?.status === "in_progress" && record.derived.skill_read_coverage === "complete") {
+        pi.appendEntry(readCoverageCheckpoint, { session: sessionId, run: record.run_id });
+      }
     });
 
     pi.on("tool_result", async (event, ctx) => {

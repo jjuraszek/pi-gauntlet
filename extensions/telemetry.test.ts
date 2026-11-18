@@ -94,7 +94,10 @@
       thinkingLevel: o.thinkingLevel ?? "high",
       getContextUsage: () => ({ tokens: o.contextTokens === undefined ? 1234 : o.contextTokens, contextWindow: 200000, percent: 1 }),
     };
-    const pi = { on: (name: string, h: Handler) => handlers.set(name, [...(handlers.get(name) ?? []), h]) };
+    const pi = {
+      on: (name: string, h: Handler) => handlers.set(name, [...(handlers.get(name) ?? []), h]),
+      appendEntry: (customType: string, data: unknown) => branch.push({ type: "custom", customType, data }),
+    };
     registerTelemetry(pi as any, deps);
     const emit = async (name: string, event: unknown) => {
       const out: unknown[] = [];
@@ -1182,6 +1185,51 @@
       const reads = d.phases.brainstorm!.skill_reads!;
       assert.match(reads[0].path, /^source:[a-f0-9]{64}:skills\/reference\.md$/);
       assert.deepEqual(reads.map(r => [r.path, r.bytes]), (mode === "legacy" || mode === "disabled" ? [2] : [1, 2]).map(n => [reads[0].path, n]));
+    }
+  });
+
+  test("a clean close distinguishes an untouched session from activity during a disabled resume", async t => {
+    for (const mode of ["clean resume", "disabled read", "disabled read before later bind"]) {
+      await t.test(mode, async () => {
+        const missed = mode !== "clean resume";
+        const laterBind = mode === "disabled read before later bind";
+        const branch: unknown[] = [entry];
+        const original = harness({ branch });
+        await original.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await original.writeSpec("doc/specs/a.md");
+        // A nested write binds live but Pi persists only the enclosing codemode result.
+        if (!laterBind) branch.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", name: "write", id: "w", arguments: { path: "doc/specs/a.md" } }] } });
+        branch.push({ type: "message", message: { role: "toolResult", toolName: laterBind ? "codemode" : "write", toolCallId: "w" } });
+        await original.read("covered", legSkill, "text");
+        await original.emit("session_shutdown", { reason: "quit" });
+        const closed = original.readRecord();
+        assert.equal(closed.derived.skill_read_coverage, "complete");
+        assert.deepEqual(Object.keys(closed.accumulators), ["total"]);
+
+        if (missed) {
+          const disabled = harness({ branch, enabled: false });
+          disabled.ctx.cwd = original.root;
+          const io = disabled.recorderIo();
+          const before = readFileSync(original.recordPath());
+          const length = branch.length;
+          await disabled.emit("session_start", { reason: "startup" });
+          await disabled.read("missed", legSkill, "not measured");
+          branch.push({ type: "message", message: { role: "toolResult", toolName: "read", toolCallId: "missed", content: [{ type: "text", text: "not measured" }] } });
+          await disabled.emit("session_shutdown", { reason: "quit" });
+          assert.equal(branch.length, length + 1, "disabled recorder wrote to the session");
+          assert.deepEqual(disabled.recorderIo(), io);
+          assert.deepEqual(readFileSync(original.recordPath()), before);
+        }
+        branch.push({ type: "model_change", provider: "p", modelId: "m" });
+        const resumed = harness({ branch });
+        resumed.ctx.cwd = original.root;
+        await resumed.emit("session_start", { reason: "startup" });
+        if (laterBind) await resumed.emit("tool_result", { toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } });
+        const rec = resumed.readRecord();
+        assert.equal(rec.run_id, closed.run_id);
+        assert.equal(rec.derived.skill_read_coverage, missed ? "partial" : "complete");
+        assert.deepEqual(rec.derived.phases.brainstorm?.skill_reads, [pendingRead]);
+      });
     }
   });
 
