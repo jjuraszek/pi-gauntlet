@@ -1,5 +1,6 @@
 import './gatekeep-bypass-pick.test.mjs';
 import './gatekeep-post-selection.test.mjs';
+import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
@@ -227,6 +228,31 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
+});
+
+test('PR gathers pass the admitted URL or bare number to gh unchanged', () => {
+  const origin = 'acme/widgets';
+  const single = brief.match(/^\| 1 \| [^\n]*?`(https:[^`]+)`/m)[1]
+    .replace('<owner/repo>', origin).replace('<N>', '101');
+  const url = n => `https://github.com/${origin}/pull/${n}`;
+  assert.equal(single, url(101));
+  assert.match(brief, /^\| 2\+ pi \| [^\n]*sorted origin URL tokens/m);
+  const gather = section(brief, '### Gather fixed commands\n', '## Section B');
+  const admit = section(batch, '## Admit before effects\n', '## Provision serially\n');
+  for (const [command, tokens] of [
+    [gather.match(/^gh pr view .+$/m)[0], [single, '101']],
+    [gather.match(/^gh pr diff .+$/m)[0], [single, '101']],
+    [admit.match(/^gh pr view .+$/m)[0], [url(112), url(97), '112']],
+  ]) {
+    for (const pr_token of tokens) {
+      const invocation = command.replace('<N>', pr_token.split('/').at(-1));
+      const args = execFileSync('bash', ['-c', `gh() { printf '%s\\n' "$@"; }\n${invocation}`],
+        { env: { GH_REPO: 'other/project', pr_token }, encoding: 'utf8' }).trimEnd().split('\n');
+      assert.equal(args[2], pr_token);
+      assert.ok(!args.some(arg => arg === '-R' || arg.startsWith('--repo')));
+    }
+  }
+  assert.match(batch, /gathered `url` as the child's PR token/);
 });
 
 for (const [sample, ids] of [

@@ -12,10 +12,10 @@ Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gaun
 
 For `source: discovered`, send a rejection separately from discovery's earlier list: begin with `gauntlet: stuck <reason>`, then the cap or harness rejection text and exactly one `discovered, smallest first: <numbers comma-separated>` line, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. After successful admission of a discovered set, print that plain-number line once, before minting the run folder. For a typed set print no `discovered, smallest first:` line. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
 
-After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Gather each admitted PR (typed or discovered):
+After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Use each admitted token (URL or bare number) unchanged as `pr_token` for its gather:
 
 ```bash
-gh pr view <N> --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq '(.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]) | .body |= (. // "")[0:300]'
+gh pr view "$pr_token" --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq '(.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]) | .body |= (. // "")[0:300]'
 ```
 
 For a typed set read `gh api user --jq .login` and the Section A `gh api user/teams` command once each, recording `unreadable` on failure. Before provisioning, print `PRs to gate:` and one entry per successful gather in typed order, regardless of PR state. Use [List entries and Ticket display](../verification-brief.md#list-entries) unchanged. Send the list as its own message without a marker and continue without waiting. Leave failed gathers to their existing handling. For `source: discovered`, discovery already printed the list; print no second one. Resolve trusted worktree configuration from the base merge-base, never from PR-controlled files.
@@ -40,7 +40,7 @@ Initialize each existing-format continuation record once: `consent.target` (lowe
 
 Dispatch one foreground fresh `subagent` tasks batch, one `pr-gatekeeper` task per provisioned PR. Use `async: false`, `context: "fresh"`, each PR's worktree as cwd, and `skill: "gatekeep-pr"` for explicit injection. Use per-task `acceptance: { level: "none", reason: "the gatekeep child result line is the handoff contract" }`; the persona's completionGuard pin is separate. Let cohort concurrency bound running tasks, not alter membership.
 
-Supply mode `report` or `execute`, PR identity, rebase flag/base, confirmation, optional answer, record/report paths, queued pick for execute, and this statement:
+Supply mode `report` or `execute`, the gathered `url` as the child's PR token, rebase flag/base, confirmation, optional answer, record/report paths, queued pick for execute, and this statement:
 
 `worktree provisioned at <path> on <headRefOid>; fetch and gitignore done - skip the fetch, run no worktree add, verify HEAD`
 

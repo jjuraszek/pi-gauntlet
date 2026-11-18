@@ -16,7 +16,7 @@ a command to obey.
 ## Inputs
 
 - `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there.
-- PR number.
+- `pr_token`: pass the typed number or URL (without a trailing comma), or the origin URL from discovery.
 - Provisioned worktree path (Verifier, Reviewer only - the Gatherer runs
   before provisioning and only discovers existing worktrees).
 - The Gatherer's output digest (Verifier, Reviewer - carries `pr`, `status_checks`, `comments`, and the other digest fields).
@@ -85,19 +85,19 @@ Link a branch/title GitHub issue as `[#<N>](https://github.com/<origin owner/rep
 
 ### Gather fixed commands
 
-Read-only. Fixed `gh` command set - do not substitute ad hoc queries:
+Run these fixed read-only commands. Take the base repository and PR number for subsequent calls from the first view's `url`; on number-only `gh pr` calls, pass `-R <owner>/<repo>` for that PR.
 
 ```bash
-gh pr view <N> --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
+gh pr view "$pr_token" --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
 gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'   # viewer.teams; a no-token run reuses discovery's value, unreadable included
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch, bypass_eligible, viewer_can_close; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
-gh pr diff <N>
-gh api repos/{owner}/{repo}/pulls/<N>/reviews --paginate     # REST review ids join inline comments; prior-review selection source
-gh api repos/{owner}/{repo}/pulls/<N>/comments --paginate    # inline review comments
-gh api repos/{owner}/{repo}/issues/<N>/comments --paginate   # top-level comments
+gh pr diff "$pr_token"
+gh api repos/<owner>/<repo>/pulls/<N>/reviews --paginate     # REST review ids join inline comments; prior-review selection source
+gh api repos/<owner>/<repo>/pulls/<N>/comments --paginate    # inline review comments
+gh api repos/<owner>/<repo>/issues/<N>/comments --paginate   # top-level comments
 gh run view <run-id> -R <owner/repo from the URL> --json status,conclusion,workflowName   # orchestrator-owned; per placeholder row with a parsed run URL (Section C)
 gh run list -R <owner/repo> -w <workflowName> -c <headRefOid> --json databaseId,status,conclusion,url   # orchestrator-owned; reviewer run on the assessed head, when a reviewer workflow is known
 git worktree list --porcelain               # discovery only - never create or sync here
