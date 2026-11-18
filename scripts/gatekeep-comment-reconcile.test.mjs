@@ -152,6 +152,7 @@ for (const [name, text, patterns] of [
   ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
+    /For a typed set, print only the one-line error/,
     /After successful admission of a discovered set, print that plain-number line once/,
     /positional issue/, /duplicate identities/, /origin/, /Claude Code/,
     /print exactly: `multi-PR mode requires pi's nested dispatch`/,
@@ -1072,6 +1073,12 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       }
     }
     if (['no-arg-discovery-over-cap', 'no-arg-discovery-cc-multi'].includes(sample)) {
+      const cap = sample.endsWith('over-cap');
+      const rule = cap ? section(batch, 'For `source: discovered`,', 'After successful admission') : section(brief, '| 2+ Claude Code |', ' |\n');
+      const link = `(${cap ? '../../' : '../'}brainstorming/reference/menu-layout.md#first-line-rule)`;
+      assert.ok(rule.includes(`${link} for \`stuck\``));
+      assert.ok(rule.includes(cap ? 'cap or harness rejection text' : "multi-PR mode requires pi's nested dispatch"));
+      assert.match(rule, /separate.*end with exactly one `discovered, smallest first: <numbers comma-separated>` line/);
       const expected = read(`${root}/expected.md`);
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
       const replies = historicalReplies(saved);

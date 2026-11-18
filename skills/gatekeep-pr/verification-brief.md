@@ -48,7 +48,7 @@ After sorting, print the list as its own intermediate message before acting on t
 | 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
-| 2+ Claude Code | In a separate stop message start with `gauntlet: stuck <reason>`, then print `multi-PR mode requires pi's nested dispatch`, then exactly one `discovered, smallest first: <numbers comma-separated>` line; stop. |
+| 2+ Claude Code | In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
 Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. `review-requested:@me` covers requests to the viewer and to a team the viewer is on.
 
