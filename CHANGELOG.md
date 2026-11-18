@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Rank each measured run's skill and reference files by bytes of text returned across main-session reads, including nested and ranged reads. The performance report distinguishes partial coverage from measured zero, omits file data for older records, and recommends tuning only when comparable complete runs show recurring, material read volume for the same pi-gauntlet file. (#157)
+
 ## v8.8.2 - 2026-11-18
 
 - Require pi-cohort 8.4.2 or newer.

@@ -14,7 +14,8 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 2. Run it from the repo root, passing the user's `--dir` and `--since` arguments verbatim:
    `node <bin>/gauntlet-performance.mjs [--dir <path>]... [--since <version>]`.
    Default corpus is the current repo; each `--dir` adds a repo root or a telemetry dir.
-3. If the command is missing or the output contains `no records found`, relay that line and stop - no menu.
+3. When bash reports truncated output, read the saved CLI output in bounded pages from the beginning through the end before comparing runs or rendering rankings. Use the complete digest, not just the visible tail.
+4. If the command is missing or the output contains `no records found`, relay that line and stop - no menu.
 
 ## Read the digest
 
@@ -24,10 +25,12 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 
 Start the message with `gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order`. Follow the [shared marker and reply mapping rules](../brainstorming/reference/menu-layout.md); append `recommended=<row number>` only when a rendered row carries `[recommended]`.
 
-1. **Recommendation** (2-4 sentences). One claim, led by the run that exemplifies it: quote its `spec` slug, `run_id`, and the 1-3 numbers that carry the claim. When `grants` is the evidence, call it the fix-round proxy. If no version group has `shipped >= 2`, the recommendation is "sample too small" with the `n`/`shipped` counts per version.
+1. **Recommendation** (2-4 sentences). Make one claim. Compare file rankings within the same known repo and pi-gauntlet version across distinct complete, shipped, non-truncated runs. Look for an unusually large share **and** material byte volume for the same exact `pi-gauntlet:skills/...` key in at least two runs. Judge both against the rankings, not a fixed cutoff. When that pattern supports a specific tuning action, lead with the action and its example `spec` slug; identify both runs and quote the file's bytes and share in each. For example, inspect callers of a repeatedly loaded reference; the ranges can differ, so counts alone do not prove waste. Use other evidence only for the same claim. Recommend the action without applying it.
+   Without actionable file evidence, lead with the example run's `spec` slug, `run_id` and the 1-3 numbers behind the ordinary recommendation. Call `grants` the fix-round proxy when using it. With no version group at `shipped >= 2`, give "sample too small" and the `n`/`shipped` counts per version.
 2. **Cornerstones**: 3-5 bullets of aggregate facts from `by version` - corpus size, truncated count, the p50s and model tallies that moved between versions.
-3. **Council assessment**: Render this block independently of the version sample gate, even when item 1 says "sample too small". If the digest prints `no council data in selected records`, render only `council: no data`. If the most recent roster has fewer than 5 runs, render only `council: <roster> - not enough runs to assess (N of 5)`. Otherwise render one line per `flag:` of the most recent roster as the roster-change recommendations; when an older roster exists, add one line comparing the two rosters' `uniq_appl_nonminor/run` and rejected share as groups. Compare rosters as groups, never a member across rosters.
-4. **Menu**, numbered, at most 3 items, rendered exactly as:
+3. **Skill reads**: Reproduce every `skill reads:` block from the digest, in order: full run ID, coverage, total bytes and every ranked row with its exact path, bytes, reads and share. Keep one decimal place on percentages. Show a measured zero's header; omit the section for unmeasured runs. Treat partial totals and shares as observed text only, not the whole run.
+4. **Council assessment**: Render this block independently of the version sample gate, even when item 1 says "sample too small". If the digest prints `no council data in selected records`, render only `council: no data`. If the most recent roster has fewer than 5 runs, render only `council: <roster> - not enough runs to assess (N of 5)`. Otherwise render one line per `flag:` of the most recent roster as the roster-change recommendations; when an older roster exists, add one line comparing the two rosters' `uniq_appl_nonminor/run` and rejected share as groups. Compare rosters as groups, never a member across rosters.
+5. **Menu**, numbered, at most 3 items, rendered exactly as:
    - `1. render report` - ask for a target path; Start the message with `gauntlet: question` for this ask. Write markdown there: the digest verbatim, then the recommendation and cornerstones above. If the file exists, ask before overwriting. Start the message with `gauntlet: question` for this overwrite ask. Write nothing unless this item is chosen.
    - `2. open recommendation as ticket` - hand the claim and its numbers to `/skill:shape-ticket`; never create a ticket directly.
    - `3. drill into <slug>` - re-run the CLI with `--json` and show that run's fields.

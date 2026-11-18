@@ -11,7 +11,7 @@ import { homedir } from "node:os";
 import { basename as basename2, join as join3, resolve } from "node:path";
 import { spawnSync as spawnSync2 } from "node:child_process";
 import process2 from "node:process";
-import { parse as parseYaml } from "yaml";
+import { parse as parseYaml2 } from "yaml";
 
 // extensions/lib/gauntlet-settings.ts
 function mergeGauntlet(preset, repo) {
@@ -246,6 +246,37 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
   }
 }
 
+// extensions/lib/telemetry-record.ts
+import { Document, isCollection, isMap, isSeq, parse as parseYaml, stringify as stringifyYaml } from "yaml";
+var isMapObject = (value) => !!value && typeof value === "object" && !Array.isArray(value);
+function skillReadBytes(phaseMaps) {
+  let total = 0;
+  for (const phases of phaseMaps) {
+    if (!isMapObject(phases)) return;
+    for (const phase of Object.values(phases)) {
+      if (!isMapObject(phase)) return;
+      if (!Object.hasOwn(phase, "skill_reads")) continue;
+      if (!Array.isArray(phase.skill_reads)) return;
+      for (const read of phase.skill_reads) {
+        if (!isMapObject(read)) return;
+        const { path, bytes } = read;
+        if (typeof path !== "string" || !/^(?:pi-gauntlet|source:(?:lex-)?[a-f0-9]{64}):skills\//.test(path) || path.split("/").some((part) => !part || part === "." || part === "..") || /[\x00-\x1f\x7f]/.test(path) || typeof bytes !== "number" || !Number.isSafeInteger(bytes) || bytes < 0) return;
+        total += bytes;
+        if (!Number.isSafeInteger(total)) return;
+      }
+    }
+  }
+  return total;
+}
+function skillReadCoverage(rec) {
+  const coverage = rec.derived?.skill_read_coverage;
+  if (coverage !== void 0 && coverage !== "complete" && coverage !== "partial") return "invalid";
+  const phases = rec.derived?.phases;
+  if ((coverage !== void 0 || phases !== void 0) && skillReadBytes([phases]) === void 0) return "invalid";
+  const sessionPhases = Object.values(rec.accumulators ?? {}).map((block) => block?.phases).filter((phases2) => phases2 !== void 0);
+  return skillReadBytes(sessionPhases) === void 0 ? "invalid" : coverage;
+}
+
 // src/bins/performance/shared.mjs
 var PHASES = ["brainstorm", "plan", "implement", "verify", "ship"];
 var TOKEN_KEYS = ["input", "output", "cache_read", "cache_write"];
@@ -314,8 +345,39 @@ var runRow = (r) => [
   dash(r.council),
   r.big_calls === null ? dash(null) : `${r.big_calls}/${r.big_write_share === null ? "-" : `${Math.round(r.big_write_share * 100)}%`}`
 ];
-var aggregate = (entries) => entries.map((e) => e.row);
-var renderText = (rows) => [`runs (${rows.length})`, table(HEADER, rows.map(runRow))].join("\n");
+function summarizeReads(coverage, phases) {
+  if (coverage !== "complete" && coverage !== "partial") return;
+  const files = /* @__PURE__ */ new Map();
+  let total = 0;
+  for (const phase of Object.values(phases)) {
+    for (const { path, bytes } of phase.skill_reads ?? []) {
+      const file = files.get(path) ?? { path, bytes: 0, reads: 0 };
+      file.bytes += bytes;
+      file.reads++;
+      files.set(path, file);
+      total += bytes;
+    }
+  }
+  const ranked = [...files.values()].sort((a, b) => b.bytes - a.bytes || (a.path < b.path ? -1 : 1));
+  return { coverage, total_bytes: total, files: ranked.map((file) => ({ ...file, share: total ? file.bytes / total : null })) };
+}
+var aggregate = (entries) => entries.map((e) => {
+  const skill_reads = summarizeReads(e.skillReadCoverage, e.readPhases);
+  return skill_reads ? { ...e.row, skill_reads } : e.row;
+});
+var renderText = (rows) => {
+  const blocks = [`runs (${rows.length})
+${table(HEADER, rows.map(runRow))}`];
+  for (const { run_id, skill_reads } of rows) {
+    if (!skill_reads) continue;
+    const { coverage, total_bytes, files } = skill_reads;
+    const header = `skill reads: run=${run_id} coverage=${coverage} total_bytes=${total_bytes}`;
+    const ranked = files.map((f) => [f.path, String(f.bytes), String(f.reads), f.share === null ? "-" : `${(f.share * 100).toFixed(1)}%`]);
+    blocks.push(ranked.length ? `${header}
+${table(["path", "bytes", "reads", "share"], ranked)}` : header);
+  }
+  return blocks.join("\n\n");
+};
 
 // src/bins/performance/versions.mjs
 var versions_exports = {};
@@ -722,7 +784,7 @@ function* yamlFiles(dir) {
 function loadRecord(file, bytes) {
   let doc;
   try {
-    doc = parseYaml(bytes);
+    doc = parseYaml2(bytes);
   } catch {
     return { skip: "unparseable" };
   }
@@ -811,6 +873,8 @@ function loadRecord(file, bytes) {
       big_write_share: runBig.big_write_share,
       phases: Object.keys(perPhase).length ? perPhase : void 0
     },
+    skillReadCoverage: skillReadCoverage(d),
+    readPhases: derived.phases,
     council: derived.council ?? null
   };
 }

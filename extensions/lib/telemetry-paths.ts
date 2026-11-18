@@ -8,7 +8,11 @@
 // **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*; docs = **/*.md;
 // config = **/*.json, **/*.yaml, **/*.yml, **/*.toml, **/*.lock, **/*-lock.*; else code.
 
-import { isAbsolute, matchesGlob, relative, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { existsSync, realpathSync } from "node:fs";
+import { homedir } from "node:os";
+import { basename, dirname, isAbsolute, join, matchesGlob, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildTestCmdRegex } from "./gauntlet-settings.ts";
 import { STMT_START } from "./phase-tracker-helpers.ts";
 
@@ -35,6 +39,51 @@ export function repoRelativeToolPath(toplevel: string, cwd: string, p: string): 
   const rel = toPosix(relative(toplevel, abs));
   if (rel === "" || rel.startsWith("../") || rel === ".." || isAbsolute(rel)) return undefined;
   return rel;
+}
+
+function skillsRoot(file: string): string | undefined {
+  for (let dir = dirname(file); dir !== dirname(dir); dir = dirname(dir)) {
+    if (basename(dir) === "skills") return dir;
+  }
+  return undefined;
+}
+
+const digest = (root: string) => createHash("sha256").update(root).digest("hex");
+// Escape control characters for single-line display and literal % to keep filenames distinct.
+const suffix = (root: string, file: string) => relative(root, file).split(sep).join("/").replace(/[%\x00-\x1f\x7f]/g, encodeURIComponent);
+const inside = (rel: string) => rel !== "" && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel);
+
+export function skillReadPath(cwd: string, input: string, ownSkills: string): string | undefined {
+  let path = input.replace(/[\u00a0\u2000-\u200a\u202f\u205f\u3000]/g, " ").replace(/^@/, "");
+  if (process.platform === "win32" && !path.includes("\\")) path = path.replace(/^\/(?:mnt\/|cygdrive\/)?([a-z])(?:\/|$)/i, "$1:/");
+  if (path === "~" || path.startsWith("~/") || (sep === "\\" && path.startsWith("~\\"))) path = join(homedir(), path.slice(2));
+  if (path.startsWith("file://")) {
+    try { path = fileURLToPath(path); } catch { return undefined; }
+  }
+  const file = resolve(cwd, path);
+  const lexicalRoot = file.endsWith(".md") ? skillsRoot(file) : undefined;
+  if (!lexicalRoot) return undefined;
+  try {
+    const opened = resolveReadFilename(file);
+    const target = realpathSync(opened);
+    const trusted = suffix(realpathSync(ownSkills), target);
+    if (inside(trusted)) return `pi-gauntlet:skills/${trusted}`;
+    const openedRoot = opened === file ? lexicalRoot : skillsRoot(opened)!;
+    const root = skillsRoot(target) ?? realpathSync(openedRoot);
+    const canonical = suffix(root, target);
+    return `source:${digest(root)}:skills/${inside(canonical) ? canonical : suffix(openedRoot, opened)}`;
+  } catch {
+    return `source:lex-${digest(lexicalRoot)}:skills/${suffix(lexicalRoot, file)}`;
+  }
+}
+
+// Pi's built-in read resolver is private; match its filename retry order.
+function resolveReadFilename(file: string): string {
+  if (existsSync(file)) return file;
+  const nfd = file.normalize("NFD");
+  const curly = (name: string) => name.replace(/'/g, "\u2019");
+  const variants = [file.replace(/ (AM|PM)\./gi, "\u202f$1."), nfd, curly(file), curly(nfd)];
+  return variants.find(variant => variant !== file && existsSync(variant)) ?? file;
 }
 
 const SPEC_HEADER_RE = /^\*\*Spec:\*\*\s*`?([^`\s]+)`?/m;

@@ -10,5 +10,36 @@ const runRow = (r) => [
   findingsCell(r.findings), dash(r.council),
   r.big_calls === null ? dash(null) : `${r.big_calls}/${r.big_write_share === null ? "-" : `${Math.round(r.big_write_share * 100)}%`}`,
 ];
-export const aggregate = (entries) => entries.map((e) => e.row);
-export const renderText = (rows) => [`runs (${rows.length})`, table(HEADER, rows.map(runRow))].join("\n");
+function summarizeReads(coverage, phases) {
+  if (coverage !== "complete" && coverage !== "partial") return;
+  const files = new Map();
+  let total = 0;
+  for (const phase of Object.values(phases)) {
+    for (const { path, bytes } of phase.skill_reads ?? []) {
+      const file = files.get(path) ?? { path, bytes: 0, reads: 0 };
+      file.bytes += bytes;
+      file.reads++;
+      files.set(path, file);
+      total += bytes;
+    }
+  }
+  const ranked = [...files.values()].sort((a, b) => b.bytes - a.bytes || (a.path < b.path ? -1 : 1));
+  return { coverage, total_bytes: total, files: ranked.map(file => ({ ...file, share: total ? file.bytes / total : null })) };
+}
+
+export const aggregate = (entries) => entries.map(e => {
+  const skill_reads = summarizeReads(e.skillReadCoverage, e.readPhases);
+  return skill_reads ? { ...e.row, skill_reads } : e.row;
+});
+
+export const renderText = (rows) => {
+  const blocks = [`runs (${rows.length})\n${table(HEADER, rows.map(runRow))}`];
+  for (const { run_id, skill_reads } of rows) {
+    if (!skill_reads) continue;
+    const { coverage, total_bytes, files } = skill_reads;
+    const header = `skill reads: run=${run_id} coverage=${coverage} total_bytes=${total_bytes}`;
+    const ranked = files.map(f => [f.path, String(f.bytes), String(f.reads), f.share === null ? "-" : `${(f.share * 100).toFixed(1)}%`]);
+    blocks.push(ranked.length ? `${header}\n${table(["path", "bytes", "reads", "share"], ranked)}` : header);
+  }
+  return blocks.join("\n\n");
+};

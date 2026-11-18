@@ -9,6 +9,7 @@ import process from "node:process";
 import { parse as parseYaml } from "yaml";
 import { mergeGauntlet, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
 import { readTelemetryBranch, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
+import { skillReadCoverage } from "../../extensions/lib/telemetry-record.ts";
 
 import { BIG_CACHE_WRITE, PHASES, TOKEN_KEYS, cmpSemver, num, obj, semver, str, sumOrNull } from "./performance/shared.mjs";
 import * as runs from "./performance/runs.mjs";
@@ -185,6 +186,8 @@ function loadRecord(file, bytes) {
       big_write_share: runBig.big_write_share,
       phases: Object.keys(perPhase).length ? perPhase : undefined,
     },
+    skillReadCoverage: skillReadCoverage(d),
+    readPhases: derived.phases,
     council: derived.council ?? null,
   };
 }

@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { homedir, tmpdir } from "node:os";
+import { join, relative } from "node:path";
 import {
   classifyBucket,
   isPlanPath,
@@ -12,6 +16,7 @@ import {
   planSpecHeader,
   recordPathFor,
   repoRelativeToolPath,
+  skillReadPath,
   truncateCommand,
 } from "./telemetry-paths.ts";
 import { DEFAULT_TELEMETRY_BUCKETS, DEFAULT_TEST_COMMANDS } from "./gauntlet-settings.ts";
@@ -26,6 +31,47 @@ test("repoRelativeToolPath resolves like pi tools: relative to cwd, then repo-re
   assert.equal(repoRelativeToolPath("/repo", "/repo/svc", "doc/specs/a.md"), "svc/doc/specs/a.md");
   assert.equal(repoRelativeToolPath("/repo", "/repo/svc", "/repo/doc/specs/a.md"), "doc/specs/a.md");
   assert.equal(repoRelativeToolPath("/repo", "/repo", "/elsewhere/x.md"), undefined);
+});
+
+test("skill read keys follow canonical containment without publishing source directories", t => {
+  const dir = mkdtempSync(join(tmpdir(), "skill-path-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const own = join(dir, "current/skills"), copy = join(dir, "other/skills"), nested = join(copy, "extension/skills");
+  const file = "reference/legs.md";
+  for (const root of [own, copy, nested]) {
+    mkdirSync(join(root, "reference"), { recursive: true });
+    writeFileSync(join(root, file), "private body");
+  }
+  const skill = join(nested, "SKILL.md");
+  writeFileSync(skill, "");
+  const digest = (s: string) => createHash("sha256").update(s).digest("hex");
+  const source = (root: string) => `source:${digest(realpathSync(root))}:skills/`;
+  const key = (path: string) => skillReadPath(dir, path, own);
+  mkdirSync(join(dir, "alias"));
+  symlinkSync(nested, join(dir, "alias/skills"), "dir");
+  const nestedLink = join(copy, "link.md");
+  symlinkSync(join(nested, file), nestedLink);
+  symlinkSync(join(copy, file), join(own, "escape.md"));
+  writeFileSync(join(dir, "outside.md"), "unrelated");
+  symlinkSync(join(dir, "outside.md"), join(own, "outside.md"));
+  for (const path of [join(nested, file), relative(dir, join(nested, file)), `@${join(nested, file)}`, `~/${relative(homedir(), join(nested, file))}`, join(dir, "alias/skills", file), nestedLink]) {
+    assert.equal(key(path), source(nested) + file, path);
+  }
+  assert.equal(key(skill), source(nested) + "SKILL.md");
+  assert.equal(key(join(own, file)), `pi-gauntlet:skills/${file}`);
+  for (const [disk, requested] of [["reader\u2019s.md", "reader's.md"], ["clock\u202fPM.md", "clock PM.md"]]) {
+    writeFileSync(join(own, disk), "text");
+    const expected = `pi-gauntlet:skills/${disk}`;
+    assert.equal(key(join(own, disk)), expected, disk);
+    assert.equal(key(join(own, requested)), expected, requested);
+  }
+  writeFileSync(join(own, "reader's.md"), "different file");
+  assert.equal(key(join(own, "reader's.md")), "pi-gauntlet:skills/reader's.md");
+  assert.equal(key(join(copy, file)), source(copy) + file);
+  assert.equal(key(join(own, "escape.md")), source(copy) + file);
+  assert.equal(key(join(own, "outside.md")), source(own) + "outside.md");
+  assert.equal(key(join(own, "missing.md")), `source:lex-${digest(own)}:skills/missing.md`);
+  for (const path of ["outside.md", "other/skills.json", "other/skills/icon.png"]) assert.equal(key(path), undefined);
 });
 
 const DEFAULT_DIRS = ["doc/specs", "docs/specs"];

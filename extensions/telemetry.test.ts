@@ -1,7 +1,7 @@
   import assert from "node:assert/strict";
-  import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+  import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
   import { tmpdir } from "node:os";
-  import { join } from "node:path";
+  import { dirname, join } from "node:path";
   import { after, test } from "node:test";
   import registerTelemetry, { realFs, replayBranch, type Deps, type GitResult } from "./telemetry.ts";
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
@@ -21,7 +21,7 @@
 
   type Handler = (event: any, ctx: any) => unknown;
 
-  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string } = {}) {
+  function harness(o: { branch?: unknown[]; enabled?: boolean; gitFail?: (args: string[], cwd: string) => GitResult | undefined; jjWorkspace?: boolean; jjFail?: (args: string[], cwd: string) => GitResult | undefined; cwdSub?: string; sessionId?: string; model?: { provider: string; id: string }; thinkingLevel?: string; contextTokens?: number | null; telemetryWarning?: string; piVersion?: string } = {}) {
     const root = mkdtempSync(join(tmpdir(), "telemetry-test-"));
     tempDirs.push(root);
     mkdirSync(join(root, "doc/specs"), { recursive: true });
@@ -33,14 +33,27 @@
     const gitCwds: string[] = [];
     const jjCalls: string[][] = [];
     const readFileCalls: string[] = [];
+    let refReads = 0;
+    let fsCalls = 0;
+    const recorderIo = () => ({ git: gitCalls.length, jj: jjCalls.length, fs: fsCalls, refs: refReads });
     const specDirs = resolveFlowGuards({}).specDirs;
     const fetchedRecords = new Map<string, string>();
     let clock = Date.parse("2026-09-17T10:00:00Z");
     let enabled = o.enabled ?? true;
     const deps: Deps = {
       telemetryRepo: () => "test/repo",
-      readTelemetryBranch: () => ({ records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) }),
-      fs: { ...realFs, readFile: (p) => { readFileCalls.push(p); return realFs.readFile(p); } },
+      readTelemetryBranch: () => {
+        refReads++;
+        return { records: [...fetchedRecords].map(([path, bytes]) => ({ path, bytes })) };
+      },
+      fs: {
+        readFile: p => { fsCalls++; readFileCalls.push(p); return realFs.readFile(p); },
+        writeFile: (p, body) => { fsCalls++; realFs.writeFile(p, body); },
+        rename: (from, to) => { fsCalls++; realFs.rename(from, to); },
+        mkdirp: p => { fsCalls++; realFs.mkdirp(p); },
+        exists: p => { fsCalls++; return realFs.exists(p); },
+        unlink: p => { fsCalls++; realFs.unlink(p); },
+      },
       now: () => new Date((clock += 1000)).toISOString().replace(/\.\d{3}Z$/, "Z"),
       git: async (args, cwd) => {
         gitCalls.push(args);
@@ -63,7 +76,7 @@
         if (args[0] === "ls-files") return { code: 0, stdout: "", stderr: "" };
         return { code: 0, stdout: "", stderr: "" };
       },
-      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: "0.85.1" } }),
+      settings: () => ({ specDirs, planDirs: planDirsFor(specDirs), telemetry: { enabled, buckets: DEFAULT_TELEMETRY_BUCKETS, warning: o.telemetryWarning }, errors: [], agentOverrides: { implementer: { model: "p/x" } }, versions: { pi: o.piVersion ?? "0.85.1" } }),
       // A plain jj workspace: `jj root` answers the temp root while git rev-parse fails.
       jj: async (args, cwd) => {
         jjCalls.push(args);
@@ -81,7 +94,10 @@
       thinkingLevel: o.thinkingLevel ?? "high",
       getContextUsage: () => ({ tokens: o.contextTokens === undefined ? 1234 : o.contextTokens, contextWindow: 200000, percent: 1 }),
     };
-    const pi = { on: (name: string, h: Handler) => handlers.set(name, [...(handlers.get(name) ?? []), h]) };
+    const pi = {
+      on: (name: string, h: Handler) => handlers.set(name, [...(handlers.get(name) ?? []), h]),
+      appendEntry: (customType: string, data: unknown) => branch.push({ type: "custom", customType, data }),
+    };
     registerTelemetry(pi as any, deps);
     const emit = async (name: string, event: unknown) => {
       const out: unknown[] = [];
@@ -102,7 +118,22 @@
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    const read = async (toolCallId: string, path: string, text: string) => {
+      const call = { toolName: "read", toolCallId };
+      const input = { path };
+      const result = { content: [{ type: "text", text }], details: {} };
+      await emit("tool_execution_start", { type: "tool_execution_start", ...call, args: input });
+      await emit("tool_call", { type: "tool_call", ...call, input });
+      await emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
+      await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
+    };
+    const planResult = async (action: string, tasks: { name?: string; status: string }[], isError = false) => {
+      const call = { toolName: "plan_tracker", toolCallId: "pt" };
+      const result = { content: [], details: { action, tasks } };
+      await emit("tool_result", { type: "tool_result", ...call, input: { action }, ...result, isError });
+      await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError });
+    };
+    return { read, recorderIo, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, planResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -150,6 +181,7 @@
       const h = harness();
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
       await h.writeSpec("doc/specs/a.md");
+      await h.read("child", legSkill, "ignored");
       assert.equal(existsSync(h.recordPath()), false);
     } finally {
       process.env.PI_SUBAGENT_DEPTH = "0";
@@ -233,7 +265,7 @@
     assert.equal(h.gitWrites().length, 0);
   });
 
-  test("replayBranch uses the last successful phase snapshot, plan pass, and paired successful spec write", () => {
+  test("replayBranch keeps successful binding inputs in transcript order", () => {
     const successfulPhases = P({ brainstorm: "complete", plan: "in_progress" });
     const ignoredPhases = P({ brainstorm: "complete", plan: "complete" });
     const replay = replayBranch([
@@ -254,8 +286,11 @@
     ], ["doc/specs", "docs/specs"]);
     assert.deepEqual(replay.phases, successfulPhases);
     assert.equal(replay.gauntletEntered, true);
-    assert.equal(replay.planCheckSpec, "/repo/doc/specs/a.md");
-    assert.equal(replay.lastSpecWrite, "doc/specs/a.md");
+    assert.deepEqual(replay.bindings.map(({ tool, path }) => [tool, path]), [
+      ["plan_check", "/repo/doc/specs/old.md"],
+      ["plan_check", "/repo/doc/specs/a.md"],
+      ["write", "doc/specs/a.md"],
+    ]);
   });
 
   test("replayBranch: candidates are only taken while armed; reset clears them; edit counts; skip brainstorm resume: binds", () => {
@@ -268,25 +303,27 @@
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "/repo/doc/specs/a.md" } } },
     ], ["doc/specs", "docs/specs"]);
     assert.equal(unarmed.gauntletEntered, false);
-    assert.equal(unarmed.lastSpecWrite, undefined);
-    assert.equal(unarmed.planCheckSpec, undefined);
+    assert.deepEqual(unarmed.bindings, []);
     const armed = replayBranch([
       ...write("w0", "doc/specs/before.md"),
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       ...write("w1", "doc/specs/a.md", "edit"),
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([armed.gauntletEntered, armed.lastSpecWrite], [true, "doc/specs/a.md"]);
+    assert.equal(armed.gauntletEntered, true);
+    assert.deepEqual(armed.bindings, [{ tool: "edit", path: "doc/specs/a.md", brainstorming: true }]);
     const reset = replayBranch([
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       ...write("w1", "doc/specs/a.md"),
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "reset", phases: P() } } },
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([reset.gauntletEntered, reset.lastSpecWrite], [false, undefined]);
+    assert.equal(reset.gauntletEntered, false);
+    assert.deepEqual(reset.bindings, []);
     const resumed = replayBranch([
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "skip", phases: { ...P({ brainstorm: "skipped" }), brainstorm: { status: "skipped", reason: "resume: /repo/doc/specs/a.md" } } } } },
     ], ["doc/specs", "docs/specs"]);
-    assert.deepEqual([resumed.gauntletEntered, resumed.lastSpecWrite], [true, "/repo/doc/specs/a.md"]);
+    assert.equal(resumed.gauntletEntered, true);
+    assert.deepEqual(resumed.bindings, [{ tool: "resume", path: "/repo/doc/specs/a.md" }]);
   });
 
   test("session resume restores the last successful plan snapshot for reopen counting", async () => {
@@ -305,7 +342,7 @@
     const second = harness({ sessionId: "s2", branch });
     second.ctx.cwd = first.root;
     await second.emit("session_start", { type: "session_start", reason: "resume" });
-    await second.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status: "in_progress" }] } });
+    await second.planResult("update", [{ name: "a", status: "in_progress" }]);
     assert.equal(second.readRecord().derived.gates.task_reopens, 1);
     assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
   });
@@ -316,8 +353,8 @@
       { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "w1", name: "write", arguments: { path: "design/specs/a.md" } }] } },
       { type: "message", message: { role: "toolResult", toolName: "write", toolCallId: "w1", isError: false } },
     ];
-    assert.equal(replayBranch(branch, ["design/specs"]).lastSpecWrite, "design/specs/a.md");
-    assert.equal(replayBranch(branch, ["doc/specs"]).lastSpecWrite, undefined);
+    assert.equal(replayBranch(branch, ["design/specs"]).bindings[0]?.path, "design/specs/a.md");
+    assert.deepEqual(replayBranch(branch, ["doc/specs"]).bindings, []);
   });
 
   test("session_start replay binds from plan_check details with no spec write, extends sessions, preserves run_id", async () => {
@@ -500,7 +537,7 @@
     await h.writeSpec("doc/specs/a.md", "# amended\n");
     await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-    await h.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action: "update", tasks: [{ name: "done", status: "complete" }, { name: "skip", status: "skipped" }] } });
+    await h.planResult("update", [{ name: "done", status: "complete" }, { name: "skip", status: "skipped" }]);
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     let rec = h.readRecord();
     assert.deepEqual(Object.keys(rec.accumulators), ["total"]);
@@ -520,6 +557,748 @@
     assert.deepEqual(rec.derived.personas.implementer?.tokens, { input: 20, output: 3, cache_read: 0, cache_write: 0, cost: 0 });
     assert.deepEqual(rec.derived.plan, { tasks: 2, complete: 1, failed: 0, skipped: 1 });
     assert.equal(rec.derived.amendments, 7);
+  });
+
+  test("the run records the skill and reference bytes returned in their respective phases", async () => {
+    const h = harness({ piVersion: "1.5.0" });
+    const skill = join(import.meta.dirname, "../skills/brainstorming");
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    assert.equal(h.readRecord().derived.skill_read_coverage, "complete", "a live bind can measure zero");
+    await h.read("skill", join(skill, "SKILL.md"), "skill text");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+    await h.read("reference", join(skill, "reference/legs.md"), "reference text");
+    await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
+    const { brainstorm, verify } = h.readRecord().derived.phases;
+    assert.deepEqual([brainstorm?.skill_reads, verify?.skill_reads], [
+      [{ path: "pi-gauntlet:skills/brainstorming/SKILL.md", bytes: 10 }],
+      [{ path: "pi-gauntlet:skills/brainstorming/reference/legs.md", bytes: 14 }],
+    ]);
+  });
+
+  const entry = { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } };
+  const legSkill = join(import.meta.dirname, "../skills/shape-ticket/SKILL.md");
+  const pendingRead = { bytes: 4, path: "pi-gauntlet:skills/shape-ticket/SKILL.md" };
+
+  test("a read completed between phases belongs to unphased", async () => {
+    const h = await boundInBrainstorm();
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.read("between", legSkill, "text");
+    const phases = h.readRecord().derived.phases;
+    assert.deepEqual(phases.unphased?.skill_reads, [pendingRead]);
+    assert.equal(phases.brainstorm?.skill_reads, undefined);
+  });
+
+  test("a tab in a skill filename survives reload without hiding reads from other phases", { skip: process.platform === "win32" }, async () => {
+    const h = await boundInBrainstorm();
+    await h.read("ordinary", legSkill, "text");
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    mkdirSync(join(h.root, "skills"));
+    for (const name of ["chapter\ttwo.md", "chapter%09two.md"]) {
+      const file = join(h.root, "skills", name);
+      writeFileSync(file, "ref");
+      await h.read(name, file, "ref");
+    }
+    const { skill_read_coverage, phases } = h.readRecord().derived;
+    assert.equal(skill_read_coverage, "complete");
+    assert.deepEqual(phases.brainstorm?.skill_reads, [pendingRead]);
+    assert.deepEqual(phases.unphased?.skill_reads?.map(r => [r.path.split("/").at(-1), r.bytes]), [["chapter%09two.md", 3], ["chapter%2509two.md", 3]]);
+  });
+
+  test("direct and nested reads count their final results once, in the phase active at completion", async () => {
+    const h = harness({ piVersion: "1.5.0" });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    const parent = { toolName: "codemode", toolCallId: "script" };
+    await h.emit("tool_call", { ...parent, input: { code: "..." } });
+    const calls = ["direct", "script/1", "direct-error", "script/2", "script/3"].map(toolCallId => ({
+      toolName: "read", toolCallId, input: { path: legSkill }, ...(toolCallId.startsWith("script/") ? { parentToolCallId: "script" } : {}),
+    }));
+    for (const call of calls) await h.emit("tool_call", call);
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
+    for (const [i, call] of calls.entries()) {
+      const intermediate = { ...call, isError: false, content: [{ type: "text", text: "original read result" }] };
+      await h.emit("tool_result", intermediate);
+      const later = { content: i === 4 ? [{ type: "image", data: "AAAA", mimeType: "image/png" }] : [{ type: "text", text: i ? "ab" : "a" }], isError: i === 2 || i === 3 };
+      const { content, isError } = mergeToolResult(intermediate, later);
+      const end = { ...call, input: undefined, result: { content }, isError };
+      await h.emit("tool_execution_end", end);
+      await h.emit("tool_execution_end", end);
+    }
+    await h.emit("tool_execution_end", { ...parent, result: { content: [{ type: "text", text: "ab" }] }, isError: false });
+    const phases = h.readRecord().derived.phases;
+    assert.equal(phases.brainstorm?.skill_reads, undefined);
+    assert.deepEqual(phases.plan?.skill_reads, [1, 2].map(bytes => ({ path: pendingRead.path, bytes })));
+  });
+
+  test("a ranged read counts only returned UTF-8 text, including the continuation notice", async () => {
+    const h = await boundInBrainstorm();
+    const path = "skills/range.md";
+    mkdirSync(join(h.root, "skills"));
+    writeFileSync(join(h.root, path), "first\n\u00e9\nlast\n");
+    const call = { toolName: "read", toolCallId: "range", input: { path, offset: 2, limit: 1 } };
+    await h.emit("tool_call", call);
+    const notice = "\n\n[1 more lines in file. Use offset=3 to continue.]";
+    const content = [{ type: "text", text: "\u00e9" }, { type: "image", mimeType: "image/png", data: "AAAA" }, { type: "text", text: notice }];
+    await h.emit("tool_execution_end", { toolName: "read", toolCallId: "range", result: { content }, isError: false });
+    assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads?.map(r => r.bytes), [2 + notice.length]);
+  });
+
+  test("only an entered run folds a leg skill read at plan bind; reconstruction discards unbound observations", async () => {
+    for (const mode of ["standalone", "live", "reconstructed"] as const) {
+      const h = harness({ branch: [entry] });
+      if (mode !== "standalone") await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      await h.read("prebind", legSkill, "text");
+      assert.equal(existsSync(h.recordPath()), false);
+      if (mode === "reconstructed") await h.emit("session_tree", { type: "session_tree" });
+      writeFileSync(join(h.root, "doc/specs/a.md"), "# Spec\n");
+      writeFileSync(join(h.root, "doc/plans/a.md"), "**Spec:** `doc/specs/a.md`\n");
+      await h.read("plan", "doc/plans/a.md", "header");
+      assert.equal(existsSync(h.recordPath()), mode !== "standalone");
+      if (mode === "standalone") continue;
+      const { phases, skill_read_coverage } = h.readRecord().derived;
+      assert.deepEqual(phases.brainstorm?.skill_reads, mode === "live" ? [pendingRead] : undefined);
+      assert.equal(skill_read_coverage, mode === "live" ? "complete" : "partial");
+    }
+  });
+
+  test("a disabled interval never writes and makes current and later bindings partial", async () => {
+    const a = "doc/specs/a.md";
+    const b = "doc/specs/b.md";
+    for (const [bound, spec] of [[true, a], [false, a], [true, b]] as const) {
+      const h = harness();
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      if (bound) await h.writeSpec(a);
+      const bytesBefore = bound && readFileSync(h.recordPath());
+      h.setEnabled(false);
+      await h.read("disabled", legSkill, "ignored");
+      assert.deepEqual(existsSync(h.recordPath()) && readFileSync(h.recordPath()), bytesBefore);
+      h.setEnabled(true);
+      if (!bound) await h.writeSpec(a);
+      if (spec === b) {
+        await h.emit("turn_end", { type: "turn_end" });
+        assert.equal(h.readRecord(a).derived.skill_read_coverage, "partial");
+        await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "pass", specPath: b } });
+      }
+      await h.read("enabled", legSkill, "text");
+      await h.emit("session_shutdown", { type: "session_shutdown" });
+      assert.equal(h.readRecord(spec).derived.skill_read_coverage, "partial");
+      assert.deepEqual(h.readRecord(spec).derived.phases.brainstorm?.skill_reads, [pendingRead]);
+    }
+  });
+
+  test("re-enable resolves binding changes without recording disabled calls", async (t) => {
+    for (const route of ["plan check", "spec edit", "plan read", "resume skip", "worktree write", "draft rename"] as const) {
+      await t.test(route, async () => {
+        const h = harness();
+        const a = "doc/specs/a.md";
+        const b = "doc/specs/b.md";
+        const bound = route === "plan check" || route === "worktree write" || route === "draft rename";
+        const rename = route === "draft rename";
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        if (bound) {
+          await h.writeSpec(a, rename ? "# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing\n" : "# Spec\n");
+          await h.read("first", legSkill, "1");
+        }
+        const before = bound && readFileSync(h.recordPath(a));
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        switch (route) {
+          case "plan check":
+            await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "pass", specPath: b } });
+            await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "fail", specPath: a } });
+            break;
+          case "spec edit":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            await h.emit("tool_result", { toolName: "edit", input: { path: b }, isError: false });
+            break;
+          case "plan read":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            writeFileSync(join(h.root, "doc/plans/b.md"), `**Spec:** ${b}\n`);
+            await h.read("plan", "doc/plans/b.md", "header");
+            break;
+          case "resume skip":
+            writeFileSync(join(h.root, b), "# Spec\n");
+            await h.phaseResult("skip", { ...P(), brainstorm: { status: "skipped", reason: `resume: ${b}` } });
+            break;
+          case "worktree write":
+            await h.writeSpec(`.worktrees/x/${b}`);
+            break;
+          case "draft rename":
+            await h.writeSpec(b);
+            break;
+        }
+        if (route !== "resume skip") await h.phaseResult("complete", P({ brainstorm: "complete" }));
+        const phase = route === "worktree write" ? "verify" : "unphased";
+        if (phase === "verify") {
+          await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
+        }
+        await h.read("disabled", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a)), before);
+        assert.equal(existsSync(h.recordPath(b)), false);
+        h.setEnabled(true);
+        await h.read("next", legSkill, "text");
+        const next = h.readRecord(b);
+        assert.equal(next.derived.skill_read_coverage, "partial");
+        assert.deepEqual(next.derived.phases[phase]?.skill_reads, [pendingRead]);
+        assert.deepEqual(next.derived.phases.brainstorm?.skill_reads?.map(r => r.bytes), rename ? [1] : undefined);
+        assert.equal(next.derived.spec_writes.brainstorm?.count, rename ? 1 : undefined);
+        assert.equal(next.derived.gates.plan_rounds, 0);
+        assert.equal(next.events.some(e => e.kind === "spec_renamed" || (e.kind === "phase" && ["complete", "skip"].includes(e.action))), false);
+        if (bound && !rename) {
+          const original = h.readRecord(a).derived;
+          assert.equal(original.skill_read_coverage, "partial");
+          assert.deepEqual(original.phases.brainstorm?.skill_reads?.map(r => r.bytes), [1]);
+          assert.equal(original.phases.unphased?.skill_reads, undefined);
+        } else assert.equal(existsSync(h.recordPath(a)), false);
+      });
+    }
+  });
+
+  test("the recorder attributes the next read using the final implement outcome", async (t) => {
+    for (const mode of ["live bound enabled", "live bound disabled", "live error enabled", "live error disabled", "ordinary completion", "live unbound", "live unbound enabled", "replay enabled", "replay disabled"] as const) {
+      await t.test(mode, async () => {
+        const h = harness();
+        const a = "doc/specs/a.md";
+        const start = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
+        const done = { toolName: "plan_tracker", toolCallId: "pt", isError: false, details: { tasks: [{ status: "complete" }] } };
+        const failed = mode.startsWith("live error");
+        if (mode.startsWith("live bound") || failed || mode === "ordinary completion") {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.writeSpec(a);
+          await h.phaseResult("start", start);
+        }
+        const before = existsSync(h.recordPath()) && readFileSync(h.recordPath());
+        const io = h.recorderIo();
+        const enabled = mode.endsWith("enabled");
+        const unbound = mode.startsWith("live unbound");
+        h.setEnabled(enabled);
+        if (mode.startsWith("replay")) {
+          const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+          h.setBranch([
+            entry,
+            result({ toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/old.md" } }),
+            result({ toolName: "plan_check", details: { status: "pass", specPath: a } }),
+            result({ toolName: "phase_tracker", details: { action: "start", phases: start } }),
+            result(done),
+          ]);
+          await h.emit("session_start", {});
+        } else {
+          if (unbound) {
+            await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+            await h.phaseResult("start", start);
+          }
+          if (mode === "ordinary completion") {
+            await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete" }));
+          } else {
+            await h.emit("tool_result", mode === "live unbound enabled" ? { ...done, details: { tasks: [{ status: "in_progress" }] } } : done);
+            await h.emit("tool_execution_end", { toolName: done.toolName, toolCallId: done.toolCallId, isError: failed, result: { content: [], details: done.details } });
+          }
+        }
+        if (!enabled) {
+          assert.deepEqual(h.recorderIo(), io);
+          assert.deepEqual(existsSync(h.recordPath()) && readFileSync(h.recordPath()), before);
+        }
+        h.setEnabled(true);
+        await h.read("next", legSkill, "text");
+        if (unbound) await h.writeSpec(a);
+        const { derived: d, events } = h.readRecord();
+        assert.deepEqual(d.phases[failed ? "implement" : "unphased"]?.skill_reads, [pendingRead]);
+        assert.equal(d.phases[failed ? "unphased" : "implement"]?.skill_reads, undefined);
+        assert.deepEqual(d.plan, mode === "live bound enabled" ? { tasks: 1, complete: 1, failed: 0, skipped: 0 } : undefined);
+        assert.equal(d.skill_read_coverage, enabled && !mode.startsWith("replay") ? "complete" : "partial");
+        assert.equal(events.filter(e => e.kind === "phase" && e.name === "implement" && e.action === "complete").length, enabled && !failed && mode.startsWith("live") ? 1 : 0);
+        assert.equal(existsSync(h.recordPath("doc/specs/old.md")), false);
+      });
+    }
+  });
+
+  test("ship completion while disabled prevents deferred binding and disarms reads", async () => {
+    const h = await boundInBrainstorm();
+    const before = readFileSync(h.recordPath());
+    const io = h.recorderIo();
+    h.setEnabled(false);
+    await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+    await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete", ship: "complete" }));
+    assert.deepEqual(h.recorderIo(), io);
+    assert.deepEqual(readFileSync(h.recordPath()), before);
+    h.setEnabled(true);
+    await h.read("after ship", legSkill, "ignored");
+    assert.equal(h.readRecord().derived.skill_read_coverage, "partial");
+    assert.deepEqual(Object.values(h.readRecord().derived.phases).flatMap(p => p.skill_reads ?? []), []);
+    assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
+  });
+
+  test("disabled bindings retain the coverage gap for their checkout and spec across navigation, reset, or ship completion", async t => {
+    const spec = "doc/specs/a.md";
+    const skipped = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
+    const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+    for (const route of [
+      "plan check", "spec write", "resume skip", "legacy record",
+      "replay resume skip then reset", "live resume skip then reset",
+      "replay resume skip then Keep As-Is", "live resume skip then Keep As-Is",
+    ] as const) {
+      await t.test(route, async () => {
+        const live = route.startsWith("live ");
+        const reset = route.endsWith("then reset");
+        const keep = route.endsWith("then Keep As-Is");
+        const original = await boundInBrainstorm();
+        const legacy = route === "legacy record";
+        if (!legacy) await original.read("first", legSkill, "text");
+        const record = original.readRecord();
+        assert.equal(record.derived.skill_read_coverage, "complete");
+        if (legacy) {
+          delete record.derived.skill_read_coverage;
+          writeFileSync(original.recordPath(), serializeRecord(record));
+        }
+        const before = readFileSync(original.recordPath());
+
+        const h = harness({ enabled: false });
+        h.ctx.cwd = original.root;
+        const io = h.recorderIo();
+        if (live) {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.phaseResult("skip", skipped);
+        } else {
+          const replay: unknown[] = [entry];
+          if (route === "spec write") {
+            replay.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "write", name: "write", arguments: { path: spec } }] } });
+            replay.push(result({ toolName: "write", toolCallId: "write" }));
+          } else if (route === "resume skip" || reset || keep) {
+            replay.push(result({ toolName: "phase_tracker", details: { action: "skip", phases: skipped } }));
+          } else {
+            replay.push(result({ toolName: "plan_check", details: { status: "pass", specPath: join(original.root, spec) } }));
+          }
+          h.setBranch(replay);
+          await h.emit("session_start", {});
+        }
+        await h.read("missed", legSkill, "ignored");
+        if (reset) await h.phaseResult("reset", P());
+        else if (keep) {
+          const shipping = { ...P({ plan: "complete", implement: "complete", verify: "complete", ship: "in_progress" }), brainstorm: skipped.brainstorm };
+          await h.phaseResult("start", shipping);
+          await h.phaseResult("complete", { ...shipping, ship: { status: "complete" } });
+        } else {
+          h.setBranch([]);
+          await h.emit("session_tree", {});
+        }
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(original.recordPath()), before);
+
+        h.setEnabled(true);
+        if (reset || keep) {
+          await h.read("disarmed", legSkill, "ignored");
+          const restored = h.readRecord();
+          assert.equal(restored.derived.skill_read_coverage, "partial");
+          assert.deepEqual(restored.derived.phases.brainstorm?.skill_reads, [pendingRead]);
+          record.derived.skill_read_coverage = "partial";
+          assert.deepEqual(restored, record);
+          assert.deepEqual(readdirSync(dirname(h.recordPath())), ["a.yaml"]);
+          return;
+        }
+        h.setBranch(route === "plan check"
+          ? [entry, result({ toolName: "plan_check", details: { status: "pass", specPath: spec } })]
+          : [entry]);
+        await h.emit("session_tree", {});
+        if (route !== "plan check") {
+          writeFileSync(join(h.ctx.cwd, "doc/plans/a.md"), `**Spec:** ${spec}\n`);
+          await h.read("bind", "doc/plans/a.md", "header");
+        }
+        const restored = h.readRecord();
+        assert.equal(restored.run_id, record.run_id);
+        assert.equal(restored.derived.skill_read_coverage, legacy ? undefined : "partial");
+        assert.deepEqual(Object.values(restored.derived.phases).flatMap(p => p.skill_reads ?? []), legacy ? [] : [pendingRead]);
+      });
+    }
+  });
+
+  test("a disabled binding gap follows a known spec, not the next branch or checkout", async t => {
+    const spec = "doc/specs/a.md";
+    const plan = "doc/plans/a.md";
+    const check = { toolName: "plan_check", details: { status: "pass", specPath: spec }, isError: false };
+    const replay = [entry, { type: "message", message: { role: "toolResult", ...check } }];
+    for (const route of ["replay", "live resume skip", "live spec write", "live spec edit", "live plan check", "shutdown before navigation", "enabled navigation", "disabled navigation"] as const) {
+      await t.test(route, async () => {
+        const original = await boundInBrainstorm();
+        const other = await boundInBrainstorm();
+        await other.emit("session_shutdown", {});
+        const runId = original.readRecord().run_id;
+        const before = readFileSync(original.recordPath());
+        const h = harness({ branch: route === "replay" ? replay : [] });
+        let returnBranch: unknown[] = replay;
+        h.ctx.cwd = original.root;
+        if (route === "live plan check") {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.read("pending", legSkill, "text");
+        }
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        if (route === "replay") {
+          await h.emit("session_start", {});
+        } else {
+          if (route !== "live plan check") await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          if (route === "live resume skip") {
+            const phases = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
+            await h.phaseResult("skip", phases);
+            returnBranch = [entry, { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "skip", phases } } }];
+          } else if (route === "live spec write" || route === "live spec edit") {
+            await h.emit("tool_result", { toolName: route === "live spec write" ? "write" : "edit", input: { path: spec }, isError: false });
+          } else if (route === "live plan check") {
+            await h.emit("tool_result", check);
+          } else {
+            writeFileSync(join(h.ctx.cwd, plan), `**Spec:** ${spec}\n`);
+            await h.read("plan", plan, "header");
+          }
+        }
+        await h.read("missed", legSkill, "ignored");
+        if (route === "live resume skip" || route === "disabled navigation") {
+          h.ctx.cwd = other.root;
+          await h.emit("session_tree", {});
+        }
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(original.recordPath()), before);
+
+        h.setEnabled(true);
+        if (route === "shutdown before navigation") await h.emit("session_shutdown", {});
+        h.setBranch(returnBranch);
+        h.ctx.cwd = other.root;
+        await h.emit("session_tree", {});
+        assert.equal(other.readRecord().derived.skill_read_coverage, "complete");
+        assert.equal(original.readRecord().derived.skill_read_coverage, "partial");
+        h.ctx.cwd = original.root;
+        await h.emit("session_tree", {});
+        const restored = original.readRecord();
+        assert.equal(restored.run_id, runId);
+        assert.equal(restored.derived.skill_read_coverage, "partial");
+        assert.deepEqual(Object.values(restored.derived.phases).flatMap(p => p.skill_reads ?? []), []);
+      });
+    }
+  });
+
+  test("a disabled resume skip wins over a later same-checkout spec edit", async t => {
+    const a = "doc/specs/a.md";
+    const b = "doc/specs/b.md";
+    const skipped = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${a}` } };
+    const edit = { toolName: "edit", toolCallId: "edit", input: { path: b }, isError: false };
+    const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+    const branch = [entry, result({ toolName: "phase_tracker", details: { action: "skip", phases: skipped } }),
+      { type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "edit", name: "edit", arguments: { path: b } }] } },
+      result(edit)];
+    for (const route of ["live", "replay"] as const) {
+      await t.test(route, async () => {
+        const original = await boundInBrainstorm();
+        await original.phaseResult("reset", P());
+        await original.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await original.writeSpec(b);
+        await original.emit("session_shutdown", {});
+        const before = readFileSync(original.recordPath(b), "utf8");
+        const h = harness({ enabled: false, sessionId: "s2" });
+        h.ctx.cwd = original.root;
+        const io = h.recorderIo();
+        if (route === "replay") {
+          h.setBranch(branch);
+          await h.emit("session_start", {});
+        } else {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.phaseResult("skip", skipped);
+          await h.emit("tool_result", edit);
+        }
+        await h.read("missed", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        h.setEnabled(true);
+        await h.emit("session_shutdown", {});
+        assert.equal(h.readRecord(a).derived.skill_read_coverage, "partial");
+        assert.equal(readFileSync(original.recordPath(b), "utf8"), before);
+        h.setBranch([entry, result({ toolName: "plan_check", details: { status: "pass", specPath: b } })]);
+        await h.emit("session_tree", {});
+        assert.equal(h.readRecord(b).derived.skill_read_coverage, "complete");
+      });
+    }
+  });
+
+  test("disabled switches retain outgoing paths and do not reopen stale records", async () => {
+    const first = await boundInBrainstorm();
+    const second = await boundInBrainstorm();
+    const terminal = await boundInBrainstorm();
+    const sealed = terminal.readRecord();
+    sealed.status = "shipped";
+    writeFileSync(terminal.recordPath(), serializeRecord(sealed));
+    const before = readFileSync(terminal.recordPath(), "utf8");
+    writeFileSync(join(first.root, "doc/plans/p.md"), "**Spec:** doc/specs/a.md\n");
+    const h = harness({ enabled: false });
+    const io = h.recorderIo();
+    for (const [session, checkout] of [first, second, terminal].entries()) {
+      h.ctx.cwd = join(checkout.root, "doc");
+      h.ctx.sessionManager.getSessionId = () => `outgoing-${session}`;
+      await h.emit("session_switch", {});
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      if (checkout === terminal) {
+        const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
+        await check("specs/a.md");
+        await check("specs/absent.md");
+      } else if (checkout === second) {
+        await h.phaseResult("skip", { ...P(), brainstorm: { status: "skipped", reason: "resume: specs/a.md" } });
+      } else {
+        await h.read("plan", "plans/p.md", "header");
+      }
+      await h.read("missed", legSkill, "ignored");
+    }
+    h.ctx.cwd = h.root;
+    h.ctx.sessionManager.getSessionId = () => "incoming";
+    await h.emit("session_switch", {});
+    assert.deepEqual(h.recorderIo(), io);
+
+    h.setEnabled(true);
+    await h.emit("session_shutdown", {});
+    assert.equal(first.readRecord().derived.skill_read_coverage, "partial");
+    assert.equal(second.readRecord().derived.skill_read_coverage, "partial");
+    assert.equal(readFileSync(terminal.recordPath(), "utf8"), before);
+    assert.equal(existsSync(terminal.recordPath("doc/specs/absent.md")), false);
+    assert.equal(existsSync(h.recordPath()), false);
+  });
+
+  test("an outgoing gap cannot change a removed, replaced, or stamped record", async t => {
+    for (const state of ["removed", "replaced", "stamped"] as const) {
+      await t.test(state, async () => {
+        const h = await boundInBrainstorm();
+        const a = "doc/specs/a.md";
+        const b = "doc/specs/b.md";
+        await h.phaseResult("reset", P());
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await h.writeSpec(b);
+        const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
+        await check(a);
+        const before = readFileSync(h.recordPath(b));
+        h.setEnabled(false);
+        await check(b);
+        const io = h.recorderIo();
+        await h.emit("session_tree", {});
+        assert.deepEqual(h.recorderIo(), io);
+        if (state === "removed") {
+          unlinkSync(h.recordPath(a));
+        } else {
+          const onDisk = h.readRecord(a);
+          if (state === "replaced") onDisk.run_id = "replacement";
+          else onDisk.status = "shipped";
+          writeFileSync(h.recordPath(a), serializeRecord(onDisk));
+        }
+        const outgoing = existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a));
+        h.setEnabled(true);
+        await h.emit("session_shutdown", {});
+        assert.deepEqual(existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a)), outgoing);
+        assert.deepEqual(readFileSync(h.recordPath(b)), before);
+      });
+    }
+  });
+
+  test("a still-bound run cannot overwrite its replacement on re-enable or shutdown", async () => {
+    const h = await boundInBrainstorm();
+    const file = h.recordPath();
+    const replacement = { ...h.readRecord(), run_id: "replacement" };
+    h.setEnabled(false);
+    await h.read("missed", legSkill, "ignored");
+    writeFileSync(file, serializeRecord(replacement));
+    const before = readFileSync(file);
+
+    h.setEnabled(true);
+    await h.emit("session_compact", {});
+    assert.ok(readFileSync(file).equals(before), "re-enable changed the replacement record");
+    const io = h.recorderIo();
+    await h.emit("session_shutdown", {});
+    assert.ok(readFileSync(file).equals(before), "shutdown changed the replacement record");
+    assert.deepEqual(h.recorderIo(), io, "shutdown accessed the frozen binding");
+  });
+
+  test("reset or navigation while disabled persists the old run's gap only on re-enable", async t => {
+    for (const [transition, queued] of [["reset", false], ["reset", true], ["session_tree", false], ["session_tree", true]] as const) {
+      await t.test(`${transition}, ${queued ? "queued binding" : "no queued binding"}`, async () => {
+        const h = await boundInBrainstorm();
+        await h.read("first", legSkill, "text");
+        const original = h.readRecord();
+        assert.equal(original.derived.skill_read_coverage, "complete");
+        const before = readFileSync(h.recordPath());
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        await h.read("gap", legSkill, "ignored");
+        if (queued) await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/abandoned.md" } });
+        if (transition === "reset") await h.phaseResult("reset", P());
+        else await h.emit("session_tree", {});
+        await h.read("disabled", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(h.recordPath()), before);
+
+        original.branch = "newer-on-disk";
+        writeFileSync(h.recordPath(), serializeRecord(original));
+        h.setEnabled(true);
+        await h.read("disarmed", legSkill, "ignored");
+        original.derived.skill_read_coverage = "partial";
+        assert.deepEqual(h.readRecord(), original);
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await h.writeSpec("doc/specs/b.md");
+        assert.equal(existsSync(h.recordPath("doc/specs/abandoned.md")), false);
+        const other = h.readRecord("doc/specs/b.md").derived;
+        assert.equal(other.skill_read_coverage, "complete");
+        assert.deepEqual(Object.values(other.phases).flatMap(phase => phase.skill_reads ?? []), []);
+      });
+    }
+  });
+
+  test("a resumed run retains coverage and opaque paths; a legacy run stays unmeasured until its first observation", async () => {
+    for (const mode of ["measured", "disabled", "disabled-same-session", "legacy", "legacy-pending"]) {
+      const h = await boundInBrainstorm();
+      const file = "other/skills/reference.md";
+      mkdirSync(join(h.root, "other/skills"), { recursive: true });
+      writeFileSync(join(h.root, file), "reference");
+      const disabled = mode.startsWith("disabled");
+      if (mode === "measured" || mode === "disabled-same-session") await h.read("first", file, "1");
+      const before = readFileSync(h.recordPath());
+      const io = h.recorderIo();
+      if (disabled) {
+        h.setEnabled(false);
+        await h.read("missed", file, "ignored");
+      }
+      await h.emit("session_shutdown", { type: "session_shutdown" });
+      if (disabled) {
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(h.recordPath()), before);
+      }
+      const rec = h.readRecord();
+      assert.equal(rec.derived.skill_read_coverage, "complete");
+      if (mode.startsWith("legacy")) {
+        delete rec.derived.skill_read_coverage;
+        writeFileSync(h.recordPath(), serializeRecord(rec));
+      }
+      const resumed = harness({ branch: [entry], sessionId: mode === "disabled-same-session" ? "s1" : "s2" });
+      resumed.ctx.cwd = h.root;
+      await resumed.emit("session_start", { type: "session_start" });
+      if (mode === "legacy-pending") await resumed.read("pending", file, "1");
+      await resumed.writeSpec("doc/specs/a.md");
+      assert.equal(resumed.readRecord().run_id, rec.run_id);
+      assert.equal(resumed.readRecord().derived.skill_read_coverage, mode === "measured" ? "complete" : mode === "legacy" ? undefined : "partial");
+      await resumed.read("next", file, "22");
+      await resumed.emit("session_shutdown", { type: "session_shutdown" });
+      const d = resumed.readRecord().derived;
+      assert.equal(d.skill_read_coverage, mode === "measured" ? "complete" : "partial");
+      const reads = d.phases.brainstorm!.skill_reads!;
+      assert.match(reads[0].path, /^source:[a-f0-9]{64}:skills\/reference\.md$/);
+      assert.deepEqual(reads.map(r => [r.path, r.bytes]), (mode === "legacy" || mode === "disabled" ? [2] : [1, 2]).map(n => [reads[0].path, n]));
+    }
+  });
+
+  test("a clean close distinguishes an untouched session from activity during a disabled resume", async t => {
+    for (const mode of ["clean resume", "disabled read", "disabled read before later bind"]) {
+      await t.test(mode, async () => {
+        const missed = mode !== "clean resume";
+        const laterBind = mode === "disabled read before later bind";
+        const branch: unknown[] = [entry];
+        const original = harness({ branch });
+        await original.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await original.writeSpec("doc/specs/a.md");
+        // A nested write binds live but Pi persists only the enclosing codemode result.
+        if (!laterBind) branch.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", name: "write", id: "w", arguments: { path: "doc/specs/a.md" } }] } });
+        branch.push({ type: "message", message: { role: "toolResult", toolName: laterBind ? "codemode" : "write", toolCallId: "w" } });
+        await original.read("covered", legSkill, "text");
+        await original.emit("session_shutdown", { reason: "quit" });
+        const closed = original.readRecord();
+        assert.equal(closed.derived.skill_read_coverage, "complete");
+        assert.deepEqual(Object.keys(closed.accumulators), ["total"]);
+
+        if (missed) {
+          const disabled = harness({ branch, enabled: false });
+          disabled.ctx.cwd = original.root;
+          const io = disabled.recorderIo();
+          const before = readFileSync(original.recordPath());
+          const length = branch.length;
+          await disabled.emit("session_start", { reason: "startup" });
+          await disabled.read("missed", legSkill, "not measured");
+          branch.push({ type: "message", message: { role: "toolResult", toolName: "read", toolCallId: "missed", content: [{ type: "text", text: "not measured" }] } });
+          await disabled.emit("session_shutdown", { reason: "quit" });
+          assert.equal(branch.length, length + 1, "disabled recorder wrote to the session");
+          assert.deepEqual(disabled.recorderIo(), io);
+          assert.deepEqual(readFileSync(original.recordPath()), before);
+        }
+        branch.push({ type: "model_change", provider: "p", modelId: "m" });
+        const resumed = harness({ branch });
+        resumed.ctx.cwd = original.root;
+        await resumed.emit("session_start", { reason: "startup" });
+        if (laterBind) await resumed.emit("tool_result", { toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } });
+        const rec = resumed.readRecord();
+        assert.equal(rec.run_id, closed.run_id);
+        assert.equal(rec.derived.skill_read_coverage, missed ? "partial" : "complete");
+        assert.deepEqual(rec.derived.phases.brainstorm?.skill_reads, [pendingRead]);
+      });
+    }
+  });
+
+  test("same-session pending reads append after the observations already bound", async () => {
+    const h = await boundInBrainstorm();
+    await h.read("first", legSkill, "1");
+    h.setBranch([entry]);
+    await h.emit("session_tree", { type: "session_tree" });
+    await h.read("pending", legSkill, "22");
+    await h.writeSpec("doc/specs/a.md");
+    const d = h.readRecord().derived;
+    assert.equal(d.skill_read_coverage, "complete");
+    assert.deepEqual(d.phases.brainstorm!.skill_reads!.map(r => r.bytes), [1, 2]);
+  });
+
+  test("rebinding after an observed read leaves it with its original run", async (t) => {
+    for (const mode of ["same record / worktree write", "valid record / worktree write", "invalid record / plan_check"]) {
+      await t.test(mode, async () => {
+        const h = harness();
+        const invalid = mode === "invalid record / plan_check";
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        if (invalid) {
+          mkdirSync(dirname(h.recordPath()), { recursive: true });
+          writeFileSync(h.recordPath(), [
+            "schema: 1",
+            "spec: doc/specs/a.md",
+            "run_id: a",
+            "status: in_progress",
+            "created_at: 2026-09-17T10:00:00Z",
+            "accumulators: { s1: { phases: { brainstorm: { skill_reads: malformed } } } }",
+          ].join("\n"));
+        }
+        await h.writeSpec("doc/specs/a.md");
+        await h.read("first", legSkill, "text");
+        const original = h.readRecord();
+        assert.equal(original.derived.skill_read_coverage, invalid ? "invalid" : "complete");
+        if (mode === "same record / worktree write") {
+          await h.writeSpec(".worktrees/x/doc/specs/a.md");
+          const shared = h.readRecord();
+          assert.equal(shared.run_id, original.run_id);
+          assert.equal(shared.derived.skill_read_coverage, "complete");
+          assert.deepEqual(shared.derived.phases.brainstorm?.skill_reads, [pendingRead]);
+          return;
+        }
+        if (invalid) {
+          await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+        } else {
+          await h.writeSpec(".worktrees/x/doc/specs/b.md");
+        }
+        const next = h.readRecord("doc/specs/b.md");
+        assert.equal(next.derived.skill_read_coverage, "partial");
+        assert.equal(next.derived.phases.brainstorm?.skill_reads, undefined);
+        assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, invalid ? undefined : [pendingRead]);
+      });
+    }
+  });
+
+  test("an in-flight read completes exactly once on the new plan binding", async () => {
+    const h = await boundInBrainstorm();
+    const call = { toolName: "read", toolCallId: "in-flight" };
+    await h.emit("tool_call", { ...call, input: { path: legSkill } });
+    await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+    const end = { ...call, result: { content: [{ type: "text", text: "text" }] }, isError: false };
+    await h.emit("tool_execution_end", end);
+    await h.emit("tool_execution_end", end);
+    assert.equal(h.readRecord().derived.phases.brainstorm?.skill_reads, undefined);
+    const next = h.readRecord("doc/specs/b.md").derived;
+    assert.deepEqual(next.phases.brainstorm?.skill_reads, [pendingRead]);
+    assert.equal(next.skill_read_coverage, "complete");
   });
 
   test("message_end appends one cache triplet per parent call; child usage is excluded from parent_calls but still summed into tokens", async () => {
@@ -549,9 +1328,8 @@
     await h.emit("tool_result", subagentResult([{ agent: "scout", exitCode: 0, usage: usage(10) }]));
     await h.emit("model_select", { type: "model_select", model: { provider: "p", id: "next" } });
     await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "fail" } });
-    const planResult = (status: string, id: string) => h.emit("tool_result", { toolName: "plan_tracker", toolCallId: id, input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status }] } });
-    await planResult("complete", "pt1");
-    await planResult("in_progress", "pt2");
+    await h.planResult("update", [{ name: "a", status: "complete" }]);
+    await h.planResult("update", [{ name: "a", status: "in_progress" }]);
     await h.writeSpec("doc/specs/a.md");
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     const rec = h.readRecord();
@@ -815,7 +1593,7 @@
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
       await h.writeSpec("doc/specs/a.md");
       await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-      await h.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action: "init", tasks: [{ name: "repair", status: "in_progress" }] } });
+      await h.planResult("init", [{ name: "repair", status: "in_progress" }]);
       const before = h.readRecord();
       const results = agents?.map((agent, i) => ({ agent, exitCode: i === agents.length - 1 ? 1 : 0, model: `p/m${i}`, usage: usage(10, 2, 0.5) }));
       const terminal = { ...subagentResult(results ?? []), isError: true, details: results === undefined ? {} : { results } };
@@ -930,7 +1708,7 @@
     const h = await boundInPlan();
     await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-    const pt = (action: string, tasks: { name: string; status: string }[], id = "pt1") => h.emit("tool_result", { toolName: "plan_tracker", toolCallId: id, input: { action }, content: [], isError: false, details: { action, tasks } });
+    const pt = h.planResult;
     await pt("init", [{ name: "a", status: "pending" }, { name: "b", status: "pending" }]);
     await pt("update", [{ name: "a", status: "complete" }, { name: "b", status: "pending" }]);
     await pt("update", [{ name: "a", status: "in_progress" }, { name: "b", status: "pending" }]);
@@ -1164,12 +1942,16 @@
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
+    const late = { toolName: "read", toolCallId: "late" };
+    await h.emit("tool_call", { ...late, input: { path: legSkill } });
     await h.phaseResult("reset", P());
     const aBefore = readFileSync(h.recordPath("doc/specs/a.md"), "utf8");
     await h.emit("tool_result", { toolName: "subagent", toolCallId: "sa", input: {}, content: [{ type: "text", text: "" }], isError: false, details: { results: [{ agent: "worker", exitCode: 0, model: "p/m", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, cost: 0.1 } }] } });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/b.md");
+    await h.emit("tool_execution_end", { ...late, result: { content: [{ type: "text", text: "late" }] }, isError: false });
     const b = h.readRecord("doc/specs/b.md");
+    assert.equal(b.derived.phases.brainstorm?.skill_reads, undefined);
     assert.deepEqual(b.events.map((e) => e.kind), ["phase"]);
     assert.deepEqual(b.derived.personas, {});
     assert.equal(readFileSync(h.recordPath("doc/specs/a.md"), "utf8"), aBefore);
@@ -1180,7 +1962,7 @@
     await h.emit("input", { type: "input", text: "review", source: "interactive" });
     await h.emit("message_end", { type: "message_end", message: { role: "assistant", usage: usage(10) } });
     await h.emit("turn_end", { type: "turn_end" });
-    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "complete" }] }, isError: false });
+    await h.planResult("update", [{ status: "complete" }]);
     h.setBranch([]);
     await h.emit("session_tree", { type: "session_tree" });
     const rec = h.readRecord();
@@ -1189,7 +1971,7 @@
     assert.equal(rec.derived.phases.plan?.peak_context, 4321);
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/b.md");
-    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "in_progress" }] }, isError: false });
+    await h.planResult("update", [{ status: "in_progress" }]);
     assert.equal(h.readRecord("doc/specs/b.md").derived.gates.task_reopens, 0);
   });
 
@@ -1446,7 +2228,7 @@ test("resume skip reads engine from bound spec live and on branch replay", async
 
   test("any successful tracker action counts named transitions once and ignores retries and amendments", async () => {
     const h = await boundInPlan();
-    const pt = (action: string, tasks: { name: string; status: string }[], isError = false) => h.emit("tool_result", { toolName: "plan_tracker", input: { action }, details: { action, tasks }, content: [], isError });
+    const pt = h.planResult;
     const closed = [{ name: "a", status: "complete" }, { name: "b", status: "complete" }];
     const reopened = [{ name: "b", status: "failed" }, { name: "a", status: "in_progress" }];
     await pt("init", closed);
@@ -1508,10 +2290,9 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     await h.writeSpec("doc/specs/a.md", "# Spec\n\n**Engine:** loop\n\n## Scope\nSynthetic run.\n");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
-    const pt = (tasks: { name: string; status: string }[]) => h.emit("tool_result", { toolName: "plan_tracker", input: { action: "refresh" }, details: { action: "refresh", tasks }, isError: false, content: [] });
-    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
+    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
     await h.emit("tool_result", { toolName: "subagent", input: {}, details: { results: [{ agent: "loop-implementer", exitCode: 0 }] }, content: [], isError: false });
-    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
+    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "in_progress" }));
     await h.bash("verify", "npm test");
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "in_progress" }));

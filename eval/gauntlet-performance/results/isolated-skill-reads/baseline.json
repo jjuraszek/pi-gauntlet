@@ -1,0 +1,34 @@
+{
+  "sample": "isolated-skill-reads",
+  "arm": "baseline",
+  "skillSha": "bafe22c5ca7b97231b3172edc9503002aa16f7c74b8b18cd0fd48a19f05cd06e",
+  "inputSha": "88d1f057ba62f039391e277e4c4e07ffcd0a36b9d42ef6e386302d002abeb0a1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n**Recommendation**\n\n`rename-index` (`a0000001`) drives the 2.4.0 tail. It ran 50m against a 14m group p50 and drew 4 `fix_round_grants` (the fix-round proxy), while every other run drew 0. The same run read `skills/brainstorming/reference/legs.md` 5 times for 60000 bytes, 100% of its skill reads. Investigate why one run needed four extra review rounds before treating 2.4.0 as slower overall.\n\n**Cornerstones**\n\n- The corpus has 6 records, all shipped, with 0 truncated. There are 4 records on 2.4.0 (`demo/catalog`) and 2 on 2.5.0 (`demo/calendar`).\n- Wall p50/max moved from 14m/50m on 2.4.0 to 12m/13m on 2.5.0. The max drop comes entirely from `a0000001`.\n- The fix-round proxy p50/max moved from 0/4 on 2.4.0 to 0/0 on 2.5.0.\n- Models show `worker:4` on 2.4.0 and `worker:2` on 2.5.0, so the model mix did not change.\n- Each version maps to a different repo, so the version comparison is confounded with the repo.\n\n**Council assessment**\n\ncouncil: no data\n\nPick one:\n1. render report\n2. open recommendation as ticket\n3. drill into rename-index\n",
+      "words": 165,
+      "wallMs": 11813,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n## Recommendation\n\nInvestigate the outlier `rename-index` (`run_id=a0000001`): it took 50m and required 4 grants, the fix-round proxy. Prioritize understanding that run before attributing the version-level difference to an improvement, since the versions cover different repositories.\n\n## Cornerstones\n\n- The corpus contains 6 runs, all shipped, with 0 truncated: 4 on 2.4.0 and 2 on 2.5.0.\n- Wall-time p50/max was 14m/50m for 2.4.0 versus 12m/13m for 2.5.0.\n- The fix-round proxy p50/max was 0/4 for 2.4.0 versus 0/0 for 2.5.0.\n- Model tallies were `worker:4` for 2.4.0 and `worker:2` for 2.5.0; the model label did not change.\n\n## Council assessment\n\ncouncil: no data\n\n## Menu\n\n1. render report\n2. open recommendation as ticket\n3. drill into rename-index\n",
+      "words": 110,
+      "wallMs": 11221,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "658e3bc181d5b5bc25b43f687cacaa81ee13bf02"
+}

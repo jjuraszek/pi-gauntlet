@@ -1,21 +1,11 @@
-# eval report: gauntlet-performance
+# eval report: gauntlet-performance (selected samples)
 
-for: bafe22c5ca7b97231b3172edc9503002aa16f7c74b8b18cd0fd48a19f05cd06e
+for: df5bf4ada2ccfb4358937ca99becdfa067f17cd352e28b8ee6337f3d750bbf20
 
-wall: 8s
+| Partial report | Verdict | What the replies showed |
+|---|---|---|
+| [recurring-skill-reads](results/recurring-skill-reads/report.md) | improved | Both replies used the saved digest pages to cite the same reference at 66,000 bytes (82.5%) and 48,000 bytes (80.0%) and proposed one tuning action. |
+| [isolated-skill-reads](results/isolated-skill-reads/report.md) | improved | Both replies showed the rankings without recommending tuning for an isolated spike or a repeated 8-byte read. |
+| [gate-line-first](results/gate-line-first/report.md) | unchanged | Both replies kept the gate marker, sample-too-small conclusion and numbered menu for legacy records. |
 
-## Change
-
-Start the performance digest reply with its gate marker, and start target-path and overwrite asks with the question marker. Preserve the existing menu choices and write authorization.
-
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| gate-line-first | github-copilot/gpt-6.1-sol | improved | 3735 | choices: holds -> holds (held); sample-size: holds -> holds (held); first-line: fails -> holds (intended change) |
-
-## Feedback
-
-- gate-line-first / github-copilot/gpt-6.1-sol: After preserves both listed facts: it retains all three numbered choices without writing a report, states that the sample is too small with n=1 and shipped=1 for version 1.0.0, and renders council: no data. Its new first line delivers the requested gate marker without losing those facts. Keep that opening and the existing menu; when target-path or overwrite asks become necessary, start them with the question marker and retain the requirement that item 1 be chosen before writing a report.
-
-exit: 0
+These text replays cover the reply to a supplied digest, not live CLI invocation, file writes or follow-up menu actions.

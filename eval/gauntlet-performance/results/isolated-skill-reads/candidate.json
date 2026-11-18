@@ -1,0 +1,90 @@
+{
+  "sample": "isolated-skill-reads",
+  "arm": "candidate",
+  "skillSha": "df5bf4ada2ccfb4358937ca99becdfa067f17cd352e28b8ee6337f3d750bbf20",
+  "inputSha": "88d1f057ba62f039391e277e4c4e07ffcd0a36b9d42ef6e386302d002abeb0a1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n**Recommendation:** Review `rename-index` (run `a0000001`) for the cause of its extra fix rounds. It took 50m wall, against a 14m p50 for demo/catalog 2.4.0. Its `grants` (the fix-round proxy) was 4, while every other run in the corpus had 0.\n\n**Cornerstones**\n- The corpus has 6 runs, all shipped, with 0 truncated.\n- The two version groups are in different repos: demo/catalog 2.4.0 (n=4) and demo/calendar 2.5.0 (n=2). Cross-version movement is therefore confounded by repo.\n- Wall p50/max was 14m/50m on 2.4.0 and 12m/13m on 2.5.0. The 2.4.0 max comes entirely from `rename-index`.\n- Grants p50/max was 0/4 on 2.4.0 and 0/0 on 2.5.0.\n- Model tallies are worker:4 on 2.4.0 and worker:2 on 2.5.0, so there was no model shift.\n\n**Skill reads**\n\nskill reads: run=a0000001-1111-4111-8111-111111111111 coverage=complete total_bytes=60000\n- `pi-gauntlet:skills/brainstorming/reference/legs.md` - 60000 bytes, 5 reads, 100.0%\n\nskill reads: run=a0000002-1111-4111-8111-111111111111 coverage=complete total_bytes=55000\n- `source:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:skills/brainstorming/reference/legs.md` - 55000 bytes, 5 reads, 100.0%\n\nskill reads: run=a0000003-1111-4111-8111-111111111111 coverage=partial total_bytes=61000 (partial: observed text only, not the whole run)\n- `pi-gauntlet:skills/brainstorming/reference/legs.md` - 61000 bytes, 6 reads, 100.0%\n\nskill reads: run=b0000001-1111-4111-8111-111111111111 coverage=complete total_bytes=8\n- `pi-gauntlet:skills/example/short.md` - 8 bytes, 1 read, 100.0%\n\nskill reads: run=b0000002-1111-4111-8111-111111111111 coverage=complete total_bytes=8\n- `pi-gauntlet:skills/example/short.md` - 8 bytes, 1 read, 100.0%\n\n**Council assessment**\n\ncouncil: no data\n\nPick one:\n1. render report\n2. open recommendation as ticket\n3. drill into rename-index\n",
+      "words": 202,
+      "wallMs": 13286,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n## Recommendation\n\nReview `rename-index` (`run_id=a0000001`) to understand its 50m wall time and 4 grants—the fix-round proxy—against the `demo/catalog` 2.4.0 medians of 14m and 0. The file-read evidence does not support a specific tuning action: the large exact `pi-gauntlet` key appears in only one complete run, the other large observations use a different key or partial coverage, and the repeated calendar file is only 8 bytes per run.\n\n## Cornerstones\n\n- The corpus contains 6 shipped runs across two repo/version groups, with 0 truncated runs.\n- `demo/catalog` 2.4.0: n=4, shipped=4; wall p50/max 14m/50m; fix-round proxy p50/max 0/4; models `worker:4`.\n- `demo/calendar` 2.5.0: n=2, shipped=2; wall p50/max 12m/13m; fix-round proxy p50/max 0/0; models `worker:2`.\n- The version groups cover different repositories, so their differences do not establish a version-driven improvement.\n\n## Skill reads\n\n### run=a0000001-1111-4111-8111-111111111111\ncoverage=complete total_bytes=60000\n\n| Path | Bytes | Reads | Share |\n|---|---:|---:|---:|\n| `pi-gauntlet:skills/brainstorming/reference/legs.md` | 60000 | 5 | 100.0% |\n\n### run=a0000002-1111-4111-8111-111111111111\ncoverage=complete total_bytes=55000\n\n| Path | Bytes | Reads | Share |\n|---|---:|---:|---:|\n| `source:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:skills/brainstorming/reference/legs.md` | 55000 | 5 | 100.0% |\n\n### run=a0000003-1111-4111-8111-111111111111\ncoverage=partial total_bytes=61000 — observed text only, not the whole run.\n\n| Path | Bytes | Reads | Share |\n|---|---:|---:|---:|\n| `pi-gauntlet:skills/brainstorming/reference/legs.md` | 61000 | 6 | 100.0% |\n\n### run=b0000001-1111-4111-8111-111111111111\ncoverage=complete total_bytes=8\n\n| Path | Bytes | Reads | Share |\n|---|---:|---:|---:|\n| `pi-gauntlet:skills/example/short.md` | 8 | 1 | 100.0% |\n\n### run=b0000002-1111-4111-8111-111111111111\ncoverage=complete total_bytes=8\n\n| Path | Bytes | Reads | Share |\n|---|---:|---:|---:|\n| `pi-gauntlet:skills/example/short.md` | 8 | 1 | 100.0% |\n\n## Council assessment\n\ncouncil: no data\n\n## Menu\n\n1. render report\n2. open recommendation as ticket\n3. drill into rename-index\n",
+      "words": 206,
+      "wallMs": 8965,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "672f2da3d02e73ce35635f8026fdddf4bed67ecb79bbb5522dcb4887fa72c0bc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "cc868cfc2ceb87dc15cd0a8b1d6c83c1631ce137959ba24bc1931277ea0a5ba9",
+      "candidateOutputSha": "a9252a99dd0ba22592b76a947cce33783860a3857a1dd673a13c33b789b751bd",
+      "facts": {
+        "recommendation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rankings": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The new Skill reads section between Cornerstones and Council assessment is what moved rankings from fails to holds. It lists all five measured runs with full run IDs, coverage, total_bytes, exact file keys (including the distinct source:aaaa… key), bytes, reads and shares, shows both 8-byte short.md rows at 100.0%, and leaves update-readme out rather than showing it as zero. The recommendation holds in both outputs: each gives a single example-led suggestion to investigate rename-index's four fix-round grants and 50m wall, and neither recommends tuning a skill. Before mentioned the legs.md read inside the recommendation as an observation only; After drops that mention, which is cleaner. The gate holds in both: marker first, council: no data, three numbered choices, no action taken. To keep all three facts, keep the wording that requires every measured run's rows verbatim, including partial and tiny ones, and that limits a file-led recommendation to the same trusted key recurring with material volume across comparable complete runs. That limit correctly left legs.md (one complete trusted run, one partial, one different source key) and short.md (8 bytes) out of the recommendation here. One small drift to watch: After relabels the fix-round proxy from fix_round_grants to grants and adds a parenthetical gloss on the partial-coverage header; pin those down if exact header reproduction matters.",
+      "wallMs": 8334,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "672f2da3d02e73ce35635f8026fdddf4bed67ecb79bbb5522dcb4887fa72c0bc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "4c143f7faa066d1ba7d26a76fa1daa5dff9f4d51b8a43a9502f759b2a1b2a74b",
+      "candidateOutputSha": "f8b4ea911125586b189fa9bff02291d6585e17bdeae27c3d2ee7e1ebd18db99c",
+      "facts": {
+        "recommendation": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "rankings": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The new Skill reads section is what moved rankings from fails to holds: After places it between Cornerstones and Council assessment and lists all five measured runs with full run IDs, coverage, total_bytes, exact file keys (including the distinct source: key), bytes, reads and shares, shows both 8-byte short.md rows at 100.0%, and leaves update-readme out rather than showing it as a measured zero. The recommendation fact holds in both outputs: After still leads with the single example-led rename-index recommendation (50m, 4 grants) and explicitly declines a tuning action because the large trusted key has only one complete run, the other large readings are a different key or partial coverage, and short.md is only 8 bytes. The gate fact also holds in both: the marker is the first line, `council: no data` is present, the three numbered menu choices are unchanged, and no action is taken. To keep all three, keep the wording that requires material volume and unusually large shares for the same trusted key across comparable complete runs before a file action can lead, and keep the instruction to render every measured run's rows verbatim, including tiny and partial ones. One caution is that the sentence explaining why file reads do not justify tuning should stay subordinate to the single recommendation, so it does not read as a second recommendation or lengthen the legacy reply shape.",
+      "wallMs": 8141,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "658e3bc181d5b5bc25b43f687cacaa81ee13bf02"
+}
