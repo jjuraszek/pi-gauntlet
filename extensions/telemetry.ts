@@ -244,7 +244,7 @@
     let liveReadEntry = false;
     let readGap = false;
     // A disabled capture gap belongs to its run even if navigation drops the binding.
-    const pendingCoverageDowngrades = new Set<string>();
+    const pendingCoverageDowngrades = new Map<string, string>();
     let disabledGap = false;
     // Journal only binding inputs, with paths resolved against the cwd that produced them.
     let deferredBindings: BindingStep[] = [];
@@ -261,7 +261,9 @@
 
     const noteReadGap = () => {
       disabledGap = true;
-      if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+      if (recordRel && record?.derived.skill_read_coverage === "complete") {
+        pendingCoverageDowngrades.set(record.run_id, recordRel);
+      }
     };
 
     const bindingStep = (input: BindingInput, cwd: string, settings: SettingsSnapshot): BindingStep => ({ input, cwd, settings });
@@ -273,9 +275,14 @@
         pendingTest.clear();
         return undefined;
       }
-      if (record?.derived.skill_read_coverage === "complete" && pendingCoverageDowngrades.has(record.run_id)) {
-        record.derived.skill_read_coverage = "partial";
-        flush();
+      for (const [runId, file] of pendingCoverageDowngrades) {
+        if (record?.run_id === runId && recordRel === file && record.derived.skill_read_coverage === "complete") {
+          // The live record may also have buffered observations waiting to be flushed.
+          record.derived.skill_read_coverage = "partial";
+          flush();
+        } else {
+          downgradeBinding({ file, runId });
+        }
       }
       return s;
     };
@@ -375,7 +382,7 @@
         }
         if (!parsed.sessions.includes(sessionId)) parsed.sessions.push(sessionId);
         parsed.spec = specRel;
-        if (parsed.derived.skill_read_coverage === "complete" && (missedReads || pendingCoverageDowngrades.has(parsed.run_id))) {
+        if (parsed.derived.skill_read_coverage === "complete" && (missedReads || pendingCoverageDowngrades.get(parsed.run_id) === rel)) {
           parsed.derived.skill_read_coverage = "partial";
         }
         if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
@@ -548,8 +555,8 @@
       return true;
     };
 
-    const readBinding = (target: Binding) => {
-      const text = deps.fs.readFile(target.file);
+    const readBinding = ({ file }: Pick<Binding, "file">) => {
+      const text = deps.fs.readFile(file);
       return text ? parseRecord(text) : undefined;
     };
 
@@ -571,15 +578,19 @@
       return current;
     };
 
-    const downgradeBinding = (target: Binding) => {
+    const downgradeBinding = (target: Pick<Binding, "file"> & { runId?: string }) => {
+      const { file, runId } = target;
       const old = readBinding(target);
-      if (old?.status !== "in_progress" || old.derived.skill_read_coverage !== "complete") return;
+      if (old?.status !== "in_progress" || (runId !== undefined && old.run_id !== runId) || old.derived.skill_read_coverage !== "complete") {
+        if (runId !== undefined) pendingCoverageDowngrades.delete(runId);
+        return;
+      }
       old.derived.skill_read_coverage = "partial";
       try {
-        writeRecordFile(target.file, old);
+        writeRecordFile(file, old);
         pendingCoverageDowngrades.delete(old.run_id);
       } catch {
-        pendingCoverageDowngrades.add(old.run_id);
+        pendingCoverageDowngrades.set(old.run_id, file);
       }
     };
 

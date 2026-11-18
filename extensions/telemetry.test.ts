@@ -1003,63 +1003,71 @@
     assert.equal(existsSync(h.recordPath()), false);
   });
 
-  test("a removed outgoing record cannot transfer its disabled gap to another record", async () => {
-    const h = await boundInBrainstorm();
-    const a = "doc/specs/a.md";
-    const b = "doc/specs/b.md";
-    await h.phaseResult("reset", P());
-    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
-    await h.writeSpec(b);
-    const before = readFileSync(h.recordPath(b), "utf8");
-    const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
-    await check(a);
-    h.setEnabled(false);
-    await check(b);
-    unlinkSync(h.recordPath(a));
-    await h.emit("session_tree", {});
-    h.setEnabled(true);
-    await h.emit("session_shutdown", {});
-    assert.equal(existsSync(h.recordPath(a)), false);
-    assert.equal(readFileSync(h.recordPath(b), "utf8"), before);
+  test("an outgoing gap cannot change a removed, replaced, or stamped record", async t => {
+    for (const state of ["removed", "replaced", "stamped"] as const) {
+      await t.test(state, async () => {
+        const h = await boundInBrainstorm();
+        const a = "doc/specs/a.md";
+        const b = "doc/specs/b.md";
+        await h.phaseResult("reset", P());
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await h.writeSpec(b);
+        const before = readFileSync(h.recordPath(b));
+        const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
+        await check(a);
+        h.setEnabled(false);
+        await check(b);
+        const io = h.recorderIo();
+        await h.emit("session_tree", {});
+        assert.deepEqual(h.recorderIo(), io);
+        if (state === "removed") {
+          unlinkSync(h.recordPath(a));
+        } else {
+          const onDisk = h.readRecord(a);
+          if (state === "replaced") onDisk.run_id = "replacement";
+          else onDisk.status = "shipped";
+          writeFileSync(h.recordPath(a), serializeRecord(onDisk));
+        }
+        const outgoing = existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a));
+        h.setEnabled(true);
+        await h.emit("session_shutdown", {});
+        assert.deepEqual(existsSync(h.recordPath(a)) && readFileSync(h.recordPath(a)), outgoing);
+        assert.deepEqual(readFileSync(h.recordPath(b)), before);
+      });
+    }
   });
 
-  test("reset or navigation while disabled disarms the old run without writing", async () => {
-    for (const transition of ["reset", "session_tree"] as const) {
-      const h = await boundInBrainstorm();
-      await h.read("first", legSkill, "text");
-      const original = h.readRecord();
-      assert.equal(original.derived.skill_read_coverage, "complete");
-      const before = readFileSync(h.recordPath());
-      const io = h.recorderIo();
-      h.setEnabled(false);
-      await h.read("gap", legSkill, "ignored");
-      await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/abandoned.md" } });
-      if (transition === "reset") await h.phaseResult("reset", P());
-      else await h.emit("session_tree", { type: "session_tree" });
-      await h.read("disabled", legSkill, "ignored");
-      assert.deepEqual(h.recorderIo(), io, transition);
-      assert.deepEqual(readFileSync(h.recordPath()), before, transition);
-      assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false, transition);
-      h.setEnabled(true);
-      await h.read("disarmed", legSkill, "ignored");
-      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
-      await h.writeSpec("doc/specs/b.md");
-      assert.deepEqual(readFileSync(h.recordPath()), before, transition);
-      assert.equal(existsSync(h.recordPath("doc/specs/abandoned.md")), false, transition);
-      const other = h.readRecord("doc/specs/b.md").derived;
-      assert.equal(other.skill_read_coverage, "complete", transition);
-      assert.deepEqual(Object.values(other.phases).flatMap(phase => phase.skill_reads ?? []), [], transition);
-      if (transition === "session_tree") {
-        await h.emit("session_tree", { type: "session_tree" });
-        const otherBefore = readFileSync(h.recordPath("doc/specs/b.md"));
-        h.setBranch([entry, { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } }]);
-        await h.emit("session_tree", { type: "session_tree" });
-        const restored = h.readRecord();
-        assert.equal(restored.run_id, original.run_id);
-        assert.equal(restored.derived.skill_read_coverage, "partial");
-        assert.deepEqual(Object.values(restored.derived.phases).flatMap(phase => phase.skill_reads ?? []), [pendingRead]);
-        assert.deepEqual(readFileSync(h.recordPath("doc/specs/b.md")), otherBefore);
-      }
+  test("reset or navigation while disabled persists the old run's gap only on re-enable", async t => {
+    for (const [transition, queued] of [["reset", false], ["reset", true], ["session_tree", false], ["session_tree", true]] as const) {
+      await t.test(`${transition}, ${queued ? "queued binding" : "no queued binding"}`, async () => {
+        const h = await boundInBrainstorm();
+        await h.read("first", legSkill, "text");
+        const original = h.readRecord();
+        assert.equal(original.derived.skill_read_coverage, "complete");
+        const before = readFileSync(h.recordPath());
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        await h.read("gap", legSkill, "ignored");
+        if (queued) await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/abandoned.md" } });
+        if (transition === "reset") await h.phaseResult("reset", P());
+        else await h.emit("session_tree", {});
+        await h.read("disabled", legSkill, "ignored");
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(h.recordPath()), before);
+
+        original.branch = "newer-on-disk";
+        writeFileSync(h.recordPath(), serializeRecord(original));
+        h.setEnabled(true);
+        await h.read("disarmed", legSkill, "ignored");
+        original.derived.skill_read_coverage = "partial";
+        assert.deepEqual(h.readRecord(), original);
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        await h.writeSpec("doc/specs/b.md");
+        assert.equal(existsSync(h.recordPath("doc/specs/abandoned.md")), false);
+        const other = h.readRecord("doc/specs/b.md").derived;
+        assert.equal(other.skill_read_coverage, "complete");
+        assert.deepEqual(Object.values(other.phases).flatMap(phase => phase.skill_reads ?? []), []);
+      });
     }
   });
 
