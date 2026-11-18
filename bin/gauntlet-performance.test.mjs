@@ -201,6 +201,72 @@ test("per-run fields: typed reads, unphased excluded, truncated wall null, findi
   assert.deepEqual(emptyReviews.findings, { blocker: 0, major: 0, minor: 0 });
 });
 
+test("skill reads: selected runs rank portable paths across all phases and keep incomplete data distinct from zero", (t) => {
+  const root = gitRepo(); cleanup(t, root);
+  const first = "pi-gauntlet:skills/alpha/SKILL.md";
+  const second = "pi-gauntlet:skills/beta/reference/legs.md";
+  const other = `source:${"a".repeat(64)}:skills/alpha/SKILL.md`;
+  const add = (name, coverage, phases, version = "2.0.0", run_id = name) => write(root, `${name}.yaml`, JSON.stringify({
+    schema: 1, spec: `doc/specs/${name}.md`, run_id, versions: { "pi-gauntlet": version },
+    derived: { skill_read_coverage: coverage, phases },
+  }));
+  const read = (path, bytes) => ({ path, bytes });
+  const plan = (...entries) => ({ plan: { skill_reads: entries } });
+  const id = "6320d345-5166-45f1-b7b0-31bc5f232854";
+  add("rank", "complete", { ...plan(read(other, 2), read(second, 2), read(first, 1)), unphased: { skill_reads: [read(first, 4)] } }, "2.0.0", id);
+  add("zero", "partial", plan(read(first, 0)));
+  add("empty", "complete", {});
+  add("old-version", "complete", plan(read(first, 31)), "1.0.0");
+  add("zz-duplicate", "complete", plan(read(first, 45)), "2.0.0", id);
+  const malformed = [
+    ["unknown", plan()], ["partial", { plan: { skill_reads: null } }], ["complete", { plan: "invalid" }],
+    ...[read("/absolute.md", 3), read("pi-gauntlet:skills/../other", 8), read(first, -1), read(first, 0.5), read(first, "7")]
+      .map(entry => ["complete", plan(read(second, 1), entry)]),
+  ];
+  malformed.forEach(([coverage, phases], i) => add(`bad-${i}`, coverage, phases));
+  const args = ["--since", "2.0.0"];
+  const rows = json(root, args).runs;
+  assert.equal(rows.length, 3 + malformed.length);
+  assert.deepEqual(byId(rows, id).skill_reads, { coverage: "complete", total_bytes: 9, files: [
+    { path: first, bytes: 5, reads: 2, share: 5 / 9 },
+    { path: second, bytes: 2, reads: 1, share: 2 / 9 },
+    { path: other, bytes: 2, reads: 1, share: 2 / 9 },
+  ] });
+  assert.deepEqual(byId(rows, "zero").skill_reads, { coverage: "partial", total_bytes: 0, files: [{ path: first, bytes: 0, reads: 1, share: null }] });
+  assert.deepEqual(byId(rows, "empty").skill_reads, { coverage: "complete", total_bytes: 0, files: [] });
+  for (const row of rows.filter(r => r.run_id.startsWith("bad-"))) assert.ok(!Object.hasOwn(row, "skill_reads"), row.run_id);
+  const { lines } = invoke(root, args);
+  const blocks = lines.slice(lines.findIndex(l => l.startsWith("skill reads:")), lines.indexOf("by version"));
+  assert.deepEqual(blocks.map(l => l.replace(/\s+/g, " ").trim()), [
+    `skill reads: run=${id} coverage=complete total_bytes=9`, "path bytes reads share",
+    `${first} 5 2 55.6%`, `${second} 2 1 22.2%`, `${other} 2 1 22.2%`,
+    "skill reads: run=empty coverage=complete total_bytes=0",
+    "skill reads: run=zero coverage=partial total_bytes=0", "path bytes reads share", `${first} 0 1 -`,
+  ]);
+});
+
+test("legacy runs keep their text and JSON when a peer gains skill-read coverage", (t) => {
+  const root = gitRepo(); cleanup(t, root);
+  write(root, "a.yaml", COMPLETE);
+  write(root, "b.yaml", TRUNCATED);
+  const legacy = json(root);
+  const text = invoke(root).stdout;
+  assert.equal(legacy.runs.length, 2);
+  assert.ok(legacy.runs.every(run => !Object.hasOwn(run, "skill_reads")));
+  assert.doesNotMatch(text, /skill reads:/);
+
+  write(root, "a.yaml", COMPLETE.replace("derived:", "derived:\n  skill_read_coverage: complete"));
+  const mixed = json(root);
+  const measured = byId(mixed.runs, "aaaaaaaa");
+  assert.deepEqual(measured.skill_reads, { coverage: "complete", total_bytes: 0, files: [] });
+  delete measured.skill_reads;
+  assert.deepEqual(mixed, legacy);
+  const header = `skill reads: run=${measured.run_id} coverage=complete total_bytes=0`;
+  const rendered = invoke(root).stdout;
+  assert.ok(rendered.includes(header));
+  assert.equal(rendered.replace(`${header}\n\n`, ""), text);
+});
+
 test("parent_calls: big counts and parent-only shares include unphased without double-counting tokens", (t) => {
   const root = corpus(gitRepo()); cleanup(t, root);
   const i = byId(json(root).runs, "iiiiiiii");

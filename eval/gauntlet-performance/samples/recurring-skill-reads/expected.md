@@ -1,0 +1,3 @@
+- recommendation: judged: Lead one recommendation with a concrete next step about the callers or loading of the recurring trusted legs reference, identify the example slug and both supporting runs, and cite 66000 bytes at 82.5% and 48000 bytes at 80.0%. Do not claim repeated reads prove waste or propose an unrelated cache or review change.
+- rankings: judged: Between cornerstones and council, include both full run IDs, complete coverage, totals 80000 and 60000, and all four ranked rows with the exact path, bytes, reads and share from both saved pages.
+- gate: judged: Start with the performance gate marker, include the no-data council assessment, and offer the three numbered menu choices without writing anything.

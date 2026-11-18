@@ -1,0 +1,3 @@
+- recommendation: judged: Use one ordinary, example-led recommendation supported by the digest (such as inspecting rename-index's fix-round grants). Do not recommend tuning a skill: the large trusted reads lack two eligible peers, the source key is a different file, and the two otherwise eligible complete 100% readings of short.md are only 8 bytes each.
+- rankings: judged: After cornerstones and before council, show all five measured runs with their full IDs, coverage, totals, and exact file keys, bytes, reads and shares. Include both short.md rows at 8 bytes and 100.0%; do not present update-readme as measured zero.
+- gate: judged: Start with the performance gate marker, render council: no data and the three numbered menu choices, and take no action.

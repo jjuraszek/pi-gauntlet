@@ -1,0 +1,90 @@
+{
+  "sample": "recurring-skill-reads",
+  "arm": "candidate",
+  "skillSha": "df5bf4ada2ccfb4358937ca99becdfa067f17cd352e28b8ee6337f3d750bbf20",
+  "inputSha": "cc953be62408301b6d2fa33e83f27fca455bea229cac701c59718c92344f525e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n1. **Recommendation:** Inspect the callers of `pi-gauntlet:skills/brainstorming/reference/legs.md`, as in `export-index`. Across the two complete, shipped demo/catalog 2.4.0 runs, that file dominated reads in both. In `6320d345`, it accounted for 66000 bytes (82.5%) over 6 reads. In `44418c32` (`label-index`), it accounted for 48000 bytes (80.0%) over 4 reads. Check whether callers reload overlapping ranges, because the ranges can differ and read counts alone do not prove waste.\n\n2. **Cornerstones**\n- The corpus has 2 runs, both from demo/catalog on pi-gauntlet 2.4.0. Both shipped, and 0 were truncated.\n- There is only one version group, so no p50s or model tallies moved between versions.\n- Wall time was p50 26m and max 34m.\n- `grants`, the fix-round proxy, was p50 1.5 and max 3.\n- The model tally was worker:2.\n\n3. **Skill reads**\n\n```text\nskill reads: run=6320d345-5166-45f1-b7b0-31bc5f232854 coverage=complete total_bytes=80000\npath                                               bytes  reads  share\npi-gauntlet:skills/brainstorming/reference/legs.md  66000  6      82.5%\npi-gauntlet:skills/writing-plans/SKILL.md           14000  1      17.5%\n```\n\n```text\nskill reads: run=44418c32-9395-4db4-b24f-d53090163b87 coverage=complete total_bytes=60000\npath                                               bytes  reads  share\npi-gauntlet:skills/brainstorming/reference/legs.md  48000  4      80.0%\npi-gauntlet:skills/brainstorming/SKILL.md           12000  1      20.0%\n```\n\n4. **Council assessment**\n\ncouncil: no data\n\nPick one:\n1. render report\n2. open recommendation as ticket\n3. drill into export-index\n",
+      "words": 184,
+      "wallMs": 10664,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n## Recommendation\n\nInspect callers of `pi-gauntlet:skills/brainstorming/reference/legs.md` for opportunities to narrow repeated reads, starting with `export-index`. In two distinct, complete, shipped runs from `demo/catalog` on pi-gauntlet 2.4.0, this file dominated the rankings: **66,000 bytes (82.5%)** in `export-index` (`6320d345-5166-45f1-b7b0-31bc5f232854`) and **48,000 bytes (80.0%)** in `label-index` (`44418c32-9395-4db4-b24f-d53090163b87`). Its leading share and byte volume in both runs warrant inspecting the callers, but the six and four reads alone do not prove waste because their ranges may differ.\n\n## Cornerstones\n\n- Corpus: `demo/catalog`, 2 runs, both on version 2.4.0.\n- Both runs shipped; 0 were truncated.\n- Wall time p50/max: 26m/34m; fix-round proxy (`grants`) p50/max: 1.5/3.\n- Model tally: `worker:2`; no second version is available for comparison.\n\n## Skill reads\n\n### run=6320d345-5166-45f1-b7b0-31bc5f232854\ncoverage=complete total_bytes=80000\n\n| path | bytes | reads | share |\n|---|---:|---:|---:|\n| pi-gauntlet:skills/brainstorming/reference/legs.md | 66000 | 6 | 82.5% |\n| pi-gauntlet:skills/writing-plans/SKILL.md | 14000 | 1 | 17.5% |\n\n### run=44418c32-9395-4db4-b24f-d53090163b87\ncoverage=complete total_bytes=60000\n\n| path | bytes | reads | share |\n|---|---:|---:|---:|\n| pi-gauntlet:skills/brainstorming/reference/legs.md | 48000 | 4 | 80.0% |\n| pi-gauntlet:skills/brainstorming/SKILL.md | 12000 | 1 | 20.0% |\n\n## Council assessment\n\ncouncil: no data\n\n## Menu\n\n1. render report\n2. open recommendation as ticket\n3. drill into export-index\n",
+      "words": 158,
+      "wallMs": 8321,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4052996957a322dc7257996aa485a3ec8df9e9f8205f2d661bfafa76b617eb48",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "a4032edee9c069015d95b8581dc8e9f5a2f88de19ea3cb20fba363f2abe5b485",
+      "candidateOutputSha": "de151fa3498b2629dff7000247d86b96cfab82b4f19e39773cff0cfc4fc6c266",
+      "facts": {
+        "recommendation": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rankings": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved `recommendation` by opening with an action on the trusted key (\"Inspect the callers of pi-gauntlet:skills/brainstorming/reference/legs.md, as in export-index\"), naming both runs with 66000 bytes (82.5%) and 48000 bytes (80.0%), and stating that read counts alone do not prove waste. Before opened with an observation (\"Repeated reads … dominate skill context\"), left its next step to the last sentence, and its \"loading it once per run\" lever treated the repeated reads as waste. After moved `rankings` by adding a Skill reads section between Cornerstones and Council that reproduces both blocks verbatim, including the page-1 block recovered from the truncated digest, with full run IDs, coverage=complete, totals 80000 and 60000, and all four rows; Before had only short IDs and the legs.md figures in prose. `gate` holds in both: the marker comes first, `council: no data` is present, the three-choice menu is intact, and nothing is written. One risk to that fact is that After numbers its sections 1–4 while the menu is also numbered 1–3, which departs from the legacy layout and could make a bare reply of \"2\" look ambiguous. To keep the gate reliably, tell the skill to keep the legacy unnumbered bold section headings so the menu is the only numbered list, while keeping the action-first recommendation, the \"counts do not prove waste\" caveat, and the verbatim per-run tables between Cornerstones and Council.",
+      "wallMs": 13269,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4052996957a322dc7257996aa485a3ec8df9e9f8205f2d661bfafa76b617eb48",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "734b217d529083cd3958b8ecf84b94a7955ac0c3a1f33d66f56624657ab609c9",
+      "candidateOutputSha": "43a817130a9bf46b1c3d94094babc91cb5eee1913bbaf378feb1a61338d4c6fb",
+      "facts": {
+        "recommendation": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rankings": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "gate": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved both targeted facts without losing the one Before already kept. On the recommendation, After leads with a concrete caller-inspection step on `pi-gauntlet:skills/brainstorming/reference/legs.md`, names `export-index` as the example slug, cites both runs by full ID with 66,000 bytes (82.5%) and 48,000 bytes (80.0%), and explicitly says the six and four reads do not prove waste. Before cited only run 6320d345 and called for 'reducing that repeated reading', which treats the reads as waste. On the rankings, After adds a Skill reads section between Cornerstones and Council assessment with both full run IDs, coverage=complete, totals 80000 and 60000, and all four rows with exact path, bytes, reads and share, including the page-1 rows that were outside the visible tail. Before had no ranking section at all. The gate fact holds in both: the marker is the first line, 'council: no data' is present, and the three numbered menu choices are offered with nothing written. To keep this stable, keep the instruction that the Skill reads section sits strictly between Cornerstones and Council and reproduces rows verbatim from every saved page, and keep the explicit 'reads alone do not prove waste' guard. Consider requiring the raw unformatted byte figures (66000, 48000) in the recommendation as well, so a stricter reader cannot fault the comma-formatted numbers. Leave the marker line, the 'council: no data' line and the three-item menu wording untouched.",
+      "wallMs": 8513,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "658e3bc181d5b5bc25b43f687cacaa81ee13bf02"
+}

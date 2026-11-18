@@ -1,36 +1,46 @@
 {
   "sample": "gate-line-first",
   "arm": "candidate",
-  "skillSha": "bafe22c5ca7b97231b3172edc9503002aa16f7c74b8b18cd0fd48a19f05cd06e",
+  "skillSha": "df5bf4ada2ccfb4358937ca99becdfa067f17cd352e28b8ee6337f3d750bbf20",
   "inputSha": "2f3a5c45b541dc75dbdb09e50e273461e2254718d2f02ed68a5106c578a9f844",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n**Recommendation**\nThe sample is too small to support a tuning recommendation. No version group has `shipped >= 2`: version 1.0.0 has `n=1`, `shipped=1`. The only run is `cache-cleanup` (`run-1`), which shipped in 10m with 0 fix-round proxy grants.\n\n**Cornerstones**\n- Corpus: 1 record, all on version 1.0.0.\n- Truncated runs: 0. The 1 shipped run feeds the aggregates.\n- 1.0.0: wall_p50 10m, wall_max 10m, grants_p50 (fix-round proxy) 0.\n- Models: worker:1. There is no second version to show movement.\n\n**Council assessment**\ncouncil: no data\n\nPick one:\n1. render report\n2. open recommendation as ticket\n3. drill into cache-cleanup\n",
+      "words": 95,
+      "wallMs": 6431,
+      "mechanical": {
+        "first-line": "holds"
+      }
+    },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n## Recommendation\nSample too small: version `1.0.0` has `n=1` and `shipped=1`. The sole run, spec `cache-cleanup`, run_id `run-1`, shipped in `10m`; wait for more shipped runs before drawing performance conclusions.\n\n## Cornerstones\n- Corpus: 1 run in version `1.0.0`, with 1 shipped run.\n- Truncated runs: 0.\n- Wall time: p50 `10m`, max `10m`; no version comparison is available.\n- Fix-round proxy (`grants`): p50 `0`; model tally: `worker:1`.\n\ncouncil: no data\n\n## Menu\n1. render report\n2. open recommendation as ticket\n3. drill into cache-cleanup\n",
-      "words": 80,
-      "wallMs": 4317,
+      "text": "gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order\n\n## Recommendation\nSample too small: version `1.0.0` has `n=1`, `shipped=1`, so no version group has the two shipped runs needed for comparison. Collect another complete shipped run on the same version before drawing performance conclusions.\n\n## Cornerstones\n- Corpus: 1 run, on version `1.0.0`.\n- Shipped: 1; truncated: 0.\n- Wall time: p50 10m, max 10m.\n- Fix-round proxy (`grants`): p50 0; model tally: `worker:1`.\n\n## Council assessment\ncouncil: no data\n\n## Menu\n1. render report\n2. open recommendation as ticket\n3. drill into cache-cleanup\n",
+      "words": 79,
+      "wallMs": 11515,
       "mechanical": {
         "first-line": "holds"
       }
     }
   },
   "judge": {
-    "github-copilot/gpt-6.1-sol": {
+    "anthropic/claude-opus-5-5": {
       "factsSha": "b0c4f027af693988017cec351ee6e692f2b9172f818bcc429156ae426bb95196",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d08c476863fba6cc5cb30b6904ee23c0d606b425978a7215013098ca1c1d9aaf",
-      "baselineOutputSha": "81b5819a65fbb103f97f3003cbc056a90cd87d32ac6877e5dca78e0beafb75f3",
-      "candidateOutputSha": "32891bdc5022b262af25a9e1f782ea92a5a3829bca0e5905ec7a7eefd2ba813c",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "ba7caebd1f5c7211a450006662f4b931c0a206fb25d1e3bca962b24023a31a55",
+      "candidateOutputSha": "5abdd50f331315c6ffd18fa844c5e6842001750f26ed0f6acb2613bcfc41d5ab",
       "facts": {
         "choices": {
           "before": "holds",
@@ -43,15 +53,42 @@
           "label": "held"
         },
         "first-line": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         }
       },
-      "feedback": "After preserves both listed facts: it retains all three numbered choices without writing a report, states that the sample is too small with n=1 and shipped=1 for version 1.0.0, and renders council: no data. Its new first line delivers the requested gate marker without losing those facts. Keep that opening and the existing menu; when target-path or overwrite asks become necessary, start them with the question marker and retain the requirement that item 1 be chosen before writing a report.",
-      "wallMs": 3735,
-      "verdict": "improved"
+      "feedback": "Neither fact moved: After still offers the three numbered choices (1. render report, 2. open recommendation as ticket, 3. drill into cache-cleanup) without writing or rendering a report, and still states the sample is too small with n=1 and shipped=1 for version 1.0.0 and renders 'council: no data'. The differences between Before and After are only minor rephrasings in the Recommendation and Cornerstones sections. To keep it this way while delivering the Change, keep the ranked-files section and the file-action recommendation lead conditional on the digest actually containing measured file rows, so that a legacy digest with no file data continues to produce the unchanged legacy reply: the explicit 'sample too small' statement with n and shipped counts, the literal 'council: no data' line, the exact three-item menu, and no report written before item 1 is chosen.",
+      "wallMs": 4416,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b0c4f027af693988017cec351ee6e692f2b9172f818bcc429156ae426bb95196",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "aff27ce1a53b98aa2eaab1cd876ba16362d202a7fc08369e1e383d5fb94b1e5b",
+      "baselineOutputSha": "32891bdc5022b262af25a9e1f782ea92a5a3829bca0e5905ec7a7eefd2ba813c",
+      "candidateOutputSha": "a3c380dd8e7b5944e69cfffc31797424940e58b042cf193aef9ad8a8a9b0c9e1",
+      "facts": {
+        "choices": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sample-size": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "first-line": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved: After still offers the three numbered choices (render report, open recommendation as ticket, drill into cache-cleanup) without writing a report, and still states the sample is too small with n=1 and shipped=1 for version 1.0.0 and renders `council: no data`. The After differences on this legacy case are cosmetic: a new `## Council assessment` heading above the council line, a reworded recommendation that drops the run-specific details (spec, run_id, wall time) in favor of explaining the two-shipped-run threshold, and slightly reorganized cornerstone bullets. No ranked-files section appears, which is appropriate since this digest has no measured file rows. To keep this stable while delivering the Change, keep the wording that makes the ranked-files section and file-action recommendation conditional on measured file data being present, and keep the explicit instructions to state `n` and `shipped` per version in the too-small case, to render the literal `council: no data` line, and to hold the write gate until item 1 is chosen; if the added `## Council assessment` heading was unintentional, pin the legacy layout explicitly so the legacy reply is preserved verbatim.",
+      "wallMs": 5352,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "af7856a775c6b4d14b9f40ae753475a256ea225e"
+  "repoSha": "658e3bc181d5b5bc25b43f687cacaa81ee13bf02"
 }

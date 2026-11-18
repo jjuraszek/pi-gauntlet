@@ -314,8 +314,46 @@ var runRow = (r) => [
   dash(r.council),
   r.big_calls === null ? dash(null) : `${r.big_calls}/${r.big_write_share === null ? "-" : `${Math.round(r.big_write_share * 100)}%`}`
 ];
-var aggregate = (entries) => entries.map((e) => e.row);
-var renderText = (rows) => [`runs (${rows.length})`, table(HEADER, rows.map(runRow))].join("\n");
+function summarizeReads(coverage, phases) {
+  if (coverage !== "complete" && coverage !== "partial" || !obj(phases)) return;
+  const files = /* @__PURE__ */ new Map();
+  let total = 0;
+  for (const phase of Object.values(phases)) {
+    if (!obj(phase)) return;
+    if (!Object.hasOwn(phase, "skill_reads")) continue;
+    if (!Array.isArray(phase.skill_reads)) return;
+    for (const read of phase.skill_reads) {
+      if (!obj(read)) return;
+      const { path, bytes } = read;
+      if (typeof path !== "string" || !/^(?:pi-gauntlet|source:(?:lex-)?[a-f0-9]{64}):skills\//.test(path) || path.split("/").some((part) => !part || part === "." || part === "..") || /[\x00-\x1f\x7f]/.test(path) || !Number.isSafeInteger(bytes) || bytes < 0) return;
+      const file = files.get(path) ?? { path, bytes: 0, reads: 0 };
+      file.bytes += bytes;
+      file.reads++;
+      files.set(path, file);
+      total += bytes;
+    }
+  }
+  if (!Number.isSafeInteger(total)) return;
+  const ranked = [...files.values()].sort((a, b) => b.bytes - a.bytes || (a.path < b.path ? -1 : 1));
+  return { coverage, total_bytes: total, files: ranked.map((file) => ({ ...file, share: total ? file.bytes / total : null })) };
+}
+var aggregate = (entries) => entries.map((e) => {
+  const skill_reads = summarizeReads(e.skillReadCoverage, e.readPhases);
+  return skill_reads ? { ...e.row, skill_reads } : e.row;
+});
+var renderText = (rows) => {
+  const blocks = [`runs (${rows.length})
+${table(HEADER, rows.map(runRow))}`];
+  for (const { run_id, skill_reads } of rows) {
+    if (!skill_reads) continue;
+    const { coverage, total_bytes, files } = skill_reads;
+    const header = `skill reads: run=${run_id} coverage=${coverage} total_bytes=${total_bytes}`;
+    const ranked = files.map((f) => [f.path, String(f.bytes), String(f.reads), f.share === null ? "-" : `${(f.share * 100).toFixed(1)}%`]);
+    blocks.push(ranked.length ? `${header}
+${table(["path", "bytes", "reads", "share"], ranked)}` : header);
+  }
+  return blocks.join("\n\n");
+};
 
 // src/bins/performance/versions.mjs
 var versions_exports = {};
@@ -811,6 +849,8 @@ function loadRecord(file, bytes) {
       big_write_share: runBig.big_write_share,
       phases: Object.keys(perPhase).length ? perPhase : void 0
     },
+    skillReadCoverage: derived.skill_read_coverage,
+    readPhases: derived.phases,
     council: derived.council ?? null
   };
 }

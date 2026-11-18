@@ -185,6 +185,8 @@ function loadRecord(file, bytes) {
       big_write_share: runBig.big_write_share,
       phases: Object.keys(perPhase).length ? perPhase : undefined,
     },
+    skillReadCoverage: derived.skill_read_coverage,
+    readPhases: derived.phases,
     council: derived.council ?? null,
   };
 }
