@@ -1,7 +1,7 @@
   import assert from "node:assert/strict";
   import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
   import { tmpdir } from "node:os";
-  import { join } from "node:path";
+  import { dirname, join } from "node:path";
   import { after, test } from "node:test";
   import registerTelemetry, { realFs, replayBranch, type Deps, type GitResult } from "./telemetry.ts";
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
@@ -1130,14 +1130,38 @@
     assert.deepEqual(d.phases.brainstorm!.skill_reads!.map(r => r.bytes), [1, 2]);
   });
 
-  test("rebinding after an observed read leaves it with its original run", async () => {
-    const h = await boundInBrainstorm();
-    await h.read("first", legSkill, "text");
-    await h.writeSpec(".worktrees/x/doc/specs/b.md");
-    const next = h.readRecord("doc/specs/b.md");
-    assert.equal(next.derived.skill_read_coverage, "partial");
-    assert.equal(next.derived.phases.brainstorm?.skill_reads, undefined);
-    assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, [pendingRead]);
+  test("rebinding after an observed read leaves it with its original run", async (t) => {
+    for (const mode of ["valid record / worktree write", "invalid record / plan_check"]) {
+      await t.test(mode, async () => {
+        const h = harness();
+        const invalid = mode === "invalid record / plan_check";
+        await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+        if (invalid) {
+          mkdirSync(dirname(h.recordPath()), { recursive: true });
+          writeFileSync(h.recordPath(), [
+            "schema: 1",
+            "spec: doc/specs/a.md",
+            "run_id: a",
+            "status: in_progress",
+            "created_at: 2026-09-17T10:00:00Z",
+            "accumulators: { s1: { phases: { brainstorm: { skill_reads: malformed } } } }",
+          ].join("\n"));
+        }
+        await h.writeSpec("doc/specs/a.md");
+        await h.read("first", legSkill, "text");
+        const original = h.readRecord().derived;
+        assert.equal(original.skill_read_coverage, invalid ? "invalid" : "complete");
+        if (invalid) {
+          await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+        } else {
+          await h.writeSpec(".worktrees/x/doc/specs/b.md");
+        }
+        const next = h.readRecord("doc/specs/b.md");
+        assert.equal(next.derived.skill_read_coverage, "partial");
+        assert.equal(next.derived.phases.brainstorm?.skill_reads, undefined);
+        assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, invalid ? undefined : [pendingRead]);
+      });
+    }
   });
 
   test("an in-flight read completes exactly once on the new plan binding", async () => {

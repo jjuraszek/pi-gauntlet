@@ -225,7 +225,7 @@
   // ---- extension -----------------------------------------------------------------------
 
   const ownSkills = fileURLToPath(new URL("../skills", import.meta.url));
-  const hasSkillReads = (phases: Accumulators["phases"]) => Object.values(phases).some(p => p.skill_reads?.length);
+  const hasSkillReads = (phases: Accumulators["phases"]) => Object.values(phases).some(p => p?.skill_reads?.length);
   const isSubagentChild = (): boolean => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") > 0;
 
   export default function (pi: ExtensionAPI, deps: Deps = realDeps) {
@@ -473,7 +473,8 @@
     };
 
     const unbind = () => {
-      if (record && hasSkillReads(record.derived.phases)) readGap = true;
+      // Invalid coverage hides reads from derived phases, not from the live accumulators.
+      if (record && Object.values(record.accumulators).some(acc => hasSkillReads(acc.phases))) readGap = true;
       toplevel = undefined;
       checkoutVia = undefined;
       boundSpec = undefined;
