@@ -124,7 +124,13 @@
       await emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
       await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
     };
-    return { read, recorderIo, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    const planResult = async (action: string, tasks: { name?: string; status: string }[], isError = false) => {
+      const call = { toolName: "plan_tracker", toolCallId: "pt" };
+      const result = { content: [], details: { action, tasks } };
+      await emit("tool_result", { type: "tool_result", ...call, input: { action }, ...result, isError });
+      await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError });
+    };
+    return { read, recorderIo, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, planResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -328,7 +334,7 @@
     const second = harness({ sessionId: "s2", branch });
     second.ctx.cwd = first.root;
     await second.emit("session_start", { type: "session_start", reason: "resume" });
-    await second.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status: "in_progress" }] } });
+    await second.planResult("update", [{ name: "a", status: "in_progress" }]);
     assert.equal(second.readRecord().derived.gates.task_reopens, 1);
     assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
   });
@@ -523,7 +529,7 @@
     await h.writeSpec("doc/specs/a.md", "# amended\n");
     await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-    await h.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action: "update", tasks: [{ name: "done", status: "complete" }, { name: "skip", status: "skipped" }] } });
+    await h.planResult("update", [{ name: "done", status: "complete" }, { name: "skip", status: "skipped" }]);
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     let rec = h.readRecord();
     assert.deepEqual(Object.keys(rec.accumulators), ["total"]);
@@ -721,14 +727,15 @@
     }
   });
 
-  test("the recorder resumes after implement completion with no active phase", async (t) => {
-    for (const mode of ["live bound", "ordinary completion", "live unbound", "live unbound enabled", "replay enabled", "replay disabled"] as const) {
+  test("the recorder attributes the next read using the final implement outcome", async (t) => {
+    for (const mode of ["live bound enabled", "live bound disabled", "live error enabled", "live error disabled", "ordinary completion", "live unbound", "live unbound enabled", "replay enabled", "replay disabled"] as const) {
       await t.test(mode, async () => {
         const h = harness();
         const a = "doc/specs/a.md";
         const start = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
-        const done = { toolName: "plan_tracker", isError: false, details: { tasks: [{ status: "complete" }] } };
-        if (mode === "live bound" || mode === "ordinary completion") {
+        const done = { toolName: "plan_tracker", toolCallId: "pt", isError: false, details: { tasks: [{ status: "complete" }] } };
+        const failed = mode.startsWith("live error");
+        if (mode.startsWith("live bound") || failed || mode === "ordinary completion") {
           await h.phaseResult("start", P({ brainstorm: "in_progress" }));
           await h.writeSpec(a);
           await h.phaseResult("start", start);
@@ -755,7 +762,10 @@
           }
           if (mode === "ordinary completion") {
             await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete", implement: "complete" }));
-          } else await h.emit("tool_result", done);
+          } else {
+            await h.emit("tool_result", mode === "live unbound enabled" ? { ...done, details: { tasks: [{ status: "in_progress" }] } } : done);
+            await h.emit("tool_execution_end", { toolName: done.toolName, toolCallId: done.toolCallId, isError: failed, result: { content: [], details: done.details } });
+          }
         }
         if (!enabled) {
           assert.deepEqual(h.recorderIo(), io);
@@ -765,11 +775,11 @@
         await h.read("next", legSkill, "text");
         if (unbound) await h.writeSpec(a);
         const { derived: d, events } = h.readRecord();
-        assert.deepEqual(d.phases.unphased?.skill_reads, [pendingRead]);
-        assert.equal(d.phases.implement?.skill_reads, undefined);
-        assert.equal(d.plan, undefined);
-        assert.equal(d.skill_read_coverage, mode === "live unbound enabled" ? "complete" : "partial");
-        assert.equal(events.some(e => e.kind === "phase" && e.name === "implement" && e.action === "complete"), mode === "live unbound enabled");
+        assert.deepEqual(d.phases[failed ? "implement" : "unphased"]?.skill_reads, [pendingRead]);
+        assert.equal(d.phases[failed ? "unphased" : "implement"]?.skill_reads, undefined);
+        assert.deepEqual(d.plan, mode === "live bound enabled" ? { tasks: 1, complete: 1, failed: 0, skipped: 0 } : undefined);
+        assert.equal(d.skill_read_coverage, enabled && !mode.startsWith("replay") ? "complete" : "partial");
+        assert.equal(events.filter(e => e.kind === "phase" && e.name === "implement" && e.action === "complete").length, enabled && !failed && mode.startsWith("live") ? 1 : 0);
         assert.equal(existsSync(h.recordPath("doc/specs/old.md")), false);
       });
     }
@@ -794,12 +804,18 @@
   test("reset or navigation while disabled disarms the old run without writing", async () => {
     for (const transition of ["reset", "session_tree"] as const) {
       const h = await boundInBrainstorm();
+      await h.read("first", legSkill, "text");
+      const original = h.readRecord();
+      assert.equal(original.derived.skill_read_coverage, "complete");
       const before = readFileSync(h.recordPath());
+      const io = h.recorderIo();
       h.setEnabled(false);
+      await h.read("gap", legSkill, "ignored");
       await h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: "doc/specs/abandoned.md" } });
       if (transition === "reset") await h.phaseResult("reset", P());
       else await h.emit("session_tree", { type: "session_tree" });
       await h.read("disabled", legSkill, "ignored");
+      assert.deepEqual(h.recorderIo(), io, transition);
       assert.deepEqual(readFileSync(h.recordPath()), before, transition);
       assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false, transition);
       h.setEnabled(true);
@@ -808,8 +824,20 @@
       await h.writeSpec("doc/specs/b.md");
       assert.deepEqual(readFileSync(h.recordPath()), before, transition);
       assert.equal(existsSync(h.recordPath("doc/specs/abandoned.md")), false, transition);
-      const phases = h.readRecord("doc/specs/b.md").derived.phases;
-      assert.deepEqual(Object.values(phases).flatMap(phase => phase.skill_reads ?? []), [], transition);
+      const other = h.readRecord("doc/specs/b.md").derived;
+      assert.equal(other.skill_read_coverage, "complete", transition);
+      assert.deepEqual(Object.values(other.phases).flatMap(phase => phase.skill_reads ?? []), [], transition);
+      if (transition === "session_tree") {
+        await h.emit("session_tree", { type: "session_tree" });
+        const otherBefore = readFileSync(h.recordPath("doc/specs/b.md"));
+        h.setBranch([entry, { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } }]);
+        await h.emit("session_tree", { type: "session_tree" });
+        const restored = h.readRecord();
+        assert.equal(restored.run_id, original.run_id);
+        assert.equal(restored.derived.skill_read_coverage, "partial");
+        assert.deepEqual(Object.values(restored.derived.phases).flatMap(phase => phase.skill_reads ?? []), [pendingRead]);
+        assert.deepEqual(readFileSync(h.recordPath("doc/specs/b.md")), otherBefore);
+      }
     }
   });
 
@@ -905,9 +933,8 @@
     await h.emit("tool_result", subagentResult([{ agent: "scout", exitCode: 0, usage: usage(10) }]));
     await h.emit("model_select", { type: "model_select", model: { provider: "p", id: "next" } });
     await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "fail" } });
-    const planResult = (status: string, id: string) => h.emit("tool_result", { toolName: "plan_tracker", toolCallId: id, input: { action: "update" }, content: [], isError: false, details: { action: "update", tasks: [{ name: "a", status }] } });
-    await planResult("complete", "pt1");
-    await planResult("in_progress", "pt2");
+    await h.planResult("update", [{ name: "a", status: "complete" }]);
+    await h.planResult("update", [{ name: "a", status: "in_progress" }]);
     await h.writeSpec("doc/specs/a.md");
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     const rec = h.readRecord();
@@ -1171,7 +1198,7 @@
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
       await h.writeSpec("doc/specs/a.md");
       await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-      await h.emit("tool_result", { toolName: "plan_tracker", toolCallId: "pt", input: {}, content: [], isError: false, details: { action: "init", tasks: [{ name: "repair", status: "in_progress" }] } });
+      await h.planResult("init", [{ name: "repair", status: "in_progress" }]);
       const before = h.readRecord();
       const results = agents?.map((agent, i) => ({ agent, exitCode: i === agents.length - 1 ? 1 : 0, model: `p/m${i}`, usage: usage(10, 2, 0.5) }));
       const terminal = { ...subagentResult(results ?? []), isError: true, details: results === undefined ? {} : { results } };
@@ -1286,7 +1313,7 @@
     const h = await boundInPlan();
     await h.phaseResult("complete", P({ brainstorm: "complete", plan: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }));
-    const pt = (action: string, tasks: { name: string; status: string }[], id = "pt1") => h.emit("tool_result", { toolName: "plan_tracker", toolCallId: id, input: { action }, content: [], isError: false, details: { action, tasks } });
+    const pt = h.planResult;
     await pt("init", [{ name: "a", status: "pending" }, { name: "b", status: "pending" }]);
     await pt("update", [{ name: "a", status: "complete" }, { name: "b", status: "pending" }]);
     await pt("update", [{ name: "a", status: "in_progress" }, { name: "b", status: "pending" }]);
@@ -1540,7 +1567,7 @@
     await h.emit("input", { type: "input", text: "review", source: "interactive" });
     await h.emit("message_end", { type: "message_end", message: { role: "assistant", usage: usage(10) } });
     await h.emit("turn_end", { type: "turn_end" });
-    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "complete" }] }, isError: false });
+    await h.planResult("update", [{ status: "complete" }]);
     h.setBranch([]);
     await h.emit("session_tree", { type: "session_tree" });
     const rec = h.readRecord();
@@ -1549,7 +1576,7 @@
     assert.equal(rec.derived.phases.plan?.peak_context, 4321);
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/b.md");
-    await h.emit("tool_result", { toolName: "plan_tracker", input: {}, details: { action: "update", tasks: [{ status: "in_progress" }] }, isError: false });
+    await h.planResult("update", [{ status: "in_progress" }]);
     assert.equal(h.readRecord("doc/specs/b.md").derived.gates.task_reopens, 0);
   });
 
@@ -1806,7 +1833,7 @@ test("resume skip reads engine from bound spec live and on branch replay", async
 
   test("any successful tracker action counts named transitions once and ignores retries and amendments", async () => {
     const h = await boundInPlan();
-    const pt = (action: string, tasks: { name: string; status: string }[], isError = false) => h.emit("tool_result", { toolName: "plan_tracker", input: { action }, details: { action, tasks }, content: [], isError });
+    const pt = h.planResult;
     const closed = [{ name: "a", status: "complete" }, { name: "b", status: "complete" }];
     const reopened = [{ name: "b", status: "failed" }, { name: "a", status: "in_progress" }];
     await pt("init", closed);
@@ -1868,10 +1895,9 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     await h.writeSpec("doc/specs/a.md", "# Spec\n\n**Engine:** loop\n\n## Scope\nSynthetic run.\n");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
-    const pt = (tasks: { name: string; status: string }[]) => h.emit("tool_result", { toolName: "plan_tracker", input: { action: "refresh" }, details: { action: "refresh", tasks }, isError: false, content: [] });
-    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
+    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
     await h.emit("tool_result", { toolName: "subagent", input: {}, details: { results: [{ agent: "loop-implementer", exitCode: 0 }] }, content: [], isError: false });
-    await pt([{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
+    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "in_progress" }));
     await h.bash("verify", "npm test");
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "in_progress" }));

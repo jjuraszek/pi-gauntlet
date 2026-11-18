@@ -231,6 +231,8 @@
     let gauntletEntered = false;
     let liveReadEntry = false;
     let readGap = false;
+    // A disabled capture gap belongs to its run even if navigation drops the binding.
+    const pendingCoverageDowngrades = new Set<string>();
     // Keep binding inputs, not tool results: disabled calls never feed telemetry counters or events.
     const deferredBindings: ((snap: SettingsSnapshot) => Promise<void>)[] = [];
     let reconciling: Promise<void> | undefined;
@@ -244,7 +246,10 @@
 
     const observeSettings = (s: SettingsSnapshot): SettingsSnapshot | undefined => {
       if (!s.telemetry.enabled) {
-        if (gauntletEntered) readGap = true;
+        if (gauntletEntered) {
+          readGap = true;
+          if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+        }
         readCalls.clear();
         pendingTest.clear();
         return undefined;
@@ -325,6 +330,7 @@
         deps.fs.writeFile(target + ".tmp", serializeRecord(record));
         deps.fs.rename(target + ".tmp", target);
         recordWritten = true;
+        if (record.derived.skill_read_coverage === "partial") pendingCoverageDowngrades.delete(record.run_id);
       } catch (e) {
         pushEvent({ kind: "warning", message: `record write failed: ${String((e as Error).message ?? e).split("\n")[0]}` });
       }
@@ -345,7 +351,9 @@
         }
         if (!parsed.sessions.includes(sessionId)) parsed.sessions.push(sessionId);
         parsed.spec = specRel;
-        if (readGap && parsed.derived.skill_read_coverage === "complete") parsed.derived.skill_read_coverage = "partial";
+        if (parsed.derived.skill_read_coverage === "complete" && (readGap || pendingCoverageDowngrades.has(parsed.run_id))) {
+          parsed.derived.skill_read_coverage = "partial";
+        }
         if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
         return parsed;
       }
@@ -648,10 +656,6 @@
         await applyPhaseDetails(event.details as never, settings);
         return undefined;
       }
-      if (event.toolName === "plan_tracker" && !event.isError) {
-        await onPlanTracker(event.details, settings);
-        return undefined;
-      }
       if (!snap) {
         if (canBind() && !event.isError) rememberBinding(event, ctx.cwd, settings);
         return undefined;
@@ -940,6 +944,15 @@
       return undefined;
     });
     pi.on("tool_execution_end", async (event, ctx) => {
+      if (event.toolName === "plan_tracker") {
+        if (isSubagentChild()) return;
+        lastCtx = ctx;
+        const settings = deps.settings(ctx.cwd);
+        await enabledSettings(ctx, settings);
+        if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
+        if (!event.isError) await onPlanTracker(event.result?.details, settings);
+        return;
+      }
       if (event.toolName !== "read" || !await enabledSettings(ctx)) return;
       const call = readCalls.get(event.toolCallId);
       readCalls.delete(event.toolCallId);
