@@ -636,7 +636,7 @@
       }
       deferredReplay = [];
       deferredBindings = [];
-      readGap ||= !record;
+      readGap = true;
       disabledGap = false;
     };
 

@@ -645,21 +645,28 @@
     }
   });
 
-  test("a disabled interval never writes and makes a bound or pending measurement partial", async () => {
-    for (const bound of [true, false]) {
+  test("a disabled interval never writes and makes current and later bindings partial", async () => {
+    const a = "doc/specs/a.md";
+    const b = "doc/specs/b.md";
+    for (const [bound, spec] of [[true, a], [false, a], [true, b]] as const) {
       const h = harness();
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
-      if (bound) await h.writeSpec("doc/specs/a.md");
+      if (bound) await h.writeSpec(a);
       const bytesBefore = bound && readFileSync(h.recordPath());
       h.setEnabled(false);
       await h.read("disabled", legSkill, "ignored");
       assert.deepEqual(existsSync(h.recordPath()) && readFileSync(h.recordPath()), bytesBefore);
       h.setEnabled(true);
-      if (!bound) await h.writeSpec("doc/specs/a.md");
+      if (!bound) await h.writeSpec(a);
+      if (spec === b) {
+        await h.emit("turn_end", { type: "turn_end" });
+        assert.equal(h.readRecord(a).derived.skill_read_coverage, "partial");
+        await h.emit("tool_result", { toolName: "plan_check", input: {}, isError: false, details: { status: "pass", specPath: b } });
+      }
       await h.read("enabled", legSkill, "text");
       await h.emit("session_shutdown", { type: "session_shutdown" });
-      assert.equal(h.readRecord().derived.skill_read_coverage, "partial");
-      assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, [pendingRead]);
+      assert.equal(h.readRecord(spec).derived.skill_read_coverage, "partial");
+      assert.deepEqual(h.readRecord(spec).derived.phases.brainstorm?.skill_reads, [pendingRead]);
     }
   });
 
