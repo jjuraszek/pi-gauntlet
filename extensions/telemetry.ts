@@ -326,16 +326,23 @@
     const warn = (message: string) => pushEvent({ kind: "warning", message });
 
     // ---- record store ----
-    // The seal either keeps a stamped file for retry or removes it after committing.
-    // Neither may be overwritten by a later recorder flush.
-    const sealedAt = (path: string): boolean => {
-      const text = deps.fs.readFile(path);
-      const parsed = text ? parseRecord(text) : undefined;
-      return !!parsed && parsed.status !== "in_progress";
+    const readBinding = ({ file }: Pick<Binding, "file">) => {
+      const text = deps.fs.readFile(file);
+      return text ? parseRecord(text) : undefined;
     };
 
-    const recordWritable = () => !!toplevel && deps.fs.exists(toplevel)
-      && !!recordRel && (!recordWritten || deps.fs.exists(recordRel)) && !sealedAt(recordRel);
+    // A later flush must not recreate a removed record or overwrite a sealed or replaced one.
+    const ensureRecordWritable = () => {
+      if (!record || !recordRel || frozen) return false;
+      if (toplevel && deps.fs.exists(toplevel)) {
+        const disk = readBinding({ file: recordRel });
+        if ((!disk || disk.status === "in_progress") && (!recordWritten || disk?.run_id === record.run_id)) return true;
+        pendingCoverageDowngrades.delete(record.run_id);
+      }
+      readCalls.clear();
+      frozen = true;
+      return false;
+    };
 
     const writeRecordFile = (target: string, run: TelemetryRecord) => {
       deps.fs.mkdirp(dirname(target));
@@ -344,13 +351,8 @@
     };
 
     const writeRecord = () => {
-      if (!record || !recordRel || frozen) return;
+      if (!record || !recordRel || !ensureRecordWritable()) return;
       const target = recordRel;
-      if (!recordWritable()) {
-        readCalls.clear();
-        frozen = true;
-        return;
-      }
       const capped = capEvents(record.events);
       if (capped.dropped) {
         record.events = capped.events;
@@ -555,11 +557,6 @@
       return true;
     };
 
-    const readBinding = ({ file }: Pick<Binding, "file">) => {
-      const text = deps.fs.readFile(file);
-      return text ? parseRecord(text) : undefined;
-    };
-
     // Replay selects a binding, without creating or moving intermediate records.
     const replayBinding = async (steps: BindingStep[]) => {
       let current: Binding | undefined;
@@ -615,10 +612,7 @@
     const reconcileBindings = async (snap: SettingsSnapshot) => {
       await reconcileOutgoing();
       if (!disabledGap) return;
-      if (record && !recordWritable()) {
-        readCalls.clear();
-        frozen = true;
-      }
+      ensureRecordWritable();
       if (canBind() && deferredReplay.length) {
         const target = await replayBinding(deferredReplay);
         if (target) {

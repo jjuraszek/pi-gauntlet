@@ -1037,6 +1037,24 @@
     }
   });
 
+  test("a still-bound run cannot overwrite its replacement on re-enable or shutdown", async () => {
+    const h = await boundInBrainstorm();
+    const file = h.recordPath();
+    const replacement = { ...h.readRecord(), run_id: "replacement" };
+    h.setEnabled(false);
+    await h.read("missed", legSkill, "ignored");
+    writeFileSync(file, serializeRecord(replacement));
+    const before = readFileSync(file);
+
+    h.setEnabled(true);
+    await h.emit("session_compact", {});
+    assert.ok(readFileSync(file).equals(before), "re-enable changed the replacement record");
+    const io = h.recorderIo();
+    await h.emit("session_shutdown", {});
+    assert.ok(readFileSync(file).equals(before), "shutdown changed the replacement record");
+    assert.deepEqual(h.recorderIo(), io, "shutdown accessed the frozen binding");
+  });
+
   test("reset or navigation while disabled persists the old run's gap only on re-enable", async t => {
     for (const [transition, queued] of [["reset", false], ["reset", true], ["session_tree", false], ["session_tree", true]] as const) {
       await t.test(`${transition}, ${queued ? "queued binding" : "no queued binding"}`, async () => {
