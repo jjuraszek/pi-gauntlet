@@ -12,6 +12,7 @@
   import { randomUUID } from "node:crypto";
   import * as nodeFs from "node:fs";
   import { dirname, isAbsolute, join, posix, resolve } from "node:path";
+  import { fileURLToPath } from "node:url";
   import * as piRuntime from "@earendil-works/pi-coding-agent";
   import { SettingsManager, getAgentDir } from "@earendil-works/pi-coding-agent";
   import type { ExtensionAPI, ExtensionContext, ToolResultEvent } from "@earendil-works/pi-coding-agent";
@@ -21,7 +22,7 @@
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
-  import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
+  import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, skillReadPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
   import { computeJjDiff } from "./lib/telemetry-diff.ts";
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
   import { addTokens, capEvents, compact, currentPhase, derive, diffPhases, emptyAccumulators, emptyPhases, foldAccumulators, implementAutoCompletes, liveShipEvent, newRecord, parseRecord, serializeRecord, type Accumulators, type BaseEvent, type PhaseAcc, type PhaseKey, type PhaseMap, type TelemetryEvent, type TelemetryRecord, type Tokens } from "./lib/telemetry-record.ts";
@@ -203,6 +204,8 @@
 
   // ---- extension -----------------------------------------------------------------------
 
+  const ownSkills = fileURLToPath(new URL("../skills", import.meta.url));
+  const hasSkillReads = (phases: Accumulators["phases"]) => Object.values(phases).some(p => p.skill_reads?.length);
   const isSubagentChild = (): boolean => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") > 0;
 
   export default function (pi: ExtensionAPI, deps: Deps = realDeps) {
@@ -218,6 +221,9 @@
     let frozen = false;
     let recordWritten = false;
     let gauntletEntered = false;
+    let liveReadEntry = false;
+    let readGap = false;
+    const readCalls = new Map<string, { cwd: string; input: { path?: unknown } }>();
     let settingsWarned = false;
     let sessionId = "";
     const guardCache = new Map<string, Map<string, string>>();
@@ -229,7 +235,15 @@
     const enabledSettings = (ctx: ExtensionContext): SettingsSnapshot | undefined => {
       if (isSubagentChild()) return undefined;
       const s = deps.settings(ctx.cwd);
-      if (!s.telemetry.enabled) return undefined;
+      if (!s.telemetry.enabled) {
+        if (gauntletEntered) readGap = true;
+        readCalls.clear();
+        return undefined;
+      }
+      if (readGap && record?.derived.skill_read_coverage === "complete") {
+        record.derived.skill_read_coverage = "partial";
+        flush();
+      }
       return s;
     };
 
@@ -273,11 +287,13 @@
     const writeRecord = () => {
       if (!record || !recordRel || frozen) return;
       if (!toplevel || !deps.fs.exists(toplevel)) {
+        readCalls.clear();
         frozen = true;
         return;
       }
       const target = recordRel;
       if ((recordWritten && !deps.fs.exists(target)) || sealedAt(target)) {
+        readCalls.clear();
         frozen = true;
         return;
       }
@@ -312,9 +328,13 @@
         }
         if (!parsed.sessions.includes(sessionId)) parsed.sessions.push(sessionId);
         parsed.spec = specRel;
+        if (readGap && parsed.derived.skill_read_coverage === "complete") parsed.derived.skill_read_coverage = "partial";
+        if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
         return parsed;
       }
-      return newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
+      const fresh = newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
+      fresh.derived.skill_read_coverage = liveReadEntry && !readGap ? "complete" : "partial";
+      return fresh;
     };
 
     const shippedRecords = (top: string, snap: SettingsSnapshot): Map<string, string> => {
@@ -373,7 +393,7 @@
       if (Object.keys(snap.versions).length) record.versions ??= snap.versions;
       if (snap.agentOverrides) record.agent_overrides ??= snap.agentOverrides;
       record.events.push(...buffer);
-      record.accumulators[sessionId] = foldAccumulators(pending, record.accumulators[sessionId] ?? emptyAccumulators());
+      record.accumulators[sessionId] = foldAccumulators(record.accumulators[sessionId] ?? emptyAccumulators(), pending);
       pending = emptyAccumulators();
       const approval = record.events.find((e) => e.kind === "phase" && e.name === "brainstorm" && (e.action === "complete" || e.action === "skip"));
       if (approval) record.approved_at ??= approval.ts;
@@ -387,6 +407,8 @@
     };
 
     const unbind = () => {
+      if (record && hasSkillReads(record.derived.phases)) readGap = true;
+      readCalls.clear();
       toplevel = undefined;
       checkoutVia = undefined;
       boundSpec = undefined;
@@ -442,7 +464,10 @@
     const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot, replay = false) => {
       if (!details?.phases || details.error) return;
       const action = details.action ?? "";
-      gauntletEntered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
+      const entered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
+      if (!gauntletEntered && entered && !replay) liveReadEntry = true;
+      gauntletEntered = entered;
+      if (details.phases.ship.status === "complete") readCalls.clear();
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
       if (action === "skip" && !boundSpec && canBind() && lastCtx) {
         const resumed = resumeSpecOf(details.phases, snap.specDirs);
@@ -480,6 +505,8 @@
         if (t.action === "reset") {
           // Epoch ends: nothing recorded before the next `start brainstorm` belongs to a run.
           unbind();
+          liveReadEntry = false;
+          readGap = false;
           buffer = [];
           pending = emptyAccumulators();
         }
@@ -502,7 +529,10 @@
       const snap = enabledSettings(ctx);
       if (!snap) return;
       flush();
+      const lostPending = hasSkillReads(pending.phases) || (!record && readGap);
       unbind();
+      liveReadEntry = false;
+      readGap = lostPending && sessionId === ctx.sessionManager.getSessionId();
       buffer = [];
       pending = emptyAccumulators();
       lastPlanTasks = undefined;
@@ -534,6 +564,7 @@
     }
 
     pi.on("session_shutdown", async (_event, ctx) => {
+      readCalls.clear();
       const snap = enabledSettings(ctx);
       if (!snap || !record) return;
       const liveBlock = record.accumulators[sessionId];
@@ -787,6 +818,7 @@
       lastCtx = ctx;
       const snap = enabledSettings(ctx);
       if (!snap) return undefined;
+      if (event.toolName === "read" && canBind()) readCalls.set(event.toolCallId, { cwd: ctx.cwd, input: event.input });
       if (event.toolName === "write") {
         const rawPath = (event.input as { path?: unknown }).path;
         if (typeof rawPath === "string" && phases.brainstorm.status === "in_progress") {
@@ -813,6 +845,25 @@
         }
       }
       return undefined;
+    });
+    pi.on("tool_execution_end", (event, ctx) => {
+      if (event.toolName !== "read") return;
+      const call = readCalls.get(event.toolCallId);
+      readCalls.delete(event.toolCallId);
+      if (!enabledSettings(ctx) || !canBind() || event.isError || typeof call?.input.path !== "string") return;
+      const path = skillReadPath(call.cwd, call.input.path, ownSkills);
+      if (!path || !Array.isArray(event.result?.content)) return;
+      let bytes: number | undefined;
+      for (const block of event.result.content) {
+        if (block?.type === "text" && typeof block.text === "string") bytes = (bytes ?? 0) + Buffer.byteLength(block.text);
+      }
+      if (bytes === undefined) return;
+      // A standalone leg can be live before bind, but skill reads belong only to the entered run.
+      const acc = record ? live() : pending;
+      const phase: PhaseAcc = (acc.phases[phaseNow()] ??= {});
+      (phase.skill_reads ??= []).push({ path, bytes });
+      if (record) record.derived.skill_read_coverage ??= "partial";
+      flush();
     });
     pi.on("message_end", async (event, ctx) => {
       lastCtx = ctx;

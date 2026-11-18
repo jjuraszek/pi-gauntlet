@@ -87,6 +87,7 @@ test("seals the common-dir record: stamp, ship event, diff and re-derived durati
   assert.equal(rec.status, "shipped");
   assert.match(rec.shipped_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
   assert.equal(rec.derived.gates.ship_option, "squash");
+  assert.equal("skill_read_coverage" in rec.derived, false);
   assert.equal(rec.events.at(-1).kind, "ship");
   assert.equal(rec.events.at(-1).option, "squash");
   assert.deepEqual(rec.derived.modified_files, ["src/a.ts"]);
@@ -202,11 +203,16 @@ test("unrelated and malformed records do not prevent changed-spec selection", (t
   assert.equal(git(root, ["ls-tree", "-r", "--name-only", REF]), BLOB);
 });
 
-test("seal preserves derived.council through the shipped stamp", (t) => {
+test("seal preserves council and measured skill reads through the shipped stamp", (t) => {
   const council = { chair: { model: "p/chair:medium", dispatches: 1, clusters: 0, members_reported: 0 }, members: {} };
-  const root = repo(t, { record: RECORD.replace("  spec_writes: {}", `  council: ${JSON.stringify(council)}\n  spec_writes: {}`) });
+  const skill_reads = [{ path: "pi-gauntlet:skills/a.md", bytes: 42 }];
+  const root = repo(t, { record: RECORD.replace("  spec_writes: {}", `  council: ${JSON.stringify(council)}\n  skill_read_coverage: partial\n  spec_writes: {}`)
+    .replace("accumulators: {}", `accumulators: ${JSON.stringify({ s1: { phases: { plan: { skill_reads } } } })}`) });
   assert.equal(run(root, ["--spec", SPEC]).status, 0);
-  assert.deepEqual(record(root).derived.council, council);
+  const { derived } = record(root);
+  assert.deepEqual(derived.council, council);
+  assert.equal(derived.skill_read_coverage, "partial");
+  assert.deepEqual(derived.phases.plan.skill_reads, skill_reads);
 });
 
 test("--spec resolves absolute, symlinked and dot-relative checkout paths", async (t) => {

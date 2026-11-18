@@ -240,6 +240,18 @@ test("legs round-trip and malformed stored legs are rejected", () => {
   }
 });
 
+test("derivation and YAML retain every measured read outside capped events", () => {
+  const rec = newRecord({ spec: "doc/specs/a.md", session: "s", now: "2026-01-01T00:00:00Z", runId: "r" });
+  const skill_reads = Array.from({ length: 305 }, (_, bytes) => ({ path: "pi-gauntlet:skills/example/SKILL.md", bytes }));
+  rec.derived.skill_read_coverage = "partial";
+  rec.events = capEvents(skill_reads.map(() => ev({ kind: "dispatch", agent: "a" }))).events;
+  rec.accumulators = { total: { ...emptyAccumulators(), phases: { plan: { skill_reads: skill_reads.slice(0, 100) } } }, s: { ...emptyAccumulators(), phases: { plan: { skill_reads: skill_reads.slice(100) } } } };
+  const loaded = parseRecord(serializeRecord(rec))!;
+  const derived = derive(loaded, rec.created_at);
+  assert.equal(derived.skill_read_coverage, "partial");
+  assert.deepEqual(derived.phases.plan?.skill_reads, skill_reads);
+});
+
 test("derive and YAML preserve verification runs and legacy absence", () => {
   for (const count of [undefined, 0, 4]) {
     const rec = newRecord({ spec: "doc/specs/a.md", session: "s1", now: "2026-09-17T10:00:00Z", runId: "r1" });

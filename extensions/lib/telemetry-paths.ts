@@ -8,7 +8,11 @@
 // **/__tests__/**, **/*.test.*, **/*.spec.*, **/*_test.*; docs = **/*.md;
 // config = **/*.json, **/*.yaml, **/*.yml, **/*.toml, **/*.lock, **/*-lock.*; else code.
 
-import { isAbsolute, matchesGlob, relative, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { realpathSync } from "node:fs";
+import { homedir } from "node:os";
+import { basename, dirname, isAbsolute, join, matchesGlob, relative, resolve, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildTestCmdRegex } from "./gauntlet-settings.ts";
 import { STMT_START } from "./phase-tracker-helpers.ts";
 
@@ -35,6 +39,42 @@ export function repoRelativeToolPath(toplevel: string, cwd: string, p: string): 
   const rel = toPosix(relative(toplevel, abs));
   if (rel === "" || rel.startsWith("../") || rel === ".." || isAbsolute(rel)) return undefined;
   return rel;
+}
+
+function skillsRoot(file: string): string | undefined {
+  for (let dir = dirname(file); dir !== dirname(dir); dir = dirname(dir)) {
+    if (basename(dir) === "skills") return dir;
+  }
+  return undefined;
+}
+
+const digest = (root: string) => createHash("sha256").update(root).digest("hex");
+const suffix = (root: string, file: string) => relative(root, file).split(sep).join("/");
+const inside = (rel: string) => rel !== "" && rel !== ".." && !rel.startsWith("../") && !isAbsolute(rel);
+
+export function skillReadPath(cwd: string, input: string, ownSkills: string): string | undefined {
+  let path = input.replace(/[\u00a0\u2000-\u200a\u202f\u205f\u3000]/g, " ").replace(/^@/, "");
+  if (process.platform === "win32" && !path.includes("\\")) path = path.replace(/^\/(?:mnt\/|cygdrive\/)?([a-z])(?:\/|$)/i, "$1:/");
+  if (path === "~" || path.startsWith("~/") || (sep === "\\" && path.startsWith("~\\"))) path = join(homedir(), path.slice(2));
+  if (path.startsWith("file://")) {
+    try { path = fileURLToPath(path); } catch { return undefined; }
+  }
+  const file = resolve(cwd, path);
+  const opened = file.endsWith(".md") ? skillsRoot(file) : undefined;
+  if (!opened) return undefined;
+  const lexical = suffix(opened, file);
+  try {
+    const target = realpathSync(file);
+    const trusted = suffix(realpathSync(ownSkills), target);
+    if (inside(trusted)) return `pi-gauntlet:skills/${trusted}`;
+    const root = realpathSync(opened);
+    const canonical = suffix(root, target);
+    if (inside(canonical)) return `source:${digest(root)}:skills/${canonical}`;
+    const escaped = skillsRoot(target);
+    return escaped ? `source:${digest(escaped)}:skills/${suffix(escaped, target)}` : `source:${digest(root)}:skills/${lexical}`;
+  } catch {
+    return `source:lex-${digest(opened)}:skills/${lexical}`;
+  }
 }
 
 const SPEC_HEADER_RE = /^\*\*Spec:\*\*\s*`?([^`\s]+)`?/m;

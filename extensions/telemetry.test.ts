@@ -102,7 +102,16 @@
       await emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: rel, content: body } });
       return emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: rel, content: body }, content: [], isError: false, details: undefined });
     };
-    return { setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
+    const read = async (toolCallId: string, path: string, text: string) => {
+      const call = { toolName: "read", toolCallId };
+      const input = { path };
+      const result = { content: [{ type: "text", text }], details: {} };
+      await emit("tool_execution_start", { type: "tool_execution_start", ...call, args: input });
+      await emit("tool_call", { type: "tool_call", ...call, input });
+      await emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
+      await emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
+    };
+    return { read, setEnabled: (value: boolean) => (enabled = value), fetchedRecords, root, handlers, emit, gitCalls, gitCwds, jjCalls, readFileCalls, gitWrites, excludeFile, bash, recordPath, readRecord, phaseResult, writeSpec, setBranch: (b: unknown[]) => (branch = b), ctx };
   }
 
   const P = (over: Record<string, string> = {}) => Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map((p) => [p, { status: over[p] ?? "pending" }]));
@@ -150,6 +159,7 @@
       const h = harness();
       await h.phaseResult("start", P({ brainstorm: "in_progress" }));
       await h.writeSpec("doc/specs/a.md");
+      await h.read("child", legSkill, "ignored");
       assert.equal(existsSync(h.recordPath()), false);
     } finally {
       process.env.PI_SUBAGENT_DEPTH = "0";
@@ -524,27 +534,160 @@
 
   test("the run records the skill and reference bytes returned in their respective phases", async () => {
     const h = harness({ piVersion: "1.5.0" });
-    const read = async (toolCallId: string, file: string, text: string) => {
-      const call = { toolName: "read", toolCallId };
-      const input = { path: join(import.meta.dirname, "../skills/brainstorming", file) };
-      const result = { content: [{ type: "text", text }], details: {} };
-      await h.emit("tool_execution_start", { type: "tool_execution_start", ...call, args: input });
-      await h.emit("tool_call", { type: "tool_call", ...call, input });
-      await h.emit("tool_result", { type: "tool_result", ...call, input, ...result, isError: false });
-      await h.emit("tool_execution_end", { type: "tool_execution_end", ...call, result, isError: false });
-    };
+    const skill = join(import.meta.dirname, "../skills/brainstorming");
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
-    await read("skill", "SKILL.md", "skill text");
+    assert.equal(h.readRecord().derived.skill_read_coverage, "complete", "a live bind can measure zero");
+    await h.read("skill", join(skill, "SKILL.md"), "skill text");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
-    await read("reference", "reference/legs.md", "reference text");
+    await h.read("reference", join(skill, "reference/legs.md"), "reference text");
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     const { brainstorm, verify } = h.readRecord().derived.phases;
     assert.deepEqual([brainstorm?.skill_reads, verify?.skill_reads], [
       [{ path: "pi-gauntlet:skills/brainstorming/SKILL.md", bytes: 10 }],
       [{ path: "pi-gauntlet:skills/brainstorming/reference/legs.md", bytes: 14 }],
     ]);
+  });
+
+  const entry = { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } };
+  const legSkill = join(import.meta.dirname, "../skills/shape-ticket/SKILL.md");
+  const pendingRead = { bytes: 4, path: "pi-gauntlet:skills/shape-ticket/SKILL.md" };
+
+  test("a read completed between phases belongs to unphased", async () => {
+    const h = await boundInBrainstorm();
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.read("between", legSkill, "text");
+    const phases = h.readRecord().derived.phases;
+    assert.deepEqual(phases.unphased?.skill_reads, [pendingRead]);
+    assert.equal(phases.brainstorm?.skill_reads, undefined);
+  });
+
+  test("direct and nested reads count their final results once, in the phase active at completion", async () => {
+    const h = harness({ piVersion: "1.5.0" });
+    await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    const parent = { toolName: "codemode", toolCallId: "script" };
+    await h.emit("tool_call", { ...parent, input: { code: "..." } });
+    const calls = ["direct", "script/1", "direct-error", "script/2", "script/3"].map(toolCallId => ({
+      toolName: "read", toolCallId, input: { path: legSkill }, ...(toolCallId.startsWith("script/") ? { parentToolCallId: "script" } : {}),
+    }));
+    for (const call of calls) await h.emit("tool_call", call);
+    await h.phaseResult("complete", P({ brainstorm: "complete" }));
+    await h.phaseResult("start", P({ brainstorm: "complete", plan: "in_progress" }));
+    for (const [i, call] of calls.entries()) {
+      const intermediate = { ...call, isError: false, content: [{ type: "text", text: "original read result" }] };
+      await h.emit("tool_result", intermediate);
+      const later = { content: i === 4 ? [{ type: "image", data: "AAAA", mimeType: "image/png" }] : [{ type: "text", text: i ? "ab" : "a" }], isError: i === 2 || i === 3 };
+      const { content, isError } = mergeToolResult(intermediate, later);
+      const end = { ...call, input: undefined, result: { content }, isError };
+      await h.emit("tool_execution_end", end);
+      await h.emit("tool_execution_end", end);
+    }
+    await h.emit("tool_execution_end", { ...parent, result: { content: [{ type: "text", text: "ab" }] }, isError: false });
+    const phases = h.readRecord().derived.phases;
+    assert.equal(phases.brainstorm?.skill_reads, undefined);
+    assert.deepEqual(phases.plan?.skill_reads, [1, 2].map(bytes => ({ path: pendingRead.path, bytes })));
+  });
+
+  test("a ranged read counts only returned UTF-8 text, including the continuation notice", async () => {
+    const h = await boundInBrainstorm();
+    const path = "skills/range.md";
+    mkdirSync(join(h.root, "skills"));
+    writeFileSync(join(h.root, path), "first\n\u00e9\nlast\n");
+    const call = { toolName: "read", toolCallId: "range", input: { path, offset: 2, limit: 1 } };
+    await h.emit("tool_call", call);
+    const notice = "\n\n[1 more lines in file. Use offset=3 to continue.]";
+    const content = [{ type: "text", text: "\u00e9" }, { type: "image", mimeType: "image/png", data: "AAAA" }, { type: "text", text: notice }];
+    await h.emit("tool_execution_end", { toolName: "read", toolCallId: "range", result: { content }, isError: false });
+    assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads?.map(r => r.bytes), [2 + notice.length]);
+  });
+
+  test("only an entered run folds a leg skill read at plan bind; reconstruction discards unbound observations", async () => {
+    for (const mode of ["standalone", "live", "reconstructed"] as const) {
+      const h = harness({ branch: [entry] });
+      if (mode !== "standalone") await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      await h.read("prebind", legSkill, "text");
+      assert.equal(existsSync(h.recordPath()), false);
+      if (mode === "reconstructed") await h.emit("session_tree", { type: "session_tree" });
+      writeFileSync(join(h.root, "doc/specs/a.md"), "# Spec\n");
+      writeFileSync(join(h.root, "doc/plans/a.md"), "**Spec:** `doc/specs/a.md`\n");
+      await h.read("plan", "doc/plans/a.md", "header");
+      assert.equal(existsSync(h.recordPath()), mode !== "standalone");
+      if (mode === "standalone") continue;
+      const { phases, skill_read_coverage } = h.readRecord().derived;
+      assert.deepEqual(phases.brainstorm?.skill_reads, mode === "live" ? [pendingRead] : undefined);
+      assert.equal(skill_read_coverage, mode === "live" ? "complete" : "partial");
+    }
+  });
+
+  test("a disabled interval never writes and makes a bound or pending measurement partial", async () => {
+    for (const bound of [true, false]) {
+      const h = harness();
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      if (bound) await h.writeSpec("doc/specs/a.md");
+      const bytesBefore = bound && readFileSync(h.recordPath());
+      h.setEnabled(false);
+      await h.read("disabled", legSkill, "ignored");
+      assert.deepEqual(existsSync(h.recordPath()) && readFileSync(h.recordPath()), bytesBefore);
+      h.setEnabled(true);
+      if (!bound) await h.writeSpec("doc/specs/a.md");
+      await h.read("enabled", legSkill, "text");
+      await h.emit("session_shutdown", { type: "session_shutdown" });
+      assert.equal(h.readRecord().derived.skill_read_coverage, "partial");
+      assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, [pendingRead]);
+    }
+  });
+
+  test("a resumed run retains coverage and opaque paths; a legacy run stays unmeasured until its first observation", async () => {
+    for (const mode of ["measured", "legacy", "legacy-pending"]) {
+      const h = await boundInBrainstorm();
+      const file = "other/skills/reference.md";
+      mkdirSync(join(h.root, "other/skills"), { recursive: true });
+      writeFileSync(join(h.root, file), "reference");
+      if (mode === "measured") await h.read("first", file, "1");
+      await h.emit("session_shutdown", { type: "session_shutdown" });
+      const rec = h.readRecord();
+      if (mode !== "measured") {
+        delete rec.derived.skill_read_coverage;
+        writeFileSync(h.recordPath(), serializeRecord(rec));
+      }
+      const resumed = harness({ branch: [entry], sessionId: "s2" });
+      resumed.ctx.cwd = h.root;
+      await resumed.emit("session_start", { type: "session_start" });
+      if (mode === "legacy-pending") await resumed.read("pending", file, "1");
+      await resumed.writeSpec("doc/specs/a.md");
+      assert.equal(resumed.readRecord().derived.skill_read_coverage, mode === "measured" ? "complete" : mode === "legacy-pending" ? "partial" : undefined);
+      await resumed.read("next", file, "22");
+      await resumed.emit("session_shutdown", { type: "session_shutdown" });
+      const d = resumed.readRecord().derived;
+      assert.equal(d.skill_read_coverage, mode === "measured" ? "complete" : "partial");
+      const reads = d.phases.brainstorm!.skill_reads!;
+      assert.match(reads[0].path, /^source:[a-f0-9]{64}:skills\/reference\.md$/);
+      assert.deepEqual(reads.map(r => [r.path, r.bytes]), (mode === "legacy" ? [2] : [1, 2]).map(n => [reads[0].path, n]));
+    }
+  });
+
+  test("same-session pending reads append after the observations already bound", async () => {
+    const h = await boundInBrainstorm();
+    await h.read("first", legSkill, "1");
+    h.setBranch([entry]);
+    await h.emit("session_tree", { type: "session_tree" });
+    await h.read("pending", legSkill, "22");
+    await h.writeSpec("doc/specs/a.md");
+    const d = h.readRecord().derived;
+    assert.equal(d.skill_read_coverage, "complete");
+    assert.deepEqual(d.phases.brainstorm!.skill_reads!.map(r => r.bytes), [1, 2]);
+  });
+
+  test("rebinding after an observed read leaves it with its original run", async () => {
+    const h = await boundInBrainstorm();
+    await h.read("first", legSkill, "text");
+    await h.writeSpec(".worktrees/x/doc/specs/b.md");
+    const next = h.readRecord("doc/specs/b.md");
+    assert.equal(next.derived.skill_read_coverage, "partial");
+    assert.equal(next.derived.phases.brainstorm?.skill_reads, undefined);
+    assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, [pendingRead]);
   });
 
   test("message_end appends one cache triplet per parent call; child usage is excluded from parent_calls but still summed into tokens", async () => {
@@ -1189,12 +1332,16 @@
     const h = harness();
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
+    const late = { toolName: "read", toolCallId: "late" };
+    await h.emit("tool_call", { ...late, input: { path: legSkill } });
     await h.phaseResult("reset", P());
     const aBefore = readFileSync(h.recordPath("doc/specs/a.md"), "utf8");
     await h.emit("tool_result", { toolName: "subagent", toolCallId: "sa", input: {}, content: [{ type: "text", text: "" }], isError: false, details: { results: [{ agent: "worker", exitCode: 0, model: "p/m", usage: { input: 10, output: 5, cacheRead: 0, cacheWrite: 0, cost: 0.1 } }] } });
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/b.md");
+    await h.emit("tool_execution_end", { ...late, result: { content: [{ type: "text", text: "late" }] }, isError: false });
     const b = h.readRecord("doc/specs/b.md");
+    assert.equal(b.derived.phases.brainstorm?.skill_reads, undefined);
     assert.deepEqual(b.events.map((e) => e.kind), ["phase"]);
     assert.deepEqual(b.derived.personas, {});
     assert.equal(readFileSync(h.recordPath("doc/specs/a.md"), "utf8"), aBefore);

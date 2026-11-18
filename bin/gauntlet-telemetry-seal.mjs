@@ -4,7 +4,7 @@
 import { existsSync as existsSync3, mkdtempSync as mkdtempSync2, readdirSync, readFileSync as readFileSync2, realpathSync, rmSync as rmSync2, unlinkSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir as tmpdir2 } from "node:os";
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { isAbsolute as isAbsolute2, join as join3, relative as relative2, resolve as resolve2 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join4, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
@@ -57,7 +57,7 @@ function resolveTelemetry(g) {
 }
 
 // extensions/lib/telemetry-paths.ts
-import { isAbsolute, matchesGlob, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, matchesGlob, relative, resolve, sep } from "node:path";
 
 // extensions/lib/phase-tracker-helpers.ts
 var STMT_START = "(?:^|[\\n;&|(])\\s*";
@@ -136,7 +136,7 @@ import { spawnSync } from "node:child_process";
 // extensions/lib/checkout.ts
 import { execFileSync } from "node:child_process";
 import { existsSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname as dirname2, join as join2 } from "node:path";
 var CHECKOUT_ARGS = ["rev-parse", "--path-format=absolute", "--show-toplevel", "--git-dir", "--git-common-dir"];
 function parseCheckout(r) {
   if (r.code !== 0) return void 0;
@@ -154,7 +154,7 @@ var isDir = (p) => {
 function nearestExistingDir(absPath) {
   let p = absPath;
   while (!(existsSync(p) && isDir(p))) {
-    const parent = dirname(p);
+    const parent = dirname2(p);
     if (parent === p) return p;
     p = parent;
   }
@@ -165,7 +165,7 @@ function parseJjRoot(r) {
   if (r.code !== 0) return void 0;
   const toplevel = r.stdout.trim();
   if (!toplevel) return void 0;
-  return { toplevel, isPrimary: isDir(join(toplevel, ".jj", "repo")) };
+  return { toplevel, isPrimary: isDir(join2(toplevel, ".jj", "repo")) };
 }
 function checkoutOfSync(absPath, git = gitSync, jj = jjSync) {
   const cwd = nearestExistingDir(absPath);
@@ -275,7 +275,7 @@ function changedNames(vcs, base) {
 // extensions/lib/telemetry-branch.ts
 import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join as join2 } from "node:path";
+import { basename as basename2, join as join3 } from "node:path";
 var TELEMETRY_REF = "refs/telemetry/records";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -283,7 +283,7 @@ function trackerRefs(text) {
 }
 function telemetryDir(root) {
   const result = gitRun(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
-  return result.ok ? join2(result.stdout, "gauntlet", "telemetry") : void 0;
+  return result.ok ? join3(result.stdout, "gauntlet", "telemetry") : void 0;
 }
 function telemetryRepo(root) {
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
@@ -292,7 +292,7 @@ function telemetryRepo(root) {
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
   for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-    const path2 = join2(top, file);
+    const path2 = join3(top, file);
     if (!existsSync2(path2)) continue;
     const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
     const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
@@ -301,7 +301,7 @@ function telemetryRepo(root) {
   }
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
-  return `local/${basename(primary ?? top)}`;
+  return `local/${basename2(primary ?? top)}`;
 }
 var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
@@ -336,8 +336,8 @@ function compareRecords(root, sources, destination) {
   return { conflicts, missing: [...missing].map(([path, source]) => ({ path, source })) };
 }
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join2(scratch, "index") };
+  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
   const git = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -417,7 +417,14 @@ function foldAccumulators(a, b) {
   const out = emptyAccumulators();
   for (const k of /* @__PURE__ */ new Set([...Object.keys(a.phases), ...Object.keys(b.phases)])) {
     const x = a.phases[k] ?? {}, y = b.phases[k] ?? {};
-    out.phases[k] = compact({ tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens, compactions: optSum(x.compactions, y.compactions), user_messages: optSum(x.user_messages, y.user_messages), peak_context: optMax(x.peak_context, y.peak_context), parent_calls: x.parent_calls || y.parent_calls ? [...x.parent_calls ?? [], ...y.parent_calls ?? []] : void 0 });
+    out.phases[k] = compact({
+      tokens: x.tokens && y.tokens ? addTokens(x.tokens, y.tokens) : x.tokens ?? y.tokens,
+      compactions: optSum(x.compactions, y.compactions),
+      user_messages: optSum(x.user_messages, y.user_messages),
+      peak_context: optMax(x.peak_context, y.peak_context),
+      parent_calls: x.parent_calls || y.parent_calls ? [...x.parent_calls ?? [], ...y.parent_calls ?? []] : void 0,
+      skill_reads: x.skill_reads || y.skill_reads ? [...x.skill_reads ?? [], ...y.skill_reads ?? []] : void 0
+    });
   }
   for (const k of /* @__PURE__ */ new Set([...Object.keys(a.personas), ...Object.keys(b.personas)])) {
     const x = a.personas[k], y = b.personas[k];
@@ -469,7 +476,7 @@ function derive(rec, now) {
   }
   for (const k of Object.keys(acc.phases)) phases[k] = compact({ ...phases[k] ?? {}, ...acc.phases[k] });
   const live = liveShipEvent(rec.events);
-  return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : void 0, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, verification_runs: rec.derived.verification_runs, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped });
+  return compact({ engine: rec.events.findLast((e) => e.kind === "engine")?.engine ?? "waves", iterations: acc.personas["loop-implementer"]?.dispatches, duration_s: seconds(rec.created_at, rec.shipped_at ?? rec.abandoned_at ?? now), phases, skill_read_coverage: rec.derived.skill_read_coverage, personas: acc.personas, reviews: Object.keys(acc.reviews).length ? acc.reviews : void 0, conformance_loops: acc.conformance_loops, conformance_open_gaps: acc.conformance_open_gaps, gates: compact({ ...acc.gates, ship_option: live?.option }), plan: rec.derived.plan, tests: rec.derived.tests, verification_runs: rec.derived.verification_runs, amendments: acc.amendments, spec_edits_after_ship: acc.spec_edits_after_ship, diff: rec.derived.diff, modified_files: rec.derived.modified_files, council: rec.derived.council, spec_writes: acc.spec_writes, events_dropped: acc.events_dropped });
 }
 var stripUndefined = (v) => {
   if (Array.isArray(v)) return v.map(stripUndefined);
@@ -587,9 +594,9 @@ function readLayer(file) {
   }
 }
 function settings(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join3(homedir(), ".pi", "agent");
-  const preset = readLayer(join3(agentDir, "settings.json"));
-  const repo = readLayer(join3(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
+  const preset = readLayer(join4(agentDir, "settings.json"));
+  const repo = readLayer(join4(root, ".pi", "settings.json"));
   const merged = mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet);
   const { specDirs } = resolveFlowGuards(merged);
   return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(specDirs), specDirs };
@@ -598,7 +605,7 @@ function walkRecords(absDir) {
   if (!existsSync3(absDir)) return [];
   const out = [];
   for (const e of readdirSync(absDir, { withFileTypes: true })) {
-    const p = join3(absDir, e.name);
+    const p = join4(absDir, e.name);
     if (e.isDirectory()) out.push(...walkRecords(p));
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
@@ -670,9 +677,9 @@ ${retry}`);
     compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid });
   }
   if (!compared.missing.length) return console.log("carried: 0 records");
-  const scratch = mkdtempSync2(join3(tmpdir2(), "gauntlet-ref-migration-"));
+  const scratch = mkdtempSync2(join4(tmpdir2(), "gauntlet-ref-migration-"));
   try {
-    const env = { GIT_INDEX_FILE: join3(scratch, "index") };
+    const env = { GIT_INDEX_FILE: join4(scratch, "index") };
     required(destOid ? ["read-tree", destOid] : ["read-tree", "--empty"], { env });
     for (const { path, source } of compared.missing) {
       const entry = required(["ls-tree", "-z", source.oid, "--", path], { raw: true });
