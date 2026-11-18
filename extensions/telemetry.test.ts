@@ -801,6 +801,81 @@
     assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false);
   });
 
+  test("disabled replay retains the coverage gap for its checkout and spec across navigation", async t => {
+    const spec = "doc/specs/a.md";
+    const result = (data: object) => ({ type: "message", message: { role: "toolResult", ...data } });
+    for (const route of ["plan check", "spec write", "resume skip", "legacy record"] as const) {
+      await t.test(route, async () => {
+        const original = await boundInBrainstorm();
+        const legacy = route === "legacy record";
+        if (!legacy) await original.read("first", legSkill, "text");
+        const record = original.readRecord();
+        assert.equal(record.derived.skill_read_coverage, "complete");
+        if (legacy) {
+          delete record.derived.skill_read_coverage;
+          writeFileSync(original.recordPath(), serializeRecord(record));
+        }
+        const before = readFileSync(original.recordPath());
+
+        const h = harness({ enabled: false });
+        h.ctx.cwd = original.root;
+        const replay: unknown[] = [entry];
+        if (route === "spec write") {
+          replay.push({ type: "message", message: { role: "assistant", content: [{ type: "toolCall", id: "write", name: "write", arguments: { path: spec } }] } });
+          replay.push(result({ toolName: "write", toolCallId: "write" }));
+        } else if (route === "resume skip") {
+          const phases = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
+          replay.push(result({ toolName: "phase_tracker", details: { action: "skip", phases } }));
+        } else {
+          replay.push(result({ toolName: "plan_check", details: { status: "pass", specPath: join(original.root, spec) } }));
+        }
+        const io = h.recorderIo();
+        h.setBranch(replay);
+        await h.emit("session_start", {});
+        await h.read("missed", legSkill, "ignored");
+        h.setBranch([]);
+        await h.emit("session_tree", {});
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(original.recordPath()), before);
+
+        h.setEnabled(true);
+        h.setBranch(route === "plan check"
+          ? [entry, result({ toolName: "plan_check", details: { status: "pass", specPath: spec } })]
+          : [entry]);
+        await h.emit("session_tree", {});
+        if (route !== "plan check") {
+          writeFileSync(join(h.ctx.cwd, "doc/plans/a.md"), `**Spec:** ${spec}\n`);
+          await h.read("bind", "doc/plans/a.md", "header");
+        }
+        const restored = h.readRecord();
+        assert.equal(restored.run_id, record.run_id);
+        assert.equal(restored.derived.skill_read_coverage, legacy ? undefined : "partial");
+        assert.deepEqual(Object.values(restored.derived.phases).flatMap(p => p.skill_reads ?? []), legacy ? [] : [pendingRead]);
+      });
+    }
+  });
+
+  test("a pending coverage gap does not downgrade the same spec path in another checkout", async () => {
+    const original = await boundInBrainstorm();
+    const other = await boundInBrainstorm();
+    const spec = "doc/specs/a.md";
+    const replay = [entry, { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: spec } } }];
+    const h = harness({ enabled: false, branch: replay });
+    h.ctx.cwd = original.root;
+    const io = h.recorderIo();
+    await h.emit("session_start", {});
+    await h.read("missed", legSkill, "ignored");
+    assert.deepEqual(h.recorderIo(), io);
+    h.setEnabled(true);
+    h.ctx.cwd = other.root;
+    await h.emit("session_tree", {});
+    assert.equal(other.readRecord().derived.skill_read_coverage, "complete");
+    assert.deepEqual(Object.values(other.readRecord().derived.phases).flatMap(p => p.skill_reads ?? []), []);
+    h.ctx.cwd = original.root;
+    await h.emit("session_tree", {});
+    assert.equal(original.readRecord().derived.skill_read_coverage, "partial");
+  });
+
   test("reset or navigation while disabled disarms the old run without writing", async () => {
     for (const transition of ["reset", "session_tree"] as const) {
       const h = await boundInBrainstorm();

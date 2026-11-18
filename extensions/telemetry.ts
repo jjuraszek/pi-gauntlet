@@ -233,6 +233,9 @@
     let readGap = false;
     // A disabled capture gap belongs to its run even if navigation drops the binding.
     const pendingCoverageDowngrades = new Set<string>();
+    // An unbound replay knows only the absolute spec candidate, not the run ID.
+    const pendingCandidateGaps = new Set<string>();
+    let replayGapScoped = false;
     // Keep binding inputs, not tool results: disabled calls never feed telemetry counters or events.
     const deferredBindings: ((snap: SettingsSnapshot) => Promise<void>)[] = [];
     let reconciling: Promise<void> | undefined;
@@ -244,12 +247,14 @@
     let currentDir = "";
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
+    const noteReadGap = () => {
+      if (!replayGapScoped || record) readGap = true;
+      if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+    };
+
     const observeSettings = (s: SettingsSnapshot): SettingsSnapshot | undefined => {
       if (!s.telemetry.enabled) {
-        if (gauntletEntered) {
-          readGap = true;
-          if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
-        }
+        if (gauntletEntered) noteReadGap();
         readCalls.clear();
         pendingTest.clear();
         return undefined;
@@ -330,6 +335,7 @@
         deps.fs.writeFile(target + ".tmp", serializeRecord(record));
         deps.fs.rename(target + ".tmp", target);
         recordWritten = true;
+        pendingCandidateGaps.delete(abs(record.spec));
         if (record.derived.skill_read_coverage === "partial") pendingCoverageDowngrades.delete(record.run_id);
       } catch (e) {
         pushEvent({ kind: "warning", message: `record write failed: ${String((e as Error).message ?? e).split("\n")[0]}` });
@@ -351,7 +357,8 @@
         }
         if (!parsed.sessions.includes(sessionId)) parsed.sessions.push(sessionId);
         parsed.spec = specRel;
-        if (parsed.derived.skill_read_coverage === "complete" && (readGap || pendingCoverageDowngrades.has(parsed.run_id))) {
+        const missedReads = readGap || pendingCoverageDowngrades.has(parsed.run_id) || pendingCandidateGaps.has(abs(specRel));
+        if (parsed.derived.skill_read_coverage === "complete" && missedReads) {
           parsed.derived.skill_read_coverage = "partial";
         }
         if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
@@ -515,6 +522,7 @@
       readCalls.clear();
       liveReadEntry = false;
       readGap = false;
+      replayGapScoped = false;
       lastPlanTasks = undefined;
       pendingTest.clear();
       buffer = [];
@@ -543,7 +551,7 @@
       if (!snap) {
         phases = details.phases;
         if (action === "reset") clearRunState();
-        if (entered) readGap = true;
+        if (entered) noteReadGap();
         return;
       }
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
@@ -610,12 +618,13 @@
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
-      readGap = gauntletEntered && (!snap || (sameSession && lostPending));
-      if (!canBind()) return;
-      const candidate = replay.planCheckSpec ?? replay.lastSpecWrite;
+      const candidate = canBind() ? replay.planCheckSpec ?? replay.lastSpecWrite : undefined;
+      readGap = gauntletEntered && ((!snap && !candidate) || (sameSession && lostPending));
       if (!candidate) return;
       const { cwd } = ctx;
       if (!snap) {
+        pendingCandidateGaps.add(resolve(cwd, candidate));
+        replayGapScoped = true;
         deferredBindings.push(s => bindCandidate(cwd, candidate, s));
         return;
       }
