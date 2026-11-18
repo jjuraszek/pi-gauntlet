@@ -1,5 +1,6 @@
 import './gatekeep-bypass-pick.test.mjs';
 import './gatekeep-post-selection.test.mjs';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { parseIntent } from '../eval/lib/intent.mjs';
@@ -76,7 +77,7 @@ for (const target of ['gatekeep-pr', 'gatekeep-pr-scope', 'gatekeep-pr-merge-sta
       const input = read(`../eval/${target}/samples/${sample}/case.md`);
       assert.doesNotMatch(input, /"(?:fix|merge_base|scope_at_grant|granted_by)"\s*:|consent\.(?:fix|merge_base|scope_at_grant)/);
     }
-    if (target === 'gatekeep-pr') for (const sample of ['per-ref-settlement', 'reviewer-row-reopen', 'loop-worker', 'nit-batch-row']) {
+    if (target === 'gatekeep-pr') for (const sample of ['per-ref-settlement', 'reviewer-row-reopen', 'loop-worker', 'nit-batch-row', 'no-arg-discovery-note']) {
       read(`../eval/${target}/samples/${sample}/case.md`);
       read(`../eval/${target}/replay.md`);
       const saved = JSON.parse(read(`../eval/${target}/results/${sample}/candidate.json`));
@@ -128,8 +129,31 @@ for (const [name, text, patterns] of [
     /Not for direct dispatch/, /In `report`/, /execute/, /implementer/,
     /supplied record and report paths/, /never re-initialize/i,
   ]],
+  ['discovery continues without a reply', brief, [
+    /print the list as its own intermediate message before acting on the outcome table/i,
+    /no first-line marker and await nothing: no question or selection/,
+  ]],
+  ['GitHub links in list entries', brief, [
+    /\[#<number>\]\(<url>\)/, /link its number to its own `url`/,
+    /\[#<N>\]\(https:\/\/github\.com\/<origin owner\/repo>\/issues\/<N>\)/,
+  ]],
+  ['Linear links in list entries', brief, [
+    /own row's `linearRefs` with that entry's key: `\[<ID>\]\(https:\/\/linear\.app\/<key>\/issue\/<ID>\)/,
+    /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
+    /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
+  ]],
+  ['typed list after the single gather', section(brief, '### Gather fixed commands\n', '## Section B'), [
+    /`PR to gate:`/, /\bonce per invocation\b/,
+  ]],
+  ['typed list after the set gather', batch, [
+    /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
+    /\.linearRefs = \[\(\.title \+ " " \+ \(\.body \/\/ ""\)\)/, /\.body \|= \(\. \/\/ ""\)\[0:300\]/,
+    /`PRs to gate:`/, /in typed order/, /print no `discovered, smallest first:` line/i,
+  ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
+    /For a typed set, print only the one-line error/,
+    /After successful admission of a discovered set, print that plain-number line once/,
     /positional issue/, /duplicate identities/, /origin/, /Claude Code/,
     /print exactly: `multi-PR mode requires pi's nested dispatch`/,
     /parallel\.maxTasks/, /default `8`/, /never chunk/i,
@@ -181,14 +205,74 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const discovery = section(brief, '### Argument-resolution discovery\n', '### Gather fixed commands\n');
   for (const pattern of [
     /git remote get-url origin/, /gh api user --jq \.login/,
-    /gh pr list -R <owner\/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
-    /gh pr list -R <owner\/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
+  const discoveryLines = discovery.split('\n');
+  const projection = [
+    `projection='map(if (.isDraft == true or .reviewDecision == "APPROVED" or .reviewDecision == "CHANGES_REQUESTED") then {number,isDraft,reviewDecision,additions,deletions}`,
+    String.raw`else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]`,
+    `| .body |= (. // "")[0:300]) end)'`,
+  ].join(' ');
+  assert.ok(discoveryLines.includes(projection), 'Discovery projection must extract linearRefs before trimming body');
+  const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection"';
+  const block = section(discovery, '```bash\n', '\n```').replaceAll('<owner/repo>', 'acme/widgets');
+  const gh = `gh() {
+    case "$5 $6" in
+      '--author @me') echo '[{"number":7}]'; echo 'gh: author search failed' >&2; return 1 ;;
+      '--search review-requested:@me') echo '[]' ;;
+      *) return 2 ;;
+    esac
+  }`;
+  for (const [query, status, stdout, stderr] of [
+    ['--author @me', 1, '', 'gh: author search failed\n'],
+    ["--search 'review-requested:@me'", 0, '[]\n', ''],
+  ]) {
+    const result = spawnSync('bash', ['-c', `${gh}\n${block.replace('<query>', query)}`], { encoding: 'utf8' });
+    assert.equal(result.status, status, query);
+    assert.equal(result.stdout, stdout, query);
+    assert.equal(result.stderr, stderr, query);
+    assert.ok(discovery.includes('`' + query + '`'));
+  }
+  assert.ok(block.includes(`gh pr list -R acme/widgets <query> ${listArgs}`));
+  assert.match(discovery, /two separate shell calls/);
+  assert.match(discovery, /discovery failed: <first gh error line>/);
+  assert.match(discovery, /For zero matches or a discovery failure print no list/);
+  for (const text of [
+    'Open PRs to gate, smallest first:',
+    '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
+    'at most 12 words', 'first 300 characters', 'no ticket',
+    'review-requested query', 'gh api user/teams --paginate',
+  ]) assert.ok(discovery.includes(text), `Missing discovery list format: ${text}`);
+  assert.doesNotMatch(brief, /user-review-requested|direct-request/);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
+});
+
+test('PR gathers pass the admitted URL or bare number to gh unchanged', () => {
+  const origin = 'acme/widgets';
+  const single = brief.match(/^\| 1 \| [^\n]*?`(https:[^`]+)`/m)[1]
+    .replace('<owner/repo>', origin).replace('<N>', '101');
+  const url = n => `https://github.com/${origin}/pull/${n}`;
+  assert.equal(single, url(101));
+  assert.match(brief, /^\| 2\+ pi \| [^\n]*sorted origin URL tokens/m);
+  const gather = section(brief, '### Gather fixed commands\n', '## Section B');
+  const admit = section(batch, '## Admit before effects\n', '## Provision serially\n');
+  for (const [command, tokens] of [
+    [gather.match(/^gh pr view .+$/m)[0], [single, '101']],
+    [gather.match(/^gh pr diff .+$/m)[0], [single, '101']],
+    [admit.match(/^gh pr view .+$/m)[0], [url(112), url(97), '112']],
+  ]) {
+    for (const pr_token of tokens) {
+      const invocation = command.replace('<N>', pr_token.split('/').at(-1));
+      const args = execFileSync('bash', ['-c', `gh() { printf '%s\\n' "$@"; }\n${invocation}`],
+        { env: { GH_REPO: 'other/project', pr_token }, encoding: 'utf8' }).trimEnd().split('\n');
+      assert.equal(args[2], pr_token);
+      assert.ok(!args.some(arg => arg === '-R' || arg.startsWith('--repo')));
+    }
+  }
+  assert.match(batch, /gathered `url` as the child's PR token/);
 });
 
 for (const [sample, ids] of [
@@ -415,8 +499,13 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Keep other requested users and teams in API order: exclude the viewer by case-insensitive User login comparison/);
   assert.match(report, /exclude nobody when that login is unreadable/);
   assert.match(report, /render Users by login and Teams by slug, and use `unknown` for a missing login or slug/);
-  assert.match(brief, /viewer: \{ login, is_author, role \}/);
+  assert.match(brief, /viewer: \{ login, is_author, role, teams \}/);
   assert.match(brief, /else author when is_author; else requested reviewer/);
+  assert.match(brief, /else requested team when a pending Team entry's slug equals a viewer\.teams entry case-insensitively/);
+  assert.match(section(brief, '### Gather fixed commands', '## Section B'), /gh api user\/teams --paginate --jq '\.\[\] \| \.organization\.login \+ "\/" \+ \.slug'/);
+  assert.match(brief, /else team unreadable when viewer\.teams is unreadable and a pending Team entry exists; else none/);
+  assert.match(report, /`requested team`, `team unreadable`/);
+  assert.doesNotMatch(report, /the author, a requested reviewer, neither, or unreadable/);
   assert.match(brief, /Pending reviewRequests only, never reviews history/);
   assert.match(report, /Name a running required check or unchanged obstacle, not readiness\./);
   assert.match(report, /distinguish CI from local runs and never turn pending or missing evidence into a pass/);
@@ -928,8 +1017,10 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
   assert.doesNotMatch(gatekeeper, /In `assess`|retained grants|next-action\/fix-wave/);
 });
 
-const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap'].map((suffix) => `no-arg-discovery-${suffix}`);
-for (const sample of [...discoverySamples, 'role-line-requested']) {
+const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap', 'note'].map((suffix) => `no-arg-discovery-${suffix}`);
+const roleFacts = { 'role-line-requested': ['r1', 'r2', 'r3', 'r4'], 'role-line-team': ['t1', 't2', 't3', 't4'] };
+const typedFacts = ['e1', 'e2', 'e3'];
+for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-list-note']) {
   test(`discovery and role replay structure: ${sample}`, () => {
     const root = `../eval/gatekeep-pr/samples/${sample}`;
     const input = readOrEmpty(`${root}/case.md`);
@@ -937,11 +1028,70 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
     assert.match(input, /## Arguments\n/);
     const config = JSON.parse(read('../eval/gatekeep-pr/target.json'));
     const { bundle } = parseCase(input);
-    const wanted = sample === 'role-line-requested' ? [] : ['skills/gatekeep-pr/reference/batch.md', ...(sample.endsWith('under-cap') ? ['agents/pr-gatekeeper.md'] : [])];
+    const wanted = roleFacts[sample] ? [] : ['skills/gatekeep-pr/reference/batch.md', ...(sample.endsWith('under-cap') ? ['agents/pr-gatekeeper.md'] : [])];
     assert.deepEqual(bundle, wanted);
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
-    assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : ['f1']);
+    const replayFacts = sample === 'typed-list-note' ? typedFacts : roleFacts[sample];
+    assert.deepEqual(facts.facts.map((fact) => fact.id), replayFacts ?? (sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']));
+    if (sample === 'typed-list-note') assert.match(read('../eval/gatekeep-pr/replay.md'), /start with typed PR tokens/);
+    if (replayFacts) {
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model] of replies) {
+        assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
+        for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
+      }
+    }
+    if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap'].includes(sample)) {
+      assert.ok(input.includes('Review-requested query rows:') && input.includes('gh api user/teams'));
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        if (sample.endsWith('under-cap')) {
+          assert.match(output.text, /\[#97\]\(https:\/\/github\.com\/acme\/widgets\/pull\/97\) \+2 -2, by robin, review requested, no ticket - /);
+        } else {
+          assert.doesNotMatch(output.text, /^Open PRs? to gate[:,]/m);
+        }
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
+    if (sample === 'no-arg-discovery-single') {
+      const heading = 'Open PR to gate:';
+      assert.ok(brief.includes(heading));
+      const expected = read(`${root}/expected.md`);
+      assert.ok(expected.includes(heading), 'f1 must require the singular list heading');
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        assert.ok(output.text.includes(heading));
+        assert.equal(saved.judge[model].factsSha, sha256(expected));
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
+    if (['no-arg-discovery-over-cap', 'no-arg-discovery-cc-multi'].includes(sample)) {
+      const cap = sample.endsWith('over-cap');
+      const rule = cap ? section(batch, 'For `source: discovered`,', 'After successful admission') : section(brief, '| 2+ Claude Code |', ' |\n');
+      const link = `(${cap ? '../../' : '../'}brainstorming/reference/menu-layout.md#first-line-rule)`;
+      assert.ok(rule.includes(`${link} for \`stuck\``));
+      assert.ok(rule.includes(cap ? 'cap or harness rejection text' : "multi-PR mode requires pi's nested dispatch"));
+      assert.match(rule, /separate.*end with exactly one `discovered, smallest first: <numbers comma-separated>` line/);
+      const expected = read(`${root}/expected.md`);
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model, output] of replies) {
+        const [list, stop] = output.text.trim().split(/\n\s*---\s*\n/).slice(-2);
+        assert.match(list, /^Open PRs to gate, smallest first:/);
+        assert.match(stop, /^gauntlet: stuck .+\n/);
+        assert.match(stop, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
+        assert.equal(saved.judge[model].factsSha, sha256(expected));
+        assert.equal(saved.judge[model].facts.f1.after, 'holds');
+      }
+    }
     assert.match(read('../eval/gatekeep-pr/replay.md'), /argument resolution with no PR token/);
   });
 }

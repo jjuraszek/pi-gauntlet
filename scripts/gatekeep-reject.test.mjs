@@ -237,7 +237,7 @@ test('approach-none-unchanged: no-conflict reports and menus match the pre-featu
   const baseline = JSON.parse(read(`${root}results/${sample}/baseline.json`));
   const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
   assert.match(candidate.skillSha, /^[a-f0-9]{64}$/);
-  assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
+  assert.equal(candidate.inputSha, inputSha(read(`${root}replay-before-typed-list.md`), text, bundle));
   assert.equal(baseline.inputSha, candidate.inputSha);
   assert.deepEqual(Object.keys(candidate.outputs), candidate.models.replay);
   assert.equal(candidate.models.replay.length, 2);
@@ -261,14 +261,17 @@ test('approach-none-unchanged: no-conflict reports and menus match the pre-featu
   }
 });
 
-for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick', 'reject-menu-note-preview', 'reject-back', 'reject-step-failures', 'batch-reject-queue', 'approach-blocker-other-row']) {
-  test(`${sample}: saved sample-scoped replies satisfy every approach fact`, () => {
+for (const sample of ['approach-conflict-report', 'approach-local-instance', 'reject-row-first-menu', 'reject-not-after-pick', 'reject-menu-note-preview', 'reject-back', 'reject-step-failures', 'batch-reject-queue', 'approach-blocker-other-row', 'typed-list-note']) {
+  test(`${sample}: saved replies match the replay input and satisfy every fact`, () => {
     const root = `../eval/gatekeep-pr/`;
     const expectedText = read(`${root}samples/${sample}/expected.md`);
     const { facts } = parseExpected(expectedText);
     const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
+    const baseline = JSON.parse(read(`${root}results/${sample}/baseline.json`));
     const { text, bundle } = parseCase(read(`${root}samples/${sample}/case.md`));
-    assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
+    const prompt = sample === 'typed-list-note' ? 'replay.md' : 'replay-before-typed-list.md';
+    assert.equal(candidate.inputSha, inputSha(read(`${root}${prompt}`), text, bundle));
+    assert.equal(baseline.inputSha, candidate.inputSha);
     assert.match(candidate.skillSha, /^[a-f0-9]{64}$/);
     assert.equal(Object.keys(candidate.outputs).length, 2);
     if (sample === 'reject-row-first-menu') {
@@ -284,6 +287,7 @@ for (const sample of ['approach-conflict-report', 'approach-local-instance', 're
       assert.equal(output.status, 'ok', model);
       const judgment = candidate.judge[model];
       assert.equal(judgment.factsSha, sha256(expectedText), model);
+      assert.equal(judgment.baselineOutputSha, sha256(baseline.outputs[model].text), model);
       assert.equal(judgment.candidateOutputSha, sha256(output.text), model);
       for (const fact of facts) {
         assert.equal(judgment.facts[fact.id]?.after, 'holds', `${sample}/${model}/${fact.id}`);

@@ -12,12 +12,15 @@ for (const sample of ['overrule-approach', 'overrule-stuck-blocker', 'stuck-bloc
     const expected = read(`${root}samples/${sample}/expected.md`);
     const { text, bundle } = parseCase(read(`${root}samples/${sample}/case.md`));
     const candidate = JSON.parse(read(`${root}results/${sample}/candidate.json`));
+    const baseline = JSON.parse(read(`${root}results/${sample}/baseline.json`));
     assert.match(candidate.skillSha, /^[a-f0-9]{64}$/);
-    assert.equal(candidate.inputSha, inputSha(read(`${root}replay.md`), text, bundle));
+    assert.equal(candidate.inputSha, inputSha(read(`${root}replay-before-typed-list.md`), text, bundle));
+    assert.equal(baseline.inputSha, candidate.inputSha);
     assert.equal(Object.keys(candidate.outputs).length, 2);
     for (const [model, output] of Object.entries(candidate.outputs)) {
       assert.equal(output.status, 'ok', model);
       assert.equal(candidate.judge[model].factsSha, sha256(expected));
+      assert.equal(candidate.judge[model].baselineOutputSha, sha256(baseline.outputs[model].text));
       assert.equal(candidate.judge[model].candidateOutputSha, sha256(output.text));
       for (const fact of parseExpected(expected).facts) assert.equal(candidate.judge[model].facts[fact.id]?.after, 'holds', `${model}/${fact.id}`);
     }

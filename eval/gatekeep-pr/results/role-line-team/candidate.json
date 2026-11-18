@@ -1,0 +1,100 @@
+{
+  "sample": "role-line-team",
+  "arm": "candidate",
+  "skillSha": "c20ffaec58219557af891041567019331bc769235a7b3412f0c1a7169cced507",
+  "inputSha": "cb7f949368fafb4e249a82d890f5adc66ac8c08ebcf4c327fdae71d85984df88",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**A**\n\nThis PR makes the app refuse to create a widget whose name is empty. That check covers everything the PR set out to do and nothing is deferred; you are a requested reviewer through your team acme/reviewers, which is asked to review, and robin is also requested.\n\n**B**\n\nThis PR makes the app refuse to create a widget whose name is empty. That check covers everything the PR set out to do and nothing is deferred; your team memberships could not be read, and the teams acme/reviewers and acme/platform are asked to review.\n\n**C**\n\nThis PR makes the app refuse to create a widget whose name is empty. That check covers everything the PR set out to do and nothing is deferred; you are a requested reviewer and your team acme/reviewers is asked to review, and robin is also requested.\n\n**D**\n\nThis PR makes the app refuse to create a widget whose name is empty. That check covers everything the PR set out to do and nothing is deferred; you are a requested reviewer through your team acme/reviewers, which is asked to review, and robin is also requested.\n\n**E**\n\nThis PR makes the app refuse to create a widget whose name is empty, and you are its author. That check covers everything the PR set out to do and nothing is deferred; your teams acme/platform and acme/reviewers are asked to review, and robin is also requested.\n",
+      "words": 237,
+      "wallMs": 11705,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\nThis PR rejects empty widget names. It covers the PR's stated scope with nothing deferred; you are on a requested team, your team acme/reviewers is asked to review, and robin is also requested.\n\n### B\nThis PR rejects empty widget names. It covers the PR's stated scope with nothing deferred; your team memberships could not be read, and the requested teams are acme/reviewers and acme/platform.\n\n### C\nThis PR rejects empty widget names. It covers the PR's stated scope with nothing deferred; you are a requested reviewer, your team acme/reviewers is asked to review, and robin is also requested.\n\n### D\nThis PR rejects empty widget names. It covers the PR's stated scope with nothing deferred; you are on a requested team, your team acme/reviewers is asked to review, and robin is also requested.\n\n### E\nThis PR rejects empty widget names. It covers the PR's stated scope with nothing deferred; you are the author, your teams acme/platform and acme/reviewers are asked to review, and robin is also requested.\n",
+      "words": 166,
+      "wallMs": 15028,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c6c424aa24d4eab3733ec68705733d878af1d9b5672f9b56cdd53aeffcc00a62",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "21ac876359ff8b7016e75651fa56d583a2c969e21ecadb4b5eec120210d2518d",
+      "baselineOutputSha": "73b3905f25a798e07c4563377a08030dfebfa2d95f32d6f17e7a12b7635df90d",
+      "candidateOutputSha": "7c897ac8f4d2aca31ae0a622b1ba4c15636a5032f2e1c341001b96d1ccd89b28",
+      "facts": {
+        "t1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All four facts moved from fails to holds, and none that Before kept was lost. Before never tied acme/reviewers or acme/platform to the viewer (A and D even said \"neither the author nor a requested reviewer\"), B did not mention the failed memberships read, and E listed the teams as plain requested reviewers. After fixes each: \"your team acme/reviewers, which is asked to review\" in A/D, \"your teams acme/platform and acme/reviewers are asked to review\" alongside authorship in E, \"your team memberships could not be read\" with both teams named in API order and unclaimed in B, and in C the direct request plus the team stated once with robin as the only other requester. Every opening stays one paragraph of two sentences with the change described first, and no team is repeated among the other requests. One thing to watch: A and D say \"you are a requested reviewer through your team\", which reads close to C's direct-request wording; if you want direct and team-only requests to stay clearly distinct, consider \"your team acme/reviewers is asked to review, and robin is also requested\" for A/D, matching E's phrasing, and reserving \"you are a requested reviewer\" for the direct case in C. Keep the B wording as is, since it names the teams without guessing membership.",
+      "wallMs": 6546,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c6c424aa24d4eab3733ec68705733d878af1d9b5672f9b56cdd53aeffcc00a62",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "21ac876359ff8b7016e75651fa56d583a2c969e21ecadb4b5eec120210d2518d",
+      "baselineOutputSha": "32c430fc7e1e676dc5888ad904800fa2b8a8ef2ab553ae9cbcd4d5535a37cf09",
+      "candidateOutputSha": "ba4e3148a3c7188d18cb4b58d7af36d7e245f6ea01cf0a40a3b3ee06a44aff88",
+      "facts": {
+        "t1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "t4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All four facts move from fails to holds, and Before held none, so nothing was lost. Before listed acme/reviewers as a generic requested party and told the viewer they were 'neither the author nor a requested reviewer' in A and D, never identified the viewer's teams in C or E, and said nothing about the failed membership read in B. After keeps the two-sentence, change-first opening and adds the 'your team(s) ... asked to review' clause in API order, pulls the viewer's teams out of the 'also requested' list so nothing is repeated, keeps authorship (E) and the direct request (C) alongside the team clause, and in B states the memberships could not be read while naming both teams neutrally. One optional tightening: in A and D 'you are on a requested team, your team acme/reviewers is asked to review' says the same thing twice; a single clause such as 'your team acme/reviewers is asked to review, and robin is also requested' would keep every fact while reading more cleanly. Keep the B wording free of any 'your team' phrasing and keep the viewer's teams out of the others list, since those are the parts the facts depend on.",
+      "wallMs": 5817,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5e8a756fa44d7db1ccb378bb15bc2ead637dc634"
+}

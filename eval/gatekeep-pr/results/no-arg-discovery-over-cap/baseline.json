@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-over-cap",
   "arm": "baseline",
-  "skillSha": "96deee1e36feeba82ae56e119f44366ea42aae43f7473a65b33c909c2a7e1398",
-  "inputSha": "cd9cf6175c6696c99e474edad788c3d870bc8c1a14575323cb2441d249a70d37",
+  "skillSha": "bc1f55e27c1056d4957d30493f0487cf16868b2e8d2ebc90bc355c805efc5d80",
+  "inputSha": "64c47d8aa1aed91315627128b19e66c3d29d5877f7400fcbdcdd5607a28fdb99",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -11,24 +11,24 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\n\n**Argument resolution (no PR token): discovery per verification-brief.md Section A**\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I strip `.git` and lowercase the result, giving the origin repository `acme/widgets`, which is a GitHub repository.\n2. `gh api user --jq .login` returns `alex`, so `viewer.login` is `alex`.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0. It returns a valid array of 6 object rows, each with an integer `number`. 6 is below the limit of 1000, so the result is complete.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exits 0. It returns a valid array of 4 object rows, each with an integer `number`. 4 is below the limit, so the result is complete.\n5. **Union, dedupe, and filter.**\n   - #101 appears in both results; I keep it once.\n   - #200 is excluded because it is a draft.\n   - #201 is excluded because its decision is `APPROVED`.\n   - #202 is excluded because its decision is `CHANGES_REQUESTED`.\n   - #112 has a `null` decision and #97 has an `\"\"` decision. Neither is exactly `APPROVED` or `CHANGES_REQUESTED`, so both stay.\n   - The current branch's PR 999 is never consulted.\n6. **Sort by additions + deletions, then by number.** The order is:\n   - 101 (2)\n   - 97 (4)\n   - 112 (6)\n   - 88 (8)\n   - 130 (8)\n   - 104 (10)\n7. **Outcome.** There are 6 matches and the harness is pi. I re-enter set routing with the origin URL tokens `https://github.com/acme/widgets/pull/<N>` in that order, marked `source: discovered`.\n\n**Set routing: batch.md admission (before any fetch, confirmation, provisioning, or dispatch)**\n\n- The tokens carry no positional issue reference and no duplicates. All of them come from origin `acme/widgets`, and the harness is pi.\n- The cap is the pi-cohort `parallel.maxTasks`, which is 4. The set holds 6 PRs. The set is never chunked or trimmed, so admission rejects it.\n\nNothing else runs: no continuation record is minted, no plan_tracker stages are initialized, no worktree is provisioned, and no helper is dispatched. No SHA is verified or assessed. No sync line, verdict line, or menu renders.\n\nRejection output:\n\n```text\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n```\n",
-      "words": 373,
-      "wallMs": 13635,
+      "text": "**Narration**\n\n1. With no PR token, discovery runs during argument resolution, before set routing, the continuation record, tracker initialization, or provisioning.\n2. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. With `.git` stripped and the name lowercased, the repository is `acme/widgets`.\n3. `gh api user --jq .login` returns `alex`, which becomes `viewer.login`.\n4. Two discovery queries run, and both exit 0 with valid arrays. Neither reaches the 1000-row limit.\n   - `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n5. Filtering:\n   - The union, deduplicated, is 104, 88, 101, 130, 200, 201, 112, 97, 202. PR 101 appears in both queries.\n   - 200 is excluded because it is a draft.\n   - 201 is excluded because it is `APPROVED`.\n   - 202 is excluded because it is `CHANGES_REQUESTED`.\n   - The null and empty review decisions on 112 and 97 stay in.\n   - No team-requests query runs, and the current branch's PR 999 is never used.\n6. The remaining PRs, sorted by additions plus deletions and then by number:\n\n   | PR | Size |\n   |---|---|\n   | 101 | 2 |\n   | 97 | 4 |\n   | 112 | 6 |\n   | 88 | 8 |\n   | 130 | 8 |\n   | 104 | 10 |\n\n7. Six matches on pi send the run back to set routing. The roster is six origin URL tokens, `https://github.com/acme/widgets/pull/<N>`, marked `source: discovered`.\n8. Admission reads pi-cohort `parallel.maxTasks`, which is 4. Six PRs is over that limit, so the set is rejected before any effect.\n   - No fetch, confirmation, run folder, tracker init, provisioning, or dispatch happens.\n   - The set is not split into chunks or trimmed.\n   - No SHA is verified or assessed, and no report or menu is rendered.\n\n---\n\ngauntlet: stuck discovered set exceeds the multi-PR limit\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 294,
+      "wallMs": 13638,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Run `git remote get-url origin`. Normalize `git@github.com:acme/widgets.git` to `acme/widgets`.\n2. Run `gh api user --jq .login`. Record viewer login `alex`.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`.\n5. Validate both outputs, union the rows, and deduplicate PR 101. Exclude draft PR 200, approved PR 201, and changes-requested PR 202. Retain the null and empty review decisions.\n6. Sort by additions plus deletions, then PR number: `101, 97, 112, 88, 130, 104`. The unrelated current-branch PR 999 is not consulted.\n7. Re-enter set routing with the six sorted origin URL tokens and `source: discovered`. Reject the roster because six exceeds pi-cohort's `parallel.maxTasks` of four.\n\nNo tracker is initialized, no continuation record is minted, and no fetch, provisioning, or helper dispatch runs. No SHA is assessed, and no report, sync line, verdict line, or menu renders.\n\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
-      "words": 178,
-      "wallMs": 6282,
+      "text": "gauntlet: stuck multi-PR set exceeds configured limit\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 27,
+      "wallMs": 6624,
       "mechanical": {}
     }
   },
-  "repoSha": "8d7cbf2391bf4939daf0493265884398314f00d1"
+  "repoSha": "4b90033454a8ab4fd3c3c0f703c265bbb3ae2a7f"
 }

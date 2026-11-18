@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-zero",
   "arm": "baseline",
-  "skillSha": "96deee1e36feeba82ae56e119f44366ea42aae43f7473a65b33c909c2a7e1398",
-  "inputSha": "2ddd1aa87f6d567a964c496ece31be5a3bb1e84fc0e1420edcfcc21870134a73",
+  "skillSha": "bc1f55e27c1056d4957d30493f0487cf16868b2e8d2ebc90bc355c805efc5d80",
+  "inputSha": "9cfa38ea0831857addbcec876e94ffe9aaf928720682cb89d2e4af2e8b32c341",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -11,24 +11,24 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck no open PRs authored by @me or awaiting @me's review in acme/widgets\n\n**Argument resolution, no PR token (verification-brief.md Section A, argument-resolution discovery)**\n\nThis runs before the set-vs-single branch, the continuation record, tracker init, and provisioning. No `mktemp` state record is minted and no `plan_tracker` stages are initialized.\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. Stripping `.git` and lowercasing gives the GitHub repository `acme/widgets`, so origin is readable and on GitHub.\n\n2. `gh api user --jq .login` exits 1 (`HTTP 403: Forbidden`). `viewer.login` is recorded as `unreadable`, and discovery continues with `@me`.\n\n3. The author query runs and exits 0:\n   `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   It returns `[]`.\n\n4. The direct review-request query runs and exits 0:\n   `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   It returns `[]`.\n\n5. Both results pass validation:\n   - Each exit is 0 and each output is an array.\n   - Neither has malformed rows.\n   - Each count is 0, below the limit of 1000.\n\n6. The union is empty, so there is nothing to dedupe, filter, or sort. That leaves 0 matches.\n\n7. With 0 matches, discovery stops with the one-line rejection. `@me` stands in for the unreadable login:\n\n   `no open PRs authored by @me or awaiting @me's review in acme/widgets`\n\n   Discovery never falls back to the current branch, so unrelated PR 999 is not gated. The Claude Code multi-PR rejection does not apply because the roster is empty.\n\n**What did not happen**\n- No helper was dispatched and no worktree was provisioned.\n- No tracker stages were initialized.\n- Nothing was verified or assessed, so there is no SHA for either.\n- No `Sync:` line renders, because `--rebase` was not passed.\n- No `Verdict:` line renders and no menu renders, because the run ends at discovery rejection.\n",
-      "words": 297,
-      "wallMs": 12272,
+      "text": "gauntlet: stuck no open PRs authored by @me or awaiting @me's review in acme/widgets\n\nNo PR token was given, so I resolved the arguments through discovery. This happened before the set-vs-single branch, the run folder, tracker init, and provisioning.\n\n1. `git remote get-url origin` returned `git@github.com:acme/widgets.git`. I stripped `.git` and lowercased it to `acme/widgets`, so origin is a readable GitHub repository.\n2. `gh api user --jq .login` exited 1 with `HTTP 403: Forbidden`. I recorded `viewer.login` as `unreadable` and continued with `@me`. The procedure does not call `gh api user/teams`, so I did not run it.\n3. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exited 0 and returned `[]`.\n4. `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions` exited 0 and returned `[]`.\n5. Validation passed for both queries:\n   - Each exited 0 and returned an array.\n   - Neither had malformed rows.\n   - Neither reached the 1000-row limit.\n6. The union of both lists is empty, and filtering and sorting left 0 matches.\n7. The zero-match row stops discovery. I did not fall back to the current branch, so its unrelated PR 999 is not gated.\n\nI dispatched no helpers, created no run folder, initialized no tracker stages, and assessed no commit.\n\nThere are no open PRs authored by @me or awaiting @me's review in acme/widgets. Your GitHub login could not be read, so this message uses @me in its place.\n",
+      "words": 237,
+      "wallMs": 11285,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize origin to `acme/widgets`.\n2. Run `gh api user --jq .login`. It fails with `HTTP 403: Forbidden`; record `viewer.login: unreadable` and use `@me` for discovery.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns `[]`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It returns `[]`.\n5. Validate both arrays, union and deduplicate them, and obtain zero matches. Do not fall back to the current branch's PR 999.\n\nStop at discovery rejection. No continuation record is minted, no tracker stages are initialized, no provisioning runs, and no helpers are dispatched. No SHA is assessed, and no Sync line, verdict, or menu renders.\n\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n",
-      "words": 136,
-      "wallMs": 5565,
+      "text": "gauntlet: stuck no matching open PRs\n1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository to `acme/widgets`.\n2. Run `gh api user --jq .login`. It fails with `HTTP 403: Forbidden`; record the viewer identity as unreadable and continue discovery using `@me`.\n3. Run `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It succeeds with `[]`.\n4. Run `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`. It succeeds with `[]`.\n\nBoth results are valid, complete arrays. Their union is empty. Do not query teams or fall back to the current branch's PR 999. No continuation record, tracker, provisioning, helper, verification, report, or menu is started; no SHA is assessed.\n\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n",
+      "words": 131,
+      "wallMs": 9055,
       "mechanical": {}
     }
   },
-  "repoSha": "8d7cbf2391bf4939daf0493265884398314f00d1"
+  "repoSha": "d11b167e0794c7719970711068a21e85be97d17f"
 }

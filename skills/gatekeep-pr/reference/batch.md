@@ -4,15 +4,21 @@ Use this contract only for two or more PR tokens. Keep the single-PR path and it
 
 ## Admit before effects
 
-Reject with a one-line error before any fetch, confirmation, provisioning, or dispatch: positional issue references, duplicate identities (normalize number and URL to the same repository/number), URLs from different repositories or not matching origin, an oversized set, and Claude Code. For Claude Code print exactly: `multi-PR mode requires pi's nested dispatch`. Resolve each issue from its PR, never from a positional issue argument.
+Reject before any fetch, confirmation, provisioning, or dispatch: positional issue references, duplicate identities (normalize number and URL to the same repository/number), URLs from different repositories or not matching origin, an oversized set, and Claude Code. For a typed set, print only the one-line error. For the Claude Code error text print exactly: `multi-PR mode requires pi's nested dispatch`. Resolve each issue from its PR, never from a positional issue argument.
 
-Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gauntlet_setting is not its source. Never chunk the set. For an oversized set print exactly:
+Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gauntlet_setting is not its source. Never chunk the set. Use this error text for an oversized set:
 
 `multi-PR mode takes at most <max> PRs (pi-cohort parallel.maxTasks); got <n>`
 
-For `source: discovered`, append exactly one `discovered, smallest first: <numbers comma-separated>` line after either cap or harness rejection, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. Print no discovered list for explicit sets. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
+For `source: discovered`, send the rejection separately from discovery's earlier list. Use the [first-line rule](../../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print the cap or harness rejection text and end with exactly one `discovered, smallest first: <numbers comma-separated>` line, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. After successful admission of a discovered set, print that plain-number line once, before minting the run folder. For a typed set print no `discovered, smallest first:` line. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
 
-After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Gather each PR with `gh pr view --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files`. Resolve trusted worktree configuration from the base merge-base, never from PR-controlled files.
+After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Use each admitted token (URL or bare number) unchanged as `pr_token` for its gather:
+
+```bash
+gh pr view "$pr_token" --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq '(.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]) | .body |= (. // "")[0:300]'
+```
+
+For a typed set read `gh api user --jq .login` and the Section A `gh api user/teams` command once each, recording `unreadable` on failure. Before provisioning, print `PRs to gate:` and one entry per successful gather in typed order, regardless of PR state. Use [List entries and Ticket display](../verification-brief.md#list-entries) unchanged. Send the list as its own message without a marker and continue without waiting. Leave failed gathers to their existing handling. For `source: discovered`, discovery already printed the list; print no second one. Resolve trusted worktree configuration from the base merge-base, never from PR-controlled files.
 
 ## Provision serially
 
@@ -22,7 +28,7 @@ Fetch origin once with `git fetch origin`; for each fork PR, run `git fetch orig
 
 Reuse assessment's provisioning table unchanged: reuse an expected branch at any path, fast-forward only, stop on dirt, divergence, local-only commits, or foreign operations; never repurpose a foreign branch at the default path. Resolve keyed home/create/destroy with `<name>` = `pr-<N>`, shell-quote tokens, check the created path in `git worktree list --porcelain`, and verify `HEAD == headRefOid`. A non-zero create marks that PR failed; never fall back to worktree add. Ask unresolved create tokens in the parent once per token, never execute unresolved placeholders. Isolate `failed - provisioning - <reason>` with no child; continue siblings. A provisioning retry re-provisions only after the obstacle clears.
 
-With rebase requested, read the viewer via `gh api user --jq .login`. After fetch exclude sync preconditions 4-5 from confirmation: heads already containing origin/base and heads containing merge commits. Compare `git merge-base --is-ancestor origin/<base> <headRefOid>` and `git rev-list --merges origin/<base>..<headRefOid>`. List only remaining other-author or unreadable-author PRs. Explain once that replay changes SHAs and committer identity, can outdate anchored comments, and can dismiss approvals; ask yes once for the set. No eligible PR means no question. Supply each task `rebase confirmation: yes | no | not asked`. Keep sync's own safety fetch and baseline checks; skip duplicate provisioning only.
+With rebase requested, reuse the viewer login read for the list (including `unreadable`). After fetch exclude sync preconditions 4-5 from confirmation: heads already containing origin/base and heads containing merge commits. Compare `git merge-base --is-ancestor origin/<base> <headRefOid>` and `git rev-list --merges origin/<base>..<headRefOid>`. List only remaining other-author or unreadable-author PRs. Explain once that replay changes SHAs and committer identity, can outdate anchored comments, and can dismiss approvals; ask yes once for the set. No eligible PR means no question. Supply each task `rebase confirmation: yes | no | not asked`. Keep sync's own safety fetch and baseline checks; skip duplicate provisioning only.
 
 ## Private handoff
 
@@ -34,7 +40,7 @@ Initialize each existing-format continuation record once: `consent.target` (lowe
 
 Dispatch one foreground fresh `subagent` tasks batch, one `pr-gatekeeper` task per provisioned PR. Use `async: false`, `context: "fresh"`, each PR's worktree as cwd, and `skill: "gatekeep-pr"` for explicit injection. Use per-task `acceptance: { level: "none", reason: "the gatekeep child result line is the handoff contract" }`; the persona's completionGuard pin is separate. Let cohort concurrency bound running tasks, not alter membership.
 
-Supply mode `report` or `execute`, PR identity, rebase flag/base, confirmation, optional answer, record/report paths, queued pick for execute, and this statement:
+Supply mode `report` or `execute`, the gathered `url` as the child's PR token, rebase flag/base, confirmation, optional answer, record/report paths, queued pick for execute, and this statement:
 
 `worktree provisioned at <path> on <headRefOid>; fetch and gitignore done - skip the fetch, run no worktree add, verify HEAD`
 
