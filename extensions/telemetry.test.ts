@@ -898,6 +898,7 @@
       await t.test(route, async () => {
         const original = await boundInBrainstorm();
         const other = await boundInBrainstorm();
+        await other.emit("session_shutdown", {});
         const runId = original.readRecord().run_id;
         const before = readFileSync(original.recordPath());
         const h = harness({ branch: route === "replay" ? replay : [] });
@@ -966,6 +967,7 @@
         await original.phaseResult("reset", P());
         await original.phaseResult("start", P({ brainstorm: "in_progress" }));
         await original.writeSpec(b);
+        await original.emit("session_shutdown", {});
         const before = readFileSync(original.recordPath(b), "utf8");
         const h = harness({ enabled: false, sessionId: "s2" });
         h.ctx.cwd = original.root;
@@ -1041,9 +1043,9 @@
         await h.phaseResult("reset", P());
         await h.phaseResult("start", P({ brainstorm: "in_progress" }));
         await h.writeSpec(b);
-        const before = readFileSync(h.recordPath(b));
         const check = (specPath: string) => h.emit("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath } });
         await check(a);
+        const before = readFileSync(h.recordPath(b));
         h.setEnabled(false);
         await check(b);
         const io = h.recorderIo();
@@ -1119,31 +1121,44 @@
   });
 
   test("a resumed run retains coverage and opaque paths; a legacy run stays unmeasured until its first observation", async () => {
-    for (const mode of ["measured", "legacy", "legacy-pending"]) {
+    for (const mode of ["measured", "disabled", "disabled-same-session", "legacy", "legacy-pending"]) {
       const h = await boundInBrainstorm();
       const file = "other/skills/reference.md";
       mkdirSync(join(h.root, "other/skills"), { recursive: true });
       writeFileSync(join(h.root, file), "reference");
-      if (mode === "measured") await h.read("first", file, "1");
+      const disabled = mode.startsWith("disabled");
+      if (mode === "measured" || mode === "disabled-same-session") await h.read("first", file, "1");
+      const before = readFileSync(h.recordPath());
+      const io = h.recorderIo();
+      if (disabled) {
+        h.setEnabled(false);
+        await h.read("missed", file, "ignored");
+      }
       await h.emit("session_shutdown", { type: "session_shutdown" });
+      if (disabled) {
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(h.recordPath()), before);
+      }
       const rec = h.readRecord();
-      if (mode !== "measured") {
+      assert.equal(rec.derived.skill_read_coverage, "complete");
+      if (mode.startsWith("legacy")) {
         delete rec.derived.skill_read_coverage;
         writeFileSync(h.recordPath(), serializeRecord(rec));
       }
-      const resumed = harness({ branch: [entry], sessionId: "s2" });
+      const resumed = harness({ branch: [entry], sessionId: mode === "disabled-same-session" ? "s1" : "s2" });
       resumed.ctx.cwd = h.root;
       await resumed.emit("session_start", { type: "session_start" });
       if (mode === "legacy-pending") await resumed.read("pending", file, "1");
       await resumed.writeSpec("doc/specs/a.md");
-      assert.equal(resumed.readRecord().derived.skill_read_coverage, mode === "measured" ? "complete" : mode === "legacy-pending" ? "partial" : undefined);
+      assert.equal(resumed.readRecord().run_id, rec.run_id);
+      assert.equal(resumed.readRecord().derived.skill_read_coverage, mode === "measured" ? "complete" : mode === "legacy" ? undefined : "partial");
       await resumed.read("next", file, "22");
       await resumed.emit("session_shutdown", { type: "session_shutdown" });
       const d = resumed.readRecord().derived;
       assert.equal(d.skill_read_coverage, mode === "measured" ? "complete" : "partial");
       const reads = d.phases.brainstorm!.skill_reads!;
       assert.match(reads[0].path, /^source:[a-f0-9]{64}:skills\/reference\.md$/);
-      assert.deepEqual(reads.map(r => [r.path, r.bytes]), (mode === "legacy" ? [2] : [1, 2]).map(n => [reads[0].path, n]));
+      assert.deepEqual(reads.map(r => [r.path, r.bytes]), (mode === "legacy" || mode === "disabled" ? [2] : [1, 2]).map(n => [reads[0].path, n]));
     }
   });
 

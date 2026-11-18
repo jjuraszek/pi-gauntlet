@@ -350,13 +350,17 @@
       deps.fs.rename(target + ".tmp", target);
     };
 
-    const writeRecord = () => {
+    const writeRecord = (endSessionBlock = false) => {
       if (!record || !recordRel || !ensureRecordWritable()) return;
       const target = recordRel;
       const capped = capEvents(record.events);
       if (capped.dropped) {
         record.events = capped.events;
         live().events_dropped += capped.dropped;
+      }
+      if (endSessionBlock && record.accumulators[sessionId]) {
+        record.accumulators.total = foldAccumulators(record.accumulators.total ?? emptyAccumulators(), record.accumulators[sessionId]);
+        delete record.accumulators[sessionId];
       }
       record.derived = derive(record, deps.now());
       try {
@@ -376,9 +380,10 @@
       const parsed = existing ? parseRecord(existing) : undefined;
       const missedReads = readGap || disabledGap;
       if (parsed) {
-        // fold stale live blocks (sessions that died without shutdown) into total
+        // A live block survived the last recorder. A disabled exit leaves no other trace of a gap.
         for (const k of Object.keys(parsed.accumulators)) {
-          if (k === "total" || k === sessionId) continue;
+          if (k === "total") continue;
+          if (parsed.derived.skill_read_coverage === "complete") parsed.derived.skill_read_coverage = "partial";
           parsed.accumulators.total = foldAccumulators(parsed.accumulators.total ?? emptyAccumulators(), parsed.accumulators[k]);
           delete parsed.accumulators[k];
         }
@@ -432,7 +437,10 @@
     };
 
     const bind = async (target: Binding, snap: SettingsSnapshot) => {
-      if (record) unbind();
+      if (record) {
+        flush(true);
+        unbind();
+      }
       const { rel: specRel } = target;
       toplevel = target.toplevel;
       checkoutVia = target.via;
@@ -716,7 +724,7 @@
           }
         }
         if (record && t.name === "ship" && t.action === "complete" && checkoutVia === "jj") await onShipKeep(snap);
-        flush();
+        flush(t.action === "reset");
         if (t.action === "reset") clearRunState();
       }
       phases = details.phases;
@@ -738,7 +746,7 @@
       const snap = observeSettings(settings);
       if (snap) {
         await reconciling;
-        flush();
+        flush(true);
       }
       preserveOutgoingBinding();
       if (snap) await reconcileOutgoing();
@@ -783,13 +791,7 @@
     pi.on("session_shutdown", async (_event, ctx) => {
       readCalls.clear();
       const snap = await enabledSettings(ctx);
-      if (!snap || !record) return;
-      const liveBlock = record.accumulators[sessionId];
-      if (liveBlock) {
-        record.accumulators.total = foldAccumulators(record.accumulators.total ?? emptyAccumulators(), liveBlock);
-        delete record.accumulators[sessionId];
-      }
-      flush();
+      if (snap) flush(true);
     });
 
     pi.on("tool_result", async (event, ctx) => {
