@@ -1,5 +1,7 @@
 # Council telemetry and roster assessment
 
+> **Superseded by:** [doc/specs/2026-11-18-gh-157-skill-read-telemetry.md](./2026-11-18-gh-157-skill-read-telemetry.md) - sections 5 and 6 per-run output and reply layout only
+
 **Goal:** Record per-member and chair outcomes of the brainstorming spec council in the run telemetry record, and give `gauntlet-performance` a council section that aggregates them per roster and flags members that do not earn their place.
 
 Amends `doc/specs/2026-09-18-gh-35-gauntlet-performance-telemetry-report.md`, scope: the performance digest's aggregation and output contract (its `council` run column stays; a council section is added). Bin packaging follows `doc/specs/2026-09-19-gh-39-installed-bins-ship-js.md` unchanged.
