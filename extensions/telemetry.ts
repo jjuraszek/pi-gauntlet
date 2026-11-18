@@ -233,9 +233,9 @@
     let readGap = false;
     // A disabled capture gap belongs to its run even if navigation drops the binding.
     const pendingCoverageDowngrades = new Set<string>();
-    // An unbound replay knows only the absolute spec candidate, not the run ID.
+    // A candidate can be scoped to its absolute spec path without opening a record.
     const pendingCandidateGaps = new Set<string>();
-    let replayGapScoped = false;
+    let disabledBindingGap: "unknown" | "scoped" | undefined;
     // Keep binding inputs, not tool results: disabled calls never feed telemetry counters or events.
     const deferredBindings: ((snap: SettingsSnapshot) => Promise<void>)[] = [];
     let reconciling: Promise<void> | undefined;
@@ -248,8 +248,18 @@
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
     const noteReadGap = () => {
-      if (!replayGapScoped || record) readGap = true;
-      if (record?.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+      if (!record) disabledBindingGap ??= "unknown";
+      else if (record.derived.skill_read_coverage === "complete") pendingCoverageDowngrades.add(record.run_id);
+    };
+
+    const rememberCandidateGap = (cwd: string, spec: string) => {
+      pendingCandidateGaps.add(resolve(cwd, spec));
+      if (!record) disabledBindingGap = "scoped";
+    };
+
+    const deferBinding = (cwd: string, spec: string | undefined, apply: (snap: SettingsSnapshot) => Promise<void>) => {
+      if (spec) rememberCandidateGap(cwd, spec);
+      deferredBindings.push(apply);
     };
 
     const observeSettings = (s: SettingsSnapshot): SettingsSnapshot | undefined => {
@@ -259,7 +269,7 @@
         pendingTest.clear();
         return undefined;
       }
-      if (readGap && record?.derived.skill_read_coverage === "complete") {
+      if (record?.derived.skill_read_coverage === "complete" && pendingCoverageDowngrades.has(record.run_id)) {
         record.derived.skill_read_coverage = "partial";
         flush();
       }
@@ -269,6 +279,7 @@
       if (isSubagentChild()) return undefined;
       const snap = observeSettings(settings ?? deps.settings(ctx.cwd));
       if (!snap) return undefined;
+      if (disabledBindingGap === "scoped") disabledBindingGap = undefined;
       if (!reconciling && deferredBindings.length) {
         reconciling = reconcileBindings(snap).finally(() => { reconciling = undefined; });
       }
@@ -348,6 +359,7 @@
       const rel = recordPathFor(currentDir, specRel);
       const existing = deps.fs.readFile(rel);
       const parsed = existing ? parseRecord(existing) : undefined;
+      const missedReads = readGap || pendingCandidateGaps.has(abs(specRel));
       if (parsed) {
         // fold stale live blocks (sessions that died without shutdown) into total
         for (const k of Object.keys(parsed.accumulators)) {
@@ -357,15 +369,14 @@
         }
         if (!parsed.sessions.includes(sessionId)) parsed.sessions.push(sessionId);
         parsed.spec = specRel;
-        const missedReads = readGap || pendingCoverageDowngrades.has(parsed.run_id) || pendingCandidateGaps.has(abs(specRel));
-        if (parsed.derived.skill_read_coverage === "complete" && missedReads) {
+        if (parsed.derived.skill_read_coverage === "complete" && (missedReads || pendingCoverageDowngrades.has(parsed.run_id))) {
           parsed.derived.skill_read_coverage = "partial";
         }
         if (hasSkillReads(pending.phases)) parsed.derived.skill_read_coverage ??= "partial";
         return parsed;
       }
       const fresh = newRecord({ spec: specRel, session: sessionId, now: buffer[0]?.ts ?? deps.now(), runId: randomUUID() });
-      fresh.derived.skill_read_coverage = liveReadEntry && !readGap ? "complete" : "partial";
+      fresh.derived.skill_read_coverage = liveReadEntry && !missedReads ? "complete" : "partial";
       return fresh;
     };
 
@@ -389,7 +400,7 @@
       return records;
     };
 
-    const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj") => {
+    const bind = async (specRel: string, snap: SettingsSnapshot, specToplevel: string, via: "git" | "jj", deferred = false) => {
       if (via === "git" && shippedRecords(specToplevel, snap).has(specRel)) return;
       let metadataDir = join(specToplevel, ".jj");
       if (via === "git") {
@@ -400,6 +411,7 @@
         }
         metadataDir = common.stdout.trim();
       }
+      if (deferred || disabledBindingGap === "unknown") rememberCandidateGap(specToplevel, specRel);
       toplevel = specToplevel;
       checkoutVia = via;
       currentDir = join(metadataDir, "gauntlet", "telemetry");
@@ -522,7 +534,7 @@
       readCalls.clear();
       liveReadEntry = false;
       readGap = false;
-      replayGapScoped = false;
+      disabledBindingGap = undefined;
       lastPlanTasks = undefined;
       pendingTest.clear();
       buffer = [];
@@ -543,9 +555,9 @@
       if (action === "skip" && canBind() && lastCtx) {
         const resumed = resumeSpecOf(details.phases, settings.specDirs);
         const { cwd } = lastCtx;
-        if (resumed) {
+        if (resumed && !boundSpec) {
           if (snap) await bindCandidate(cwd, resumed, snap);
-          else deferredBindings.push(s => bindCandidate(cwd, resumed, s));
+          else deferBinding(cwd, resumed, s => bindCandidate(cwd, resumed, s));
         }
       }
       if (!snap) {
@@ -604,7 +616,8 @@
       const settings = deps.settings(ctx.cwd);
       const snap = observeSettings(settings);
       if (snap) flush();
-      const lostPending = hasSkillReads(pending.phases) || (!record && readGap);
+      // Do not infer the destination of a disabled gap from the incoming branch.
+      const lostPending = disabledBindingGap === undefined && (hasSkillReads(pending.phases) || (!record && readGap));
       clearRunState();
       amendmentOpen = false;
       const nextSession = ctx.sessionManager.getSessionId();
@@ -619,15 +632,14 @@
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
       const candidate = canBind() ? replay.planCheckSpec ?? replay.lastSpecWrite : undefined;
-      readGap = gauntletEntered && ((!snap && !candidate) || (sameSession && lostPending));
-      if (!candidate) return;
+      readGap = gauntletEntered && sameSession && lostPending;
       const { cwd } = ctx;
       if (!snap) {
-        pendingCandidateGaps.add(resolve(cwd, candidate));
-        replayGapScoped = true;
-        deferredBindings.push(s => bindCandidate(cwd, candidate, s));
+        if (candidate) deferBinding(cwd, candidate, s => bindCandidate(cwd, candidate, s));
+        else if (gauntletEntered) noteReadGap();
         return;
       }
+      if (!candidate) return;
       await bindCandidate(cwd, candidate, snap);
       if (record) {
         const status = replay.phases.brainstorm.status;
@@ -720,15 +732,17 @@
         const d = event.details as { status?: string; specPath?: string } | undefined;
         const path = d?.specPath;
         if (d?.status === "pass" && typeof path === "string" && path) {
-          deferredBindings.push(async snap => selectSpec(await locate(cwd, path), snap));
+          deferBinding(cwd, path, async snap => selectSpec(await locate(cwd, path), snap));
         }
       } else if (tool === "read" || tool === "write" || tool === "edit") {
         const path = (event.input as { path?: unknown }).path;
         if (typeof path !== "string") return;
         const absPath = toPosix(resolve(cwd, path));
-        if (!isPlanPath(absPath, settings.planDirs) && (tool === "read" || !isSpecPath(absPath, settings.specDirs))) return;
+        const specWrite = tool !== "read" && isSpecPath(absPath, settings.specDirs);
+        if (!specWrite && !isPlanPath(absPath, settings.planDirs)) return;
         const brainstorming = phases.brainstorm.status === "in_progress";
-        deferredBindings.push(async snap => {
+        // A plan header or a write against another bound spec needs I/O to prove a new binding.
+        deferBinding(cwd, specWrite && !boundSpec ? path : undefined, async snap => {
           const loc = await locate(cwd, path);
           if (loc) await onSpecInteraction(tool, loc, snap, brainstorming);
         });
@@ -740,7 +754,7 @@
       const rel = loc.rel;
       if (!boundSpec) {
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs)) {
-          await bind(rel, snap, loc.toplevel, loc.via);
+          await bind(rel, snap, loc.toplevel, loc.via, !event);
           if (!boundSpec || !event) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
           flush();
@@ -749,7 +763,7 @@
           const spec = planSpecHeader(deps.fs.readFile(join(loc.toplevel, rel)) ?? "");
           const specRel = spec ? repoRelativeToolPath(loc.toplevel, loc.toplevel, spec) : undefined;
           if (specRel && deps.fs.exists(join(loc.toplevel, specRel))) {
-            await bind(specRel, snap, loc.toplevel, loc.via);
+            await bind(specRel, snap, loc.toplevel, loc.via, !event);
             if (event) flush();
           }
         }
@@ -759,7 +773,7 @@
         // Another checkout: a fresh run, never a rename of this record.
         if ((tool === "write" || tool === "edit") && isSpecPath(rel, snap.specDirs) && canBind() && (loc.via === "jj" || !shippedRecords(loc.toplevel, snap).has(rel))) {
           unbind();
-          await bind(rel, snap, loc.toplevel, loc.via);
+          await bind(rel, snap, loc.toplevel, loc.via, !event);
           if (!boundSpec || !event) return undefined;
           const patch = onBoundSpecWrite(tool, rel, event);
           flush();

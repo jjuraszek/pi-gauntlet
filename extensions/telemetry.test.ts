@@ -855,25 +855,62 @@
     }
   });
 
-  test("a pending coverage gap does not downgrade the same spec path in another checkout", async () => {
-    const original = await boundInBrainstorm();
-    const other = await boundInBrainstorm();
+  test("a disabled binding gap follows a known spec, not the next branch or checkout", async t => {
     const spec = "doc/specs/a.md";
-    const replay = [entry, { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: spec } } }];
-    const h = harness({ enabled: false, branch: replay });
-    h.ctx.cwd = original.root;
-    const io = h.recorderIo();
-    await h.emit("session_start", {});
-    await h.read("missed", legSkill, "ignored");
-    assert.deepEqual(h.recorderIo(), io);
-    h.setEnabled(true);
-    h.ctx.cwd = other.root;
-    await h.emit("session_tree", {});
-    assert.equal(other.readRecord().derived.skill_read_coverage, "complete");
-    assert.deepEqual(Object.values(other.readRecord().derived.phases).flatMap(p => p.skill_reads ?? []), []);
-    h.ctx.cwd = original.root;
-    await h.emit("session_tree", {});
-    assert.equal(original.readRecord().derived.skill_read_coverage, "partial");
+    const plan = "doc/plans/a.md";
+    const check = { toolName: "plan_check", details: { status: "pass", specPath: spec }, isError: false };
+    const replay = [entry, { type: "message", message: { role: "toolResult", ...check } }];
+    for (const route of ["replay", "live resume skip", "live spec write", "live spec edit", "live plan check", "reconciled plan read", "unresolved plan read"] as const) {
+      await t.test(route, async () => {
+        const original = await boundInBrainstorm();
+        const other = await boundInBrainstorm();
+        const runId = original.readRecord().run_id;
+        const before = readFileSync(original.recordPath());
+        const h = harness({ branch: route === "replay" ? replay : [] });
+        let returnBranch: unknown[] = replay;
+        h.ctx.cwd = original.root;
+        if (route === "live plan check") {
+          await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          await h.read("pending", legSkill, "text");
+        }
+        const io = h.recorderIo();
+        h.setEnabled(false);
+        if (route === "replay") {
+          await h.emit("session_start", {});
+        } else {
+          if (route !== "live plan check") await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+          if (route === "live resume skip") {
+            const phases = { ...P(), brainstorm: { status: "skipped", reason: `resume: ${spec}` } };
+            await h.phaseResult("skip", phases);
+            returnBranch = [entry, { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "skip", phases } } }];
+          } else if (route === "live spec write" || route === "live spec edit") {
+            await h.emit("tool_result", { toolName: route === "live spec write" ? "write" : "edit", input: { path: spec }, isError: false });
+          } else if (route === "live plan check") {
+            await h.emit("tool_result", check);
+          } else {
+            writeFileSync(join(h.ctx.cwd, plan), `**Spec:** ${spec}\n`);
+            await h.read("plan", plan, "header");
+          }
+        }
+        await h.read("missed", legSkill, "ignored");
+        if (route === "live resume skip") await h.emit("session_tree", {});
+        assert.deepEqual(h.recorderIo(), io);
+        assert.deepEqual(readFileSync(original.recordPath()), before);
+
+        h.setEnabled(true);
+        if (route === "reconciled plan read") await h.emit("session_shutdown", {});
+        h.setBranch(returnBranch);
+        h.ctx.cwd = other.root;
+        await h.emit("session_tree", {});
+        assert.equal(other.readRecord().derived.skill_read_coverage, "complete");
+        h.ctx.cwd = original.root;
+        await h.emit("session_tree", {});
+        const restored = original.readRecord();
+        assert.equal(restored.run_id, runId);
+        assert.equal(restored.derived.skill_read_coverage, route === "unresolved plan read" ? "complete" : "partial");
+        assert.deepEqual(Object.values(restored.derived.phases).flatMap(p => p.skill_reads ?? []), []);
+      });
+    }
   });
 
   test("reset or navigation while disabled disarms the old run without writing", async () => {
