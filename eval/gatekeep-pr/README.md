@@ -15,7 +15,7 @@ Sixty-eight synthetic digest samples test command and helper narration through t
 | `skills/gatekeep-pr/verification-brief.md` |
 | `skills/gatekeep-pr/reference/assessment.md` |
 
-The four explicit multi-PR samples and six no-argument discovery samples add these checks:
+The batch and no-argument discovery samples cover these cases:
 
 | Sample | Must-hold behavior |
 |---|---|
@@ -29,8 +29,9 @@ The four explicit multi-PR samples and six no-argument discovery samples add the
 | `no-arg-discovery-cc-multi` | Claude Code rejects multiple matches with the pi-only message and sorted discovered list, without dispatch. |
 | `no-arg-discovery-failed` | A failed query or a result reaching the query limit stops discovery without a current-branch fallback. |
 | `no-arg-discovery-under-cap` | Keep eligible rows beyond the first 100, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
+| `no-arg-discovery-note` | Render one linked entry per kept PR, name the request source, summarize untrusted text, and continue through admission without a reply. |
 
-All ten samples use a local `bundle+` line for `skills/gatekeep-pr/reference/batch.md`. The four `batch-` samples and only `no-arg-discovery-under-cap` among the discovery samples also bundle `agents/pr-gatekeeper.md`. Neither file is added to the global `target.json` manifest, and existing sample assemblies stay unchanged. Bundled files must be committed and readable at the pinned baseline before capture: the runner rejects a `bundle+` file absent at that base.
+All these samples use a local `bundle+` line for `skills/gatekeep-pr/reference/batch.md`. The four `batch-` samples and only `no-arg-discovery-under-cap` among the discovery samples also bundle `agents/pr-gatekeeper.md`. Neither file is added to the global `target.json` manifest, and existing sample assemblies stay unchanged. Bundled files must be committed and readable at the pinned baseline before capture: the runner rejects a `bundle+` file absent at that base.
 
 The separate `role-line-requested` sample uses no extra bundles. It checks all four viewer roles under `Delivers`, requested User and Team entries and unreadable entries, explicit-token discovery bypass, same-head pre-menu refresh, and verbatim batch report handling.
 

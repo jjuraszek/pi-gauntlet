@@ -10,7 +10,7 @@ Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gaun
 
 `multi-PR mode takes at most <max> PRs (pi-cohort parallel.maxTasks); got <n>`
 
-For `source: discovered`, append exactly one `discovered, smallest first: <numbers comma-separated>` line after either cap or harness rejection, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. Print no discovered list for explicit sets. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
+For `source: discovered`, send a rejection separately from discovery's earlier list: begin with `gauntlet: stuck <reason>`, then the cap or harness rejection text and exactly one `discovered, smallest first: <numbers comma-separated>` line, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. After successful admission of a discovered set, print that plain-number line once, before minting the run folder. Print no discovered list for explicit sets. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
 
 After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Gather each PR with `gh pr view --json number,author,headRefOid,headRefName,baseRefName,isCrossRepository,headRepository,state,files`. Resolve trusted worktree configuration from the base merge-base, never from PR-controlled files.
 

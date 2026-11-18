@@ -76,7 +76,7 @@ for (const target of ['gatekeep-pr', 'gatekeep-pr-scope', 'gatekeep-pr-merge-sta
       const input = read(`../eval/${target}/samples/${sample}/case.md`);
       assert.doesNotMatch(input, /"(?:fix|merge_base|scope_at_grant|granted_by)"\s*:|consent\.(?:fix|merge_base|scope_at_grant)/);
     }
-    if (target === 'gatekeep-pr') for (const sample of ['per-ref-settlement', 'reviewer-row-reopen', 'loop-worker', 'nit-batch-row']) {
+    if (target === 'gatekeep-pr') for (const sample of ['per-ref-settlement', 'reviewer-row-reopen', 'loop-worker', 'nit-batch-row', 'no-arg-discovery-note']) {
       read(`../eval/${target}/samples/${sample}/case.md`);
       read(`../eval/${target}/replay.md`);
       const saved = JSON.parse(read(`../eval/${target}/results/${sample}/candidate.json`));
@@ -127,6 +127,19 @@ for (const [name, text, patterns] of [
     /^inheritSkills: false$/m, /^systemPromptMode: replace$/m, /^completionGuard: false$/m,
     /Not for direct dispatch/, /In `report`/, /execute/, /implementer/,
     /supplied record and report paths/, /never re-initialize/i,
+  ]],
+  ['discovery continues without a reply', brief, [
+    /print the list as its own intermediate message before acting on the outcome table/i,
+    /no first-line marker and await nothing: no question or selection/,
+  ]],
+  ['GitHub links in list entries', brief, [
+    /\[#<number>\]\(<url>\)/, /link its number to its own `url`/,
+    /\[#<N>\]\(https:\/\/github\.com\/<origin owner\/repo>\/issues\/<N>\)/,
+  ]],
+  ['Linear links in list entries', brief, [
+    /own row's `linearRefs` with that entry's key: `\[<ID>\]\(https:\/\/linear\.app\/<key>\/issue\/<ID>\)/,
+    /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
+    /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
@@ -181,15 +194,20 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const discovery = section(brief, '### Argument-resolution discovery\n', '### Gather fixed commands\n');
   for (const pattern of [
     /git remote get-url origin/, /gh api user --jq \.login/,
-    /gh pr list -R <owner\/repo> --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
-    /gh pr list -R <owner\/repo> --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions/,
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
+  const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq';
+  for (const source of ['--author @me', "--search 'review-requested:@me'"]) {
+    assert.ok(discovery.includes(`gh pr list -R <owner/repo> ${source} ${listArgs}`));
+  }
   for (const text of [
     'Open PRs to gate, smallest first:',
     '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
+    'at most 12 words', 'first 300 characters', 'no ticket',
+    String.raw`https://linear\\.app/`, 'review-requested query', 'gh api user/teams --paginate',
   ]) assert.ok(discovery.includes(text), `Missing discovery list format: ${text}`);
+  assert.doesNotMatch(discovery, /user-review-requested|direct-request/);
   const rows = section(skill, '| Step | Read now | Output | Tracker stage |\n', 'Re-entry:');
   assert.match(rows, /\| Set routing \| `reference\/batch.md` \| pi-only admission.*\| - \|/);
   assert.ok(rows.indexOf('| Set routing |') < rows.indexOf('| 1 Gather |'));
@@ -932,7 +950,7 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
   assert.doesNotMatch(gatekeeper, /In `assess`|retained grants|next-action\/fix-wave/);
 });
 
-const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap'].map((suffix) => `no-arg-discovery-${suffix}`);
+const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap', 'note'].map((suffix) => `no-arg-discovery-${suffix}`);
 for (const sample of [...discoverySamples, 'role-line-requested']) {
   test(`discovery and role replay structure: ${sample}`, () => {
     const root = `../eval/gatekeep-pr/samples/${sample}`;
@@ -945,7 +963,7 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
     assert.deepEqual(bundle, wanted);
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
-    assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : ['f1']);
+    assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']);
     assert.match(read('../eval/gatekeep-pr/replay.md'), /argument resolution with no PR token/);
   });
 }
