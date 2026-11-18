@@ -8,6 +8,8 @@ wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-di
 
 Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. The under-cap replay checks that a team request without a membership match stays in the admitted set, and the zero replay checks that an empty search prints no list. Those discovery cells retain their earlier sample-scoped results. The role-line-team replay isolates the two-sentence report opening and checks team disclosure alongside authorship or a direct request. The role-line-requested replay checks the four existing roles when no team matches. The typed-list-note replay checks the list between gathering and provisioning on both the single and set paths. Discovery and role cells retain their earlier sample-scoped results.
 
+Unselected samples, including `merge-landed-message` and `fix-row-return-file`, retain their historical results. They are not coverage for the roster change.
+
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
