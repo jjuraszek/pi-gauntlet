@@ -294,10 +294,10 @@ A run started with one or more PR tokens prints the same note for the PRs typed.
 | Heading | `Open PRs to gate, smallest first:` or `Open PR to gate:` | `PRs to gate:` or `PR to gate:` |
 | Order | sorted, smallest first | as typed |
 | Pasteable line | per the outcome table in "The note" | never |
-| Data | the two list calls | one token: the step-1 digest; two or more: the set gather |
+| Data | the two list calls | one token: the initial `gh pr view` response of step 1 plus the gathered `viewer.login` and `viewer.teams`; two or more: the set gather |
 | Printed | after filtering and sorting | one token: after step 1's fixed commands and before step 2; two or more: after the set gather and before the first provisioning step |
 
-One token. The step-1 digest already holds every field an entry needs, plus `viewer.login` and `viewer.teams`, so no command is added. The phrase reads the title and the first 300 characters of the body. A Linear address is one that matches the address rule in "Discovery queries" anywhere in the title or body, in text order; these stand in for the row's `linearRefs`. The note prints once per invocation: not on a loop re-entry or a re-gather, and not when discovery already printed the note for this PR (a no-argument run with one match).
+One token. Step 1's initial `gh pr view` response already holds every field an entry needs, and step 1 gathers `viewer.login` and `viewer.teams`, so no command is added. The entry is rendered from that response before its raw fields are discarded, because the step-1 digest keeps only `issue_ref` and drops the ordered `closingIssuesReferences` the ticket rule reads. The phrase reads the title and the first 300 characters of the body. A Linear address is one that matches the address rule in "Discovery queries" anywhere in the title or body, in text order; these stand in for the row's `linearRefs`. The note prints once per invocation: not on a loop re-entry or a re-gather, and not when discovery already printed the note for this PR (a no-argument run with one match).
 
 Two or more tokens on pi. The set gather command in `reference/batch.md` `## Admit before effects` becomes:
 

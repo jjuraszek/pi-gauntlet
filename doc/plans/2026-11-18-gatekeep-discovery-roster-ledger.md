@@ -36,3 +36,4 @@ row 8 done | Both models named the viewer's requested teams in the two-sentence 
 row 9 done | Both models said team memberships could not be read and named both requested teams in order without claiming either belonged to the viewer. | Reuse the team-unreadable assertion in gatekeep-comment-reconcile.test.mjs to check the fallback when memberships cannot be read.
 row 11 done | Both models listed #112 before the smaller #101, linked both PRs and tickets, and continued to provisioning without a pasteable numbers line or a pause. | Reuse the typed-list-note fixture to check input order, ticket links and the handoff from the gather to provisioning.
 row 12 done | Both models printed one linked entry for typed PR #97 after gathering it and before creating its worktree. | nothing new to build on
+amended | 1 item(s) | Typed PR entry data source
