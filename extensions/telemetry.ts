@@ -231,10 +231,7 @@
     let currentDir = "";
     let councilPending: { memberResults: MemberResult[]; chair?: { model: string; dispatches: number; clusters?: Cluster[] } } | undefined;
 
-    // Per-event settings read; undefined => this event is a no-op.
-    const enabledSettings = (ctx: ExtensionContext): SettingsSnapshot | undefined => {
-      if (isSubagentChild()) return undefined;
-      const s = deps.settings(ctx.cwd);
+    const observeSettings = (s: SettingsSnapshot): SettingsSnapshot | undefined => {
       if (!s.telemetry.enabled) {
         if (gauntletEntered) readGap = true;
         readCalls.clear();
@@ -246,6 +243,7 @@
       }
       return s;
     };
+    const enabledSettings = (ctx: ExtensionContext) => isSubagentChild() ? undefined : observeSettings(deps.settings(ctx.cwd));
 
     // Resolves a tool path (relative to ctx.cwd or absolute) to its owning checkout and
     // checkout-relative key. undefined outside any checkout.
@@ -408,7 +406,6 @@
 
     const unbind = () => {
       if (record && hasSkillReads(record.derived.phases)) readGap = true;
-      readCalls.clear();
       toplevel = undefined;
       checkoutVia = undefined;
       boundSpec = undefined;
@@ -461,13 +458,28 @@
     };
 
     // ---- phase mirror ----
-    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot, replay = false) => {
+    const clearRunState = () => {
+      unbind();
+      readCalls.clear();
+      liveReadEntry = false;
+      readGap = false;
+      buffer = [];
+      pending = emptyAccumulators();
+    };
+
+    const applyPhaseDetails = async (details: { action?: string; phases?: PhaseMap; error?: string; rounds?: number } | undefined, snap: SettingsSnapshot | undefined, replay = false) => {
       if (!details?.phases || details.error) return;
       const action = details.action ?? "";
       const entered = nextGauntletEntered(gauntletEntered, action, details.phases.brainstorm.status);
-      if (!gauntletEntered && entered && !replay) liveReadEntry = true;
+      if (!gauntletEntered && entered && snap && !replay) liveReadEntry = true;
       gauntletEntered = entered;
       if (details.phases.ship.status === "complete") readCalls.clear();
+      if (!snap) {
+        phases = details.phases;
+        if (action === "reset") clearRunState();
+        if (entered) readGap = true;
+        return;
+      }
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
       if (action === "skip" && !boundSpec && canBind() && lastCtx) {
         const resumed = resumeSpecOf(details.phases, snap.specDirs);
@@ -502,14 +514,7 @@
         }
         if (record && t.name === "ship" && t.action === "complete" && checkoutVia === "jj") await onShipKeep(snap);
         flush();
-        if (t.action === "reset") {
-          // Epoch ends: nothing recorded before the next `start brainstorm` belongs to a run.
-          unbind();
-          liveReadEntry = false;
-          readGap = false;
-          buffer = [];
-          pending = emptyAccumulators();
-        }
+        if (t.action === "reset") clearRunState();
       }
       phases = details.phases;
     };
@@ -526,28 +531,27 @@
     // binding from the target branch in order.
     const reconstruct = async (ctx: ExtensionContext) => {
       lastCtx = ctx;
-      const snap = enabledSettings(ctx);
-      if (!snap) return;
-      flush();
+      if (isSubagentChild()) return;
+      const settings = deps.settings(ctx.cwd);
+      const snap = observeSettings(settings);
+      if (snap) flush();
       const lostPending = hasSkillReads(pending.phases) || (!record && readGap);
-      unbind();
-      liveReadEntry = false;
-      readGap = lostPending && sessionId === ctx.sessionManager.getSessionId();
-      buffer = [];
-      pending = emptyAccumulators();
-      lastPlanTasks = undefined;
+      clearRunState();
       amendmentOpen = false;
       pendingTest.clear();
-      if (sessionId !== ctx.sessionManager.getSessionId()) {
+      const nextSession = ctx.sessionManager.getSessionId();
+      const sameSession = nextSession === sessionId;
+      if (!sameSession) {
         guardCache.clear();
         guardWarned = false;
       }
-      sessionId = ctx.sessionManager.getSessionId();
-      const replay = replayBranch(ctx.sessionManager.getBranch(), snap.specDirs);
+      sessionId = nextSession;
+      const replay = replayBranch(ctx.sessionManager.getBranch(), settings.specDirs);
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
-      if (!canBind()) return;
+      readGap = gauntletEntered && (!snap || (sameSession && lostPending));
+      if (!snap || !canBind()) return;
       const candidate = replay.planCheckSpec ?? replay.lastSpecWrite;
       const loc = candidate ? await locate(ctx, candidate) : undefined;
       if (loc && isSpecPath(loc.rel, snap.specDirs)) {
@@ -579,13 +583,14 @@
       const text = pendingWarnings.take(event.toolCallId);
       if (text) return pendingWarnings.deliver(event, text);
       lastCtx = ctx;
-      const snap = enabledSettings(ctx);
-      if (!snap) return undefined;
+      if (isSubagentChild()) return undefined;
+      const snap = observeSettings(deps.settings(ctx.cwd));
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
       if (event.toolName === "phase_tracker" && !event.isError) {
         await applyPhaseDetails(event.details as never, snap);
         return undefined;
       }
+      if (!snap) return undefined;
       if (event.toolName === "subagent" && legAcc()) {
         await onSubagentResult(event.details, event.content, event.isError);
         return undefined;

@@ -639,6 +639,26 @@
     }
   });
 
+  test("reset or navigation while disabled disarms the old run without writing", async () => {
+    for (const transition of ["reset", "session_tree"] as const) {
+      const h = await boundInBrainstorm();
+      const before = readFileSync(h.recordPath());
+      h.setEnabled(false);
+      if (transition === "reset") await h.phaseResult("reset", P());
+      else await h.emit("session_tree", { type: "session_tree" });
+      await h.read("disabled", legSkill, "ignored");
+      assert.deepEqual(readFileSync(h.recordPath()), before, transition);
+      assert.equal(existsSync(h.recordPath("doc/specs/b.md")), false, transition);
+      h.setEnabled(true);
+      await h.read("disarmed", legSkill, "ignored");
+      await h.phaseResult("start", P({ brainstorm: "in_progress" }));
+      await h.writeSpec("doc/specs/b.md");
+      assert.deepEqual(readFileSync(h.recordPath()), before, transition);
+      const phases = h.readRecord("doc/specs/b.md").derived.phases;
+      assert.deepEqual(Object.values(phases).flatMap(phase => phase.skill_reads ?? []), [], transition);
+    }
+  });
+
   test("a resumed run retains coverage and opaque paths; a legacy run stays unmeasured until its first observation", async () => {
     for (const mode of ["measured", "legacy", "legacy-pending"]) {
       const h = await boundInBrainstorm();
@@ -688,6 +708,20 @@
     assert.equal(next.derived.skill_read_coverage, "partial");
     assert.equal(next.derived.phases.brainstorm?.skill_reads, undefined);
     assert.deepEqual(h.readRecord().derived.phases.brainstorm?.skill_reads, [pendingRead]);
+  });
+
+  test("an in-flight read completes exactly once on the new plan binding", async () => {
+    const h = await boundInBrainstorm();
+    const call = { toolName: "read", toolCallId: "in-flight" };
+    await h.emit("tool_call", { ...call, input: { path: legSkill } });
+    await h.emit("tool_result", { toolName: "plan_check", toolCallId: "pc", input: {}, content: [], isError: false, details: { status: "pass", specPath: "doc/specs/b.md" } });
+    const end = { ...call, result: { content: [{ type: "text", text: "text" }] }, isError: false };
+    await h.emit("tool_execution_end", end);
+    await h.emit("tool_execution_end", end);
+    assert.equal(h.readRecord().derived.phases.brainstorm?.skill_reads, undefined);
+    const next = h.readRecord("doc/specs/b.md").derived;
+    assert.deepEqual(next.phases.brainstorm?.skill_reads, [pendingRead]);
+    assert.equal(next.skill_read_coverage, "complete");
   });
 
   test("message_end appends one cache triplet per parent call; child usage is excluded from parent_calls but still summed into tokens", async () => {

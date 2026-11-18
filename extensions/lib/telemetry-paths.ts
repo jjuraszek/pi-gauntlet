@@ -9,7 +9,7 @@
 // config = **/*.json, **/*.yaml, **/*.yml, **/*.toml, **/*.lock, **/*-lock.*; else code.
 
 import { createHash } from "node:crypto";
-import { realpathSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, isAbsolute, join, matchesGlob, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,21 +60,31 @@ export function skillReadPath(cwd: string, input: string, ownSkills: string): st
     try { path = fileURLToPath(path); } catch { return undefined; }
   }
   const file = resolve(cwd, path);
-  const opened = file.endsWith(".md") ? skillsRoot(file) : undefined;
-  if (!opened) return undefined;
-  const lexical = suffix(opened, file);
+  const lexicalRoot = file.endsWith(".md") ? skillsRoot(file) : undefined;
+  if (!lexicalRoot) return undefined;
   try {
-    const target = realpathSync(file);
+    const opened = resolveReadFilename(file);
+    const target = realpathSync(opened);
     const trusted = suffix(realpathSync(ownSkills), target);
     if (inside(trusted)) return `pi-gauntlet:skills/${trusted}`;
-    const root = realpathSync(opened);
+    const openedRoot = opened === file ? lexicalRoot : skillsRoot(opened)!;
+    const root = realpathSync(openedRoot);
     const canonical = suffix(root, target);
     if (inside(canonical)) return `source:${digest(root)}:skills/${canonical}`;
     const escaped = skillsRoot(target);
-    return escaped ? `source:${digest(escaped)}:skills/${suffix(escaped, target)}` : `source:${digest(root)}:skills/${lexical}`;
+    return escaped ? `source:${digest(escaped)}:skills/${suffix(escaped, target)}` : `source:${digest(root)}:skills/${suffix(openedRoot, opened)}`;
   } catch {
-    return `source:lex-${digest(opened)}:skills/${lexical}`;
+    return `source:lex-${digest(lexicalRoot)}:skills/${suffix(lexicalRoot, file)}`;
   }
+}
+
+// Pi's built-in read resolver is private; match its filename retry order.
+function resolveReadFilename(file: string): string {
+  if (existsSync(file)) return file;
+  const nfd = file.normalize("NFD");
+  const curly = (name: string) => name.replace(/'/g, "\u2019");
+  const variants = [file.replace(/ (AM|PM)\./gi, "\u202f$1."), nfd, curly(file), curly(nfd)];
+  return variants.find(variant => variant !== file && existsSync(variant)) ?? file;
 }
 
 const SPEC_HEADER_RE = /^\*\*Spec:\*\*\s*`?([^`\s]+)`?/m;

@@ -54,6 +54,14 @@ test("skill read keys follow canonical containment without publishing source dir
     assert.equal(key(path), source(nested) + file, path);
   }
   assert.equal(key(join(own, file)), `pi-gauntlet:skills/${file}`);
+  for (const [disk, requested] of [["reader\u2019s.md", "reader's.md"], ["clock\u202fPM.md", "clock PM.md"]]) {
+    writeFileSync(join(own, disk), "text");
+    const expected = `pi-gauntlet:skills/${disk}`;
+    assert.equal(key(join(own, disk)), expected, disk);
+    assert.equal(key(join(own, requested)), expected, requested);
+  }
+  writeFileSync(join(own, "reader's.md"), "different file");
+  assert.equal(key(join(own, "reader's.md")), "pi-gauntlet:skills/reader's.md");
   assert.equal(key(join(copy, file)), source(copy) + file);
   assert.equal(key(join(own, "escape.md")), source(copy) + file);
   assert.equal(key(join(own, "outside.md")), source(own) + "outside.md");
