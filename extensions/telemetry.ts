@@ -664,6 +664,7 @@
       if (!gauntletEntered && entered && snap && !replay) liveReadEntry = true;
       gauntletEntered = entered;
       if (details.phases.ship.status === "complete") {
+        if (!snap) preserveOutgoingBinding();
         readCalls.clear();
         deferredBindings = [];
         deferredReplay = [];
