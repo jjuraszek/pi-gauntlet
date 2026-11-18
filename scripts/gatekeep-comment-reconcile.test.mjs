@@ -438,8 +438,13 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Keep other requested users and teams in API order: exclude the viewer by case-insensitive User login comparison/);
   assert.match(report, /exclude nobody when that login is unreadable/);
   assert.match(report, /render Users by login and Teams by slug, and use `unknown` for a missing login or slug/);
-  assert.match(brief, /viewer: \{ login, is_author, role \}/);
+  assert.match(brief, /viewer: \{ login, is_author, role, teams \}/);
   assert.match(brief, /else author when is_author; else requested reviewer/);
+  assert.match(brief, /else requested team when a pending Team entry's slug equals a viewer\.teams entry case-insensitively/);
+  assert.match(section(brief, '### Gather fixed commands', '## Section B'), /gh api user\/teams --paginate --jq '\.\[\] \| \.organization\.login \+ "\/" \+ \.slug'/);
+  assert.match(brief, /else team unreadable when viewer\.teams is unreadable and a pending Team entry exists; else none/);
+  assert.match(report, /`requested team`, `team unreadable`/);
+  assert.doesNotMatch(report, /the author, a requested reviewer, neither, or unreadable/);
   assert.match(brief, /Pending reviewRequests only, never reviews history/);
   assert.match(report, /Name a running required check or unchanged obstacle, not readiness\./);
   assert.match(report, /distinguish CI from local runs and never turn pending or missing evidence into a pass/);
@@ -952,7 +957,8 @@ test('batch courses preserve two budgets and parent lifecycle ownership', () => 
 });
 
 const discoverySamples = ['over-cap', 'single', 'zero', 'cc-multi', 'failed', 'under-cap', 'note'].map((suffix) => `no-arg-discovery-${suffix}`);
-for (const sample of [...discoverySamples, 'role-line-requested']) {
+const roleFacts = { 'role-line-requested': ['r1', 'r2', 'r3', 'r4'], 'role-line-team': ['t1', 't2', 't3', 't4'] };
+for (const sample of [...discoverySamples, ...Object.keys(roleFacts)]) {
   test(`discovery and role replay structure: ${sample}`, () => {
     const root = `../eval/gatekeep-pr/samples/${sample}`;
     const input = readOrEmpty(`${root}/case.md`);
@@ -960,11 +966,20 @@ for (const sample of [...discoverySamples, 'role-line-requested']) {
     assert.match(input, /## Arguments\n/);
     const config = JSON.parse(read('../eval/gatekeep-pr/target.json'));
     const { bundle } = parseCase(input);
-    const wanted = sample === 'role-line-requested' ? [] : ['skills/gatekeep-pr/reference/batch.md', ...(sample.endsWith('under-cap') ? ['agents/pr-gatekeeper.md'] : [])];
+    const wanted = roleFacts[sample] ? [] : ['skills/gatekeep-pr/reference/batch.md', ...(sample.endsWith('under-cap') ? ['agents/pr-gatekeeper.md'] : [])];
     assert.deepEqual(bundle, wanted);
     for (const path of bundle) assert.ok(!config.skillFiles.some((file) => file.path === path), `global-manifest duplicate: ${path}`);
     const facts = parseExpected(readOrEmpty(`${root}/expected.md`));
-    assert.deepEqual(facts.facts.map((fact) => fact.id), sample === 'role-line-requested' ? ['r1', 'r2', 'r3', 'r4'] : sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']);
+    assert.deepEqual(facts.facts.map((fact) => fact.id), roleFacts[sample] ?? (sample === 'no-arg-discovery-note' ? ['n1', 'n2', 'n3', 'n4'] : ['f1']));
+    if (roleFacts[sample]) {
+      const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
+      const replies = historicalReplies(saved);
+      assert.equal(replies.length, saved.models.replay.length);
+      for (const [model] of replies) {
+        assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
+        for (const id of roleFacts[sample]) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
+      }
+    }
     if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap'].includes(sample)) {
       assert.ok(input.includes('Review-requested query rows:') && input.includes('gh api user/teams'));
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));

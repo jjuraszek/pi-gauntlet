@@ -33,7 +33,7 @@ The batch and no-argument discovery samples cover these cases:
 
 All these samples use a local `bundle+` line for `skills/gatekeep-pr/reference/batch.md`. The four `batch-` samples and only `no-arg-discovery-under-cap` among the discovery samples also bundle `agents/pr-gatekeeper.md`. Neither file is in the global `target.json` manifest. The note, single-match and two rejection samples omit later gate stages with `bundle-` lines. Bundled files must be committed and readable at the pinned baseline before capture: the runner rejects a `bundle+` file absent at that base.
 
-The separate `role-line-requested` sample uses no extra bundles. It checks all four viewer roles under `Delivers`, requested User and Team entries and unreadable entries, explicit-token discovery bypass, same-head pre-menu refresh, and verbatim batch report handling.
+The two report-role samples use no extra bundles. `role-line-requested` covers authorship, a direct request, neither, and unreadable identity when no team matches, plus same-head refresh, explicit-token discovery bypass and verbatim batch reports. `role-line-team` checks the two-sentence opening for a team request on discovered and typed PRs, including a direct request, an author with two requested teams and an unreadable membership list.
 
 These samples replay text snapshots and judge narration of requests, not live dispatch. They do not prove nested tool rights or worktree execution. The parent owns separate live runtime evidence: two synthetic PR worktrees, one child failing before Verify without a report, and a sibling using Verify, Review, and plan_tracker and writing only its supplied report.
 

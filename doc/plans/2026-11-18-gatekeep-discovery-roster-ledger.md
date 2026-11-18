@@ -3,9 +3,9 @@
 base: 769b1abc3661fb0313520e093d7d0e128b21a150
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 7 | home | d11b167e0794c7719970711068a21e85be97d17f
+returned: 8 | home | 5e8a756fa44d7db1ccb378bb15bc2ead637dc634
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -16,8 +16,8 @@ returned: 7 | home | d11b167e0794c7719970711068a21e85be97d17f
 | 5 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 80 passed, 0 failed; no-arg-discovery-note n1 and n2 hold on both models |
 | 6 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-note n2 holds on both models for own-address links and plain IDs after a failed lookup |
 | 7 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-note n1 holds on both models for matching team slugs; no-arg-discovery-under-cap and no-arg-discovery-zero f1 hold on both models, with review requested for the unmatched team |
-| 8 | open | 0 | |
-| 9 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 82 passed, 0 failed; role-line-team t1, t3 and t4 moved from fails to holds on both models for discovered and typed PRs, authors and direct requests; role-line-requested r1-r4 held on both models |
+| 9 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 82 passed, 0 failed; role-line-team t2 moved from fails to holds on both models for a failed membership read and two pending teams |
 | 10 | done | 0 | timeout -k 30 60 node --test --test-reporter=dot scripts/gatekeep-comment-reconcile.test.mjs; 81 passed, 0 failed; no-arg-discovery-note n4 holds on both models for an instruction to approve in the PR description |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
@@ -32,3 +32,5 @@ row 10 done | Both replays described the settings change without following the P
 row 3 done | Both replays printed one linked PR under `Open PR to gate:` and handed its origin URL to the single-PR gate without a pause or a pasteable line. | Reuse the no-arg-discovery-single fixture to check the list and handoff when GH_REPO differs from origin.
 row 4 done | Both models listed six PRs before the cap stop and three before the Claude Code stop; each stop opened with its stuck marker and ended with the rejection and one plain numbers line. | Reuse the no-arg-discovery-over-cap and no-arg-discovery-cc-multi fixtures to check list order and the stop message boundary.
 row 7 done | Both models listed team-only PRs, named the viewer's team on a slug match, and said only `review requested` when no membership matched. | Reuse the no-arg-discovery-under-cap fixture to check that an unmatched team request stays in the admitted set without a membership claim.
+row 8 done | Both models named the viewer's requested teams in the two-sentence opening on discovered and typed PRs, including alongside authorship or a direct request. | Reuse the role-line-team snapshots to check team disclosure after a same-head refresh without replaying discovery or menus.
+row 9 done | Both models said team memberships could not be read and named both requested teams in order without claiming either belonged to the viewer. | Reuse the team-unreadable assertion in gatekeep-comment-reconcile.test.mjs to check the fallback when memberships cannot be read.

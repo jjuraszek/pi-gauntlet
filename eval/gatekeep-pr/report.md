@@ -1,12 +1,12 @@
-# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single; no-arg-discovery-over-cap; no-arg-discovery-cc-multi; no-arg-discovery-zero; no-arg-discovery-under-cap)
+# eval report: gatekeep-pr (partial runs: no-arg-discovery-note; no-arg-discovery-single; no-arg-discovery-over-cap; no-arg-discovery-cc-multi; no-arg-discovery-zero; no-arg-discovery-under-cap; role-line-team; role-line-requested)
 
-for: b4c3e87a48a91b0d054276b7c3d70f18ef067d00b2f7faba105f2863e516a6c8
+for: 631c086aead550eda5de4675cfbe2e709d70362d7e0a4c55e366a05299dbf877
 
-wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-discovery-over-cap); 23s (no-arg-discovery-cc-multi); 19s (no-arg-discovery-zero); 66s (no-arg-discovery-under-cap)
+wall: 52s (no-arg-discovery-note); 25s (no-arg-discovery-single); 18s (no-arg-discovery-over-cap); 23s (no-arg-discovery-cc-multi); 19s (no-arg-discovery-zero); 66s (no-arg-discovery-under-cap); 21s (role-line-team); 117s (role-line-requested)
 
 ## Change
 
-Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. The under-cap replay checks that a team request without a membership match stays in the admitted set, and the zero replay checks that an empty search prints no list. Neither checks the wording of a new report or a typed list.
+Show which PRs discovery kept before creating any worktree. The no-arg-discovery-note replay starts at argument resolution and stops at set admission. It checks which links and team wording the parent renders, how it summarizes an untrusted description, and whether it continues without a question. A grammar assertion cannot prove those choices. The no-arg-discovery-single replay checks the singular list and origin-bound handoff: a heading assertion alone cannot show whether the parent waits for a reply or enters batch routing. The over-cap and cc-multi replays render the messages at rejection: checking for the marker in the instructions cannot show whether it starts the stop message or displaces the earlier list. The under-cap replay checks that a team request without a membership match stays in the admitted set, and the zero replay checks that an empty search prints no list. Those discovery cells retain their earlier sample-scoped results. The role-line-team replay isolates the two-sentence report opening and checks team disclosure alongside authorship or a direct request. The role-line-requested replay checks the four existing roles when no team matches. These runs do not check the typed list.
 
 ## Cells
 
@@ -24,6 +24,10 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 | no-arg-discovery-zero | github-copilot/gpt-6.1-sol | unchanged | 4950 | f1: holds -> holds (held) |
 | no-arg-discovery-under-cap | anthropic/claude-opus-5-5 | unchanged | 9203 | f1: holds -> holds (held) |
 | no-arg-discovery-under-cap | github-copilot/gpt-6.1-sol | unchanged | 9368 | f1: holds -> holds (held) |
+| role-line-team | anthropic/claude-opus-5-5 | improved | 6546 | t1: fails -> holds (intended change); t2: fails -> holds (intended change); t3: fails -> holds (intended change); t4: fails -> holds (intended change) |
+| role-line-team | github-copilot/gpt-6.1-sol | improved | 5817 | t1: fails -> holds (intended change); t2: fails -> holds (intended change); t3: fails -> holds (intended change); t4: fails -> holds (intended change) |
+| role-line-requested | anthropic/claude-opus-5-5 | unchanged | 14995 | r1: holds -> holds (held); r2: holds -> holds (held); r3: holds -> holds (held); r4: holds -> holds (held) |
+| role-line-requested | github-copilot/gpt-6.1-sol | unchanged | 13274 | r1: holds -> holds (held); r2: holds -> holds (held); r3: holds -> holds (held); r4: holds -> holds (held) |
 
 ## Feedback
 
@@ -38,5 +42,8 @@ Show which PRs discovery kept before creating any worktree. The no-arg-discovery
 
 - no-arg-discovery-zero: Both replays kept the empty-search stop after the login and membership reads failed. Neither printed a list or fell back to the current branch. [Saved replies and judge feedback](results/no-arg-discovery-zero/candidate.json).
 - no-arg-discovery-under-cap: Both replays kept #97 in size order after 100 drafts and said `by robin, review requested` without claiming membership. The fixture supplies the first two menu picks so all three reports can print without executing a pick. [Saved replies and judge feedback](results/no-arg-discovery-under-cap/candidate.json).
+
+- role-line-team: In both replays the author's opening named acme/platform and acme/reviewers as their requested teams. The direct request and typed PR openings named acme/reviewers only once. After a failed membership read, both openings named the two requested teams without claiming either membership. [Saved replies and judge feedback](results/role-line-team/candidate.json).
+- role-line-requested: Neither model treated an unmatched team as the viewer's. Both excluded the direct self-request case-insensitively and updated the role from pending requests, not past reviews. [Saved replies and judge feedback](results/role-line-requested/candidate.json).
 
 exit: 0
