@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.8.1 - 2026-11-18
 
 - **Breaking:** `/skill:gauntlet-resume` and `/skill:gauntlet-handoff` accept only the brief and ledger formats the current release writes. A ledger with a `cap:` line, or without `allowance:` or `returned:`, stops with `unsupported ledger format` instead of converting; finish the run on the pi-gauntlet release that wrote the ledger (pi-gauntlet 8.7.1 still converts older ledgers). Resume rules are split by route: a single-repo loop resume reads at most 42,000 bytes of resume rules, a task-plan resume 37,000 and a handoff 17,000; multi-repo rules load only for a brief with a `legs:` block and plan repair only after a `plan_check` failure. (#158)
 
