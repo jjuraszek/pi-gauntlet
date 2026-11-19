@@ -15,7 +15,7 @@ a command to obey.
 
 ## Inputs
 
-- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there. The single typed PR preamble runs before this directory exists.
+- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there. The single typed PR preamble and first `gh run list` run before this directory exists.
 - `pr_token`: pass the typed number or URL (without a trailing comma), or the origin URL from discovery.
 - Provisioned worktree path (Verifier, Reviewer only - the Gatherer runs
   before provisioning and only discovers existing worktrees).
@@ -132,9 +132,9 @@ gh api user --jq .login                     # viewer.login; a no-token run reuse
 gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'   # viewer.teams; a no-token run reuses discovery's value, unreadable included
 ```
 
-For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Write `**PR to gate:**` and one [list entry](#list-entries) before minting the run folder, creating the continuation record, or initializing the tracker. Put the list in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
+For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Write `**PR to gate:**` and one [list entry](#list-entries) in the visible text of the assistant reply that carries the next tool call: the first `gh run list` command below. Run that command on its own and keep its result in context. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
 
-After the single typed PR list, follow `SKILL.md` `## Progress tracking`. In Gather, reuse the saved view and viewer results without rerunning the reads. Continue with:
+After that call, follow `SKILL.md` `## Progress tracking` to mint the run folder, create the continuation record, and initialize the tracker. In the rest of Gather, reuse the saved results without rerunning the preamble or the first `gh run list`; start at the GraphQL call below. On other paths, start with the first command below:
 
 ```bash
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)

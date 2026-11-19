@@ -143,10 +143,14 @@ for (const [name, text, patterns] of [
     /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
     /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
-  ['typed list before single-PR initialization', section(brief, '### Gather fixed commands\n', '## Section B'), [
+  ['typed list on the first remaining Gather read, before initialization', section(brief, '### Gather fixed commands\n', '## Section B'), [
     /`\*\*PR to gate:\*\*`/, /\bonce per invocation\b/,
-    /before minting the run folder, creating the continuation record, or initializing the tracker/,
-    /reuse the saved view and viewer results without rerunning the reads/,
+    /next tool call: the first `gh run list` command below/,
+    /After that call, follow `SKILL\.md` `## Progress tracking`/,
+    /reuse the saved results without rerunning the preamble or the first `gh run list`/,
+  ]],
+  ['progress starts after the typed list and its CI read', section(skill, '## Progress tracking\n', '## Harness notes'), [
+    /after the reply carrying the list and the first `gh run list` call\), mint the run folder, then initialize its continuation record before progress initialization/,
   ]],
   ['typed list after the set gather', batch, [
     /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
@@ -1052,7 +1056,8 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         if (sample === 'typed-list-note') {
-          for (const heading of ['**PRs to gate:**', '**PR to gate:**']) assert.ok(output.text.includes(heading), `${model}: ${heading}`);
+          assert.match(output.text, /^---\n\*\*PRs to gate:\*\*\n/m, `${model}: set reply starts with the visible heading`);
+          assert.match(output.text, /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list\b/m, `${model}: single reply starts with the visible heading and the Gather call follows outside it`);
         }
         assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
         for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);

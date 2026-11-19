@@ -32,4 +32,4 @@ Run B: the fixed step-1 reads succeed. The digest shows open PR #97 at https://g
 
 ## Entry
 
-Start each invocation from its arguments. Narrate through the gather, render the messages the human sees before provisioning, then name the next step. Stop there; do not provision, dispatch, or render a menu. Treat the observations as command results; execute nothing.
+Start each invocation from its arguments. Narrate through the gather, render the messages the human sees before provisioning, then name the next step. Delimit each visible list reply with a line containing only `---` before and after it. Put narration and labels outside these delimiters. Immediately after Run B's closing delimiter, write `Paired call:` followed by the exact tool call that shares the reply with the list. Keep that call and the initialization steps in workflow order in the narration. Stop before provisioning; do not provision, dispatch, or render a menu. Treat the observations as command results; execute nothing.
