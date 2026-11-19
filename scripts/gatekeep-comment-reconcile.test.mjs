@@ -220,10 +220,12 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const block = discovery.match(/```bash\n(projection='[^\n]*[\s\S]*?)\n```/)[1].replaceAll('<owner/repo>', 'acme/widgets');
   const projection = block.match(/^projection='(.*)'$/m)[1];
   const changed = { number: 42, isDraft: false, reviewDecision: 'CHANGES_REQUESTED', additions: 3, deletions: 1,
-    title: 'Validate widget size', url: 'https://github.com/acme/widgets/pull/42', body: 'x'.repeat(300) + ' https://linear.app/acme/issue/SZ-7' };
+    title: 'Validate widget size https://linear.app/acme/issue/sz-6', url: 'https://github.com/acme/widgets/pull/42',
+    body: 'x'.repeat(300) + ' https://linear.app/acme/issue/sz-7' };
   const input = [changed, { ...changed, isDraft: true }, { ...changed, reviewDecision: 'APPROVED' }];
   const projected = JSON.parse(execFileSync('jq', [projection], { input: JSON.stringify(input) }));
-  assert.deepEqual(projected[0], { ...changed, body: 'x'.repeat(300), linearRefs: [{ key: 'acme', id: 'SZ-7' }] });
+  assert.deepEqual(projected[0], { ...changed, body: 'x'.repeat(300),
+    linearRefs: [{ key: 'acme', id: 'SZ-6' }, { key: 'acme', id: 'SZ-7' }] });
   for (const [i, row] of projected.slice(1).entries()) {
     const { number, isDraft, reviewDecision, additions, deletions } = input[i + 1];
     assert.deepEqual(row, { number, isDraft, reviewDecision, additions, deletions });

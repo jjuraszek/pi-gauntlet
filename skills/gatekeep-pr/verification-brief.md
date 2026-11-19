@@ -71,7 +71,9 @@ verdict=$(printf '%s\n' "$lookup" | jq -ers '
   | (.commits.nodes[0].commit.committedDate | instant) as $head
   | ($reviews.nodes | map(if (.state | type != "string") then error("state") else select(.state == "CHANGES_REQUESTED") end
       | {login: (.author.login | if . == null then null else ascii_downcase end), at: (.submittedAt | instant)})) as $changes
-  | ($requests.nodes | map(.requestedReviewer | select(.__typename == "User") | .login | ascii_downcase)) as $pending
+  | ($requests.nodes | map(.requestedReviewer | select(. != null)
+      | if (.__typename | type) != "string" then error("reviewer type") else select(.__typename == "User") end
+      | .login | ascii_downcase)) as $pending
   | if $reviews.pageInfo.hasNextPage or $requests.pageInfo.hasNextPage then "incomplete"
     elif all($changes[]; .login as $who | $pending | index($who) != null) then "answered"
     elif $head > ($changes | map(.at) | max) then "answered"

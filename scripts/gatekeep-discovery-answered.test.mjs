@@ -60,6 +60,7 @@ printf '%s\\n' "$GH_STUB_JSON"
     ['later fractional second', pr(undefined, [], '2026-01-01T10:00:00.1Z'), 'answered'],
     ['no change requester', pr([{ ...review('Lee', late), state: 'APPROVED' }]), 'answered'],
     ['only a team requested', pr(undefined, [{ __typename: 'Team' }]), 'unanswered'],
+    ['null pending reviewer cannot match', pr(undefined, [null]), 'unanswered'],
     ['deleted requester cannot match', pr(withoutLogin, [user('Lee')]), 'unanswered'],
     ['later commit after deleted requester', pr(withoutLogin, [], late), 'answered'],
     ['missing pull request', null, 'malformed'],
@@ -70,6 +71,8 @@ printf '%s\\n' "$GH_STUB_JSON"
     ['missing requests page flag', { ...pr(), reviewRequests: { nodes: [], pageInfo: {} } }, 'malformed'],
     ['missing last commit', { ...pr(), commits: { nodes: [] } }, 'malformed'],
     ['missing requester timestamp', pr([review('Lee', undefined)]), 'malformed'],
+    ['missing pending reviewer type', pr(undefined, [{ login: 'Lee' }]), 'malformed'],
+    ['non-string pending reviewer type', pr(undefined, [{ __typename: 1, login: 'Lee' }]), 'malformed'],
     ['incomplete reviews', { ...pr(), latestOpinionatedReviews: page }, 'incomplete'],
     ['incomplete requests', { ...pr(), reviewRequests: page }, 'incomplete'],
   ]) {
