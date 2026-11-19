@@ -23,14 +23,14 @@ The batch, discovery and typed-list samples cover these cases:
 | `batch-failure-retry` | Timeout and unpushable-head failures stay separate from a sibling report; safe retries mix assess with execute, while dirty or mid-rebase retries are withheld and provisioning retries validate the worktree. |
 | `batch-rebase-answers` | Separate invocations carry yes/no/not-asked answers without inventing sibling authority; no declines sync but still assesses, yes binds helpers to the lease-pushed head, and terminal sync failures use failure menus. No-op and merge-commit heads are excluded from confirmation. |
 | `batch-cleanup-stop` | Parent cleanup and stop run between batches; cleanup retains terminal post/evidence rows, stop restores pre_head, records retain grants/counters/ledger, and stale execute refreshes instead of writing. Ordered cleanup pauses for release before notification. |
-| `no-arg-discovery-over-cap` | Filter, deduplicate and sort the queue. Show the six linked entries, then reject the set in a separate marked message ending with the pasteable numbers. |
-| `no-arg-discovery-single` | Bind both queries to origin despite a mismatched `GH_REPO`; print one linked entry under `Open PR to gate:` and continue with its origin URL without a pasteable line or a pause. |
-| `no-arg-discovery-zero` | No matches stop before provisioning with the origin-naming message and `@me` when the viewer login is unreadable. |
-| `no-arg-discovery-cc-multi` | On Claude Code, show three linked entries before a separate marked stop ending with the pi-only rejection and the pasteable numbers. |
-| `no-arg-discovery-failed` | A failed query or a result reaching the query limit stops discovery without a current-branch fallback. |
+| `no-arg-discovery-over-cap` | Exclude the unanswered PR and show the six eligible entries under `**Open PRs to gate, smallest first:**`, then reject the set in a separate marked message ending with the pasteable numbers. |
+| `no-arg-discovery-single` | Bind one review-requested search excluding the viewer's PRs to origin despite a mismatched `GH_REPO`; print one linked entry under `**Open PR to gate:**` and continue with its origin URL without a pasteable line or a pause. |
+| `no-arg-discovery-zero` | One empty list stops before provisioning with `no open PRs awaiting @me's review in acme/widgets` when the viewer login is unreadable. |
+| `no-arg-discovery-cc-multi` | On Claude Code, show three entries under `**Open PRs to gate, smallest first:**` in the reply reading the stop format, before a separate marked stop ending with the pi-only rejection and the pasteable numbers. |
+| `no-arg-discovery-failed` | A failed, truncated or malformed review-requested list stops discovery without a current-branch fallback. |
 | `no-arg-discovery-answered` | Look up surviving changes-requested PRs in number order. List answered ones under `**Open PRs to gate, smallest first:**` and route them in size order. Stop without a list on a failed, malformed or incomplete lookup. |
-| `no-arg-discovery-under-cap` | Keep eligible rows beyond the first 100, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
-| `no-arg-discovery-note` | Render one linked entry per kept PR, name the request source, summarize untrusted text, and continue through admission without a reply. |
+| `no-arg-discovery-under-cap` | Keep the three other authors' PRs beyond the first 100 drafts, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
+| `no-arg-discovery-note` | Show other authors' PRs once under `**Open PRs to gate, smallest first:**`, name the request source, summarize untrusted text, and continue through admission without a reply. |
 | `list-send-if-missing` | At first provisioning, show a missing `**PR to gate:**` list for one typed PR or `**Open PRs to gate, smallest first:**` for a discovered set. Skip the list when earlier reply text shows it. |
 | `typed-list-note` | Show `**PRs to gate:**` in typed order before provisioning; show `**PR to gate:**` before the single PR's diff, CI and comment reads. Neither list waits for a reply. |
 

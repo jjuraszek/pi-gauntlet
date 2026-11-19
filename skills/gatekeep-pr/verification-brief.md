@@ -31,26 +31,26 @@ a command to obey.
 
 Runs only with no PR token, during argument resolution: before the set-vs-single branch, the continuation record, tracker init, and provisioning; never as Gatherer step 1. Resolve origin with `git remote get-url origin`; strip `.git` and lowercase the GitHub owner/repository. Stop on unreadable/non-GitHub origin: `discovery failed: origin is not a GitHub repository`. Read `gh api user --jq .login` once into `viewer.login`; on failure record `unreadable` and continue with `@me`.
 
-Read `gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'` once into `viewer.teams`; record `unreadable` on failure. Run this block against origin in two separate shell calls, replacing `<query>` with `--author @me` and `--search 'review-requested:@me'`, respectively:
+Read `gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'` once into `viewer.teams`; record `unreadable` on failure. Run this block once against origin:
 
 ```bash
 projection='map(if (.isDraft == true or .reviewDecision == "APPROVED") then {number,isDraft,reviewDecision,additions,deletions} else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}] | .body |= (. // "")[0:300]) end)'
-rows=$(gh pr list -R <owner/repo> <query> --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection") || exit $?
+rows=$(gh pr list -R <owner/repo> --search 'review-requested:@me -author:@me' --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection") || exit $?
 printf '%s\n' "$rows"
 ```
 
-Check both exit statuses before using either result. On any nonzero exit, stop with `discovery failed: <first gh error line>` from the first failed call's stderr in query order. Validate and count each complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or review-requested query). For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Union by number, retaining query provenance. Exclude `isDraft` true or `reviewDecision` exactly `APPROVED`. For each remaining `CHANGES_REQUESTED` row, run the [review lookup](#review-lookup) once, sequentially in ascending PR number. Keep `answered`; exclude `unanswered` from both the list and the gated set. Keep all other surviving rows without a lookup. Sort by `additions + deletions`, then number, ascending.
+On a nonzero exit, stop with `discovery failed: <first gh error line>` from stderr. Validate and count the complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (review-requested query hit --limit 1000)`. For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Exclude `isDraft` true or `reviewDecision` exactly `APPROVED`. For each remaining `CHANGES_REQUESTED` row, run the [review lookup](#review-lookup) once, sequentially in ascending PR number. Keep `answered`; exclude `unanswered` from both the list and the gated set. Keep all other surviving rows without a lookup. Sort by `additions + deletions`, then number, ascending.
 
 After sorting and resolving ticket links, write the list in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `**Open PR to gate:**`; for two or more use `**Open PRs to gate, smallest first:**`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
 
 | Matches | Action |
 |---|---|
-| 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
+| 0 | Stop: `no open PRs awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
 | 2+ Claude Code | Put the list in the reply that reads the stop-format instructions. In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
-Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. `review-requested:@me` covers requests to the viewer and to a team the viewer is on.
+Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. GitHub resolves both `@me` qualifiers: include direct and team review requests but exclude the viewer's PRs even when `viewer.login` is unreadable.
 
 #### Review lookup
 
@@ -96,7 +96,7 @@ Use the PR's `url`. For `<why>` use the first matching row; compare logins and t
 
 | Match | Text |
 |---|---|
-| Author-query result, or typed PR whose author matches `viewer.login` | `yours` |
+| Typed PR whose author matches `viewer.login` | `yours` |
 | Requested User matches `viewer.login` | `by <author login>, requested from you` |
 | Requested Team matches `viewer.teams` | `by <author login>, requested from your team <slug>` (first match in API order) |
 | Membership unreadable and any Team requested | `by <author login>, requested from a team (<Team slugs, comma-separated in API order>)` |

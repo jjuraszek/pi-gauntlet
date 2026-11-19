@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-cc-multi",
   "arm": "baseline",
-  "skillSha": "bc1f55e27c1056d4957d30493f0487cf16868b2e8d2ebc90bc355c805efc5d80",
-  "inputSha": "c9ff1a176a386a040aa8976c8bae4cc4e1f2107de2e2471ccd8f41b8f4da1683",
+  "skillSha": "69e455956a562e032a8bed953401b3fba6308329fbc88f612bd789afac546d92",
+  "inputSha": "cb856f27021233ac886817cea1b3ac5ca7b4508af143b9e9e1057dcb2d9f1ec5",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: stuck multi-PR mode requires pi's nested dispatch\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
-      "words": 20,
-      "wallMs": 4379,
+      "text": "**Narration (argument resolution, no PR token)**\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I strip `.git` and lowercase it, so origin is `acme/widgets`.\n2. `gh api user --jq .login` returns `alex`, which becomes `viewer.login`.\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` succeeds with an empty list, so `viewer.teams` is empty.\n4. The author query runs as its own call: `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json ... --jq \"$projection\"`. It exits 0 with `[]`.\n5. The review-requested query runs as a separate call: `gh pr list -R acme/widgets --search 'review-requested:@me' --state open --limit 1000 --json ... --jq \"$projection\"`. It exits 0 with the three supplied rows.\n6. Both exit statuses are 0. Both results are arrays of objects with integer `number`, and each count is below 1000, so the output is valid and complete.\n7. I union the results by number and keep each row's query provenance (review-requested). No row is a draft, and none is `APPROVED` or `CHANGES_REQUESTED`, so all three stay.\n8. I sort by additions plus deletions, then by number:\n   - #101 has 2 changed lines.\n   - #97 has 4.\n   - #112 has 6.\n9. Discovery never falls back to the current branch, so PR 999 is ignored.\n10. For the ticket display, `git symbolic-ref --short refs/remotes/origin/HEAD` resolves the default branch.\n\n**File read accompanying the list:** `git show <origin default ref>:<overrides path>` reads the gauntlet overrides file from origin's default branch, using the first one found in the project-overrides search order. It sets `tracker: github` under `## Issue tracker`, which disables Linear IDs, addresses and lookups.\n\nNo PR closes an issue. No branch or title holds a `gh-<N>` or `#<N>` token, so every entry shows `no ticket`.\n\nThree matches on the Claude Code harness means a stop. No run folder, continuation record, tracker init or provisioning happens, and no tracker stages are initialized.\n\n---\n\nOpen PRs to gate, smallest first:\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retries slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - shows elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by pat, requested from you, no ticket - trims empty labels\n\n---\n\ngauntlet: stuck multi-PR mode requires pi's nested dispatch\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
+      "words": 370,
+      "wallMs": 19067,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "multi-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
-      "words": 12,
-      "wallMs": 7496,
+      "text": "Starting at argument resolution with no PR token, I use `verification-brief.md`, Section A, and the set-admission rules in `reference/batch.md`. This is a narration only; I execute nothing.\n\n1. `git remote get-url origin` resolves origin to `acme/widgets`.\n2. `gh api user --jq .login` identifies the viewer as alex.\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` returns no teams.\n4. `git symbolic-ref --short refs/remotes/origin/HEAD` identifies origin's default-branch ref. Read its overrides with `git show <ref>:<path>` in the prescribed search order: `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, then `doc/gauntlet-overrides.md`, stopping at the first file found. Its `## Issue tracker` section selects GitHub, so no Linear lookup runs.\n5. Run the two separate discovery calls prescribed by Section A: `gh pr list -R acme/widgets --author @me ...` and `gh pr list -R acme/widgets --search 'review-requested:@me' ...`, each with the specified projection, JSON fields, open-state filter, and limit of 1000. Validate both complete results before filtering or counting; union by PR number, exclude drafts and decided PRs, and sort by additions plus deletions, then number.\n\nThe surviving order is 101, 97, 112. Print the discovery reply immediately, then reject multi-PR mode on Claude Code. The current branch's PR 999 is not a discovery fallback, and the set-size limit does not change the harness rejection.\n\nNo run folder or tracker is initialized, no provisioning or helper dispatch occurs, and no SHA is verified or reviewed. No assessment report or menu is rendered at this discovery stop.\n\n---\n\nOpen PRs to gate, smallest first:\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by pat, requested from you, no ticket - trim empty labels\n\n---\n\ngauntlet: stuck multi-PR mode requires pi's nested dispatch\nmulti-PR mode requires pi's nested dispatch\ndiscovered, smallest first: 101, 97, 112\n",
+      "words": 299,
+      "wallMs": 22072,
       "mechanical": {}
     }
   },
-  "repoSha": "4b90033454a8ab4fd3c3c0f703c265bbb3ae2a7f"
+  "repoSha": "eb4691b080122d0fc1685933e3d415cb009bae67"
 }

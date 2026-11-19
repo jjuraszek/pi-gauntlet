@@ -214,7 +214,7 @@ test('PR sets route before the unchanged single-PR steps', () => {
   const discovery = section(brief, '### Argument-resolution discovery\n', '### Gather fixed commands\n');
   for (const pattern of [
     /git remote get-url origin/, /gh api user --jq \.login/,
-    /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
+    /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(review-requested query hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
   const block = discovery.match(/```bash\n(projection='[^\n]*[\s\S]*?)\n```/)[1].replaceAll('<owner/repo>', 'acme/widgets');
@@ -229,27 +229,21 @@ test('PR sets route before the unchanged single-PR steps', () => {
     assert.deepEqual(row, { number, isDraft, reviewDecision, additions, deletions });
   }
   const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection"';
-  const gh = `gh() {
-    case "$5 $6" in
-      '--author @me') echo '[{"number":7}]'; echo 'gh: author search failed' >&2; return 1 ;;
-      '--search review-requested:@me') echo '[]' ;;
-      *) return 2 ;;
-    esac
-  }`;
-  for (const [query, status, stdout, stderr] of [
-    ['--author @me', 1, '', 'gh: author search failed\n'],
-    ["--search 'review-requested:@me'", 0, '[]\n', ''],
+  assert.ok(block.includes(`gh pr list -R acme/widgets --search 'review-requested:@me -author:@me' ${listArgs}`));
+  assert.doesNotMatch(discovery, /--author @me|two separate shell calls/);
+  assert.match(discovery, /\| Typed PR whose author matches `viewer\.login` \| `yours` \|/);
+  for (const [command, status, stdout, stderr] of [
+    [`echo '[]'`, 0, '[]\n', ''],
+    [`echo '[{"number":7}]'; echo 'gh: review search failed' >&2; return 1`, 1, '', 'gh: review search failed\n'],
   ]) {
-    const result = spawnSync('bash', ['-c', `${gh}\n${block.replace('<query>', query)}`], { encoding: 'utf8' });
-    assert.equal(result.status, status, query);
-    assert.equal(result.stdout, stdout, query);
-    assert.equal(result.stderr, stderr, query);
-    assert.ok(discovery.includes('`' + query + '`'));
+    const result = spawnSync('bash', ['-c', `gh() { ${command}; }\n${block}`], { encoding: 'utf8' });
+    assert.equal(result.status, status);
+    assert.equal(result.stdout, stdout);
+    assert.equal(result.stderr, stderr);
   }
-  assert.ok(block.includes(`gh pr list -R acme/widgets <query> ${listArgs}`));
-  assert.match(discovery, /two separate shell calls/);
   assert.match(discovery, /discovery failed: <first gh error line>/);
   assert.match(discovery, /For zero matches or a discovery failure print no list/);
+  assert.ok(discovery.includes("Stop: `no open PRs awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login."));
   for (const text of [
     'Open PRs to gate, smallest first:',
     '- [#<number>](<url>) +<additions> -<deletions>, <why>, <ticket> - <phrase>',
@@ -1059,8 +1053,8 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
         for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
       }
     }
-    if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap'].includes(sample)) {
-      assert.ok(input.includes('Review-requested query rows:') && input.includes('gh api user/teams'));
+    if (['no-arg-discovery-zero', 'no-arg-discovery-under-cap', 'no-arg-discovery-failed'].includes(sample)) {
+      if (!sample.endsWith('failed')) assert.ok(input.includes('Review-requested query rows:') && input.includes('gh api user/teams'));
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
       const replies = historicalReplies(saved);
       assert.equal(replies.length, saved.models.replay.length);
@@ -1069,12 +1063,14 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
           assert.match(output.text, /\[#97\]\(https:\/\/github\.com\/acme\/widgets\/pull\/97\) \+2 -2, by robin, review requested, no ticket - /);
         } else {
           assert.doesNotMatch(output.text, /^(?:\*\*)?Open PRs? to gate[:,]/m);
+          if (sample.endsWith('zero')) assert.ok(output.text.includes("no open PRs awaiting @me's review in acme/widgets"));
         }
+        assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }
     }
     if (sample === 'no-arg-discovery-single') {
-      const heading = 'Open PR to gate:';
+      const heading = '**Open PR to gate:**';
       assert.ok(brief.includes(heading));
       const expected = read(`${root}/expected.md`);
       assert.ok(expected.includes(heading), 'f1 must require the singular list heading');
@@ -1083,6 +1079,8 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         assert.ok(output.text.includes(heading));
+        assert.ok(output.text.includes('review-requested:@me -author:@me'), `${model}: exclude viewer-authored PRs at search`);
+        assert.doesNotMatch(output.text, /\[#85\]\(/);
         assert.equal(saved.judge[model].factsSha, sha256(expected));
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }
@@ -1100,7 +1098,7 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         const [list, stop] = output.text.trim().split(/\n\s*---\s*\n/).slice(-2);
-        assert.match(list, /^Open PRs to gate, smallest first:/);
+        assert.match(list, /^\*\*Open PRs to gate, smallest first:\*\*/);
         assert.match(stop, /^gauntlet: stuck .+\n/);
         assert.match(stop, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
         assert.equal(saved.judge[model].factsSha, sha256(expected));

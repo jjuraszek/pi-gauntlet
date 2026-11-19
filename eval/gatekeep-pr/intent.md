@@ -1,11 +1,14 @@
-for: 81dfb8d623191b726dabf67453a8c97ecc3582810ce6f7c27d7d4c8b463c9abb
+for: 823ef512a0dc9c0352fea8d506062625f5feed4b82cd3177f5ef87ddd2c9da63
 
 ## Change
 
-Keep a changes-requested PR in discovery when every requester was asked again or the last commit came after all outstanding change requests. The answered sample supplies fixed verdicts and checks which lookups the parent runs, which PRs it lists and routes, and what it says when a lookup fails. A shell test classifies the responses; it cannot show that the parent used the verdict before routing. Show each list in visible reply text with a bold heading. For one typed PR, list it before reading CI runs, the diff or comments. At first provisioning the single-PR runner or set parent sends the list only when earlier reply text in view lacks it. The list-send-if-missing replay tests whether the writer distinguishes a visible list from a shell result or a pasteable line.
+Search once for other authors' open PRs awaiting the viewer's review, even when the viewer's team is asked to review the viewer's own PR. A typed PR still bypasses discovery. Keep a changes-requested PR in discovery when every requester was asked again or the last commit came after all outstanding change requests. The answered sample supplies fixed verdicts and checks which lookups the parent runs, which PRs it lists and routes, and what it says when a lookup fails. A shell test classifies the responses; it cannot show that the parent used the verdict before routing. Show each list in visible reply text with a bold heading. For one typed PR, list it before reading CI runs, the diff or comments. At first provisioning the single-PR runner or set parent sends the list only when earlier reply text in view lacks it. The list-send-if-missing replay tests whether the writer distinguishes a visible list from a shell result or a pasteable line.
 
 ## Expected to move
 
+- no-arg-discovery-zero/f1: fails -> holds - Report an empty review queue in origin using @me when the login is unreadable.
+- no-arg-discovery-single/f1: fails -> holds - Bind the single search to origin, exclude the viewer's own team-requested PR and list the other author's PR.
+- no-arg-discovery-failed/f1: fails -> holds - Name the review-requested query when the result reaches its limit.
 - list-send-if-missing/s1: fails -> holds - Show the typed PR in the reply carrying its first provisioning command when shell output was the only list.
 - list-send-if-missing/s2: fails -> holds - Have the set parent show the linked list when earlier reply text contains only the pasteable line.
 - typed-list-note/e1: fails -> holds - Show the set under a bold heading in typed order before provisioning.

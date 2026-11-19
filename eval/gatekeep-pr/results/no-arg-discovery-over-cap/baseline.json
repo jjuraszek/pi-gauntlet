@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-over-cap",
   "arm": "baseline",
-  "skillSha": "bc1f55e27c1056d4957d30493f0487cf16868b2e8d2ebc90bc355c805efc5d80",
-  "inputSha": "64c47d8aa1aed91315627128b19e66c3d29d5877f7400fcbdcdd5607a28fdb99",
+  "skillSha": "69e455956a562e032a8bed953401b3fba6308329fbc88f612bd789afac546d92",
+  "inputSha": "9a6b3e836d42ffb3a37db48fc1dba915559ba9563f4b34c7d1017c77d1209643",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Narration**\n\n1. With no PR token, discovery runs during argument resolution, before set routing, the continuation record, tracker initialization, or provisioning.\n2. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. With `.git` stripped and the name lowercased, the repository is `acme/widgets`.\n3. `gh api user --jq .login` returns `alex`, which becomes `viewer.login`.\n4. Two discovery queries run, and both exit 0 with valid arrays. Neither reaches the 1000-row limit.\n   - `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n   - `gh pr list -R acme/widgets --search 'user-review-requested:@me' --state open --limit 1000 --json number,isDraft,reviewDecision,additions,deletions`\n5. Filtering:\n   - The union, deduplicated, is 104, 88, 101, 130, 200, 201, 112, 97, 202. PR 101 appears in both queries.\n   - 200 is excluded because it is a draft.\n   - 201 is excluded because it is `APPROVED`.\n   - 202 is excluded because it is `CHANGES_REQUESTED`.\n   - The null and empty review decisions on 112 and 97 stay in.\n   - No team-requests query runs, and the current branch's PR 999 is never used.\n6. The remaining PRs, sorted by additions plus deletions and then by number:\n\n   | PR | Size |\n   |---|---|\n   | 101 | 2 |\n   | 97 | 4 |\n   | 112 | 6 |\n   | 88 | 8 |\n   | 130 | 8 |\n   | 104 | 10 |\n\n7. Six matches on pi send the run back to set routing. The roster is six origin URL tokens, `https://github.com/acme/widgets/pull/<N>`, marked `source: discovered`.\n8. Admission reads pi-cohort `parallel.maxTasks`, which is 4. Six PRs is over that limit, so the set is rejected before any effect.\n   - No fetch, confirmation, run folder, tracker init, provisioning, or dispatch happens.\n   - The set is not split into chunks or trimmed.\n   - No SHA is verified or assessed, and no report or menu is rendered.\n\n---\n\ngauntlet: stuck discovered set exceeds the multi-PR limit\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
-      "words": 294,
-      "wallMs": 13638,
+      "text": "Open PRs to gate, smallest first:\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trim empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, by pat, requested from you, no ticket - restore keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, by sam, requested from you, no ticket - hide archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, by pat, requested from you, no ticket - expire cached labels\n\n---\n\ngauntlet: stuck multi-PR set exceeds the parallel task cap\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 113,
+      "wallMs": 14245,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck multi-PR set exceeds configured limit\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
-      "words": 27,
-      "wallMs": 6624,
+      "text": "Open PRs to gate, smallest first:\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trim empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, by pat, requested from you, no ticket - restore keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, by sam, requested from you, no ticket - hide archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, by pat, requested from you, no ticket - expire cached labels\n\n---\n\ngauntlet: stuck set admission\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 108,
+      "wallMs": 8554,
       "mechanical": {}
     }
   },
-  "repoSha": "4b90033454a8ab4fd3c3c0f703c265bbb3ae2a7f"
+  "repoSha": "eb4691b080122d0fc1685933e3d415cb009bae67"
 }

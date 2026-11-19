@@ -3,9 +3,9 @@
 base: 087d02da19b45c841a9c9c6b73819d9ace93c35e
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
-returned: 8 | home | f2d1566547bdb9f79cac0d9b3eedd4680c978c41
+returned: 10 | home | eb4691b080122d0fc1685933e3d415cb009bae67
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -18,8 +18,8 @@ returned: 8 | home | f2d1566547bdb9f79cac0d9b3eedd4680c978c41
 | 7 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-comment-reconcile.test.mjs; 87 passed, including visible reply text beside the next tool call at all three sites; both typed-list-note replies showed the single PR before CI, diff and comment reads |
 | 8 | done | 1 | timeout -k 30 10 jq -e '[.judge[].facts.s1.after, .judge[].facts.s2.after] == ["holds","holds","holds","holds"]' eval/gatekeep-pr/results/list-send-if-missing/candidate.json; true; both models showed the missing linked list before git fetch origin for the typed PR and discovered set |
 | 9 | done | 0 | timeout -k 30 10 jq -e '[.judge[].facts.s3.after] == ["holds","holds"]' eval/gatekeep-pr/results/list-send-if-missing/candidate.json; true; both models proceeded to git fetch origin without repeating the earlier visible list |
-| 10 | open | 0 | |
-| 11 | open | 0 | |
+| 10 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-comment-reconcile.test.mjs; 87 passed; both no-arg-discovery-single replies excluded the viewer's team-requested #85; all facts held in the single, note, over-cap, cc-multi, failed and under-cap discovery samples |
+| 11 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-comment-reconcile.test.mjs; 87 passed; both no-arg-discovery-zero replies stopped with no open PRs awaiting @me's review in acme/widgets and no PR list |
 
 ## Decisions
 row 0 done | seeded 5 rows, closed 0 on baseline | row 1
@@ -32,3 +32,5 @@ row 6 done | Discovered and typed PR lists use bold headings for both one PR and
 row 7 done | All three list rules put the list in visible reply text beside the next tool call. | Reuse the typed-list-note sample to check that a single PR appears before CI, diff and comment reads.
 row 8 done | The first provisioning reply shows the linked PR list before the command when no earlier reply in view shows it. | Reuse the list-send-if-missing sample to check the typed single-PR and discovered set paths at checkout.
 row 9 done | The first provisioning reply skips the list when an earlier visible reply already shows it. | nothing new to build on
+row 10 done | No-argument discovery excludes the viewer's own PRs in the GitHub search, even when their team was asked to review. | Reuse the no-arg-discovery-single sample to check the search and handoff when the viewer's team has a review request on their own PR.
+row 11 done | An empty review queue stops with the origin and viewer in the message, using @me when the login is unreadable. | Reuse the no-arg-discovery-zero sample to check the exact stop text and absence of a list.

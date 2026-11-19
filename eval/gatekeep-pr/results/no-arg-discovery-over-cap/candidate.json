@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-over-cap",
   "arm": "candidate",
-  "skillSha": "a5f9e2a08a3993aca0ed84758ea98e468c4cf952eb915407c7bb7500e247c2a4",
-  "inputSha": "64c47d8aa1aed91315627128b19e66c3d29d5877f7400fcbdcdd5607a28fdb99",
+  "skillSha": "ecb2337c7e36a307ce0085e5b4f0b0bd0fe978a96925fd04bd5cb94bd26ddd8d",
+  "inputSha": "9a6b3e836d42ffb3a37db48fc1dba915559ba9563f4b34c7d1017c77d1209643",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,54 +17,54 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Open PRs to gate, smallest first:\n\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, yours, no ticket - retries slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - shows elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trims empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, yours, no ticket - restores keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, yours, no ticket - hides archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, yours, no ticket - expires cached labels\n\n---\n\ngauntlet: stuck discovered set exceeds the multi-PR cap\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
-      "words": 96,
-      "wallMs": 10154,
+      "text": "**Narration (commands only; no helpers run before admission rejects the set)**\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. I strip `.git` and lowercase it to `acme/widgets`.\n2. `gh api user --jq .login` returns `alex`, so `viewer.login` is `alex`.\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` returns an empty list, so `viewer.teams` is empty.\n4. The discovery block runs `gh pr list -R acme/widgets --search 'review-requested:@me -author:@me' --state open --limit 1000 ...` with the projection.\n   - It returns 9 rows, below the limit, and every row is well formed.\n   - #200 is a draft and #201 is approved, so both are excluded.\n5. #202 has changes requested, so I run the review lookup GraphQL block once for `acme/widgets` #202.\n   - The verdict is `unanswered`, so #202 is excluded.\n6. I sort the six surviving PRs by size, then by number: 101 (2), 97 (4), 112 (6), 88 (8), 130 (8), 104 (10).\n7. For the ticket display I run `git symbolic-ref --short refs/remotes/origin/HEAD` and `git show <ref>:.pi/gauntlet-overrides.md`, following the overrides search order.\n   - The file sets `tracker: github`, which disables Linear IDs and lookups.\n   - No PR has a closing reference or a `gh-<N>` or `#<N>` token, so every entry says `no ticket`.\n8. With two or more matches on pi, I write the list in the visible text of the reply that carries the next tool call. That call reads `reference/batch.md`.\n9. Set routing re-enters with the six origin URL tokens, `source: discovered`.\n   - Admission reads the cohort cap, `parallel.maxTasks` = 4.\n   - Six PRs exceed the cap, so admission rejects the set before any fetch, run folder, tracker init, provisioning or dispatch.\n   - No tracker stages are initialized, and no SHA is assessed.\n\n---\n\n**Open PRs to gate, smallest first:**\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trim empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, by pat, requested from you, no ticket - restore keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, by sam, requested from you, no ticket - hide archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, by pat, requested from you, no ticket - expire cached labels\n\n---\n\ngauntlet: stuck multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\n\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\n\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 392,
+      "wallMs": 19072,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Open PRs to gate, smallest first:\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, yours, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trim empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, yours, no ticket - restore keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, yours, no ticket - hide archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, yours, no ticket - expire cached labels\n\n---\n\ngauntlet: stuck PR set exceeds limit\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
-      "words": 94,
-      "wallMs": 6261,
+      "text": "**Open PRs to gate, smallest first:**\n- [#101](https://github.com/acme/widgets/pull/101) +1 -1, by sam, requested from you, no ticket - retry slow requests\n- [#97](https://github.com/acme/widgets/pull/97) +2 -2, by robin, requested from you, no ticket - show elapsed time\n- [#112](https://github.com/acme/widgets/pull/112) +3 -3, by robin, requested from you, no ticket - trim empty labels\n- [#88](https://github.com/acme/widgets/pull/88) +4 -4, by pat, requested from you, no ticket - restore keyboard navigation\n- [#130](https://github.com/acme/widgets/pull/130) +4 -4, by sam, requested from you, no ticket - hide archived widgets\n- [#104](https://github.com/acme/widgets/pull/104) +5 -5, by pat, requested from you, no ticket - expire cached labels\n\n---\n\ngauntlet: stuck multi-PR set exceeds capacity\nmulti-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6\ndiscovered, smallest first: 101, 97, 112, 88, 130, 104\n",
+      "words": 110,
+      "wallMs": 4902,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7839a4eef6fad57087b72e5400e11eea02101b28981f09caf39e2eb53db5a31c",
+      "factsSha": "983f036861f8d134706e5a0b18b1bd0993532ab4d38fbbd5e96525afba7f6bb6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7a18070ebc1c2603df46a57bbd8683354818f2261c0c5fd4eea2a9199b9e6f14",
-      "baselineOutputSha": "091972f6249ba03cc2983aca42b4983ad0a189a60106344834b5674ee43cc8ae",
-      "candidateOutputSha": "c39a257dcfc5cf57dc63b8d4f77dcceaff3cec4504ea1934f4e06d496e301227",
+      "intentSha": "b05252b7687aacbf89b79f94216f0c179749caf9ea03988cb00be3852afc3f8f",
+      "baselineOutputSha": "df03491fc0be0ab5c6c833e1589c2f647df7598e4da4e74d7cf895a6fd6c6f18",
+      "candidateOutputSha": "8780d1c458375fbcecca5a1f52b4aac1f64c820e73809ba7b54070b7ba15544f",
       "facts": {
         "f1": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "The After wording moved f1 from fails to holds because the parent now prints the kept roster as its own message before the stop: six linked entries in the correct order (101, 97, 112, 88, 130, 104), with drafts, APPROVED and CHANGES_REQUESTED excluded and 101 deduplicated. Before only showed an unlinked size table inside internal narration, so it had no linked per-PR entries. Both outputs already had the stop message starting with `gauntlet: stuck <reason>`, the exact cap line, the plain `discovered, smallest first: ...` line, and no provisioning, dispatch, continuation record or tracker init; After keeps all of these, so nothing Before satisfied was lost. To keep it that way, keep the wording that makes the list a separate message ahead of the rejection, that makes the `gauntlet: stuck` line the first line of the stop message, and that leaves the final numbers line as plain unlinked text. The reason text changed from 'limit' to 'cap', which is harmless here, but pin it if other checks depend on the wording.",
-      "wallMs": 7622,
+      "feedback": "The bold heading is what moved f1: Before printed `Open PRs to gate, smallest first:` as plain text, while After prints `**Open PRs to gate, smallest first:**` exactly. Both outputs exclude #200, #201 and the unanswered #202, order the six PRs as 101, 97, 112, 88, 130, 104, link each entry, put the list before a separate rejection that opens with `gauntlet: stuck <reason>`, and run no provisioning, dispatch, continuation record or tracker init. After holds, but with three drifts from Before that the wording should tighten. First, it adds a long numbered narration message of commands ahead of the list, though the entry asks for only what the human sees; say that the list reply carries only the heading and entries, with no narration of lookups. Second, the `gauntlet: stuck` line now uses the full cap sentence as its reason, so that sentence appears twice; say the reason is a short label and the cap sentence appears once, after it. Third, blank lines now separate the cap sentence from the `discovered, smallest first:` line; say the stop message ends with those two as consecutive plain lines.",
+      "wallMs": 11553,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7839a4eef6fad57087b72e5400e11eea02101b28981f09caf39e2eb53db5a31c",
+      "factsSha": "983f036861f8d134706e5a0b18b1bd0993532ab4d38fbbd5e96525afba7f6bb6",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7a18070ebc1c2603df46a57bbd8683354818f2261c0c5fd4eea2a9199b9e6f14",
-      "baselineOutputSha": "17705293329430c2865f01d4a6f49404bcdfad20300218e7dbba88ace317af87",
-      "candidateOutputSha": "e075691ac4ab156a8ca87ecd66c82eb801c1d184ec703c1207e0b9eb897a5381",
+      "intentSha": "b05252b7687aacbf89b79f94216f0c179749caf9ea03988cb00be3852afc3f8f",
+      "baselineOutputSha": "60c999a97d01c348b34291074285a1373de0f47f82dabc6a478bab3f15b5f8ef",
+      "candidateOutputSha": "22c66606b0cee98c8b94283ff58e9e5348174c257c8ab2d410330884519e1342",
       "facts": {
         "f1": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "After moved f1 from fails to holds by adding a separate message, set off by a horizontal rule, that lists all six eligible PRs as linked entries in size-then-number order (101, 97, 112, 88, 130, 104) ahead of the rejection; Before went straight to the stop message with no list, so the 'one linked entry per eligible PR before the rejection' part failed. Everything Before already had is preserved in After: drafts, APPROVED and CHANGES_REQUESTED rows are excluded, 101 appears once, the stop message opens with its `gauntlet: stuck <reason>` line, and it ends with the exact cap line followed by the plain `discovered, smallest first: 101, 97, 112, 88, 130, 104` line, with no provisioning, dispatch, continuation record or tracker init. To keep this stable, keep the wording that requires the list to be its own message before the stop message, that the stuck marker be the first line of the stop message (not preceded by the list in the same message), and that the last two lines be verbatim and plain (no links in the pasteable numbers line); the stuck reason text changed slightly between runs ('multi-PR set exceeds configured limit' vs 'PR set exceeds limit'), so if you want that reason to be consistent, fix its wording explicitly.",
-      "wallMs": 5723,
+      "feedback": "The only difference that moved f1 is the heading: After renders `**Open PRs to gate, smallest first:**` in bold, as the fact requires, while Before printed the same heading as plain text and so fails. Everything else f1 asks for is the same in both outputs: the draft, the approved PR and #202 are excluded; the six eligible PRs appear as linked entries in the order 101, 97, 112, 88, 130, 104; the rejection is a separate message after a horizontal rule, starting with a `gauntlet: stuck <reason>` line and ending with the exact capacity line and the plain `discovered, smallest first:` line; and nothing is provisioned, dispatched, recorded or initialised. The stuck reason changed from `set admission` to `multi-PR set exceeds capacity`; f1 accepts either, but if the reason is meant to be a stable token, fix its wording explicitly so it does not drift between runs. To keep f1 holding, keep the explicit instruction that each list appears in visible reply text under a bold heading, keep the list and the stop as separate messages, and keep the last two lines of the stop message verbatim and unformatted.",
+      "wallMs": 7250,
       "verdict": "improved"
     }
   },
-  "repoSha": "4b90033454a8ab4fd3c3c0f703c265bbb3ae2a7f"
+  "repoSha": "eb4691b080122d0fc1685933e3d415cb009bae67"
 }

@@ -15,12 +15,8 @@ bundle-: skills/finishing-a-development-branch/reference/commit-message.md
 
 ## Digest
 
-Claude Code harness; viewer identity unreadable. `git remote get-url origin` returns `git@github.com:acme/widgets.git`; `gh api user --jq .login` and `gh api user/teams` both exit 1: HTTP 403: Forbidden. Current branch has unrelated PR 999. Both open-list queries exit 0 unless stated. All rows below are complete command outputs.
+Claude Code harness; viewer identity unreadable. `git remote get-url origin` returns `git@github.com:acme/widgets.git`; `gh api user --jq .login` and `gh api user/teams` both exit 1: HTTP 403: Forbidden. Current branch has unrelated PR 999. The one list call succeeds; its complete result follows.
 
-Author query rows:
-```json
-[]
-```
 Review-requested query rows:
 ```json
 []

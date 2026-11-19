@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Show the linked PR list in the gatekeeper's reply with a bold heading. For one typed PR, show it before reading CI, the diff or comments. If no earlier reply in view shows the list, include it before the first checkout command.
+- With no PR number, discover only other authors' open PRs awaiting your review or your team's review. Type a number to gate your own PR.
 - Include discovered PRs with changes requested when every outstanding requester was asked again or the last commit came after the latest change request.
 
 ## v8.8.3 - 2026-11-18
