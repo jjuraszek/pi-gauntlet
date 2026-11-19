@@ -23,9 +23,37 @@ import {
   transitionPhaseState,
   markerGuardApplies,
   recoverableEdge,
+  hasGauntletMarkerLine,
+  taskListMoved,
   type RecoveryPhaseMap,
   type RecoveryPhaseStatus,
 } from "./phase-tracker-helpers.ts";
+
+test("hasGauntletMarkerLine vetoes visible marker lines, not marker fragments", () => {
+  for (const text of ["gauntlet: gate=x/y", "preamble\r\ngauntlet: question\r\n", "```\ngauntlet: done ok\n```", "gauntlet: stuck reason"]) {
+    assert.equal(hasGauntletMarkerLine(text), true, text);
+  }
+  for (const text of ["gauntlet: questionable", "see gauntlet: question", "/gauntlet: done ok", ""]) {
+    assert.equal(hasGauntletMarkerLine(text), false, text);
+  }
+});
+
+test("taskListMoved compares consecutive ordered snapshots and requires a nonempty final snapshot", () => {
+  const failed = { name: "row 1", status: "failed" };
+  const running = { ...failed, status: "in_progress" };
+  const next = { name: "row 2", status: "pending" };
+  for (const [before, after, moved] of [
+    [undefined, [[failed]], true],
+    [[failed], [[running]], true],
+    [[failed], [[failed, next]], true],
+    [[failed, next], [[next, failed]], true],
+    [[failed], [[{ ...failed, label: "2/3" }]], true],
+    [[failed], [[running], [failed]], true],
+    [[failed], [[{ ...failed, label: "" }]], false],
+    [[failed], [], false],
+    [[failed], [[running], []], false],
+  ] as const) assert.equal(taskListMoved(before, after), moved, JSON.stringify({ before, after }));
+});
 
 const recoveryPhases = (
   overrides: Partial<Record<keyof RecoveryPhaseMap, RecoveryPhaseStatus>> = {},

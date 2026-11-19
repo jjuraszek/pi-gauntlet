@@ -189,4 +189,6 @@ Ordinary answers outside skill-owned turns, invented gates, tracker/ticket/PR pa
 
 Automatic continuations carry no intermediate terminal line: verification's Closure / conformance into finishing, SDD Continuous Execution, loop After the loop, and chase-bug handoffs into brainstorming, hotfix, or shape-ticket settle at the next skill's gate. Combined batch/menu and closure/options messages use one parent marker. A terminal report and a later new-skill gate on separate turns each carry their own marker.
 
+Only line one is a driver marker. During implementation, a marker below a preamble vetoes automatic restart but gives the driver no command. An unmarked first line is neither permission to answer nor a promise of another turn. A `pi-gauntlet-transition-recovery` custom message with `details.piGauntletRecoveryEdge: "implement-continue"` requests recovery; the request alone does not prove a run starts. Wait for another settlement only when a continuation is scheduled. If none follows, surface the existing stop to the operator.
+
 The executable inventory check is `node scripts/gate-contract-lint.mjs`. It checks listed slices and reverse marker coverage, not inventory completeness, dynamic counter arithmetic, or actual model output; review the full spec inventory against source sites when changing this table.

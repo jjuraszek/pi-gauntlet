@@ -318,10 +318,16 @@ test("active phases, non-idleness, and earlier competing handlers do not spend r
   assert.equal(ordered.sent.length, 0);
 });
 
+const assistantText = (text: string, stopReason = "stop") => ({
+  type: "message", message: { role: "assistant", stopReason, content: [{ type: "text", text }] },
+});
+
+const beforeSettle = async (h: ReturnType<typeof harness>, overrides = {}) =>
+  (await h.emitEvent("agent_before_settle", {
+    type: "agent_before_settle", outcome: "completed", entries: [], continue: false, context: { pendingMessages: [] }, ...overrides,
+  })).filter(Boolean) as { entries: any[]; continue: boolean }[];
+
 test("agent_before_settle requests one implement restart without running past a later marked stop", async () => {
-  const assistantText = (text: string) => ({
-    type: "message", message: { role: "assistant", stopReason: "stop", content: [{ type: "text", text }] },
-  });
   const branch = enteredBranch(phases({ brainstorm: "complete", plan: "complete", implement: "in_progress" }), [
     taskSnapshot([{ name: "next task", status: "in_progress" }]),
     assistantText("The first wave is complete."),
@@ -333,11 +339,8 @@ test("agent_before_settle requests one implement restart without running past a 
     h.pi.sendMessage({ customType: "other-extension", content: "Check the decision.", display: true }, { triggerTurn: true });
   } });
   const prior = { type: "custom", customType: "other-extension", data: "keep" };
-  const beforeSettle = async () => (await h.emitEvent("agent_before_settle", {
-    type: "agent_before_settle", outcome: "completed", entries: [prior], continue: false,
-  })).filter(Boolean) as { entries: any[]; continue: boolean }[];
   await h.emit("session_start");
-  const proposals = await beforeSettle();
+  const proposals = await beforeSettle(h, { entries: [prior] });
   assert.equal(proposals.length, 1, "the eligible stop must request a boundary continuation");
   const [{ entries, continue: shouldContinue }] = proposals;
   assert.equal(shouldContinue, true);
@@ -350,9 +353,134 @@ test("agent_before_settle requests one implement restart without running past a 
   await h.emit("agent_settled");
   assert.deepEqual(h.sent.map(s => s.message.customType), ["other-extension"]);
   branch.push({ type: "custom_message", ...h.sent[0].message }, assistantText("gauntlet: question"));
-  assert.deepEqual(await beforeSettle(), []);
+  assert.deepEqual(await beforeSettle(h), []);
   await h.emit("agent_settled");
   assert.equal(h.sent.length, 1, "no recovery run may start after the marked stop");
+});
+
+const movedTask = () => taskSnapshot([{ name: "next task", status: "in_progress" }]);
+const decisionOn = async (branch: unknown[], event = {}) => {
+  const h = harness({ branch });
+  await h.emit("session_start");
+  return beforeSettle(h, event);
+};
+
+test("only visible marker lines veto implement recovery", async () => {
+  for (const [prefix, block, expected] of [
+    ["", { type: "text", text: "gauntlet: question" }, 0],
+    ["Status:", { type: "text", text: "gauntlet: question" }, 0],
+    ["Status:", { type: "thinking", thinking: "gauntlet: question" }, 1],
+    ["Status:", { type: "toolCall", name: "tool", arguments: { note: "gauntlet: question" } }, 1],
+  ] as const) {
+    const last = assistantText(prefix);
+    const message = { ...last.message, content: prefix ? [...last.message.content, block] : [block] };
+    assert.equal((await decisionOn(implementBranch([movedTask(), { ...last, message }]))).length, expected);
+  }
+});
+
+const human = { type: "message", message: { role: "user", content: "Stop after this wave." } };
+const foreignTrigger = { type: "custom_message", customType: "other-extension", content: "Continue." };
+
+test("replies with no successful task movement since the boundary stay stopped", async () => {
+  const failedResult = taskSnapshot([{ name: "other", status: "failed" }], true);
+  for (const [history, expected] of [
+    [[], 0], [[movedTask(), human], 0], [[movedTask(), human, movedTask()], 0],
+    [[movedTask(), human, failedResult], 0], [[movedTask(), taskSnapshot([])], 0],
+    [[movedTask(), assistantText("gauntlet: question"), foreignTrigger], 0],
+    [[movedTask(), foreignTrigger], 1],
+  ] as const) {
+    assert.equal((await decisionOn(implementBranch([...history, assistantText("Status.")]))).length, expected);
+  }
+});
+
+test("a recovery entry requires fresh movement for the next implementation restart", async () => {
+  const branch = implementBranch([movedTask(), assistantText("Status.")]);
+  const h = harness({ branch });
+  await h.emit("session_start");
+  const [first] = await beforeSettle(h);
+  branch.push(...first.entries, assistantText("Still waiting."));
+  assert.deepEqual(await beforeSettle(h), []);
+  branch.push(taskSnapshot([{ name: "next task", status: "failed" }]), assistantText("Another attempt finished."));
+  assert.equal((await beforeSettle(h)).length, 1);
+});
+
+test("only a normal assistant stop qualifies for implement recovery", async () => {
+  for (const reason of ["pending", "length", "toolUse", "error", "aborted", "deferred"]) {
+    assert.deepEqual(await decisionOn(implementBranch([movedTask(), assistantText("Status.", reason)])), [], reason);
+  }
+  assert.deepEqual(await decisionOn(implementBranch([movedTask(), assistantText("Status.")]), { outcome: "aborted" }), []);
+});
+
+test("a subagent replaying its parent's implement history never requests a restart", async () => {
+  const branch = implementBranch([movedTask(), assistantText("Status.")]);
+  assert.equal((await decisionOn(branch)).length, 1);
+  const depth = process.env.PI_SUBAGENT_DEPTH!;
+  try {
+    process.env.PI_SUBAGENT_DEPTH = "1";
+    assert.deepEqual(await decisionOn(branch), []);
+  } finally { process.env.PI_SUBAGENT_DEPTH = depth; }
+});
+
+test("implement recovery yields to pending messages and to a prior boundary continuation", async () => {
+  const branch = implementBranch([movedTask(), assistantText("Status.")]);
+  for (const event of [
+    { context: { pendingMessages: [human.message] } },
+    { continue: true, entries: [foreignTrigger] },
+  ]) assert.deepEqual(await decisionOn(branch, event), []);
+});
+
+test("reload and fork reproduce live decisions from branch history", async () => {
+  const branch = implementBranch([movedTask(), assistantText("Status.")]);
+  const live = harness({ branch });
+  await live.emit("session_start");
+  const [restart] = await beforeSettle(live);
+  for (const [entries, count] of [
+    [[...restart.entries, assistantText("Waiting.")], 0],
+    [[taskSnapshot([{ name: "next task", status: "failed" }]), assistantText("Attempt finished.")], 1],
+    [[assistantText("gauntlet: question"), foreignTrigger, assistantText("Waiting.")], 0],
+  ] as const) {
+    branch.push(...entries);
+    const expected = await beforeSettle(live);
+    assert.equal(expected.length, count);
+    for (const event of ["session_start", "session_fork"]) {
+      const rebuilt = harness({ branch: structuredClone(branch) });
+      await rebuilt.emit(event);
+      assert.deepEqual(await beforeSettle(rebuilt), expected, event);
+    }
+  }
+});
+
+test("retrying a failed loop row counts movement without assuming more work is authorized", async () => {
+  const row = (status: string, attempts: number) => taskSnapshot([
+    { name: "row 1", status, label: `${attempts}/3: Check the result` },
+  ]);
+  for (const [updates, text, count] of [
+    [[row("failed", 2)], "Attempt finished.", 1],
+    [[row("in_progress", 1), row("failed", 1)], "Attempt finished.", 1],
+    [[row("failed", 1)], "Refreshed.", 0],
+    [[row("failed", 3)], "gauntlet: stuck", 0],
+  ] as const) {
+    const result = await decisionOn(implementBranch([row("failed", 1), human, ...updates, assistantText(text)]));
+    assert.equal(result.length, count);
+    if (count) {
+      assert.equal(result[0].entries[0].details.piGauntletRecoveryEdge, "implement-continue");
+      assert.doesNotMatch(result[0].entries[0].content, /tasks remain/i);
+      assert.match(result[0].entries[0].content, /do not reopen a task the user settled as a terminal failure/);
+    }
+  }
+});
+
+test("task movement outside implement never requests a restart", async () => {
+  for (const phase of ["brainstorm", "plan", "verify", "ship"] as const) {
+    const state = phases();
+    for (const earlier of PHASES.slice(0, PHASES.indexOf(phase))) state[earlier].status = "complete";
+    state[phase].status = "in_progress";
+    const h = harness({ branch: enteredBranch(state, [movedTask(), assistantText("Status.")]) });
+    await h.emit("session_start");
+    assert.deepEqual(await beforeSettle(h), [], phase);
+    await h.emit("agent_settled");
+    assert.deepEqual(h.sent, [], phase);
+  }
 });
 
 test("a throwing send spends the in-memory edge", async () => {
@@ -602,7 +730,7 @@ test("replayed implement restart clears a persisted conformance dispatch latch",
   assert.equal(res.details.error, "no conformance-reviewer dispatch observed");
 });
 
-const taskSnapshot = (tasks: { name: string; status: string }[], isError = false) => ({
+const taskSnapshot = (tasks: { name: string; status: string; label?: string }[], isError = false) => ({
   type: "message",
   message: { role: "toolResult", toolName: "plan_tracker", isError, details: { tasks } },
 });

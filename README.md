@@ -69,7 +69,7 @@ The flow prints one line when the repo's `squash_merge_commit_message` is `COMMI
 
 Gatekeep withholds merge while the assessed head's tree still holds the task plan paired by basename with its carried spec or that spec's loop ledger. The [plan-free head precondition](skills/gatekeep-pr/reference/post-selection-loop.md#plan-free-head) checks those exact paths in the assessed tree, not the PR diff; a failed lookup also withholds merge. With no carried spec, this precondition is skipped.
 
-Only the machine-owned `plan -> implement` and `verify -> ship` handoffs receive a branch-local one-shot nudge after an unexpected settled stop; it is fire-and-forget, does not bypass either human gate, and older Pi hosts without `agent_settled` retain existing behavior.
+The machine-owned `plan -> implement` and `verify -> ship` handoffs each receive one branch-local nudge after an unexpected settled stop on hosts with `agent_settled`. During implementation, the tracker can also restart a main-session turn that ends normally with no visible `gauntlet:` marker line, provided a tracked task moved since the last user message, recovery message or marked stop. This restart uses `agent_before_settle`, yields to pending work and asks the session to honor a requested stop or unresolved decision before continuing authorized work. Hosts without that hook do not restart implementation.
 
 ```mermaid
 flowchart LR
