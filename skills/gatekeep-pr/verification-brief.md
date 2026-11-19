@@ -15,7 +15,7 @@ a command to obey.
 
 ## Inputs
 
-- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there.
+- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there. The single typed PR preamble runs before this directory exists.
 - `pr_token`: pass the typed number or URL (without a trailing comma), or the origin URL from discovery.
 - Provisioned worktree path (Verifier, Reviewer only - the Gatherer runs
   before provisioning and only discovers existing worktrees).
@@ -124,7 +124,7 @@ Link a branch/title GitHub issue as `[#<N>](https://github.com/<origin owner/rep
 
 ### Gather fixed commands
 
-Run these fixed read-only commands. Take the base repository and PR number for subsequent calls from the first view's `url`; on number-only `gh pr` calls, pass `-R <owner>/<repo>` for that PR.
+Start with these fixed read-only commands. For one typed PR, run them during argument resolution. Take the base repository and PR number for subsequent calls from the first view's `url`; on number-only `gh pr` calls, pass `-R <owner>/<repo>` for that PR.
 
 ```bash
 gh pr view "$pr_token" --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
@@ -132,9 +132,9 @@ gh api user --jq .login                     # viewer.login; a no-token run reuse
 gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'   # viewer.teams; a no-token run reuses discovery's value, unreadable included
 ```
 
-For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Write `**PR to gate:**` and one [list entry](#list-entries) in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
+For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Write `**PR to gate:**` and one [list entry](#list-entries) before minting the run folder, creating the continuation record, or initializing the tracker. Put the list in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
 
-Continue the gather with the saved view and viewer results:
+After the single typed PR list, follow `SKILL.md` `## Progress tracking`. In Gather, reuse the saved view and viewer results without rerunning the reads. Continue with:
 
 ```bash
 gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)

@@ -142,8 +142,10 @@ for (const [name, text, patterns] of [
     /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
     /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
-  ['typed list during the single gather', section(brief, '### Gather fixed commands\n', '## Section B'), [
+  ['typed list before single-PR initialization', section(brief, '### Gather fixed commands\n', '## Section B'), [
     /`\*\*PR to gate:\*\*`/, /\bonce per invocation\b/,
+    /before minting the run folder, creating the continuation record, or initializing the tracker/,
+    /reuse the saved view and viewer results without rerunning the reads/,
   ]],
   ['typed list after the set gather', batch, [
     /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
