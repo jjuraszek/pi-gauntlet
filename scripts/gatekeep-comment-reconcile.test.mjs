@@ -1056,6 +1056,19 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         if (sample === 'typed-list-note') {
+          const preList = section(output.text, 'Run B:', '**PR to gate:**');
+          const commands = preList.match(/^(?: (?:`97`|97))?\n\s*```bash\n([^`]+)\n```\n\s*---\n$/);
+          assert.ok(commands, `${model}: Run B lists all pre-list commands in one shell block`);
+          const preamble = section(brief, '### Gather fixed commands\n', 'For one typed PR, use only')
+            .match(/```bash\n([^`]+)\n```/)[1].split('\n')
+            .map((line) => line.split(/\s+#/)[0].replace('"$pr_token"', '97'));
+          assert.deepEqual(commands[1].split('\n'), [
+            ...preamble,
+            'git symbolic-ref --short refs/remotes/origin/HEAD',
+            'git show origin/main:.pi/gauntlet-overrides.md',
+            'git show origin/main:gauntlet-overrides.md',
+            'git show origin/main:doc/gauntlet-overrides.md',
+          ], `${model}: Run B uses only the fixed preamble and applicable Ticket display reads`);
           assert.match(output.text, /^---\n\*\*PRs to gate:\*\*\n/m, `${model}: set reply starts with the visible heading`);
           assert.match(output.text, /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list\b/m, `${model}: single reply starts with the visible heading and the Gather call follows outside it`);
         }
