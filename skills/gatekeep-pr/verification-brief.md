@@ -41,14 +41,14 @@ printf '%s\n' "$rows"
 
 Check both exit statuses before using either result. On any nonzero exit, stop with `discovery failed: <first gh error line>` from the first failed call's stderr in query order. Validate and count each complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or review-requested query). For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Union by number, retaining query provenance. Exclude `isDraft` true or `reviewDecision` exactly `APPROVED`. For each remaining `CHANGES_REQUESTED` row, run the [review lookup](#review-lookup) once, sequentially in ascending PR number. Keep `answered`; exclude `unanswered` from both the list and the gated set. Keep all other surviving rows without a lookup. Sort by `additions + deletions`, then number, ascending.
 
-After sorting, print the list as its own intermediate message before acting on the outcome table. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `Open PR to gate:`; for two or more use `**Open PRs to gate, smallest first:**`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
+After sorting and resolving ticket links, write the list in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `**Open PR to gate:**`; for two or more use `**Open PRs to gate, smallest first:**`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
 
 | Matches | Action |
 |---|---|
 | 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
-| 2+ Claude Code | In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
+| 2+ Claude Code | Put the list in the reply that reads the stop-format instructions. In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
 Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. `review-requested:@me` covers requests to the viewer and to a team the viewer is on.
 
@@ -125,9 +125,16 @@ Run these fixed read-only commands. Take the base repository and PR number for s
 
 ```bash
 gh pr view "$pr_token" --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
-gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
 gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'   # viewer.teams; a no-token run reuses discovery's value, unreadable included
+```
+
+For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Write `**PR to gate:**` and one [list entry](#list-entries) in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
+
+Continue the gather with the saved view and viewer results:
+
+```bash
+gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch, bypass_eligible, viewer_can_close; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff "$pr_token"
@@ -138,8 +145,6 @@ gh run view <run-id> -R <owner/repo from the URL> --json status,conclusion,workf
 gh run list -R <owner/repo> -w <workflowName> -c <headRefOid> --json databaseId,status,conclusion,url   # orchestrator-owned; reviewer run on the assessed head, when a reviewer workflow is known
 git worktree list --porcelain               # discovery only - never create or sync here
 ```
-
-Print the typed list once per invocation, after the initial gather and before provisioning. For one typed PR, use `PR to gate:` and render one [list entry](#list-entries) from the initial `gh pr view` response and gathered `viewer.login` and `viewer.teams` before discarding raw fields, including the ordered `closingIssuesReferences`. For `linearRefs` use matches of the list projection's address pattern across the full title and body, in text order. Send the list as its own message without a marker or pasteable line and proceed directly to step 2. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
 
 Review-thread resolution state, when needed for comment triage, comes from
 the GraphQL `reviewThreads` connection (`isResolved`, `isOutdated`); if

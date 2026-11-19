@@ -31,7 +31,7 @@ The batch, discovery and typed-list samples cover these cases:
 | `no-arg-discovery-answered` | Look up surviving changes-requested PRs in number order. List answered ones under `**Open PRs to gate, smallest first:**` and route them in size order. Stop without a list on a failed, malformed or incomplete lookup. |
 | `no-arg-discovery-under-cap` | Keep eligible rows beyond the first 100, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
 | `no-arg-discovery-note` | Render one linked entry per kept PR, name the request source, summarize untrusted text, and continue through admission without a reply. |
-| `typed-list-note` | Start with two PR numbers out of size order and one number alone. Show the gathered entries before provisioning without a pasteable line or a reply. |
+| `typed-list-note` | Show `**PRs to gate:**` in typed order before provisioning; show `**PR to gate:**` before the single PR's diff, CI and comment reads. Neither list waits for a reply. |
 
 All these samples use a local `bundle+` line for `skills/gatekeep-pr/reference/batch.md`. The four `batch-` samples and only `no-arg-discovery-under-cap` among the discovery samples also bundle `agents/pr-gatekeeper.md`. Neither file is in the global `target.json` manifest. The note, single-match and two rejection samples omit later gate stages with `bundle-` lines. Bundled files must be committed and readable at the pinned baseline before capture: the runner rejects a `bundle+` file absent at that base.
 

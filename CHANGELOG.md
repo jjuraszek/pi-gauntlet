@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Show the linked PR list in the gatekeeper's reply with a bold heading. For one typed PR, show it before reading CI, the diff or comments.
 - Include discovered PRs with changes requested when every outstanding requester was asked again or the last commit came after the latest change request.
 
 ## v8.8.3 - 2026-11-18

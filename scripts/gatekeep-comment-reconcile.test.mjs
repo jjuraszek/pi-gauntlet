@@ -129,8 +129,8 @@ for (const [name, text, patterns] of [
     /Not for direct dispatch/, /In `report`/, /execute/, /implementer/,
     /supplied record and report paths/, /never re-initialize/i,
   ]],
-  ['discovery continues without a reply', brief, [
-    /print the list as its own intermediate message before acting on the outcome table/i,
+  ['discovery continues without waiting', brief, [
+    /`\*\*Open PR to gate:\*\*`/, /`\*\*Open PRs to gate, smallest first:\*\*`/,
     /no first-line marker and await nothing: no question or selection/,
   ]],
   ['GitHub links in list entries', brief, [
@@ -142,13 +142,13 @@ for (const [name, text, patterns] of [
     /in order: the trusted `workspace urlKey`; the single workspace if all `linearRefs` across the listed PRs agree; else, only when allowed, one `linearis issues read/,
     /Without a key, print each remaining ID as plain text; never ask, retry or try a second ID/,
   ]],
-  ['typed list after the single gather', section(brief, '### Gather fixed commands\n', '## Section B'), [
-    /`PR to gate:`/, /\bonce per invocation\b/,
+  ['typed list during the single gather', section(brief, '### Gather fixed commands\n', '## Section B'), [
+    /`\*\*PR to gate:\*\*`/, /\bonce per invocation\b/,
   ]],
   ['typed list after the set gather', batch, [
     /state,files,url,title,body,additions,deletions,closingIssuesReferences,reviewRequests --jq /,
     /\.linearRefs = \[\(\.title \+ " " \+ \(\.body \/\/ ""\)\)/, /\.body \|= \(\. \/\/ ""\)\[0:300\]/,
-    /`PRs to gate:`/, /in typed order/, /print no `discovered, smallest first:` line/i,
+    /`\*\*PRs to gate:\*\*`/, /in typed order/, /print no `discovered, smallest first:` line/i,
   ]],
   ['admission and serial provisioning', batch, [
     /before any fetch, confirmation, provisioning, or dispatch/,
@@ -193,6 +193,15 @@ for (const [name, text, patterns] of [
     for (const pattern of patterns) assert.match(text, pattern);
   });
 }
+
+test('all three PR list rules put the list in the visible text beside the next tool call', () => {
+  for (const [source, heading] of [[brief, '**Open PR to gate:**'], [brief, '**PR to gate:**'], [batch, '**PRs to gate:**']]) {
+    const rule = source.split('\n\n').find(p => p.includes(heading));
+    assert.match(rule, /visible text of the assistant reply/);
+    assert.match(rule, /next tool call/);
+    assert.doesNotMatch(rule, /intermediate message|own message/i);
+  }
+});
 
 test('PR sets route before the unchanged single-PR steps', () => {
   const args = section(skill, '## Arguments\n', '## Steps\n');
@@ -1042,7 +1051,10 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
       const replies = historicalReplies(saved);
       assert.equal(replies.length, saved.models.replay.length);
-      for (const [model] of replies) {
+      for (const [model, output] of replies) {
+        if (sample === 'typed-list-note') {
+          for (const heading of ['**PRs to gate:**', '**PR to gate:**']) assert.ok(output.text.includes(heading), `${model}: ${heading}`);
+        }
         assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
         for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
       }
@@ -1056,7 +1068,7 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
         if (sample.endsWith('under-cap')) {
           assert.match(output.text, /\[#97\]\(https:\/\/github\.com\/acme\/widgets\/pull\/97\) \+2 -2, by robin, review requested, no ticket - /);
         } else {
-          assert.doesNotMatch(output.text, /^Open PRs? to gate[:,]/m);
+          assert.doesNotMatch(output.text, /^(?:\*\*)?Open PRs? to gate[:,]/m);
         }
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }
