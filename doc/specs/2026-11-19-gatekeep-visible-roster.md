@@ -1,9 +1,10 @@
 # gatekeep-pr: send the PR list as reply text and list changes-requested PRs whose request was answered
 
-**Goal:** Every `/skill:gatekeep-pr` run shows its formatted, linked list of PRs as visible reply text before any PR work, and no-argument discovery hides a changes-requested PR only while its change request is unanswered.
-**Amend-grant:** none
+**Goal:** Every `/skill:gatekeep-pr` run shows its formatted, linked list of PRs as visible reply text before any PR work, and no-argument discovery lists only other authors' PRs awaiting the viewer's review, hiding a changes-requested one only while its change request is unanswered.
+**Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
+**Engine:** loop
 **Date:** 2026-11-19
-**Predecessor:** `doc/specs/2026-11-18-gatekeep-discovery-roster.md` - supersedes the "own intermediate message" list rule and the blanket `CHANGES_REQUESTED` exclusion only; its list entries, ticket display, team-request discovery and report wording stay live. `doc/specs/2026-10-30-gatekeep-pr-default-mine.md` - supersedes the `CHANGES_REQUESTED` drop in "Discovery" only.
+**Predecessor:** `doc/specs/2026-11-18-gatekeep-discovery-roster.md` - supersedes the "own intermediate message" list rule, the blanket `CHANGES_REQUESTED` exclusion, the author query in "Discovery queries" and the author-query half of the `yours` rule in "Why an entry is listed" only; its list entries, ticket display, team-request discovery and report wording stay live. `doc/specs/2026-10-30-gatekeep-pr-default-mine.md` - supersedes the author query, the `CHANGES_REQUESTED` drop and the zero-match stop text in "Discovery" and its acceptance row only.
 
 ## Problem
 
@@ -11,13 +12,17 @@ Request, verbatim: `we need nice TUI formatted preambule before PR work. moreove
 
 Seed, a bug report triaged to a real bug: `gatekeep-pr without arguments didn't show well formated list of PRs! it should always be TUI message not cat over temp md file!`
 
+Change request at the review gate, verbatim: `we should also exclude from paramter less gatekeep-pr call, those pr's which are this current user PRs, those are mostly addressed individually. parameter less version is for other asking for review which might slip unnoticed`
+
 Framing: kept - the user chose "as framed": only unanswered change requests stay hidden from the discovered list; an answered one returns to it. Typed runs keep listing every typed PR.
 
-Two defects sit behind the request.
+Two defects sit behind the request, and the review gate added a third change.
 
 **The list is not shown.** The skill asks for the list "as its own intermediate message" and never says where that message goes. In one saved no-argument run with five discovered PRs the model composed the list in its reasoning and sent a reply with no text. The only PR list on screen before the PR work was the run's bookkeeping, written and echoed through `cat`.
 
 **The filter hides answered PRs.** Discovery drops every PR whose review decision is `CHANGES_REQUESTED`. GitHub keeps that decision after the author re-requests review or pushes a fix, so a PR waiting for a second look is hidden.
+
+**Own PRs crowd the list.** Discovery also returns every open PR the viewer authored. The user gates those one at a time by number; the no-argument run is for other authors' review requests that could slip by unnoticed.
 
 Checked claims (source - lookup - result):
 
@@ -45,6 +50,12 @@ Checked claims (source - lookup - result):
 - Held: an existing CI test pins text this change edits - `scripts/gatekeep-comment-reconcile.test.mjs`: line 133 the "own intermediate message" sentence; lines 146 and 151 the backticked plain typed headings; line 213 the projection with the `CHANGES_REQUESTED` strip; line 219 the first bash fence of the discovery section, which it runs; line 1056 a zero-match check that rejects only a plain heading; line 1088 the plain heading in the saved over-cap and Claude Code multi-PR replies. It also checks each sample's saved `factsSha` against its `expected.md`, and the `for:` hash of `eval/gatekeep-pr-scope/intent.md` and `eval/gatekeep-pr-merge-state/intent.md` against the assembled skill text, which includes `verification-brief.md`.
 - Held: `no-arg-discovery-over-cap` encodes the blanket exclusion - its `f1` opens "Exclude drafts, APPROVED and CHANGES_REQUESTED" and `case.md` line 37 carries PR #202 as a stripped `CHANGES_REQUESTED` row with no lookup result.
 - Held: discovery runs two queries only - `verification-brief.md` "Argument-resolution discovery": `--author @me` and `--search 'review-requested:@me'`. GitHub's search docs: "Requested reviewers are no longer listed in the search results after they review a pull request".
+- Held: a search qualifier excludes the viewer's PRs without the viewer's login - `gh pr list --search` in one repository: `is:open` 9 PRs, `author:@me` 1, `-author:@me` 8 with no viewer-authored row.
+- Not checked: a row returned by the combined `review-requested:@me -author:@me` - that repository and `gh search prs --review-requested=@me --state open` across GitHub return no PR awaiting the viewer's review, so the combined search was only seen returning zero rows. The operator step in "Evals" observes a live result.
+- Held: the review-requested search can return the viewer's own PR - `doc/specs/2026-11-18-gatekeep-discovery-roster.md` "Errors and edge cases" covers "the viewer's own PR with the viewer's team requested". The author exclusion is needed beside dropping the author query.
+- Held: seven existing samples supply author-query rows - `eval/gatekeep-pr/samples/no-arg-discovery-{note,single,zero,under-cap,over-cap,cc-multi,failed}/case.md` each carry an "Author query" result; `note` and `single` expect a `yours` entry, `zero` quotes `no open PRs authored by @me or awaiting @me's review in acme/widgets`, and `failed` names the author query in all three scenarios.
+- Held: an existing CI test pins the author query - `scripts/gatekeep-comment-reconcile.test.mjs` lines 222-238 stub a failing `--author @me` call and assert `two separate shell calls`.
+- Held: two README places state the removed behavior - the gatekeep-pr paragraph ("authored by you or awaiting review from you or a team you belong to") and the Claude Code smoke step that expects `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`.
 - Held: the single typed PR list comes after substantive reads - `verification-brief.md` "Gather fixed commands" prints it "after the initial gather", which includes `gh pr diff` and three paginated review and comment calls.
 - Held: both provisioning steps serve typed and discovered runs and name no list heading - `reference/assessment.md` "Provision the worktree", `reference/batch.md` "Provision serially". `no-arg-discovery-note` stops "before minting the run folder, gathering PRs or provisioning".
 - Held: a replay can supply a failed command as a fixed input - `eval/gatekeep-pr/samples/no-arg-discovery-failed/case.md` Scenario A (`author query exits 1, stderr first line ...`). None of its scenarios is a review lookup.
@@ -77,6 +88,10 @@ Drafted from the design, no ticket rows:
   in-scope
 - [ ] A run whose earlier reply carries the list does not repeat it at the checkout step.
   in-scope
+- [ ] A no-argument run never lists or gates a PR the viewer authored, including one that requests review from a team the viewer is on.
+  in-scope
+- [ ] A no-argument run with no other author's PR awaiting the viewer's review stops with `no open PRs awaiting <login>'s review in <owner/repo>`.
+  in-scope
 
 ## Legs
 
@@ -88,7 +103,7 @@ contract:
 - home: .worktrees/<name>
 - spec-dir: doc/specs
 - plan-dir: doc/plans
-- verification: npm test (AGENTS.md Testing); node eval/run.mjs gatekeep-pr <sample> for the seven samples in "Evals"
+- verification: npm test (AGENTS.md Testing); node eval/run.mjs gatekeep-pr <sample> for the ten samples in "Evals"
 Rules: AGENTS.md
 Rules: AGENTS.core.md
 Rules: .pi/gauntlet-overrides.md
@@ -107,8 +122,8 @@ Rules: skills/gauntlet-resume/reference/brief-contract.md
 Rules: skills/gauntlet-resume/reference/coordinated.md
 Rules: skills/brainstorming/reference/legs.md
 Rules: skills/finishing-a-development-branch/reference/legs.md
-scope: AC 1, AC 2, AC 3, AC 4, AC 5, AC 6, AC 7, AC 8, AC 9
-design: owns every path in Design; observable outcomes are the nine AC rows above
+scope: AC 1, AC 2, AC 3, AC 4, AC 5, AC 6, AC 7, AC 8, AC 9, AC 10, AC 11
+design: owns every path in Design; observable outcomes are the eleven AC rows above
 
 ## Design
 
@@ -132,7 +147,7 @@ Change in the single typed PR rule: the list moves from "after the initial gathe
 
 Keep unchanged: the entry grammar and ticket display, no first-line marker, no question, no wait, no list on zero matches or a discovery failure, the separate marker-first stop message, and "never repeat the list" once a reply in view carries it.
 
-Add to `SKILL.md` "Arguments", second bullet: "no drafts or decided PRs" becomes "no drafts, approved PRs, or unanswered change requests", and "Print the linked list before gating" names the reply text.
+Add to `SKILL.md` "Arguments", second bullet: "discover my open PRs in origin" with "authored by me or awaiting review from me or a team I am on" becomes "discover other authors' open PRs in origin" with "awaiting review from me or a team I am on"; "no drafts or decided PRs" becomes "no drafts, approved PRs, or unanswered change requests", and "Print the linked list before gating" names the reply text.
 
 ### Send-if-missing
 
@@ -146,14 +161,19 @@ Add the provisioning check to `reference/assessment.md` "Provision the worktree"
 
 ### Discovery filter
 
-All edits are in `verification-brief.md` "Argument-resolution discovery". The `gh pr list` field list stays unchanged.
+All edits are in `verification-brief.md` "Argument-resolution discovery" and its "List entries" table. The `gh pr list` field list stays unchanged.
 
 Remove:
+- The `--author @me` call. The list-command fence runs once, not "in two separate shell calls"; the union by number and its query provenance go with it.
+- `authored by <login> or` from the zero-match stop.
+- "Author-query result, or" from the `yours` row of "List entries". `yours` stays for a typed PR whose author matches `viewer.login`; no entry of a discovered list says `yours`.
 - `.reviewDecision == "CHANGES_REQUESTED"` from the projection's strip condition, so a changes-requested row keeps its title, links, `linearRefs` and cut body.
-- `CHANGES_REQUESTED` from the union rule's blanket exclusion.
+- `CHANGES_REQUESTED` from the blanket exclusion.
 
 Add:
-- The union rule, in this order: validate both list results, union and deduplicate by number, exclude `isDraft` true or `reviewDecision` exactly `APPROVED`, then run the review lookup for each surviving `CHANGES_REQUESTED` row and exclude that row only when the answered test prints `unanswered`. A draft or approved row never gets a lookup.
+- The one list call: `<query>` is `--search 'review-requested:@me -author:@me'`. GitHub applies the author exclusion, so it holds with an unreadable `viewer.login` and for the viewer's own PR that requests a team the viewer is on. The limit stop reads `discovery failed: incomplete (review-requested query hit --limit 1000)`.
+- The zero-match stop: `no open PRs awaiting <login>'s review in <owner/repo>`, with `@me` for an unreadable login.
+- The filter rule, in this order: validate the list result, exclude `isDraft` true or `reviewDecision` exactly `APPROVED`, then run the review lookup for each surviving `CHANGES_REQUESTED` row and exclude that row only when the answered test prints `unanswered`. A draft or approved row never gets a lookup.
 - The review lookup and the answered test, one fenced bash block run as one shell call per surviving `CHANGES_REQUESTED` row, sequentially in ascending PR number, before the sort. The fence sits under its own `#### Review lookup` subheading inside "Argument-resolution discovery", after the list-command fence. It starts with the lookup:
 
 ```bash
@@ -185,23 +205,26 @@ Rewrite `eval/gatekeep-pr/intent.md` for this change. Samples and must-hold fact
 
 | Sample | State | Must hold |
 |---|---|---|
-| `no-arg-discovery-answered` | new | main scenario: lookup narrated for the three surviving changes-requested PRs only, in ascending number, not for the changes-requested draft, the approved or the undecided ones; the re-requested PR and the later-commit PR are listed; the PR whose requester only commented afterwards is absent from the list and the routed set; heading `**Open PRs to gate, smallest first:**`, ascending size. Three isolated stop scenarios, none printing a list: a lookup call that exits nonzero stops with `discovery failed: <first gh error line>`; block output `malformed` stops with `discovery failed: malformed review lookup for #<N>`; block output `incomplete` stops with `discovery failed: incomplete review lookup for #<N>` |
+| `no-arg-discovery-answered` | new | main scenario, every fixture row another author's PR from the one list call: lookup narrated for the three surviving changes-requested PRs only, in ascending number, not for the changes-requested draft, the approved or the undecided ones; the re-requested PR and the later-commit PR are listed; the PR whose requester only commented afterwards is absent from the list and the routed set; heading `**Open PRs to gate, smallest first:**`, ascending size. Three isolated stop scenarios, none printing a list: a lookup call that exits nonzero stops with `discovery failed: <first gh error line>`; block output `malformed` stops with `discovery failed: malformed review lookup for #<N>`; block output `incomplete` stops with `discovery failed: incomplete review lookup for #<N>` |
 | `list-send-if-missing` | new | three runs, each starting at the first provisioning step. Typed single PR, no earlier reply carrying the list: the reply text carries `**PR to gate:**` and one linked entry before the checkout command, once, with no marker or wait. Discovered set parent (`bundle+` `reference/batch.md`), no earlier reply carrying the list: `**Open PRs to gate, smallest first:**` and the entries in roster order before the first provisioning command. Earlier reply in view carries the list: no list at the provisioning step |
-| `no-arg-discovery-note` | expected text updated | `n1` quotes the bold heading and keeps "once"; `n3` reads reply text instead of intermediate message |
-| `no-arg-discovery-single` | expected text updated | `f1` quotes `**Open PR to gate:**` |
+| `no-arg-discovery-note` | fixture and expected text updated | the case supplies one list result with other authors' rows only; `n1` quotes the bold heading, keeps "once" and carries no `yours` entry; `n3` reads reply text instead of intermediate message |
+| `no-arg-discovery-single` | fixture and expected text updated | the case supplies one list result; `f1` narrates the one `gh pr list` command with `--search 'review-requested:@me -author:@me'` and `-R acme/widgets`, no `--author @me` call, and quotes `**Open PR to gate:**` with an entry by another author |
 | `typed-list-note` | expected text updated | `e1` and `e3` quote `**PRs to gate:**` and `**PR to gate:**`; the single typed entry follows the `gh pr view` and viewer lookups and precedes the diff, CI and comment reads |
-| `no-arg-discovery-over-cap` | fixture and expected text updated | PR #202's row keeps its title, url, author and the other retained list fields; the case supplies its lookup result with block output `unanswered`; `f1` leaves #202 out as an unanswered change request, the six eligible PRs still reach the cap stop `got 6`, and the heading is bold |
-| `no-arg-discovery-cc-multi` | expected text updated | no metadata lookup remains after the sort; the three entries under `**Open PRs to gate, smallest first:**` are the text of the reply that reads the stop-format instructions; the marker-first stop follows as a separate reply |
+| `no-arg-discovery-over-cap` | fixture and expected text updated | every row comes from the one list result, by other authors; PR #202's row keeps its title, url, author and the other retained list fields; the case supplies its lookup result with block output `unanswered`; `f1` leaves #202 out as an unanswered change request, the six eligible PRs still reach the cap stop `got 6`, and the heading is bold |
+| `no-arg-discovery-cc-multi` | fixture and expected text updated | the three eligible rows come from the one list result, by other authors; no metadata lookup remains after the sort; the three entries under `**Open PRs to gate, smallest first:**` are the text of the reply that reads the stop-format instructions; the marker-first stop follows as a separate reply |
+| `no-arg-discovery-zero` | fixture and expected text updated | one list result with no row left; the run stops with exactly `no open PRs awaiting @me's review in acme/widgets` before provisioning |
+| `no-arg-discovery-failed` | fixture and expected text updated | scenarios A, B and C fail the one list call: a nonzero exit stops with its first stderr line, 1000 rows stop with `discovery failed: incomplete (review-requested query hit --limit 1000)`, a row without `number` stops as malformed |
+| `no-arg-discovery-under-cap` | fixture and expected text updated | the three eligible PRs come from the one list result, by other authors, and route once in ascending size |
 
 Each new or changed case supplies upstream command results as fixed inputs: each lookup's JSON with its block output (`answered`, `unanswered`, `malformed`, `incomplete`), or the failed call's exit status and stderr. The model never derives a verdict from the JSON; the deterministic test owns classification.
 
-Update `eval/gatekeep-pr/README.md`: the inventory rows of the seven samples (two of them new), with each heading quoted as the sample's facts quote it.
+Update `eval/gatekeep-pr/README.md`: the inventory rows of the ten samples (two of them new), with each heading quoted as the sample's facts quote it.
 
 Refresh the `for:` line of `eval/gatekeep-pr-scope/intent.md` and `eval/gatekeep-pr-merge-state/intent.md` to the new assembled-skill hash. Nothing else in those two targets changes and no sibling sample runs.
 
-**Paid actions.** Model calls through `node eval/run.mjs gatekeep-pr <sample>` for the seven samples in the table, with `--baseline-only` seeding where the runner requires it. Design round 2 approved five; the council added `no-arg-discovery-over-cap` and `no-arg-discovery-cc-multi`, whose saved fact hashes change with their expected text. Runner: the implementing session, from the worktree. Inputs: the sample name. Approving this spec authorizes every such call for the whole flow, those two samples included, across seed, rows, repairs and finish, without per-step permission prompts.
+**Paid actions.** Model calls through `node eval/run.mjs gatekeep-pr <sample>` for the ten samples in the table, with `--baseline-only` seeding where the runner requires it. Design round 2 approved five; the council added `no-arg-discovery-over-cap` and `no-arg-discovery-cc-multi`, whose saved fact hashes change with their expected text; the gate change request added `no-arg-discovery-zero`, `no-arg-discovery-failed` and `no-arg-discovery-under-cap`, whose fixtures carry the removed author query. Runner: the implementing session, from the worktree. Inputs: the sample name. Approving this spec authorizes every such call for the whole flow, all ten samples included, across seed, rows, repairs and finish, without per-step permission prompts.
 
-**Operator step.** Before the release, the maintainer installs this worktree through the local-install route in `doc/install-internals.md` (`npm install` in the checkout, then `pi install -l <checkout>`), selects the model that showed the list in 0 of 2 saved runs, and runs `/skill:gatekeep-pr` with no arguments in a repository where discovery leaves at least one eligible PR. The maintainer then opens the saved session and confirms that an assistant reply before the first provisioning call holds a text block with the bold heading and the linked entries. The shell display of the run records does not count. That model's identifier is not in this spec; the user supplies it at the gate.
+**Operator step.** Before the release, the maintainer installs this worktree through the local-install route in `doc/install-internals.md` (`npm install` in the checkout, then `pi install -l <checkout>`), selects the model that showed the list in 0 of 2 saved runs, and runs `/skill:gatekeep-pr` with no arguments in a repository where another author's PR awaits the maintainer's review, so discovery leaves at least one eligible PR. The maintainer then opens the saved session and confirms that an assistant reply before the first provisioning call holds a text block with the bold heading and the linked entries. The shell display of the run records does not count. That model's identifier is not in this spec; the user supplies it at the gate.
 
 ## Errors and edge cases
 
@@ -215,9 +238,11 @@ Refresh the `for:` line of `eval/gatekeep-pr-scope/intent.md` and `eval/gatekeep
 - Two requesters, a commit between their reviews, and a re-request to the later one only: `unanswered`. Rule 2 misses the earlier requester and rule 3 misses the later review; the signals do not combine.
 - A draft with `reviewDecision` `CHANGES_REQUESTED` is excluded as a draft before any lookup, so its lookup can never stop discovery.
 - The lookup reads the first 100 nodes of each review connection. When either reports `pageInfo.hasNextPage` true the PR is not classified: discovery stops with `discovery failed: incomplete review lookup for #<N>`; no list.
-- Discovery's two queries bound the filter's reach. A PR on which the viewer requested changes leaves the `review-requested:@me` results once the viewer has reviewed, so when its author pushes a fix without a re-request no query returns it and the answered test never sees it. The second acceptance row holds inside the two-query union: the viewer's own PRs, and other authors' PRs on which the viewer's review is still requested. Whether to widen discovery is the scope decision in "Open questions".
+- Discovery's one query bounds the filter's reach. A PR on which the viewer requested changes leaves the `review-requested:@me` results once the viewer has reviewed, so when its author pushes a fix without a re-request the query does not return it and the answered test never sees it. The second acceptance row holds inside the query's results: other authors' PRs on which the viewer's review is still requested while another reviewer's change request stands. Whether to widen discovery is the scope decision in "Open questions".
 - A dismissed change request is not a requester: its state is no longer `CHANGES_REQUESTED`.
-- Every PR filtered out: the existing `no open PRs ...` stop, unchanged.
+- Every PR filtered out: the zero-match stop `no open PRs awaiting <login>'s review in <owner/repo>`.
+- The viewer's own PR never enters a no-argument run, including one that requests a team the viewer is on. A typed number still gates it, and its entry still says `yours`.
+- `viewer.login` unreadable: the author exclusion still holds, because GitHub resolves `@me` inside the search.
 - A discovered set rejected for size or for running on Claude Code never reaches a provisioning step, so the send-if-missing check never covers its list. Its list rides the next tool call after the sort; on the Claude Code rejection, where no metadata call is left, that call is the read of the stop-format instructions, and the stop follows as a separate reply.
 - After lost history the provisioning check can show the list a second time; see "Send-if-missing".
 
@@ -245,6 +270,8 @@ Existing file `scripts/gatekeep-comment-reconcile.test.mjs` already runs in CI a
 - Typed heading pins read `**PR to gate:**` and `**PRs to gate:**` - existing file
 - The zero-match reply carries no list heading, bold or plain - existing file
 - Saved-reply heading checks expect the bold heading for a sample refreshed by this change and keep matching the saved output of a sample that is not - existing file
+- The discovery section carries `--search 'review-requested:@me -author:@me'`, no `--author @me` and no "two separate shell calls"; the stubbed failure fails the one list call - existing file (lines 222-238 stub the author query today)
+- The `yours` row of "List entries" names typed PRs only, and the zero-match stop reads `no open PRs awaiting <login>'s review in <owner/repo>` - existing file
 
 Samples:
 
@@ -258,6 +285,11 @@ Samples:
 - Single typed list precedes the diff, CI and comment reads - sample `typed-list-note`
 - Over-cap set still counts six with #202 left out as unanswered - sample `no-arg-discovery-over-cap`
 - Claude Code multi-PR list rides the stop-format read, then a separate marker-first stop - sample `no-arg-discovery-cc-multi`
+- Own PRs never listed: one list call with the author exclusion, and no `yours` entry in a discovered list - samples `no-arg-discovery-single`, `no-arg-discovery-note`
+- Zero-match stop text - sample `no-arg-discovery-zero`
+- The one list call's failure, limit and malformed-row stops - sample `no-arg-discovery-failed`
+- Under-cap routing from one list result - sample `no-arg-discovery-under-cap`
+- GitHub returns no viewer-authored row for the combined search - none: no test here reaches GitHub; the operator step in "Evals" observes a live result
 - Discovered single-PR and typed-set headings at the provisioning check - none: the heading rule is one sentence shared with the two replayed cases, and no replay starts there
 - A live reply carries the list beside a tool call - none: the model eval runs with tools off; the operator step in "Evals" observes it
 
@@ -266,13 +298,14 @@ Samples:
 Bar: `reference/documentation-impact.md`.
 
 - Feature / user-facing docs introduced: none
-- Materially amended existing docs: `README.md` gatekeep-pr discovery sentence (which states it excludes `CHANGES_REQUESTED`) - communication contract; `CHANGELOG.md` `## Unreleased` - release procedure
+- Materially amended existing docs: `README.md` gatekeep-pr discovery sentences (which say it discovers PRs "authored by you" and excludes `CHANGES_REQUESTED`) and the Claude Code smoke step's expected zero-match stop text - communication contract; `CHANGELOG.md` `## Unreleased` - release procedure
 - Derived / memory docs invalidated: none
 
 ## Out of scope
 
 - A pi extension, tool or custom message that posts the list; the user rejected it.
 - Filtering typed runs by review state.
+- A flag or setting that brings the viewer's own PRs back into a no-argument run; a typed number gates them.
 - A closing line counting what discovery left out.
 - Telling a real fix from a rebase in the commit signal.
 - The ticket-guess patterns that miss one-letter keys such as `E-123` and misread `ABC-025-2`; noticed during triage, not filed.
@@ -281,5 +314,5 @@ Bar: `reference/documentation-impact.md`.
 ## Open questions
 
 - Whether wording alone makes the model that skipped the list send it is unknown until the operator step in "Evals" runs before the release; no automated test can observe it. A miss there goes back to the user before the release.
-- Scope decision for the user at the gate: should a PR on which the viewer requested changes return to the list when its author pushes a fix without a re-request? Discovery's two queries never return that PR ("Errors and edge cases"), and it is the case the commit signal was added for: the user's three hidden PRs were found with `reviewed-by:@me`, not with a discovery query. Council recommendation: admit the viewer's still-outstanding change requests as discovery candidates, then apply the same answered filter; do not admit every PR the viewer ever reviewed. The alternative is to accept the limit, so such a PR returns only on a re-request. The candidate query is not designed or checked here (`--search 'reviewed-by:@me review:changes_requested'` was suggested, unverified). The second acceptance row stays as drafted until the user decides; a yes adds the candidate query to "Discovery filter" before approval.
+- Scope decision for the user at the gate: should a PR on which the viewer requested changes return to the list when its author pushes a fix without a re-request? Discovery's query never returns that PR ("Errors and edge cases"), and it is the case the commit signal was added for: the user's three hidden PRs were found with `reviewed-by:@me`, not with a discovery query. Council recommendation: admit the viewer's still-outstanding change requests as discovery candidates, then apply the same answered filter; do not admit every PR the viewer ever reviewed. The alternative is to accept the limit, so such a PR returns only on a re-request. The candidate query is not designed or checked here (`--search 'reviewed-by:@me review:changes_requested'` was suggested, unverified). The user's gate change request states the purpose of the no-argument run as other authors asking for review; that describes a pending request, which this PR lacks, and does not answer the question. The second acceptance row stays as drafted until the user decides; a yes adds the candidate query to "Discovery filter" before approval.
 - Whether GitHub returns a draft row with `reviewDecision` `CHANGES_REQUESTED`. Probe: `rg` for a row with `isDraft` true and `reviewDecision` `CHANGES_REQUESTED` across `eval/gatekeep-pr`, `scripts`, `doc` and `skills` - not found; the list projection in `verification-brief.md` tests the two fields independently. Obtain: `gh pr list --json number,isDraft,reviewDecision` in a repository that has such a PR. Affected edits: none depends on the answer - the exclude-before-lookup order holds either way, and the changes-requested draft in `no-arg-discovery-answered` is a synthetic row. Settlement: the user supplies the fact at the gate, or the first plan task that obtains such a row settles it through brainstorming's amendment path.
