@@ -1,5 +1,7 @@
 # gatekeep-pr: list the PRs to gate with links, include team review requests in no-argument discovery, and name a requested team in the report
 
+> **Superseded by:** [doc/specs/2026-11-19-gatekeep-visible-roster.md](./2026-11-19-gatekeep-visible-roster.md) - the "own intermediate message" list rule and the blanket `CHANGES_REQUESTED` exclusion only
+
 **Goal:** A no-argument `/skill:gatekeep-pr` run prints, right after discovery and without waiting, one linked list entry per PR it will gate (number, added and removed lines, why it is on the list, ticket, a short phrase); discovery also finds PRs whose review is requested from a team the viewer belongs to; every PR report says so when the viewer's team is the requested reviewer; and a run started with typed PR numbers prints the same linked list for the PRs typed.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
