@@ -45,6 +45,7 @@ Corrected:
 - The draft tested "the message's text". Assistant `content` is an array of `text`, `thinking` and `toolCall` blocks (Pi 1.5.2 `pi-ai/dist/types.d.ts`, `AssistantMessage`); `textOf` joins only `text` blocks with newlines (`extensions/lib/telemetry-collect.ts:58-59`); the settle fixture `assistant()` sets no content (`extensions/phase-tracker.test.ts:61`).
 - The draft's boundary ignored runs started by another extension's custom message. An idle custom message with `triggerTurn` starts a run without a user-role entry (council probe: Pi 1.5.2 `dist/core/agent-session.js:1938-1972,809-820`), so an unmarked reply could reuse task movement from before a marked stop. An earlier marked assistant message is now a boundary.
 - The draft relied on `ctx.isIdle()` to keep the restart from racing other work. `isIdle()` stays true after another settled handler has requested a turn, and both requested runs start in order (council probe: Pi 1.5.2 `_emitAgentSettled`, `sendCustomMessage` and the `isIdle` getter with two in-memory handlers). See `### Delivery`.
+- Row 4 said an aborted settlement receives no `implement-continue` message. Pi 1.5.2 `_runBeforeSettleBoundary` commits boundary drafts (`dist/core/agent-session.js:1637`) before it reads `_abortDuringBeforeSettle` (`:1640`), and the real-host case in `scripts/phase-tracker-host.test.mjs` observed one persisted entry, an aborted settlement and zero provider requests after the boundary. Row 4 now separates a run aborted before the boundary from an abort raised at it.
 - Rows 2-5 of the draft acceptance criteria said "no restart message" under conditions the unchanged handoff accepts: the current handler sends `plan-implement` on a subagent-child branch with stop reason `error`, a `gauntlet: question` line and no tasks (council probe through the repo's Pi stubs). Those rows now constrain only `implement-continue`.
 
 Not checked:
@@ -69,7 +70,7 @@ Drafted from the design, no ticket rows:
   in-scope
 - [ ] A settled turn with no task movement since the boundary receives no `implement-continue` message.
   in-scope
-- [ ] A settled turn whose settlement event is aborted, or whose final stop reason is `pending`, `length`, `toolUse`, `error`, `aborted` or `deferred`, receives no `implement-continue` message.
+- [ ] A turn whose run is aborted before the pre-settlement boundary, or whose final stop reason is `pending`, `length`, `toolUse`, `error`, `aborted` or `deferred`, receives no `implement-continue` message; a turn that a later handler aborts at that boundary starts no restart turn, and at most one displayed `implement-continue` message stays in the transcript.
   in-scope
 - [ ] A settled turn in a subagent session receives no `implement-continue` message.
   in-scope
@@ -133,7 +134,7 @@ The new branch sends the restart message when every condition holds:
 | 1 | The gauntlet was entered | `gauntletEntered` |
 | 2 | `implement` has status `in_progress` | `phases` |
 | 3 | The session is not a subagent child | `isSubagentChild` |
-| 4 | The run is not aborted | Pi skips the pre-settlement hook for aborted runs; verify against host ordering |
+| 4 | The run is not aborted before the boundary | Pi skips the pre-settlement hook for aborted runs; verify against host ordering. An abort raised by a later handler at the boundary is outside the tracker's view (`## Errors and edge cases`) |
 | 5 | The latest assistant message on the branch has stop reason exactly `stop` | `branchLatestAssistantStopReason` |
 | 6 | That message's visible text has no marker line | visible text and marker test below |
 | 7 | A task moved since the boundary | boundary and task movement below |
@@ -202,7 +203,8 @@ No paid or external action is needed. Implementation and verification run `npm t
 ## Errors and edge cases
 
 - Stop reasons `aborted`, `error`, `length`, `pending`, `toolUse` and `deferred` never restart; only `stop` qualifies.
-- A settlement event with `aborted: true` never restarts, even when the latest assistant stop reason is `stop` (an Escape after the assistant finished). The handoff restarts keep their existing predicate.
+- An aborted run never starts a restart turn, even when the latest assistant stop reason is `stop` (an Escape after the assistant finished): Pi skips the pre-settlement boundary for a run aborted before it. The handoff restarts keep their existing predicate.
+- An abort raised by a later handler at the pre-settlement boundary arrives after the tracker returned its draft, and the tracker cannot observe it. Pi 1.5.2 commits boundary drafts before it reads that abort, so one displayed `implement-continue` message stays in the transcript, the settlement is aborted and no provider request runs. That message is the next boundary for task movement, so it can only suppress a later restart, never add one.
 - A marker line that appears only in a `thinking` block does not suppress the restart; a marker line in a `text` block does, including with a CRLF ending or inside a code fence.
 - A loop retry that changes only a failed row's attempt label, or moves a row `failed -> in_progress -> failed`, counts as task movement. A refresh that repeats the previous snapshot does not.
 - A marked human stop, then a run triggered by another extension's custom message, then an unmarked reply with no tracker activity: no restart, because the marked stop is the boundary.
@@ -236,6 +238,7 @@ Assistant fixtures in the new tests carry `content` as a block array, the shape 
 - Stop reasons `pending`, `length`, `toolUse`, `error`, `aborted` and `deferred` send nothing - "agent_settled skips implement restart for abnormal stops".
 - A settlement event with `aborted: true` on an otherwise eligible history ending in `stop` sends nothing - "agent_settled skips implement restart for an aborted settlement".
 - Host ordering: exercise competing continuation requests and an intervening marked human stop on the host. Assert a real eligible continuation, no implementation continuation after the mark, and unchanged handoff behavior.
+- Host late abort: a later `agent_before_settle` handler aborts after the tracker returned its draft. Assert an aborted settlement and no provider request after the boundary; the persisted `implement-continue` entry is expected and is not asserted absent.
 - A subagent child sends nothing - "agent_settled skips implement restart in a subagent child".
 - An already requested continuation or queued work suppresses implement recovery at the earlier boundary - exercise both cases.
 - No task list on the branch sends nothing - the existing test `active phases, non-idleness, and earlier competing handlers do not spend recovery`, unchanged.

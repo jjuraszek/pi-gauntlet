@@ -35,3 +35,4 @@ row 7 done | Reload and fork reproduced the live decision from the same restart,
 row 8 done | Failed-row retries restarted on a changed attempt label or status round trip without claiming that tasks remained. | The taskSnapshot fixture accepts a label for tests of attempt-only changes.
 row 9 done | Existing tests passed for both handoff messages and their original eligibility conditions. | nothing new to build on
 row 10 done | Moved tasks in brainstorm, plan, verify or ship triggered neither an implementation restart nor a handoff. | nothing new to build on
+amended | 1 item(s) | Abort during the pre-settlement boundary
