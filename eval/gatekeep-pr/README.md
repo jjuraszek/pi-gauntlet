@@ -28,6 +28,7 @@ The batch, discovery and typed-list samples cover these cases:
 | `no-arg-discovery-zero` | No matches stop before provisioning with the origin-naming message and `@me` when the viewer login is unreadable. |
 | `no-arg-discovery-cc-multi` | On Claude Code, show three linked entries before a separate marked stop ending with the pi-only rejection and the pasteable numbers. |
 | `no-arg-discovery-failed` | A failed query or a result reaching the query limit stops discovery without a current-branch fallback. |
+| `no-arg-discovery-answered` | Look up surviving changes-requested PRs in number order. List answered ones under `**Open PRs to gate, smallest first:**` and route them in size order. Stop without a list on a failed, malformed or incomplete lookup. |
 | `no-arg-discovery-under-cap` | Keep eligible rows beyond the first 100, re-enter set routing with sorted origin URLs and `source: discovered`, and admit pasted trailing commas. |
 | `no-arg-discovery-note` | Render one linked entry per kept PR, name the request source, summarize untrusted text, and continue through admission without a reply. |
 | `typed-list-note` | Start with two PR numbers out of size order and one number alone. Show the gathered entries before provisioning without a pasteable line or a reply. |

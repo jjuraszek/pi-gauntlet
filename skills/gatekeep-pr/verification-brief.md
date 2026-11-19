@@ -34,14 +34,14 @@ Runs only with no PR token, during argument resolution: before the set-vs-single
 Read `gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'` once into `viewer.teams`; record `unreadable` on failure. Run this block against origin in two separate shell calls, replacing `<query>` with `--author @me` and `--search 'review-requested:@me'`, respectively:
 
 ```bash
-projection='map(if (.isDraft == true or .reviewDecision == "APPROVED" or .reviewDecision == "CHANGES_REQUESTED") then {number,isDraft,reviewDecision,additions,deletions} else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}] | .body |= (. // "")[0:300]) end)'
+projection='map(if (.isDraft == true or .reviewDecision == "APPROVED") then {number,isDraft,reviewDecision,additions,deletions} else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}] | .body |= (. // "")[0:300]) end)'
 rows=$(gh pr list -R <owner/repo> <query> --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection") || exit $?
 printf '%s\n' "$rows"
 ```
 
-Check both exit statuses before using either result. On any nonzero exit, stop with `discovery failed: <first gh error line>` from the first failed call's stderr in query order. Validate and count each complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or review-requested query). For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Union by number, retaining query provenance; exclude `isDraft` true or `reviewDecision` exactly `APPROVED` or `CHANGES_REQUESTED`; every other decision stays. Sort by `additions + deletions`, then number, ascending.
+Check both exit statuses before using either result. On any nonzero exit, stop with `discovery failed: <first gh error line>` from the first failed call's stderr in query order. Validate and count each complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or review-requested query). For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Union by number, retaining query provenance. Exclude `isDraft` true or `reviewDecision` exactly `APPROVED`. For each remaining `CHANGES_REQUESTED` row, run the [review lookup](#review-lookup) once, sequentially in ascending PR number. Keep `answered`; exclude `unanswered` from both the list and the gated set. Keep all other surviving rows without a lookup. Sort by `additions + deletions`, then number, ascending.
 
-After sorting, print the list as its own intermediate message before acting on the outcome table. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `Open PR to gate:`; for two or more use `Open PRs to gate, smallest first:`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
+After sorting, print the list as its own intermediate message before acting on the outcome table. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `Open PR to gate:`; for two or more use `**Open PRs to gate, smallest first:**`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
 
 | Matches | Action |
 |---|---|
@@ -51,6 +51,42 @@ After sorting, print the list as its own intermediate message before acting on t
 | 2+ Claude Code | In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
 Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. `review-requested:@me` covers requests to the viewer and to a team the viewer is on.
+
+#### Review lookup
+
+Run this block as one shell call, substituting the origin owner, repository and PR number:
+
+```bash
+lookup=$(gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){latestOpinionatedReviews(first:100){pageInfo{hasNextPage} nodes{author{login} state submittedAt}} reviewRequests(first:100){pageInfo{hasNextPage} nodes{requestedReviewer{__typename ... on User{login}}}} commits(last:1){nodes{commit{committedDate}}}}}}' -f o=<owner> -f r=<repo> -F n=<N>) || exit $?
+verdict=$(printf '%s\n' "$lookup" | jq -ers '
+  def connection: (.nodes | type == "array") and (.pageInfo.hasNextPage | type == "boolean");
+  def instant:
+    (capture("^(?<clock>[0-9T:-]{19})(?:\\.(?<frac>[0-9]+))?(?:Z|(?<sign>[+-])(?<hour>[0-9]{2}):(?<min>[0-9]{2}))$") // error("date")) as $d
+    | (($d.hour // "0" | tonumber) * 3600 + ($d.min // "0" | tonumber) * 60) as $offset
+    | [(($d.clock + "Z" | fromdateiso8601) - (if $d.sign == "-" then -$offset else $offset end)), ($d.frac // "" | sub("0+$"; ""))];
+  if length != 1 then error("response") else .[0].data.repository.pullRequest end
+  | .latestOpinionatedReviews as $reviews | .reviewRequests as $requests
+  | if (($reviews | connection) and ($requests | connection) and (.commits.nodes | type == "array" and length == 1))
+       then . else error("connections") end
+  | (.commits.nodes[0].commit.committedDate | instant) as $head
+  | ($reviews.nodes | map(if (.state | type != "string") then error("state") else select(.state == "CHANGES_REQUESTED") end
+      | {login: (.author.login | if . == null then null else ascii_downcase end), at: (.submittedAt | instant)})) as $changes
+  | ($requests.nodes | map(.requestedReviewer | select(.__typename == "User") | .login | ascii_downcase)) as $pending
+  | if $reviews.pageInfo.hasNextPage or $requests.pageInfo.hasNextPage then "incomplete"
+    elif all($changes[]; .login as $who | $pending | index($who) != null) then "answered"
+    elif $head > ($changes | map(.at) | max) then "answered"
+    else "unanswered" end' 2>/dev/null) || { printf '%s\n' malformed; exit 1; }
+printf '%s\n' "$verdict"
+test "$verdict" != incomplete
+```
+
+On a nonzero exit, stop before listing or routing any PR. Use stdout to choose the stop:
+
+| Stdout | Stop |
+|---|---|
+| Empty (`gh` failed) | `discovery failed: <first gh error line>` from stderr |
+| `malformed` | `discovery failed: malformed review lookup for #<N>` |
+| `incomplete` | `discovery failed: incomplete review lookup for #<N>` |
 
 #### List entries
 

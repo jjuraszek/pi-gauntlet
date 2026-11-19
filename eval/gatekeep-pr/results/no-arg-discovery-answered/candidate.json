@@ -1,0 +1,110 @@
+{
+  "sample": "no-arg-discovery-answered",
+  "arm": "candidate",
+  "skillSha": "eaad7b86b48d59ea9f2838ed43bb2289fdfd3461e332f1966e1bf5fe203085b0",
+  "inputSha": "218e13ca15cd237293a8241ab52522097e97b78c5c8d00d4d13882792824a3bb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Discovery for the no-token invocation\n\nNo PR token was given, so argument-resolution discovery runs first. It runs before the set-vs-single branch, the continuation record, the run folder, tracker init and provisioning.\n\n**What has not happened yet in any of the four runs:**\n- No run folder or continuation record exists.\n- No `plan_tracker` stages are initialized.\n- No worktree is provisioned.\n- No SHA is assessed. Neither verification nor the brief has assessed a head.\n\n## Main run\n\n### Commands already run (results in hand)\n\n1. `git remote get-url origin` returned `acme/widgets`.\n2. `gh api user --jq .login` returned `alex`.\n3. `gh api user/teams --paginate ...` returned an empty list. That is readable, not `unreadable`.\n4. The two separate `gh pr list -R acme/widgets ... --state open --limit 1000` calls both exited 0:\n   - one with `--author @me`\n   - one with `--search 'review-requested:@me'`\n\n   Both results are well-formed arrays below the limit. The union by number holds #19, #22, #27, #31, #38 and #40.\n\n### Filter\n\n- #31 is excluded because it is a draft.\n- #38 is excluded because its review decision is exactly `APPROVED`.\n- That leaves #19, #22 and #27 with `CHANGES_REQUESTED`, and #40 with `REVIEW_REQUIRED`.\n\n### Review lookups, one shell call each, in ascending PR number\n\n5. Lookup for #19 (`gh api graphql ...` piped to `jq`): exit 0, stdout `answered`. **Kept.**\n6. Lookup for #22: exit 0, stdout `unanswered`. **Excluded** from both the list and the gated set.\n7. Lookup for #27: exit 0, stdout `answered`. **Kept.**\n\n#40 is kept without a lookup.\n\n### Sort\n\nSurvivors are sorted by additions plus deletions, then by number: #40 (3), #27 (5), #19 (9).\n\n### What the user reads\n\nThis is its own intermediate message. It has no marker and asks nothing.\n\n**Open PRs to gate, smallest first:**\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sorts widgets\n- [#27](https://github.com/acme/widgets/pull/27) +5 -0, by jo, requested from you, no ticket - restores widget colors\n- [#19](https://github.com/acme/widgets/pull/19) +9 -0, by jo, requested from you, no ticket - shows widget names\n\n### Outcome\n\nThere are two or more matches on pi, so discovery re-enters set routing with `source: discovered`. It passes these sorted origin URL tokens:\n\n1. `https://github.com/acme/widgets/pull/40`\n2. `https://github.com/acme/widgets/pull/27`\n3. `https://github.com/acme/widgets/pull/19`\n\nThe run stops here, before set admission, gathering or provisioning.\n\n## Isolated run: failed call\n\nSteps 1 to 4 and the filter are identical to the main run. The first lookup, for #19, exits 1 with empty stdout. Discovery stops at once:\n- The #22 and #27 lookups never run.\n- No list is printed.\n- Nothing is routed.\n\ngauntlet: stuck discovery failed: HTTP 502: Bad Gateway\n\ndiscovery failed: HTTP 502: Bad Gateway\n\n## Isolated run: unreadable lookup\n\nSteps 1 to 4 and the filter are identical to the main run. The #19 lookup exits 1 with stdout `malformed`. Discovery stops before the remaining lookups, the list and routing.\n\ngauntlet: stuck discovery failed: malformed review lookup for #19\n\ndiscovery failed: malformed review lookup for #19\n\n## Isolated run: incomplete lookup\n\nSteps 1 to 4 and the filter are identical to the main run. The #19 lookup exits 1 with stdout `incomplete`. Discovery stops before the remaining lookups, the list and routing.\n\ngauntlet: stuck discovery failed: incomplete review lookup for #19\n\ndiscovery failed: incomplete review lookup for #19\n",
+      "words": 520,
+      "wallMs": 23376,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Main run\n\nWith the complete list results in hand, exclude draft #31 and approved #38. Run the fixed review-lookup command sequentially:\n\n1. #19 returns `answered`; retain it.\n2. #22 returns `unanswered`; exclude it. The later plain comment does not change this result.\n3. #27 returns `answered`; retain it.\n\nRetain #40 without a lookup. Sort the remaining PRs by additions plus deletions, then number.\n\nThe user reads:\n\n**Open PRs to gate, smallest first:**\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n- [#27](https://github.com/acme/widgets/pull/27) +5 -0, by jo, requested from you, no ticket - restore widget colors\n- [#19](https://github.com/acme/widgets/pull/19) +9 -0, by jo, requested from you, no ticket - show widget names\n\nSend **40, 27, 19**, in that order, to set routing using their origin URLs and `source: discovered`. Stop this narration before admission.\n\n### Isolated run: failed call\n\nRun the review lookup for #19 first. It fails; use only the first stderr line. Run no lookup for #22 or #27, print no PR list, and send nothing to set routing.\n\nThe user reads:\n\ngauntlet: stuck discovery failed\ndiscovery failed: HTTP 502: Bad Gateway\n\n### Isolated run: unreadable lookup\n\nRun the review lookup for #19 first. Its supplied result is `malformed` with exit status 1. Run no lookup for #22 or #27, print no PR list, and send nothing to set routing.\n\nThe user reads:\n\ngauntlet: stuck discovery failed\ndiscovery failed: malformed review lookup for #19\n\n### Isolated run: incomplete lookup\n\nRun the review lookup for #19 first. Its supplied result is `incomplete` with exit status 1. Run no lookup for #22 or #27, print no PR list, and send nothing to set routing.\n\nThe user reads:\n\ngauntlet: stuck discovery failed\ndiscovery failed: incomplete review lookup for #19\n\nIn all four runs, no run folder or tracker is initialized, no helper is dispatched, and no SHA is verified or reviewed. These entry points stop before assessment, reports, or menus.\n",
+      "words": 314,
+      "wallMs": 13857,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fa53c56df259774137f506d5476627453dba479df2f785ef049d74a1adce966e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0a46f18f0e202746859892d35572cd0dde609f3752713d816c5f1d3b8a8f1443",
+      "baselineOutputSha": "1f6af2ca3eb4d71bce1ab3fb8bdc7f33281210c01cd09c5009dda3eb20ad8cb9",
+      "candidateOutputSha": "6009855cc585db6f8820a2bbddedf40bb118979fb1c00c6852accc80b49f8fa8",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All five facts moved from fails to holds as intended, and Before held none, so nothing was lost. Before excluded every CHANGES_REQUESTED PR on the projected decision alone, ran no lookups, listed only #40 on the single-PR path, and produced the same result in all three failure runs. After runs the lookup for #19, #22 and #27 only, in ascending order, keeps the two `answered` PRs, drops the `unanswered` #22, lists #40, #27, #19 under the plural heading and routes those three in that order. In each failure run it stops at the #19 lookup with the exact `discovery failed: ...` text (first stderr line only for the 502), printing no list and routing nothing. To keep this stable, keep the wording that states lookups run only for surviving CHANGES_REQUESTED PRs in ascending number, that any non-zero exit stops before the list, and that the failure message uses the first error line or the named malformed/incomplete form with the PR number. One thing to watch: After prints an extra `gauntlet: stuck discovery failed: ...` line before each stop line; if the stop message is meant to be the sole output, tighten the wording to say which single line is emitted, since a stricter fact could read the duplicate as a deviation.",
+      "wallMs": 6392,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fa53c56df259774137f506d5476627453dba479df2f785ef049d74a1adce966e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "0a46f18f0e202746859892d35572cd0dde609f3752713d816c5f1d3b8a8f1443",
+      "baselineOutputSha": "d78c35aa51cadf6df8d959fddbe48f3cb3f9fb59118362423f9b25173bc6caf6",
+      "candidateOutputSha": "ce8d057f741d1912c20b6705ca7994c830c3e2f5520b6a3c580957bb0b14c4f2",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All five facts moved from fails to holds as expected, and Before held none, so nothing was lost. Before excluded every CHANGES_REQUESTED PR without a lookup, listed only #40 on the single-PR path, and never reached the failure cases; After runs the lookup for #19, #22, #27 in numeric order (skipping draft #31, approved #38 and undecided #40), lists and routes #40, #27, #19 under the exact `**Open PRs to gate, smallest first:**` heading while keeping #22 out despite the later comment, and stops each isolated run with the exact `discovery failed: ...` line, no list and no routing. To keep this stable, preserve the wording that makes the lookup apply only to surviving changes-requested PRs in numeric order, that a non-zero or malformed/incomplete result stops discovery before any list is printed, and that only the first stderr line is used. One thing to watch: After prints an extra `gauntlet: stuck discovery failed` line before the `discovery failed: ...` line; it does not break f3-f5 as written, but if the stop message is meant to be a single line, say so explicitly in the wording.",
+      "wallMs": 5726,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "dcf346df6a527f0be9b52c9441c3bccb92167964"
+}

@@ -208,15 +208,18 @@ test('PR sets route before the unchanged single-PR steps', () => {
     /discovery failed: malformed gh pr list output/, /discovery failed: incomplete \(<query> hit --limit 1000\)/,
     /source: discovered/, /GH_REPO/, /never falls back/i,
   ]) assert.match(discovery, pattern);
-  const discoveryLines = discovery.split('\n');
-  const projection = [
-    `projection='map(if (.isDraft == true or .reviewDecision == "APPROVED" or .reviewDecision == "CHANGES_REQUESTED") then {number,isDraft,reviewDecision,additions,deletions}`,
-    String.raw`else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}]`,
-    `| .body |= (. // "")[0:300]) end)'`,
-  ].join(' ');
-  assert.ok(discoveryLines.includes(projection), 'Discovery projection must extract linearRefs before trimming body');
+  const block = discovery.match(/```bash\n(projection='[^\n]*[\s\S]*?)\n```/)[1].replaceAll('<owner/repo>', 'acme/widgets');
+  const projection = block.match(/^projection='(.*)'$/m)[1];
+  const changed = { number: 42, isDraft: false, reviewDecision: 'CHANGES_REQUESTED', additions: 3, deletions: 1,
+    title: 'Validate widget size', url: 'https://github.com/acme/widgets/pull/42', body: 'x'.repeat(300) + ' https://linear.app/acme/issue/SZ-7' };
+  const input = [changed, { ...changed, isDraft: true }, { ...changed, reviewDecision: 'APPROVED' }];
+  const projected = JSON.parse(execFileSync('jq', [projection], { input: JSON.stringify(input) }));
+  assert.deepEqual(projected[0], { ...changed, body: 'x'.repeat(300), linearRefs: [{ key: 'acme', id: 'SZ-7' }] });
+  for (const [i, row] of projected.slice(1).entries()) {
+    const { number, isDraft, reviewDecision, additions, deletions } = input[i + 1];
+    assert.deepEqual(row, { number, isDraft, reviewDecision, additions, deletions });
+  }
   const listArgs = '--state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection"';
-  const block = section(discovery, '```bash\n', '\n```').replaceAll('<owner/repo>', 'acme/widgets');
   const gh = `gh() {
     case "$5 $6" in
       '--author @me') echo '[{"number":7}]'; echo 'gh: author search failed' >&2; return 1 ;;

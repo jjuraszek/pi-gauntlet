@@ -1,0 +1,34 @@
+{
+  "sample": "no-arg-discovery-answered",
+  "arm": "baseline",
+  "skillSha": "69e455956a562e032a8bed953401b3fba6308329fbc88f612bd789afac546d92",
+  "inputSha": "218e13ca15cd237293a8241ab52522097e97b78c5c8d00d4d13882792824a3bb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Discovery narration: no PR token, origin acme/widgets\n\n## Commands run, in order\n\n1. `git remote get-url origin` returns origin. Stripping `.git` and lowercasing gives `acme/widgets`, which is a GitHub repository.\n2. `gh api user --jq .login` returns `alex`.\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` returns no teams, so `viewer.teams = []`.\n4. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json ... --jq \"$projection\"` exits 0 and returns `[]`. All six PRs are by `jo`.\n5. `gh pr list -R acme/widgets --search 'review-requested:@me' --state open --limit 1000 --json ... --jq \"$projection\"` exits 0 and returns the six-row array.\n\n**Validation.** Both exit statuses are 0. Both results are arrays of objects with integer `number`. The counts are 0 and 6, both below the limit of 1000.\n\n**Union and filter.** The union by number keeps the review-requested provenance. The exclusions are:\n- #31 is a draft.\n- #38 has reviewDecision `APPROVED`.\n- #19, #22 and #27 have reviewDecision exactly `CHANGES_REQUESTED`.\n\n#40 (`REVIEW_REQUIRED`) is the only PR kept.\n\n**Per-PR review lookups.** None are run. Discovery's exclusion rule depends only on the projected `reviewDecision`. The skill defines no per-PR review lookup, so the #19, #22 and #27 observations are never invoked. #19 is excluded by its `CHANGES_REQUESTED` decision before any lookup could matter. For that reason, the three isolated runs (failed call, unreadable lookup, incomplete lookup) change nothing, and each produces the result below.\n\n**Ticket display for #40.**\n\n6. `git symbolic-ref --short refs/remotes/origin/HEAD`, then `git show <ref>:.pi/gauntlet-overrides.md`, following the overrides search order. `## Issue tracker` says `tracker: github`, so Linear IDs and lookups are disabled.\n   - `closingIssuesReferences` is empty.\n   - Branch `widget` has no `gh-<N>`.\n   - Title \"Sort widgets\" has no `#N` or `gh-N`.\n   - The result is `no ticket`.\n\n**Sort and count.** There is one match, so the list uses the singular heading.\n\n## What the user reads\n\nThis is its own message, with no marker and nothing awaited:\n\nOpen PR to gate:\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sorts the widgets\n\n## Outcome, identical in all three isolated runs\n\nNo numbers go to set routing, and the run does not stop. One match continues on the single-PR path with the origin token `https://github.com/acme/widgets/pull/40`.\n\nThe next step would be to mint the run folder and continuation record, then initialize the plan tracker and start step 1 Gather. The narration ends here, before set admission, gathering or provisioning.\n",
+      "words": 387,
+      "wallMs": 21708,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "The discovery rule excludes every PR marked `CHANGES_REQUESTED` or `APPROVED`, as well as drafts. It does not call for a review lookup to reconsider those exclusions, so the supplied lookup results are never used.\n\n### Main run\n\nStarting with the complete list in hand, I exclude #19, #22, #27, #31, and #38. Only #40 remains; I run no lookup commands and dispatch no helpers.\n\nThe user reads:\n\nOpen PR to gate:\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n\nNumbers sent to set routing: none. Continue on the single-PR path for #40; the next step is initializing saved progress, followed by Gather.\n\n### Isolated run: failed call\n\nThe same filtering leaves only #40. The #19 lookup is not invoked, so its supplied HTTP failure does not occur during this run.\n\nThe user reads:\n\nOpen PR to gate:\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n\nNumbers sent to set routing: none. Continue on the single-PR path for #40; the next step is initializing saved progress, followed by Gather.\n\n### Isolated run: unreadable lookup\n\nThe same filtering leaves only #40. The #19 lookup is not invoked, so its supplied malformed result does not cause a stop.\n\nThe user reads:\n\nOpen PR to gate:\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n\nNumbers sent to set routing: none. Continue on the single-PR path for #40; the next step is initializing saved progress, followed by Gather.\n\n### Isolated run: incomplete lookup\n\nThe same filtering leaves only #40. The #19 lookup is not invoked, so its supplied incomplete result does not cause a stop.\n\nThe user reads:\n\nOpen PR to gate:\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n\nNumbers sent to set routing: none. Continue on the single-PR path for #40; the next step is initializing saved progress, followed by Gather.\n\nAt this stopping point in each run, no tracker stages have been initialized, no SHA has been assessed, and no verification, review, report, or menu has run.\n",
+      "words": 337,
+      "wallMs": 16912,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "dcf346df6a527f0be9b52c9441c3bccb92167964"
+}

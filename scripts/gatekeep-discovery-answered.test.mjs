@@ -40,9 +40,9 @@ fi
 printf '%s\\n' "$GH_STUB_JSON"
 `, { mode: 0o755 });
 
-  function run(pullRequest, fail = false) {
+  function run(pullRequest, fail = false, json = JSON.stringify({ data: { repository: { pullRequest } } })) {
     const result = spawnSync('bash', ['-c', command], { cwd: dir, encoding: 'utf8', timeout: 5000,
-      env: { PATH: `${dir}:${process.env.PATH}`, GH_STUB_JSON: JSON.stringify({ data: { repository: { pullRequest } } }), GH_STUB_FAIL: fail ? '1' : '0' },
+      env: { PATH: `${dir}:${process.env.PATH}`, GH_STUB_JSON: json, GH_STUB_FAIL: fail ? '1' : '0' },
     });
     assert.ifError(result.error);
     assert.equal(result.signal, null);
@@ -55,6 +55,9 @@ printf '%s\\n' "$GH_STUB_JSON"
     ['only one of two re-requested', pr(two, [user('Lee')]), 'unanswered'],
     ['signals cannot be split across requesters', pr(two, [user('Sam')], middle), 'unanswered'],
     ['equal commit and review dates', pr(), 'unanswered'],
+    ['equal instants in different time zones', pr(undefined, [], '2026-01-01T12:00:00+02:00'), 'unanswered'],
+    ['later instant with an earlier local clock', pr(undefined, [], '2026-01-01T09:00:01-01:00'), 'answered'],
+    ['later fractional second', pr(undefined, [], '2026-01-01T10:00:00.1Z'), 'answered'],
     ['no change requester', pr([{ ...review('Lee', late), state: 'APPROVED' }]), 'answered'],
     ['only a team requested', pr(undefined, [{ __typename: 'Team' }]), 'unanswered'],
     ['deleted requester cannot match', pr(withoutLogin, [user('Lee')]), 'unanswered'],
@@ -74,6 +77,13 @@ printf '%s\\n' "$GH_STUB_JSON"
       const result = run(response);
       assert.equal(result.stdout, `${verdict}\n`, result.stderr);
       assert.equal(result.status === 0, verdict === 'answered' || verdict === 'unanswered');
+    });
+  }
+  for (const json of ['', '{', '{}\n{}']) {
+    await t.test(`malformed JSON response: ${JSON.stringify(json)}`, () => {
+      const result = run(null, false, json);
+      assert.equal(result.stdout, 'malformed\n');
+      assert.notEqual(result.status, 0);
     });
   }
   await t.test('preserve failed lookup status and first stderr line', () => {

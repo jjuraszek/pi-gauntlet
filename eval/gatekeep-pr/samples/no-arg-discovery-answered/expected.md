@@ -1,0 +1,5 @@
+- f1: judged: The main run calls the review lookup for #19, #22 and #27 only, in that numeric order. It runs no lookup for the draft, approved or undecided PR.
+- f2: judged: The visible list under `**Open PRs to gate, smallest first:**` has the linked PRs #40, #27 and #19 in that size order. Route exactly those three PRs in that order. The later comment does not put #22 in the list or set.
+- f3: judged: The failed call stops discovery with `discovery failed: HTTP 502: Bad Gateway`. It prints no list and routes no PRs.
+- f4: judged: The unreadable lookup stops discovery with `discovery failed: malformed review lookup for #19`. It prints no list and routes no PRs.
+- f5: judged: The incomplete lookup stops discovery with `discovery failed: incomplete review lookup for #19`. It prints no list and routes no PRs.
