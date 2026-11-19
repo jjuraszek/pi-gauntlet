@@ -28,4 +28,4 @@ Review-requested query rows:
 
 ## Entry
 
-Start at argument resolution. Name the file read that accompanies the list, then show a horizontal rule. Render the two replies' visible text separated by a horizontal rule; end with the rejection, with nothing after it. Execute nothing.
+Start at argument resolution. First give a separate chronological trace: name the commands or file reads, mark where ticket links are resolved and where the final sort happens, and identify the first tool call after the sort and which reply carries it. Then render the two visible replies, separating the trace and each reply with a horizontal rule. End at rejection; execute nothing.

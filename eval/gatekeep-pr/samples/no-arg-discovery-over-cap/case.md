@@ -36,4 +36,4 @@ The #202 lookup exits 0 and returns `{"data":{"repository":{"pullRequest":{"late
 
 ## Entry
 
-Start at argument resolution. Render only what the human sees, separating messages with a horizontal rule. End at rejection; execute nothing.
+Start at argument resolution. First give a separate chronological trace: name the commands or file reads, mark where ticket links are resolved and where the final sort happens, and identify the first tool call after the sort and which reply carries it. Then render the two visible replies, separating the trace and each reply with a horizontal rule. End at rejection; execute nothing.

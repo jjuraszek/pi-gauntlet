@@ -132,6 +132,7 @@ for (const [name, text, patterns] of [
   ['discovery continues without waiting', brief, [
     /`\*\*Open PR to gate:\*\*`/, /`\*\*Open PRs to gate, smallest first:\*\*`/,
     /no first-line marker and await nothing: no question or selection/,
+    /Resolve ticket links[^\n]*before the final roster sort[^\n]*Sort by `additions \+ deletions`, then number, ascending\.\n\nImmediately after sorting, write the list in the visible text of the assistant reply that carries the next tool call/,
   ]],
   ['GitHub links in list entries', brief, [
     /\[#<number>\]\(<url>\)/, /link its number to its own `url`/,
@@ -1094,6 +1095,7 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       const rule = cap ? section(batch, 'For `source: discovered`,', 'After successful admission') : section(brief, '| 2+ Claude Code |', ' |\n');
       const link = `(${cap ? '../../' : '../'}brainstorming/reference/menu-layout.md#first-line-rule)`;
       assert.ok(rule.includes(`${link} for \`stuck\``));
+      if (!cap) assert.match(rule, /stop-format instructions read as the first tool call after the sort and put the list in that reply\. Skip the `reference\/batch\.md` read\./);
       assert.ok(rule.includes(cap ? 'cap or harness rejection text' : "multi-PR mode requires pi's nested dispatch"));
       assert.match(rule, /separate.*end with exactly one `discovered, smallest first: <numbers comma-separated>` line/);
       const expected = read(`${root}/expected.md`);
@@ -1102,9 +1104,11 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         const [list, stop] = output.text.trim().split(/\n\s*---\s*\n/).slice(-2);
-        assert.match(list, /^\*\*Open PRs to gate, smallest first:\*\*/);
-        assert.match(stop, /^gauntlet: stuck .+\n/);
-        assert.match(stop, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
+        const listText = cap ? list.replace(/^\*\*Reply 1\*\* \(carries the `reference\/batch\.md` read\)\n\n/, '') : list;
+        const stopText = cap ? stop.replace(/^\*\*Reply 2\*\* \(rejection\)\n\n/, '') : stop;
+        assert.match(listText, /^\*\*Open PRs to gate, smallest first:\*\*/);
+        assert.match(stopText, /^gauntlet: stuck .+\n/);
+        assert.match(stopText, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
         assert.equal(saved.judge[model].factsSha, sha256(expected));
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }
