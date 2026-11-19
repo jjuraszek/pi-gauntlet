@@ -318,6 +318,37 @@ test("active phases, non-idleness, and earlier competing handlers do not spend r
   assert.equal(ordered.sent.length, 0);
 });
 
+test("agent_settled implement restart does not run past an intervening marked stop", async () => {
+  const assistantText = (text: string) => ({
+    type: "message", message: { role: "assistant", stopReason: "stop", content: [{ type: "text", text }] },
+  });
+  const branch = enteredBranch(phases({ brainstorm: "complete", plan: "complete", implement: "in_progress" }), [
+    taskSnapshot([{ name: "next task", status: "in_progress" }]),
+    assistantText("The first wave is complete."),
+  ]);
+  let firstSettle = true;
+  const h = harness({ branch, beforeSettled: () => {
+    if (!firstSettle) return;
+    firstSettle = false;
+    h.pi.sendMessage({ customType: "other-extension", content: "Check the decision.", display: true }, { triggerTurn: true });
+  } });
+  await settle(h);
+
+  // Pi drains the deferred sends in order after all settled handlers return. A
+  // whole run, including its own settlement, finishes before the next starts.
+  const deferred = h.sent.splice(0).filter(send => send.options.triggerTurn);
+  assert.deepEqual(deferred.map(({ message }) => message.details?.piGauntletRecoveryEdge ?? message.customType),
+    ["other-extension", "implement-continue"], "both settled handlers must request a turn");
+  const started: string[] = [];
+  for (const { message, options } of deferred) {
+    if (!options.triggerTurn) continue;
+    started.push(message.customType);
+    branch.push({ type: "custom_message", ...message }, assistantText("gauntlet: question"));
+    await h.emit("agent_settled");
+  }
+  assert.deepEqual(started, ["other-extension"], "no recovery run may start after the marked stop");
+});
+
 test("a throwing send spends the in-memory edge", async () => {
   const h = harness({ branch: enteredBranch(phases({ brainstorm: "complete", plan: "complete" }), [assistant()]), sendThrows: true });
   await h.emit("session_start");
