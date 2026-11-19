@@ -3,9 +3,9 @@
 base: 087d02da19b45c841a9c9c6b73819d9ace93c35e
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
-returned: 6 | home | 82c9734f03f689f9daa8a2cd77716ee44a431571
+returned: 8 | home | f2d1566547bdb9f79cac0d9b3eedd4680c978c41
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -16,8 +16,8 @@ returned: 6 | home | 82c9734f03f689f9daa8a2cd77716ee44a431571
 | 5 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-discovery-answered.test.mjs; 28 passed, including missing connections, dates, and malformed JSON; no-arg-discovery-answered replay named the malformed lookup for #19 without a list on both models |
 | 6 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-comment-reconcile.test.mjs; 87 passed, including all four bold headings across the three list rules; both typed-list-note replies showed bold single and set headings |
 | 7 | done | 0 | timeout -k 30 30 node --test scripts/gatekeep-comment-reconcile.test.mjs; 87 passed, including visible reply text beside the next tool call at all three sites; both typed-list-note replies showed the single PR before CI, diff and comment reads |
-| 8 | open | 0 | |
-| 9 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 10 jq -e '[.judge[].facts.s1.after, .judge[].facts.s2.after] == ["holds","holds","holds","holds"]' eval/gatekeep-pr/results/list-send-if-missing/candidate.json; true; both models showed the missing linked list before git fetch origin for the typed PR and discovered set |
+| 9 | done | 0 | timeout -k 30 10 jq -e '[.judge[].facts.s3.after] == ["holds","holds"]' eval/gatekeep-pr/results/list-send-if-missing/candidate.json; true; both models proceeded to git fetch origin without repeating the earlier visible list |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 
@@ -30,3 +30,5 @@ row 4 done | A failed review lookup stops discovery before the list and reports 
 row 5 done | An unreadable review lookup stops discovery before the list and identifies the affected PR. | nothing new to build on
 row 6 done | Discovered and typed PR lists use bold headings for both one PR and a set. | Reuse the four heading checks in gatekeep-comment-reconcile.test.mjs when changing list placement.
 row 7 done | All three list rules put the list in visible reply text beside the next tool call. | Reuse the typed-list-note sample to check that a single PR appears before CI, diff and comment reads.
+row 8 done | The first provisioning reply shows the linked PR list before the command when no earlier reply in view shows it. | Reuse the list-send-if-missing sample to check the typed single-PR and discovered set paths at checkout.
+row 9 done | The first provisioning reply skips the list when an earlier visible reply already shows it. | nothing new to build on

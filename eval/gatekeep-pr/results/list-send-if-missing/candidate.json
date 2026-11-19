@@ -1,0 +1,90 @@
+{
+  "sample": "list-send-if-missing",
+  "arm": "candidate",
+  "skillSha": "87ef4680821d3de882bb3a6e562dee7f927b8dc0f7b1d9cca20b0d48a5fd865d",
+  "inputSha": "74f1be740556399c6599df3e45677b449ffe91c2abb2d3f4da868df5388ae3e1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Run A: `18`\n\nThe only earlier reply text in view is `Reading the PR.`, which has no linked list. This reply must carry the list as visible text before the first provisioning command. The input was a typed PR, so the heading is `PR to gate:`.\n\nReply the user sees:\n\n**PR to gate:**\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\nCommand this reply carries (the first provisioning command for an in-repo PR with no existing worktree):\n\n```bash\ngit fetch origin\n```\n\nStop here.\n\n## Run B: no arguments (set parent, discovered roster 35, 18)\n\nThe earlier reply text in view holds only the plain-number line `discovered, smallest first: 35, 18`. The PR links appear only in shell output, which is not reply text. So the parent must write the linked roster before the set's first provisioning command. The set was discovered, so the heading is `Open PRs to gate, smallest first:`, and the roster order is 35, 18.\n\nReply the user sees:\n\n**Open PRs to gate, smallest first:**\n- [#35](https://github.com/acme/widgets/pull/35) +2 -1, by pat, requested from you, no ticket - trim blank labels\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\nCommand this reply carries (the parent fetches origin once for the whole set, before serial provisioning):\n\n```bash\ngit fetch origin\n```\n\nStop here.\n\n## Run C: `18`\n\nAn earlier reply in view already carries the linked `PR to gate:` list for #18. Per the provisioning list check, the run goes straight to the command and does not repeat the list.\n\nReply the user sees: no visible text. The reply carries only the command.\n\nCommand this reply carries:\n\n```bash\ngit fetch origin\n```\n\nStop here.\n",
+      "words": 279,
+      "wallMs": 11969,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\n\n**PR to gate:**\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\ngit fetch origin\n\n### Run B\n\n**Open PRs to gate, smallest first:**\n- [#35](https://github.com/acme/widgets/pull/35) +2 -1, by pat, requested from you, no ticket - trim blank labels\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\ngit fetch origin\n\n### Run C\n\ngit fetch origin\n",
+      "words": 63,
+      "wallMs": 8818,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ce7a82ecd370a389af4f30dd572056d48fddff92f0034ccc8f12349370f2ba4a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a48b4e2effeba83dd04a4592b652402d7af8adbc18348a2af294846e5585b95f",
+      "baselineOutputSha": "70cc361c0107f86be3ce9703aff3730215b8476872ab068a45b876b6b543a0d0",
+      "candidateOutputSha": "571a4094e4112f8556f49a5c44eaff12a937ed667a96d9423739b678309fbceb",
+      "facts": {
+        "s1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "s2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "s3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact that Before kept was lost in After. s1 and s2 moved because After says outright that the reply carrying the first provisioning command holds the list as visible text: the bold heading appears once, the linked entries sit at the supplied URLs (#35 then #18 in Run B), and `git fetch origin` follows with no marker, question, wait or metadata fetch. Before showed the same list content before the command, but described sending it \"as its own message\" and then going on to provisioning, so the list was not in the command-carrying reply; that was a close call resting on that one phrase. s3 holds in both: Run C goes straight to `git fetch origin`, and After states that the reply has no visible text, so neither the heading nor the entry is repeated. To keep all three, keep the wording that ties the list to the same reply as the first provisioning command, and never to a separate message. Keep the test as \"earlier reply text in view lacks the linked list\", with shell output and the plain-number pasteable line explicitly not counting. Keep the rule that when the list is already visible the reply carries only the command. One risk to watch: After's Run C rationale names `PR to gate:` in the surrounding narration, so make sure the wording keeps such explanation out of the user-visible reply, or the heading could leak back in and break s3.",
+      "wallMs": 14390,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ce7a82ecd370a389af4f30dd572056d48fddff92f0034ccc8f12349370f2ba4a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "a48b4e2effeba83dd04a4592b652402d7af8adbc18348a2af294846e5585b95f",
+      "baselineOutputSha": "cd944ed11aa12068b9f8904741201980134547eaff0061c99ef4a923a8efed55",
+      "candidateOutputSha": "4bfc69ef2b591172c8bb66a7b9ac4ce59a1e33ae75ccf916405f3941ebf73b08",
+      "facts": {
+        "s1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "s2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "s3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved s1 and s2 solely by making the headings bold: Before already sent the linked list in visible reply text before the provisioning command in Runs A and B, in the right order and at the supplied URLs, with no gate marker, question, wait or metadata fetch, but wrote `PR to gate:` and `Open PRs to gate, smallest first:` as plain text, so the exact `**...**` headings the facts require were missing. After emits each bold heading exactly once with the linked entries (#18 alone in A; #35 then #18 in B) and goes straight to `git fetch origin`. s3 held in both: in Run C neither output repeats the heading or the entry when the earlier reply already shows the list; After drops the filler sentence and carries only the command, which is fine. To keep all three, retain the explicit wording that the list is sent only when earlier assistant reply text in view lacks it (shell output and the pasteable `discovered, smallest first:` line do not count as the list), and keep the bold-heading requirement stated as the literal heading strings so the writer does not revert to plain headings or re-send the list when it is already visible.",
+      "wallMs": 6351,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f2d1566547bdb9f79cac0d9b3eedd4680c978c41"
+}

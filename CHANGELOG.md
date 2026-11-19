@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Show the linked PR list in the gatekeeper's reply with a bold heading. For one typed PR, show it before reading CI, the diff or comments.
+- Show the linked PR list in the gatekeeper's reply with a bold heading. For one typed PR, show it before reading CI, the diff or comments. If no earlier reply in view shows the list, include it before the first checkout command.
 - Include discovered PRs with changes requested when every outstanding requester was asked again or the last commit came after the latest change request.
 
 ## v8.8.3 - 2026-11-18
