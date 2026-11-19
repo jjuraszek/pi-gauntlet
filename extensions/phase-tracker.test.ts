@@ -366,15 +366,18 @@ const decisionOn = async (branch: unknown[], event = {}) => {
 };
 
 test("only visible marker lines veto implement recovery", async () => {
-  for (const [prefix, block, expected] of [
-    ["", { type: "text", text: "gauntlet: question" }, 0],
-    ["Status:", { type: "text", text: "gauntlet: question" }, 0],
-    ["Status:", { type: "thinking", thinking: "gauntlet: question" }, 1],
-    ["Status:", { type: "toolCall", name: "tool", arguments: { note: "gauntlet: question" } }, 1],
+  const marker = "gauntlet: question";
+  const visible = { type: "text", text: marker };
+  const status = { type: "text", text: "Status:" };
+  for (const [name, content, expected] of [
+    ["visible marker alone", [visible], 0],
+    ["visible marker after status", [status, visible], 0],
+    ["thinking marker first", [{ type: "thinking", thinking: marker }, status], 1],
+    ["tool call marker after status", [status, { type: "toolCall", name: "tool", arguments: { note: marker } }], 1],
   ] as const) {
-    const last = assistantText(prefix);
-    const message = { ...last.message, content: prefix ? [...last.message.content, block] : [block] };
-    assert.equal((await decisionOn(implementBranch([movedTask(), { ...last, message }]))).length, expected);
+    const last = assistant();
+    const message = { ...last.message, content };
+    assert.equal((await decisionOn(implementBranch([movedTask(), { ...last, message }]))).length, expected, name);
   }
 });
 
