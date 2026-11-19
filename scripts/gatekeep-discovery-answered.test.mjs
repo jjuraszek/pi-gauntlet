@@ -73,6 +73,10 @@ printf '%s\\n' "$GH_STUB_JSON"
     ['missing requester timestamp', pr([review('Lee', undefined)]), 'malformed'],
     ['missing pending reviewer type', pr(undefined, [{ login: 'Lee' }]), 'malformed'],
     ['non-string pending reviewer type', pr(undefined, [{ __typename: 1, login: 'Lee' }]), 'malformed'],
+    ['blank pending reviewer type', pr(undefined, [{ __typename: '', login: 'Lee' }]), 'malformed'],
+    ['pending reviewer type with trailing newline', pr(undefined, [{ __typename: 'User\n', login: 'Lee' }]), 'malformed'],
+    ['blank pending user login', pr(undefined, [user('')]), 'malformed'],
+    ['non-string pending user login', pr(undefined, [user(1)]), 'malformed'],
     ['incomplete reviews', { ...pr(), latestOpinionatedReviews: page }, 'incomplete'],
     ['incomplete requests', { ...pr(), reviewRequests: page }, 'incomplete'],
   ]) {
