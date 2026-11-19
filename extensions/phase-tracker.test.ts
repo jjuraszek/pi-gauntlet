@@ -318,7 +318,7 @@ test("active phases, non-idleness, and earlier competing handlers do not spend r
   assert.equal(ordered.sent.length, 0);
 });
 
-test("agent_settled implement restart does not run past an intervening marked stop", async () => {
+test("agent_before_settle requests one implement restart without running past a later marked stop", async () => {
   const assistantText = (text: string) => ({
     type: "message", message: { role: "assistant", stopReason: "stop", content: [{ type: "text", text }] },
   });
@@ -332,21 +332,27 @@ test("agent_settled implement restart does not run past an intervening marked st
     firstSettle = false;
     h.pi.sendMessage({ customType: "other-extension", content: "Check the decision.", display: true }, { triggerTurn: true });
   } });
-  await settle(h);
-
-  // Pi drains the deferred sends in order after all settled handlers return. A
-  // whole run, including its own settlement, finishes before the next starts.
-  const deferred = h.sent.splice(0).filter(send => send.options.triggerTurn);
-  assert.deepEqual(deferred.map(({ message }) => message.details?.piGauntletRecoveryEdge ?? message.customType),
-    ["other-extension", "implement-continue"], "both settled handlers must request a turn");
-  const started: string[] = [];
-  for (const { message, options } of deferred) {
-    if (!options.triggerTurn) continue;
-    started.push(message.customType);
-    branch.push({ type: "custom_message", ...message }, assistantText("gauntlet: question"));
-    await h.emit("agent_settled");
-  }
-  assert.deepEqual(started, ["other-extension"], "no recovery run may start after the marked stop");
+  const prior = { type: "custom", customType: "other-extension", data: "keep" };
+  const beforeSettle = async () => (await h.emitEvent("agent_before_settle", {
+    type: "agent_before_settle", outcome: "completed", entries: [prior], continue: false,
+  })).filter(Boolean) as { entries: any[]; continue: boolean }[];
+  await h.emit("session_start");
+  const proposals = await beforeSettle();
+  assert.equal(proposals.length, 1, "the eligible stop must request a boundary continuation");
+  const [{ entries, continue: shouldContinue }] = proposals;
+  assert.equal(shouldContinue, true);
+  assert.deepEqual(entries, [prior, {
+    type: "custom_message", customType: "pi-gauntlet-transition-recovery", display: true,
+    details: { piGauntletRecoveryEdge: "implement-continue" },
+    content: "Your last message ended the turn during the implementation phase without a `gauntlet:` marker line. If the user asked you to stop, or a decision is still unresolved, restate it and end the turn; start with a `gauntlet:` line only where a skill already prescribes one for that stop, and do not invent a gate, `done` or `stuck` line. Otherwise continue only work that is already authorized; do not reopen a task the user settled as a terminal failure.",
+  }]);
+  branch.push(...entries, assistantText("The wave resumed."));
+  await h.emit("agent_settled");
+  assert.deepEqual(h.sent.map(s => s.message.customType), ["other-extension"]);
+  branch.push({ type: "custom_message", ...h.sent[0].message }, assistantText("gauntlet: question"));
+  assert.deepEqual(await beforeSettle(), []);
+  await h.emit("agent_settled");
+  assert.equal(h.sent.length, 1, "no recovery run may start after the marked stop");
 });
 
 test("a throwing send spends the in-memory edge", async () => {
