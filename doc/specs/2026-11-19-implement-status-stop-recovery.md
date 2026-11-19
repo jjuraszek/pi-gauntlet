@@ -73,7 +73,7 @@ Drafted from the design, no ticket rows:
   in-scope
 - [ ] A settled turn in a subagent session receives no `implement-continue` message.
   in-scope
-- [ ] A settled turn in a session that is not idle when the settle step runs receives no restart message.
+- [ ] At the pre-settlement boundary, already pending work or a continuation already requested by another handler receives no additional `implement-continue` request.
   in-scope
 - [ ] After a session reload or fork, the restart decision equals the decision computed from the same history before it.
   in-scope
@@ -137,7 +137,7 @@ The new branch sends the restart message when every condition holds:
 | 5 | The latest assistant message on the branch has stop reason exactly `stop` | `branchLatestAssistantStopReason` |
 | 6 | That message's visible text has no marker line | visible text and marker test below |
 | 7 | A task moved since the boundary | boundary and task movement below |
-| 8 | The session is idle | `ctx.isIdle()`; see `### Delivery` for what this does not cover |
+| 8 | No other work is pending and no continuation has already been requested at this boundary | Use Pi boundary state and pending work, not `ctx.isIdle()`: the host control proves it is false inside a valid pre-settlement turn. |
 
 Visible text: the message's `text` content blocks joined with newlines, as `textOf` does (`extensions/lib/telemetry-collect.ts`). `thinking` and `toolCall` blocks are not read. A message with no `text` block has empty visible text and no marker line.
 
@@ -187,6 +187,7 @@ Nothing.
 
 - `extensions/lib/phase-tracker-helpers.ts`: `hasGauntletMarkerLine(text)` implementing the marker test; `taskListMoved(predecessor, after)` implementing task movement as a pure function, where `after` is the ordered list of snapshots after the boundary.
 - `extensions/phase-tracker.ts`: implementation-only pre-settlement handler, restart message and branch walk over assistant visible text and ordered task snapshots.
+- `scripts/phase-tracker-host.test.mjs`: the real-host delivery regression, with positive control, final marked-stop assertion and implement handler coverage. Include in CI via `scripts/ci.mjs` as needed.
 - `extensions/lib/phase-tracker-helpers.test.ts` and `extensions/phase-tracker.test.ts`: the tests in `## Tests`.
 - `README.md`: the handoff-restart paragraph in the flow section also describes the implement restart and its conditions.
 - `doc/gate-contract.md`: line one stays the only protocol marker; the tracker's any-line test is a restart veto, not a driver command. An unmarked first line is neither permission to answer nor a promise of another turn. A driver waits for another settle only when an automatic continuation is actually scheduled; the `pi-gauntlet-transition-recovery` custom message with `piGauntletRecoveryEdge: "implement-continue"` is the recovery request, not by itself proof that a run starts. When no continuation follows, the driver surfaces the existing stop to the operator.
@@ -236,7 +237,7 @@ Assistant fixtures in the new tests carry `content` as a block array, the shape 
 - A settlement event with `aborted: true` on an otherwise eligible history ending in `stop` sends nothing - "agent_settled skips implement restart for an aborted settlement".
 - Host ordering: exercise competing continuation requests and an intervening marked human stop on the host. Assert a real eligible continuation, no implementation continuation after the mark, and unchanged handoff behavior.
 - A subagent child sends nothing - "agent_settled skips implement restart in a subagent child".
-- A non-idle session sends nothing - "agent_settled skips implement restart when not idle".
+- An already requested continuation or queued work suppresses implement recovery at the earlier boundary - exercise both cases.
 - No task list on the branch sends nothing - the existing test `active phases, non-idleness, and earlier competing handlers do not spend recovery`, unchanged.
 - A branch rebuilt from history that already holds an `implement-continue` message gives the same decision as the live session - "agent_settled implement restart is recomputed from branch history".
 - Implement in progress with only retryable `failed` loop rows unfinished still restarts, and the message text does not say tasks remain - "agent_settled restarts implement with only failed loop rows open".

@@ -24,3 +24,4 @@ returned: 1 | home | 719c6dd5604a520ee25c28ea1aaa66523c8e98a0
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1: return delivery to the user before implementation; Pi 1.5.2 started the queued restart after the marked stop.
 amended | 1 item(s) | Test pre-settlement delivery
 row 1 failed | Pi 1.5.2 ran the control restart before the foreign marked question, but the required idle guard suppressed it because the run was still active at the boundary. | Reconcile condition 8 and AC 6 with pre-settlement delivery before wiring it; keep the host control and marked-stop assertion, not a queued fallback.
+amended | 1 item(s) | Yield to pending work
