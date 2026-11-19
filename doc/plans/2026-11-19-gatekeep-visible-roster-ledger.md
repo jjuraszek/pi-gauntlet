@@ -34,3 +34,4 @@ row 8 done | The first provisioning reply shows the linked PR list before the co
 row 9 done | The first provisioning reply skips the list when an earlier visible reply already shows it. | nothing new to build on
 row 10 done | No-argument discovery excludes the viewer's own PRs in the GitHub search, even when their team was asked to review. | Reuse the no-arg-discovery-single sample to check the search and handoff when the viewer's team has a review request on their own PR.
 row 11 done | An empty review queue stops with the origin and viewer in the message, using @me when the login is unreadable. | Reuse the no-arg-discovery-zero sample to check the exact stop text and absence of a list.
+amended | 1 item(s) | Instruction-file reads before the list
