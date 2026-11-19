@@ -1056,13 +1056,16 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       assert.equal(replies.length, saved.models.replay.length);
       for (const [model, output] of replies) {
         if (sample === 'typed-list-note') {
+          const runBList = section(output.text, '---\n**PR to gate:**\n', '\n---\n');
+          assert.ok(runBList.includes('[#45](https://github.com/acme/gadgets/issues/45)'), `${model}: same-repository closing issue uses the short label`);
+          assert.doesNotMatch(runBList, /acme\/gadgets#45/, `${model}: no qualified label for the PR's own issue`);
           const preList = section(output.text, 'Run B:', '**PR to gate:**');
           const commands = preList.match(/^\n\s*```bash\n([^`]+)\n```\n/);
           assert.ok(commands, `${model}: Run B starts with the pre-list shell block`);
           assert.doesNotMatch(preList.slice(commands[0].length), /^\s*```/m, `${model}: Run B uses only one pre-list shell block`);
           const preamble = section(brief, '### Gather fixed commands\n', 'For one typed PR, use only')
             .match(/```bash\n([^`]+)\n```/)[1].split('\n')
-            .map((line) => line.split(/\s+#/)[0].replace('"$pr_token"', 'https://github.com/acme/gadgets/pull/97'));
+            .map((line) => line.split(/\s+#/)[0].replace('"$pr_token"', '97'));
           assert.deepEqual(commands[1].split('\n'), [
             ...preamble,
             'git symbolic-ref --short refs/remotes/origin/HEAD',

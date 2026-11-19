@@ -13,13 +13,13 @@ bundle-: skills/finishing-a-development-branch/reference/commit-message.md
 
 Run A: `112 101`
 
-Run B (independent): `https://github.com/acme/gadgets/pull/97`
+Run B (independent): `97`
 
 ## Digest
 
-Both runs use pi, origin `git@github.com:acme/widgets.git`, and `parallel.maxTasks` 4. The viewer login read returns `alex`; the team read returns `acme/reviewers`. Origin's default branch resolves and has no tracker override. No worktree exists for any of the PRs.
+Both runs use pi and `parallel.maxTasks` 4. The viewer login read returns `alex`; the team read returns `acme/reviewers`. Origin's default branch resolves and has no tracker override. No worktree exists for any of the PRs.
 
-Run A: the PR metadata reads return these two results, in argument order:
+Run A: origin is `git@github.com:acme/widgets.git`. The PR metadata reads return these two results, in argument order:
 
 ```json
 [
@@ -28,7 +28,7 @@ Run A: the PR metadata reads return these two results, in argument order:
 ]
 ```
 
-Run B: Section A is already in context. The first PR view returns open PR #97 at https://github.com/acme/gadgets/pull/97 by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12, and head `cccccccccccccccccccccccccccccccccccccccc`. The pending request is `{"__typename":"User","login":"alex"}`; closing references are empty. The default-branch read returns `origin/main`; none of the three override paths exists.
+Run B: Section A is already in context. The GitHub CLI's configured default repository differs from the checkout's origin. If run, `git remote get-url origin` prints `git@github.com:acme/widgets.git`. The first `gh pr view 97` returns open PR #97 with `url` `https://github.com/acme/gadgets/pull/97`, by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12, and head `cccccccccccccccccccccccccccccccccccccccc`. The pending request is `{"__typename":"User","login":"alex"}`. The view's `closingIssuesReferences` is `[{"number":45,"url":"https://github.com/acme/gadgets/issues/45","repository":{"name":"gadgets","owner":{"login":"acme"}}}]`. The default-branch read returns `origin/main`; none of the three override paths exists.
 
 ## Entry
 
