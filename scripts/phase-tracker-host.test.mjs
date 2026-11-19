@@ -25,7 +25,7 @@ const mark = "gauntlet: question";
 const tasks = [{ name: "next task", status: "in_progress" }];
 const latestAssistant = branch => branch.findLast(e => e.type === "message" && e.message.role === "assistant").message;
 
-async function runWave(extensionFactories, trackerOrder = "first") {
+async function runWave(extensionFactories, { trackerOrder = "first", phase = "implement", status = "in_progress" } = {}) {
   const requests = [], errors = [];
   const faux = fauxProvider();
   const reply = ({ messages }) => {
@@ -51,12 +51,14 @@ async function runWave(extensionFactories, trackerOrder = "first") {
   });
   await resourceLoader.reload();
   const sessionManager = SessionManager.inMemory(agentDir);
-  for (const phase of ["brainstorm", "implement"]) {
-    const phases = Object.fromEntries(["brainstorm", "plan", "implement", "verify", "ship"].map(name => [name, {
-      status: name === phase ? "in_progress" : phase === "implement" && ["brainstorm", "plan"].includes(name) ? "complete" : "pending",
+  const phaseNames = ["brainstorm", "plan", "implement", "verify", "ship"];
+  for (const [current, currentStatus] of [["brainstorm", "in_progress"], [phase, status]]) {
+    const phases = Object.fromEntries(phaseNames.map((name, index) => [name, {
+      status: name === current ? currentStatus : index < phaseNames.indexOf(current) ? "complete" : "pending",
     }]));
-    sessionManager.appendMessage({ role: "toolResult", toolName: "phase_tracker", toolCallId: phase, timestamp: Date.now(),
-      content: [{ type: "text", text: `Starting ${phase}.` }], isError: false, details: { action: "start", phases } });
+    sessionManager.appendMessage({ role: "toolResult", toolName: "phase_tracker", toolCallId: current, timestamp: Date.now(),
+      content: [{ type: "text", text: `${current}: ${currentStatus}.` }], isError: false,
+      details: { action: currentStatus === "complete" ? "complete" : "start", phases } });
   }
   const { session, extensionsResult } = await createAgentSession({
     agentDir, cwd: agentDir, resourceLoader, settingsManager, sessionManager,
@@ -96,7 +98,7 @@ for (const [name, control] of [["boundary delivery control", true], ["phase trac
         type: "custom_message", customType: "pi-gauntlet-transition-recovery", content: restart,
         details: { piGauntletRecoveryEdge: restart }, display: true,
       }], continue: true };
-    })], control ? "omit" : "last");
+    })], { trackerOrder: control ? "omit" : "last" });
     const restarts = branch.filter(e => e.type === "custom_message" && e.customType === "pi-gauntlet-transition-recovery");
     assert.deepEqual(restarts.map(e => e.details?.piGauntletRecoveryEdge), [restart]);
     assert.equal(latestAssistant(branch).content[0].text, mark, "no restart may run past the marked stop");
@@ -117,6 +119,17 @@ test("an unsuccessful boundary delivery never queues a fallback", async () => {
   assert.deepEqual(requests, [work, "plan_tracker"]);
 });
 
+for (const [phase, message] of [
+  ["plan", "Continue the approved workflow now. Invoke /skill:subagent-driven-development."],
+  ["verify", "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch."],
+]) {
+  test(`${phase} completion delivers its original handoff once without an implement restart`, async () => {
+    const { branch, requests } = await runWave([], { phase, status: "complete" });
+    assert.deepEqual(requests, [work, "plan_tracker", message]);
+    assert.ok(!branch.some(e => e.details?.piGauntletRecoveryEdge === restart));
+  });
+}
+
 test("aborting after a normal stop skips the boundary and never queues a fallback", async () => {
   const events = [];
   const { branch, requests } = await runWave([pi => {
@@ -129,4 +142,18 @@ test("aborting after a normal stop skips the boundary and never queues a fallbac
   assert.deepEqual(events, [{ aborted: true }]);
   assert.ok(!branch.some(e => e.details?.piGauntletRecoveryEdge === restart));
   assert.deepEqual(requests, [work, "plan_tracker"]);
+});
+
+test("aborting after the restart is drafted settles aborted without another provider request", async () => {
+  const settlements = [];
+  const { requests } = await runWave([pi => {
+    pi.on("agent_before_settle", (event, ctx) => {
+      assert.equal(event.continue, true);
+      assert.equal(event.entries.at(-1)?.details?.piGauntletRecoveryEdge, restart);
+      ctx.abort();
+    });
+    pi.on("agent_settled", event => { settlements.push(event.aborted); });
+  }]);
+  assert.deepEqual(settlements, [true]);
+  assert.deepEqual(requests, [work, "plan_tracker"], "no provider requests after the boundary");
 });
