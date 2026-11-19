@@ -1,0 +1,3 @@
+- s1: judged: In Run A the visible text of the reply carrying the first provisioning command starts the list before the call. It includes `**PR to gate:**` once and one linked entry for #18 at its supplied URL. Proceed to the command without a gate marker, question or wait.
+- s2: judged: In Run B the parent's reply carrying the first provisioning command starts the list in its visible text before the call. It includes `**Open PRs to gate, smallest first:**` once and the two linked entries at their supplied URLs, #35 then #18. Do not fetch metadata to write the list, ask, or wait.
+- s3: judged: In Run C proceed to the provisioning command without repeating the earlier list: the reply at this step contains neither its heading nor its entry.

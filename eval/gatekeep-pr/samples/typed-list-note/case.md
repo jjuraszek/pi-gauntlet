@@ -17,9 +17,9 @@ Run B (independent): `97`
 
 ## Digest
 
-Both runs use pi, origin `git@github.com:acme/widgets.git`, and `parallel.maxTasks` 4. The viewer login read returns `alex`; the team read returns `acme/reviewers`. Origin's default branch resolves and has no tracker override. No worktree exists for any of the PRs.
+Both runs use pi and `parallel.maxTasks` 4. The viewer login read returns `alex`; the team read returns `acme/reviewers`. Origin's default branch resolves and has no tracker override. No worktree exists for any of the PRs.
 
-Run A: the roster passes admission. The parent run folder can be created. Here are the two successful gather results, in argument order:
+Run A: origin is `git@github.com:acme/widgets.git`. The PR metadata reads return these two results, in argument order:
 
 ```json
 [
@@ -28,8 +28,8 @@ Run A: the roster passes admission. The parent run folder can be created. Here a
 ]
 ```
 
-Run B: the fixed step-1 reads succeed. The digest shows open PR #97 at https://github.com/acme/widgets/pull/97 by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12. The pending request is `{"__typename":"User","login":"alex"}`; closing references are empty. No ticket is named.
+Run B: Section A is already in context. The GitHub CLI's configured default repository differs from the checkout's origin. If run, `git remote get-url origin` prints `git@github.com:acme/widgets.git`. The first `gh pr view 97` returns open PR #97 with `url` `https://github.com/acme/gadgets/pull/97`, by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12, and head `cccccccccccccccccccccccccccccccccccccccc`. The pending request is `{"__typename":"User","login":"alex"}`. The view's `closingIssuesReferences` is `[{"number":45,"url":"https://github.com/acme/gadgets/issues/45","repository":{"name":"gadgets","owner":{"login":"acme"}}}]`. The default-branch read returns `origin/main`; none of the three override paths exists.
 
 ## Entry
 
-Start each invocation from its arguments. Narrate through the gather, render the messages the human sees before provisioning, then name the next step. Stop there; do not provision, dispatch, or render a menu. Treat the observations as command results; execute nothing.
+Start each invocation from its arguments. Trace through Gather if reached, then name the next step; do not go into provisioning, dispatch, or menus. For each visible reply, show its full text between lines containing only `---`, without inserting blank lines at the boundaries. Put narration and labels outside those delimiters. Write the `Run B:` heading with nothing after the colon. Immediately after that heading, show any shell calls preceding the first visible reply in one fenced `bash` block, one full command per line with no comments. Spell the PR-view token without shell quotes and write actual refs and paths in any override reads. Immediately after each closing delimiter, write `Paired call:` followed by the attached call in inline code (bare shell command for shell calls, no JSON wrapper), or `none` if no call is attached. Keep all steps in chronological order. Treat the observations as command results; execute nothing.

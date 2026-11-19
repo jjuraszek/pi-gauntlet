@@ -1,0 +1,110 @@
+{
+  "sample": "no-arg-discovery-answered",
+  "arm": "candidate",
+  "skillSha": "8d4daf2fba75d358fa85686eb35c7c42e992625b3e0043452cfd11068dd97290",
+  "inputSha": "218e13ca15cd237293a8241ab52522097e97b78c5c8d00d4d13882792824a3bb",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Discovery narration: no PR token, origin `acme/widgets`, viewer `alex`\n\n## Main run\n\n**1. Validate the list result.** The `gh pr list` call exited 0.\n- The output is a JSON array of 6 objects, and each has an integer `number`.\n- The count is 6, which is below the limit of 1000, so the result is complete.\n\n**2. Filter.**\n- Exclude #31 because it is a draft.\n- Exclude #38 because `reviewDecision` is `APPROVED`.\n- Remaining: #27, #19, #22 and #40.\n\n**3. Review lookups.** One runs for each remaining `CHANGES_REQUESTED` row, sequentially in ascending PR number.\n- Lookup #19 exits 0 with stdout `answered`. Keep #19.\n- Lookup #22 exits 0 with stdout `unanswered`. Exclude #22 from both the list and the gated set.\n- Lookup #27 exits 0 with stdout `answered`. Keep #27.\n- #40 is `REVIEW_REQUIRED`, so it is kept without a lookup.\n\n**4. Sort by additions + deletions, then by number.**\n- #40: 3\n- #27: 5\n- #19: 9\n\n**5. Ticket display.**\n- `git symbolic-ref --short refs/remotes/origin/HEAD` resolves the default-branch ref.\n- `git show <ref>:<path>` reads the overrides in search order. `## Issue tracker` names `tracker: github`, so Linear IDs, addresses and lookups are disabled.\n- None of the three PRs has a closing reference, a `gh-<N>` in branch `widget`, or `#<N>`/`gh-<N>` in its title. Each gets `no ticket`.\n\n**6. Reason column.** Every survivor has a pending User request to `alex`, which matches `viewer.login`. Each row therefore reads `by jo, requested from you`.\n\n**7. What the user reads.** This is the visible text of the reply that carries the next tool call, the read of `reference/batch.md`. It has no marker and no wait:\n\n**Open PRs to gate, smallest first:**\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sorts widgets\n- [#27](https://github.com/acme/widgets/pull/27) +5 -0, by jo, requested from you, no ticket - restores widget colors\n- [#19](https://github.com/acme/widgets/pull/19) +9 -0, by jo, requested from you, no ticket - shows widget names\n\n**8. Hand-off.** There are three matches and the harness is pi, so the run re-enters the set-routing row with `source: discovered` and these origin URL tokens in sorted order:\n- `https://github.com/acme/widgets/pull/40`\n- `https://github.com/acme/widgets/pull/27`\n- `https://github.com/acme/widgets/pull/19`\n\nThat is numbers 40, 27, 19. Stop here, before set admission.\n\n## Isolated run: failed call\n\nSteps 1–2 are the same as the main run. The #19 lookup runs first and `gh` exits 1 with empty stdout. Discovery stops before any further lookup, list or routing, so #22 and #27 are never looked up and no list is printed:\n\ngauntlet: stuck discovery failed\ndiscovery failed: HTTP 502: Bad Gateway\n\n## Isolated run: unreadable lookup\n\nSteps 1–2 are the same as the main run. The #19 lookup exits 1 with stdout `malformed`. Discovery stops with no further lookups and no list:\n\ngauntlet: stuck discovery failed\ndiscovery failed: malformed review lookup for #19\n\n## Isolated run: incomplete lookup\n\nSteps 1–2 are the same as the main run. The #19 lookup exits 1 with stdout `incomplete`. Discovery stops with no further lookups and no list:\n\ngauntlet: stuck discovery failed\ndiscovery failed: incomplete review lookup for #19\n",
+      "words": 485,
+      "wallMs": 18738,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Main run\n\nStarting with the complete list result, exclude draft #31 and approved #38. Run the fixed review-lookup block sequentially:\n\n1. Look up #19: stdout is `answered`, exit 0. Keep it.\n2. Look up #22: stdout is `unanswered`, exit 0. Exclude it; the later plain comment does not change this result.\n3. Look up #27: stdout is `answered`, exit 0. Keep it.\n\nKeep #40 without a review lookup. Sort the retained PRs by additions plus deletions, then number.\n\nThe user reads:\n\n**Open PRs to gate, smallest first:**\n- [#40](https://github.com/acme/widgets/pull/40) +3 -0, by jo, requested from you, no ticket - sort widgets\n- [#27](https://github.com/acme/widgets/pull/27) +5 -0, by jo, requested from you, no ticket - restore widget colors\n- [#19](https://github.com/acme/widgets/pull/19) +9 -0, by jo, requested from you, no ticket - show widget names\n\nSend **40, 27, 19**, in that order, to set routing as their origin PR URLs, with source `discovered`. Stop before set admission.\n\n### Isolated run: failed call\n\nExclude #31 and #38. Run the review lookup for #19 first. It exits 1 with empty stdout; take the first stderr line and stop without looking up #22 or #27, printing a list, or routing any PR.\n\nThe user reads:\n\ngauntlet: stuck discovery failed: HTTP 502: Bad Gateway\n\n### Isolated run: unreadable lookup\n\nExclude #31 and #38. Run the review lookup for #19 first. The block emits `malformed` and exits 1. Stop without looking up #22 or #27, printing a list, or routing any PR.\n\nThe user reads:\n\ngauntlet: stuck discovery failed: malformed review lookup for #19\n\n### Isolated run: incomplete lookup\n\nExclude #31 and #38. Run the review lookup for #19 first. The block emits `incomplete` and exits 1. Stop without looking up #22 or #27, printing a list, or routing any PR.\n\nThe user reads:\n\ngauntlet: stuck discovery failed: incomplete review lookup for #19\n\nNo run reaches tracker initialization, helper dispatch, SHA assessment, a report, or a menu.\n",
+      "words": 309,
+      "wallMs": 15240,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "fa53c56df259774137f506d5476627453dba479df2f785ef049d74a1adce966e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "24226efcc846110ea380bfdd1ea1d7698d73554d9b199b45d9517c8da61bee5b",
+      "baselineOutputSha": "1f6af2ca3eb4d71bce1ab3fb8bdc7f33281210c01cd09c5009dda3eb20ad8cb9",
+      "candidateOutputSha": "ee3ad8a92b95478bb5eeb5e7982e7f6a92708b467fc1fc8e0672516b87ea6bdf",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before ran no review lookups at all, excluded every CHANGES_REQUESTED PR from the projected decision alone, listed only #40 under a non-bold singular heading, and treated all three isolated runs as unaffected, so every fact failed there. After moved all five: it runs lookups for #19, #22 and #27 only, in ascending number order, with none for the draft #31, approved #38 or undecided #40 (f1); it shows the bold heading 'Open PRs to gate, smallest first:' with linked #40, #27, #19 in size order, routes exactly those three in that order, and drops #22 on its 'unanswered' verdict (f2); and each isolated run stops with the exact line 'discovery failed: HTTP 502: Bad Gateway' (first stderr line only), 'discovery failed: malformed review lookup for #19' or 'discovery failed: incomplete review lookup for #19', printing no list and routing nothing (f3-f5). Before kept no facts, so nothing regressed. To keep these gains stable, retain the explicit wording that lookups run only for surviving CHANGES_REQUESTED rows in ascending number order, that the block's supplied verdict decides keep or exclude, that only the first stderr line is quoted, and that any lookup failure stops before the list and routing; the extra 'gauntlet: stuck discovery failed' line before the stop message does not break any fact but could be pinned down if exact stop text matters.",
+      "wallMs": 14291,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "fa53c56df259774137f506d5476627453dba479df2f785ef049d74a1adce966e",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "24226efcc846110ea380bfdd1ea1d7698d73554d9b199b45d9517c8da61bee5b",
+      "baselineOutputSha": "d78c35aa51cadf6df8d959fddbe48f3cb3f9fb59118362423f9b25173bc6caf6",
+      "candidateOutputSha": "6f3b0174e430e55aa11ed56162640e4f46695fc8d830a8d86efb6cc96e1dffd9",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f3": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f4": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f5": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before held none of these facts: it excluded every CHANGES_REQUESTED PR without a lookup, listed only #40 under an unbolded heading, and never reached the failure paths. After moves all five: the new rule to keep a changes-requested PR when the requester was re-asked or a later commit landed makes the parent look up #19, #22 and #27 in numeric order and skip the draft, approved and undecided PRs (f1); the bold `**Open PRs to gate, smallest first:**` heading plus size ordering yields #40, #27, #19 listed and routed, with #22 left out despite the later comment (f2); and the stop wording yields the first stderr line only for the 502 and the `malformed`/`incomplete review lookup for #19` messages, each with no list and no routing (f3-f5). Nothing Before kept was lost. To keep these stable, keep the explicit wording that lookups run in numeric order only for surviving changes-requested PRs, that a failed lookup stops before any list is printed using only the first error line, and that the supplied verdict rather than later plain comments decides inclusion; note that the stop line appears with a `gauntlet: stuck` prefix before `discovery failed: ...`, so if the exact message matters, state whether that prefix is intended.",
+      "wallMs": 6533,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "87ec4db0d47aa3bced33acd4511166d0e2ad678f"
+}

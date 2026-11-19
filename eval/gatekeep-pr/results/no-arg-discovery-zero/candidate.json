@@ -1,8 +1,8 @@
 {
   "sample": "no-arg-discovery-zero",
   "arm": "candidate",
-  "skillSha": "a5f9e2a08a3993aca0ed84758ea98e468c4cf952eb915407c7bb7500e247c2a4",
-  "inputSha": "9cfa38ea0831857addbcec876e94ffe9aaf928720682cb89d2e4af2e8b32c341",
+  "skillSha": "e5e2499aefadb222a1f84272c0dc10c3f382318165700c59a1573e4f1a8e750b",
+  "inputSha": "c941c0bd1d2d08a873f8d47420ad1a1595b94eafc630aa75b3ab489393588d58",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,54 +17,54 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Narration, from argument resolution with no PR token:\n\n1. `git remote get-url origin` returns `git@github.com:acme/widgets.git`. After stripping `.git` and lowercasing, the repository is `acme/widgets`, a GitHub origin, so discovery continues.\n2. `gh api user --jq .login` exits 1 with HTTP 403: Forbidden. The viewer login is recorded as `unreadable`, and discovery continues with `@me`.\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'` exits 1 with HTTP 403: Forbidden. Team membership is recorded as `unreadable`, and discovery continues.\n4. `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq \"$projection\"` exits 0 and returns `[]`.\n   - The result is a valid array with a count of 0, under the limit.\n5. `gh pr list -R acme/widgets --search 'review-requested:@me' --state open --limit 1000 --json <same fields> --jq \"$projection\"` exits 0 and returns `[]`.\n   - The result is a valid array with a count of 0, under the limit.\n6. The union of both queries is empty, so there is nothing to filter or sort.\n   - Zero matches means no list is printed and no ticket-display read of the overrides file happens.\n   - Discovery never falls back to the current branch, so the unrelated PR 999 is not gated.\n\nNo tracker stages are initialized and no continuation record or run folder is minted. No worktree is provisioned, no helper is dispatched, no SHA is assessed and no menu is rendered. The Claude Code multi-PR limit never comes into play because nothing matched.\n\ngauntlet: stuck no open PRs to gate\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n",
-      "words": 256,
-      "wallMs": 9319,
+      "text": "Argument resolution starts with no PR token, so discovery runs per verification-brief.md Section A. It runs before the set-vs-single branch, the continuation record, tracker init and provisioning, so no run folder is minted and no tracker is initialized.\n\n1. **`git remote get-url origin`** returns `git@github.com:acme/widgets.git`. After stripping `.git` and lowercasing, origin is `acme/widgets`, which is a readable GitHub repository, so discovery continues.\n2. **`gh api user --jq .login`** exits 1 with HTTP 403: Forbidden. I record `viewer.login: unreadable` and continue with the `@me` qualifier, which GitHub resolves server-side.\n3. **`gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'`** exits 1 with HTTP 403: Forbidden. I record `viewer.teams: unreadable`. Unreadable identity or membership never drops a PR, and it does not stop discovery.\n4. **The fixed list block** runs once against origin: `gh pr list -R acme/widgets --search 'review-requested:@me -author:@me' --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq \"$projection\"`. It exits 0.\n5. **Validation before filtering:** the output `[]` is an array, it holds no malformed rows, and its count of 0 is below the 1000 limit. The result is complete and valid.\n6. **Filtering:** there are no rows to exclude. No `CHANGES_REQUESTED` rows exist, so no review lookup runs. Sorting yields an empty list.\n7. **No fallback:** discovery never falls back to the current branch, so the current branch's unrelated PR 999 is not gated.\n8. **Ticket display:** no list will be printed, so no ticket display reads run (no overrides read and no `linearis` lookup). No list is written because there are zero matches.\n9. **Outcome:** zero matches takes the stop row, with `@me` in place of the unreadable login. No helper is dispatched, no SHA is assessed, and no menu is rendered. The Claude Code harness restriction never comes into play because the multi-PR branch is not reached.\n\nRendered stop message:\n\ngauntlet: stuck no open PRs awaiting review\n\nno open PRs awaiting @me's review in acme/widgets\n",
+      "words": 314,
+      "wallMs": 11141,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: stuck no matching open PRs\n\nStarting at argument resolution, I run these commands in order:\n\n1. `git remote get-url origin`\n   Returns `git@github.com:acme/widgets.git`; I normalize the repository to `acme/widgets`.\n\n2. `gh api user --jq .login`\n   Fails with `HTTP 403: Forbidden`. I record the viewer identity as unreadable and use `@me` for discovery.\n\n3. `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'`\n   Fails with `HTTP 403: Forbidden`. I record team membership as unreadable and continue.\n\n4. Using Section A's prescribed discovery projection as `$projection`, I run:\n   `gh pr list -R acme/widgets --author @me --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq \"$projection\"`\n   Returns `[]`. I validate the complete result as an array containing zero rows.\n\n5. With the same projection, I run:\n   `gh pr list -R acme/widgets --search 'review-requested:@me' --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq \"$projection\"`\n   Returns `[]`. I validate the complete result as an array containing zero rows.\n\nThe union is empty. I print no discovery list and do not fall back to the current branch's unrelated PR 999.\n\nI initialize no tracker stages, mint no continuation record, provision no worktree, and dispatch no helpers. No SHA is assessed, and no report or menu is rendered.\n\nno open PRs authored by @me or awaiting @me's review in acme/widgets\n",
-      "words": 205,
-      "wallMs": 12786,
+      "text": "gauntlet: stuck no open PRs awaiting @me's review in acme/widgets\n\n1. Run `git remote get-url origin`. It returns `git@github.com:acme/widgets.git`; normalize the repository to `acme/widgets`.\n2. Run `gh api user --jq .login`. It fails with HTTP 403. Record the identity as unreadable and use `@me` for discovery.\n3. Run `gh api user/teams --paginate --jq '.[] | .organization.login + \"/\" + .slug'`. It fails with HTTP 403. Record team membership as unreadable.\n4. Set `projection` to Section A's prescribed discovery projection, then run `gh pr list -R acme/widgets --search 'review-requested:@me -author:@me' --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq \"$projection\"`. It succeeds with the complete result `[]`.\n5. Validate the result as an array and count zero matches. Stop discovery without falling back to the current branch's unrelated PR.\n\nNo linked list is printed. No continuation record is minted, no tracker stages are initialized, and no provisioning, verification, helper dispatch, report, or menu occurs. No SHA is assessed.\n",
+      "words": 149,
+      "wallMs": 12099,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "6f1a3b714e9ef22e002122929bbe0c631f460b3ad272f5942422f9f419d52b1b",
+      "factsSha": "89169aa3891bce1283805c7bd412d4cab6ad1326d0020d10d4c89e2cd4f8a315",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "08be717010483e9e654f499512f4fa305e3dd95e75843f9d66cb085fe7115575",
-      "baselineOutputSha": "9c21485968fcb7f8291b92b5c7015186a1612483613e6a73170b430474fc6714",
-      "candidateOutputSha": "9131f722cc57968988f0d0fa76eb2a3b81e55816042496cdf324aaf952c6417e",
+      "intentSha": "24226efcc846110ea380bfdd1ea1d7698d73554d9b199b45d9517c8da61bee5b",
+      "baselineOutputSha": "433d844d6544d542db332cd04eb5de1c9bf69034f0abd732c39a3b02432722fb",
+      "candidateOutputSha": "785fc27fbf718d60d77b843c40938f772a11eeebe6571629e81858b15ab73f3f",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "intended change"
         }
       },
-      "feedback": "f1 did not move: both outputs record the 403 on the user read as `unreadable` and continue with `@me`, stop before any tracker, run folder or worktree, refuse the current-branch fallback for PR 999, and emit the exact string `no open PRs authored by @me or awaiting @me's review in acme/widgets`. After delivers the Change's zero case correctly, stating outright that no list is printed for an empty search. The one thing to watch is that After now splits the stop into a new `gauntlet: stuck no open PRs to gate` marker line followed by the exact message on its own line, where Before carried the exact message on the stuck line itself. That still satisfies f1 because the exact string appears verbatim as the final line, but the invented summary `no open PRs to gate` is a second wording of the stop that a stricter reader could treat as the stop message. To keep f1 robust, have the zero-match wording specify that the stuck marker is followed directly by the exact string, with no paraphrased summary, and that nothing is appended after it. After also now runs `gh api user/teams` and treats its 403 as non-fatal, which is consistent with f1; keep the explicit statement that neither unreadable read is an identity error that stops discovery.",
-      "wallMs": 9337,
-      "verdict": "unchanged"
+      "feedback": "After moved f1 by collapsing discovery to the single `review-requested:@me -author:@me` search and changing the stop row to exactly `no open PRs awaiting @me's review in acme/widgets`; Before ran a separate author query and stopped with `no open PRs authored by @me or awaiting @me's review in acme/widgets`, which is not the required string. Both outputs already treated the 403 on the user read as non-fatal (login recorded as unreadable, `@me` substituted), stopped before tracker init and provisioning, and refused the current-branch fallback to PR 999, so nothing Before kept was lost. To keep this stable, keep the stop row wording fixed verbatim with `@me` substituted for an unreadable login, keep the explicit statements that unreadable identity does not stop discovery and that discovery never falls back to the current branch, and avoid reintroducing any mention of authored PRs in the zero-match message.",
+      "wallMs": 4576,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "6f1a3b714e9ef22e002122929bbe0c631f460b3ad272f5942422f9f419d52b1b",
+      "factsSha": "89169aa3891bce1283805c7bd412d4cab6ad1326d0020d10d4c89e2cd4f8a315",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "08be717010483e9e654f499512f4fa305e3dd95e75843f9d66cb085fe7115575",
-      "baselineOutputSha": "95c73e90d016109b3dcc23ed43c4f78e8dc2a6f107a63b03e895ed334493b1ea",
-      "candidateOutputSha": "a84974b12b2f5159b16e1321ff84633d9e6c7b5bc68e1af11e50ef829000cf26",
+      "intentSha": "24226efcc846110ea380bfdd1ea1d7698d73554d9b199b45d9517c8da61bee5b",
+      "baselineOutputSha": "437c438004030dfd75e865b29d578c8fcc4808377aed1922841eee3b8faaf47d",
+      "candidateOutputSha": "576e28dcc3959c12a3d40b16cecfe09a5acbf0b59abc4d2d6f9b013a18a6a1c4",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "intended change"
         }
       },
-      "feedback": "f1 did not move: After still ends with the exact line `no open PRs authored by @me or awaiting @me's review in acme/widgets`, stops before tracker, continuation, or provisioning, treats the 403 on `gh api user` as an unreadable identity rather than a stopping error, and explicitly declines the PR 999 current-branch fallback. The new wording added a `gh api user/teams` read (also 403, also treated as non-fatal), a wider JSON projection, a switch from `user-review-requested:@me` to `review-requested:@me`, and an explicit 'I print no discovery list' statement; none of these disturb f1, and the last one matches the Change's intent for the zero case. To keep f1 safe, keep the wording that says both failed identity and team reads are recorded and discovery continues, that an empty union prints no list, and that the stop message is the exact unadorned line emitted before any provisioning.",
-      "wallMs": 4950,
-      "verdict": "unchanged"
+      "feedback": "The single-search wording moved f1 from fails to holds. Before ran two queries (author and review-requested), found no supplied result for the author query, and stopped with `discovery failed: malformed gh pr list output` instead of the empty-queue message. After runs one `review-requested:@me -author:@me` search bound to `acme/widgets`, treats the 403 on the user and teams reads as non-fatal by using `@me`, validates `[]` as zero matches, and stops with `no open PRs awaiting @me's review in acme/widgets` before any provisioning and without falling back to PR 999. Before kept no fact here, so nothing was lost. One caution: the stop line carries the `gauntlet: stuck` prefix, and I counted the message as exact because the wording after the prefix matches verbatim; if the prefix is not meant to be part of the stop line, say so explicitly in the wording. Keep the explicit statements that an unreadable login falls back to `@me` and that only the one search is required before counting, since those are what prevent the Before failure.",
+      "wallMs": 8228,
+      "verdict": "improved"
     }
   },
-  "repoSha": "d11b167e0794c7719970711068a21e85be97d17f"
+  "repoSha": "eb4691b080122d0fc1685933e3d415cb009bae67"
 }

@@ -4,6 +4,15 @@ Read from SKILL.md step 2. Input: the step-1 digest. Output: a provisioned workt
 
 ## Provision the worktree
 
+Before the run's first provisioning command, check the earlier reply text in view for the linked PR list. If it is there, go straight to the command. Otherwise write the list as the visible text of the reply carrying that command, before the call, without a marker or wait. Use the admitted PRs' gathered [list entries](../verification-brief.md#list-entries) in roster order; run no lookup. Choose the heading by input:
+
+| Input | One PR | Set |
+|---|---|---|
+| Discovered | `**Open PR to gate:**` | `**Open PRs to gate, smallest first:**` |
+| Typed | `**PR to gate:**` | `**PRs to gate:**` |
+
+Use only visible reply text, not reasoning, command output or a sent flag. If earlier replies are out of view, send the list. Skip this check in set children and on a provisioning retry, re-gather or loop re-entry.
+
 | State | In-repo PR | Fork PR | On divergence |
 |---|---|---|---|
 | A worktree exists on the expected branch (`headRefName` for in-repo PRs, a fork-local `pr-<N>` branch for fork PRs), at any path | Reuse unconditionally; sync with `git fetch origin` + `git pull --ff-only` (the local branch tracks `origin/<headRefName>`) | Reuse unconditionally; the local `pr-<N>` branch has no upstream - sync with `git fetch origin pull/<N>/head` + `git merge --ff-only FETCH_HEAD` | STOP and surface on divergence, dirt, or local-only commits; never force, never create a duplicate |

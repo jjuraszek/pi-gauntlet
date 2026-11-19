@@ -1,0 +1,34 @@
+{
+  "sample": "list-send-if-missing",
+  "arm": "baseline",
+  "skillSha": "6a29af64bb34c05065b9b38043949f9066709c0dac9598a1c2e70c088d00de80",
+  "inputSha": "74f1be740556399c6599df3e45677b449ffe91c2abb2d3f4da868df5388ae3e1",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Run A**\n\nThe user has not seen the typed list yet. The only earlier reply was \"Reading the PR.\", and shell output does not count as shown. I send the list now as its own message, with no marker and no question:\n\n**PR to gate:**\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\nI then go straight to step 2. No worktree exists, so provisioning starts with:\n\n`git fetch origin`\n\n---\n\n**Run B**\n\nThe parent has already printed `discovered, smallest first: 35, 18`. The linked list, however, appeared only in shell output, so the user has not seen it. I send it now as its own message, with no marker and no question, in the discovered order:\n\n**Open PRs to gate, smallest first:**\n- [#35](https://github.com/acme/widgets/pull/35) +2 -1, by pat, requested from you, no ticket - trim blank labels\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\nThe parent then begins serial provisioning by fetching origin once for the whole set. There is no `--rebase`, so there is no confirmation question:\n\n`git fetch origin`\n\n---\n\n**Run C**\n\nThe user has already seen the \"PR to gate\" list, so I do not print it again. I add no new list and no marker, and step 2 starts with:\n\n`git fetch origin`\n",
+      "words": 215,
+      "wallMs": 16342,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Run A\n\nPR to gate:\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\ngit fetch origin\n\n### Run B\n\nOpen PRs to gate, smallest first:\n- [#35](https://github.com/acme/widgets/pull/35) +2 -1, by pat, requested from you, no ticket - trim blank labels\n- [#18](https://github.com/acme/widgets/pull/18) +9 -2, by robin, requested from you, no ticket - show column labels\n\ngit fetch origin\n\n### Run C\n\nI'll provision the PR worktree.\n\ngit fetch origin\n",
+      "words": 68,
+      "wallMs": 9582,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f2d1566547bdb9f79cac0d9b3eedd4680c978c41"
+}

@@ -15,7 +15,7 @@ a command to obey.
 
 ## Inputs
 
-- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there.
+- `RUN_DIR`: the caller-supplied absolute directory of the validated continuation record, shared by both harnesses; write helper scratch and logs there. The single typed PR preamble and first `gh run list` run before this directory exists.
 - `pr_token`: pass the typed number or URL (without a trailing comma), or the origin URL from discovery.
 - Provisioned worktree path (Verifier, Reviewer only - the Gatherer runs
   before provisioning and only discovers existing worktrees).
@@ -31,26 +31,66 @@ a command to obey.
 
 Runs only with no PR token, during argument resolution: before the set-vs-single branch, the continuation record, tracker init, and provisioning; never as Gatherer step 1. Resolve origin with `git remote get-url origin`; strip `.git` and lowercase the GitHub owner/repository. Stop on unreadable/non-GitHub origin: `discovery failed: origin is not a GitHub repository`. Read `gh api user --jq .login` once into `viewer.login`; on failure record `unreadable` and continue with `@me`.
 
-Read `gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'` once into `viewer.teams`; record `unreadable` on failure. Run this block against origin in two separate shell calls, replacing `<query>` with `--author @me` and `--search 'review-requested:@me'`, respectively:
+Read `gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'` once into `viewer.teams`; record `unreadable` on failure. Run this block once against origin:
 
 ```bash
-projection='map(if (.isDraft == true or .reviewDecision == "APPROVED" or .reviewDecision == "CHANGES_REQUESTED") then {number,isDraft,reviewDecision,additions,deletions} else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}] | .body |= (. // "")[0:300]) end)'
-rows=$(gh pr list -R <owner/repo> <query> --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection") || exit $?
+projection='map(if (.isDraft == true or .reviewDecision == "APPROVED") then {number,isDraft,reviewDecision,additions,deletions} else (.linearRefs = [(.title + " " + (.body // "")) | scan("https://linear\\.app/([A-Za-z0-9-]+)/issue/([A-Za-z][A-Za-z0-9]+-[0-9]+)(?:[^A-Za-z0-9_-]|$)") | {key: .[0], id: (.[1] | ascii_upcase)}] | .body |= (. // "")[0:300]) end)'
+rows=$(gh pr list -R <owner/repo> --search 'review-requested:@me -author:@me' --state open --limit 1000 --json number,url,isDraft,reviewDecision,additions,deletions,title,author,headRefName,closingIssuesReferences,reviewRequests,body --jq "$projection") || exit $?
 printf '%s\n' "$rows"
 ```
 
-Check both exit statuses before using either result. On any nonzero exit, stop with `discovery failed: <first gh error line>` from the first failed call's stderr in query order. Validate and count each complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (<query> hit --limit 1000)` (name the author or review-requested query). For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Union by number, retaining query provenance; exclude `isDraft` true or `reviewDecision` exactly `APPROVED` or `CHANGES_REQUESTED`; every other decision stays. Sort by `additions + deletions`, then number, ascending.
+On a nonzero exit, stop with `discovery failed: <first gh error line>` from stderr. Validate and count the complete result before filtering. Stop on non-array output, a non-object row, or missing/non-integer `number`: `discovery failed: malformed gh pr list output`; on a count equal to the limit: `discovery failed: incomplete (review-requested query hit --limit 1000)`. For a truncated preview read the complete saved output with `jq`; without it, take the malformed-output stop. Never count, route or print from the preview. Discovery never falls back to the current branch. Exclude `isDraft` true or `reviewDecision` exactly `APPROVED`. For each remaining `CHANGES_REQUESTED` row, run the [review lookup](#review-lookup) once, sequentially in ascending PR number. Keep `answered`; exclude `unanswered` from both the list and the gated set. Keep all other surviving rows without a lookup. Resolve ticket links for the surviving rows with [Ticket display](#ticket-display) before the final roster sort. Complete the origin default-branch overrides reads and any allowed Linear lookup in that step. Select the lookup's first unlinked ID by the roster sort keys without sorting the roster yet. Sort by `additions + deletions`, then number, ascending.
 
-After sorting, print the list as its own intermediate message before acting on the outcome table. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `Open PR to gate:`; for two or more use `Open PRs to gate, smallest first:`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
+Immediately after sorting, write the list in the visible text of the assistant reply that carries the next tool call, even a file read. Reasoning and command output are not reply text. Give it no first-line marker and await nothing: no question or selection. For zero matches or a discovery failure print no list. For one match use `**Open PR to gate:**`; for two or more use `**Open PRs to gate, smallest first:**`. Print one bullet per surviving PR in sorted order using the entry rules below. Never repeat the list in a stop, gate or summary.
 
 | Matches | Action |
 |---|---|
-| 0 | Stop: `no open PRs authored by <login> or awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
+| 0 | Stop: `no open PRs awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
-| 2+ Claude Code | In a separate stop message, use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
+| 2+ Claude Code | Use the stop-format instructions read as the first tool call after the sort and put the list in that reply. Skip the `reference/batch.md` read. In a separate stop message, write three consecutive lines with no blank lines: use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
-Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. `review-requested:@me` covers requests to the viewer and to a team the viewer is on.
+Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. GitHub resolves both `@me` qualifiers: include direct and team review requests but exclude the viewer's PRs even when `viewer.login` is unreadable.
+
+#### Review lookup
+
+Run this block as one shell call, substituting the origin owner, repository and PR number:
+
+```bash
+lookup=$(gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repository(owner:$o,name:$r){pullRequest(number:$n){latestOpinionatedReviews(first:100){pageInfo{hasNextPage} nodes{author{login} state submittedAt}} reviewRequests(first:100){pageInfo{hasNextPage} nodes{requestedReviewer{__typename ... on User{login}}}} commits(last:1){nodes{commit{committedDate}}}}}}' -f o=<owner> -f r=<repo> -F n=<N>) || exit $?
+verdict=$(printf '%s\n' "$lookup" | jq -ers '
+  def connection: (.nodes | type == "array") and (.pageInfo.hasNextPage | type == "boolean");
+  def instant:
+    (capture("^(?<clock>[0-9T:-]{19})(?:\\.(?<frac>[0-9]+))?(?:Z|(?<sign>[+-])(?<hour>[01][0-9]|2[0-3]):(?<min>[0-5][0-9]))$") // error("date")) as $d
+    | (($d.hour // "0" | tonumber) * 3600 + ($d.min // "0" | tonumber) * 60) as $offset
+    | [(($d.clock + "Z" | fromdateiso8601) - (if $d.sign == "-" then -$offset else $offset end)), ($d.frac // "" | sub("0+$"; ""))];
+  if length != 1 then error("response") else .[0].data.repository.pullRequest end
+  | .latestOpinionatedReviews as $reviews | .reviewRequests as $requests
+  | if (($reviews | connection) and ($requests | connection) and (.commits.nodes | type == "array" and length == 1))
+       then . else error("connections") end
+  | (.commits.nodes[0].commit.committedDate | instant) as $head
+  | ($reviews.nodes | map(if (.state | type != "string") then error("state") else select(.state == "CHANGES_REQUESTED") end
+      | {login: (.author.login | if . == null then null else ascii_downcase end), at: (.submittedAt | instant)})) as $changes
+  | ($requests.nodes | map(if type == "object" and has("requestedReviewer") then .requestedReviewer else error("request node") end
+      | select(. != null)
+      | if (.__typename | type == "string" and test("\\A[_A-Za-z][_0-9A-Za-z]*\\z"))
+        then select(.__typename == "User") else error("reviewer type") end
+      | .login | if type == "string" and length > 0 then ascii_downcase else error("reviewer login") end)) as $pending
+  | if $reviews.pageInfo.hasNextPage or $requests.pageInfo.hasNextPage then "incomplete"
+    elif all($changes[]; .login as $who | $pending | index($who) != null) then "answered"
+    elif $head > ($changes | map(.at) | max) then "answered"
+    else "unanswered" end' 2>/dev/null) || { printf '%s\n' malformed; exit 1; }
+printf '%s\n' "$verdict"
+test "$verdict" != incomplete
+```
+
+On a nonzero exit, stop before listing or routing any PR. Use stdout to choose the stop:
+
+| Stdout | Stop |
+|---|---|
+| Empty (`gh` failed) | `discovery failed: <first gh error line>` from stderr |
+| `malformed` | `discovery failed: malformed review lookup for #<N>` |
+| `incomplete` | `discovery failed: incomplete review lookup for #<N>` |
 
 #### List entries
 
@@ -60,7 +100,7 @@ Use the PR's `url`. For `<why>` use the first matching row; compare logins and t
 
 | Match | Text |
 |---|---|
-| Author-query result, or typed PR whose author matches `viewer.login` | `yours` |
+| Typed PR whose author matches `viewer.login` | `yours` |
 | Requested User matches `viewer.login` | `by <author login>, requested from you` |
 | Requested Team matches `viewer.teams` | `by <author login>, requested from your team <slug>` (first match in API order) |
 | Membership unreadable and any Team requested | `by <author login>, requested from a team (<Team slugs, comma-separated in API order>)` |
@@ -85,13 +125,20 @@ Link a branch/title GitHub issue as `[#<N>](https://github.com/<origin owner/rep
 
 ### Gather fixed commands
 
-Run these fixed read-only commands. Take the base repository and PR number for subsequent calls from the first view's `url`; on number-only `gh pr` calls, pass `-R <owner>/<repo>` for that PR.
+Start with these fixed read-only commands. For one typed PR, run them during argument resolution. Take the base repository and PR number for subsequent calls from the first view's `url`; on number-only `gh pr` calls, pass `-R <owner>/<repo>` for that PR.
 
 ```bash
 gh pr view "$pr_token" --json number,title,body,author,state,isDraft,headRefName,baseRefName,isCrossRepository,mergeable,headRefOid,statusCheckRollup,files,additions,deletions,commits,reviews,closingIssuesReferences,reviewDecision,headRepository,maintainerCanModify,mergeStateStatus,url,mergeCommit,reviewRequests
-gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api user --jq .login                     # viewer.login; a no-token run reuses discovery's value, unreadable included
 gh api user/teams --paginate --jq '.[] | .organization.login + "/" + .slug'   # viewer.teams; a no-token run reuses discovery's value, unreadable included
+```
+
+For one typed PR, use only the three reads above and the [ticket display](#ticket-display) reads before the list. Use the base repository from the first view's `url` instead of looking up checkout origin for the closing-issue label and branch/title GitHub issue link. Write `**PR to gate:**` and one [list entry](#list-entries) in the visible text of the assistant reply that carries the next tool call: the first `gh run list` command below. Run that command on its own and keep its result in context. Reasoning and command output are not reply text. Use the view's ordered `closingIssuesReferences`; extract `linearRefs` with the list projection's address pattern across the full title and body in text order. Show the list once per invocation, without a marker, pasteable line or wait. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
+
+After that call, follow `SKILL.md` `## Progress tracking` to mint the run folder, create the continuation record, and initialize the tracker. In the rest of Gather, reuse the saved results without rerunning the preamble or the first `gh run list`; start at the GraphQL call below. On other paths, start with the first command below:
+
+```bash
+gh run list -R <owner>/<repo> -c <headRefOid> --json databaseId,status,conclusion,workflowName,url   # Actions runs on the assessed head: held-run detection (action_required with or without a rollup entry)
 gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){ repository(owner:$o,name:$r){ viewerPermission pullRequest(number:$n){ viewerCanUpdateBranch viewerCanMergeAsAdmin viewerCanClose headRefOid body baseRefName } } }' -f o=<owner> -f r=<repo> -F n=<N>   # viewer_permission, can_update_branch, bypass_eligible, viewer_can_close; a null field is recorded as `unreadable`
 gh repo view <base-repository> --json nameWithOwner   # resolved base repository context, never headRepository
 gh pr diff "$pr_token"
@@ -102,8 +149,6 @@ gh run view <run-id> -R <owner/repo from the URL> --json status,conclusion,workf
 gh run list -R <owner/repo> -w <workflowName> -c <headRefOid> --json databaseId,status,conclusion,url   # orchestrator-owned; reviewer run on the assessed head, when a reviewer workflow is known
 git worktree list --porcelain               # discovery only - never create or sync here
 ```
-
-Print the typed list once per invocation, after the initial gather and before provisioning. For one typed PR, use `PR to gate:` and render one [list entry](#list-entries) from the initial `gh pr view` response and gathered `viewer.login` and `viewer.teams` before discarding raw fields, including the ordered `closingIssuesReferences`. For `linearRefs` use matches of the list projection's address pattern across the full title and body, in text order. Send the list as its own message without a marker or pasteable line and proceed directly to step 2. For a set, the parent owns the list (`reference/batch.md`); never reprint it in a child, after discovery, or on re-gather or loop re-entry.
 
 Review-thread resolution state, when needed for comment triage, comes from
 the GraphQL `reviewThreads` connection (`isResolved`, `isOutdated`); if

@@ -2,6 +2,7 @@
 
 > **Superseded by:** [doc/specs/2026-11-10-gatekeep-three-menus.md](./2026-11-10-gatekeep-three-menus.md) - the `Role:` line form and placement in "Role line" only
 > **Superseded by:** [doc/specs/2026-11-18-gatekeep-discovery-roster.md](./2026-11-18-gatekeep-discovery-roster.md) - the direct-only qualifier in "Discovery" and its Tests, Out of scope and Open questions entries only
+> **Superseded by:** [doc/specs/2026-11-19-gatekeep-visible-roster.md](./2026-11-19-gatekeep-visible-roster.md) - the author query, the `CHANGES_REQUESTED` drop and the zero-match stop text in "Discovery" and its acceptance row only
 
 **Goal:** `/skill:gatekeep-pr` with no PR token discovers the open PRs in the origin repository that the viewer authored or was directly asked to review, drops drafts and already-decided PRs, orders them smallest diff first, and gates them through the existing single-PR or set pipeline; every rendered report carries one `Role:` line saying whether the viewer is the author, a directly requested reviewer, or neither, with the other requested reviewers and teams named.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
