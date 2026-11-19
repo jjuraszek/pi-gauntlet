@@ -15,7 +15,7 @@ bundle-: skills/finishing-a-development-branch/reference/commit-message.md
 
 ## Digest
 
-Claude Code harness; parallel.maxTasks 4. `git remote get-url origin` returns `git@github.com:acme/widgets.git`; `gh api user --jq .login` returns alex. `gh api user/teams` succeeds with an empty list. Origin's default-branch overrides set `tracker: github`. The current branch has unrelated PR 999. The one list call exits 0. All list metadata is in hand; no metadata lookup remains after the sort.
+Claude Code harness; parallel.maxTasks 4. `git remote get-url origin` returns `git@github.com:acme/widgets.git`; `gh api user --jq .login` returns alex. `gh api user/teams` succeeds with an empty list. Origin's default-branch overrides set `tracker: github`. The current branch has unrelated PR 999. The one list call exits 0.
 
 Review-requested query rows:
 ```json
