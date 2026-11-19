@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.8.4 - 2026-11-19
 
 - Require pi-cohort 8.4.3 or newer.
 - Show the linked PR list in the gatekeeper's reply with a bold heading. For one typed PR, show it before reading CI, the diff or comments. If no earlier reply in view shows the list, include it before the first checkout command.
