@@ -120,7 +120,7 @@ design: owns every path in Design; observable outcomes are the ten AC rows above
 
 supersedes `doc/specs/2026-07-30-automatic-transition-recovery.md`, the implement-phase rule in `## Non-goals` and `## Recovery eligibility`
 
-One new branch in the phase tracker's existing `agent_settled` handler. No skill, persona or setting changes; the existing settle restart has no settings gate and this one gets none.
+Use `agent_before_settle` only for `implement-continue`. Both handoff restarts remain on `agent_settled`; no fallback queues a turn there. No setting, skill or persona change.
 
 ### Eligibility
 
@@ -133,7 +133,7 @@ The new branch sends the restart message when every condition holds:
 | 1 | The gauntlet was entered | `gauntletEntered` |
 | 2 | `implement` has status `in_progress` | `phases` |
 | 3 | The session is not a subagent child | `isSubagentChild` |
-| 4 | The settlement event is not aborted | the `agent_settled` event's `aborted` is not `true` |
+| 4 | The run is not aborted | Pi skips the pre-settlement hook for aborted runs; verify against host ordering |
 | 5 | The latest assistant message on the branch has stop reason exactly `stop` | `branchLatestAssistantStopReason` |
 | 6 | That message's visible text has no marker line | visible text and marker test below |
 | 7 | A task moved since the boundary | boundary and task movement below |
@@ -157,7 +157,7 @@ Task movement: take the successful `plan_tracker` snapshots on the branch in ord
 
 ### Message
 
-Same call shape as the handoff restart: custom type `pi-gauntlet-transition-recovery`, displayed, `details: { piGauntletRecoveryEdge: "implement-continue" }`, sent with `{ triggerTurn: true }`. Content:
+At the pre-settlement boundary append one displayed custom message of type `pi-gauntlet-transition-recovery`, with `details: { piGauntletRecoveryEdge: "implement-continue" }`, preserving existing entries, and request the single boundary continuation. Do not separately enqueue a provider turn. Content:
 
 ```text
 Your last message ended the turn during the implementation phase without a `gauntlet:` marker line. If the user asked you to stop, or a decision is still unresolved, restate it and end the turn; start with a `gauntlet:` line only where a skill already prescribes one for that stop, and do not invent a gate, `done` or `stuck` line. Otherwise continue only work that is already authorized; do not reopen a task the user settled as a terminal failure.
@@ -171,13 +171,13 @@ No counter and no new stored state. The restart message is a branch entry and be
 
 ### Data flow
 
-`agent_settled` (event `aborted`) -> phase state -> latest assistant message (stop reason, visible text) -> boundary -> predecessor snapshot and the snapshots after the boundary -> send or do nothing.
+`agent_before_settle` -> eligibility and branch history -> one boundary continuation with the restart entry or no change.
 
 ### Delivery
 
 `ctx.isIdle()` is not a queue check. It stays true after another settled handler has requested a turn, and Pi starts both requested runs in order, so an earlier queued run can end in a marked human stop before the `implement-continue` run starts.
 
-Invariant: an `implement-continue` request does not start a run after an intervening run has ended in a marked human stop. This spec does not claim the idle check enforces it, and it names no mechanism. The approved delivery is `agent_settled` plus `sendMessage(..., { triggerTurn: true })`. The first plan task establishes, with the host-ordering regression in `## Tests`, whether the invariant can be enforced under that delivery. If it cannot, delivery returns to the user as a Design decision through brainstorming's amendment path; the change does not ship with the idle check as the only guard (see `## Open questions`).
+Invariant: an implementation restart cannot run past a newer marked human stop. First test the earlier boundary against real host ordering, including a competing extension, a later marked question, and a positive control showing the restart actually runs when eligible. Wire production delivery only on proof; otherwise leave implementation restart disabled and report the evidence. Never change either handoff restart.
 
 ### Remove
 
@@ -186,7 +186,7 @@ Nothing.
 ### Add
 
 - `extensions/lib/phase-tracker-helpers.ts`: `hasGauntletMarkerLine(text)` implementing the marker test; `taskListMoved(predecessor, after)` implementing task movement as a pure function, where `after` is the ordered list of snapshots after the boundary.
-- `extensions/phase-tracker.ts`: the settle branch, including the settlement event's `aborted` check; the message text constant; a branch walk that returns the latest assistant message's visible text, the predecessor snapshot and the ordered snapshots after the boundary, each task read with its `label`.
+- `extensions/phase-tracker.ts`: implementation-only pre-settlement handler, restart message and branch walk over assistant visible text and ordered task snapshots.
 - `extensions/lib/phase-tracker-helpers.test.ts` and `extensions/phase-tracker.test.ts`: the tests in `## Tests`.
 - `README.md`: the handoff-restart paragraph in the flow section also describes the implement restart and its conditions.
 - `doc/gate-contract.md`: line one stays the only protocol marker; the tracker's any-line test is a restart veto, not a driver command. An unmarked first line is neither permission to answer nor a promise of another turn. A driver waits for another settle only when an automatic continuation is actually scheduled; the `pi-gauntlet-transition-recovery` custom message with `piGauntletRecoveryEdge: "implement-continue"` is the recovery request, not by itself proof that a run starts. When no continuation follows, the driver surfaces the existing stop to the operator.
@@ -212,11 +212,11 @@ No paid or external action is needed. Implementation and verification run `npm t
 - A human steers mid-run with "stop after this wave", the wave completes, and the session stops without a marker: the restart fires once. The message tells the session to restate the stop and end the turn; a restated stop moves no task and stands.
 - A real stop that omits its marker (the three unverified stops under "Not checked", an improvised decision question the grammar leaves unmarked, or any other) is restarted once by the same path. The message asks the session to restate it and end the turn, but a model can still proceed past the stop. This is a residual risk, not a one-extra-turn guarantee: the replay under the earlier predicate found about four genuine waits among its 19 restarted stops, and nothing in `## Tests` covers the model's response.
 - A session that summarizes after every wave is restarted after every wave. Each restart needs a `plan_tracker` snapshot that differs from the one before it, after the previous restart.
-- A failed `sendMessage` throws as the handoff restart does. Nothing is stored, so the next settle evaluates again.
+- A failed boundary delivery is not recorded as successful movement or retried through a post-settlement send.
 - A user-role message injected by another extension counts as a boundary. It can only suppress a restart, never add one.
 - A program driving the gauntlet reads line one only. An unmarked first line is neither permission to answer nor a promise of continuation: the tracker also stays silent on a marker below a preamble and on every other failed eligibility condition. The driver waits for another settle only when an automatic continuation is actually scheduled; the `implement-continue` custom message is the recovery request, not proof that a run starts. With no continuation, the driver surfaces the existing stop to the operator.
 - A Pi host without `agent_settled` keeps today's behavior.
-- The settle step stays on `agent_settled`. `agent_before_settle` could continue the run before settlement and hide the unmarked settle from a driver; it is not used, so all three restarts share one mechanism. The delivery question in `## Open questions` is the one path that can return this to the user.
+- No pre-settlement hook: no implementation restart. Do not fall back to a queued post-settlement send.
 
 ## Tests
 
@@ -224,7 +224,7 @@ No paid or external action is needed. Implementation and verification run `npm t
 
 Assistant fixtures in the new tests carry `content` as a block array, the shape Pi delivers; the existing `assistant()` helper sets none.
 
-- Unmarked `stop` settle during implement after a task moved sends one message with `piGauntletRecoveryEdge: "implement-continue"` and `triggerTurn: true` - "agent_settled restarts an unmarked implement stop after a task moved".
+- Eligible unmarked normal stop appends one displayed `implement-continue` message and requests one boundary continuation.
 - A `gauntlet:` line on line one of a `text` block sends nothing - "agent_settled leaves a marked implement stop alone".
 - A `gauntlet:` line after a preamble sends nothing - same test, second case.
 - A `gauntlet: question` line in a `thinking` block above unmarked visible text restarts; the identical line in a `text` block sends nothing - "agent_settled reads the implement marker from visible text only".
@@ -234,7 +234,7 @@ Assistant fixtures in the new tests carry `content` as a block array, the shape 
 - After a marked stop, a reply to a foreign custom-triggered run with no tracker activity sends nothing, on the live session and on a branch rebuilt from the same history - "agent_settled does not carry task movement across a marked stop".
 - Stop reasons `pending`, `length`, `toolUse`, `error`, `aborted` and `deferred` send nothing - "agent_settled skips implement restart for abnormal stops".
 - A settlement event with `aborted: true` on an otherwise eligible history ending in `stop` sends nothing - "agent_settled skips implement restart for an aborted settlement".
-- Host ordering: two settled handlers each request a turn, the first triggered run ends in a marked stop, and the `implement-continue` request starts no run after it - "agent_settled implement restart does not run past an intervening marked stop".
+- Host ordering: exercise competing continuation requests and an intervening marked human stop on the host. Assert a real eligible continuation, no implementation continuation after the mark, and unchanged handoff behavior.
 - A subagent child sends nothing - "agent_settled skips implement restart in a subagent child".
 - A non-idle session sends nothing - "agent_settled skips implement restart when not idle".
 - No task list on the branch sends nothing - the existing test `active phases, non-idleness, and earlier competing handlers do not spend recovery`, unchanged.
@@ -242,7 +242,7 @@ Assistant fixtures in the new tests carry `content` as a block array, the shape 
 - Implement in progress with only retryable `failed` loop rows unfinished still restarts, and the message text does not say tasks remain - "agent_settled restarts implement with only failed loop rows open".
 - Brainstorm, plan, verify or ship in progress with a moved task list sends nothing - "agent_settled restarts only the implement phase".
 - Both handoff restarts behave as before - the existing tests at lines 234-330, unchanged.
-- A failed send throws and the next settle evaluates again - "agent_settled implement restart retries after a failed send".
+- An unsuccessful boundary delivery schedules no fallback - implementation delivery regression.
 - A user-role message between the task movement and the settle suppresses the restart - covered by "agent_settled leaves an implement reply that moved no task alone".
 
 `extensions/lib/phase-tracker-helpers.test.ts`:
@@ -271,11 +271,11 @@ The materiality bar is `reference/documentation-impact.md`.
 - Restarting brainstorm, plan, verify or ship.
 - A `piGauntlet` setting to disable or tune the restart.
 - Skill or persona wording changes; marker lines on stops that lack one.
-- Moving any restart to `agent_before_settle`.
+- Moving either existing phase-handoff restart to `agent_before_settle`.
 
 ## Open questions
 
 - The colleague's two stalls are not confirmed against a transcript; the fix targets the same stop shape found in the requester's sessions.
 - Whether the unexpected-async-handle, unsupported-ledger and workflow-warning stops carry a marker line. Unmarked ones are restarted once under this design; whether the session then restates the stop or proceeds past it is model behavior (residual risk in `## Errors and edge cases`).
-- Delivery invariant: can an `implement-continue` request be kept from starting a run after an intervening marked human stop under the approved `agent_settled` plus `sendMessage(..., { triggerTurn: true })` delivery? The council probe showed `ctx.isIdle()` true with another handler's turn already requested and both runs starting in order; no enforcement mechanism was checked. Affects `### Delivery`, eligibility condition 8 and the host-ordering test. Settled by the first plan task, which writes that regression; if the invariant cannot be enforced, delivery returns to the user through brainstorming's amendment path, or the user decides it at the gate.
+- The seed reproduced unsafe post-settlement delivery. The earlier boundary is approved only conditional on the host-ordering proof above.
 - The replay counts under "Corrected" are results of the earlier endpoint predicate. They were not recalculated for consecutive-snapshot task movement, and the 41-stop no-movement bucket is not broken down by engine, so how many loop retry stops the revised rule reaches is unmeasured.

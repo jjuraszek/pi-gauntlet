@@ -22,3 +22,4 @@ returned: seed | home | 452f7bda31ce4824d4881cf444cb7a92230d0490
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1: return delivery to the user before implementation; Pi 1.5.2 started the queued restart after the marked stop.
+amended | 1 item(s) | Test pre-settlement delivery
