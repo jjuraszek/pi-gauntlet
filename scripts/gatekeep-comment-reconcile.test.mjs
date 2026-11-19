@@ -231,6 +231,7 @@ test('PR sets route before the unchanged single-PR steps', () => {
     body: 'x'.repeat(300) + ' https://linear.app/acme/issue/sz-7' };
   const input = [changed, { ...changed, isDraft: true }, { ...changed, reviewDecision: 'APPROVED' }];
   const projected = JSON.parse(execFileSync('jq', [projection], { input: JSON.stringify(input) }));
+  assert.equal(projected.length, input.length);
   assert.deepEqual(projected[0], { ...changed, body: 'x'.repeat(300),
     linearRefs: [{ key: 'acme', id: 'SZ-6' }, { key: 'acme', id: 'SZ-7' }] });
   for (const [i, row] of projected.slice(1).entries()) {
