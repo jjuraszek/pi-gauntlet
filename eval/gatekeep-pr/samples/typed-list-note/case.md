@@ -13,13 +13,13 @@ bundle-: skills/finishing-a-development-branch/reference/commit-message.md
 
 Run A: `112 101`
 
-Run B (independent): `97`
+Run B (independent): `https://github.com/acme/gadgets/pull/97`
 
 ## Digest
 
 Both runs use pi, origin `git@github.com:acme/widgets.git`, and `parallel.maxTasks` 4. The viewer login read returns `alex`; the team read returns `acme/reviewers`. Origin's default branch resolves and has no tracker override. No worktree exists for any of the PRs.
 
-Run A: the roster passes admission. The parent run folder can be created. Here are the two successful gather results, in argument order:
+Run A: the PR metadata reads return these two results, in argument order:
 
 ```json
 [
@@ -28,8 +28,8 @@ Run A: the roster passes admission. The parent run folder can be created. Here a
 ]
 ```
 
-Run B: Section A is already in context. The first PR view succeeds and returns open PR #97 at https://github.com/acme/widgets/pull/97 by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12. The pending request is `{"__typename":"User","login":"alex"}`; closing references are empty. For Run B's Ticket display, the default-branch ref is `origin/main` and none of the three override paths exists. No ticket is named.
+Run B: Section A is already in context. The first PR view returns open PR #97 at https://github.com/acme/gadgets/pull/97 by `robin` on branch `csv-export`, titled `Export the widget list`, description `Add a CSV export button.`, additions 40, deletions 12, and head `cccccccccccccccccccccccccccccccccccccccc`. The pending request is `{"__typename":"User","login":"alex"}`; closing references are empty. The default-branch read returns `origin/main`; none of the three override paths exists.
 
 ## Entry
 
-Start each invocation from its arguments. Narrate through the gather, render the messages the human sees before provisioning, then name the next step. Delimit each visible list reply with a line containing only `---` immediately before its heading and immediately after its last entry, with no blank lines inside those delimiters. Put narration and labels outside these delimiters. Write the `Run B:` heading with nothing after the colon. Between that heading and the opening list delimiter, put only one fenced `bash` block listing every pre-list shell call in order, one command per line with no comments. Use the full fixed commands. Spell the PR-view token as bare `97`, without shell quotes, and use `origin/main` and the literal paths for any override reads. On the very next line after Run B's closing delimiter, with no intervening blank line, write `Paired call:` followed by the paired call's bare shell command in inline code, without the tool name or a JSON wrapper. Keep that call and the initialization steps in workflow order in the narration. Finish narrating Gather before naming the next step. Stop before provisioning; do not provision, dispatch, or render a menu. Treat the observations as command results; execute nothing.
+Start each invocation from its arguments. Trace through Gather if reached, then name the next step; do not go into provisioning, dispatch, or menus. For each visible reply, show its full text between lines containing only `---`, without inserting blank lines at the boundaries. Put narration and labels outside those delimiters. Write the `Run B:` heading with nothing after the colon. Immediately after that heading, show any shell calls preceding the first visible reply in one fenced `bash` block, one full command per line with no comments. Spell the PR-view token without shell quotes and write actual refs and paths in any override reads. Immediately after each closing delimiter, write `Paired call:` followed by the attached call in inline code (bare shell command for shell calls, no JSON wrapper), or `none` if no call is attached. Keep all steps in chronological order. Treat the observations as command results; execute nothing.

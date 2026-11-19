@@ -28,4 +28,4 @@ Review-requested query rows:
 
 ## Entry
 
-Start at argument resolution. First give a separate chronological trace: name the commands or file reads, mark where ticket links are resolved and where the final sort happens, and identify the first tool call after the sort and which reply carries it. Keep reply labels and call annotations in the trace. After the trace, put a horizontal rule (`---` on its own line with a blank line on each side) before each reply's visible text. End at rejection; execute nothing.
+Trace from argument resolution through the admission decision and show what the skill does in response. In the chronological trace, name the commands, file reads, and decisions, and note any calls attached to visible replies. Keep reply labels and call annotations in the trace. After the trace, put a horizontal rule (`---` on its own line with a blank line on each side) before each reply's visible text. Execute nothing.
