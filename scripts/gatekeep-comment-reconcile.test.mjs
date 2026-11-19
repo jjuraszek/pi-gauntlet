@@ -1120,13 +1120,18 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
       const saved = JSON.parse(read(`../eval/gatekeep-pr/results/${sample}/candidate.json`));
       const replies = historicalReplies(saved);
       assert.equal(replies.length, saved.models.replay.length);
+      const rejection = cap ? 'multi-PR mode takes at most 4 PRs (pi-cohort parallel.maxTasks); got 6' : "multi-PR mode requires pi's nested dispatch";
+      const numbers = cap ? '101, 97, 112, 88, 130, 104' : '101, 97, 112';
       for (const [model, output] of replies) {
-        const [list, stop] = output.text.trim().split(/\n\s*---\s*\n/).slice(-2);
-        const listText = cap ? list.replace(/^\*\*Reply 1\*\* \(carries the `reference\/batch\.md` read\)\n\n/, '') : list;
-        const stopText = cap ? stop.replace(/^\*\*Reply 2\*\* \(rejection\)\n\n/, '') : stop;
-        assert.match(listText, /^\*\*Open PRs to gate, smallest first:\*\*/);
-        assert.match(stopText, /^gauntlet: stuck .+\n/);
-        assert.match(stopText, /\ndiscovered, smallest first: \d+(?:, \d+)+$/);
+        const blocks = output.text.split('\n\n---\n\n');
+        assert.equal(blocks.length, 3, `${model}: trace and two visible replies`);
+        const [, list, stop] = blocks;
+        assert.match(stop, /^gauntlet: stuck [^\n]+\n/, `${model}: first stop line`);
+        const [, rejectionLine, numbersLine, ...trailing] = stop.split('\n');
+        assert.equal(rejectionLine, rejection, `${model}: second stop line`);
+        assert.equal(numbersLine, `discovered, smallest first: ${numbers}`, `${model}: final stop line`);
+        assert.ok(trailing.length === 0 || (trailing.length === 1 && trailing[0] === ''), `${model}: nothing follows the numbers`);
+        assert.match(list, /^\*\*Open PRs to gate, smallest first:\*\*/, `${model}: first list line`);
         assert.equal(saved.judge[model].factsSha, sha256(expected));
         assert.equal(saved.judge[model].facts.f1.after, 'holds');
       }
