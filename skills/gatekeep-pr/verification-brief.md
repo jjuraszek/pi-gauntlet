@@ -61,7 +61,7 @@ lookup=$(gh api graphql -f query='query($o:String!,$r:String!,$n:Int!){repositor
 verdict=$(printf '%s\n' "$lookup" | jq -ers '
   def connection: (.nodes | type == "array") and (.pageInfo.hasNextPage | type == "boolean");
   def instant:
-    (capture("^(?<clock>[0-9T:-]{19})(?:\\.(?<frac>[0-9]+))?(?:Z|(?<sign>[+-])(?<hour>[0-9]{2}):(?<min>[0-9]{2}))$") // error("date")) as $d
+    (capture("^(?<clock>[0-9T:-]{19})(?:\\.(?<frac>[0-9]+))?(?:Z|(?<sign>[+-])(?<hour>[01][0-9]|2[0-3]):(?<min>[0-5][0-9]))$") // error("date")) as $d
     | (($d.hour // "0" | tonumber) * 3600 + ($d.min // "0" | tonumber) * 60) as $offset
     | [(($d.clock + "Z" | fromdateiso8601) - (if $d.sign == "-" then -$offset else $offset end)), ($d.frac // "" | sub("0+$"; ""))];
   if length != 1 then error("response") else .[0].data.repository.pullRequest end
@@ -71,7 +71,8 @@ verdict=$(printf '%s\n' "$lookup" | jq -ers '
   | (.commits.nodes[0].commit.committedDate | instant) as $head
   | ($reviews.nodes | map(if (.state | type != "string") then error("state") else select(.state == "CHANGES_REQUESTED") end
       | {login: (.author.login | if . == null then null else ascii_downcase end), at: (.submittedAt | instant)})) as $changes
-  | ($requests.nodes | map(.requestedReviewer | select(. != null)
+  | ($requests.nodes | map(if type == "object" and has("requestedReviewer") then .requestedReviewer else error("request node") end
+      | select(. != null)
       | if (.__typename | type == "string" and test("\\A[_A-Za-z][_0-9A-Za-z]*\\z"))
         then select(.__typename == "User") else error("reviewer type") end
       | .login | if type == "string" and length > 0 then ascii_downcase else error("reviewer login") end)) as $pending
