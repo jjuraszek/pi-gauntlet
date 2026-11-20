@@ -12,7 +12,7 @@
 import { existsSync, realpathSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
-import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext, SessionEntry, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import {
@@ -28,6 +28,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
+import { textOf } from "./lib/telemetry-collect.ts";
 import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
 import { checkoutOf, gitSync } from "./lib/checkout.ts";
 import { checkPlan, renderManifest, legOwnership, sha256, type FsPort, type PlanCheckFinding } from "./lib/plan-check.ts";
@@ -36,6 +37,7 @@ import {
   dispatchLabel,
   findMarkerFile,
   flowGuardApplies,
+  hasGauntletMarkerLine,
   implementExemptDirs,
   implementWriteGuardApplies,
   markerBlockReason,
@@ -46,8 +48,10 @@ import {
   recoverableEdge,
   resolveRepoDir,
   STMT_START,
+  taskListMoved,
   transitionPhaseState,
   type RecoveryEdge,
+  type Task,
 } from "./lib/phase-tracker-helpers.ts";
 
 const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
@@ -107,24 +111,20 @@ const isImplementerWave = (details: unknown, isError: boolean | undefined, inclu
   return d.results.some((r) => r?.agent === "implementer" || (includeLoop && r?.agent === "loop-implementer"));
 };
 
-type Task = { name: string; status: string };
+const planSnapshot = (entry: SessionEntry): Task[] | undefined => {
+  if (entry.type !== "message" || entry.message.role !== "toolResult" ||
+      entry.message.toolName !== "plan_tracker" || entry.message.isError) return;
+  const details = entry.message.details as { tasks?: Task[]; error?: string } | undefined;
+  if (!details?.error && Array.isArray(details?.tasks)) return details.tasks;
+};
 
 // Latest successful plan_tracker snapshot on the current branch. Shared by the
 // completion backstop and the open-task nudge so both reason about one state;
 // read from session entries, so context pruning cannot hide it.
 const latestPlanSnapshot = (ctx: ExtensionContext): Task[] => {
   for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
-    if (
-      entry.type !== "message" ||
-      entry.message.role !== "toolResult" ||
-      entry.message.toolName !== "plan_tracker" ||
-      entry.message.isError
-    ) {
-      continue;
-    }
-    const details = entry.message.details as { tasks?: Task[]; error?: string } | undefined;
-    if (!details || details.error || !details.tasks) continue;
-    return details.tasks;
+    const tasks = planSnapshot(entry);
+    if (tasks) return tasks;
   }
   return [];
 };
@@ -176,6 +176,32 @@ const SHIP_ADVISORY =
   "a `fix` gap was left unresolved (neither fixed nor deferred).";
 
 const RECOVERY_CUSTOM_TYPE = "pi-gauntlet-transition-recovery";
+const IMPLEMENT_RESTART = "Your last message ended the turn during the implementation phase without a `gauntlet:` marker line. If the user asked you to stop, or a decision is still unresolved, restate it and end the turn; start with a `gauntlet:` line only where a skill already prescribes one for that stop, and do not invent a gate, `done` or `stuck` line. Otherwise continue only work that is already authorized; do not reopen a task the user settled as a terminal failure.";
+
+function unmarkedStopAfterMovement(branch: SessionEntry[]): boolean {
+  const index = branch.findLastIndex(e => e.type === "message" && e.message.role === "assistant");
+  const last = branch[index];
+  if (last?.type !== "message" || last.message.role !== "assistant" || last.message.stopReason !== "stop" ||
+      hasGauntletMarkerLine(textOf(last.message.content))) return false;
+
+  const snapshots: Task[][] = [];
+  let beforeBoundary = false;
+  let predecessor: Task[] | undefined;
+  for (let i = index - 1; i >= 0; i--) {
+    const entry = branch[i];
+    const tasks = planSnapshot(entry);
+    if (tasks) {
+      if (beforeBoundary) { predecessor = tasks; break; }
+      snapshots.push(tasks);
+    } else if (!beforeBoundary) {
+      beforeBoundary = (entry.type === "custom_message" && entry.customType === RECOVERY_CUSTOM_TYPE) ||
+        (entry.type === "message" && (entry.message.role === "user" ||
+          (entry.message.role === "assistant" && hasGauntletMarkerLine(textOf(entry.message.content)))));
+    }
+  }
+  return taskListMoved(predecessor, snapshots.reverse());
+}
+
 const RECOVERY_MESSAGES: Record<RecoveryEdge, string> = {
   "plan-implement": "Continue the approved workflow now. Invoke /skill:subagent-driven-development.",
   "verify-ship": "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch.",
@@ -605,7 +631,7 @@ export default function (pi: ExtensionAPI) {
         observeFixWave(msg.details, msg.isError, ctx);
         if (qualifiesAsClosureDispatch(msg.details)) conformanceDispatched = true;
         observeCadence(msg.details);
-      } else if (msg.toolName === "plan_tracker") {
+      } else if (msg.toolName === "plan_tracker" && !msg.isError) {
         const details = msg.details as { tasks?: { status: string }[]; error?: string } | undefined;
         if (details && !details.error) {
           const wasImplementing = phases.implement.status === "in_progress";
@@ -638,6 +664,19 @@ export default function (pi: ExtensionAPI) {
       updateWidget(ctx);
     });
   }
+
+  pi.on("agent_before_settle", (event, ctx) => {
+    if (!gauntletEntered || phases.implement.status !== "in_progress" || isSubagentChild ||
+        event.outcome !== "completed" || event.continue || event.context.pendingMessages.length) return;
+    if (!unmarkedStopAfterMovement(ctx.sessionManager.getBranch())) return;
+    return {
+      entries: [...event.entries, {
+        type: "custom_message", customType: RECOVERY_CUSTOM_TYPE, content: IMPLEMENT_RESTART,
+        display: true, details: { piGauntletRecoveryEdge: "implement-continue" },
+      }],
+      continue: true,
+    };
+  });
 
   pi.on("agent_settled", (_event, ctx) => {
     const latestAssistantStopReason = branchLatestAssistantStopReason(ctx);

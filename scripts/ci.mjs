@@ -542,6 +542,13 @@ try {
   fail(`resolver or bin unit tests failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 20).join("\n    ")}`);
 }
 
+try {
+  execFileSync(process.execPath, ["--test", R("scripts/phase-tracker-host.test.mjs")], { stdio: "pipe" });
+  ok("implement recovery respects Pi's settlement order");
+} catch (e) {
+  fail(`phase tracker host regression failed:\n${String(e.stdout || e.stderr || e)}`);
+}
+
 // ---- executable skill examples --------------------------------------------
 try {
   execFileSync(process.execPath, ["--test", R("scripts/finish-verification.test.mjs")], { stdio: "pipe" });

@@ -11,6 +11,20 @@ export const CONTEXT_DRAFT_MARKER = "# CONTEXT DRAFT - NOT A SPEC - fully replac
 
 export type SubstepCheck = { ok: true } | { ok: false; error: string };
 
+export const hasGauntletMarkerLine = (text: string): boolean => /^gauntlet: (?:gate=|(?:question|done|stuck)\b)/m.test(text);
+
+export type Task = { name: string; status: string; label?: string };
+
+export function taskListMoved(predecessor: readonly Task[] | undefined, after: readonly (readonly Task[])[]): boolean {
+  if (!after.at(-1)?.length) return false;
+  return after.some((tasks, i) => {
+    const prior = i === 0 ? predecessor : after[i - 1];
+    if (!prior) return tasks.length > 0;
+    return tasks.length !== prior.length || tasks.some(({ name, status, label }, j) =>
+      name !== prior[j].name || status !== prior[j].status || (label ?? "") !== (prior[j].label ?? ""));
+  });
+}
+
 export type RecoveryEdge = "plan-implement" | "verify-ship";
 export type RecoveryPhaseStatus = "pending" | "in_progress" | "complete" | "skipped";
 export type RecoveryPhaseMap = Record<

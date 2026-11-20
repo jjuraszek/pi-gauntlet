@@ -1,5 +1,7 @@
 # Automatic Transition Recovery
 
+> **Superseded by:** [doc/specs/2026-11-19-implement-status-stop-recovery.md](./2026-11-19-implement-status-stop-recovery.md) - the rule in "Non-goals" and "Recovery eligibility" that an in-progress implement phase is never restarted
+
 ## Context
 
 A completed automatic handoff can currently end with the model narrating the next action but not invoking it. GitHub issue [#3](https://github.com/jjuraszek/pi-gauntlet/issues/3) reproduces this at two boundaries:
