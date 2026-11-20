@@ -8,4 +8,6 @@ for: 1b18dfc61d0a4241388c5bde4e5bfff5a90e0546e3d7e6a67ef0cd46481e0ead
 | [workflow-stage-proof](results/workflow-stage-proof/report.md) | unchanged | Repair dropped standalone and bundled stage proof without losing the behavior; a ticket left with no criterion needed recovery or parking. |
 | [pr-body-proof](results/pr-body-proof/report.md) | unchanged | The draft dropped the PR-description checklist, kept the release script's generated text as a behavior, and labeled the retired row in the note. |
 
+The [workflow-stage-proof-create partial report](results/workflow-stage-proof-create/report.md#feedback) records that `github-copilot/gpt-6.1-sol` kept the `- [ ] ` checkbox marker between the label and the criterion text on both the baseline and candidate arms, so the move did not cause it. The judge counted the `note` fact as holding on both arms, but a literal reading of the expected string `retired workflow-stage proof: CI passes on the pull request` would fail that model on both arms. Whether the checkbox marker belongs to `<row text>` in the gate's `retired workflow-stage proof: <row text>` label remains open for the repo owner to decide.
+
 Only these three step-4 samples ran. They test draft text with the shared class table in context, not tracker writes or the rest of the ticket workflow.
