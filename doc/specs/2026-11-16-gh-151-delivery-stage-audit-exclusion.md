@@ -1,5 +1,7 @@
 # Delivery stages and post actions are not requirements: the audit, the plan and the critique applier skip them
 
+> **Superseded by:** [doc/specs/2026-11-20-gh-154-shared-ac-class-table.md](./2026-11-20-gh-154-shared-ac-class-table.md) - the class table's location in D1 only
+
 **Goal:** A sentence whose only observable is a delivery stage (pull-request text, a CI or review result, a merge, a full-suite run), a commit message, or a step a person performs that no file delivers (after merge or deploy, or at any other time) is never scored, planned, or written as implementation work: the conformance audit emits nothing for it, the plan gives it no task, the critique applier writes an operator step instead of a pull-request obligation, and ticket shaping and spec-writing screen pull-request title and body text the way they screen a CI result today, while a necessary post action stays in the spec with its real actor and timing; the PR gate's post-merge menu offers it only when the PR gate runs and the sentence assigns the merger an action after merge.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

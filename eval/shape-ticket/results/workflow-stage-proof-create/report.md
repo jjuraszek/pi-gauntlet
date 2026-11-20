@@ -1,0 +1,48 @@
+# eval report: shape-ticket (partial run: workflow-stage-proof-create)
+
+for: 1b18dfc61d0a4241388c5bde4e5bfff5a90e0546e3d7e6a67ef0cd46481e0ead
+
+wall: 17s
+
+## Change
+
+Check the shared class table at step 4 in create and repair mode. Preserve surviving behavior wording and retain dropped stage proof in the Reporter note in workflow-stage-proof-create, workflow-stage-proof and pr-body-proof. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
+
+Drop ticket rows whose sole observable is a pull request's title or body while preserving behavior that produces pull-request text. Run only pr-body-proof against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit. Require the retired-proof Reporter note and byte-identical surviving behavior rows. The first comparison dropped the release-script row on both candidate models, so add an explicit file-produced-text example beside the unchanged class row; retain every must-hold fact and the original baseline. Preserve all prior records; this tool-free checkpoint proves drafted text, not live tracker writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs.
+
+Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
+
+Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
+
+Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
+
+Add sibling-primary-anchor and sibling-not-found-hint and extend audit-grounding and audit-dispatch with inline Git facts. Implementation evidence is deterministic structural lint and source/fixture review only; reserve historical before/after model comparison for final verification against audit baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77. Do not claim new observed fact moves before inspecting those saved replies; retain the existing evidence-backed moves below.
+
+Add parent-owned obsolete judgments with confirmed citations, gated repair close/create drop choices, and exactly one recommended selectable menu row. Preserve the ordinary body diff and all existing accepted moves; keep target slices and word cap unchanged. Observe the three obsolete/quiet samples before editing instructions and retain genuine baseline failures.
+
+Integrate bounded batch repair and the repository audit into gather for batch-repair, audit-repo-fit, scenario-best-effort, audit-quiet-noop, audit-byte-lock, audit-dispatch and audit-grounding. Prepare all tickets before ref-ordered single-ticket gates, keep hard stops local while splits stay atomic, and apply audit grounding and AC uniqueness with verbatim displaced detail. Preserve raw AC bytes for quiet conformance repairs, singleton integrity stops (including repair-overflow/invalid), the 1,600-word cap, target slices and legacy audit exclusions. Extract examples and the capability ladder without changing their rules except the documented open-PR read verb. Retain baseline A=5b97a46a7b0ef331e72077362e92eff4a59e1b77 and evidence-backed moves below; never promote a post-behavior candidate into A.
+
+Require roast findings to acknowledge detail already retained in the Reporter note and preserve plain-words Problem leads and product-level cause-and-effect sentences against compression or redundancy cuts.
+Bound Context, examples and Idea for a product-aware repo stranger; preserve comprehension and accumulate verbatim displaced detail through repair and roast, retaining raw AC bytes for conformance-only repair. Retain existing move decisions below.
+
+Clarify the overlap reference's repeated-defect rule: completion plus compatible same-concern additions does not justify a duplicate without evidence distinguishing a new regression. The closed-concern-additions sample alone bundles that reference and checks supplied-evidence recommendations, allowing useful existing-ticket additions or no write while retaining create-anyway as an override. The member-file-only sample alone bundles the complete skill and selects Roast item 2: add file-only transport on initial/retry member tasks while retaining cheap effort, inline chair, structural quorum and parent split-axis ownership. Retain the Draft behavior and existing sample bundles; Git retains prior intent and historical replay evidence. Apply the shared menu contract at the confirmation gate so options stay separately numbered after concerns and legacy numeric replies name the resolved subset approval before simulated creation.
+
+Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
+
+Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
+
+Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundled observations, preserve surviving behavioral text and untouched rows byte-for-byte during that drop, retain displaced text in the fenced Reporter note with the retired workflow-stage proof label, and route an emptied AC list to recovery or park. The workflow-stage-proof sample checks repair of mixed behavior/stage rows and a second ticket with only stage proof; coverage is sample-scoped, not a target-wide pass.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| workflow-stage-proof-create | anthropic/claude-opus-5-5 | unchanged | 5607 | behavior: holds -> holds (held); ci: holds -> holds (held); note: holds -> holds (held); proceed: holds -> holds (held) |
+| workflow-stage-proof-create | github-copilot/gpt-6.1-sol | unchanged | 8939 | behavior: holds -> holds (held); ci: holds -> holds (held); note: holds -> holds (held); proceed: holds -> holds (held) |
+
+## Feedback
+
+- workflow-stage-proof-create / anthropic/claude-opus-5-5: No fact moved between Before and After: both outputs keep the behavior row byte-for-byte under Acceptance Criteria, drop the CI row from the drafted criteria, carry it in the Proposed Reporter note as `retired workflow-stage proof: CI passes on the pull request`, and state that no hard stop or park applies so the draft proceeds. The After wording therefore delivers the step-4 class-table check in create mode without regressing anything Before held. The only visible differences are presentational (a three-backtick rather than four-backtick fence around the note, and a bulleted rather than tabular gate outcome); if a fixed fence width or the per-row class table matters downstream, state it explicitly in the wording, since the current text lets either form through. To keep these facts stable, retain the explicit instructions that surviving behavior rows are copied verbatim, that dropped stage proof goes to the Reporter note under the exact retired-proof label, and that a non-empty surviving AC list means no hard stop or park.
+- workflow-stage-proof-create / github-copilot/gpt-6.1-sol: No fact moved on this case: After keeps the behavior row byte-identical, drafts no CI row, carries the dropped criterion in the fenced Proposed Reporter note under the `retired workflow-stage proof:` label, and passes the integrity gate without a hard stop or park, exactly as Before does. The only differences are cosmetic: the status line reads `done drafted` instead of `done integrity-gate-passed`, and the gate rationale is shorter. One shared fragility: both outputs write the note line as `retired workflow-stage proof: - [ ] CI passes on the pull request`, keeping the checkbox marker between the label and the criterion text. I counted this as holding because the label and the verbatim criterion are both present, but a stricter literal reading of the fact would fail both. If you want the exact string `retired workflow-stage proof: CI passes on the pull request`, state in the wording whether the retained text includes the leading `- [ ]` marker or only the criterion text, and keep the current rules on byte-identical surviving rows and letting a surviving behavior criterion proceed.
+
+exit: 0

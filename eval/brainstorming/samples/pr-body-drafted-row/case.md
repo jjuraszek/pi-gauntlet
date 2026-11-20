@@ -1,8 +1,7 @@
-bundle+: skills/shape-ticket/SKILL.md
 replay: continuation
 
 ## Fixed observations
-This is one ticketless spec-writing checkpoint at checklist step 7. Gather and both design approvals are complete. The draft, ticket-acceptance reference, and owning gate are available in context. There is no ticket and the gather sentinel is `none - no ticket`. No tools are available. No outcome has been cut and no scope question is outstanding. The required Spec Self-Review read from `skills/brainstorming/reference/spec-finalization.md` succeeded earlier in this session, and its instructions are already in context; there is no unreadable or outstanding prerequisite read at this checkpoint.
+This is one ticketless spec-writing checkpoint at checklist step 7. Gather and both design approvals are complete. The draft, ticket-acceptance reference, and class table are available in context. There is no ticket and the gather sentinel is `none - no ticket`. No tools are available. No outcome has been cut and no scope question is outstanding. The required Spec Self-Review read from `skills/brainstorming/reference/spec-finalization.md` succeeded earlier in this session, and its instructions are already in context; there is no unreadable or outstanding prerequisite read at this checkpoint.
 
 The approved Design commits to exactly two behaviors:
 1. Remove the obsolete parser test files so the retired parser's test directory is empty.

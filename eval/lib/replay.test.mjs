@@ -48,6 +48,7 @@ const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
   { path: "skills/brainstorming/reference/menu-layout.md" },
   { path: "skills/shape-ticket/SKILL.md", slice: "## Evidence gate", sliceTo: "## Ticket wording" },
+  { path: "skills/shape-ticket/reference/ac-classes.md", new: true },
 ];
 
 test("shape-ticket baseline preserves slices and excludes only audit from all existing cases", () => {
@@ -56,7 +57,7 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   const target = JSON.parse(read("eval/shape-ticket/target.json"));
   assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
   const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
-  assert.equal(samples.length, 17);
+  assert.equal(samples.length, 18);
   for (const sample of samples) {
     const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
     if (["gate-line-first", "per-ref-settlement"].includes(sample)) {

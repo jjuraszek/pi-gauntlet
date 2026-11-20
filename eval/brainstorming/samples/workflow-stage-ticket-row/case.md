@@ -1,4 +1,3 @@
-bundle+: skills/shape-ticket/SKILL.md
 bundle-: skills/brainstorming/reference/spec-finalization.md
 replay: continuation
 

@@ -1,8 +1,7 @@
-bundle+: skills/shape-ticket/SKILL.md
 replay: continuation
 
 ## Fixed observations
-This is one ticketless spec-writing checkpoint at checklist step 7. Gather and both design approvals are complete. The draft, ticket-acceptance reference, and owning gate are available in context. There is no ticket and the gather sentinel is `none - no ticket`. No tools are available. No outcome has been cut and no scope question is outstanding.
+This is one ticketless spec-writing checkpoint at checklist step 7. Gather and both design approvals are complete. The draft, ticket-acceptance reference, and class table are available in context. There is no ticket and the gather sentinel is `none - no ticket`. No tools are available. No outcome has been cut and no scope question is outstanding.
 
 The approved Design commits to exactly two behaviors:
 1. The importer rejects a row without an id.

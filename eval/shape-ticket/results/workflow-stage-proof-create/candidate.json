@@ -1,0 +1,100 @@
+{
+  "sample": "workflow-stage-proof-create",
+  "arm": "candidate",
+  "skillSha": "88e27b117c2e29baddd8fd7e7f5954bc0e9994e7a3626ef6c2d423a6a547ae0a",
+  "inputSha": "0ed6e4695e4f1778cb1e74872c19eeecb80d1f67715b1f04d7730ed296aa1c83",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n```text\nReporter note:\nretired workflow-stage proof: CI passes on the pull request\n```\n\n## AC integrity gate outcome\n\n- **Normalization:** Both criteria were already `- [ ]` items, so no syntax changed.\n- **Uniqueness:** Neither row's observable appears in the other, so no rows were removed or split.\n- **Row 1 passes as a Behavioral AC.**\n  - Setup: an import row has no id.\n  - Action: an operator imports it.\n  - Observable result: the importer rejects the row with a missing-id error.\n  - It can be verified before production.\n  - The row text is kept exactly as written.\n- **Row 2 is dropped as a Workflow-stage proof.**\n  - Its only observable is a CI run result on the pull request, which is a delivery-pipeline stage and not a behavior of the change.\n  - Its text is kept in the Reporter note as `retired workflow-stage proof: CI passes on the pull request`.\n- **Result:**\n  - No hard stop, no park, and no Post-deployment relocation.\n  - The AC list still has one pre-production behavioral row, so the no-AC failure does not apply.\n  - Because the drop displaced detail, one Reporter-note comment is proposed for the confirmation gate.\n",
+      "words": 197,
+      "wallMs": 8605,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done drafted\n\n## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n```untrusted_text\nReporter note:\nretired workflow-stage proof: - [ ] CI passes on the pull request\n```\n\n## Integrity gate outcome\n\nPassed. Retained the behavioral criterion; dropped the workflow-stage proof and preserved it in the proposed Reporter note.\n",
+      "words": 57,
+      "wallMs": 7088,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "d8286bbe99ab9c3ca19398ec66e008fb5ebcf8c05bd5526acc9e5073addd5dcd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2f20f29905462c9623f746c430b4f3ebb09d88776048e92fb4b95515a2078c8a",
+      "baselineOutputSha": "cabd91cc40fcc6a52b2390980ef654580b761f3ed3c68b806fb0b2340785cf3f",
+      "candidateOutputSha": "41c1d69fedec60335aff99b2ed9a369e889534fce8b3f6bcf707cb2aed0d13c3",
+      "facts": {
+        "behavior": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ci": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "note": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "proceed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved between Before and After: both outputs keep the behavior row byte-for-byte under Acceptance Criteria, drop the CI row from the drafted criteria, carry it in the Proposed Reporter note as `retired workflow-stage proof: CI passes on the pull request`, and state that no hard stop or park applies so the draft proceeds. The After wording therefore delivers the step-4 class-table check in create mode without regressing anything Before held. The only visible differences are presentational (a three-backtick rather than four-backtick fence around the note, and a bulleted rather than tabular gate outcome); if a fixed fence width or the per-row class table matters downstream, state it explicitly in the wording, since the current text lets either form through. To keep these facts stable, retain the explicit instructions that surviving behavior rows are copied verbatim, that dropped stage proof goes to the Reporter note under the exact retired-proof label, and that a non-empty surviving AC list means no hard stop or park.",
+      "wallMs": 5607,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "d8286bbe99ab9c3ca19398ec66e008fb5ebcf8c05bd5526acc9e5073addd5dcd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2f20f29905462c9623f746c430b4f3ebb09d88776048e92fb4b95515a2078c8a",
+      "baselineOutputSha": "b6aa90fa37c4b91aa940a48aa0e82bab46bab93e7fff08815e5e1bca763c782c",
+      "candidateOutputSha": "99d6d892c3f6b33dd6f4c5f58a268a6ef08d7834110eeaf7b6cdf4e3551e301b",
+      "facts": {
+        "behavior": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ci": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "note": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "proceed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved on this case: After keeps the behavior row byte-identical, drafts no CI row, carries the dropped criterion in the fenced Proposed Reporter note under the `retired workflow-stage proof:` label, and passes the integrity gate without a hard stop or park, exactly as Before does. The only differences are cosmetic: the status line reads `done drafted` instead of `done integrity-gate-passed`, and the gate rationale is shorter. One shared fragility: both outputs write the note line as `retired workflow-stage proof: - [ ] CI passes on the pull request`, keeping the checkbox marker between the label and the criterion text. I counted this as holding because the label and the verbatim criterion are both present, but a stricter literal reading of the fact would fail both. If you want the exact string `retired workflow-stage proof: CI passes on the pull request`, state in the wording whether the retained text includes the leading `- [ ]` marker or only the criterion text, and keep the current rules on byte-identical surviving rows and letting a surviving behavior criterion proceed.",
+      "wallMs": 8939,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "5fcd408fd30b278a6cced10768736c84c43d3b71"
+}
