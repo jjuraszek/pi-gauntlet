@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Moved the acceptance-criteria class table to `skills/shape-ticket/reference/ac-classes.md`. Brainstorming reads that file instead of shape-ticket's main file. (#154)
+
 ## v8.8.5 - 2026-11-20
 
 - Require pi-cohort 8.5.0 or newer.

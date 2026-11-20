@@ -116,9 +116,14 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
   ]) {
     assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
     assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
-    assert.match(text, /^\| Workflow-stage proof \|/m, `${path}: integrity class exists`);
   }
-  const gateRow = ticket.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
+  assert.match(brainstorming, /^\| Workflow-stage proof \|/m);
+  assert.doesNotMatch(ticket, /^\| Class \| Definition \|/m);
+  assert.ok(ticket.includes('Read `reference/ac-classes.md` now for the class table:'));
+  const classes = read('skills/shape-ticket/reference/ac-classes.md');
+  const names = Array.from(classes.matchAll(/^\| ([^|\n]+) \|/gm), ([, name]) => name);
+  assert.deepEqual(names, ['Class', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input dependency', 'Post-deployment', 'Workflow-stage proof']);
+  const gateRow = classes.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
   for (const marker of ['drop', 'Reporter note', 'Label every retained original containing a dropped stage clause', "including AC uniqueness's split-row copy", 'leave no unmarked duplicate', "a pull request's title, body, state or review"]) assert.ok(gateRow.includes(marker), marker);
   assert.match(brainstorming, /on a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
   assert.ok(ticket.includes('relocation or a stage-proof drop empties the AC list'));
