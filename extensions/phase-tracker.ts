@@ -631,7 +631,7 @@ export default function (pi: ExtensionAPI) {
         observeFixWave(msg.details, msg.isError, ctx);
         if (qualifiesAsClosureDispatch(msg.details)) conformanceDispatched = true;
         observeCadence(msg.details);
-      } else if (msg.toolName === "plan_tracker") {
+      } else if (msg.toolName === "plan_tracker" && !msg.isError) {
         const details = msg.details as { tasks?: { status: string }[]; error?: string } | undefined;
         if (details && !details.error) {
           const wasImplementing = phases.implement.status === "in_progress";

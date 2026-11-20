@@ -433,16 +433,15 @@ test("implement recovery yields to pending messages and to a prior boundary cont
 });
 
 test("reload and fork reproduce live decisions from branch history", async () => {
-  const branch = implementBranch([movedTask(), assistantText("Status.")]);
+  const branch = implementBranch();
   const live = harness({ branch });
   await live.emit("session_start");
-  const [restart] = await beforeSettle(live);
-  for (const [entries, count] of [
-    [[...restart.entries, assistantText("Waiting.")], 0],
-    [[taskSnapshot([{ name: "next task", status: "failed" }]), assistantText("Attempt finished.")], 1],
-    [[assistantText("gauntlet: question"), foreignTrigger, assistantText("Waiting.")], 0],
-  ] as const) {
-    branch.push(...entries);
+  for (const entry of [movedTask(), taskSnapshot([{ name: "next task", status: "complete" }], true)]) {
+    const { toolName, isError, details } = entry.message;
+    await live.emitEvent("tool_execution_end", { toolName, isError, result: { details } });
+    branch.push(entry);
+  }
+  const assertDecision = async (count: number) => {
     const expected = await beforeSettle(live);
     assert.equal(expected.length, count);
     for (const event of ["session_start", "session_fork"]) {
@@ -450,6 +449,17 @@ test("reload and fork reproduce live decisions from branch history", async () =>
       await rebuilt.emit(event);
       assert.deepEqual(await beforeSettle(rebuilt), expected, event);
     }
+    return expected;
+  };
+  branch.push(assistantText("Status."));
+  const [restart] = await assertDecision(1);
+  for (const [entries, count] of [
+    [[...restart.entries, assistantText("Waiting.")], 0],
+    [[taskSnapshot([{ name: "next task", status: "failed" }]), assistantText("Attempt finished.")], 1],
+    [[assistantText("gauntlet: question"), foreignTrigger, assistantText("Waiting.")], 0],
+  ] as const) {
+    branch.push(...entries);
+    await assertDecision(count);
   }
 });
 
