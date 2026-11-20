@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Require pi-cohort 8.5.0 or newer.
 - Resume implementation when the main session moves a tracked task and stops on an unmarked progress summary. A marked stop or a reply without new task movement stays stopped.
 
 ## v8.8.4 - 2026-11-19
