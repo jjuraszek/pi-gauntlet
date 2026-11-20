@@ -365,6 +365,11 @@ const decisionOn = async (branch: unknown[], event = {}) => {
   return beforeSettle(h, event);
 };
 
+test("standalone implementation does not request a restart after task movement", async () => {
+  const start = phaseResult("start", phases({ brainstorm: "skipped", plan: "skipped", implement: "in_progress" }));
+  assert.deepEqual(await decisionOn([start, movedTask(), assistantText("Status.")]), []);
+});
+
 test("only visible marker lines veto implement recovery", async () => {
   const marker = "gauntlet: question";
   const visible = { type: "text", text: marker };
