@@ -1,0 +1,34 @@
+{
+  "sample": "workflow-stage-proof-create",
+  "arm": "baseline",
+  "skillSha": "aeb563cbd47e8c1cc44460d516b4e86adcf96f1d4f4cea3a2ccf5b7ef81e41ea",
+  "inputSha": "0ed6e4695e4f1778cb1e74872c19eeecb80d1f67715b1f04d7730ed296aa1c83",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n````text\nReporter note:\nretired workflow-stage proof: CI passes on the pull request\n````\n\n## AC integrity gate outcome\n\n| AC (as supplied) | Class | Outcome |\n|---|---|---|\n| When an operator imports a row without an id, the importer rejects it with a missing-id error | Behavioral | **pass**. It has a setup (an import row with no id), an action (the operator imports it), and an observable result (rejection with a missing-id error). It can be verified before production and needs no baseline. |\n| CI passes on the pull request | Workflow-stage proof | **drop**. Its only observable is a delivery-pipeline stage, not a behavior of the change. Its text is kept in the Reporter note with the `retired workflow-stage proof:` label. |\n\n- **Normalization:** I rendered the surviving row as `- [ ]`. Its wording is copied byte-for-byte.\n- **Uniqueness:** the surviving row contains one observation, so there is nothing to merge or split.\n- **Hard stop / park:** neither applies. There is no wishful, tautological, unspecified-but-binding, or external-input AC.\n- **Deploy window:** the AC list is not empty after the drop, and the surviving AC can be met before production deployment.\n- **Result:** the gate passes. One AC remains, and one Reporter-note comment is pending for the confirmation gate.\n",
+      "words": 212,
+      "wallMs": 9970,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done integrity-gate-passed\n\n## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n```untrusted_text\nReporter note:\nretired workflow-stage proof: - [ ] CI passes on the pull request\n```\n\n## Integrity gate outcome\n\nPassed. The behavioral AC names setup, action, and observable result and is verifiable before production deployment. The CI-only criterion was dropped as workflow-stage proof and preserved verbatim above.\n",
+      "words": 68,
+      "wallMs": 8789,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "5fcd408fd30b278a6cced10768736c84c43d3b71"
+}

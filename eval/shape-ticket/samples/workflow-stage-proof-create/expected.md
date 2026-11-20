@@ -1,0 +1,4 @@
+- behavior: judged: The drafted Acceptance Criteria preserve the behavior row verbatim: `- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error`.
+- ci: judged: No drafted acceptance row names the CI result.
+- note: judged: The `## Proposed Reporter note` labels the dropped criterion `retired workflow-stage proof: CI passes on the pull request`.
+- proceed: judged: The surviving behavior criterion lets the draft proceed without an integrity hard stop or parking the ticket.

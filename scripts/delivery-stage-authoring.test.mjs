@@ -13,7 +13,9 @@ import { MODELS } from '../eval/lib/models.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 
-for (const name of ['brainstorming', 'gatekeep-pr', 'loop-implementation']) {
+const [targetName, ...samples] = process.argv.slice(2);
+assert.ok(!targetName || samples.length, 'name at least one sample for the selected target');
+for (const name of targetName ? [targetName] : ['brainstorming', 'gatekeep-pr', 'loop-implementation']) {
   test(`${name}: intent binds to the current bundle-free assembly`, () => {
     const target = JSON.parse(read(`eval/${name}/target.json`));
     const binding = read(`eval/${name}/intent.md`).trimStart().split('\n')[0];
@@ -21,7 +23,7 @@ for (const name of ['brainstorming', 'gatekeep-pr', 'loop-implementation']) {
   });
 }
 
-for (const [name, sample] of [
+for (const [name, sample] of targetName ? samples.map((sample) => [targetName, sample]) : [
   ['shape-ticket', 'pr-body-proof'],
   ['brainstorming', 'pr-body-drafted-row'],
   ['brainstorming', 'post-action-sorted'],

@@ -1,6 +1,8 @@
-for: 2195e16221a840f4a917c3f6b8af35f6a849784d0edbccae03fde1f892d3310a
+for: 066863742c4753ca79a472632c99c528b6610d9fc442e144e423cb6e3b424ec8
 
 ## Change
+
+Read the shared class table without changing the cut recommendation or the drafted-row rules. The baseline for workflow-stage-ticket-row, workflow-stage-drafted-row and pr-body-drafted-row has no class table after removal of the main-file bundle; use the candidate facts as evidence. Also check post-action-sorted against the new assembly. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
 
 Relocate the summary file's mint in spec-finalization.md's User Review Gate to the checkout-local gauntlet scratch folder. This path relocation changes no must-hold fact of pr-body-drafted-row or post-action-sorted. Rerun exactly those two samples serially with their existing baselines and unchanged expected.md facts; preserve all other evidence. These tool-free checkpoints prove authored sections, not filesystem behavior or target-wide coverage. The deterministic currency check is scripts/delivery-stage-authoring.test.mjs.
 

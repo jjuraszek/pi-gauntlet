@@ -1,6 +1,8 @@
-for: cbe84f36505294d55bdd94e0b84dc0cf6de4c95b44b5b35386697f4d87c3b31f
+for: 1b18dfc61d0a4241388c5bde4e5bfff5a90e0546e3d7e6a67ef0cd46481e0ead
 
 ## Change
+Check the shared class table at step 4 in create and repair mode. Preserve surviving behavior wording and retain dropped stage proof in the Reporter note in workflow-stage-proof-create, workflow-stage-proof and pr-body-proof. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
+
 Drop ticket rows whose sole observable is a pull request's title or body while preserving behavior that produces pull-request text. Run only pr-body-proof against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit. Require the retired-proof Reporter note and byte-identical surviving behavior rows. The first comparison dropped the release-script row on both candidate models, so add an explicit file-produced-text example beside the unchanged class row; retain every must-hold fact and the original baseline. Preserve all prior records; this tool-free checkpoint proves drafted text, not live tracker writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs.
 
 Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.

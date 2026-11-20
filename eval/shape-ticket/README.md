@@ -7,14 +7,16 @@ Tests the draft, parent obsolete verdict, gated close/drop choices, single recom
 | `skills/shape-ticket/SKILL.md` | `### 4 - Draft` through before `## Roast` |
 | `skills/brainstorming/reference/menu-layout.md` | whole file |
 | `skills/shape-ticket/SKILL.md` | `## Evidence gate` through before `## Ticket wording` |
+| `skills/shape-ticket/reference/ac-classes.md` | whole file |
 | `skills/shape-ticket/reference/repo-audit.md` | whole file, except sample-specific exclusions |
 
 The two original synthetic text samples cover create-mode repo attribution and repair-mode venue removal. Their slice omits Gather and `reference/overlap-check.md`. The third sample, `closed-concern-additions`, alone loads `skills/shape-ticket/reference/overlap-check.md` through a leading `bundle+:` line in its case. It supplies a reviewed completed ticket and compatible parity, empty-input, and documentation additions without a distinguishing new run/version. It permits useful existing-ticket additions or no write, preserves uncertainty about a new regression, and retains create-anyway as an override. This no-tool target proves supplied-evidence proposal wording and drafting/AC regressions, not live retrieval or tracker writes.
 
-Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audit comparisons. A adds the audit reference without changing SKILL behavior. Seed with `node eval/run.mjs shape-ticket --base "$AUDIT_BASE" --baseline-only`, where `AUDIT_BASE=$(git log --diff-filter=A -1 --format=%H -- skills/shape-ticket/reference/repo-audit.md)`. Retain the original three slices plus the audit reference in target.json. All 13 legacy cases exclude the audit reference and retain their existing additional bundles. New cases include the audit reference; routing/dispatch cases also bundle the complete skill. Sample-specific assembly hashes control replay cache reuse. Process, commands, and record schema: `eval/README.md`.
+Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audit comparisons. A adds the audit reference without changing SKILL behavior. Seed with `node eval/run.mjs shape-ticket --base "$AUDIT_BASE" --baseline-only`, where `AUDIT_BASE=$(git log --diff-filter=A -1 --format=%H -- skills/shape-ticket/reference/repo-audit.md)`. Retain the original three slices, the class table and the audit reference in target.json. All 13 legacy cases exclude the audit reference and retain their existing additional bundles. Audit cases include the audit reference; routing/dispatch cases also bundle the complete skill. Sample-specific assembly hashes control replay cache reuse. Process, commands, and record schema: `eval/README.md`.
 
 | Sample | Coverage |
 |---|---|
+| workflow-stage-proof-create | Create-mode step-4 checkpoint: exclude the audit reference and check the draft and Reporter note for a CI-only criterion |
 | batch-repair | Distinct-ref order, local hard stops, scoped context, uniqueness, one-at-a-time gates and terminal statuses |
 | audit-repo-fit | Cited attributed sketches, AC-only mechanisms and verbatim displaced detail |
 | scenario-best-effort | New features, observed defects, source-independent footer and missing access |

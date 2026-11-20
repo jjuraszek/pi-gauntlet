@@ -9,6 +9,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 | `skills/brainstorming/SKILL.md` | `### 6` through before `## Ticket Handling` |
 | `skills/brainstorming/reference/ticket-acceptance.md` | Whole file |
 | `skills/brainstorming/reference/opening-message.md` | Whole file; new in the candidate assembly |
+| `skills/shape-ticket/reference/ac-classes.md` | Whole file |
 
 | Sample | Must-hold behavior |
 |---|---|
