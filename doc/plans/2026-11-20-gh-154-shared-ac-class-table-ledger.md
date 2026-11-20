@@ -20,3 +20,4 @@ row 1 done | Both brainstorming stage-proof instructions now read the shared cla
 row 2 done | Replacing the inline table with a read reduced shape-ticket's main file from 48,627 to 47,144 bytes without changing any class row. | Run scripts/brainstorming-contract.test.mjs to check the six class names and all three read pointers.
 row 3 done | Both replay models kept the CI-only ticket row verbatim and recommended D with the shared class table in context. | Pass a target and sample names to scripts/delivery-stage-authoring.test.mjs to check saved judgments without model calls.
 row 4 done | Both replay models dropped CI-only proof in create and repair, preserved the surviving behavior, and labeled the retired proof in the Reporter note. | Reuse eval/shape-ticket/samples/workflow-stage-proof-create for a step-4 draft check without tools or tracker writes.
+amended | 1 item(s) | Read line on the second gate run

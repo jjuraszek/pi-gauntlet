@@ -198,7 +198,7 @@ Add one bullet under `## Unreleased` in `CHANGELOG.md` (create that heading abov
 ## Errors and edge cases
 
 - Shape-ticket's new read line carries no "unreadable" clause. Its five existing reference reads carry none and the file ships in the same folder, so no new stop path is added.
-- The integrity gate runs during gather and again on the assembled draft for every ticket, batch mode included (`skills/shape-ticket/SKILL.md:153`, `skills/shape-ticket/reference/repo-audit.md:76`). The read line says "now", like the examples read below it; a later gate run reuses the table already loaded in context, never a prior gate result.
+- The integrity gate runs during gather and again on the assembled draft for every ticket, batch mode included (`skills/shape-ticket/SKILL.md:153`, `skills/shape-ticket/reference/repo-audit.md:76`). D2's read line is the whole instruction: it says "now", like the examples read below it (`skills/shape-ticket/SKILL.md:176`), and carries no reuse wording. The table is in context after the first gate run, so the second run needs no further instruction; each run judges the current ticket's rows, never a prior gate result.
 - Brainstorming's first-use rule is unchanged: the table is read once at checklist step 4 and reused at spec-writing.
 - A consumer's overrides file that cites `shape-ticket/SKILL.md` `## AC integrity gate` for the class table still resolves to the gate, whose read line leads to the table. No migration is needed.
 - When `npm test` reports a committed eval record or an `intent.md` binding outside the seven samples as stale against the changed assembly, that sample is re-run with the same paid action and its record committed; the selection grows by exactly the samples the test names.
