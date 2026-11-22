@@ -15,7 +15,7 @@ Allowance 4; row 1 starts open at attempts 0. Binding checks pass. On pi the wor
 - F. Inline instead: neither `subagent` nor `gauntlet_setting` exists. Observe two supplied results in order. First seed: no prior repairs, clean tree, zero commits at iteration 1. Next inline seed: exactly one new test-changing commit since its own `HEAD_BEFORE`, clean tree, open row at attempts 0 and a selective evidence command that ran and failed. There is no worker, return file or model.
 
 ## Output
-For each variant give only changed ledger facts and the next action. For a budget stop give the exhausted count, not a ledger transcript. For F classify both supplied observations; state what admits the second.
+For each variant give only changed ledger facts and the next action. For a budget stop, quote the exhausted counter line verbatim in the form the procedure defines, without a ledger transcript. For F classify both supplied observations; state what admits the second.
 
 ## Stop boundary
 Stop at each decision. Do not execute a retry or row attempt, simulate cleanup, or enter a gate or landing.
