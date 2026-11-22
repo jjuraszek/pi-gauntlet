@@ -185,7 +185,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    | Seed result | Action |
    |---|---|
    | Row status `done` | Abort (pre-land): `baseline already passes: repro not captured` |
-   | Empty diff | Require the record's `evidence-command` or an evidence path present before this dispatch (`git -C <WORKTREE> cat-file -e <HEAD_BEFORE>:<path>`); a failed proof is a seed miss |
+   | Empty diff | Admit only when the returned evidence command equals the record's `evidence-command` or names a path present at `HEAD_BEFORE`, proved by `git -C <WORKTREE> cat-file -e <HEAD_BEFORE>:<path>`; otherwise treat as a seed miss |
    | Zero commits, dispatch error without a commit, missing or malformed return file, row, counts, or decision, or any other seed miss | Apply [seed repair](reference/attempt-budget.md) |
    | All checks pass | Apply the admitted result below, then issue the first row attempt |
 
