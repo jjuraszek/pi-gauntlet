@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Retry a missed hotfix seed with the reason in the next worker's hint, without spending a row attempt. After two consecutive malformed row returns, give the next allowed attempt the latest reason instead of stopping early. Once the row first passes, gate, conformance and review repairs get a fresh allowance (four by default), even when the implementation needed its last attempt.
+
 ## v8.8.6 - 2026-11-20
 
 - Moved the acceptance-criteria class table to `skills/shape-ticket/reference/ac-classes.md`. Brainstorming reads that file instead of shape-ticket's main file. (#154)

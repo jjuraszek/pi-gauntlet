@@ -16,7 +16,8 @@ test("chase-bug prose samples preserve slices and reject label leaks", () => {
   assert.deepEqual(target.skillFiles, [
     { path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" },
     { path: "skills/chase-bug/reference/verdict-report.md" },
-    { path: "skills/finishing-a-development-branch/reference/commit-message.md", new: true },
+    { path: "skills/finishing-a-development-branch/reference/commit-message.md" },
+    { path: "skills/chase-bug/reference/attempt-budget.md", new: true },
   ]);
   for (const sample of ["prose-verdict-above-menu", "returned-ticket-link"]) {
     const { bundle } = parseCase(read(`eval/chase-bug/samples/${sample}/case.md`));

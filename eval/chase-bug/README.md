@@ -7,9 +7,13 @@ approval, writes, or hotfix execution.
 | Skill file | Slice |
 |---|---|
 | `skills/chase-bug/SKILL.md` | Step 5 through before Quick Reference |
-| `skills/chase-bug/reference/verdict-report.md` | Whole file; candidate-only at the comparison base |
+| `skills/chase-bug/reference/verdict-report.md` | Whole file |
+| `skills/finishing-a-development-branch/reference/commit-message.md` | Whole file |
+| `skills/chase-bug/reference/attempt-budget.md` | Whole file; candidate-only at the comparison base |
 
 Gate samples additionally bundle the whole skill and shared menu-layout reference.
+Hot-fix seed, row, and repair samples bundle `skills/chase-bug/hotfix.md`
+and omit the verdict-report reference.
 The whole-reply cap is 700 words; each checkpoint's report has its own
 under-180-word fact and five-source-line Context cap.
 
@@ -25,9 +29,9 @@ under-180-word fact and five-source-line Context cap.
 | `gate-line-first` | Gate marker before report text |
 | `menu-after-numbered-findings` | Numeric selection after an earlier numbered findings list |
 
-Run one selected sample with `node eval/run.mjs chase-bug sectioned-report-order
---base 78e63174692a261a5864a27b17f8ba3727a388aa` (one shell line). Process and
-record schema: [`eval/README.md`](../README.md).
+Run one selected sample with `node eval/run.mjs chase-bug sectioned-report-order`.
+The default comparison base is `git merge-base HEAD origin/main`.
+Process and record schema: [`eval/README.md`](../README.md).
 
 Recheck committed evidence without model calls using
 `node eval/chase-bug/check-report.mjs sectioned-report-order`. The checker requires

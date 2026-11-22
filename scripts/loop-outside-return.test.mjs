@@ -64,13 +64,13 @@ function historicalModels(candidate, baseline) {
   return models;
 }
 
-function savedReplies(name, sample, facts) {
+function savedReplies(name, sample, facts, { currentFacts = false } = {}) {
   const dir = `eval/${name}`;
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
   const target = JSON.parse(read(`${dir}/target.json`));
   read(`${dir}/samples/${sample}/case.md`);
-  read(`${dir}/samples/${sample}/expected.md`);
+  const expected = read(`${dir}/samples/${sample}/expected.md`);
   read(`${dir}/replay.md`);
   assert.match(candidate.skillSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded skill hash');
   assert.match(candidate.inputSha, /^[a-f0-9]{64}$/, 'historical saved replies: recorded input hash');
@@ -80,6 +80,7 @@ function savedReplies(name, sample, facts) {
   return historicalModels(candidate, baseline).map(model => {
     assert.ok(cellReusable(candidate, model, identity), 'historical saved replies: reply matches recorded identity');
     const judgment = candidate.judge[model];
+    if (currentFacts) assert.equal(judgment.factsSha, sha256(expected), `${sample}: judgment covers the current seed repair fact`);
     const baselineOutputSha = sha256(baseline.outputs[model].text);
     const candidateOutputSha = sha256(candidate.outputs[model].text);
     for (const key of ['factsSha', 'judgePromptSha', 'intentSha']) {
@@ -234,10 +235,11 @@ test('historical saved replies: outside-ledger publication writes only the priva
   }
 });
 
-test('historical saved replies: parent decisions distinguish gatekeep misses, hotfix seed aborts and hotfix row misses', () => {
+test('saved replies: parent decisions distinguish gatekeep misses, hotfix seed repairs and hotfix row misses', () => {
   savedReplies('gatekeep-pr', 'fix-row-file-observation', ['admission']);
-  for (const sample of ['hotfix-seed-file-observation', 'hotfix-row-return-file']) {
-    savedReplies('chase-bug', sample, ['admission']);
+  savedReplies('chase-bug', 'hotfix-row-return-file', ['admission']);
+  for (const sample of ['hotfix-seed-file-observation', 'hotfix-return-file']) {
+    savedReplies('chase-bug', sample, ['admission'], { currentFacts: true });
   }
 });
 
@@ -250,7 +252,13 @@ test('outside-ledger parents keep pending-only state and name every file failure
   }
   assert.match(gatekeep, /validation miss[\s\S]*attempts = saved attempts \+ 1/);
   assert.match(gatekeep, /Charge no round for a validation miss/);
-  assert.match(hotfix, /any other seed miss \| Abort \(pre-land\), no seed retry/);
+  const seedAdmission = hotfix.slice(hotfix.indexOf('**Seed admission'), hotfix.indexOf('**Row admission'));
+  assert.match(seedAdmission, /seed miss[^\n]*\|[^\n]*(?:seed repair|repair seed)/i, 'route a missed seed to seed repair');
+  const resolve = hotfix.slice(hotfix.indexOf('2. **Resolve'), hotfix.indexOf('3. **Worktree'));
+  assert.ok(resolve.includes('reference/attempt-budget.md'), 'read the budget before creating the worktree');
+  const budget = read('skills/chase-bug/reference/attempt-budget.md');
+  assert.ok(budget.includes('repair seed | seed miss: <concrete miss> | iteration <consumed>'));
+  assert.ok(budget.includes('row 1 passed | first done | attempts <k>'));
   assert.match(hotfix, /Remove any remaining return file.*every exit/);
   assert.match(coordinated, /Delete this file after admission, after a validation-miss repair and in interrupted recovery/);
 });

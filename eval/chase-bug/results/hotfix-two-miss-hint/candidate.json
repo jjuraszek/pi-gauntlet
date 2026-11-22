@@ -1,0 +1,70 @@
+{
+  "sample": "hotfix-two-miss-hint",
+  "arm": "candidate",
+  "skillSha": "253651f5f5623cc47b0de33010b97e9b32d475094e156853be2ace2bf935165c",
+  "inputSha": "5643fef41d0b6e6ee1e3820917d9423ae9e2218d0bb262e6c08d83fcc9c9916e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Hotfix row 1: next parent action for snapshots A–E\n\nAll five snapshots use allowance 4. In A–D the return file is missing, which counts as a row-1 validation miss. In each of those, clear `pending:`; there is no return file to delete.\n\n## A — consumed iteration 3\n\n**Changed ledger facts**\n- Row 1: `| 1 | failed | 2 | attempt 2: return file missing |`\n- Appended to `## Decisions`: `repair row 1 | return file missing | iteration 3`\n\n**Next action:** dispatch a retry.\n- Attempts are 2. That is below 4 and is not the last allowed attempt, so no escalation and no `model:`.\n- There are two `repair row 1` lines (iterations 2 and 3) with no admitted row-1 decision since the seed. The two-miss hint therefore applies.\n- **target:** `1`\n- **previous decision:** `none`\n- **hint:** `two returns broke the contract: return file missing`\n\n## B — consumed iteration 4\n\n**Changed ledger facts**\n- Row 1: `| 1 | failed | 3 | attempt 3: return file missing |`\n- Appended: `repair row 1 | return file missing | iteration 4`\n- Appended: `row 1 escalated | implModel round | allowed attempts 4`\n\n**Next action:** dispatch an escalated retry.\n- Attempts are 3, which equals allowance − 1. This is the last allowed attempt, so add `model: <escalationLoop.implModel>`.\n- The streak is 1, because the admitted `row 1 failed` decision reset it. No two-miss line.\n- **target:** `1`\n- **previous decision:** `none`\n- **hint:** `none`\n\n## C — consumed iteration 4\n\n**Changed ledger facts**\n- Row 1: `| 1 | failed | 3 | attempt 3: return file missing |`\n- Appended: `repair row 1 | return file missing | iteration 4`\n- Appended: `row 1 escalated | implModel round | allowed attempts 4`\n\n**Next action:** dispatch an escalated retry.\n- Attempts are 3, so this is the last allowed attempt. Add `model: <escalationLoop.implModel>`.\n- Two `repair row 1` lines (iterations 3 and 4) follow the last admitted `row 1 failed`, so the two-miss hint applies.\n- **target:** `1`\n- **previous decision:** `none`\n- **hint:** `two returns broke the contract: return file missing`\n\n## D — consumed iteration 5 (the escalated attempt)\n\n**Changed ledger facts**\n- Row 1: `| 1 | failed | 4 | attempt 4: return file missing |`\n- Appended: `repair row 1 | return file missing | iteration 5`\n\n**Next action:** stop with a pre-land abort. No dispatch.\n- **Stopping condition:** a repair is required (row 1 is not `done`) and attempts (4) ≥ allowance (4). The budget is exhausted.\n- The abort report must quote, verbatim and in ledger order:\n  - row 1's `attempts` cell;\n  - every `## Decisions` line: the seed line, both admitted `row 1 failed` lines, both `repair row 1` lines and the `row 1 escalated` line.\n- Print the report before tearing down the ledger. Then follow pre-land cleanup and the baseline re-check, and return to the chase-bug step-4 menu.\n\n## E — A's snapshot, valid return at iteration 3\n\n**Admission:** the return passes. Attempts are 2, which is the saved 1 + 1. The row and the decision both say `failed`.\n\n**Changed ledger facts**\n- Row 1: `| 1 | failed | 2 | <the returned selective failing evidence> |`\n- Appended: `row 1 failed | A blank name still passes. | Check the name before saving.`\n- `pending:` cleared; the return file is deleted through the deletion recipe.\n\n**Next action:** dispatch a retry.\n- Attempts are 2: below 4 and not allowance − 1, so no escalation and no `model:`.\n- The admitted decision ended the miss streak, so no two-miss line.\n- **target:** `1`\n- **previous decision:** `row 1 failed | A blank name still passes. | Check the name before saving.`\n- **hint:** `none`\n",
+      "words": 538,
+      "wallMs": 25253,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\n- Row 1: `failed`, attempts **2**, evidence `attempt 2: missing return file`.\n- Append `repair row 1 | missing return file | iteration 3`.\n- Clear `pending:`.\n- **Next:** dispatch `target: 1`; `previous decision: none`; hint: `two returns broke the contract: missing return file`. No model override.\n\n### B\n- Row 1: `failed`, attempts **3**, evidence `attempt 3: missing return file`.\n- Append `repair row 1 | missing return file | iteration 4`.\n- Clear `pending:`.\n- Before dispatch, append `row 1 escalated | implModel round | allowed attempts 4`.\n- **Next:** dispatch `target: 1`, `model: <implModel>`; `previous decision: none`; `hint: none`. The admitted failure ended the earlier miss streak; this is only one consecutive miss.\n\n### C\n- Row 1: `failed`, attempts **3**, evidence `attempt 3: missing return file`.\n- Append `repair row 1 | missing return file | iteration 4`.\n- Clear `pending:`.\n- Before dispatch, append `row 1 escalated | implModel round | allowed attempts 4`.\n- **Next:** dispatch `target: 1`, `model: <implModel>`; `previous decision: none`; hint: `two returns broke the contract: missing return file`.\n\n### D\n- Row 1: `failed`, attempts **4**, evidence `attempt 4: missing return file`.\n- Append `repair row 1 | missing return file | iteration 5`.\n- Clear `pending:`.\n- **Next:** abort pre-land: repair required with attempts **4 >= allowance 4**. No dispatch.\n\nExhaustion report — attempts cell: `4`; decisions in order:\n```text\nrow 0 done | seeded 1 rows, closed 0 on baseline | 1\nrow 1 failed | A blank name still passes. | Check the name before saving.\nrow 1 failed | Spaces still pass. | Check the trimmed name.\nrepair row 1 | unreadable file | iteration 4\nrow 1 escalated | implModel round | allowed attempts 4\nrepair row 1 | missing return file | iteration 5\n```\n\n### E\n- Admit row 1: `failed`, attempts **2**, with the returned selective failing evidence.\n- Append `row 1 failed | A blank name still passes. | Check the name before saving.`\n- Clear `pending:` and delete the admitted return file.\n- **Next:** dispatch `target: 1`; `previous decision: row 1 failed | A blank name still passes. | Check the name before saving.`; `hint: none`. No model override. The admitted failure ends the miss streak.\n",
+      "words": 320,
+      "wallMs": 18667,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "775030aa08050a739e4597884728a97df21ed3da53e4c2be89469d521d617291",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac8adadb1eb00d6efca236f6b090ae0908870d832e4e8551560c1ae72f42486",
+      "baselineOutputSha": "17dae938c225bd739e3b3edc4e9590d816119c26be631f9c6312fa7e495aefb8",
+      "candidateOutputSha": "c7c6b570adfc8837dbe59c115f46e6e3735a9a9650cf0ceac246bf4cd8f80d9d",
+      "facts": {
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The instruction to read the order of misses and admitted returns from the ledger and carry the latest reason into the next permitted dispatch, rather than stopping early, is what moved the hint fact. Before aborted pre-land on the second consecutive miss in A, C and D and recorded no `repair row 1` decision line for the current miss. After records the miss at the current iteration in every snapshot, bumps attempts, and retries A and C with target 1, previous decision none and `two returns broke the contract: return file missing`. It keeps B hint-free because the admitted failure separates the misses, stops D only on the spent row budget without dispatch, and has E carry the admitted decision with no two-returns hint. Before kept no fact that After lost, so nothing needs restoring. To keep this stable, state explicitly that the streak counts only `repair row 1` lines after the last admitted row decision, that escalation lines neither break nor extend it, and that the budget check (attempts ≥ allowance) is the only stop. Also fix the reason order in the hint text (e.g. 'missing return file' vs 'return file missing') if exact wording matters downstream.",
+      "wallMs": 7854,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "775030aa08050a739e4597884728a97df21ed3da53e4c2be89469d521d617291",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "cac8adadb1eb00d6efca236f6b090ae0908870d832e4e8551560c1ae72f42486",
+      "baselineOutputSha": "4b9400a5b0693aa41a086df529d44003cdda9ecb9c3b4ae46f5178c232209686",
+      "candidateOutputSha": "179db82b2914cd1c3aeb80804b46b99f25658d6d5cb98b836e30be96e4710c98",
+      "facts": {
+        "hint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the hint fact by replacing the 'second consecutive validation miss' pre-land abort with a recorded repair decision plus a retry: A now appends `repair row 1 | missing return file | iteration 3`, sets attempts 2 and dispatches target 1 with previous decision none and the `two returns broke the contract: missing return file` hint; B and C each record the miss at iteration 4 with attempts 3 and previous decision none, with only C carrying the two-returns hint and B explicitly noting the admitted failure ended the streak; D spends attempt 4 and aborts pre-land on row budget exhaustion without dispatch; E admits the failed return at attempts 2 and dispatches with the admitted decision and no two-returns hint. Before failed because A, C and D stopped early on a consecutive-miss rule, never recorded the repair lines, and D named the consecutive miss rather than budget exhaustion as the primary stop. Before held nothing here that After lost, so keep the ledger-order reading of misses and admitted returns as worded. Two things to tighten: D reproduces the decision list in an exhaustion report even though the case says not to reproduce the ledger, so limit the stop output to the stopping condition and changed facts; and the escalation line appended in B and C is outside this fact, so make sure the wording that triggers it at attempts 3 is intended rather than a side effect of the retry rule.",
+      "wallMs": 6137,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "4e178448fbb2470e350b7a75f96d21fc57d0ce29"
+}
