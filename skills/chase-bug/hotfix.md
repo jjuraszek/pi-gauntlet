@@ -35,7 +35,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `## Bug report` sections, plus `evidence-command` on the dependency exception;
    missing -> abort (pre-land, nothing created). Reprint the menu-time evaluation
    verbatim: `eligible` or `not eligible: <predicate>`. Never re-derive, never block.
-2. **Resolve before mutating.** `SCOPED_TEST_COMMANDS`: the gauntlet overrides
+2. **Resolve before mutating.** Read [the attempt budget](reference/attempt-budget.md) at its absolute path resolved against this skill directory. On a read failure, abort pre-land before creating anything and name the unreadable path. `SCOPED_TEST_COMMANDS`: the gauntlet overrides
    file's verification section (`## verification-before-completion`, or a section
    matching the verification topic), else `AGENTS.md` or the project's documented
    test command. The full project test target is acceptable. Add the record's repro
@@ -119,8 +119,8 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    existing repo-relative path, in that order; none present -> `Rules: none`.
    Never substitute a primary-checkout path for a Rules path.
 
-   Before every `target: 1` dispatch, apply Attempt budget below, including its
-   model selection. Before each dispatch, save row 1's `attempts`, the ledger's
+   Before every `target: seed` dispatch, apply the [seed budget](reference/attempt-budget.md). Before every `target: 1` dispatch, apply Attempt budget below, including its model selection.
+   Before each dispatch, save row 1's `attempts`, the ledger's
    current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
    write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
@@ -133,7 +133,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
      task: "<binding block>\n\niteration: <i>\nspec: <absolute $TMPDIR/hotfix-<slug>.md path>\nledger: <absolute $TMPDIR/hotfix-ledger-<slug>.md path>\nbase: <BASE_SHA>\ntarget: <seed | 1>\nprevious decision: <line or none>\nhint: <text or none>\nLeg: hotfix\nmapped original AC: row 1 -> AC 1, leg hotfix\nRules: <repo-relative path or none>\npending: <target> | hotfix | <HEAD_BEFORE>\nwording: <absolute shared reference path>\nticket: <reference or none>\nreturn: <absolute checkout-local return file>\nSCOPED_TEST_COMMANDS: <commands>" })
    ```
 
-   Use `previous decision: none` for seed, then the admitted seed decision for
+   Use `previous decision: none` for every seed, then the admitted seed decision for
    the first row attempt. Set the seed hint to `apply your seed contract: write
    or identify the failing regression test for row 1 and record its command`.
    On the dependency exception, replace it with `apply your seed contract: the
@@ -158,7 +158,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    Keep the `BLOCKED:` opening line: pi-cohort treats it as a dispatch error
    carrying the full output before the child's completion guard runs.
    After each return, run `binding_check` before reading the decision or handling
-   a dispatch error; a failed check -> `binding_abort`. Then apply these checks
+   a dispatch error; a failed check -> `binding_abort`. After a passing check, a `BLOCKED:` first line aborts pre-land before any miss handling; record no repair. Otherwise apply these checks
    in order, reading the return file rather than the message or child's reply:
 
    **Boundary.** Run `git -C <WORKTREE> status --porcelain` and
@@ -185,8 +185,8 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    | Seed result | Action |
    |---|---|
    | Row status `done` | Abort (pre-land): `baseline already passes: repro not captured` |
-   | Empty diff | Admit only when the evidence command equals the record's `evidence-command` or names a path present at `BASE_SHA`, proved by `git -C <WORKTREE> cat-file -e <BASE_SHA>:<path>`; otherwise treat as a seed miss |
-   | Zero commits, dispatch error without a commit, missing or malformed return file, row, counts, or decision, or any other seed miss | Abort (pre-land), no seed retry |
+   | Empty diff | Require the record's `evidence-command` or an evidence path present before this dispatch (`git -C <WORKTREE> cat-file -e <HEAD_BEFORE>:<path>`); a failed proof is a seed miss |
+   | Zero commits, dispatch error without a commit, missing or malformed return file, row, counts, or decision, or any other seed miss | Apply [seed repair](reference/attempt-budget.md) |
    | All checks pass | Apply the admitted result below, then issue the first row attempt |
 
    **Row admission (`target: 1`).** Require exactly one new commit, the return file above, and row
