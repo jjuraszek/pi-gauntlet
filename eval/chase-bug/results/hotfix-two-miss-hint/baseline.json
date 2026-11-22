@@ -1,0 +1,34 @@
+{
+  "sample": "hotfix-two-miss-hint",
+  "arm": "baseline",
+  "skillSha": "c382528a0b2e2e45d89137f15defae35f5ecedd9e885f621f8e01816cf0e9697",
+  "inputSha": "5643fef41d0b6e6ee1e3820917d9423ae9e2218d0bb262e6c08d83fcc9c9916e",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**A:** consumed iteration 3, return file missing.\n- **Ledger changes:**\n  - Row 1 becomes `failed`.\n  - Attempts go from 1 to 2.\n  - Evidence becomes `attempt 2: return file missing`.\n  - Clear `pending:`.\n  - Delete the return file (it is already absent).\n- **Next action:** stop with a pre-land abort.\n- **Stopping condition:** this is the second validation miss in a row (iteration 2 missed, then iteration 3 missed).\n\n**B:** consumed iteration 4, return file missing.\n- **Ledger changes:**\n  - Row 1 becomes `failed`.\n  - Attempts go from 2 to 3.\n  - Evidence becomes `attempt 3: return file missing`.\n  - Clear `pending:`.\n  - Delete the return file (it is already absent).\n  - This is the first miss in a row, because the admitted failure on iteration 3 reset the count.\n- **Ledger changes before dispatch:**\n  - Attempts (3) now equal the allowance minus 1, so this is the last allowed attempt.\n  - Append `row 1 escalated | implModel round | allowed attempts 4`.\n  - Set `iterations: 5`.\n  - Set `pending: 1 | hotfix | <current HEAD>`.\n- **Next action:** dispatch the escalated retry.\n  - Target: `target: 1`, with `model: <implModel>`.\n  - Previous decision: `none`.\n  - Hint: `none`.\n  - Other inputs: `iteration: 4` and the return file for iteration 5.\n\n**C:** consumed iteration 4, return file missing.\n- **Ledger changes:**\n  - Row 1 becomes `failed`.\n  - Attempts go from 2 to 3.\n  - Evidence becomes `attempt 3: return file missing`.\n  - Clear `pending:`.\n  - Delete the return file (it is already absent).\n- **Next action:** stop with a pre-land abort.\n- **Stopping condition:** this is the second validation miss in a row (iteration 3 missed, then iteration 4 missed). The earlier admitted failure came before the iteration 3 miss, so it does not break the run.\n\n**D:** consumed iteration 5, return file missing.\n- **Ledger changes:**\n  - Row 1 becomes `failed`.\n  - Attempts go from 3 to 4.\n  - Evidence becomes `attempt 4: return file missing`.\n  - Clear `pending:`.\n  - Delete the return file (it is already absent).\n- **Next action:** stop with a pre-land abort.\n- **Stopping condition:** this is the second validation miss in a row (iteration 4 missed, then iteration 5 missed). The escalation entry is not a return, so it does not break the run.\n  - The budget is also exhausted, since attempts (4) equal the allowance (4).\n  - The abort report quotes the attempts cell `4` and every `## Decisions` line verbatim, in ledger order.\n\n**E:** A's snapshot, with a readable and admissible return file.\n- **Ledger changes:**\n  - Row 1 becomes `failed`.\n  - Attempts go from 1 to 2.\n  - Evidence becomes the returned selective failing evidence.\n  - Append `row 1 failed | A blank name still passes. | Check the name before saving.` to `## Decisions`.\n  - Clear `pending:`.\n  - Delete the return file.\n  - Reset the consecutive-miss count to 0.\n- **Ledger changes before dispatch:**\n  - Attempts (2) are below the allowance minus 1 (3), so this is an ordinary attempt with no escalation.\n  - Set `iterations: 4`.\n  - Set `pending: 1 | hotfix | <current HEAD>`.\n- **Next action:** dispatch an ordinary retry.\n  - Target: `target: 1`, with no `model:`.\n  - Previous decision: `row 1 failed | A blank name still passes. | Check the name before saving.`\n  - Hint: `none`.\n  - Other inputs: `iteration: 3` and the return file for iteration 4.\n",
+      "words": 489,
+      "wallMs": 23703,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**A**\n- Row 1: `failed`, attempts **2**, evidence `attempt 2: missing return file`.\n- Clear `pending:`; consecutive misses become **2**.\n- **Next:** pre-land abort — second consecutive validation miss. No dispatch.\n\n**B**\n- Row 1: `failed`, attempts **3**, evidence `attempt 3: missing return file`.\n- Clear `pending:`; consecutive misses become **1**.\n- Append `row 1 escalated | implModel round | allowed attempts 4`.\n- For the next dispatch, set iterations to **5** and pending to `1 | hotfix | <current HEAD>`.\n- **Next:** dispatch with `target: 1`, `previous decision: none`, `hint: none`, and `model: <implModel>`. Pass pre-bump `iteration: 4`.\n\n**C**\n- Row 1: `failed`, attempts **3**, evidence `attempt 3: missing return file`.\n- Clear `pending:`; consecutive misses become **2**.\n- **Next:** pre-land abort — second consecutive validation miss. No dispatch.\n\n**D**\n- Row 1: `failed`, attempts **4**, evidence `attempt 4: missing return file`.\n- Clear `pending:`; consecutive misses become **2**.\n- **Next:** pre-land abort — second consecutive validation miss; the attempt budget is also exhausted. No dispatch or additional escalation entry.\n\n**E**\n- Admit row 1: `failed`, attempts **2**, with the returned evidence.\n- Append `row 1 failed | A blank name still passes. | Check the name before saving.`\n- Clear `pending:`; reset consecutive misses to **0**.\n- For the next dispatch, set iterations to **4** and pending to `1 | hotfix | <current HEAD>`.\n- **Next:** dispatch with `target: 1`, `previous decision: row 1 failed | A blank name still passes. | Check the name before saving.`, and `hint: none`. Pass pre-bump `iteration: 3`; omit `model:`.\n",
+      "words": 226,
+      "wallMs": 14237,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "4e178448fbb2470e350b7a75f96d21fc57d0ce29"
+}

@@ -197,7 +197,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    is a validation miss (no progress).
 
    **Admitted result.** The parent writes the row, appends the decision to
-   `## Decisions`, clears `pending:`, deletes the return file, and resets the consecutive-miss count.
+   `## Decisions`, clears `pending:`, and deletes the return file.
    For row 1, `done` -> step 5; `failed` -> next attempt under Attempt budget,
    with the admitted decision as `previous decision`.
 
@@ -205,10 +205,10 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    without a commit, missing or malformed return file/row/decision, attempts not equal to
    saved attempts + 1, status disagreement, or an empty row commit as a miss.
    Write row 1 `failed`, attempts = saved attempts + 1, and evidence
-   `attempt <n>: <concrete miss>`; clear `pending:`, delete the return file and use
-   `previous decision: none` for the next dispatch under Attempt budget.
-   Count consecutive misses across row returns; the second consecutive miss ->
-   abort (pre-land).
+   `attempt <n>: <concrete miss>`. Append `repair row 1 | <concrete miss> | iteration <consumed>`
+   to `## Decisions` with the bumped `iterations:` value. Clear `pending:` and delete the return file.
+   Check the attempt budget; for a permitted retry, use `previous decision: none` and apply
+   the [two-miss hint](reference/attempt-budget.md#two-miss-hint).
 
 ## Attempt budget
 

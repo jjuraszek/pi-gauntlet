@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Retry a missed hotfix seed with the reason in the next worker's hint, without spending a row attempt.
+- Retry a missed hotfix seed with the reason in the next worker's hint, without spending a row attempt. After two consecutive malformed row returns, give the next allowed attempt the latest reason instead of stopping early.
 
 ## v8.8.6 - 2026-11-20
 
