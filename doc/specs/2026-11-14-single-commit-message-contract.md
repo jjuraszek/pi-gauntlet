@@ -1,6 +1,7 @@
 # One commit-message contract: plain subjects, ledger-held loop state, composed landed messages
 
 > **Superseded by:** [doc/specs/2026-11-17-gh-158-resume-handoff-current-shape.md](./2026-11-17-gh-158-resume-handoff-current-shape.md) - the legacy conversion in "4. Resume", the legacy-block exemption in "7. Lint" and the two resume conversion sentences only
+> **Superseded by:** [doc/specs/2026-11-22-chase-bug-hotfix-retry-flexibility.md](./2026-11-22-chase-bug-hotfix-retry-flexibility.md) - the hot-fix seed disposition only (an abort before landing with no retry for a clean one-commit seed return whose return file is missing, unreadable, or mismatched) in the out-of-repo-ledger acceptance row, "3. Loop ledger protocol", and "Errors and edge cases"; the return-file transport and cleanup contract stays live
 
 **Goal:** Every commit, squash message and pull request title the framework writes takes its wording from one shared reference (a short plain subject, no file references, readable without the code, no internal label such as `loop:`), and the loop engine keeps its bookkeeping in the ledger and a return file so no check reads commit text.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.

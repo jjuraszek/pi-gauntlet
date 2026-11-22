@@ -1,6 +1,7 @@
 # chase-bug hotfix: loop-implementer and mandatory conformance
 
 > **Superseded by:** [doc/specs/2026-11-14-single-commit-message-contract.md](./2026-11-14-single-commit-message-contract.md) - the `loop: seed evidence` / `loop: row 1 <status>` subject requirements, the commit-body result block in "Dispatch" and its acceptance rows, and the `fix: <slug>` landing subject only
+> **Superseded by:** [doc/specs/2026-11-22-chase-bug-hotfix-retry-flexibility.md](./2026-11-22-chase-bug-hotfix-retry-flexibility.md) - "Attempt budget (steps 4-7)", the no-seed-retry and second-consecutive-miss aborts in "Dispatch (`hotfix.md` step 4)" and "Errors and edge cases", the single-counter wording in "Harness fallback (non-pi path)", and the acceptance row that charges every `target: 1` dispatch to one counter only
 
 Supersedes: `doc/specs/2026-09-03-chase-bug-hotfix.md`, decision 6 "No conformance ceremony" and the single-`implementer` half of decision 8 "Single implementer, one task" (the `plan_tracker`/spec-reviewer exclusion in decision 8 stays live).
 
