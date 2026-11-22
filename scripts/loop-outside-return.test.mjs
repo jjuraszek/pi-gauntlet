@@ -250,7 +250,11 @@ test('outside-ledger parents keep pending-only state and name every file failure
   }
   assert.match(gatekeep, /validation miss[\s\S]*attempts = saved attempts \+ 1/);
   assert.match(gatekeep, /Charge no round for a validation miss/);
-  assert.match(hotfix, /any other seed miss \| Abort \(pre-land\), no seed retry/);
+  const seedAdmission = hotfix.slice(hotfix.indexOf('**Seed admission'), hotfix.indexOf('**Row admission'));
+  assert.match(seedAdmission, /seed miss[^\n]*\|[^\n]*(?:seed repair|repair seed)/i, 'route a missed seed to seed repair');
+  const resolve = hotfix.slice(hotfix.indexOf('2. **Resolve'), hotfix.indexOf('3. **Worktree'));
+  assert.ok(resolve.includes('reference/attempt-budget.md'), 'read the budget before creating the worktree');
+  assert.ok(read('skills/chase-bug/reference/attempt-budget.md').includes('repair seed | seed miss: <concrete miss> | iteration <consumed>'));
   assert.match(hotfix, /Remove any remaining return file.*every exit/);
   assert.match(coordinated, /Delete this file after admission, after a validation-miss repair and in interrupted recovery/);
 });
