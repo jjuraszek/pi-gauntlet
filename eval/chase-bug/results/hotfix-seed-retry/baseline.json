@@ -1,0 +1,34 @@
+{
+  "sample": "hotfix-seed-retry",
+  "arm": "baseline",
+  "skillSha": "c382528a0b2e2e45d89137f15defae35f5ecedd9e885f621f8e01816cf0e9697",
+  "inputSha": "2424a95456661a83557e5b2a27caa5476b3cc454696adb0438226b3624b6bf98",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Every pi variant below ends at the same terminal point: **abort (pre-land)**, with no seed retry. This hotfix flow never retries a seed. A seed miss does not spend a row attempt, so no variant is an allowance stop.\n\n**A. Missing return file, iteration 3**\n- **Ledger:** `iterations: 3` and the seed `pending:` tuple stay as written at dispatch. Row 1 stays `open | 0`. No decision is appended.\n- **Prior decisions:** the two prior `repair seed` decisions carry no weight. The skill has no seed retry, and seeds do not count against the attempt allowance.\n- **Classification:** a missing return file is a seed miss.\n- **Next action:** abort (pre-land), with no seed retry and no budget stop. The exhausted count does not apply; attempts stays 0 of 4.\n\n**B. Missing return file, iteration 4**\n- **Ledger:** `iterations: 4` and the seed `pending:` tuple stay as written. Row 1 stays `open | 0`. No decision is appended.\n- **Prior decisions:** the three prior `repair seed` decisions do not count toward the allowance. `allowance: 4` limits row attempts only.\n- **Classification:** a seed miss.\n- **Next action:** abort (pre-land), with no seed retry. This is still not a budget stop; attempts stays 0 of 4.\n\n**C. Baseline returns `done`**\n- **Ledger:** unchanged. The `done` row is not admitted and no decision is appended.\n- **Next action:** abort (pre-land) with `baseline already passes: repro not captured`.\n\n**D. Uncommitted change in the worktree**\n- **Ledger:** untouched. Attempts stays 0 and the row is not admitted.\n- **Classification:** the boundary check fails because porcelain output is non-empty.\n- **Next action:** abort (pre-land), naming the dirty path. Do not discard the change to make the return admissible.\n\n**E. Empty seed commit**\n- **Ledger:** row 1 stays `open | 0`. No decision is appended.\n- **Classification:** the diff is empty, so it is admissible only on one of two grounds. Neither holds:\n  - The record has no dependency exception, so the command cannot equal its `evidence-command`.\n  - `test/blank-name.test.mjs` does not exist at `BASE_SHA`, so `git cat-file -e <BASE_SHA>:test/blank-name.test.mjs` fails. Existing at `HEAD_BEFORE` does not count.\n- This makes it a seed miss.\n- **Next action:** abort (pre-land), with no seed retry.\n\n**F. Inline harness fallback (neither `subagent` nor `gauntlet_setting` exists)**\n- **Ledger:** the step 3 ledger is written with `allowance: 4`; there is no `implModel`.\n- **First observation (zero commits at iteration 1):** this is a seed miss. Even with no tracked change, the seed must commit once using `--allow-empty`.\n  - The action is abort (pre-land), with no seed retry.\n  - Attempts stays 0.\n  - The first observation is terminal, so the second cannot follow it in the same run.\n- **Second observation:** taken on its own, this is an admitted seed. It qualifies because:\n  - There is exactly one new commit since its own `HEAD_BEFORE`.\n  - The checkout is clean.\n  - `binding_check` passes after the commit.\n  - The commit changes a tracked test file, so the empty-diff rule does not apply.\n  - Row 1 is `open | 0`, with a selective evidence command that ran and failed.\n- No return file, worker reply or model is needed inline.\n- **Ledger on admission:**\n  - The parent writes row 1 `open | 0 | <evidence>`.\n  - It appends `row 0 done | seeded 1 rows, closed 0 on baseline | 1`.\n  - It clears `pending:` and resets the miss count.\n- **Next action after admission:** the first inline row attempt under Attempt budget (not executed here).\n",
+      "words": 536,
+      "wallMs": 25000,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "- **A:** No ledger changes. Abort pre-land: missing seed return file. No seed retry; iteration 3 does not change this rule.\n- **B:** No ledger changes. Abort pre-land: missing seed return file. No seed retry; this is not an allowance-exhaustion stop.\n- **C:** No ledger changes. Abort pre-land: `baseline already passes: repro not captured`.\n- **D:** Ledger untouched; attempts remain 0. Abort pre-land: uncommitted worktree change fails the boundary check.\n- **E:** No ledger changes. Abort pre-land: the empty-diff seed’s evidence path is absent at `BASE_SHA`, and no dependency exception applies. Presence at `HEAD_BEFORE` does not qualify. No seed retry.\n- **F:**\n  - **First observation:** No ledger changes. Abort pre-land: zero seed commits; inline seeding also requires one commit. No seed retry.\n  - **Second observation:** Admit on its own supplied facts: exactly one test-changing commit, a clean checkout, and recorded selective failing evidence. Inline admission requires no worker or return file. Record the evidence in row 1, append `row 0 done | seeded 1 rows, closed 0 on baseline | 1`, and clear any pending seed entry. Attempts remain 0. Next action: the first row-1 attempt, not another seed.\n",
+      "words": 179,
+      "wallMs": 10323,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "fd1ba02a6cf07e7ae55e9fcf81b1197cefbfdc6c"
+}

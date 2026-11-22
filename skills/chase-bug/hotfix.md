@@ -451,15 +451,15 @@ touched `<default>`. Pre-existing dirt is never touched.
 
 ## Harness fallback
 
-With neither `subagent` nor `gauntlet_setting` (the marketplace ships `agents: []`),
-run the duties inline in the same order. Write allowance 4 to the step 3 ledger;
-use no `implModel`. Seed: write or identify the failing test, run it, record its
-command in row 1, and commit once on `hotfix/<slug>` (`--allow-empty` when no
-tracked file changed). Run row attempts under the same counter, reopening, and
-allowance rules in Attempt budget; make the escalated attempt a plain inline
-attempt, with no model dispatch. Run `binding_check` after every inline commit.
+With neither `subagent` nor `gauntlet_setting`, run inline with allowance 4, no return file and no model. Before each seed, save `HEAD_BEFORE` and bump `iterations:`. Write or identify the failing test, run it, record its command in row 1, and commit once (`--allow-empty` for no tracked changes). Run `binding_check` after each inline attempt; on failure take `binding_abort`. Classify the seed in order:
 
-Perform mandatory conformance and review self-checks: audit the diff against the
+| Inline seed result | Action |
+|---|---|
+| Dirty tree, more than one new commit, or passing evidence | Abort pre-land without seed repair; for passing evidence report `baseline already passes: repro not captured` |
+| One new commit, clean tree, row 1 open at attempts 0, selective evidence that ran and failed, and step 4's proof for an empty diff | Admit the seed and select the first inline row attempt |
+| Any other seed result, including zero commits | Apply [seed repair](reference/attempt-budget.md) with no file to delete |
+
+Run row attempts under Attempt budget, with plain inline escalation. Perform mandatory conformance and review self-checks: audit the diff against the
 record's sole AC row, R2/R3, and fenced bug report as context, then review against
 invariants 1-3 and predicates 4-6. Reopen a gap or finding and spend one shared
 attempt on its repair; no attempt remaining -> abort (pre-land). After an admitted

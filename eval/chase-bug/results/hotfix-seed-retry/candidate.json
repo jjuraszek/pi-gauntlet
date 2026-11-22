@@ -1,0 +1,70 @@
+{
+  "sample": "hotfix-seed-retry",
+  "arm": "candidate",
+  "skillSha": "066d7d564c5e4df39abfd6d5e4cc92ea1b6b1e2db17ca5a33a6c305cbb5fc859",
+  "inputSha": "2424a95456661a83557e5b2a27caa5476b3cc454696adb0438226b3624b6bf98",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Hotfix seed decisions (allowance 4)\n\n**A. Missing return file, 2 prior repairs, iteration 3: seed miss, repeat**\n- Append to `## Decisions`: `repair seed | seed miss: return file missing | iteration 3`\n- Row 1 stays `| 1 | open | 0 | |`.\n- Clear `pending:`. There is no return file to delete.\n- Keep the missed commit on `hotfix/<slug>`. The next attempt starts from that commit without a reset.\n- Recount: 3 `repair seed` lines, which is below 4.\n- **Next action:** repeat the full pi dispatch with `target: seed` and `previous decision: none`. Append `seed miss: return file missing` to the original seed hint.\n\n**B. Missing return file, 3 prior repairs, iteration 4: seed miss, budget stop**\n- Append to `## Decisions`: `repair seed | seed miss: return file missing | iteration 4`\n- Recount: 4 `repair seed` lines, which equals the allowance.\n- **Next action:** abort pre-land without another attempt. The exhaustion report states **`seed: 4 of 4`** and is printed before the ledger teardown.\n\n**C. Row returned `done` on baseline and the test passed: terminal abort**\n- The boundary check passes: the tree is clean and there is one new commit.\n- Under seed admission, row status `done` means abort.\n- No `repair seed` line is written and attempts are unchanged.\n- **Next action:** abort pre-land with `baseline already passes: repro not captured`.\n\n**D. Uncommitted change in the worktree: boundary abort**\n- The boundary check fails because `git -C <WORKTREE> status --porcelain` is not empty.\n- Attempts are unchanged and the ledger is untouched. No repair line is written.\n- The changes are not discarded.\n- **Next action:** abort pre-land and name the dirty path or paths.\n\n**E. Empty retry commit; test file committed by the earlier miss: admit**\n- The diff is empty and the record has no `evidence-command`, so admission needs the path proof.\n- `git -C <WORKTREE> cat-file -e <HEAD_BEFORE>:test/blank-name.test.mjs` succeeds, so the proof passes.\n- The path is checked at `HEAD_BEFORE`, so its absence at `BASE_SHA` does not matter.\n- The evidence is selective and it failed. There is exactly one commit, the tree is clean, and the tuple, iteration and decision match.\n- Changes from the admitted result:\n  - Row 1 becomes `| 1 | open | 0 | <evidence> |`.\n  - Append `row 0 done | seeded 1 rows, closed 0 on baseline | 1` to `## Decisions`.\n  - Clear `pending:`, delete the return file, and reset the consecutive-miss count.\n  - The earlier `repair seed` line stays.\n- **Next action:** dispatch the first row attempt with `target: 1`.\n  - Pass the admitted seed decision as `previous decision`, with `hint: none`.\n  - Attempts are 0, below the allowance, and not at allowance − 1, so this is an ordinary attempt with no `model:`.\n\n**F. Inline (neither tool present): first a miss, then an admit**\n- **First observation (zero commits, clean tree, iteration 1):**\n  - This falls under \"any other seed result\", so apply seed repair with no file to delete.\n  - Append `repair seed | seed miss: zero commits | iteration 1`.\n  - Row 1 stays `| 1 | open | 0 | |`.\n  - Recount: 1 line, below 4, so redo the inline seed. Before it, save the new `HEAD_BEFORE` and bump `iterations:` to 2.\n- **Second observation:**\n  - It shows one new test-changing commit since its own `HEAD_BEFORE`.\n  - The tree is clean, row 1 is open at attempts 0, and the selective evidence ran and failed.\n  - Binding checks pass.\n  - The diff is non-empty, so no path proof is needed.\n  - It matches the inline admit row, so the seed is admitted and row 1 records the evidence command.\n- **Next action:** select the first inline row attempt under Attempt budget. Attempts are 0 of 4, so this is an ordinary attempt with no escalation.\n",
+      "words": 572,
+      "wallMs": 24709,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**A**\n- Append `repair seed | seed miss: missing return file | iteration 3`.\n- Clear `pending:`.\n- Next: repeat the full pi seed dispatch with `previous decision: none` and `seed miss: missing return file` appended to the original seed hint. Retain the missed commit.\n\n**B**\n- Append `repair seed | seed miss: missing return file | iteration 4`.\n- Clear `pending:`.\n- Next: abort pre-land; `seed: 4 of 4`. No further attempt.\n\n**C**\n- No ledger changes.\n- Next: abort pre-land: `baseline already passes: repro not captured`. Do not record a seed repair.\n\n**D**\n- No ledger changes.\n- Next: abort pre-land, naming the uncommitted change. Do not record a seed repair.\n\n**E**\n- Update row 1’s evidence with the returned failing command and results.\n- Append `row 0 done | seeded 1 rows, closed 0 on baseline | 1`.\n- Clear `pending:`.\n- Next: admit the seed and select the first row attempt. The empty-diff proof passes because `test/blank-name.test.mjs` existed at this dispatch’s `HEAD_BEFORE`; existence at `BASE_SHA` is not required.\n\n**F**\n- First observation: append `repair seed | seed miss: zero commits | iteration 1`.\n- Next: repeat the inline seed; one repair is below allowance 4.\n- Second observation: record the failing evidence in row 1 and append `row 0 done | seeded 1 rows, closed 0 on baseline | 1`.\n- Next: admit the seed and select the first inline row attempt. Admission rests on exactly one test-changing commit since its own `HEAD_BEFORE`, a clean tree, an open row at attempts 0, and selective evidence that ran and failed—not a worker, return file, or model.\n",
+      "words": 241,
+      "wallMs": 12332,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "27c724ef5cbe805601a92e298ebbf67e3f01c3bf3f7e168fbfab6c8a6a0952fd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2f423d044f1e7ae8eefc8b813fcf5fcfa58ba9ae738b8a6c0794f0b0216add4e",
+      "baselineOutputSha": "8459f843118db5afacbf9164e7d04f771e1b5d569d8543e88600d56c4d158d42",
+      "candidateOutputSha": "8c06bdee09985b9445129ef3542e38500830b7c31c67028570b00d20585735a1",
+      "facts": {
+        "seed-budget": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved seed-budget by treating a missing return file as a recorded `repair seed` miss that is recounted against the allowance: A appends the third repair line and repeats the seed dispatch with the miss in the hint, B appends the fourth and aborts pre-land reporting `seed: 4 of 4` with no further dispatch, C and D abort terminally (baseline already passes; dirty tree) without writing a repair line, E admits the empty-diff retry by checking the evidence path at `HEAD_BEFORE` rather than `BASE_SHA`, and inline F records a zero-commit repair, selects a redo, then admits the clean one-commit seed with failing selective evidence; row attempts stay at 0 throughout. Before failed every one of the retry-related clauses because it said the flow never retries a seed, appended no decisions, rejected E on the `BASE_SHA` check and treated F's first observation as terminal. Nothing Before held was lost. To keep this stable, keep the explicit wording that seed misses are counted from `repair seed` lines against the allowance, that terminal failures (baseline `done`, dirty tree) write no repair line, that the empty-diff path proof is anchored at this dispatch's `HEAD_BEFORE`, and that inline uses the same bound without a worker, return file or model. Minor tightening: F's second observation could state outright that no return file or model is needed inline (After only implies it), and E's and F's next-action detail about row dispatch parameters goes slightly beyond the 'changed ledger facts and next action only' output request, so trimming it would reduce the risk of drifting past the stop boundary.",
+      "wallMs": 7021,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "27c724ef5cbe805601a92e298ebbf67e3f01c3bf3f7e168fbfab6c8a6a0952fd",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2f423d044f1e7ae8eefc8b813fcf5fcfa58ba9ae738b8a6c0794f0b0216add4e",
+      "baselineOutputSha": "9aa3d926a1bc9e1128167391f76bb072d29edc037338bd1b88e134ff7072b3c0",
+      "candidateOutputSha": "e70b0c1041b6f468f541456705e901df24eb8f9ead115cb8026c5c5bfede4046",
+      "facts": {
+        "seed-budget": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved seed-budget by treating a missing return file as a recorded seed repair rather than a terminal abort: A appends the third `repair seed` and repeats the dispatch with the miss in its hint, B appends the fourth and stops pre-land with `seed: 4 of 4`, C and D abort with their terminal reasons and explicitly record no seed repair, E admits the empty-diff retry because the evidence path exists at this dispatch's `HEAD_BEFORE` rather than `BASE_SHA`, and F records a zero-commit repair, redoes inline, then admits the one-commit seed without a worker, return file or model. Before aborted A, B, E and F's first observation with no ledger change and no retry, so the fact failed there. To keep this holding, preserve the wording that separates terminal failures (baseline already passes, dirty tree) from countable misses (missing/unreadable/mismatched file, zero commits), the rule that the allowance is checked after recording the miss, and the `HEAD_BEFORE` basis for empty-diff evidence. One small gap: After never states outright that row attempts stay at 0 on seed misses (it is only implied by the absence of an attempts change and F's 'open row at attempts 0'); an explicit 'attempts remain 0' line on each seed miss, as Before had in D and F, would make that part of the fact unambiguous.",
+      "wallMs": 6028,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "fd1ba02a6cf07e7ae55e9fcf81b1197cefbfdc6c"
+}
