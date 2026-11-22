@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v8.8.7 - 2026-11-22
 
 - Retry a missed hotfix seed with the reason in the next worker's hint, without spending a row attempt. After two consecutive malformed row returns, give the next allowed attempt the latest reason instead of stopping early. Once the row first passes, gate, conformance and review repairs get a fresh allowance (four by default), even when the implementation needed its last attempt.
 - Require pi-cohort 8.5.1 or newer.
