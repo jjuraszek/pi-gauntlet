@@ -1,0 +1,70 @@
+{
+  "sample": "hotfix-repair-budget",
+  "arm": "candidate",
+  "skillSha": "fe3972e8ac7049cb9ec52dd85ebd298e38ce82dac23fa61146e10a5eed852c02",
+  "inputSha": "1693dcc090c57a1191395c4c57bb248c9f38034828ca27a8920e5f38123ca6b9",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**A.**\n- **Ledger change:** Write row 1 as `done` with attempts 3 and its admitted evidence. Append the admitted decision. Append `row 1 passed | first done | attempts 3`. Clear `pending:` and delete the return file.\n- **Next action:** Resume at step 5 and run the gate set. No dispatch.\n\n**B.**\n- **Ledger change:** Write row 1 as `done` with attempts 4. Append the admitted decision. Do not add a new pass marker; `attempts 3` stays the only one. Clear `pending:` and delete the return file. Earlier step 6 and 7 approvals are invalidated.\n- **Next action:** Resume at step 5 and run the gate set. The fresh audit and review follow on the same HEAD. No dispatch.\n\n**C.**\n- **Ledger change:**\n  - Write row 1 as `failed`, attempts 3 unchanged, with evidence `gate red: test names; blank accepted`.\n  - Append `row 1 reopened | gate: blank accepted | 1`.\n  - The repair counter is 3 − 3 = 0, which is below 4, so a repair is permitted. It is not 3, so there is no escalation.\n  - Bump `iterations:` and write `pending: 1 | hotfix | <HEAD_BEFORE>`.\n- **Next action:** Dispatch `target: 1` with no model passed.\n  - `previous decision: row 1 reopened | gate: blank accepted | 1`\n  - `hint: gate failed: test names | checkout /work/hotfix | exit 1 | log /scratch/gate.log`\n  - There is no two-miss line because the streak is 0.\n\n**D.**\n- **Ledger change:**\n  - Write row 1 as `failed`, attempts 6 unchanged, with evidence `review red: wave-reviewer; Moderate names:8 - blank accepted`.\n  - Append `row 1 reopened | review: Moderate names:8 - blank accepted | 1`.\n  - The repair counter is 6 − 3 = 3, which is below 4, so a repair is permitted. It equals allowance − 1, so this round escalates.\n  - Append `row 1 escalated | implModel repair round | allowed repairs 4`.\n  - Bump `iterations:` and write `pending: 1 | hotfix | <HEAD_BEFORE>`.\n- **Next action:** Dispatch `target: 1` with `model: repair-model`.\n  - `previous decision: row 1 reopened | review: Moderate names:8 - blank accepted | 1`\n  - The hint has two lines: `finding: Moderate names:8 - blank accepted` and `report: /scratch/review.md`.\n\n**E.**\n- **Ledger change:**\n  - Write row 1 as `failed`, attempts 7 unchanged, with evidence `conformance red: conformance-reviewer; trim spaces`.\n  - Append `row 1 reopened | conformance: trim spaces | 1`.\n  - The repair counter is 7 − 3 = 4, which is not below 4, so the repair budget is exhausted.\n- **Next action:** Abort pre-land and print the exhaustion report:\n```\nseed: 0 of 4\n7\nrepairs: 4 of 4\nrow 0 done | seeded 1 rows, closed 0 on baseline | 1\nrow 1 failed | Blank accepted. | Check names.\nrow 1 failed | Empty accepted. | Check length.\nrow 1 done | Reject blanks. | Reuse names test.\nrow 1 passed | first done | attempts 3\nrow 1 reopened | gate: blank accepted | 1\nrepair row 1 | missing file | iteration 5\nrepair row 1 | missing file | iteration 6\nrepair row 1 | missing file | iteration 7\nrow 1 escalated | implModel repair round | allowed repairs 4\nrow 1 done | Reject empty. | Reuse empty test.\nrow 1 reopened | conformance: trim spaces | 1\n```\n\n**F.**\n- **Ledger change:** There are 0 `repair seed` lines, which is below 4, so the seed is permitted. Write `iterations: 1` and `pending: seed | hotfix | <HEAD_BEFORE>`. Prepare the checkout-local return file.\n- **Next action:** Dispatch `target: seed` with no model passed; the seed budget never escalates.\n  - `iteration: 0`\n  - `previous decision: none`\n  - The hint is the seed-contract hint plus the empty-commit instruction.\n",
+      "words": 530,
+      "wallMs": 20473,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\n- Set row 1 to `done`, attempts `3`, with admitted evidence; append the admitted decision and clear `pending:`.\n- Append `row 1 passed | first done | attempts 3`.\n- Next: run step 5’s gate set.\n\n### B\n- Set row 1 to `done`, attempts `4`, with admitted evidence; append the admitted decision and clear `pending:`.\n- Preserve `row 1 passed | first done | attempts 3` unchanged. Invalidate earlier step 6–7 approvals.\n- Next: run step 5’s gate set.\n\n### C\n- Set row 1 to `failed`, attempts unchanged at `3`, evidence:\n  `gate red: test names; blank accepted`\n- Append:\n  `row 1 reopened | gate: blank accepted | 1`\n- Next: dispatch `target: 1`, **no model passed**. Repairs consumed: `0`.\n  - Previous decision: the reopen line above.\n  - Hint: `gate failed: test names | checkout /work/hotfix | exit 1 | log /scratch/gate.log`\n  - Before dispatch, increment `iterations:` and write `pending: 1 | hotfix | <HEAD_BEFORE>`.\n\n### D\n- Set row 1 to `failed`, attempts unchanged at `6`, evidence:\n  `review red: wave-reviewer; Moderate names:8 - blank accepted`\n- Append, in order:\n  ```text\n  row 1 reopened | review: Moderate names:8 - blank accepted | 1\n  row 1 escalated | implModel repair round | allowed repairs 4\n  ```\n- Next: dispatch `target: 1`, **model: `repair-model`**. Repairs consumed: `3`; this is the last permitted repair.\n  - Previous decision: the reopen line above.\n  - Hint:\n    ```text\n    finding: Moderate names:8 - blank accepted\n    report: /scratch/review.md\n    ```\n  - Before dispatch, increment `iterations:` and write `pending: 1 | hotfix | <HEAD_BEFORE>`.\n\n### E\n- Set row 1 to `failed`, attempts unchanged at `7`, evidence:\n  `conformance red: conformance-reviewer; trim spaces`\n- Append:\n  `row 1 reopened | conformance: trim spaces | 1`\n- Next: abort pre-land for repair-budget exhaustion; no dispatch. Exhaustion report:\n  ```text\n  seed: 0 of 4\n  7\n  repairs: 4 of 4\n  row 0 done | seeded 1 rows, closed 0 on baseline | 1\n  row 1 failed | Blank accepted. | Check names.\n  row 1 failed | Empty accepted. | Check length.\n  row 1 done | Reject blanks. | Reuse names test.\n  row 1 passed | first done | attempts 3\n  row 1 reopened | gate: blank accepted | 1\n  repair row 1 | missing file | iteration 5\n  repair row 1 | missing file | iteration 6\n  repair row 1 | missing file | iteration 7\n  row 1 escalated | implModel repair round | allowed repairs 4\n  row 1 done | Reject empty. | Reuse empty test.\n  row 1 reopened | conformance: trim spaces | 1\n  ```\n\n### F\n- Save attempts `0`, pre-bump iteration `0`, and `HEAD_BEFORE`.\n- Set `iterations: 1` and `pending: seed | hotfix | <HEAD_BEFORE>`. Leave row 1 `open` at attempts `0`; append no escalation line.\n- Next: dispatch `target: seed`, **no model passed**, with `iteration: 0` and `previous decision: none`, using the prescribed seed hint.\n",
+      "words": 395,
+      "wallMs": 16539,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "100fda241cdb7ddd673d3198ccebf85a2265a764420ca3682fbc8dd125adbad4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "52f699bf9accfdfe15696bcf7eeae97f5d98ea2ec78ae78841ab0549a6e3a39d",
+      "baselineOutputSha": "5a60825161d028371f99a4f26f575422b73506916eb13399a6bb7a0a07d7a7a9",
+      "candidateOutputSha": "d84239875fd2b981ff7f5165ae1212a3f45814d8c7fc7189c9f6833f720d6d62",
+      "facts": {
+        "budget": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The first-pass snapshot wording moved the budget fact: After appends `row 1 passed | first done | attempts 3` in A, adds no second marker in B, computes repairs as attempts minus the snapshot (C: 0 so an ordinary target 1 repair without model and no attempt increment; D: 3 so it records `row 1 escalated | implModel repair round | allowed repairs 4` and dispatches target 1 with repair-model; E: 4 so it records the conformance reopen at attempts 7 and aborts pre-land without dispatch), and the exhaustion report prints `seed: 0 of 4`, the attempts value 7, `repairs: 4 of 4`, then every supplied decision line verbatim in order followed by the new reopen; F dispatches the seed without a model. Before failed because it wrote no pass marker in A, counted repairs against raw attempts (escalating C with a model, aborting D), and omitted the seed and repairs counters in E. No fact that Before held was lost. One fragility to tighten: in E the attempts counter is printed as a bare `7` with no label, which satisfies the fact as written but is hard to read; have the wording require a labelled line such as `row 1 attempts: 7` between the seed and repairs counters so the report stays unambiguous. Also note that B's After text says to write attempts 4 on the row while keeping the snapshot at 3; keep that distinction explicit in the wording so the snapshot is never confused with the row's live attempts value.",
+      "wallMs": 6406,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "100fda241cdb7ddd673d3198ccebf85a2265a764420ca3682fbc8dd125adbad4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "52f699bf9accfdfe15696bcf7eeae97f5d98ea2ec78ae78841ab0549a6e3a39d",
+      "baselineOutputSha": "c1719104bdf8d5d42bfcb2716cb594478c90e74cbb1501aa84227afdc6f0fc28",
+      "candidateOutputSha": "c1191564bef4f6d21af6cccb4d389fbc0bc76a782c0b3d40bfee45c90199238b",
+      "facts": {
+        "budget": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved the budget fact from fails to holds: A now appends `row 1 passed | first done | attempts 3`, B keeps the single marker at 3 and resumes at the gate, C reopens at attempts 3 and dispatches target 1 with no model, D reopens at 6, records `row 1 escalated | implModel repair round | allowed repairs 4` and dispatches target 1 with repair-model, E records the conformance reopen at 7, aborts pre-land without dispatch and reports `seed: 0 of 4`, 7, `repairs: 4 of 4` followed by every supplied decision line verbatim in order plus the new reopen, and F dispatches seed without a model. Before failed on nearly every letter: no pass marker in A, premature escalation with a model in C, an exhaustion abort in D because repairs were counted against total attempts, and in E no seed or repairs counters. What drove the change is the instruction to snapshot the first pass and count subsequent repairs separately, and to escalate only the last permitted repair; keep that wording. Two small things to tighten: in E the row's attempts value is printed as a bare `7` with no label, so the wording could require a labelled line (e.g. `row 1 attempts: 7`) to make the report unambiguous; and B says to set attempts 4 and 'append the admitted decision', which restates the admission rather than only the change, so a phrase such as 'add no second pass marker; snapshot stays at 3' would make the no-duplicate behaviour explicit rather than implied by 'preserve unchanged'.",
+      "wallMs": 6730,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a43ad55a14a805a5a922c37c26a5799316a4acca"
+}

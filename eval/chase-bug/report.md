@@ -1,6 +1,6 @@
-# eval report: chase-bug (partial runs: hotfix seed and row retries)
+# eval report: chase-bug (partial runs: hotfix seed, row and repair budgets)
 
-for: e33a63a3d08d2cb92e4f5cadbe58b6709b208909d25028b7e111574885560f36 (latest partial run)
+for: 135bc63b6e4e279519ae3a11f93792e92a761984de1f7ee220dc8234af4d91e8 (latest partial run)
 
 ## Cells
 
@@ -14,6 +14,8 @@ for: e33a63a3d08d2cb92e4f5cadbe58b6709b208909d25028b7e111574885560f36 (latest pa
 | hotfix-seed-retry | github-copilot/gpt-6.1-sol | improved | 6028 | seed-budget: fails -> holds |
 | hotfix-two-miss-hint | anthropic/claude-opus-5-5 | improved | 7854 | hint: fails -> holds |
 | hotfix-two-miss-hint | github-copilot/gpt-6.1-sol | improved | 6137 | hint: fails -> holds |
+| hotfix-repair-budget | anthropic/claude-opus-5-5 | improved | 6406 | budget: fails -> holds |
+| hotfix-repair-budget | github-copilot/gpt-6.1-sol | improved | 6730 | budget: fails -> holds |
 
 ## Coverage
 
@@ -23,4 +25,6 @@ In `hotfix-seed-retry` both models selected a retry after the third miss and sto
 
 In `hotfix-two-miss-hint`, both models retried after consecutive missing or unreadable files with the latest miss in the hint. At the same attempts count, an admitted failure between misses suppressed the hint. Both stopped at four attempts without another dispatch.
 
-These replays stop at the parent's decision. They did not execute a retry, a gate, a review or a landing. The other hotfix records are historical. The saved baseline and candidate records under `results/` contain each sample's replies, judgments and assembly hashes.
+In `hotfix-repair-budget`, both models recorded the first pass at attempt 3 and kept that marker after another pass. They selected an ordinary gate repair at 3 and an escalated review repair at 6. At 7 they reopened the conformance gap, stopped without dispatch, and reported `seed: 0 of 4`, the attempts cell, `repairs: 4 of 4` and all decisions through the final reopen.
+
+These five partial replays stop at the parent's decision. They did not execute a retry, a gate, a review or a landing. Only `hotfix-repair-budget` ran on the latest assembly. The other hotfix records outside this selection are historical. The saved baseline and candidate records under `results/` contain each sample's replies, judgments and assembly hashes.

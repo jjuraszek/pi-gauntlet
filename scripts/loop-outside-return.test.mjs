@@ -256,7 +256,9 @@ test('outside-ledger parents keep pending-only state and name every file failure
   assert.match(seedAdmission, /seed miss[^\n]*\|[^\n]*(?:seed repair|repair seed)/i, 'route a missed seed to seed repair');
   const resolve = hotfix.slice(hotfix.indexOf('2. **Resolve'), hotfix.indexOf('3. **Worktree'));
   assert.ok(resolve.includes('reference/attempt-budget.md'), 'read the budget before creating the worktree');
-  assert.ok(read('skills/chase-bug/reference/attempt-budget.md').includes('repair seed | seed miss: <concrete miss> | iteration <consumed>'));
+  const budget = read('skills/chase-bug/reference/attempt-budget.md');
+  assert.ok(budget.includes('repair seed | seed miss: <concrete miss> | iteration <consumed>'));
+  assert.ok(budget.includes('row 1 passed | first done | attempts <k>'));
   assert.match(hotfix, /Remove any remaining return file.*every exit/);
   assert.match(coordinated, /Delete this file after admission, after a validation-miss repair and in interrupted recovery/);
 });
