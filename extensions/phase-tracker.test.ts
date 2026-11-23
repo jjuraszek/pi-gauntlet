@@ -695,6 +695,23 @@ test("resumed session: plan-implement recovery edge fires (AC 3)", async () => {
   assert.deepEqual(h.sent[0].message.details, { piGauntletRecoveryEdge: "plan-implement" });
 });
 
+test("/skill:gauntlet starts brainstorm and arms the verify closure gate", async () => {
+  const instructions = readFileSync(new URL("../skills/gauntlet/SKILL.md", import.meta.url), "utf8");
+  assert.match(instructions, /Start fresh only on `\/skill:gauntlet`/);
+  const firstStep = instructions.match(/^1\. \*\*Start brainstorm tracking[\s\S]*?(?=^2\. )/m)?.[0];
+  const start = firstStep?.match(/phase_tracker\(\{ action: "start", phase: "([^"]+)" \}\)/);
+  assert.ok(start, "the entry's first step starts a phase");
+
+  const h = harness({ cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true } } }) });
+  await h.emit("session_start");
+  await startPhase(h, start[1]);
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+  assert.equal(status.details.phases.brainstorm.status, "in_progress");
+  assert.match(status.content[0].text, /^\s*\u2192 brainstorm$/m);
+  assert.equal((await completePhase(h, "verify")).details.error, "no conformance-reviewer dispatch observed");
+});
+
 test("resumed session: closure gate blocks complete verify without a conformance dispatch (AC 3)", async () => {
   const h = harness({
     cwd: tempCwd(),
