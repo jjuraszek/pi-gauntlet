@@ -101,7 +101,7 @@ eval/
     samples/<sample-name>/
       case.md                the replay input for this sample
       expected.md            must-hold facts, one per line, each tagged mechanical: or judged:
-      fixture/               kind: edit only; files the worker edits
+      fixture/               edit checkout, or read-only input to a tracker-result replay
   <target>/                  same shape as _template, plus:
     results/<sample>/baseline.json
     results/<sample>/candidate.json
@@ -114,6 +114,8 @@ The CLI also accepts `--base <ref>`. A baseline-only or refused run does not wri
 ## Files per target
 
 Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, `replay.md`, and leading `bundle+` lines apply to `kind: text` only, as do leading `bundle-` lines, which drop `skillFiles` entries for one sample. An edit kind's user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list; lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
+
+`gauntlet/handoff-follows-pointer` is the exception to tool-free text replay. Its `tracker-result.json` seeds a Pi session with the prior user turn, tracker call and tool result. Only the result names the fixture path (`{{cwd}}` expands to the scratch checkout). The system prompt includes the registered tracker description from the arm's revision. The runner sends `case.md` without `replay.md`, enables only `read`, and includes the tracker result and fixture tree in the input hash.
 
 `expected.md` has one stable, unique fact id per line: `- <id>: judged: <sentence>` or `- <id>: mechanical: <check>`. An optional first line is `anonymized: true`; other non-blank lines are errors. Mechanical checks are substring tests `contains "<literal>"` and `lacks "<literal>"`, or JavaScript regex tests `matches /<regex>/<flags>`. They run in code, not in the judge. Empty text or an empty edit diff fails the cell. For text only, `wordCap` limits whitespace-delimited tokens containing a letter or digit.
 

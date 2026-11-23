@@ -55,7 +55,9 @@ export function lintTarget(dir, context) {
       for (const p of drop) if (bundle.includes(p)) errs.push(`${n}: ${p} in both bundle+ and bundle-`);
     }
     if (target?.kind === "edit" && !existsSync(join(s, "fixture"))) errs.push(`${n}: kind edit needs fixture/`);
-    if (target?.kind === "text" && existsSync(join(s, "fixture"))) errs.push(`${n}: kind text must not have fixture/`);
+    if (existsSync(join(s, "tracker-result.json"))) {
+      if (target?.kind !== "text" || !existsSync(join(s, "fixture"))) errs.push(`${n}: tracker result needs text replay with fixture/`);
+    } else if (target?.kind === "text" && existsSync(join(s, "fixture"))) errs.push(`${n}: kind text must not have fixture/`);
   }
   return errs;
 }

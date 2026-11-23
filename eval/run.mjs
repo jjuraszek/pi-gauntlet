@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync, rmSync, realpathSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync, rmSync, realpathSync } from "node:fs";
 import { join, resolve, dirname, basename, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -13,6 +13,7 @@ import { assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, r
 import { parseJudgeReply, deriveLabels, cellVerdict, worseVerdict, buildJudgePrompt } from "./lib/judge.mjs";
 import { baselineFresh, judgmentCurrent, promote, readRecord, writeRecord, writeRecordAtomic, payloadSha, cellReusable } from "./lib/records.mjs";
 import { renderReport } from "./lib/report.mjs";
+import { trackerDescription, trackerReplayArgs } from "./lib/tracker-replay.mjs";
 import { spawnCommand, limiter } from "./lib/spawn.mjs";
 import { lintTarget } from "./lib/lint.mjs";
 
@@ -90,7 +91,7 @@ async function judgeEntry({ current, previous, judgeCell, candidate, labels, rep
   if (entry.verdict === "error") for (const key of Object.keys(current)) delete entry[key];
   return entry;
 }
-async function replay({ target, skill, skillFiles, prompt, fixtureDir, facts, model, spawn }) {
+async function replay({ target, skill, skillFiles, prompt, fixtureDir, trackerResult, facts, model, spawn }) {
   const dir = mkdtempSync(join(tmpdir(), "eval-skill-"));
   const path = join(dir, "SKILL.md");
   let cwd = dir;
@@ -103,7 +104,12 @@ async function replay({ target, skill, skillFiles, prompt, fixtureDir, facts, mo
       }
       cwd = prepareFixture(fixtureDir);
     } else writeFileSync(path, skill);
-    const args = target.kind === "edit" ? editArgs(model, dir) : textArgs(model, path);
+    let args;
+    if (trackerResult) {
+      cwd = join(dir, "checkout");
+      cpSync(fixtureDir, cwd, { recursive: true });
+      args = await trackerReplayArgs(model, path, dir, cwd, trackerResult);
+    } else args = target.kind === "edit" ? editArgs(model, dir) : textArgs(model, path);
     const scratchPaths = [...new Set([dir, cwd].flatMap((scratch) => [scratch, realpathSync(scratch)]))].sort((a, b) => b.length - a.length);
     const scrub = (text) => scratchPaths.reduce((output, scratch) => output.replaceAll(scratch, "<scratch>"), text);
     const out = await spawn(args, { cwd, input: prompt });
@@ -238,15 +244,19 @@ export function prepareTarget({ root, target: name, sample: only, baselineOnly =
     const skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
     const expectedText = read(join(sdir, "expected.md"));
     const { facts } = parseExpected(expectedText);
-    const baseSkill = checkedAssembly(baseRead, baseRef, skillFiles, bundle);
-    const candSkill = checkedAssembly(treeRead, "working tree", skillFiles, bundle);
+    const trackerPath = join(sdir, "tracker-result.json");
+    const trackerText = existsSync(trackerPath) ? read(trackerPath) : undefined;
+    const trackerResult = trackerText && JSON.parse(trackerText);
+    const armSkill = (reader, ref) => checkedAssembly(reader, ref, skillFiles, bundle) + (trackerResult ? `\nphase_tracker: ${trackerDescription(reader("extensions/phase-tracker.ts"))}` : "");
+    const baseSkill = armSkill(baseRead, baseRef);
+    const candSkill = armSkill(treeRead, "working tree");
     const skillHygiene = scanText(baseSkill + "\n" + candSkill, target.denylist);
     if (skillHygiene.length) return refuse(`hygiene: skill assembly: ${skillHygiene.map((h) => h.rule).join(",")}`);
     const fixtureDir = join(sdir, "fixture");
-    const input = inputSha(replayText, caseText, bundle, target.kind === "edit" ? fixtureDir : null);
+    const input = inputSha(trackerText ?? replayText, caseText, bundle, target.kind === "edit" || trackerResult ? fixtureDir : null);
     const beforeTree = target.kind === "edit" ? readTree(fixtureDir) : undefined;
-    const prompt = (files) => files ? editInput(files, caseText, beforeTree) : `${replayText}\n\n${caseText}`;
-    plans.push({ baseFiles, candFiles, beforeTree, sample, caseText, expectedText, facts, baseSkill, candSkill, fixtureDir, input,
+    const prompt = (files) => files ? editInput(files, caseText, beforeTree) : trackerResult ? caseText : `${replayText}\n\n${caseText}`;
+    plans.push({ trackerResult, baseFiles, candFiles, beforeTree, sample, caseText, expectedText, facts, baseSkill, candSkill, fixtureDir, input,
       basePrompt: prompt(baseFiles), candPrompt: prompt(candFiles) });
   }
   } catch (e) { return refuse(e.message); }

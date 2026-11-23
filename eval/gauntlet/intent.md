@@ -2,7 +2,7 @@ for: cf2dd692c72e07a639b5bcea86df8bb1b1ebe4d0e0034cd29fd1bd0436e69f8b
 
 ## Change
 
-An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout.
+An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout. For handoff-follows-pointer, the completion reply supplies the next file. A read-only replay resumes with that tool result in history. Only the file provides the receipt; a narrated read cannot pass.
 
 ## Earlier comparisons
 
@@ -125,6 +125,8 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- handoff-follows-pointer/receipt: fails -> holds - Read the file named by the completion reply before continuing.
+- handoff-follows-pointer/command: fails -> holds - Continue without a skill invocation.
 - pr-body-drafted-row/f1: fails -> holds - Leave PR-description proof out while keeping PR text produced by a script.
 - pr-body-drafted-row/f2: holds -> holds - Retain one row per committed file-deliverable behavior.
 - pr-body-drafted-row/f3: holds -> holds - Rewriting a proof does not ask a scope-cut question.

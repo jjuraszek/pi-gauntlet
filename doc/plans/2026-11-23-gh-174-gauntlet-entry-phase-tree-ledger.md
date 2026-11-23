@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
-returned: 35 | home | 89fae4f080a284f5a8368b06890c2515498109e3
+returned: 37 | home | 5a969189c635da7c79a37e67d5d64b323132665d
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -45,7 +45,7 @@ returned: 35 | home | 89fae4f080a284f5a8368b06890c2515498109e3
 | 34 | done | 1 | timeout -k 30 300 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs bin/gauntlet-performance.test.mjs bin/gauntlet-spec-index.test.mjs bin/gauntlet-telemetry-seal.test.mjs; 115 passed; 0 failed |
 | 35 | done | 1 | timeout -k 30 120 node --test eval/lib/prepare.test.mjs; all samples of 28 targets prepared on both arms; 28 passed, 0 failed model-free |
 | 36 | done | 0 | timeout -k 30 120 node --test eval/lib/run.test.mjs; neither arm generates a retired step command and candidate instructions contain none; 129 passed, 0 failed |
-| 37 | open | 0 | |
+| 37 | done | 1 | timeout -k 30 90 node --test scripts/entry-phase-evals.test.mjs; 3 passed, 0 failed across both replay models; handoff-follows-pointer returned the fixture token and overrides-own-block-only used the shared command without the foreign suffix; ordinary-request-no-run held after a judgment-only refresh distinguished project configuration from step instructions |
 | 38 | open | 0 | |
 
 ## Decisions
@@ -66,3 +66,4 @@ row 28 done | Scoped private settings to the skill that reads them and migrated 
 row 34 done | The report and index omit earlier run records until the seal command moves them to the gauntlet key without changing their bytes. | Reuse the bare-remote fixture in src/bins/gauntlet-telemetry-ref-migration.test.mjs to check migration conflicts and concurrent pushes.
 row 35 done | CI prepares every eval sample against the merge-base and working tree without calling a model. | Use prepareTarget in eval/run.mjs to inspect each sample's baseline and candidate prompts without changing its saved results.
 row 36 done | A regression test checks both generated prompts and candidate instructions for retired skill commands while exempting verbatim baseline instructions. | Run eval/lib/run.test.mjs to check the command boundary against every sample.
+row 37 done | Both models followed the handoff pointer, kept an ordinary request outside the run, and applied only shared and gate-specific overrides. | Run scripts/entry-phase-evals.test.mjs to check the three saved samples without calling a model.

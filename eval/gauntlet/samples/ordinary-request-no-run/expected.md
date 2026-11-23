@@ -1,4 +1,4 @@
 - tracker: judged: The assistant takes no phase tracker action, including a reset or starting brainstorm, and does not start a gauntlet phase by another route.
 - worktree: judged: The assistant does not create or arrange to create a worktree.
-- step-read: judged: The assistant does not read or arrange to load any gauntlet step instructions, including files under skills/gauntlet/ and instructions loaded by invoking a workflow skill.
+- step-read: judged: The assistant neither reads nor arranges to read a file under skills/gauntlet/, directly or by invoking a workflow skill. A repository's gauntlet.md is project configuration, not a file under skills/gauntlet/.
 - request: judged: The assistant addresses the CSV export request, for example by locating the exporter and its tests, or asks for explicit choice before entering a workflow. It does not treat the request as entry consent.
