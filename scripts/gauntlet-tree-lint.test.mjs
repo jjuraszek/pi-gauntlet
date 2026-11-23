@@ -92,6 +92,8 @@ test("the overrides outline gives every block its sections and names their reade
   }
 });
 
+const trustedReuse = /only when the file from the same repository at the same trusted revision is already in context/;
+
 test("overrides-outline: each caller applies only the seven shared sections and its own scope", () => {
   const root = join(import.meta.dirname, "../skills");
   const shared = ["issue-tracker", "worktrees", "verification", "cleanup", "siblings", "deployment", "spec-index"];
@@ -103,7 +105,7 @@ test("overrides-outline: each caller applies only the seven shared sections and 
     const section = readFileSync(join(root, file), "utf8").split("\n## Project overrides\n")[1] ?? "";
     const paragraph = section.trim().split(/\n\s*\n/)[0].replace(/\s+/g, " ");
     assert.match(paragraph, /`\.pi\/gauntlet\.md`, `<repo root>\/gauntlet\.md`, `<repo root>\/doc\/gauntlet\.md`; first found wins/, file);
-    assert.match(paragraph, /only when the file from the same repository at the same trusted revision is already in context/, file);
+    assert.match(paragraph, trustedReuse, file);
     assert.ok(paragraph.includes("Apply, without a relevance judgment, these sections of `# shared`: " + shared.map(s => "`## " + s + "`").join(", ") + "."), file);
     const own = skill !== "gauntlet" ? `Apply the whole \`# ${skill}\` block.` : phase
       ? `Apply \`# gauntlet\`: its text above the first section, and \`## ${phase}\`. Apply no other phase's section.`
@@ -131,6 +133,32 @@ test("overrides-outline: readers no longer get shared settings from flat heading
   const assessment = readFileSync(join(root, "skills/gatekeep-pr/reference/assessment.md"), "utf8");
   assert.match(assessment, /^# shared\n## verification\n- verification command:[^\n]*\n- requires credentials:/m);
   assert.match(assessment, /merge-base of the PR's base branch[^\n]+never from the PR's head tree/);
+});
+
+test("overrides-outline: a cached PR-head file cannot supply gate configuration", () => {
+  const root = join(import.meta.dirname, "../skills/gatekeep-pr");
+  const paragraph = readFileSync(join(root, "SKILL.md"), "utf8").split("\n## Project overrides\n\n")[1].split("\n\n", 1)[0];
+  const assessment = readFileSync(join(root, "reference/assessment.md"), "utf8");
+  const path = ".pi/gauntlet.md";
+  const overrides = command => `# shared\n## verification\n- verification command: ${command}\n`;
+  const mergeBase = overrides("make verify");
+  const cachedHead = overrides("true");
+  const gitShow = new Map([[`$MB:${path}`, mergeBase], [`HEAD:${path}`, cachedHead]]);
+
+  function assertTrusted(reuse, ladder) {
+    assert.match(reuse, trustedReuse, "cannot reuse the cached PR-head file without checking repository and revision");
+    const revision = ladder.match(/`git show "([^":]+):<path>"` per source/)?.[1];
+    assert.equal(gitShow.get(`${revision}:${path}`), mergeBase, "read the merge-base file for gate configuration");
+  }
+
+  assertTrusted(paragraph, assessment);
+  for (const [source, reuse, ladder, error] of [
+    ["head read", paragraph, assessment.replace('git show "$MB:<path>"', 'git show "HEAD:<path>"'), /read the merge-base file/],
+    ["unqualified reuse", paragraph.replace(trustedReuse, "when the file is already in context"), assessment, /cannot reuse the cached PR-head file/],
+  ]) {
+    assert.ok(reuse !== paragraph || ladder !== assessment, source);
+    assert.throws(() => assertTrusted(reuse, ladder), error, source);
+  }
 });
 
 test("overrides-outline: private settings come from the reader's own block", () => {
