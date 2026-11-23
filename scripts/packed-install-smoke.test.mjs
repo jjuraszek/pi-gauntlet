@@ -23,6 +23,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadSkillsFromDir } from "@earendil-works/pi-coding-agent";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CRASH = "ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING";
@@ -103,6 +104,15 @@ test("spec-index: runs from the packed install (usage error, no crash)", () => {
   const r = run("bin/gauntlet-spec-index.mjs", []);
   assert.equal(r.status, 1);
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
+});
+
+test("pi registers eleven packed skills and hides six from the model", () => {
+  const { skills } = loadSkillsFromDir({ dir: join(pkgDir, "skills"), source: "npm:pi-gauntlet" });
+  const names = (hidden) => skills.filter((skill) => skill.disableModelInvocation === hidden).map((skill) => skill.name).sort();
+  assert.deepEqual({ hidden: names(true), visible: names(false) }, {
+    hidden: ["chase-bug", "gauntlet", "gauntlet-handoff", "gauntlet-performance", "gauntlet-resume", "housekeeping"],
+    visible: ["check-delivery", "forge-skill", "gatekeep-pr", "linear", "shape-ticket"],
+  });
 });
 
 test("packed personas retain their bytes and install as user links or project copies", () => {

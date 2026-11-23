@@ -3,13 +3,13 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | f0cc396dbf87fd48e21d5abbb5d738f1ce32027b
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | open | 0 | timeout -k 30 90 node --test scripts/packed-install-smoke.test.mjs; pi loads 22 packed skills instead of 11; the hidden entry is brainstorming instead of gauntlet; 7 passed, 1 failed |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -49,3 +49,4 @@ returned: none
 | 38 | open | 0 | |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1
