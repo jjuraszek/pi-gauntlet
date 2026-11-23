@@ -58,8 +58,8 @@ test('consent precedes reset and the 13 checkpoints retain their order', () => {
   assert.deepEqual(checkpoints, Array.from({ length: 13 }, (_, i) => i + 1));
   assert.match(text, /resume at checklist step 4 with the approved spec as the draft \(steps 2-3 skipped\)/);
   const gather = text.match(/^3\. .*/m)[0];
-  assert.match(gather, /read \[Ticket Handling\]\(#ticket-handling\), then follow \[`gatherer.md`\]/);
-  assert.match(text, /Read \[Ticket Handling\]\(reference\/ticket-acceptance.md\) at first use - before gathering context, even with no ticket/);
+  assert.match(gather, /read \[Ticket Handling\]\(#ticket-handling\), then follow \[`brainstorm\/gatherer\.md`\]\(brainstorm\/gatherer\.md\)/);
+  assert.match(text, /Read \[Ticket Handling\]\(brainstorm\/ticket-acceptance\.md\) at first use - before gathering context, even with no ticket/);
   assert.match(text, /a restored session \(`gauntlet-resume` routes there\) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context/);
   assert.match(text, /Read \[Spec Self-Review\].*before spec-writing or restored step 8/);
   assert.match(text, /unreadable -> stop with a blocking error, never reconstruct from memory/);
@@ -69,7 +69,7 @@ test('restored and redraw entry load the ticket contract before questionary or l
   const text = main();
   for (const [step, action] of [[4, 'Understand the idea'], [8, 'Spec self-review']]) {
     const checkpoint = text.match(new RegExp(`^${step}\\. .*`, 'm'))[0];
-    assert.match(checkpoint, /if `reference\/ticket-acceptance.md` is not already in context this session \(restored entry, or a redraw after a fresh start\), read \[Ticket Handling\]\(#ticket-handling\) before the rest of this step/);
+    assert.match(checkpoint, /if `brainstorm\/ticket-acceptance\.md` is not already in context this session \(restored entry, or a redraw after a fresh start\), read \[Ticket Handling\]\(#ticket-handling\) before the rest of this step/);
     assert.ok(checkpoint.indexOf('read [Ticket Handling]') < checkpoint.indexOf(step === 4 ? 'see [Understand' : 'run the inline'), action);
   }
 });
@@ -200,7 +200,7 @@ test('Planning keeps flow in the skill and child rules in the plan contract', ()
   const templates = [...text.matchAll(/^\s*> (Write the implementation plan[^\n]*)$/gm)];
   assert.equal(templates.length, 1, 'one fixed child dispatch template');
   assert.equal(templates[0][1],
-    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to reference/plan-contract.md>`.',
+    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to plan-contract.md>`.',
     'the child prompt carries only the four paths, never authoring rules');
   for (const [sample, facts] of [
     ['fresh-child-authors-plan', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'four-paths', 'no-reference-read']],
@@ -223,7 +223,7 @@ test('plan-writer reads one complete contract before writing on four paths', () 
   assert.match(writer, /Keep the four-path inputs/);
   assert.doesNotMatch(writer, /SKILL\.md|plan skill|skill's (?:Self-Review|Baseline)/);
   const procedure = writer.slice(writer.indexOf('## Procedure'), writer.indexOf('## Rules'));
-  assert.match(procedure, /2\. Read the whole plan contract file \(`plan-contract\.md`\)/);
+  assert.match(procedure, /2\. Read the whole plan contract file at the supplied path\. Follow it as written\./);
   assert.match(procedure, /5\. Run Baseline from the plan contract's `## Self-review \(before handoff\)`/);
   assert.match(procedure, /6\. Run the deterministic checker and judgment checks in the plan contract's `## Self-review \(before handoff\)`/);
   for (const sample of ['child-reads-one-contract', 'removal-lists-delete', 'maintenance-after-delete', 'baseline-fails-on-base']) {
@@ -281,7 +281,7 @@ test('Plan callers and anchors resolve to the partitioned contract', () => {
     }
   }
   assert.deepEqual(failures, []);
-  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file \(`plan-contract\.md`\) at the supplied path/);
+  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file at the supplied path/);
   for (const [path, count] of [
     ['skills/gauntlet/amendment-surface.md', 2],
     ['skills/gauntlet/implement/waves/implement-amendments.md', 1],
@@ -319,7 +319,7 @@ test('baseline recommendations use decoded amend permission and preserve writer 
   const questions = branch.split('\n').find((line) => line.includes('`OPEN QUESTIONS` + any result'));
   const repeatedFail = branch.split('\n').find((line) => line.includes('`PLAN WRITTEN` + `FAIL`'));
   for (const line of [questions, repeatedFail]) {
-    assert.match(line, /read `reference\/open-questions\.md` now, before asking; unreadable -> stop with a blocking error, never reconstruct from memory/);
+    assert.match(line, /read `open-questions\.md` now, before asking; unreadable -> stop with a blocking error, never reconstruct from memory/);
   }
   assert.match(repeatedFail, /the same FAIL a second time goes to the user as an open question; read/);
   assert.match(branch, /No child reply.*`OPEN QUESTIONS` when the plan carries substantive Open Questions rows.*take that reply's branch above/);
@@ -519,7 +519,8 @@ test('deferred boundaries precede ship and restore arming; header PR finish owns
   const finish = read('skills/gauntlet/ship/ship.md');
   const stop = 'spec approved for handoff only - run brainstorming #N';
   assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'));
-  assert.ok(finish.indexOf('reference/spec-pr.md') < finish.indexOf('**Announce at start:**'));
+  const specPrAt = finish.indexOf('[header-linked PR finishing](spec-pr.md)');
+  assert.ok(specPrAt > 0 && specPrAt < finish.indexOf('**Announce at start:**'));
   const ref = read('skills/gauntlet/ship/spec-pr.md');
   for (const marker of ['record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
   assert.ok(ref.indexOf('push --no-follow-tags') < ref.indexOf('gh pr ready <N> -R <owner/repo>'));
@@ -580,10 +581,8 @@ test('Council members, chair and applier preserve the grant line', () => {
 
 test('council file boundaries, applier rollback and ordered handoff are explicit', () => {
   const text = read('skills/gauntlet/brainstorm/council.md');
-  const description = parse(text.match(/^---\n([\s\S]*?)\n---/)[1]).description;
-  assert.match(description, /fresh-context applier executor/);
   const overview = text.slice(text.indexOf('## Overview'), text.indexOf('## Hard constraint'));
-  assert.match(overview, /Dispatch a fresh-context \*\*applier\*\* inheriting the main loop's model and thinking/);
+  assert.match(overview, /Dispatch a fresh-context \*\*applier\*\* inheriting the main loop's model and thinking to decide dispositions and edit the spec, returning only the audit/);
   const member = text.slice(text.indexOf('tasks: members.map'), text.indexOf('The `Human input'));
   assert.match(member, /output: [^\n]+,\n    outputMode: "file-only"/);
   const chair = text.slice(text.indexOf('agent: "spec-council-synthesizer"'), text.indexOf('### 3'));
@@ -647,14 +646,14 @@ test('gauntlet-resume checks the grant field before dispatch and announces it af
   for (const file of ['skills/gauntlet-resume/reference/brief-contract.md', 'skills/gauntlet-handoff/SKILL.md']) assert.ok(!read(file).includes('Amend-grant'), `${file} stays grant-free`);
 });
 
-test('executed brainstorming routes link their hidden skill at the owning action', () => {
+test('executed brainstorming routes link the gauntlet entry at the owning action', () => {
   const routes = [
-    ['skills/gauntlet-resume/SKILL.md', /worktree: no` \|[^\n]*then invoke \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/gauntlet-resume/SKILL.md', /\| brainstorm \| \[brainstorming checklist\]\((\.\.\/brainstorming\/SKILL\.md#checklist)\)/],
-    ['skills/gauntlet-resume/reference/reconstruction.md', /Selected unapproved-draft brainstorming handoff:[\s\S]*?invoke \[.*?\]\((\.\.\/\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> draft[\s\S]*?hand off to \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> render the summary[\s\S]*?hand off to\s+\[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/gauntlet/plan/plan.md', /If no spec exists,[^\n]*before invoking \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
+    ['skills/gauntlet-resume/SKILL.md', /worktree: no` \|[^\n]*then invoke \[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/gauntlet-resume/SKILL.md', /\| brainstorm \| \[brainstorming checklist\]\((\.\.\/gauntlet\/SKILL\.md#checklist)\)/],
+    ['skills/gauntlet-resume/reference/reconstruction.md', /Selected unapproved-draft brainstorming handoff:[\s\S]*?invoke \[.*?\]\((\.\.\/\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> draft[\s\S]*?hand off to \[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> render the summary[\s\S]*?hand off to\s+\[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/gauntlet/plan/plan.md', /If no spec exists,[^\n]*before invoking \[.*?\]\((\.\.\/SKILL\.md)\)/],
   ];
   for (const [owner, pattern] of routes) {
     const match = read(owner).match(pattern);
@@ -677,7 +676,7 @@ test('incoming routes wait for fresh consent but retain stateful continuation an
   assert.match(reconstruction, /bare "not approved" answer is not consent/);
   assert.match(reconstruction, /Approved:[\s\S]*?continue in `\.\.\/\.\.\/gauntlet\/plan\/plan\.md`/);
   assert.match(reconstruction, /worktrees\.md` Step 0 detects the existing/);
-  assert.match(reconstruction, /no spec \| stop; offer.*brainstorming.*no tracker call/);
+  assert.match(reconstruction, /no spec \| stop; offer `\/skill:gauntlet`[^\n]*no tracker call/);
   assert.match(resume, /anything else \| stop: "this is a new idea - run \/skill:gauntlet"/);
   assert.match(planning, /recommend `\/skill:gauntlet` and await the user's explicit choice/);
   assert.match(planning, /Do not invent a plan without a spec/);
@@ -730,7 +729,7 @@ test('section 3 asks the framing question once, with a named alternative, after 
   const right = section.indexOf('verify the draft\'s `Framing:` line');
   assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
   assert.ok(section.includes('every checked claim'), 'evidence write includes held claims as well as corrections');
-  for (const marker of ['reference/opening-message.md', 'never write it from memory', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
+  for (const marker of ['brainstorm/opening-message.md', 'never write it from memory', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
   for (const removed of ['with sources and attempted lookups, in full sentences - no status-keyword lists, no template', 'name the traces and dependencies in the holds-statement, not only the files read']) assert.ok(!section.includes(removed), removed);
   const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
   assert.equal(good.length, 1, 'ordinary-question Good example stays in the flow');
@@ -753,7 +752,8 @@ test('section 3 asks the framing question once, with a named alternative, after 
 test('opening-message reference owns the shape, register, cap and framing renderings', () => {
   const text = read('skills/gauntlet/brainstorm/opening-message.md');
   assert.match(text, /^# Opening message\n/);
-  assert.ok(text.includes('(menu-layout.md)'), 'first-line owner resolves beside this reference');
+  assert.match(text, /\[Menu layout\]\(\.\.\/menu-layout\.md\)/);
+  assert.ok(existsSync(new URL('../skills/gauntlet/menu-layout.md', import.meta.url)), 'first-line owner resolves from this reference');
   assert.ok(text.split('\n').length <= 120, 'reference stays within its design limit');
   for (const marker of ['Held:', 'Corrected:', 'Not checked:', 'The framing holds: checked', 'A) as framed', 'B) pivot:', 'C) smaller or none:', '220', 'one sentence each', 'none of them is dropped', 'The design rests on no claims.', 'with no section titles', 'the recon at hand', 'on a redraw, the approved spec']) assert.ok(text.includes(marker), marker);
   const blocks = [...text.matchAll(/^```text\n(gauntlet: question[\s\S]*?)\n```$/gm)].map((match) => match[1]);
@@ -814,7 +814,7 @@ test('red flags stop approaches that skip the framing question or the holds-stat
 test('spec-only PR lifecycle has local replay coverage in all four targets', () => {
   const samples = {
     'spec-gate': ['option-6-handoff'],
-    brainstorming: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
+    gauntlet: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
     'ship': ['spec-pr-menu', 'deferred-spec-stop'],
     'gauntlet-resume': ['deferred-spec-stop'],
   };
@@ -857,7 +857,7 @@ test('brainstorming eval structure and edited instruction sizes stay valid', () 
 test('PR routing follows reset and preserves the named pre-approval sync exception', () => {
   const text = main();
   const step = text.match(/^2\. .*/m)[0];
-  assert.match(step, /reference\/pr-subject.md/);
+  assert.match(step, /brainstorm\/pr-subject\.md/);
   assert.ok(text.indexOf('phase_tracker({ action: "reset" })') < text.indexOf(step));
   for (const marker of ['scoped conflict tests', 'PR-head path', "PR's diff as the ask", 'spec commit is appended', 'YYYY-MM-DD-pr-<N>-<topic>.md']) assert.ok(text.includes(marker), marker);
 });
@@ -1092,7 +1092,7 @@ test('both critique routes reject PR-sourced commitments without cutting design 
   assert.ok(finalization.includes('The last three are the **critique pass**'));
   assert.ok(worker.includes('Apply three checks'));
   assert.match(member, /`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other, over-spec\./);
-  for (const [target, names] of Object.entries({ 'spec-council-member': ['pr-sourced-clause', 'pr-rework-design-sourced'], brainstorming: ['worker-critique-pr-source'] })) {
+  for (const [target, names] of Object.entries({ 'spec-council-member': ['pr-sourced-clause', 'pr-rework-design-sourced'], gauntlet: ['worker-critique-pr-source'] })) {
     for (const name of names) for (const file of ['case.md', 'expected.md']) assert.ok(existsSync(new URL(`../eval/${target}/samples/${name}/${file}`, import.meta.url)));
     assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
   }
@@ -1171,7 +1171,7 @@ test('scope grammar pins original AC ownership independently of design and dispo
     'design: implements AC 2',
   ]) assert.ok(text.includes(clause), clause);
   const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
-  assert.match(finalization, /Validate every block using \[legs.md\]\(legs.md\)'s scope grammar before committing/);
+  assert.match(finalization, /Validate every block using \[\.\.\/legs\.md\]\(\.\.\/legs\.md\)'s scope grammar before committing/);
   const amendment = read('skills/gauntlet/amendment-surface.md');
   assert.match(amendment, /Preserve scope indices on disposition-only amendments/);
   assert.match(amendment, /validate\s+all blocks using \[legs.md\]\(legs.md\)'s scope grammar before committing/);

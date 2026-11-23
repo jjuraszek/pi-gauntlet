@@ -15,7 +15,7 @@ assert.ok(commands.length, "skip rule must contain executable Git checks");
 
 test("ledger finish preserves gate set, strip and amendment contracts", () => {
   assert.ok(verification.includes("# Ledger - loop engine"));
-  assert.match(skill, /read.*absolute path.*reference\/verification-set\.md/);
+  assert.match(skill, /read.*absolute path.*\[verification-set\.md\]\(verification-set\.md\)/);
   assert.doesNotMatch(skill, /For a ledger, (?:use|supply) its `verification:` command/);
   for (const token of ['## Gate set', '## Leg mapping', 'checks:', 'ordered list of (leg, command) pairs', 'LOG_DIR=$(mktemp -d "$SCRATCH/gates.XXXXXX")', 'SCOPED_TEST_COMMANDS', 'verify-before-ship may warn', 'do not run the full suite to clear the warning', 'Commit verification-produced tracked changes, or stop']) assert.ok(verification.includes(token), token);
   assert.match(skill, /For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`/);
@@ -112,7 +112,7 @@ test("telemetry docs and lifecycle skills describe ref records rather than check
   assert.doesNotMatch(verification, /telemetry\.dir|:\!|telemetry flush/);
   assert.match(seed, /git -C <primary> rev-parse --git-common-dir.*resolve a relative result against `<primary>` and read `<git common dir>\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>`/);
   assert.match(seed, /When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>\/\.jj\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>` instead/);
-  assert.match(seed, /When the local record is absent, fetch `refs\/telemetry\/records` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/brainstorming\/<rel with \.md -> \.yaml>` from the fetched ref/);
+  assert.match(seed, /When the local record is absent, fetch `refs\/telemetry\/records` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/gauntlet\/<rel with \.md -> \.yaml>` from the fetched ref/);
   assert.match(seed, /using the last fetched ref on fetch failure/);
   assert.match(seed, /Degrade to the local-only check when no fetched ref is available, including jj-only workspaces/);
   assert.match(seed, /A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`/);
@@ -224,7 +224,7 @@ test("coordinated retry verifies and delivers unlanded home without the removed 
 });
 
 test("finish routes coordinated mechanics once and retains legacy cleanup", () => {
-  assert.equal((skill.match(/\]\(reference\/legs\.md\)/g) ?? []).length, 1);
+  assert.equal((skill.match(/\]\(legs\.md\)/g) ?? []).length, 1);
   assert.match(skill, /recorded `contract:` lines[\s\S]*legacy spec without `## Legs`/);
 });
 for (const [name, pattern] of [

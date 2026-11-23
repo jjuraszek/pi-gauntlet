@@ -120,9 +120,12 @@ for (const token of [
 ]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /ledger has no cap:|loop: raise cap|legacy `cap \+N` grant|funding and retry allowances/);
 
-for (const route of ["implement with a ledger", "verify with `Ledger:`"]) {
+for (const [route, continuation] of [
+  ["implement with a ledger", /reuse the ledger per `reference\/restore-loop\.md` step 9/],
+  ["verify with `Ledger:`", /`After the loop` step 1 per `reference\/restore-loop\.md` step 9; never start implement/],
+]) {
   const row = routes.split("\n").find(line => line.startsWith("| " + route));
-  assert.ok(row.includes('`reference/restore-loop.md` "Spec with ledger" step 9'), route);
+  assert.match(row, continuation, route);
 }
 const noLedgerRoute = reconstruction.split("## Spec without plan")[1].split("\n").find(line => line.startsWith("  - `loop`:"));
 assert.match(noLedgerRoute, /label Entry steps 1-5 explicitly in the response/);

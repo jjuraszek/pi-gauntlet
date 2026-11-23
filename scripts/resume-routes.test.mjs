@@ -125,8 +125,8 @@ test('restore rules live in SKILL.md and plan repair is read only on FAIL', () =
     assert.ok(rules.includes(token), token);
     assert.ok(!file['plan-repair.md'].includes(token), `plan-repair.md: ${token}`);
   }
-  assert.match(file['restore-plan.md'], /Apply SKILL\.md "Restore rules" at every `plan_tracker init`/);
-  assert.match(section(file['restore-plan.md'], '## Spec with plan'), /Validate the confirmed snapshot against SKILL\.md "Restore rules"/);
+  assert.match(file['restore-plan.md'], /Apply \.\.\/SKILL\.md "Restore rules" at every `plan_tracker init`/);
+  assert.match(section(file['restore-plan.md'], '## Spec with plan'), /Validate the confirmed snapshot against \.\.\/SKILL\.md "Restore rules"/);
   for (const [name, text] of [...Object.entries(file), [handoffPath, handoff]]) {
     const lines = text.split('\n').filter(line => line.includes('plan-repair.md'));
     if (name !== 'restore-plan.md') assert.deepEqual(lines, [], name);
