@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -28,6 +28,25 @@ test("valid inventory and direct CLI", () => {
   const root = fixture();
   assert.deepEqual(lintGateContract(root), []);
   assert.equal(execFileSync(process.execPath, ["scripts/gate-contract-lint.mjs", root], { encoding: "utf8" }), "");
+});
+test("run gate, question and ending inventory matches the renderers and their callers", () => {
+  const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+  const rows = read("doc/gate-contract.md").split("\n").filter((line) => line.includes("| skills/gauntlet/"));
+  const cells = rows.map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+  const ids = cells.filter(([, kind]) => ["gate", "question"].includes(kind)).map(([id]) => id);
+  assert.deepEqual(ids, Object.entries({
+    brainstorm: "understand-the-idea understand-the-idea present-the-design cut-question relatedness-before-provisioning user-review-gate user-review-gate human-batch human-batch",
+    plan: "step-6-baseline-failure step-6-baseline-dirty step-6-contract-questions",
+    implement: "stop-note human-stop discard-authorization",
+    verify: "step-6",
+    ship: "step-4 carried-open carried-open pr-subject-row-1 option-5",
+    gauntlet: "step-3 detached-head",
+  }).flatMap(([owner, labels]) => labels.split(" ").map((label) => `${owner}/${label}`)));
+  assert.deepEqual(cells.filter(([owner]) => owner === "ship").map((row) => row.at(-1)),
+    ["done pr-created", "done merged", "done kept", "done discarded", "done pushed", "stuck"].map((ending) => `gauntlet: ${ending}`));
+  assert.match(read(menu), /`gauntlet: gate=ship\/step-4`/);
+  assert.match(read("extensions/phase-tracker.ts"), /gauntlet: gate=verify\/step-6"/);
+  assert.deepEqual(lintGateContract("."), []);
 });
 test("table and site parse failures name the row", () => {
   for (const rows of [row.replace("| N. rows |", "|"), row.replace("demo/review", "demo/bad_id"), row.replace(file, "skills/missing.md"), row.replace("## Review", "## Missing"), row + "\n" + row]) {
@@ -73,8 +92,10 @@ test("literal position and template counts", () => {
 test("reverse scan covers only skills and exempts questions and menu-layout", () => {
   for (const kind of ["gate=demo/unknown", "done other", "stuck reason"]) {
     const diagnostics = lintGateContract(fixture({ "skills/demo/example.md": `Example \`gauntlet: ${kind}\`` }));
-    assert.deepEqual(diagnostics, [`skills/demo/example.md:1 gauntlet: ${kind.split(/[= ]/)[0]} not in doc/gate-contract.md`]);
+    assert.deepEqual(diagnostics, [`skills/demo/example.md:1 gauntlet: ${kind.split(" ")[0]} not in doc/gate-contract.md`]);
   }
+  const extraGate = body.replace("## Ask", `${fence("gauntlet: gate=other/review")}\n## Ask`);
+  assert.match(lintGateContract(fixture({ [file]: extraGate })).join("\n"), /gate=other\/review not in doc\/gate-contract.md/);
   assert.deepEqual(lintGateContract(fixture({ "skills/demo/example.md": "gauntlet: question", "doc/example.md": gate, "eval/example.md": gate, "extensions/example.md": gate, "CHANGELOG.md": gate, [file]: body + "\n" /* examples inside inventoried slice are allowed */ + `Explanation \`${gate}\`` })), []);
 });
 test("resolving citations, public links and all rule kinds and charset", () => {

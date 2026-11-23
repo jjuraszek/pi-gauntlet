@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 2
+iterations: 3
 allowance: 10
-returned: 21 | home | 3ccd9925528072c42d193b31e2a0d8bad386b699
+returned: 23 | home | 94894d60ceb4adafdfc73f63d22bc7c1492598dd
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -31,7 +31,7 @@ returned: 21 | home | 3ccd9925528072c42d193b31e2a0d8bad386b699
 | 20 | done | 0 | timeout -k 30 180 node scripts/claude-plugin-smoke.test.mjs; all three Claude-only callers read their installed commit rules; both linked cleanup recipes deleted a return file without pi |
 | 21 | done | 1 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; moved-text check confirms both whole-diff routes and one resolving pointer before repair at each changed review site; 17 passed, 0 failed |
 | 22 | done | 0 | timeout -k 30 20 python3 -c 'assert all("cite the contrary hunk in the review outcome and select no edit for a disproved claim" in open(path).read() for path in ("skills/gauntlet/implement/waves/waves.md", "skills/gauntlet/conformance-check.md"))'; both changed sites require a citation and exclude the disproved claim from repairs; moved-text evidence, not a live review |
-| 23 | open | 0 | |
+| 23 | done | 1 | timeout -k 30 30 node --test scripts/gate-contract-lint.test.mjs; 23 gate and question rows and six ship endings match their rendering sites; tracker and menu examples quote the renamed IDs; 9 passed, 0 failed |
 | 24 | open | 0 | |
 | 25 | open | 0 | |
 | 26 | open | 0 | |
@@ -52,3 +52,4 @@ returned: 21 | home | 3ccd9925528072c42d193b31e2a0d8bad386b699
 row 0 done | seeded 20 rows, closed 19 on baseline | row 21
 row 21 done | Wave reviews, re-reviews and conformance-fix reviews now check each finding against the assigned diff before selecting repairs. | Reuse the review-point table in scripts/wave-review.test.mjs to check link resolution and ordering at both repair sites.
 row 22 done | Both review sites require the orchestrator to cite the contrary hunk and make no edit for a disproved finding. | nothing new to build on
+row 23 done | Verified the rendering sites for 23 gate and question rows and six ship endings, and made the lint reject unlisted gate IDs inside those sites. | Use the inventory in scripts/gate-contract-lint.test.mjs to check the renamed IDs and ship endings.
