@@ -21,7 +21,7 @@ Read every source at `rules-from`: for a commit, use `git -C <root> show <merge-
 | `derived: <search or count>` | A read-only search or count derived from a mechanical rule, such as a banned pattern or required line. | Main session, using `rg`, `git grep`, `wc` or `find` over `specs` for `spec-superseded`, and over `files` for every other row. |
 | `command: <command>` | A repo-documented test, lint or build command. | Main session. |
 
-Resolve a documented command from overrides `## housekeeping`, then `## verification-before-completion`, then the rule files. Treat a command checking the content of a file kind held in the spec or plan dirs (a Markdown lint or link check) as a content command. For a content command, use its documented scoped form only when it leaves out the spec and plan dirs; with no such form, list it under checks not run because no documented form excludes the spec and plan folders, and raise none of its findings. Run a documented command that reads no such file as documented; retain its failure as a command finding. Invent no test, lint, build or setup command.
+Resolve a documented command from overrides `## housekeeping`, then `## verification`, then the rule files. Treat a command checking the content of a file kind held in the spec or plan dirs (a Markdown lint or link check) as a content command. For a content command, use its documented scoped form only when it leaves out the spec and plan dirs; with no such form, list it under checks not run because no documented form excludes the spec and plan folders, and raise none of its findings. Run a documented command that reads no such file as documented; retain its failure as a command finding. Invent no test, lint, build or setup command.
 
 ## Run without changing root
 

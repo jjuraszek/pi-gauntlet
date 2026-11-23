@@ -1,6 +1,6 @@
 # Carried-open disposition protocol
 
-Consumed by `finishing-a-development-branch` Step 3.5 on the **GAPS branch only** — the CONFORMS fast path never reads this file. Antecedent map for the relocated grammar below: "the reference" = `../conformance-check.md` (canonical for the availability table, the `UNAUTHORIZED` question, the `recommended: none` rule, the freshness rule, and the concern-scoped fix projection); "Revert semantics", "the zero-gap path", and every `Step N` (`Step 1`, `Step 3.5`, `Step 4`) reference = `ship.md`.
+Consumed by `ship.md` Step 3.5 on the **GAPS branch only** — the CONFORMS fast path never reads this file. Antecedent map for the relocated grammar below: "the reference" = `../conformance-check.md` (canonical for the availability table, the `UNAUTHORIZED` question, the `recommended: none` rule, the freshness rule, and the concern-scoped fix projection); "Revert semantics", "the zero-gap path", and every `Step N` (`Step 1`, `Step 3.5`, `Step 4`) reference = `ship.md`.
 
 **Carried-open render (numbered brief).** Read the `## Closure / conformance` block. The menu text is written after the recommendation is decided, never while deciding it. Negative example: `recommended: custom? Hmm. Dispositions: fix-now ... Actually, the amended spec makes G2 ...`.
 

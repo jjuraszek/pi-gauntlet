@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
@@ -15,19 +16,19 @@ test('combined plan opt-out and funding persists only the budget before the wave
   const persistAt = gate.indexOf('On every implementation approval', decodeAt);
   const amendAt = gate.indexOf('commit --amend --no-edit -q', persistAt);
   const checkAt = gate.indexOf('contains both fields with the selected values', amendAt);
-  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', checkAt);
-  const handoffAt = gate.indexOf('Then invoke `/skill:writing-plans` on 1', completeAt);
+  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm", engine })', checkAt);
+  const handoffAt = gate.indexOf('Continue without another prompt.', completeAt);
   assert.ok(decodeAt >= 0 && decodeAt < persistAt && persistAt < amendAt && amendAt < checkAt && checkAt < completeAt && completeAt < handoffAt);
 });
 
 test('saved combined flags persist fund 3 fix rounds without amendment permission on both models', () => {
   const candidate = JSON.parse(read('eval/spec-gate/results/flag-replies/candidate.json'));
-  const factsSha = sha256(read('eval/spec-gate/samples/flag-replies/expected.md'));
+  const factsSha = replayFactsSha(candidate, read('eval/spec-gate/samples/flag-replies/expected.md'));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, 'ok', model);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
+    assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
     assert.equal(judged.facts['plan-stop-funded']?.after, 'holds', `${model}: budget-only approval`);
   }

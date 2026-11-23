@@ -4,5 +4,5 @@
 - f4: judged: Calls plan_check on the plan path itself, after the child reply and before reading the plan or initializing the tracker.
 - f5: judged: Dispatches no scout, writes or edits no file, and includes no plan body text (no task steps, code, or Files blocks) in the narration.
 - f6: judged: Reads the plan once, then calls plan_tracker init with exactly W1: Emit the rate-limit header, W1: Count requests per key, W2: Read the header in the client, in that order, then reads the waves file named in the plan completion reply without choosing an execution mode.
-- four-paths: judged: The dispatch task names exactly four paths: worktree, spec, plan and plan contract. It includes no path to the writing-plans SKILL.md and no fifth path.
+- four-paths: judged: The dispatch task names exactly four paths: worktree, spec, plan and plan contract. It includes no path to the plan/plan.md and no fifth path.
 - no-reference-read: judged: The parent's narration reads neither plan-contract.md nor open-questions.md on this clean run; passing the plan-contract path to the child is not a parent read.

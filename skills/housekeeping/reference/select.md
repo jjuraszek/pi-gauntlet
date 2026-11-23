@@ -64,9 +64,9 @@ Record `commit` as HEAD of `root` at Select. Record changed line ranges per sele
 
 ## Worktree sequence
 
-Use this sequence for every PR or fix worktree. Do not invoke `/skill:using-git-worktrees`: its creator can edit the primary and cannot be pinned through the override's `create:` command to the required commit.
+Use this sequence for every PR or fix worktree. Do not follow `../../gauntlet/worktrees.md`: its creator can edit the primary and cannot be pinned through the override's `create:` command to the required commit.
 
-1. Read only `home:` from the overrides `## using-git-worktrees`, defaulting to `<primary>/.worktrees/<name>`.
+1. Read only `home:` from the overrides `## worktrees`, defaulting to `<primary>/.worktrees/<name>`.
 2. At Select, require a home inside the primary to be ignored by Git. On failure, stop per Report naming the ignore line the human must add; add nothing yourself.
 3. Run `git -C <primary> worktree add` at that home from the explicit commit or branch, one creation at a time. Use the PR head branch for PR admission; take a fix branch's starting commit from the Fix step.
 4. Confirm the created path in `git -C <primary> worktree list --porcelain`.

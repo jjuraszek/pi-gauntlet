@@ -71,7 +71,7 @@ categories above. A router entry, topic guide, or taxonomy index is
 invalidated by drift, not selected by topical weight. The test is: an
 existing doc's content is now wrong or misleading because of this change.
 If so, it belongs in class 3 regardless of whether it would clear any of the
-seven categories. A citing skill (for example `writing-plans`, which sources
+seven categories. A citing skill (for example `plan/plan.md`, which sources
 doc-update tasks from this section) must not apply the seven-category filter
 to class 3 entries.
 
@@ -123,13 +123,13 @@ Doc updates ship in the same commit as the code and the conformance gate verifie
 Keep this list in sync with the skills that cite this doc:
 
 - `brainstorming` section 6 and `brainstorm/spec-finalization.md` self-review and worker dispatch context.
-- `roasting-the-spec` member, chair, and applier dispatch context.
+- `brainstorm/council.md` member, chair, and applier dispatch context.
 - `amendment-surface.md` amendment-review dispatch context.
-- `writing-plans` - sources doc-update tasks from the spec's Documentation
+- `plan/plan.md` - sources doc-update tasks from the spec's Documentation
   impact section.
 - `conformance-check.md` - docs named
   here are origin requirements the conformance pass verifies.
-- `finishing-a-development-branch` Step 1's doc-impact pointer.
+- `ship/ship.md` Step 1's doc-impact pointer.
 
 ## Project-specific taxonomy
 

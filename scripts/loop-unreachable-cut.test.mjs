@@ -31,7 +31,7 @@ test('admitted target evidence routes before budget and dispatch without driver 
 
 test('action accounting has no driver hook or eval resource', () => {
   assert.doesNotMatch(driver, /action-spend|action records|repair accounting/);
-  assert.equal(existsSync(new URL('skills/loop-implementation/reference/action-spend.md', root)), false);
+  assert.equal(existsSync(new URL('skills/gauntlet/implement/loop/action-spend.md', root)), false);
   const { skillFiles } = JSON.parse(readFileSync(new URL('eval/loop/target.json', root), 'utf8'));
   assert.ok(skillFiles.every(({ path }) => !path.endsWith('/action-spend.md')));
   for (const name of ['unreachable-returns', 'interrupted-recovery']) {

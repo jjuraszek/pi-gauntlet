@@ -1,4 +1,4 @@
-# brainstorming eval
+# gauntlet eval
 
 Tests questionary and approaches messages (checklist steps 3-5) and same-turn continuation through design rounds (step 6) against gathered drafts and recorded state: premise notes, framing question, 2-3 approaches with `Pattern:` lines, ticket cut questions, repo attribution, and human approval/pause boundaries.
 

@@ -120,8 +120,8 @@ test("an unsuccessful boundary delivery never queues a fallback", async () => {
 });
 
 for (const [phase, message] of [
-  ["plan", "Continue the approved workflow now. Invoke /skill:subagent-driven-development."],
-  ["verify", "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch."],
+  ["plan", "Continue the approved workflow now. Follow the recorded engine's implement instructions."],
+  ["verify", "Continue the approved workflow now. Read skills/gauntlet/ship/ship.md."],
 ]) {
   test(`${phase} completion delivers its original handoff once without an implement restart`, async () => {
     const { branch, requests } = await runWave([], { phase, status: "complete" });

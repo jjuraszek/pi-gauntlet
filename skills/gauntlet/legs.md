@@ -57,7 +57,7 @@ Record only the contract fields authorized by the creator; never record a produc
 
 | Creator | Recorded fields |
 |---|---|
-| Keyed `## using-git-worktrees` contract | Retain `home:`, `create:`, `destroy:`, including the keyed `.worktrees/<name>` default for omitted `home:`. |
+| Keyed `## worktrees` contract | Retain `home:`, `create:`, `destroy:`, including the keyed `.worktrees/<name>` default for omitted `home:`. |
 | Owned built-in | Retain `.worktrees/<name>` as `home:`, with built-in `create:` and `destroy:`. |
 | Native tool or discovered script, tree created by this flow | Record `create:` and `destroy:`; omit `home:`. |
 | Tree the session was already inside, no keyed contract | Omit `home:` and `destroy:`; retain host ownership. |
@@ -81,11 +81,11 @@ Record only the contract fields authorized by the creator; never record a produc
   `doc/specs`, `docs/specs`; derive plan directories with `planDirsFor`.
   Never read `planDirs` as settings input. Choose the leg's spec directory by the
   existing spec-location convention. Keep plan and ledger home-owned.
-- Verification: retain commands from `## verification-before-completion` and
+- Verification: retain commands from `## verification` and
   `## PR gate`, plus merged `piGauntlet.verifyBeforeShip`. Preserve templates
   describing execution against the leg's worktree or primary.
 
-Invoke using-git-worktrees once per member with explicit `$ROOT` = primary and
+Follow `worktrees.md` once per member with explicit `$ROOT` = primary and
 `$BRANCH` = shared branch; require the affirmative read-back in
 [Step 4](worktrees.md#step-4--report-location).
 Carry every `Worktree ready at <path>` result, home
@@ -116,7 +116,7 @@ For cleanup lookup failures, run no destroy command and delete no branch for
 that leg; report the repo, branch and reason without an invented path, then
 continue with remaining legs. Apply this rule to plan writing, finishing,
 draft-PR cleanup and continuation, and resume's absent companion locations.
-Use it also when loop-implementation seed or authorized restore and bare-worktree
+Use it also when `implement/loop/loop.md` seed or authorized restore and bare-worktree
 gauntlet-resume capture companion paths without a brief `legs:` location.
 Keep receipt admission of missing delivered trees unchanged.
 

@@ -1,4 +1,4 @@
-> **Related skills:** Set up **before** `/skill:gauntlet` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `/skill:subagent-driven-development`. Clean up with `/skill:finishing-a-development-branch`.
+> **Related skills:** Set up **before** `/skill:gauntlet` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `implement/waves/waves.md`. Clean up with `ship/ship.md`.
 
 # Using Git Worktrees
 
@@ -8,7 +8,7 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 
 **Core principle:** Detect existing isolation first → prefer the project's native tool → default to `<repo>/.worktrees/<name>`, creating it if missing.
 
-**Announce at start:** "I'm using the using-git-worktrees skill to set up an isolated workspace."
+**Announce at start:** "I'm setting up an isolated workspace."
 
 ## Step 0 — Detect Existing Isolation (REQUIRED)
 
@@ -70,15 +70,15 @@ and branch; never suffix or reuse an unrelated tree. On dirty-primary decline,
 abort creation. On every failure, preserve created trees and list them using
 [Step 4's coordinated-member inventory](#step-4--report-location).
 
-## Step 1a - Read the `## using-git-worktrees` contract
+## Step 1a - Read the `## worktrees` contract
 
-Read the gauntlet overrides file under `$ROOT` (ladder in Project overrides) before any tool or wrapper discovery. With a caller-supplied `$ROOT` (a coordinated member), read that member's overrides file and `$ROOT/.pi/settings.json` by file for its checkout configuration using existing preset rules - never the session-scoped `gauntlet_setting` - and run wrapper discovery under `$ROOT`. Its `## using-git-worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
+Read the gauntlet overrides file under `$ROOT` (ladder in Project overrides) before any tool or wrapper discovery. With a caller-supplied `$ROOT` (a coordinated member), read that member's overrides file and `$ROOT/.pi/settings.json` by file for its checkout configuration using existing preset rules - never the session-scoped `gauntlet_setting` - and run wrapper discovery under `$ROOT`. Its `## worktrees` section carries up to three key lines, written like `## cleanup` items; prose before, between, or after them is instruction too:
 
 | Key | Meaning | Absent (keyed contract active) |
 |---|---|---|
 | `- home: <path pattern>` | Where this repo's worktrees live, relative to the primary checkout (an absolute path is used as-is). `<name>` substitutes and must appear exactly once, inside one path segment that may carry a literal prefix or suffix (`../acme-mono-<name>`). Ownership test for finishing Step 6 and gatekeep cleanup. | `<primary>/.worktrees/<name>` |
 | `- create: <command>` | Shell command run from the primary with `<name>` and `<branch>` substituted. Any other `<token>` stays literal: resolve it from the task context when the plan, ticket, or prompt names exactly one value for it (`<subproject>`: the one top-level directory the change touches); zero or several candidates -> ask once. | Built-in: `git worktree add "<home>" -b "<branch>"`, gitignore-first only when the home is inside the primary |
-| `- destroy: <command>` | Removal command run from the primary, same substitution; read by `finishing-a-development-branch` Step 6 and gatekeep-pr cleanup. | `git worktree remove "<path>" && git worktree prune` when the path matches `home:`; host-owned, keep, when it does not |
+| `- destroy: <command>` | Removal command run from the primary, same substitution; read by `ship/ship.md` Step 6 and gatekeep-pr cleanup. | `git worktree remove "<path>" && git worktree prune` when the path matches `home:`; host-owned, keep, when it does not |
 
 The **keyed contract is active** when at least one key is present. A duplicate key: the first wins; name the duplicate. `home:` without a `<name>` segment, or with it twice: stop and name the line.
 
@@ -116,7 +116,7 @@ Only when no native tool exists:
 
 ### 2a. Pick a location
 
-Derive `NAME` from `$BRANCH` by replacing every `/` with `-`. The canonical home is `<repo>/.worktrees/<name>`. A keyed `## using-git-worktrees` section never reaches this step (Step 1a creates at `home:`); on the legacy path a wrapper may define another path, otherwise use the canonical home. Do not ask local-vs-global or invent another path.
+Derive `NAME` from `$BRANCH` by replacing every `/` with `-`. The canonical home is `<repo>/.worktrees/<name>`. A keyed `## worktrees` section never reaches this step (Step 1a creates at `home:`); on the legacy path a wrapper may define another path, otherwise use the canonical home. Do not ask local-vs-global or invent another path.
 
 ### 2b. Create - gitignore the home first
 
@@ -160,7 +160,7 @@ The process cwd never changes. `$WORKTREE` is the value every later step carries
 On a permission failure (read-only filesystem or container sandbox without write to parent dirs), use the caller-root boundary:
 
 - With an explicit caller root, stop naming the repo, requested branch and error; never branch the session cwd. Preserve created trees and list them using [Step 4's coordinated-member inventory](#step-4--report-location).
-- Without a caller root, announce the failure and continue in the current directory on a feature branch after the Step 1 consent. Treat this as degraded in-place mode: `/skill:finishing-a-development-branch` requires a worktree path and does not finish an in-place branch.
+- Without a caller root, announce the failure and continue in the current directory on a feature branch after the Step 1 consent. Treat this as degraded in-place mode: `ship/ship.md` requires a worktree path and does not finish an in-place branch.
 
 ## Step 3 — Verify Clean Base
 
@@ -229,8 +229,8 @@ Re-run tests after rebasing.
 | `GIT_DIR != GIT_COMMON` | Already in worktree - report its path, create nothing |
 | Worktree path already listed by `git worktree list` | Explicit caller root: stop on collision; otherwise report existing isolation |
 | `git rev-parse --show-superproject-working-tree` returns a path | Submodule — treat as normal repo |
-| `## using-git-worktrees` has `home:`/`create:`/`destroy:` | Keyed contract (Step 1a): run `create:` or the built-in add at `home:`, then the post-create check |
-| `## using-git-worktrees` absent or keyless | Legacy path: native tool, then wrapper discovery, then `<repo>/.worktrees/<name>` |
+| `## worktrees` has `home:`/`create:`/`destroy:` | Keyed contract (Step 1a): run `create:` or the built-in add at `home:`, then the post-create check |
+| `## worktrees` absent or keyless | Legacy path: native tool, then wrapper discovery, then `<repo>/.worktrees/<name>` |
 | Project-native wrapper exists (legacy path) | Use the wrapper (commonly `script/worktree create`) |
 | No native tool | Create `<repo>/.worktrees/<name>` (gitignore `.worktrees/` first) |
 | Detached HEAD | Ask before branching |
@@ -243,7 +243,7 @@ Re-run tests after rebasing.
 - About to `cd` into the worktree (carry the path instead)
 - About to call `git worktree add` directly when the project ships a wrapper (use the wrapper)
 - Created a `.worktrees/` worktree without gitignoring `.worktrees/` first
-- Placed a worktree outside `.worktrees/` (or the `home:` key of `## using-git-worktrees`) for no reason
+- Placed a worktree outside `.worktrees/` (or the `home:` key of `## worktrees`) for no reason
 - Source checkout dirty and you proceed without asking
 - About to run a test suite during worktree creation
 - Executed a `create:` or `destroy:` template with an unresolved `<token>` still in it
@@ -253,11 +253,11 @@ Re-run tests after rebasing.
 
 **Called by:**
 - `/skill:gauntlet` — **before** writing the spec; the spec is the worktree's first commit
-- `/skill:subagent-driven-development` — required before any implementation tasks
+- `implement/waves/waves.md` — required before any implementation tasks
 - Any skill needing isolated workspace
 
 **Pairs with:**
-- `/skill:finishing-a-development-branch` — REQUIRED for cleanup. Default finish squashes the worktree's full history into a single commit on `main`. If the worktree was created by a project-native wrapper, cleanup defers to the wrapper's destroy command.
+- `ship/ship.md` — REQUIRED for cleanup. Default finish squashes the worktree's full history into a single commit on `main`. If the worktree was created by a project-native wrapper, cleanup defers to the wrapper's destroy command.
 
 **Note:** Trivial one-off edits the user explicitly asks for (e.g. "fix this typo") do not require a worktree. Everything else — specs, plans, implementation — belongs in a worktree from the first artifact onward.
 

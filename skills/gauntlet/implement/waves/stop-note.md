@@ -1,4 +1,4 @@
-# Stop note (subagent-driven-development companion)
+# Stop note (`waves.md` companion)
 
 For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Keep source reads delegated; use the bounded direct-report read rule in waves.md for child reports. Stop on a delegated failure.
 

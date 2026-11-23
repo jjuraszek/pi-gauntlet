@@ -82,7 +82,7 @@ function assertCapture(actual, { policy, flag, subject, body, admin }) {
 }
 
 test('merge wording delegates to the shared landed-message and ticket rules', () => {
-  assert.match(merge, /Read \[commit message\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
+  assert.match(merge, /Read \[commit message\]\(\.\.\/\.\.\/gauntlet\/commit-message.md\)/);
   assert.match(merge, /compose its Landed message from the carried spec or the PR title and description, using its Gatekeep ticket rule/);
   assert.match(merge, /For rebase pass neither message flag/);
   assert.match(merge, /Keep these message flags on a merge-queue request too/);

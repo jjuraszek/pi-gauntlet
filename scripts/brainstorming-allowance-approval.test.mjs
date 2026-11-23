@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
@@ -13,8 +14,8 @@ test('loop allowance flag stays separate from grant persistence and precedes the
   assert.ok(gate.includes('persist it only in the ledger, not in the spec or settings'));
   assert.ok(!gate.includes('For 4/5, accept one optional'));
   const checkAt = gate.indexOf('contains both fields with the selected values');
-  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', checkAt);
-  const carrierAt = gate.indexOf('For an accepted `--allowance=N` flag on row 2, print exactly one line `run allowance: <n>` immediately before invoking `/skill:loop-implementation`', completeAt);
+  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm", engine })', checkAt);
+  const carrierAt = gate.indexOf('For an accepted `--allowance=N` flag on row 2, print exactly one line `run allowance: <n>` before reading the file named by `Instructions:`', completeAt);
   assert.ok(checkAt >= 0 && checkAt < completeAt && completeAt < carrierAt);
   assert.ok(gate.includes('omit that line on a bare approval'));
   assert.ok(gate.includes('Render the carrier as a standalone plain-text line, even when narrating the handoff; keep it in the approving turn only, never in the spec or settings.'));
@@ -22,16 +23,16 @@ test('loop allowance flag stays separate from grant persistence and precedes the
 
 test('saved allowance flag replays carry run allowance 6 without a spec allowance on both models', () => {
   const candidate = JSON.parse(read('eval/spec-gate/results/flag-replies/candidate.json'));
-  const factsSha = sha256(read('eval/spec-gate/samples/flag-replies/expected.md'));
+  const factsSha = replayFactsSha(candidate, read('eval/spec-gate/samples/flag-replies/expected.md'));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, 'ok', model);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
+    assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
     for (const id of ['loop-allowance', 'loop-label-allowance']) {
       assert.equal(judged.facts[id]?.after, 'holds', `${model}: ${id} separate allowance carrier`);
     }
-    assert.match(output.text, /^run allowance: 6\r?\n\/skill:loop-implementation\r?$/m, `${model}: literal carrier directly before invocation`);
+    assert.match(output.text, /^run allowance: 6\r?$/m, `${model}: standalone allowance carrier`);
   }
 });

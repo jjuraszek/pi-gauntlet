@@ -21,8 +21,8 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    `branch` line is `refs/heads/<name>` or ends in `/<name>` -> `<full-path>` is that
    block's `worktree` line; skip creation (layout-agnostic: wrapper sibling dirs,
    wrapper branch prefixes such as `<user>/<name>`, and `.worktrees/` alike); more than
-   one match -> the human picks. No block -> invoke `/skill:using-git-worktrees` with branch `<name>` and carry its
-   `Worktree ready at <full-path>`; its Step 1a applies project `## using-git-worktrees`
+   one match -> the human picks. No block -> follow `../../gauntlet/worktrees.md` with branch `<name>` and carry its
+   `Worktree ready at <full-path>`; its Step 1a applies project `## worktrees`
    overrides, its Step 3 runs the clean-base check and dirty ask. Wrapper arguments
    beyond `<name>` are that skill's ask, never inferred here. Any stop it raises is this
    route's stop, verbatim. Never invent a second name.
@@ -35,7 +35,7 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    available".
 
 The seed route writes no spec copy, rename, or marker commit: the spec stays where main
-tracks it, amends ride the squash as ordinary diffs, and `finishing-a-development-branch`
+tracks it, amends ride the squash as ordinary diffs, and `../../gauntlet/ship/ship.md`
 strips only the plan. `gauntlet-telemetry-salvage` prints `no spec on branch` for an
 unamended seed throughout the flow (it selects specs from `git diff --name-only
 <base>...HEAD`, which never lists a file tracked at base), so the extension's live ship

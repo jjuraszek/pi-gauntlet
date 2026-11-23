@@ -233,11 +233,11 @@ test("phaseModels: resolver warnings appear only for their phase", async () => {
 
 test("agent_settled nudges each exact edge with persisted details", async () => {
   for (const [state, edge, skill] of [
-    [phases({ brainstorm: "complete", plan: "complete" }), "plan-implement", "/skill:subagent-driven-development"],
+    [phases({ brainstorm: "complete", plan: "complete" }), "plan-implement", "recorded engine's implement instructions"],
     [
       phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" }),
       "verify-ship",
-      "/skill:finishing-a-development-branch",
+      "skills/gauntlet/ship/ship.md",
     ],
   ] as const) {
     const h = harness({ branch: enteredBranch(state, [assistant()]) });
@@ -525,7 +525,7 @@ test("implement-write guard: warns once on parent write outside exempt dirs, exe
     await h.emitEvent("tool_call", writeCall("t3", "src/x.ts"));
     const warned = (await h.emitEvent("tool_result", writeResult("t3")))[0] as { content: { text: string }[] };
     assert.match(warned.content[0].text, /implement/);
-    assert.match(warned.content[0].text, /subagent-driven-development/);
+    assert.match(warned.content[0].text, /recorded engine's implement instructions/);
     assert.match(warned.content[0].text, /merge-conflict/);
     await h.emitEvent("tool_call", writeCall("t4", "src/y.ts"));
     assert.equal((await h.emitEvent("tool_result", writeResult("t4")))[0], undefined); // warn-once

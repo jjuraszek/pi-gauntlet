@@ -13,7 +13,7 @@ contains and how its entries are scoped.
 
 Work flows `prompt/spec → plan → code/doc`. Each hop is lossy: the plan can
 drop or reinterpret a requirement, and code can drift from the plan. Reviewing
-**plan vs code** (what `/skill:requesting-code-review` does) is *single-step*
+**plan vs code** (what `requesting-review.md` does) is *single-step*
 verification — it confirms the last hop, but inherits any drift the plan already
 introduced.
 
@@ -35,7 +35,7 @@ pass in:
 - The **spec** (path).
 - The **original prompt** (verbatim — it holds inline requirements + any ticket ref).
 - The **diff** to audit (code + docs).
-- The **happy-path summary**, when `subagent-driven-development` step 3 ran one: `Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)`, `<outcome>` being the outcome line without its `happy-path: ` prefix. Omitted when no run happened; the ad-hoc path in `finishing-a-development-branch` (no plan, no header) never runs one and never passes this input.
+- The **happy-path summary**, when `implement/waves/waves.md` step 3 ran one: `Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)`, `<outcome>` being the outcome line without its `happy-path: ` prefix. Omitted when no run happened; the ad-hoc path in `ship/ship.md` (no plan, no header) never runs one and never passes this input.
 
 Before R0, capture HEAD as `r0-head` and retain it through the fix loop. Capture a new entry HEAD for a finish-time `fix-now` round; never reconstruct either boundary from commit subjects.
 
@@ -128,13 +128,13 @@ partition from an earlier round.
 
 ### Ledger subjects
 
-Treat a `# Ledger - loop engine` subject as the loop path, never the ad-hoc no-plan path. Read `/skill:loop-implementation`'s `## Gate set` at its absolute skill path and apply it at every test site below, including its missing-`checks:` stop, owning-checkout routing, fail-fast execution and `LOG_DIR` redirection. Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site. Keep the plan and ad-hoc rules below unchanged for non-ledger subjects.
+Treat a `# Ledger - loop engine` subject as the loop path, never the ad-hoc no-plan path. Read `implement/loop/loop.md`'s `## Gate set` at its absolute skill path and apply it at every test site below, including its missing-`checks:` stop, owning-checkout routing, fail-fast execution and `LOG_DIR` redirection. Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site. Keep the plan and ad-hoc rules below unchanged for non-ledger subjects.
 
 For a ledger repair or Convergence task, pass the failing command, its checkout, exit code and log path, never pasted output. The child reads the log to derive the files to touch, including Convergence (c)'s files named by failing output; the driver does not read it. Feed that single gate failure into the existing fix-round machinery.
 
 ### Fix loop - SDD wave-loop mirror, per round
 
-Mirrors `subagent-driven-development`'s wave loop and reuses its
+Mirrors `implement/waves/waves.md`'s wave loop and reuses its
 `plan_tracker` progress surface. Runs entirely inside the gate — it invokes
 **no** phase-transition `phase_tracker` calls (`start`/`complete`/`skip`/`reset`
 - `phase_tracker({ phase: "implement" })` errors while verify is `in_progress`;
@@ -143,7 +143,7 @@ the only `phase_tracker` call inside the loop is the human-approval
 Only the fan-out/integrate/review shape and `plan_tracker` are reused. Every execution dispatch is foreground with top-level `async: false`, including retries and prose-described dispatches; an unexpected async handle is a configuration failure: stop and report, never poll or relaunch. `forceTopLevelAsync` is incompatible; see [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
 
 **Precondition — worktree required.** The loop needs a worktree HEAD to branch
-fixes from. On the ad-hoc `finishing-a-development-branch` paths that run in a
+fixes from. On the ad-hoc `ship/ship.md` paths that run in a
 normal repo (`GIT_DIR == GIT_COMMON`) or detached HEAD, there is no such HEAD:
 skip this loop and carry every `fix` gap OPEN per the precondition-unavailable
 carry-OPEN rule in the partition step above, resolving it at finish via the
@@ -164,7 +164,7 @@ Per round:
 3. **Integrate** serially via `git -C "<conformance-worktree>" apply` onto the worktree HEAD, one gap's
    patch at a time. Compose each message through the shared Conformance gap fix commit row; use the Convergence repair commit row for a Convergence wave. Record each integrated gap's full SHA under its `Gn` in the `auto-applied fix commits` index; identify fixes and reverts from that index, never from commit subjects.
    Failure handling is inherited verbatim from
-   `dispatching-parallel-agents` "Review and Integrate": textual conflict →
+   `implement/waves/parallel-agents.md` "Review and Integrate": textual conflict →
    re-run one agent sequentially with the other's integrated changes as
    context; semantic conflict (applies clean, suite fails) → re-run the
    offending task sequentially on integrated HEAD; a failed agent → integrate
@@ -201,7 +201,7 @@ Per round:
 **Convergence** - run after R0 `CONFORMS` and after every `CONFORMS` re-audit. Keep `r0-head` at the captured entry HEAD (the R0 dispatch or finish-time `fix-now` entry); keep `audited-base` at the last audit's HEAD SHA. Never reconstruct the boundary from a subject.
 
 a. For a ledger, run the complete gate set per Ledger subjects above. Otherwise: Run the full plan-header `Verification` set once as `(cd "<conformance-worktree>" && <command>)` (ad-hoc: the project's canonical test command). After R0 `CONFORMS` with no round run, the pre-R0 run of the applicable set counts.
-b. Dispatch `wave-reviewer` directly (foreground, `async: false`, `cwd` = the conformance worktree, `SCOPED_TEST_COMMANDS: none`) over `git diff <r0-head>..HEAD`; never via `/skill:requesting-code-review`. An empty diff is nothing to review - no dispatch.
+b. Dispatch `wave-reviewer` directly (foreground, `async: false`, `cwd` = the conformance worktree, `SCOPED_TEST_COMMANDS: none`) over `git diff <r0-head>..HEAD`; never via `requesting-review.md`. An empty diff is nothing to review - no dispatch.
 c. Repair items = every failing command from a + every Critical/Moderate finding from b (the re-audit is their origin check). None → write the closure block; done. Any at the cap → escalate per step 6 with the test/CR trail (an explicit human approval re-enters via `grant_fix_rounds`, as step 6 describes). Any under the cap → re-enter step 2 as a one-task `tasks` wave: one `implementer` whose task is every repair item verbatim (ownership boundary = the files in `git diff <r0-head>..HEAD`, the CR findings' `touched-files`, and the files each failing command's output names, `SCOPED_TEST_COMMANDS: none`, no `Gn` tracker task, no gap selection), integrate as one repair commit through the shared Convergence repair row, re-audit, then Convergence again. That wave counts against `maxFixRounds`. Later Convergence CRs keep the same `<r0-head>..HEAD` range.
 
 Keep a Convergence repair out of the `auto-applied fix commits` index: it is not a gap fix and has no `revert conformance fix Gn` action at the finish gate.
@@ -279,7 +279,7 @@ decomposes it or emits the indivisible fallback.
 
 Each concern lists **every** supported disposition, its concrete effect, and
 current availability. This table is the single availability contract, referenced
-by both this verify gate and `finishing-a-development-branch`:
+by both this verify gate and `ship/ship.md`:
 
 |Disposition|Ordinary gap effect|`UNAUTHORIZED` effect|Available when|
 |---|---|---|---|
@@ -335,7 +335,7 @@ only if a concern remains open.
 ## Closure / conformance
 
 Emit this block in the verify completion summary. It is the durable handoff
-`finishing-a-development-branch` Step 3.5 consumes — parseable even if session
+`ship/ship.md` Step 3.5 consumes — parseable even if session
 context was pruned. Verify completes when every gap is either fixed
 (`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`,
 or a `recommended: fix` gap carried OPEN per the precondition-unavailable
@@ -360,8 +360,8 @@ Deferred/deviates per spec: AC2 deviates: <why>; AC3 deferred to <ref>; AC5 defe
 
 `N` = count of open concerns (decision units), matching the number of emitted
 concern cards. Record `audited-base` as the full 40-char HEAD SHA at audit time;
-never abbreviate. The `happy-path:` line is present exactly when a happy-path run happened, carrying the value of the reviewer's `Happy path:` output line of the final audit (the text after `Happy path: `; the transcript the final verdict was audited against). It is not a concern card: `N` and the card count ignore it. The `Deferred/deviates per spec:` line is present exactly when the spec's `## Acceptance criteria` carries at least one `deferred:` or `deviates:` row, built by the orchestrator from those rows (`AC<n> deferred to <ref>` or `AC<n> deviates: <why>`, `;`-joined, row order); it is informational: `N` and the card count ignore it, it never triggers a re-audit, and those rows never produce a concern card. `finishing-a-development-branch` Step 3.5 renders each of these lines as one informational line. This block is the **single source** for the freshness rule;
-`finishing-a-development-branch` links here rather than restating it.
+never abbreviate. The `happy-path:` line is present exactly when a happy-path run happened, carrying the value of the reviewer's `Happy path:` output line of the final audit (the text after `Happy path: `; the transcript the final verdict was audited against). It is not a concern card: `N` and the card count ignore it. The `Deferred/deviates per spec:` line is present exactly when the spec's `## Acceptance criteria` carries at least one `deferred:` or `deviates:` row, built by the orchestrator from those rows (`AC<n> deferred to <ref>` or `AC<n> deviates: <why>`, `;`-joined, row order); it is informational: `N` and the card count ignore it, it never triggers a re-audit, and those rows never produce a concern card. `ship/ship.md` Step 3.5 renders each of these lines as one informational line. This block is the **single source** for the freshness rule;
+`ship/ship.md` links here rather than restating it.
 
 **Freshness rule.** The audit-input rule requires deliverables committed before
 auditing, so `audited-base` captures the audited state; freshness compares that

@@ -385,7 +385,7 @@ Credentials are the declared command's own concern - a credential failure
 is a stage-2 failure, not a skip. This slot table is the thin-wrapper
 contract: a consumer's closeout prompt reduces to a `## Delivery` block plus
 a one-line wrapper invoking this skill. Worktree cleanup is out of scope -
-that belongs to `finishing-a-development-branch`.
+that belongs to `../gauntlet/ship/ship.md`.
 
 Malformed slot values fail safe, with one warning per invocation naming the
 bad value: `synthesized AC gaps` treats anything other than `block`/`soft`

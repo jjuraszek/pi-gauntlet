@@ -170,7 +170,7 @@ const CLOSURE_GATE_ERROR =
 const SHIP_ADVISORY =
   "Verify is complete and ship is pending. Verify may complete when the conformance\n" +
   "verdict is CONFORMS, or every gap is either fixed or carried open as a deferred\n" +
-  "accept/rescope/unauthorized decision. Invoke /skill:finishing-a-development-branch\n" +
+  "accept/rescope/unauthorized decision. Read skills/gauntlet/ship/ship.md\n" +
   "now - do not add a 'ready to finish?' prompt; its disposition + squash/PR/keep/discard\n" +
   "menu is the human gate that resolves any carried-open decision. Only reopen verify if\n" +
   "a `fix` gap was left unresolved (neither fixed nor deferred).";
@@ -203,8 +203,8 @@ function unmarkedStopAfterMovement(branch: SessionEntry[]): boolean {
 }
 
 const RECOVERY_MESSAGES: Record<RecoveryEdge, string> = {
-  "plan-implement": "Continue the approved workflow now. Invoke /skill:subagent-driven-development.",
-  "verify-ship": "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch.",
+  "plan-implement": "Continue the approved workflow now. Follow the recorded engine's implement instructions.",
+  "verify-ship": "Continue the approved workflow now. Read skills/gauntlet/ship/ship.md.",
 };
 
 const recoveryEdgeFromDetails = (details: unknown): RecoveryEdge | undefined => {
@@ -235,7 +235,7 @@ const SCRATCH_MENTION = /\/tmp\/|\/var\/folders\/|\/dev\//;
 const branchBlockReason = (phase: Phase): string =>
   `Branch switch/creation in the primary checkout is blocked during the ${phase} phase. ` +
   "Gauntlet flows run in a dedicated worktree (git worktree add ... is allowed here); " +
-  "create/enter one with /skill:using-git-worktrees and run this there. " +
+  "create/enter one by following skills/gauntlet/worktrees.md and run this there. " +
   "To override, set piGauntlet.flowGuards.enforce: false.";
 
 // Walk the single / tasks / chain / parallel dispatch shapes and return every
@@ -313,7 +313,7 @@ const brainstormWriteWarning = (specDirs: string[]): string =>
 const implementWriteWarning = (): string =>
   "⚠️ Parent write during the implement phase.\n" +
   "During implement the main loop orchestrates; subagents write the code - dispatch\n" +
-  "this via /skill:subagent-driven-development instead of editing directly.\n" +
+  "this using the recorded engine's implement instructions instead of editing directly.\n" +
   "If this edit is merge-conflict resolution between parallel waves, proceed.";
 
 // Contiguous-subsequence match of a configured spec dir against path components.

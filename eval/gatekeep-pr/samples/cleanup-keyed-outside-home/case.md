@@ -9,7 +9,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 - comments: { inline: [], top_level: [] }
 - issue_ref: null; issue: null
 - worktree: { path: /home/dev/scratch/backoff, branch: feature/backoff, created: false, destroy: null }
-- overrides at merge-base: `## using-git-worktrees` with `- home: ../mono-<name>`; no `## cleanup` section
+- overrides at merge-base: `## worktrees` with `- home: ../mono-<name>`; no `## cleanup` section
 - primary: /work/mono on main, tracked-clean; `git -C /home/dev/scratch/backoff status --porcelain --untracked-files=no` prints nothing; `git -C /home/dev/scratch/backoff merge-base --is-ancestor HEAD 8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c8c` succeeds; `realpath` returns every path unchanged; `git worktree list --porcelain` lists `branch refs/heads/feature/backoff` for /home/dev/scratch/backoff
 
 ## Entry

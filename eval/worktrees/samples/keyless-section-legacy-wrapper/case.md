@@ -4,7 +4,7 @@ Primary checkout: /work/acme-ops, on branch main, `git status --porcelain` print
 
 `.pi/gauntlet.md` contains:
 
-## using-git-worktrees
+## worktrees
 Use the project's wrapper: `script/worktree create <name>`. It provisions an isolated database and copies `.env.local`. Never call `git worktree add` directly.
 
 `script/worktree` exists and is executable; `script/worktree create alerts` creates /work/acme-ops-alerts and prints that path. After it runs, `git worktree list --porcelain` lists /work/acme-ops-alerts.

@@ -46,4 +46,4 @@ Samples use `bundle-` lines in `case.md` to drop the reference files their facts
 
 Process, commands, and record schema: [eval process](../README.md).
 
-Samples prefixed `cleanup-keyed-` enter at the `cleanup` pick with a keyed `## using-git-worktrees` contract in the merge-base overrides and judge the ownership match before removal.
+Samples prefixed `cleanup-keyed-` enter at the `cleanup` pick with a keyed `## worktrees` contract in the merge-base overrides and judge the ownership match before removal.

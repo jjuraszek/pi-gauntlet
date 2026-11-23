@@ -1,13 +1,13 @@
 # Split axes: when one request becomes N artifacts
 
 Consumed by `shape-ticket` (one ticket vs N), `brainstorming` (one spec vs N), and
-`writing-plans` (scope check). One artifact is the default; a split must pass every
+`../../gauntlet/plan/plan.md` (scope check). One artifact is the default; a split must pass every
 test below.
 
 ## Scope
 
 This test governs **tickets and specs**. PR and plan decomposition is owned by
-`writing-plans`; one ticket normally ships as one PR. A ticket carrying too many
+`../../gauntlet/plan/plan.md`; one ticket normally ships as one PR. A ticket carrying too many
 concerns is split by this test - never by splitting its PRs, and never by layer.
 
 ## Identity test (a) - one concern or two

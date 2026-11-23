@@ -70,7 +70,7 @@ Predicate (shared with replay): `subagent` result, `isError !== true`, `details.
 | Shape | Phase | Entered | Latch | Guard |
 |---|---|---|---|---|
 | SDD sequential task, SR/CR fix re-dispatch, escalation with model override, failure retry | implement | yes | any | pass |
-| Verify step 2 whole-diff CR fix rounds and their escalations (`/skill:requesting-code-review`) | verify | yes | unset (run before R0 audit) | pass |
+| Verify step 2 whole-diff CR fix rounds and their escalations (`skills/gauntlet/requesting-review.md`) | verify | yes | unset (run before R0 audit) | pass |
 | Conformance fix wave, convergence repair, retry inside the loop | verify | yes | set | `tasks` shape - pass until cap |
 | Cap reached | verify | yes | set | escalation goes to the human, no implementer dispatch - nothing to pass |
 | Finish-gate fix-now concern projection | ship | yes | any | pass |

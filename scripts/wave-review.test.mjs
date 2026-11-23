@@ -31,7 +31,7 @@ const skill = readFileSync(new URL('../skills/gauntlet/implement/waves/waves.md'
 const template = readFileSync(new URL('../skills/gauntlet/wave-reviewer.md', import.meta.url), 'utf8');
 const wave = skill.split('## The Wave Loop')[1].split('## When a Subagent Fails')[0];
 
-const loadReference = name => { const path = new URL(`../skills/subagent-driven-development/reference/${name}.md`, import.meta.url); return existsSync(path) ? readFileSync(path, 'utf8') : ''; };
+const loadReference = name => { const path = new URL(`../skills/gauntlet/implement/waves/${name}.md`, import.meta.url); return existsSync(path) ? readFileSync(path, 'utf8') : ''; };
 const dispatch = loadReference('dispatch-contract');
 const amendments = loadReference('implement-amendments');
 
@@ -60,12 +60,12 @@ test('replacement samples and retired protocol inventory', () => {
     for (const file of ['case','expected']) assert.ok(existsSync(new URL(`../eval/waves/samples/${name}/${file}.md`, import.meta.url)), name);
   }
   for (const name of ['chain-wave-dispatch', 'patch-review-snapshot', 'report-by-path-fix', 'test-gate-repair']) assert.equal(existsSync(new URL(`../eval/waves/samples/${name}`, import.meta.url)), false, name);
-  for (const path of ['reference/fix-loop.md','spec-reviewer-prompt.md','code-quality-reviewer-prompt.md']) assert.equal(existsSync(new URL(`../skills/subagent-driven-development/${path}`, import.meta.url)), false);
+  for (const path of ['fix-loop.md','spec-reviewer-prompt.md','code-quality-reviewer-prompt.md']) assert.equal(existsSync(new URL(`../skills/gauntlet/implement/waves/${path}`, import.meta.url)), false);
 });
 test('planning and wave dispatch bind task roots and Rules to admitted legs', () => {
   const contract = readFileSync(new URL('../skills/gauntlet/plan/plan-contract.md', import.meta.url), 'utf8');
   for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown']) assert.ok(contract.includes(token), token);
-  assert.match(contract, /brainstorming\/reference\/legs\.md#locate-a-leg-tree/, 'plan contract: branch-location citation');
+  assert.match(contract, /legs\.md#locate-a-leg-tree/, 'plan contract: branch-location citation');
   assert.doesNotMatch(contract, /recorded `home:` with shared `NAME`/, 'plan contract: retired path formula');
   assert.match(contract, /Stop plan writing on a failed lookup and report its reason/, 'plan contract: failed lookup');
   const record = JSON.parse(readFileSync(new URL('../eval/plan/results/leg-checkout-by-branch/candidate.json', import.meta.url), 'utf8'));

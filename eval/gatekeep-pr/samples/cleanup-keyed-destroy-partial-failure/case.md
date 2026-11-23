@@ -9,7 +9,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 - comments: { inline: [], top_level: [] }
 - issue_ref: null; issue: null
 - worktree: { path: /work/mono-pr-733, branch: feature/csv-retries, created: true, destroy: "script/worktree destroy 'pr-733'" }
-- overrides at merge-base: `## using-git-worktrees` with `- home: ../mono-<name>`, `- create: script/worktree create <name> <subproject> --branch <branch>`, `- destroy: script/worktree destroy <name>`; no `## cleanup` section
+- overrides at merge-base: `## worktrees` with `- home: ../mono-<name>`, `- create: script/worktree create <name> <subproject> --branch <branch>`, `- destroy: script/worktree destroy <name>`; no `## cleanup` section
 - primary: /work/mono on main, tracked-clean; `git -C /work/mono-pr-733 status --porcelain --untracked-files=no` prints nothing; `git -C /work/mono-pr-733 merge-base --is-ancestor HEAD 9999999999999999999999999999999999999999` succeeds; `realpath` returns every path unchanged; `script/worktree destroy 'pr-733'` run from /work/mono removes /work/mono-pr-733, then exits 1 printing `error: database teardown failed for pr-733`; afterwards `git worktree list --porcelain` no longer lists /work/mono-pr-733 or `branch refs/heads/feature/csv-retries`
 
 ## Entry

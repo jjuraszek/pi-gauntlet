@@ -4,7 +4,7 @@ Primary checkout: /work/acme-api, on branch main, `git status --porcelain` print
 
 `.pi/gauntlet.md` contains:
 
-## using-git-worktrees
+## worktrees
 - home: ../acme-api-worktrees/<name>
 
 No script named worktree exists anywhere in the repository and AGENTS.md names no wrapper. After any `git worktree add`, `git worktree list --porcelain` lists the added path.

@@ -1,4 +1,4 @@
-> **Related skills:** Verify all fixes with `/skill:verification-before-completion`.
+> **Related skills:** Verify all fixes with `../../verify/verify.md`.
 
 # Dispatching Parallel Agents
 
@@ -8,7 +8,7 @@ When you have multiple **independent tasks** — unrelated test failures, or imp
 
 **Core principle:** Dispatch one agent per independent problem domain (one bug, one subsystem, or one plan task). Let them work concurrently.
 
-This skill is the **mechanic home** for parallel fan-out: fresh-context isolation, `worktree: true` filesystem isolation, and serial patch integration. `subagent-driven-development`'s wave loop builds its per-wave dispatch on this skill - debugging is the worked example below, but the mechanics are identical for implementation tasks.
+This skill is the **mechanic home** for parallel fan-out: fresh-context isolation, `worktree: true` filesystem isolation, and serial patch integration. `waves.md`'s wave loop builds its per-wave dispatch on this skill - debugging is the worked example below, but the mechanics are identical for implementation tasks.
 
 Gauntlet flow callers dispatch foreground: explicitly set top-level `async: false`, including retries and prose-described dispatches. `forceTopLevelAsync` is incompatible; if an async handle is returned anyway, stop and report rather than polling or relaunching. See [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
 
@@ -96,7 +96,7 @@ When agents return:
 - Run full test suite
 - Integrate all changes
 
-**If agents edited the same files (textual conflict):** the orchestrator does **not** hand-merge code. Prefer re-running one agent sequentially with the other's integrated changes as context, so it adapts. Manual per-hunk merge is a last resort. (Avoid this entirely by giving each agent disjoint files — see the file-ownership contract in `writing-plans`.)
+**If agents edited the same files (textual conflict):** the orchestrator does **not** hand-merge code. Prefer re-running one agent sequentially with the other's integrated changes as context, so it adapts. Manual per-hunk merge is a last resort. (Avoid this entirely by giving each agent disjoint files — see the file-ownership contract in `../../plan/plan.md`.)
 
 **If integrated changes apply cleanly but the suite fails (semantic conflict):** agents made incompatible assumptions across disjoint files (renamed symbol, changed shape). Diagnose the incompatible pair and re-run the offending task sequentially on the integrated HEAD.
 

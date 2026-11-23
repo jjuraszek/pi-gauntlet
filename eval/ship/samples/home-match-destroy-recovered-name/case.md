@@ -8,7 +8,7 @@ PRIMARY is /work/acme-mono on branch main; WORKTREE is /work/acme-mono-fix-x; FE
 
 `.pi/gauntlet.md` at the primary contains:
 
-## using-git-worktrees
+## worktrees
 - home: ../acme-mono-<name>
 - create: script/worktree create <name> <subproject> --branch <branch>
 - destroy: script/worktree destroy <name>

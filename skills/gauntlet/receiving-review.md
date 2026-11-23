@@ -1,4 +1,4 @@
-> **Related skills:** Verify each fix with `/skill:verification-before-completion`. Use `/skill:test-driven-development` for regression tests.
+> **Related skills:** Verify each fix with `verify/verify.md`. Use `implement/tdd.md` for regression tests.
 
 # Code Review Reception
 

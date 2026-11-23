@@ -118,7 +118,7 @@ for (const route of ["implement with a ledger", "verify with `Ledger:`"]) {
 const noLedgerRoute = reconstruction.split("## Spec without plan")[1].split("\n").find(line => line.startsWith("  - `loop`:"));
 assert.match(noLedgerRoute, /label Entry steps 1-5 explicitly in the response/);
 assert.match(noLedgerRoute, /Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start/);
-for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no writing-plans body or task tracker"]) assert.ok(noLedgerRoute.includes(token), token);
+for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no `../../gauntlet/plan/plan.md` body or task tracker"]) assert.ok(noLedgerRoute.includes(token), token);
 const taskNames = loop.split("### Ledger task names")[1].split("## Pending recovery")[0];
 for (const token of ['^(row \\d+(?: \\(\\S+\\))?) \\| .+$', 'never derive identity from the description', 'Keep Gn and every other task name byte-identical', 'Never restore labels from a brief', 'changed description or denominator is not drift or a second task']) assert.ok(taskNames.includes(token), token);
 assert.ok(!taskNames.includes('^\\d+/\\d+: '), 'no numeric-prefix label form');

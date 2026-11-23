@@ -16,7 +16,7 @@ For `recommended=`, use only the number of the displayed row tagged `[recommende
 
 Mark a combined batch/menu or closure digest/options message once with its parent template's marker: `gauntlet: gate=gatekeep-pr/batch-summary` or `gauntlet: gate=ship/step-4`, respectively. Give a nested skill's ask its own skill id. Give a terminal report turn and a later new-skill gate turn their own kinds.
 
-Omit markers from ordinary answers, gates invented outside skill templates, and intermediate reports followed by automatic continuation without a human turn. Treat verification's Closure / conformance before finishing, subagent-driven-development's Continuous Execution, and loop-implementation's After the loop as intermediate, not terminal; mark the gate the continuation renders instead.
+Omit markers from ordinary answers, gates invented outside skill templates, and intermediate reports followed by automatic continuation without a human turn. Treat verification's Closure / conformance before finishing, `implement/waves/waves.md`'s Continuous Execution, and `implement/loop/loop.md`'s After the loop as intermediate, not terminal; mark the gate the continuation renders instead.
 
 ## Exposure
 A numbered option list directly after an ordered list with only a blank line merges under CommonMark, displaying `N+1.`-`N+k.` after `N` preceding items. This control renders the options as `4.`-`6.`:

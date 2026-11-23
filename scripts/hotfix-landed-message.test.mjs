@@ -35,7 +35,7 @@ function scratch() {
 }
 
 test('hotfix landing and PR delegate the fault story and ticket to the shared wording contract', () => {
-  assert.match(hotfix, /Read \[commit message\]\(\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
+  assert.match(hotfix, /Read \[commit message\]\(\.\.\/gauntlet\/commit-message.md\)/);
   assert.match(hotfix, /resolve its absolute path and the ticket named in the record once/);
   assert.match(finish, /Compose the message through the shared Hotfix landing and Landed message rules, using the record's fault story and resolved ticket/);
   assert.match(finish, /Use its subject as the PR title and save its body to a temporary file/);

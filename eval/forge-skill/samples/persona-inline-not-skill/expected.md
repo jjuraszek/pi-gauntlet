@@ -7,4 +7,4 @@
 - fact-7: judged: No `reference/` file or any file other than the persona was created.
 - fact-8: judged: No `/skill:` reference was added.
 - fact-9: judged: A sentence in the body states the calibration itself and names bugs, data loss, security, and broken functionality as the only Critical conditions.
-- fact-10: judged: No added line contains `/skill:` or the words "requesting-code-review"; the rule is inlined, not referenced.
+- fact-10: judged: No added line contains `/skill:` or the words "review request"; the rule is inlined, not referenced.

@@ -43,7 +43,7 @@ Run Baseline independently in each owning checkout. Apply every provenance, dirt
 
 ## Waves and tasks
 
-Group tasks into **waves** so the executor can parallelize independent work (see `subagent-driven-development` wave loop). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
+Group tasks into **waves** so the executor can parallelize independent work (see `../implement/waves/waves.md` wave loop). A wave is a maximal set of tasks that (a) have no ordering dependency on each other, (b) own **pairwise-disjoint files**, and (c) contend on **no shared mutable runtime resource** (same DB/schema, port, fixture file, external service, shared temp path).
 
 - Group independent tasks into the same wave by default.
 - Group a pure dependency chain into one task per wave.
@@ -94,7 +94,7 @@ Treat `Create`, `Modify`, and `Delete` as writers and `Test:` entries as run anc
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **REQUIRED SUB-SKILL:** Use the subagent-driven-development skill to implement this plan task-by-task.
+> **REQUIRED PROCEDURE:** Follow `skills/gauntlet/implement/waves/waves.md` to implement this plan task-by-task.
 
 **Goal:** [one sentence]
 

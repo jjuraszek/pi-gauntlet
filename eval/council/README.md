@@ -1,6 +1,6 @@
 # Council orchestration eval
 
-Load the body of roasting-the-spec, the chair persona body, and spec-finalization from Spec Council to before User Review Gate in headed assembly. Cases select their active stage; supplied file/status outcomes are data, not executed tools.
+Load the body of spec council, the chair persona body, and spec-finalization from Spec Council to before User Review Gate in headed assembly. Cases select their active stage; supplied file/status outcomes are data, not executed tools.
 
 | Sample | Properties |
 |---|---|

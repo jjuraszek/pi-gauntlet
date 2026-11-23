@@ -1,4 +1,4 @@
-> **Related skills:** Follow up with `/skill:requesting-code-review` before merging. Done? `/skill:finishing-a-development-branch`.
+> **Related skills:** Follow up with `../requesting-review.md` before merging.
 
 # Verification Before Completion
 

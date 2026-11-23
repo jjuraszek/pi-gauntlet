@@ -8,7 +8,7 @@ Guide completion of development work by presenting clear options and handling ch
 
 ## Input
 
-`<worktree-path>` - the absolute path of the worktree to finish, from the `using-git-worktrees` report or the handoff brief. Before anything else - before the announcement and before `phase_tracker` start - if it is missing, stop with "finishing needs the worktree path: /skill:finishing-a-development-branch <worktree-path>" and do nothing else. Derive the primary checkout once:
+Use the retained absolute worktree path, or on resume the path restore re-established. Before anything else - before the announcement and before `phase_tracker` start - if it is missing, stop with "finishing needs the worktree path - restore the run with /skill:gauntlet-resume" and do nothing else. Derive the primary checkout once:
 
 ```bash
 WORKTREE=<worktree-path>
@@ -18,7 +18,7 @@ FEATURE=$(git -C "$WORKTREE" branch --show-current)
 
 The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run brainstorming #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
 
-**Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
+**Announce at start:** "I'm completing this development branch."
 
 Then call `phase_tracker({ action: "start", phase: "ship" })`.
 
@@ -374,7 +374,7 @@ If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `
 
 **Only runs for the Squash-merge and Discard options (3 and 5).** The PR, draft PR, and Keep options always preserve the worktree.
 
-Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply [recorded cleanup ownership](legs.md#recorded-cleanup-ownership) before the keyed path below. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section as the cleanup contract (keys written like `## cleanup` items: `../worktrees.md` Step 1a).
+Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply [recorded cleanup ownership](legs.md#recorded-cleanup-ownership) before the keyed path below. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## worktrees` section as the cleanup contract (keys written like `## cleanup` items: `../worktrees.md` Step 1a).
 
 **Keyed contract** - the section has at least one of `- home:`, `- create:`, `- destroy:`:
 

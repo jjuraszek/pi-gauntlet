@@ -69,10 +69,10 @@ with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
 - Approved: run SKILL.md entry check 6 on `<spec path>` first (its deferred stop or a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
-  - `loop`: after check 6, call `start brainstorm`, then `skip brainstorm resume: <spec path>` to arm the flow before driver admission. Carry absolute worktree/spec paths and plan directory into `/skill:loop-implementation` Entry steps 1-5 and label Entry steps 1-5 explicitly in the response as Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start; refresh by ledger path after implement starts. Use no writing-plans body or task tracker initialization.
-  - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`; continue in writing-plans, skipping its `start plan` call.
+  - `loop`: after check 6, call `start brainstorm`, then `skip brainstorm resume: <spec path>` to arm the flow before driver admission. Carry absolute worktree/spec paths and plan directory into `../../gauntlet/implement/loop/loop.md` Entry steps 1-5 and label Entry steps 1-5 explicitly in the response as Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start; refresh by ledger path after implement starts. Use no `../../gauntlet/plan/plan.md` body or task tracker initialization.
+  - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`; continue in `../../gauntlet/plan/plan.md`, skipping its `start plan` call.
 - Selected unapproved-draft brainstorming handoff: invoke [`/skill:gauntlet`](../../gauntlet/SKILL.md) with
-  the spec as the draft; arm nothing. using-git-worktrees Step 0 detects the existing
+  the spec as the draft; arm nothing. `../../gauntlet/worktrees.md` Step 0 detects the existing
   worktree and creates none. A bare "not approved" answer is not consent; wait for
   explicit handoff selection.
 

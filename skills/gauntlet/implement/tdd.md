@@ -1,4 +1,4 @@
-> **Related skills:** Before claiming done, use `/skill:verification-before-completion` to verify tests actually pass.
+> **Related skills:** Before claiming done, use `../verify/verify.md` to verify tests actually pass.
 
 # Test-Driven Development (TDD)
 
@@ -11,7 +11,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 **Violating the letter of the rules is violating the spirit of the rules.**
 
 ## Prerequisites
-- Active worktree (not the primary checkout on `main`) — see `/skill:using-git-worktrees`
+- Active worktree (not the primary checkout on `main`) — see `../worktrees.md`
 - Approved plan or clear task scope
 
 Before starting implementation, call `phase_tracker({ action: "start", phase: "implement" })`.

@@ -7,7 +7,7 @@ Keep one loop implementation entry point and read current-format interrupted rec
 Route the loop driver's controller files and captured dispatch output into checkout-local Git scratch instead of OS temp. Extract driver holds and empty-child stagnation to their required references without changing any instruction's meaning, and include both references in the replay assembly. Validate wiring and size deterministically only; preserve saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
 Use shared wording at loop commit sites and pass its absolute path plus the resolved ticket to workers. Admit home returns through the ledger's returned/pending tuple and consumed iterations, and companion returns through a checkout-local file. Record repairs and count attempts in ledger decisions rather than commit messages. Select returned-line-admission only; retain other samples and result records without claiming current coverage.
 
-Rebind this intent to the combined assembly on the rebased tree without replaying or rejudging any loop-implementation sample. Saved replies and verdicts remain earlier-revision evidence, not current coverage.
+Rebind this intent to the combined assembly on the rebased tree without replaying or rejudging any loop execution sample. Saved replies and verdicts remain earlier-revision evidence, not current coverage.
 
 ## Expected to move
 

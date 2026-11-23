@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
@@ -19,8 +20,8 @@ test('marked PR approvals decode row 1/2 flags and commit all three headers with
     '`waves` for 1 or `loop` for 2', 'decoded `**Amend-grant:**`',
     'exactly one `**PR:** <owner/repo#N>` directly below Engine', 'lowercasing owner/repo',
     'new commit `spec: select engine and grant for PR #N`', 'never amend a published commit',
-    'Verify all three fields through `git show HEAD:<spec path>` before brainstorm completion',
-    'run allowance:', 'on its own line immediately before invoking loop-implementation',
+    'Verify all three fields through `git show HEAD:<spec path>` before completing brainstorm with the selected engine',
+    'run allowance:', 'on its own line before reading the file named by `Instructions:`',
     'even in a narrated approval trace', 'Keep the allowance out of the spec and settings',
   ]) assert.ok(approval.includes(token), token);
   assert.match(source, /Offer the ordinary AC-dependent 1\/2 choices and optional pinned audit 3/);
@@ -36,7 +37,7 @@ test('saved marked PR re-gates persist engine, grant and PR for bare and flagged
     assert.equal(output.status, 'ok', model);
     assert.match(output.text, /^run allowance: 6\r?$/m, `${model}: shared or separate allowance traces render the standalone carrier`);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, sha256(expected), `${model}: current facts`);
+    assert.equal(judged.factsSha, replayFactsSha(candidate, expected), `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged output`);
     for (const { id } of facts) assert.equal(judged.facts[id]?.after, 'holds', `${model}/${id}`);
   }

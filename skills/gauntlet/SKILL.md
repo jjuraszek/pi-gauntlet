@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Overview
 
-Collaborate on designs.
+Collaborate on designs. When `phase_tracker` completes a phase and returns `Instructions: <absolute path>`, finish the local handoff and read that file before continuing.
 
 ## HARD CONSTRAINT
 
@@ -16,7 +16,7 @@ Do **not** implement until the design is presented and approved, regardless of s
 
 You **may** read code/docs, run the existing system to observe current behavior, write under a resolved spec dir (`gauntlet_setting({ key: "flowGuards" })` -> `specDirs`), and `edit` a predecessor spec there to add a [supersession banner](brainstorm/superseding.md).
 
-You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start `/skill:writing-plans`.
+You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start planning.
 
 For a PR subject, the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
 
@@ -34,7 +34,7 @@ Treat the flag as discovery control, not harness authorization. The command reli
 
 ## Checklist
 
-Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan - brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval route 1 to `/skill:writing-plans` and 2 to `/skill:loop-implementation` per the gate; 4 ends the flow after publishing. Do not jump ahead of approval, and do not silently drop the critique pass.
+Work through the items below **in order**. After a user answer or completed side task, resume the current checklist step and perform the next authorized action in the same turn, advancing once that step's required decisions and approvals are satisfied. Continue until a required question is unanswered, an existing approval is pending, the user explicitly pauses, or a failed required tool or unavailable required resource blocks progress. This is your own checklist to follow, not a `plan_tracker` plan - brainstorming is open-ended exploration, and `plan_tracker` is execution-only (the implement phase). The terminal state is the user review gate; after approval complete brainstorm with the engine selected at the gate; 4 ends the flow after publishing. Do not jump ahead of approval, and do not silently drop the critique pass.
 
 1. **Start brainstorm tracking (fresh epoch)** - as the first action on authorized fresh entry, before reading code, the worktree, or answering the user, reset both trackers and start the phase. A new brainstorm owns a clean slate, so stale phases and tasks from earlier work are cleared; re-entering mid-brainstorm is safe (nothing to lose, same clean slate):
 
@@ -44,7 +44,7 @@ Work through the items below **in order**. After a user answer or completed side
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
 
-2. **Set up the worktree** - resolve the leading run per `brainstorm/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. For a marked spec PR, follow `brainstorm/spec-pr.md`'s re-gate after provisioning (steps 3-11 skipped); otherwise see [Worktree First](#worktree-first).
+2. **Set up the worktree** - resolve the leading run per `brainstorm/pr-subject.md`; pass the ordered per-PR array (home first) to `worktrees.md`'s PR-head path. For a marked spec PR, follow `brainstorm/spec-pr.md`'s re-gate after provisioning (steps 3-11 skipped); otherwise see [Worktree First](#worktree-first).
 3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`brainstorm/gatherer.md`](brainstorm/gatherer.md) without a human stop.
 4. **Understand the idea against the draft** - if `brainstorm/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).
@@ -55,7 +55,7 @@ Work through the items below **in order**. After a user answer or completed side
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
 12. **User review gate** - follow [User Review Gate](#user-review-gate).
-13. **Transition** - after approval, invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2 per [User Review Gate](#user-review-gate); 4 ends the flow after publishing.
+13. **Transition** - on approval 1/2, call `phase_tracker({ action: "complete", phase: "brainstorm", engine })` with the selected engine per [User Review Gate](#user-review-gate); 4 ends the flow after publishing.
 
 ## Project Routing
 
@@ -67,9 +67,9 @@ Detection order: (1) infer from ticket labels, description, or paths; (2) use th
 
 The spec is the first commit in a dedicated worktree, never a separate commit on `main`. For a PR subject, the worktree is the PR's branch and the spec commit is appended to it.
 
-Read [legs.md](legs.md) and settle membership before creation. Invoke `/skill:using-git-worktrees` for each member with explicit `$ROOT` = its primary and `$BRANCH` = the shared branch; carry every `Worktree ready at <full-path>` value, home first. Root the home spec at `<home worktree>/<home spec dir>/<filename>.md`; root each dispatch and `git -C` in its owning leg's worktree. Keep the process cwd unchanged. Gather each leg's rules and record portable contracts and companion artifacts using that reference; a one-member run adds only its one-block `## Legs` section.
+Read [legs.md](legs.md) and settle membership before creation. Follow `worktrees.md` for each member with explicit `$ROOT` = its primary and `$BRANCH` = the shared branch; carry every `Worktree ready at <full-path>` value, home first. Root the home spec at `<home worktree>/<home spec dir>/<filename>.md`; root each dispatch and `git -C` in its owning leg's worktree. Keep the process cwd unchanged. Gather each leg's rules and record portable contracts and companion artifacts using that reference; a one-member run adds only its one-block `## Legs` section.
 
-Keep spec, plan, and implementation in this worktree. Ship the spec and implementation; strip only the plan. Let `/skill:finishing-a-development-branch` seal and publish the telemetry record to the `refs/telemetry/records` ref before landing; keep recorder state in Git common-dir metadata, outside the working tree. In a plain jj workspace, retain local metadata and report that publication is unavailable. Use no worktree for explicit trivial one-off edits outside this flow.
+Keep spec, plan, and implementation in this worktree. Ship the spec and implementation; strip only the plan. Let `ship/ship.md` seal and publish the telemetry record to the `refs/telemetry/records` ref before landing; keep recorder state in Git common-dir metadata, outside the working tree. In a plain jj workspace, retain local metadata and report that publication is unavailable. Use no worktree for explicit trivial one-off edits outside this flow.
 
 ## The Process
 

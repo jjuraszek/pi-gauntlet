@@ -1,11 +1,24 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { lintPlacementRule, lintTreeShape } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
+
+test("the README inventory matches the registered skill directories", () => {
+  const root = join(import.meta.dirname, "..");
+  const readme = readFileSync(join(root, "README.md"), "utf8");
+  const inventory = readme.match(/^- \*\*(\d+) skills\*\* - (.+)$/m);
+  assert.ok(inventory, "missing README skill inventory");
+  const names = [...inventory[2].matchAll(/`([^`]+)`/g)].map(match => match[1]).sort();
+  const entries = readdirSync(join(root, "skills"), { withFileTypes: true })
+    .filter(dir => dir.isDirectory() && readdirSync(join(root, "skills", dir.name)).includes("SKILL.md"))
+    .map(dir => dir.name).sort();
+  assert.equal(Number(inventory[1]), entries.length);
+  assert.deepEqual(names, entries);
+});
 
 test("the eleven run steps are instruction files, not separate skill entries", () => {
   const steps = {

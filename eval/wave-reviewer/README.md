@@ -9,6 +9,6 @@ Exercise integrated spec-clause and code-quality review on four synthetic scenar
 | unreadable-anchor | Reject an unreadable union member with its exact identity |
 | without-anchor | Emit findings only; keep Minor-only SHIP and spec-observable test calibration |
 
-Load the body of `agents/wave-reviewer.md` and the whole requesting-code-review `wave-reviewer.md` template as a headed assembly. Both files are candidate-only at the baseline (`new: true`). No baseline records are invented.
+Load the body of `agents/wave-reviewer.md` and the whole review request `wave-reviewer.md` template as a headed assembly. Both files are candidate-only at the baseline (`new: true`). No baseline records are invented.
 
 Process and record schema: [eval/README.md](../README.md). Verification runs the full target and owns generated `report.md` and `results/` records.

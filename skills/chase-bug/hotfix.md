@@ -36,7 +36,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    missing -> abort (pre-land, nothing created). Reprint the menu-time evaluation
    verbatim: `eligible` or `not eligible: <predicate>`. Never re-derive, never block.
 2. **Resolve before mutating.** Read [the attempt budget](reference/attempt-budget.md) at its absolute path resolved against this skill directory. On a read failure, abort pre-land before creating anything and name the unreadable path. `SCOPED_TEST_COMMANDS`: the gauntlet overrides
-   file's verification section (`## verification-before-completion`, or a section
+   file's verification section (`## verification`, or a section
    matching the verification topic), else `AGENTS.md` or the project's documented
    test command. The full project test target is acceptable. Add the record's repro
    command when present. No exact command -> abort (pre-land). On the pi path,

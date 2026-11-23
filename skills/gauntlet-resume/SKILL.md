@@ -1,11 +1,11 @@
 ---
 name: gauntlet-resume
-description: Use when a human wants to continue an interrupted gauntlet flow in a fresh session - from a gauntlet-handoff brief (file, pasted, or picked from the default handoff directory), from a bare worktree that already holds a spec, or from a spec tracked on main (creates or reuses its worktree via `/skill:using-git-worktrees`). Human-only; the sole resume entry point. Restores phase/plan tracker state through the legal arming sequence, never infers approval.
+description: Use when a human wants to continue an interrupted gauntlet flow in a fresh session - from a gauntlet-handoff brief (file, pasted, or picked from the default handoff directory), from a bare worktree that already holds a spec, or from a spec tracked on main (creates or reuses its worktree via `../gauntlet/worktrees.md`). Human-only; the sole resume entry point. Restores phase/plan tracker state through the legal arming sequence, never infers approval.
 disable-model-invocation: true
 argument-hint: "[<brief-file> | <spec>.md | <worktree-name-or-path>]"
 ---
 
-> **Related skills:** Continues into `/skill:writing-plans`, `/skill:subagent-driven-development`, `/skill:loop-implementation`, or `/skill:verification-before-completion` depending on the restored stage.
+> After restoration, follow the route in [Post-restore continuation](#post-restore-continuation).
 
 # Gauntlet Resume
 
@@ -26,9 +26,9 @@ or unreadable reference stops the route, naming its path.
 - Reads: anything.
 - Writes: `phase_tracker` / `plan_tracker` state after every check passes and every
   human question is answered; the plan file, only through the plan repair that
-  `reference/restore-plan.md` enters on a `plan_check` FAIL; the ledger through `reference/restore-loop.md` "Pending recovery" and the loop driver's admission/repair contract; on the seed route, what `/skill:using-git-worktrees` writes. Never a spec copy, rename, or marker commit.
+  `reference/restore-plan.md` enters on a `plan_check` FAIL; the ledger through `reference/restore-loop.md` "Pending recovery" and the loop driver's admission/repair contract; on the seed route, what `../gauntlet/worktrees.md` writes. Never a spec copy, rename, or marker commit.
 - Never: `git worktree add` directly; worktree creation by resume itself only on
-  the seed route, only through `/skill:using-git-worktrees`; infer approval from
+  the seed route, only through `../gauntlet/worktrees.md`; infer approval from
   artifact presence; restore
   gate history, closure-review evidence, or fix rounds; start a later phase directly
   (that does not arm the flow).
@@ -194,12 +194,12 @@ owning skill **without** its reset-bearing entry:
 | Active after restore | Continue in | Entry point |
 |---|---|---|
 | brainstorm | [brainstorming checklist](../gauntlet/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:gauntlet` entry (it resets both trackers) |
-| approved spec with `**Engine:** loop`, no ledger | loop-implementation | Entry steps 1-5, carried and labeled as `reference/reconstruction.md` "Spec without plan" states; a restored plan-stage brief makes no second arming call |
-| plan with task engine | writing-plans body | skip its `start plan` call (already in_progress) |
-| implement with a ledger | loop-implementation | `reference/restore-loop.md` "Spec with ledger" step 9: `Before each dispatch`; reuse the existing ledger |
-| implement with task plan | subagent-driven-development | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
-| verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | /skill:loop-implementation | `reference/restore-loop.md` "Spec with ledger" step 9: `After the loop` step 1; never start implement |
-| verify without `Ledger:` | verification-before-completion | full conformance gate; nothing carried over |
+| approved spec with `**Engine:** loop`, no ledger | `../gauntlet/implement/loop/loop.md` | Entry steps 1-5, carried and labeled as `reference/reconstruction.md` "Spec without plan" states; a restored plan-stage brief makes no second arming call |
+| plan with task engine | `../gauntlet/plan/plan.md` body | skip its `start plan` call (already in_progress) |
+| implement with a ledger | `../gauntlet/implement/loop/loop.md` | `reference/restore-loop.md` "Spec with ledger" step 9: `Before each dispatch`; reuse the existing ledger |
+| implement with task plan | `../gauntlet/implement/waves/waves.md` | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
+| verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | `../gauntlet/implement/loop/loop.md` | `reference/restore-loop.md` "Spec with ledger" step 9: `After the loop` step 1; never start implement |
+| verify without `Ledger:` | `../gauntlet/verify/verify.md` | full conformance gate; nothing carried over |
 
 ## Red flags — STOP
 
