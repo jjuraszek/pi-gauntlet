@@ -4,6 +4,7 @@ Primary checkout: /work/acme-mono, on branch main, `git status --porcelain` prin
 
 `.pi/gauntlet.md` contains:
 
+# shared
 ## worktrees
 - home: ../acme-mono-<name>
 - create: script/worktree create <name> <subproject> --branch <branch>

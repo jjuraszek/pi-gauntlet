@@ -5,7 +5,7 @@ replay: continuation
 Checklist step 4, inside repair return. The gathered draft has already been read. Framing: kept. Resetting report filters on a workspace change is not decided. No design round has been approved.
 
 ## Gather draft and verified primary code
-Add a report-view setting. settings/resolver.ts:12 owns defaults; ui/report-view.ts:30 consumes resolved settings. Existing settings already flow through that resolver; this data path was traced successfully. Overrides, Issue tracker: repo: acme/widgets.
+Add a report-view setting. settings/resolver.ts:12 owns defaults; ui/report-view.ts:30 consumes resolved settings. Existing settings already flow through that resolver; this data path was traced successfully. `.pi/gauntlet.md`, `# shared` `## issue-tracker`: repo: acme/widgets.
 
 ## Recorded conversation and completed observations
 User: Brainstorm acme/widgets#77. Filters currently remain active when switching workspaces and sometimes hide rows in the new workspace.

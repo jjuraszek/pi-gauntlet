@@ -4,8 +4,8 @@ bundle+: skills/gauntlet/plan/plan.md
 ## Fixed observations
 Use only the Project overrides block from the bundled plan instructions, not its planning workflow. The first found overrides file is .pi/gauntlet.md. Its supplied content is:
 ```markdown
-## conventions
-Use American English in generated documents.
+# gauntlet
+Use American English in generated run documents.
 ## plan
 Name plan examples with the prefix demo-.
 ```

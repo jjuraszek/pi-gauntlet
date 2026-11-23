@@ -350,11 +350,12 @@ or where `send it` sits.
    manual copy-paste. Unknown value -> exclusive; use free-form command
    mappings in the same section if present, else ask. Unparseable `tracker:`
    line -> ask, never probe.
-1. `## Response channels` section in the gauntlet overrides file - either an
+1. `# chase-bug` `## response-channels` in the gauntlet overrides file - either an
    `origin-type: command` entry or `manual` to force copy-paste, e.g.:
 
    ```markdown
-   ## Response channels
+   # chase-bug
+   ## response-channels
    - github-issue: gh issue comment <n> --body-file <draft>
    - linear-ticket: linearis issues discuss <id> --body <draft> (mechanics: /skill:linear)
    - slack-paste: manual

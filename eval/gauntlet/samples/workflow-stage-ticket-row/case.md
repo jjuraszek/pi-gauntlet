@@ -8,7 +8,7 @@ Checklist step 4, immediately after reading the gather draft and Ticket Handling
 Implement acme/widgets#77.
 
 ## Gather draft
-The importer currently accepts rows without an id and returns a generic error for malformed rows. The approved direction is to reject missing ids and name the offending row. The existing complexity check has a limit of 20; extending make ci to reject a function of complexity 21 is itself a requested product change. There is no code or contract contradiction for any ticket row. Pattern: extend src/importer.ts validation and scripts/complexity.mjs's existing check. Overrides, ## Issue tracker: repo: acme/widgets.
+The importer currently accepts rows without an id and returns a generic error for malformed rows. The approved direction is to reject missing ids and name the offending row. The existing complexity check has a limit of 20; extending make ci to reject a function of complexity 21 is itself a requested product change. There is no code or contract contradiction for any ticket row. Pattern: extend src/importer.ts validation and scripts/complexity.mjs's existing check. `.pi/gauntlet.md`, `# shared` `## issue-tracker`: repo: acme/widgets.
 
 ## Ticket acceptance criteria (verbatim)
 - [ ] GitHub CI is green on the head of the pull request

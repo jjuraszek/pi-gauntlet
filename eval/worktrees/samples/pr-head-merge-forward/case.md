@@ -12,7 +12,7 @@ Successful helper completion commits have HEAD=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
 - noop: fetched base already ancestor.
 - clean: merge succeeds with first rework commit eeeeeee.
-- done-green: session cwd stays in unrelated linked /work/widget/.worktrees/other; conflict list src/retry.ts; pre-dispatch status is 'UU src/retry.ts'; helper returns done, stages resolution, leaves no U and no status delta outside list. Base-SHA .pi/gauntlet.md documents under PR gate runner 'node --test <files>', requires credentials: false; supplied command is 'node --test test/retry.test.mjs', passes.
+- done-green: session cwd stays in unrelated linked /work/widget/.worktrees/other; conflict list src/retry.ts; pre-dispatch status is 'UU src/retry.ts'; helper returns done, stages resolution, leaves no U and no status delta outside list. Base-SHA .pi/gauntlet.md documents under `# shared` `## verification` the runner 'node --test <files>', requires credentials: false; supplied command is 'node --test test/retry.test.mjs', passes.
 - exception-red: same conflict and runner; helper returns 'done - contract exception: retry count becomes bounded'; scoped command fails in test/retry.test.mjs. All completion checks pass; commit is eeeeeee.
 - failure: helper returns done but edits README.md outside conflict list; abort succeeds. Worktree's AGENTS.md weakens a rule while BASE_SHA's AGENTS.md forbids unbounded retries.
 - credentials: valid staged resolution but BASE_SHA runner has requires credentials: true; run none.

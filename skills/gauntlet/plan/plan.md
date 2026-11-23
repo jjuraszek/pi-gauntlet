@@ -59,7 +59,7 @@ The main loop never writes the plan. One fresh `plan-writer` child does the reco
 
    > Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to plan-contract.md>`.
 
-   No `output:`, no `model:` (`subagents.agentOverrides.plan-writer.model` applies when set, else the child inherits the main loop). The `acceptance` line is required: without it pi-cohort appends a structured-report contract that the child's one-line reply would fail. Fill the four paths and, when step 6 or an amendment supplies one, append a `Findings:` or `Amend:` block after the template; compose nothing else.
+   No `output:`, no `model:` (`subagents.agentOverrides.plan-writer.model` applies when set, else the child inherits the main loop). The `acceptance` line is required: without it pi-cohort appends a structured-report contract that the child's one-line reply would fail. Fill the four paths. If the overrides file sets verification instructions under `# shared` `## verification`, append those instructions for each applicable repo. When step 6 or an amendment supplies one, append a `Findings:` or `Amend:` block after the template; compose nothing else.
 4. The dispatch errored, returned an async handle, or left the plan path missing or empty: stop and report. There is no parent-authored fallback.
 5. `plan_check({ planPath: "<abs plan path>" })` in the parent. This is the stamping call; run it whichever line the child replied with.
 6. Branch on the pair (child reply, parent check).

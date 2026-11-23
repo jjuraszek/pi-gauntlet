@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 27 | home | 93c2828532e6caf4ecce0cbedf248064a840d57e
+returned: 28 | home | 995ae55014af829ca254b741e6bff19b5ddc390c
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -36,7 +36,7 @@ returned: 27 | home | 93c2828532e6caf4ecce0cbedf248064a840d57e
 | 25 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 12 passed, 0 failed; checked seven shared sections and caller scope in all 22 overrides paragraphs |
 | 26 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; all five phases apply the run-wide text and their own phase section; both engines apply implement |
 | 27 | done | 1 | timeout -k 30 30 node --test extensions/lib/overrides.test.ts scripts/gauntlet-tree-lint.test.mjs; 15 passed; shared settings are scoped to the first file and gate configuration stays at the merge base |
-| 28 | open | 0 | |
+| 28 | done | 1 | timeout -k 30 60 node --test scripts/gauntlet-tree-lint.test.mjs eval/housekeeping/overrides-rule-cited.test.mjs; 16 passed; skill-private settings and sample excerpts follow their owning blocks |
 | 29 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 12 passed, 0 failed; no shipped instruction or guide applies the retired wording sections |
 | 30 | done | 0 | timeout -k 30 30 node --test scripts/loop-verification-command.test.mjs; the only command sources are the shared verification key and project test entrypoint discovery |
 | 31 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; repo tracker and cleanup settings resolve under shared and the release rule under gauntlet/ship; 10 passed |
@@ -62,3 +62,4 @@ row 30 done | Changed the loop to discover the project's test entrypoint when sh
 row 27 done | Routed the five code readers through one shared-section lookup and updated skill instructions to read tracker, sibling, deployment and verification settings from the shared block. | Use readSharedSection in extensions/lib/overrides.ts with a repository root and section name to read its first overrides file.
 row 32 done | Verified that all skill entries name the same three gauntlet.md locations that the extension and bin reader checks, in first-found order. | nothing new to build on
 row 33 done | Verified tracker selection with both filenames, the retired filename alone and a tracker under another block, plus sibling and spec-index section boundaries. | Extend the originless membership cases in extensions/verify-before-ship.test.ts to check which repository supplies the ship policy.
+row 28 done | Scoped private settings to the skill that reads them and migrated sample overrides to the same outline. | Use the overrides-outline checks in scripts/gauntlet-tree-lint.test.mjs to validate skill readers and sample file excerpts.

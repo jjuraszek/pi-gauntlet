@@ -4,7 +4,7 @@ Implement acme/widgets#77.
 
 ## Gather draft
 The reports page renders a table and has no export action. The table column definitions and existing CSV serializer support export; paging supports the 10k-row performance target. Pattern: src/export/csv.ts reuses the table's column definitions.
-Overrides, ## Issue tracker: repo: acme/widgets.
+`.pi/gauntlet.md`, `# shared` `## issue-tracker`: repo: acme/widgets.
 
 ## Ticket acceptance criteria (verbatim)
 ### acme/widgets

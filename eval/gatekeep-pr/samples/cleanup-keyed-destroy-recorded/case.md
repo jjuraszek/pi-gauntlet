@@ -9,7 +9,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 - comments: { inline: [], top_level: [] }
 - issue_ref: null; issue: null
 - worktree: { path: /work/mono-pr-731, branch: feature/csv-export, created: true, destroy: "script/worktree destroy 'pr-731'" }
-- overrides at merge-base: `## worktrees` with `- home: ../mono-<name>`, `- create: script/worktree create <name> <subproject> --branch <branch>`, `- destroy: script/worktree destroy <name>`; no `## cleanup` section
+- `.pi/gauntlet.md` at merge-base: `# shared` `## worktrees` with `- home: ../mono-<name>`, `- create: script/worktree create <name> <subproject> --branch <branch>`, `- destroy: script/worktree destroy <name>`; no `## cleanup` section
 - primary: /work/mono on main, tracked-clean; `git -C /work/mono-pr-731 status --porcelain --untracked-files=no` prints nothing; `git -C /work/mono-pr-731 merge-base --is-ancestor HEAD 7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a7a` succeeds; `realpath` returns every path unchanged; `script/worktree destroy 'pr-731'` run from /work/mono exits 0
 
 ## Entry

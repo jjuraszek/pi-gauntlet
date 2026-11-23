@@ -51,7 +51,8 @@ The gate worktree's git status --porcelain --untracked-files=no is empty (tracke
 baseRefName main; the primary checkout (parent of rev-parse --git-common-dir) is on main, tracked-clean. After git fetch origin + git pull --ff-only, HEAD contains the merge commit 9f1c2d3e4b5a6978.
 pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
 
-## Overrides at merge-base
+`.pi/gauntlet.md` at merge-base:
+# shared
 ## cleanup
 - close ticket: gh issue close <issue> --comment "Delivered in <pr>, merged <merge-sha>."
 - release: /skill:release

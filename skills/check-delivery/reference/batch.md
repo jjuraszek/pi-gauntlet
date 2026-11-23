@@ -54,7 +54,7 @@ Use `skill: ["check-delivery", "linear"]` for a Linear ticket. Supply each task 
 
 1. The one ref.
 2. That ticket's resolved tracker name and verb table: read, post comment, update state, edit body. Direct the child to use this resolution without re-probing.
-3. The `## Delivery` slot values verbatim, or `none`.
+3. The `# check-delivery` `## delivery` slot values verbatim, or `none`.
 4. The default branch name.
 5. `fetch done - skip stage 1 step 2`.
 6. The ref convention and `AC location` when configured.

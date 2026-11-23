@@ -4,7 +4,7 @@ Implement acme/widgets#77.
 
 ## Gather draft
 The reports page renders a table and has no export action. Export CSV can reuse the table's column list. The 60s row is hard: paging is unimplemented; there is no evidence that the target is impossible. Pattern: src/export/csv.ts uses the table's column definitions.
-Overrides, ## Issue tracker: repo: acme/widgets.
+`.pi/gauntlet.md`, `# shared` `## issue-tracker`: repo: acme/widgets.
 
 ## Ticket acceptance criteria (verbatim)
 ### acme/widgets

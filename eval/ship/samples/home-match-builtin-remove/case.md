@@ -8,5 +8,6 @@ PRIMARY is /work/acme-api on branch main; WORKTREE is /work/acme-api-worktrees/r
 
 `.pi/gauntlet.md` at the primary contains:
 
+# shared
 ## worktrees
 - home: ../acme-api-worktrees/<name>

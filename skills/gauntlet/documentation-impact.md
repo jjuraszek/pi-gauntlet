@@ -135,5 +135,4 @@ Keep this list in sync with the skills that cite this doc:
 
 This doc is generic. Project-specific doc taxonomy (which docs a given
 project treats as canonical for which topic) lives in the gauntlet
-overrides file (see Project overrides in `SKILL.md`), in a
-`## documentation` section (guidance only; no settings key) - not here.
+overrides file (see Project overrides in `SKILL.md`). Read `# gauntlet` `## documentation` for this guidance; it has no settings key.

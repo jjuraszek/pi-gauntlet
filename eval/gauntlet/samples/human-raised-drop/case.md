@@ -9,7 +9,7 @@ Implement acme/widgets#77.
 
 ## Gather draft
 The reports page renders a table and has no export action. src/export/csv.ts:40 shows the table's columns are title, status, and owner. All ticket rows match the table contract and project requirements. Pattern: src/export/csv.ts reuses the table's column definitions.
-Overrides, ## Issue tracker: repo: acme/widgets.
+`.pi/gauntlet.md`, `# shared` `## issue-tracker`: repo: acme/widgets.
 
 ## Ticket acceptance criteria (verbatim)
 - [ ] The reports page offers an Export CSV button.

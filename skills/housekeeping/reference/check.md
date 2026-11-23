@@ -11,7 +11,7 @@ Compile `<run>/checks.md` with one row per check: id, one-sentence rule, source 
 3. `<root>/AGENTS.md` and `<root>/CLAUDE.md`, and those filenames in every directory on the path to each selected file; count real paths once.
 4. `<root>/ARCHITECTURE.md` and `<root>/README.md`.
 5. Local Markdown files named by sources 2-4 as links or plain or backticked repo paths, whose rules apply to a selected file kind. Follow these references one hop only; discover by reference, not by filename.
-6. The first-found overrides file's `## housekeeping` section.
+6. The first-found overrides file's `# housekeeping` block.
 
 Read every source at `rules-from`: for a commit, use `git -C <root> show <merge-base>:<path>`, never the head version. Record sources read. With no repo sources, run base rules alone. A repo rule may add checks, scope a rule to paths or skip paths; it cannot remove or weaken a base rule. Ensure no repo or overrides rule compiles against the Specs kind; retain path skips to scope the base rule. Compare each repo rule with base rules for the same kind. When it permits what a base rule forbids, retain the base rule and record the repo rule's file and heading in that row's `overrides` cell.
 
@@ -21,15 +21,15 @@ Read every source at `rules-from`: for a commit, use `git -C <root> show <merge-
 | `derived: <search or count>` | A read-only search or count derived from a mechanical rule, such as a banned pattern or required line. | Main session, using `rg`, `git grep`, `wc` or `find` over `specs` for `spec-superseded`, and over `files` for every other row. |
 | `command: <command>` | A repo-documented test, lint or build command. | Main session. |
 
-Resolve a documented command from overrides `## housekeeping`, then `## verification`, then the rule files. Treat a command checking the content of a file kind held in the spec or plan dirs (a Markdown lint or link check) as a content command. For a content command, use its documented scoped form only when it leaves out the spec and plan dirs; with no such form, list it under checks not run because no documented form excludes the spec and plan folders, and raise none of its findings. Run a documented command that reads no such file as documented; retain its failure as a command finding. Invent no test, lint, build or setup command.
+Resolve a documented command from `# housekeeping`, then `# shared` `## verification`, then the rule files. Treat a command checking the content of a file kind held in the spec or plan dirs (a Markdown lint or link check) as a content command. For a content command, use its documented scoped form only when it leaves out the spec and plan dirs; with no such form, list it under checks not run because no documented form excludes the spec and plan folders, and raise none of its findings. Run a documented command that reads no such file as documented; retain its failure as a command finding. Invent no test, lint, build or setup command.
 
 ## Run without changing root
 
 Run derived checks read-only in `root`. For `spec-superseded`, apply path skips from the `rules-from` sources before searching `specs`. Match `^> \*\*Superseded by:\*\* \[.*\]\(.*\) - fully$` between the H1 and the first `## ` heading or code fence. Record each hit as one `line` finding quoting the banner; match neither partial-scope banners nor a repo's own banner syntax. For each hit, search tracked files at `root` for the spec's basename (`<file>` for `doc/specs/<file>`, not its repo-relative path) as a fixed string. Count only files outside both the spec dirs and the plan dirs and record their paths with the finding.
 
-Run a command there only when `## housekeeping` declares it leaves the checkout unchanged. Otherwise create a detached worktree at `<run>/snapshot` from `commit`; run the repo-documented fresh-checkout setup when present, overlay expected-state copies and modes, and remove recorded missing paths. Execute the command in that selected-state snapshot. Remove it at Report.
+Run a command there only when `# housekeeping` declares it leaves the checkout unchanged. Otherwise create a detached worktree at `<run>/snapshot` from `commit`; run the repo-documented fresh-checkout setup when present, overlay expected-state copies and modes, and remove recorded missing paths. Execute the command in that selected-state snapshot. Remove it at Report.
 
-Give each command 15 minutes unless `## housekeeping` names another limit. Record unavailable snapshots, missing or failed required setup, and timeouts as not run with their reasons, never as passes. Record command failures as findings with the command and failing output.
+Give each command 15 minutes unless `# housekeeping` names another limit. Record unavailable snapshots, missing or failed required setup, and timeouts as not run with their reasons, never as passes. Record command failures as findings with the command and failing output.
 
 ## Check duty
 

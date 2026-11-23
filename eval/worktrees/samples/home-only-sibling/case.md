@@ -4,6 +4,7 @@ Primary checkout: /work/acme-api, on branch main, `git status --porcelain` print
 
 `.pi/gauntlet.md` contains:
 
+# shared
 ## worktrees
 - home: ../acme-api-worktrees/<name>
 

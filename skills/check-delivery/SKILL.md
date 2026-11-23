@@ -212,7 +212,7 @@ unmappable to landed commits; deliverable work found only on unmerged
 branches; a genuine open deliverable PR per above. Each STOP names its
 reason.
 
-**Stage 2 - Delivery target.** Runs only when overrides `## Delivery`
+**Stage 2 - Delivery target.** Runs only when `# check-delivery` `## delivery`
 defines a target. `deploy watch`, if configured, runs first; its failure or
 timeout halts the stage (`failed`, STOP) - `delivery target` never runs
 after a failed watch. The target check must bind to the shipped SHA
@@ -356,7 +356,7 @@ Evidence binds to the stage-1 SHA, so a default-branch advance mid-run
 leaves prior evidence valid; a later re-run produces a fresh comment for
 the newer SHA.
 
-## The `## Delivery` overrides contract
+## The `## delivery` overrides contract
 
 | Slot | Meaning | Default (unset) |
 |---|---|---|
@@ -373,7 +373,8 @@ the newer SHA.
 Worked example:
 
 ```markdown
-## Delivery
+# check-delivery
+## delivery
 - target state: Ready
 - deploy watch: gh run watch --workflow deploy.yml (run for <sha>)
 - delivery target: curl -fsS https://staging.example.com/version | grep <sha>
@@ -383,7 +384,7 @@ Worked example:
 
 Credentials are the declared command's own concern - a credential failure
 is a stage-2 failure, not a skip. This slot table is the thin-wrapper
-contract: a consumer's closeout prompt reduces to a `## Delivery` block plus
+contract: a consumer's closeout prompt reduces to `# check-delivery` `## delivery` plus
 a one-line wrapper invoking this skill. Worktree cleanup is out of scope -
 that belongs to `../gauntlet/ship/ship.md`.
 

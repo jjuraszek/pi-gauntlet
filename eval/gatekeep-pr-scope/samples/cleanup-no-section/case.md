@@ -52,7 +52,7 @@ baseRefName main; the primary checkout (parent of rev-parse --git-common-dir) is
 pr.url https://github.com/acme/widgets/pull/210; pr.state MERGED.
 
 ## Overrides at merge-base
-The overrides file has ## PR gate only; no ## cleanup section.
+The `.pi/gauntlet.md` file has `# gatekeep-pr` only; no `# shared` `## cleanup` section.
 
 ## Pick
 numeric merge row selected (gh pr merge succeeded; gh pr view returned state MERGED, mergeCommit.oid 9f1c2d3e4b5a6978). Render the one post menu, then take the numeric cleanup row at its rendered number. Run that selection and close without another menu; no ## cleanup item exists to add a row.

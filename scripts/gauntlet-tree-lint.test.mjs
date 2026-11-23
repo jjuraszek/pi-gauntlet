@@ -133,6 +133,43 @@ test("overrides-outline: readers no longer get shared settings from flat heading
   assert.match(assessment, /merge-base of the PR's base branch[^\n]+never from the PR's head tree/);
 });
 
+test("overrides-outline: private settings come from the reader's own block", () => {
+  const root = join(import.meta.dirname, "..");
+  const read = file => readFileSync(join(root, file), "utf8");
+  const skills = readdirSync(join(root, "skills"));
+  for (const file of globSync("skills/**/*.md", { cwd: root })) {
+    const owner = file.split("/")[1];
+    for (const [, block] of read(file).matchAll(/`# ([a-z-]+)`/g)) {
+      if (skills.includes(block)) assert.equal(block, owner, file);
+    }
+  }
+  for (const [file, heading] of [
+    ["agents/plan-writer.md", /only `# gauntlet` `## happy-path`/],
+    ["skills/gauntlet/documentation-impact.md", /`# gauntlet` `## documentation`/],
+    ["skills/check-delivery/SKILL.md", /^# check-delivery\n## delivery$/m],
+    ["skills/chase-bug/SKILL.md", /^ +# chase-bug\n +## response-channels$/m],
+    ["skills/gatekeep-pr/reference/assessment.md", /^# gatekeep-pr\n- timeout minutes:.*\n(?:- [^\n]+\n)*- merge policy:/m],
+    ["skills/gatekeep-pr/reference/fix-wave.md", /in `# gatekeep-pr` or `# shared` `## verification`/],
+  ]) assert.match(read(file), heading, file);
+  for (const file of globSync("{skills,agents}/**/*.md", { cwd: root })) {
+    assert.doesNotMatch(read(file), /`## (Happy path|Delivery|Response channels|housekeeping|Capabilities)`/, file);
+  }
+});
+
+test("overrides-outline: sample inputs use the same blocks as the installed skills", () => {
+  const root = join(import.meta.dirname, "..");
+  const errors = [];
+  for (const file of globSync("eval/*/samples/*/case.md", { cwd: root })) {
+    const text = readFileSync(join(root, file), "utf8");
+    // Unfenced excerpts end at the next sample paragraph; fenced excerpts can contain blank lines.
+    for (const [, fenced, plain] of text.matchAll(/^(?:[^\n]*\bgauntlet\.md[^\n]*:|## Overrides at merge-base)\n\n?(?:```markdown\n([\s\S]*?)\n```|(#{1,2} [^\n]+(?:\n[^\n]+)*))/gm)) {
+      errors.push(...lintOverridesFile(fenced ?? plain).map(reason => `${file}: ${reason}`));
+    }
+    assert.doesNotMatch(text, /(?:Overrides, |Resolved overrides |supplied project overrides' `)## (?:shape-ticket|Issue tracker)\b|`## PR gate` - /, file);
+  }
+  assert.deepEqual(errors, []);
+});
+
 test("overrides-outline: repo-wide wording comes from the agent instructions", () => {
   const root = join(import.meta.dirname, "..");
   const files = globSync(["{skills,agents}/**/*.md", "doc/*.md", "README.md", "AGENTS.md"], { cwd: root });

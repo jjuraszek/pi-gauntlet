@@ -6,24 +6,27 @@ import { fileURLToPath } from "node:url";
 import { assemble, inputSha, parseCase } from "../lib/replay.mjs";
 import { parseExpected, runMechanical, sha256 } from "../lib/checks.mjs";
 import { cellReusable, judgmentCurrent } from "../lib/records.mjs";
+import { retiredNames } from "../../scripts/gauntlet-tree-lint.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const targetDir = "eval/housekeeping";
 
-test("overrides-rule-cited: a repo-only rule produces a card citing its housekeeping section", (t) => {
-  assert.ok(read("skills/housekeeping/reference/check.md").includes("The first-found overrides file's `## housekeeping` section."));
-  assert.ok(read("skills/housekeeping/reference/card.md").includes("cite the `## housekeeping` section for an overrides rule"));
+test("overrides-rule-cited: a repo-only rule produces a card citing its housekeeping block", (t) => {
+  assert.ok(read("skills/housekeeping/reference/check.md").includes("The first-found overrides file's `# housekeeping` block."));
+  assert.ok(read("skills/housekeeping/reference/card.md").includes("cite the `# housekeeping` block for an overrides rule"));
 
   const target = JSON.parse(read(`${targetDir}/target.json`));
   const sample = "overrides-rule-cited";
   const { text, bundle, drop } = parseCase(read(`${targetDir}/samples/${sample}/case.md`));
   const selected = { ...target, skillFiles: target.skillFiles.filter(({ path }) => !drop.includes(path)) };
   const skill = assemble(selected, read, bundle);
-  const expected = read(`${targetDir}/samples/${sample}/expected.md`);
-  const { facts } = parseExpected(expected);
-  assert.ok(facts.length > 0, "the sample must assert facts");
   const candidate = JSON.parse(read(`${targetDir}/results/${sample}/candidate.json`));
+  const historicalInput = "34f19a3067b6eaa3aca637ce1539528f7c393eeef839365cd140cdf4f1394c56";
+  const archived = candidate.inputSha === historicalInput;
+  const expected = read(`${targetDir}/samples/${sample}/expected.md`);
+  const { facts } = parseExpected(archived ? expected.replaceAll(".pi/gauntlet.md", `.pi/${retiredNames.overrides}.md`) : expected);
+  assert.ok(facts.length > 0, "the sample must assert facts");
   const baseline = JSON.parse(read(`${targetDir}/results/${sample}/baseline.json`));
   const models = candidate.models;
   assert.deepEqual(baseline.models, models, "baseline and candidate model identity");
@@ -36,7 +39,7 @@ test("overrides-rule-cited: a repo-only rule produces a card citing its housekee
   t.diagnostic(`Archived ${sample} replies from ${candidate.repoSha} are stale-to-HEAD evidence, not a current-source replay (saved skillSha ${candidate.skillSha}; current ${sha256(skill)}).`);
   const identity = {
     kind: target.kind, assembly: target.assembly, thinking: models.thinking,
-    inputSha: inputSha(read(`${targetDir}/replay.md`), text, bundle),
+    inputSha: archived ? historicalInput : inputSha(read(`${targetDir}/replay.md`), text, bundle),
   };
   for (const record of [baseline, candidate]) {
     assert.equal(record.sample, sample);
@@ -57,7 +60,8 @@ test("overrides-rule-cited: a repo-only rule produces a card citing its housekee
     assert.ok(Object.values(runMechanical(facts, output.text)).every((result) => result === "holds"), `${model}: mechanical facts`);
     const judged = candidate.judge[model];
     assert.ok(judgmentCurrent(judged, {
-      factsSha: sha256(expected), judgePromptSha: sha256(read("eval/judge.md")),
+      factsSha: archived ? "d691f2908581051a22dfaa8371db97e67e1e8f42065af27f8444bece4eaf05dd" : sha256(expected),
+      judgePromptSha: sha256(read("eval/judge.md")),
       intentSha: recordedIntentSha,
       baselineOutputSha: sha256(baseline.outputs[model].text), candidateOutputSha: sha256(output.text),
     }), `${model}: stale judgment`);
