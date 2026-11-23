@@ -396,6 +396,26 @@ for (const { name, base, remedy, otherRemedy } of [
   assert.doesNotMatch(result.message, otherRemedy);
 });
 
+test("detached tag checkout uses the origin/main merge-base by default", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  g("switch", "-q", "-c", "topic");
+  put("skills/x/SKILL.md", "RELEASE\n");
+  commit(root, "release instructions");
+  g("tag", "release");
+  g("switch", "-q", "main");
+  put("skills/x/SKILL.md", "UPSTREAM\n");
+  commit(root, "upstream instructions");
+  g("update-ref", "refs/remotes/origin/main", "HEAD");
+  g("switch", "-q", "--detach", "release");
+
+  const prepared = prepareTarget({ root, target: "t", baselineOnly: true });
+  assert.ok(prepared.plans, prepared.message);
+  const [{ baseSkill, candSkill }] = prepared.plans;
+  assert.equal(baseSkill, "BASE\n");
+  assert.equal(candSkill, "RELEASE\n");
+});
+
 for (const { name, declare, diagnostic } of [
   {
     name: "skill file",
