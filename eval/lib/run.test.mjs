@@ -465,6 +465,32 @@ test("rename lookup reuses one Git scan for skill and bundle declarations", (t) 
   assert.deepEqual(diffs, [["diff", "-M", "--diff-filter=R", "--name-status", "-z", base, "--", "skills/"]]);
 });
 
+test("new-marked files are refused against a branch baseline but read on a self-baseline", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const direct = "skills/x/extra.md";
+  const renamed = "skills/x/guide.md";
+  put(direct, "Extra\n");
+  g("add", "--", direct);
+  commit(root, "seed extra instructions");
+  g("update-ref", "refs/remotes/origin/main", "HEAD");
+  g("switch", "-q", "-c", "topic");
+  g("mv", "--", "skills/x/SKILL.md", renamed);
+  commit(root, "move instructions");
+  put("eval/t/target.json", JSON.stringify({
+    kind: "text", skillFiles: [direct, renamed].map((path) => ({ path, new: true })), assembly: "concat", wordCap: 50,
+  }));
+
+  const options = { root, target: "t", baselineOnly: true };
+  const refused = prepareTarget(options);
+  assert.equal(refused.exit, 2);
+  for (const path of [direct, renamed]) assert.ok(refused.message.includes(`${path}: new file exists at baseline`), refused.message);
+
+  const prepared = prepareTarget({ ...options, base: "HEAD" });
+  assert.ok(prepared.plans, prepared.message);
+  assert.equal(prepared.plans[0].baseSkill, "Extra\n\nBASE\n");
+});
+
 test("missing tree skill refuses with its file and ref", async () => {
   const { root, put } = candidate();
   put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/missing/SKILL.md" }], assembly: "concat", wordCap: 50 }));
