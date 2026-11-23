@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
-returned: 28 | home | 995ae55014af829ca254b741e6bff19b5ddc390c
+returned: 34 | home | 176fde27513762e9aac707aaec492b470aa76a9d
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -42,7 +42,7 @@ returned: 28 | home | 995ae55014af829ca254b741e6bff19b5ddc390c
 | 31 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; repo tracker and cleanup settings resolve under shared and the release rule under gauntlet/ship; 10 passed |
 | 32 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs extensions/lib/overrides.test.ts; 15 passed; all skill entries name the same three locations in the order used by the shared reader |
 | 33 | done | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/overrides.test.ts extensions/verify-before-ship.test.ts; 37 passed; tracker lookup ignores the retired file and foreign blocks, and sibling and index sections stop at block boundaries |
-| 34 | open | 0 | |
+| 34 | done | 1 | timeout -k 30 300 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs bin/gauntlet-performance.test.mjs bin/gauntlet-spec-index.test.mjs bin/gauntlet-telemetry-seal.test.mjs; 115 passed; 0 failed |
 | 35 | open | 0 | |
 | 36 | open | 0 | |
 | 37 | open | 0 | |
@@ -63,3 +63,4 @@ row 27 done | Routed the five code readers through one shared-section lookup and
 row 32 done | Verified that all skill entries name the same three gauntlet.md locations that the extension and bin reader checks, in first-found order. | nothing new to build on
 row 33 done | Verified tracker selection with both filenames, the retired filename alone and a tracker under another block, plus sibling and spec-index section boundaries. | Extend the originless membership cases in extensions/verify-before-ship.test.ts to check which repository supplies the ship policy.
 row 28 done | Scoped private settings to the skill that reads them and migrated sample overrides to the same outline. | Use the overrides-outline checks in scripts/gauntlet-tree-lint.test.mjs to validate skill readers and sample file excerpts.
+row 34 done | The report and index omit earlier run records until the seal command moves them to the gauntlet key without changing their bytes. | Reuse the bare-remote fixture in src/bins/gauntlet-telemetry-ref-migration.test.mjs to check migration conflicts and concurrent pushes.

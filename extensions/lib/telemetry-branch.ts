@@ -148,7 +148,7 @@ export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, s
   }
 }
 
-export function readTelemetryBranch(root: string, { remote = "origin", prefix = "" }: { remote?: string; prefix?: string } = {}): { records: { path: string; bytes: string }[]; warning?: string } {
+export function readTelemetryBranch(root: string, { remote = "origin", prefix = "" }: { remote?: string; prefix?: string | string[] } = {}): { records: { path: string; bytes: string }[]; warning?: string } {
   const records: { path: string; bytes: string }[] = [];
   let warning: string | undefined;
   try {
@@ -160,12 +160,14 @@ export function readTelemetryBranch(root: string, { remote = "origin", prefix = 
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...(prefix ? ["--", prefix] : [])], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("\t");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("\t");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some(p => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, undefined, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });

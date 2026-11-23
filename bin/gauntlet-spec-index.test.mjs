@@ -19,11 +19,11 @@ const git = (root, args, options = {}) => {
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 };
-const telemetry = (root, path, text) => {
+const telemetry = (root, path, text, key = "gauntlet") => {
   const env = { GIT_INDEX_FILE: join(root, ".git/telemetry-index") };
   git(root, ["read-tree", "refs/telemetry/records"], { env });
   const blob = git(root, ["hash-object", "-w", "--stdin"], { input: text });
-  git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/brainstorming/${path}`], { env });
+  git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/${key}/${path}`], { env });
   const tree = git(root, ["write-tree"], { env });
   const commit = git(root, ["commit-tree", tree, "-p", "refs/telemetry/records", "-m", "telemetry fixture"]);
   git(root, ["update-ref", "refs/telemetry/records", commit]);
@@ -214,6 +214,8 @@ test("6: telemetry join is output-only and tolerant", (t) => {
   const filesBefore = withDb(root, (database) => JSON.stringify(database.prepare("SELECT * FROM files ORDER BY path").all()));
   write(root, "x", "x\n");
   write(root, "y", "y\n");
+  telemetry(root, "doc/specs/a.yaml", "status: abandoned\n", "brainstorming");
+  assert.equal(run(root, ["--query", "zephyr widget"]).rows[0][4], "");
   telemetry(root, "doc/specs/a.yaml", "status: shipped\nshipped_at: 2026-09-17T10:00:00Z\nderived:\n  modified_files:\n    - x\n    - y\n");
   let r = run(root, ["--query", "zephyr widget"]);
   assert.deepEqual(r.rows[0].slice(4, 8), ["shipped", "2026-09-17T10:00:00Z", "live", "x;y"]);

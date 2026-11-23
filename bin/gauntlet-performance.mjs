@@ -254,12 +254,14 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("	");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("	");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some((p) => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });
@@ -781,7 +783,8 @@ function branchCorpus(root) {
     process2.stderr.write("telemetry disabled\n");
     return { label, records: [] };
   }
-  const result = readTelemetryBranch(root, { remote: t.remote, prefix: `${label}/` });
+  const prefix = ["gauntlet", ...LEG_SKILLS].map((key4) => `${label}/${key4}/`);
+  const result = readTelemetryBranch(root, { remote: t.remote, prefix });
   if (result.warning) process2.stderr.write(`warning: ${result.warning}
 `);
   return { label, records: result.records };
@@ -805,7 +808,7 @@ function* yamlFiles(dir) {
     else if (e.isFile() && e.name.endsWith(".yaml")) yield p;
   }
 }
-function loadRecord(file, bytes) {
+function loadRecord(file, bytes, key4) {
   let doc;
   try {
     doc = parseYaml2(bytes);
@@ -814,7 +817,9 @@ function loadRecord(file, bytes) {
   }
   const d = obj(doc);
   if (!d) return { skip: "unparseable" };
-  if (LEG_SKILLS.includes(d.skill)) return loadLeg(d);
+  const leg = LEG_SKILLS.includes(d.skill);
+  if (key4 !== void 0 && key4 !== (leg ? d.skill : "gauntlet")) return { skip: "wrong record key" };
+  if (leg) return loadLeg(d);
   if (d.schema !== 1) return { skip: `schema ${d.schema === void 0 ? "missing" : String(d.schema)}` };
   if (typeof d.spec !== "string" || typeof d.run_id !== "string") return { skip: "not a record" };
   const derived = obj(d.derived) ?? {};
@@ -927,7 +932,8 @@ function main() {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map((path) => ({ path, bytes: readFileSync2(path, "utf8") }));
     for (const { path: file, bytes } of records) {
-      const res = loadRecord(file, bytes);
+      const key4 = c.records ? file.slice(c.label.length + 1).split("/", 1)[0] : void 0;
+      const res = loadRecord(file, bytes, key4);
       if (res.skip) {
         skipped.push({ file, reason: res.skip });
         continue;

@@ -267,12 +267,14 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("	");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("	");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some((p) => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });

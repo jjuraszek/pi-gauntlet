@@ -414,6 +414,10 @@ Example override (the `buckets` shown replace the defaults):
 
 `enabled: false` turns every handler off (no file or guard), except that a shipped-spec warning already held for a nested call still reaches its parent result after disabling telemetry. The retired `telemetry.dir` setting is ignored with one migration warning per session; the local metadata path is fixed. `buckets` is an ordered `{ name: [globs] }` object matched with `path.matchesGlob` against repo-relative paths; defaults are `test` = `**/test/**`, `**/tests/**`, `**/__tests__/**`, `**/*.test.*`, `**/*.spec.*`, `**/*_test.*`; `docs` = `**/*.md`; `config` = `**/*.json`, `**/*.yaml`, `**/*.yml`, `**/*.toml`, `**/*.lock`, `**/*-lock.*`; anything else `code`; first match wins. Read through the shared `gauntlet-settings` resolver (`resolveTelemetry`).
 
+#### Move earlier run records to the current key
+
+Run `gauntlet-telemetry-seal --migrate-records` once per repository. The performance report, spec index and shipped-spec guard omit that repo's earlier run records until migration. The command moves the records to `<owner>/<repo>/gauntlet/` in one commit on `refs/telemetry/records` on the configured remote. It keeps the original blobs and leaves other repositories and leg records alone. Identical duplicates keep one copy; different blobs at the same destination stop the migration without pushing. If the remote ref moves during the push, rerun the command. A repeat with no old records prints `nothing to migrate`.
+
 #### Moving off the gauntlet/telemetry branch
 
 Run this procedure from the product checkout with telemetry enabled. For an installed package, use its `bin/gauntlet-telemetry-seal.mjs` path. These commands resolve `telemetry.remote` themselves: the default is `origin`, and a configured separate repository URL uses the same procedure without changing the product origin.
