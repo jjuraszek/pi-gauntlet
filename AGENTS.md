@@ -101,6 +101,7 @@ An **agent-initiated** write to a human-readable channel (tracker comment, Slack
 ## Package rules
 
 - **Skills stay generic.** No service names, file paths, verification commands, or routing tables in `skills/*/SKILL.md`. Every skill ends with the standard "Project overrides" block (copy from any existing skill). Before committing skill edits: `rg -ni "jjuraszek|/Users/[^/]+" skills/ | rg -v "github.com/jjuraszek/pi-cohort"` - expected zero matches; tracker or `script/worktree`-style references are fine as examples, never as canonical paths.
+- Place run instructions and helpers using the [gauntlet file placement rule](skills/forge-skill/SKILL.md#gauntlet-file-placement).
 - **Personas** in `agents/` are dispatched via pi-cohort; frontmatter is not call-time overridable and a frontmatter pin kills the matching preset `agentOverrides` knob. Read the knobs table before touching frontmatter: [`doc/personas.md`](doc/personas.md#frontmatter-knobs).
 - **Extensions** in `extensions/` read every tunable from `settings.json#piGauntlet.<extensionName>` with a working default, through `extensions/lib/gauntlet-settings*.ts` - never `pi.settings` (`scripts/ci.mjs` enforces). New key -> document in [`doc/configuration.md`](doc/configuration.md).
 - **Claude Code surface** is `.claude-plugin/marketplace.json`: an allowlist of harness-portable skills, excluded from the npm tarball, never read by pi. Widen it only for skills whose bodies carry harness fallbacks.

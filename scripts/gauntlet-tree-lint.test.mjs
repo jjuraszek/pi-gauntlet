@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintTreeShape } from "./gauntlet-tree-lint.mjs";
+import { lintPlacementRule, lintTreeShape } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
@@ -30,6 +30,38 @@ test("the eleven run steps are instruction files, not separate skill entries", (
 
 test("the run's tree has exactly five phases", () => {
   assert.deepEqual(lintTreeShape(join(import.meta.dirname, "..")), []);
+});
+
+test("placement has one owner; other guides link instead of restating the rule", (t) => {
+  const repo = join(import.meta.dirname, "..");
+  assert.deepEqual(lintPlacementRule(repo), []);
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-placement-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const put = (file, text) => {
+    mkdirSync(join(root, dirname(file)), { recursive: true });
+    writeFileSync(join(root, file), text);
+  };
+  const guide = "skills/forge-skill/SKILL.md";
+  const body = readFileSync(join(repo, guide), "utf8");
+  const pointer = `For links from skills outside the run, see [placement](${guide}#gauntlet-file-placement).`;
+  put("AGENTS.md", pointer);
+  put(guide, "# Authoring\n");
+  assert.ok(lintPlacementRule(root).some(error => error.startsWith(guide)));
+  put(guide, body);
+  put("AGENTS.md", "# Instructions\n");
+  assert.ok(lintPlacementRule(root).some(error => error.startsWith("AGENTS.md")));
+  put("AGENTS.md", pointer);
+  const rule = body.match(/^### Gauntlet file placement\n[^]*?(?=^## )/m)[0];
+  for (const [file, copy] of [
+    ["AGENTS.md", rule],
+    ["skills/example/helper.md", "Keep files shared by multiple phases at the tree root."],
+    ["agents/example.md", rule.replace(/^### .*\n/, "")],
+  ]) {
+    put(file, `${pointer}\n\n${copy}`);
+    assert.deepEqual(lintPlacementRule(root), [`${file}: link to the placement rule instead of restating it`]);
+    put(file, pointer);
+  }
+  assert.deepEqual(lintPlacementRule(root), []);
 });
 
 test("tree-shape names each path that breaks the phase layout", (t) => {

@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
-returned: 3 | home | 3f9c2e579e1cb4b26d148a3b7f6eec7dcee7aa4b
+returned: 5 | home | ac9e23fb9ae674a91c3acb3b759ae52838afaddc
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -13,7 +13,7 @@ returned: 3 | home | 3f9c2e579e1cb4b26d148a3b7f6eec7dcee7aa4b
 | 2 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; the entry's start call puts brainstorm in progress and verify refuses completion without a conformance review; 262 passed, 0 failed |
 | 3 | cut | 1 | deferred: #174 - live proof only; the two-engine behavior remains required |
 | 4 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; exactly five phase directories and no unrecognized subdirectories; missing and unexpected path fixtures pass |
-| 5 | open | 0 | |
+| 5 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; the guide owns placement and AGENTS.md links to it; missing-rule, missing-link and duplicate-wording fixtures pass; 4 passed, 0 failed |
 | 6 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; CI's tree check reports the full path of an extra directory or nested SKILL.md; 2 passed, 0 failed |
 | 7 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; all eleven step files contain their instructions without skill frontmatter; 3 passed, 0 failed |
 | 8 | open | 0 | |
@@ -57,3 +57,4 @@ row 7 done | Each of the eleven retired steps has its own instruction file under
 row 2 done | The entry's first tracker call to start a phase puts brainstorm in progress and blocks verify completion without a conformance review. | Use the fresh-entry test in extensions/phase-tracker.test.ts to check the entry instructions against live tracker status and guards.
 row 3 failed | This worker has no interactive session to observe the gate order or the selected ship action on either engine. | Start one live pi run per engine with the changed package and record the prompts, the person's ship choice and its effect.
 amended | cut row 3 | Defer live operator proof only
+row 5 done | The authoring guide places files shared across phases beside the entry and directs outside skills to link without moving them. | Read the anchor table in skills/forge-skill/SKILL.md for fixed locations and call lintPlacementRule(root) to check that the guide owns the rule.
