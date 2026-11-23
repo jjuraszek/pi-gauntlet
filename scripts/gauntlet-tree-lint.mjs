@@ -174,6 +174,80 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
   return [...errors].sort();
 }
 
+const overrideSections = {
+  shared: {
+    "issue-tracker": ["tracker-facing skills", "tracker-reading extensions"],
+    worktrees: ["`gauntlet`", "`gatekeep-pr`", "`housekeeping`", "`gauntlet-resume`"],
+    verification: ["`gauntlet`", "`gatekeep-pr`", "`chase-bug`", "`housekeeping`"],
+    cleanup: ["`gatekeep-pr`", "`gauntlet`"],
+    siblings: ["`shape-ticket`", "`gauntlet`", "`gauntlet-resume`", "phase tracker extension"],
+    deployment: ["`shape-ticket`", "`gauntlet`"],
+    "spec-index": ["`gauntlet-spec-index`"],
+  },
+  gauntlet: {
+    ...Object.fromEntries(phases.map(phase => [phase, phase === "implement" ? ["waves", "loop"] : [`${phase} phase`]])),
+    "happy-path": ["plan step", "`plan-writer`", "both implementation engines"],
+    documentation: ["`documentation-impact.md`"],
+  },
+  "shape-ticket": { capabilities: ["`shape-ticket`"], wording: ["`shape-ticket`"] },
+  "chase-bug": { "response-channels": ["`chase-bug`"] },
+  "check-delivery": { delivery: ["`check-delivery`"] },
+  "gatekeep-pr": {}, housekeeping: {}, linear: {}, "forge-skill": {},
+  "gauntlet-handoff": {}, "gauntlet-resume": {}, "gauntlet-performance": {},
+};
+
+export function lintOverridesFile(text) {
+  const errors = [];
+  let block, fence;
+  for (const line of text.split("\n")) {
+    if (fence) {
+      const close = line.match(/^ {0,3}(`+|~+)\s*$/)?.[1];
+      if (close?.startsWith(fence)) fence = undefined;
+      continue;
+    }
+    fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1];
+    const heading = line.match(/^(#{1,2}) (.+)$/);
+    if (!heading) continue;
+    const [, level, name] = heading;
+    if (level === "#") {
+      block = name;
+      if (!Object.hasOwn(overrideSections, block)) errors.push(`unknown block: ${block}`);
+    } else if (!Object.hasOwn(overrideSections, block) || !Object.hasOwn(overrideSections[block], name)) {
+      errors.push(`unknown section: ${block ?? "(no block)"}/${name}`);
+    }
+  }
+  return errors;
+}
+
+export function lintOverridesOutline(readme) {
+  const outline = readme.split(/^### What you can tweak\s*$/m)[1]?.split(/^#{1,3} /m, 1)[0] ?? "";
+  const missing = new Set(Object.entries(overrideSections).flatMap(([name, sections]) =>
+    [name, ...Object.keys(sections).map(section => `${name}/${section}`)]));
+  const errors = [];
+  let block;
+  for (const line of outline.split("\n").filter(line => /^\s*- /.test(line))) {
+    const row = line.match(/^( *)- `(#|##) ([a-z0-9-]+)` - (.+)$/);
+    if (!row) {
+      errors.push(`malformed outline row: ${line}`);
+      continue;
+    }
+    const [, indent, level, name, description] = row;
+    const isBlock = level === "#";
+    if (isBlock) block = name;
+    const path = isBlock ? block : `${block}/${name}`;
+    if (indent !== (isBlock ? "" : "  ") || !missing.delete(path)) {
+      errors.push(`unexpected or duplicate outline row: ${path}`);
+      continue;
+    }
+    const readers = !isBlock ? overrideSections[block][name] : block === "shared" ? []
+      : block === "gauntlet" ? ["every run file"] : [`\`${block}\``];
+    for (const reader of readers) {
+      if (!description.toLowerCase().includes(reader)) errors.push(`${path}: missing reader ${reader}`);
+    }
+  }
+  return [...errors, ...[...missing].map(path => `missing outline row: ${path}`)];
+}
+
 export function lintTreeShape(root) {
   const base = join(root, tree);
   const entries = readdirSync(base, { recursive: true, withFileTypes: true });

@@ -3,7 +3,7 @@ import { cpSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writ
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintHandoffPointers, lintPlacementRule, lintReferences, lintTreeShape } from "./gauntlet-tree-lint.mjs";
+import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlacementRule, lintReferences, lintTreeShape } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
@@ -75,6 +75,34 @@ test("the eleven run steps are instruction files, not separate skill entries", (
     assert.ok(body.includes(section), `${file}: missing ${section}`);
     assert.ok(!body.startsWith("---"), `${file}: unexpected skill header`);
   }
+});
+
+test("the overrides outline gives every block its sections and names their readers", () => {
+  const readme = readFileSync(join(import.meta.dirname, "../README.md"), "utf8");
+  assert.deepEqual(lintOverridesOutline(readme), []);
+  for (const [from, to] of [
+    ["- `# linear`", "- `# other`"],
+    ["- `## issue-tracker`", "- `## Issue tracker`"],
+    ["- `## verification`", "- `## delivery`"],
+    ["- `## spec-index` - `gauntlet-spec-index`", "- `## spec-index` - `shape-ticket`"],
+  ]) {
+    const changed = readme.replace(from, to);
+    assert.notEqual(changed, readme);
+    assert.ok(lintOverridesOutline(changed).length, `${from} changed to ${to}`);
+  }
+});
+
+test("the repo's overrides put tracker and cleanup in shared and release in ship", () => {
+  const file = readFileSync(join(import.meta.dirname, "../.pi/gauntlet.md"), "utf8");
+  assert.deepEqual(lintOverridesFile(file), []);
+  assert.match(file, /^## issue-tracker\n(?:[^#\n].*\n|\n)*- tracker: github$/m);
+  assert.match(file, /^## cleanup\n(?:[^#\n].*\n|\n)*- release: \/skill:release$/m);
+  assert.match(file, /^## ship\n\s*`\/skill:release`/m);
+  for (const [suffix, errors] of [
+    ["# unlisted", ["unknown block: unlisted"]],
+    ["# gatekeep-pr\n## cleanup", ["unknown section: gatekeep-pr/cleanup"]],
+    ["# gatekeep-pr\n```markdown\n## cleanup\n```", []],
+  ]) assert.deepEqual(lintOverridesFile(`${file}\n${suffix}`), errors);
 });
 
 test("the run's tree has exactly five phases", () => {

@@ -99,7 +99,7 @@ Between gate 1 and gate 2, both engines take named authorized recommendations un
 
 ### Multi-repo runs
 
-A run has one home repository and one leg per selected repository. The home's `## shape-ticket` `- sibling:` declarations define eligible companions, not automatic membership: the ask must select a declared companion by repo identifier, the declared clone URL's `NAME`, or the URL itself, or the ticket must select it through a matching repo-group heading. Unselected siblings are not resolved. Members are ordered home first, then selected siblings in declaration order. Every member gets its own worktree with the same full branch and shared creation NAME (branch with `/` replaced by `-`); a script or native tool can choose a different folder name.
+A run has one home repository and one leg per selected repository. The home's `- sibling:` declarations in `# shared` under `## siblings` define eligible companions, not automatic membership: the ask must select a declared companion by repo identifier, the declared clone URL's `NAME`, or the URL itself, or the ticket must select it through a matching repo-group heading. Unselected siblings are not resolved. Members are ordered home first, then selected siblings in declaration order. Every member gets its own worktree with the same full branch and shared creation NAME (branch with `/` replaced by `-`); a script or native tool can choose a different folder name.
 
 The approved home spec records `## Legs`, including each leg's scope, rules and resolved `contract:`. Keyed and built-in creators retain `home:`; flow-created script/native trees record portable `create:` and `destroy:` without `home:`, and a pre-existing host-owned tree without a keyed contract records neither `home:` nor `destroy:`. Script creation passes the shared NAME and explicit branch, while destruction uses the located folder's basename. Companion lookup selects the unique linked tree on the recorded branch and validates its checkout identity, rather than computing its location from `home:`. Each companion commits a leg file with the same filename in its own spec directory, carrying the home pointer, Problem, binding decisions and its own leg block. Plan and ledger stay home-owned; task `Leg:` selects the checkout for implementation and review. Committed artifacts use portable repo identifiers, not machine-local paths. See the [membership and artifact contract](skills/gauntlet/legs.md).
 
@@ -129,7 +129,7 @@ pi-gauntlet ships three kinds of pieces, layered on top of pi-cohort's dispatch:
 
 - **11 skills** - `gauntlet`, `shape-ticket`, `gatekeep-pr`, `check-delivery`, `chase-bug`, `linear`, `forge-skill`, `housekeeping`, `gauntlet-handoff`, `gauntlet-resume` and `gauntlet-performance`.
 
-  Five are model-visible: `shape-ticket` (creates one tracker issue or repairs a comma/whitespace list of refs against a Context/Problem/Idea/Acceptance-Criteria template, with a grounded repo audit, an AC integrity check, a cheap council roast, and sequential per-ticket exact-diff write confirmations; model-invocable so other skills and commands can route "file a ticket" to it, the gate still needs your yes), `gatekeep-pr` (model-invocable on an explicit ask that names the PR and the verb; the gates still need your selection - is consent-gated pre-merge verification of a PR against the scope contract at its head - the approved spec's acceptance-criteria dispositions and Design when the PR carries one, else the PR's stated intent; the ticket is cross-checked, never judged here (`check-delivery` owns it) - read-only gathering, verification evidence resolved CI-first (green checks on the exact assessed head count as evidence; a pending commit status that GitHub does not report as blocking the gating actor (`mergeStateStatus` not `BLOCKED`) is not waited for - external-CI commit statuses included - while a running Actions check and an unknown merge state still withhold; a viewer GitHub reports as a ruleset bypass actor merges a `BLOCKED` PR on the ordinary `merge` row with CI evidence still binding and all other merge preconditions unchanged; false or unreadable bypass eligibility keeps `BLOCKED` withheld, and live non-admin bypass behavior remains unverified; the project's verification command runs only as fallback), a rubric-based review, a three-part plain-language report (change and scope, standing and problems, then recommendation) and action, final and post menus whose rows derive from the actor's permissions on the PR; nothing mutates (repairs, pushes, reviews, merges, tracker comments) until you pick a course or terminal row, except the opt-in `--rebase [base]` sync that rebases, reviews, and lease-pushes the head before verification, or holds the rebased head locally when a conflict stop's scoped tests fail, so a selected delivery course resolves it before the lease push; after your own merge one post menu offers drafted replies, ticket and PR copies of `AC coverage`, guarded checkout cleanup and separate `## cleanup` items; row 1 combines the runnable steps except duplicate PR coverage when ticket coverage is included, each step keeps its own row, and the run ends after the selected set finishes; approved and closed-PR states use the same post menu with their eligible steps - run it with `/skill:gatekeep-pr [<pr>] [--rebase [base]]` (no argument: other authors' PRs awaiting your review)), `check-delivery` (model-invocable on an explicit ask that names the ticket and the verb; the gates still need your selection - is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>` or, in pi, `/skill:check-delivery #12 #15` for fresh parallel verification and one gate and write per ticket in turn), `forge-skill`, `linear` (reads/searches/comments on/manages Linear tickets via the `linearis` CLI; owns all linearis mechanics and the `## Issue tracker` overrides schema; tracker-facing skills route to it). Six more require explicit entry (`disable-model-invocation: true`): `gauntlet` starts the gated workflow on explicit consent - use `/skill:gauntlet` for reliable discovery, or opt in through reachable explicit prose or a human-selected handoff; after spec approval, downstream planning and implementation still chain automatically. `chase-bug` is human-only bug triage: read-only root-cause discovery to an evidenced verdict menu (real bug -> ticket/brainstorm/hotfix/respond; five negative verdicts), then a gated response to the reporter for addressable origins (GitHub issue / tracker ticket) and a rendered verdict summary otherwise - it never fixes during triage; the hotfix row hands off to `skills/chase-bug/hotfix.md` after the menu - run it with `/skill:chase-bug`. `housekeeping` checks a directory, uncommitted files, unpushed commits, or a PR against repository rules. With no argument, it checks uncommitted files when the checkout has changes (including untracked files), otherwise files changed across commits ahead of `origin/<default>`. A dirty run reports commits ahead of the unfetched local ref as not checked. A clean run fetches first and refuses divergent history, HEAD held by a remote-tracking ref, or a delivery receipt naming HEAD as its squash. It waits through one card per issue class before acting: directory fixes open separate PRs, uncommitted fixes stay in place, and PR fixes are committed and pushed to that PR; tickets are offered only for directory content findings. An unpushed run on a clean checkout folds accepted fixes into the last unpushed commit in the primary checkout, keeps its message unchanged, and pushes nothing. Spec and plan folders skip content checks; fully superseded specs get one Delete-or-Keep card, never Ticket - run `/skill:housekeeping [<directory> | <pr>]` in the primary checkout on the default branch with no gauntlet flow active. `gauntlet-performance` reads the committed run telemetry (current repo by default, `--dir <path>` adds others) through the parse-only `gauntlet-performance` CLI and answers with one example-led recommendation, 3-5 cornerstone numbers, ranked skill reads for each measured run, a council assessment when available, and a menu of at most three actions (render a report file, open the recommendation as a ticket via `shape-ticket`, drill into one run); it writes nothing unless you pick render - run it with `/skill:gauntlet-performance [--dir <path>]... [--since <version>]`. `gauntlet-handoff` ends a session whose flow a fresh session will continue: it invokes pi-cohort's `handoff` skill (`--out <path>` or `--key <name>`, default key = the run worktree's branch with `/` flattened to `-`, default file `<tmpdir>/pi-handoff/<key>.md`), then appends the gauntlet process-state section (phase/plan tracker status) per the shared contract `skills/gauntlet-resume/reference/brief-contract.md` - run it with `/skill:gauntlet-handoff [--out <path> | --key <name>]`. `gauntlet-resume` is the only way back into an interrupted flow from a fresh session: it takes a `gauntlet-handoff` brief (a file path, pasted text, or - with no arguments - a pick from the briefs under `<tmpdir>/pi-handoff/`), a bare worktree that already holds a spec, or a spec tracked on main under a configured spec dir (a spec seed: it creates or reuses the worktree through `worktree setup` and pins the spec), restores phase/plan tracker state through the legal arming sequence (`start brainstorm`, `skip` with `resume:` reasons, `plan_check` before implement-or-later), and never infers approval from artifacts - run it with `/skill:gauntlet-resume [<brief-file> | <spec>.md | <worktree-name-or-path>]`.
+  Five are model-visible: `shape-ticket` (creates one tracker issue or repairs a comma/whitespace list of refs against a Context/Problem/Idea/Acceptance-Criteria template, with a grounded repo audit, an AC integrity check, a cheap council roast, and sequential per-ticket exact-diff write confirmations; model-invocable so other skills and commands can route "file a ticket" to it, the gate still needs your yes), `gatekeep-pr` (model-invocable on an explicit ask that names the PR and the verb; the gates still need your selection - is consent-gated pre-merge verification of a PR against the scope contract at its head - the approved spec's acceptance-criteria dispositions and Design when the PR carries one, else the PR's stated intent; the ticket is cross-checked, never judged here (`check-delivery` owns it) - read-only gathering, verification evidence resolved CI-first (green checks on the exact assessed head count as evidence; a pending commit status that GitHub does not report as blocking the gating actor (`mergeStateStatus` not `BLOCKED`) is not waited for - external-CI commit statuses included - while a running Actions check and an unknown merge state still withhold; a viewer GitHub reports as a ruleset bypass actor merges a `BLOCKED` PR on the ordinary `merge` row with CI evidence still binding and all other merge preconditions unchanged; false or unreadable bypass eligibility keeps `BLOCKED` withheld, and live non-admin bypass behavior remains unverified; the project's verification command runs only as fallback), a rubric-based review, a three-part plain-language report (change and scope, standing and problems, then recommendation) and action, final and post menus whose rows derive from the actor's permissions on the PR; nothing mutates (repairs, pushes, reviews, merges, tracker comments) until you pick a course or terminal row, except the opt-in `--rebase [base]` sync that rebases, reviews, and lease-pushes the head before verification, or holds the rebased head locally when a conflict stop's scoped tests fail, so a selected delivery course resolves it before the lease push; after your own merge one post menu offers drafted replies, ticket and PR copies of `AC coverage`, guarded checkout cleanup and separate `## cleanup` items; row 1 combines the runnable steps except duplicate PR coverage when ticket coverage is included, each step keeps its own row, and the run ends after the selected set finishes; approved and closed-PR states use the same post menu with their eligible steps - run it with `/skill:gatekeep-pr [<pr>] [--rebase [base]]` (no argument: other authors' PRs awaiting your review)), `check-delivery` (model-invocable on an explicit ask that names the ticket and the verb; the gates still need your selection - is a post-merge detective control: proves an issue actually shipped (default-branch landing, delivery target, per-AC evidence) before its tracker status advances; it never writes a terminal status - run it with `/skill:check-delivery <ref>` or, in pi, `/skill:check-delivery #12 #15` for fresh parallel verification and one gate and write per ticket in turn), `forge-skill`, `linear` (reads/searches/comments on/manages Linear tickets via the `linearis` CLI; owns all linearis mechanics and the `## issue-tracker` schema in `# shared`; tracker-facing skills route to it). Six more require explicit entry (`disable-model-invocation: true`): `gauntlet` starts the gated workflow on explicit consent - use `/skill:gauntlet` for reliable discovery, or opt in through reachable explicit prose or a human-selected handoff; after spec approval, downstream planning and implementation still chain automatically. `chase-bug` is human-only bug triage: read-only root-cause discovery to an evidenced verdict menu (real bug -> ticket/brainstorm/hotfix/respond; five negative verdicts), then a gated response to the reporter for addressable origins (GitHub issue / tracker ticket) and a rendered verdict summary otherwise - it never fixes during triage; the hotfix row hands off to `skills/chase-bug/hotfix.md` after the menu - run it with `/skill:chase-bug`. `housekeeping` checks a directory, uncommitted files, unpushed commits, or a PR against repository rules. With no argument, it checks uncommitted files when the checkout has changes (including untracked files), otherwise files changed across commits ahead of `origin/<default>`. A dirty run reports commits ahead of the unfetched local ref as not checked. A clean run fetches first and refuses divergent history, HEAD held by a remote-tracking ref, or a delivery receipt naming HEAD as its squash. It waits through one card per issue class before acting: directory fixes open separate PRs, uncommitted fixes stay in place, and PR fixes are committed and pushed to that PR; tickets are offered only for directory content findings. An unpushed run on a clean checkout folds accepted fixes into the last unpushed commit in the primary checkout, keeps its message unchanged, and pushes nothing. Spec and plan folders skip content checks; fully superseded specs get one Delete-or-Keep card, never Ticket - run `/skill:housekeeping [<directory> | <pr>]` in the primary checkout on the default branch with no gauntlet flow active. `gauntlet-performance` reads the committed run telemetry (current repo by default, `--dir <path>` adds others) through the parse-only `gauntlet-performance` CLI and answers with one example-led recommendation, 3-5 cornerstone numbers, ranked skill reads for each measured run, a council assessment when available, and a menu of at most three actions (render a report file, open the recommendation as a ticket via `shape-ticket`, drill into one run); it writes nothing unless you pick render - run it with `/skill:gauntlet-performance [--dir <path>]... [--since <version>]`. `gauntlet-handoff` ends a session whose flow a fresh session will continue: it invokes pi-cohort's `handoff` skill (`--out <path>` or `--key <name>`, default key = the run worktree's branch with `/` flattened to `-`, default file `<tmpdir>/pi-handoff/<key>.md`), then appends the gauntlet process-state section (phase/plan tracker status) per the shared contract `skills/gauntlet-resume/reference/brief-contract.md` - run it with `/skill:gauntlet-handoff [--out <path> | --key <name>]`. `gauntlet-resume` is the only way back into an interrupted flow from a fresh session: it takes a `gauntlet-handoff` brief (a file path, pasted text, or - with no arguments - a pick from the briefs under `<tmpdir>/pi-handoff/`), a bare worktree that already holds a spec, or a spec tracked on main under a configured spec dir (a spec seed: it creates or reuses the worktree through `worktree setup` and pins the spec), restores phase/plan tracker state through the legal arming sequence (`start brainstorm`, `skip` with `resume:` reasons, `plan_check` before implement-or-later), and never infers approval from artifacts - run it with `/skill:gauntlet-resume [<brief-file> | <spec>.md | <worktree-name-or-path>]`.
 - **11 subagent personas** - the specialized child agents the skills dispatch via pi-cohort: `implementer`, `loop-implementer`, `wave-reviewer`, `conformance-reviewer`, `spec-summarizer`, `plan-writer`, `spec-council-member`, `spec-council-synthesizer`, `spec-council-applier`, `pr-gatekeeper`, `delivery-checker`. See [doc/personas.md](./doc/personas.md) for what each one does and why its permissions are scoped the way they are.
 - **4 runtime extensions** - the enforcement layer. `plan-tracker` and `phase-tracker` are tools skills call to track progress (with a TUI widget); `verify-before-ship` is a hook that warns if you push or open a PR without a passing test run since your last edit (expected when a loop gate set does not match its patterns; the scoped `Verification:` line answers it, not a full local run); a phase-tracker flow guard reminds on implement-phase commits missing spec/code review. Both engines use the tracker: waves manages plan tasks, while loop calls `plan_tracker refresh` to project ledger rows and preserve conformance tasks. Loop implement completes when every row is closed, then verify step 1 runs the ledger's gate set in the owning checkouts. In a brainstorming-entered flow, phase-tracker rejects `implement` or `verify` completion while tracker tasks remain pending or in progress; see [its configuration reference](./doc/configuration.md#phase-tracker). phase-tracker also registers `plan_check`, which verifies a plan against its spec and against the grammar in [skills/gauntlet/plan/plan-contract.md](./skills/gauntlet/plan/plan-contract.md), including that each task's `Tests:` commands are selective and never the full suite, and that every test command carries a passing base-commit result; a pass stamps the plan and spec content hashes for implementation and returns a bounded task manifest; see the [manifest contract and size limit](./doc/configuration.md#phase-tracker). `telemetry` publishes YAML records on the `refs/telemetry/records` ref, outside the product diff: one sealed brainstorming run plus one session leg per settled `shape-ticket`, `gatekeep-pr` or `check-delivery` invocation. In-progress runs live in Git common-dir metadata; `gauntlet-telemetry-seal` publishes before landing without changing checkout HEAD or index. Publication failure warns without blocking ship; plain jj keeps local metadata and reports no Git remote. A fetched shipped record blocks a brainstorm `write` into that spec. See [the record layout, settings and migration guide](./doc/configuration.md#telemetry). See [doc/configuration.md](./doc/configuration.md) for the settings each one reads. `phase_tracker`, `plan_check`, and `plan_tracker` are model-only (not callable from codemode scripts) because their state is rebuilt from transcript tool results, which nested calls do not persist.
 
@@ -202,7 +202,7 @@ Pin an exact release with `npm:pi-gauntlet@X.Y.Z`. See [doc/install-internals.md
 
 ## Spec search index
 
-`gauntlet-spec-index` provides lexical search over two corpora in one per-worktree cache. From a repository worktree, run `node <pi-gauntlet-package>/bin/gauntlet-spec-index.mjs --query "<text>" [--corpus specs|docs] [--limit N] [--exclude <repo-relative path>]...`; it requires Node >=24.15.0 and refreshes its FTS5 index on every query. `--corpus specs` (the default) searches `<spec dir>/*.md` for each resolved `flowGuards.specDirs` entry (default `doc/specs` and `docs/specs`) at the repository root and one service level down and prints tab-separated `score`, `path`, `service`, `title`, `status`, `shipped_at`, `state`, `files`, and `snippet` columns. `--corpus docs` searches project documentation and prints `score`, `path`, `title`, and `snippet`; the snippet is the matched `##`/`###` heading line when one holds a query term, else a body fragment. Docs candidates are the tracked and untracked, non-gitignored `*.md` files (`git ls-files -co --exclude-standard`, so nested repositories and submodules are not indexed) matching an include list - default `**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md`, where a slash-free entry also matches one service level down - minus the resolved spec and plan dirs (matched as literal path components), `**/node_modules/**`, `.pi/gauntlet/**`, `.worktrees/**`, symlinks, and files whose first line is the context-draft marker; `**` never matches a dot directory, so `.pi/*.md` or `.github/*.md` is indexed only through an explicit include. A project replaces the include list with `- docs: <glob>` bullets under a `## Spec index` heading in its gauntlet overrides file (see [Project-specific overrides](#project-specific-overrides)); the exclusions are not configurable through the overrides file; the spec and plan dir exclusions follow `flowGuards.specDirs`. Both corpora pass the same confidence rule before `--limit` applies: a query term is evidence when it occurs in fewer than half the rows of the queried table (stem variants of one word count once); query tokens split on word boundaries, so `gauntlet-spec-index` searches as three words; a row is returned only when it matches at least two distinct evidence terms in the corpus's strong fields - `title` or `goal` for specs, `title` or `headings` for docs - and rows scoring below half the best live row's score are dropped (every docs row is live). A query with no real match therefore prints the header only and exits 0 - and when the queried corpus has fewer than 10 documents, also writes one stderr line naming the corpus and its size (`gauntlet-spec-index: docs corpus has 5 documents - too small for the confidence rule; no rows returned`), so a small corpus and a genuine miss stay distinguishable; a corpus of two or fewer files never returns rows. `--exclude` (repeatable) removes a path before the rule runs, so the spec under review never sets the bar. `state` is `superseded` when a `> **Superseded by:** ... - fully` banner sits in the block directly under the title and `live` otherwise; named-section banners and consumer-defined banner syntaxes both read as `live`. Live rows sort before superseded rows, then by score. The `files` column is a `;`-separated list of repo-relative paths the spec's shipped change modified and that still exist in the repository, the literal `missing` when the spec's telemetry record has no `derived.modified_files` list, or blank when there is no readable record or no recorded path remains. The cache lives at `.pi/gauntlet/index.sqlite`, and its first creation adds `/.pi/gauntlet/index.sqlite*` to Git's `info/exclude` so the database and SQLite sidecars stay out of `git status`. `/skill:gauntlet` queries the specs corpus twice - the scout at gather time from the request, and the main loop at spec-writing from the finished spec's title, goal, and headings, surfacing new `live` candidates at the review gate - and the scout queries the docs corpus once to render `Docs touched:` lines that round 2 weighs as documentation-impact candidates.
+`gauntlet-spec-index` provides lexical search over two corpora in one per-worktree cache. From a repository worktree, run `node <pi-gauntlet-package>/bin/gauntlet-spec-index.mjs --query "<text>" [--corpus specs|docs] [--limit N] [--exclude <repo-relative path>]...`; it requires Node >=24.15.0 and refreshes its FTS5 index on every query. `--corpus specs` (the default) searches `<spec dir>/*.md` for each resolved `flowGuards.specDirs` entry (default `doc/specs` and `docs/specs`) at the repository root and one service level down and prints tab-separated `score`, `path`, `service`, `title`, `status`, `shipped_at`, `state`, `files`, and `snippet` columns. `--corpus docs` searches project documentation and prints `score`, `path`, `title`, and `snippet`; the snippet is the matched `##`/`###` heading line when one holds a query term, else a body fragment. Docs candidates are the tracked and untracked, non-gitignored `*.md` files (`git ls-files -co --exclude-standard`, so nested repositories and submodules are not indexed) matching an include list - default `**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md`, where a slash-free entry also matches one service level down - minus the resolved spec and plan dirs (matched as literal path components), `**/node_modules/**`, `.pi/gauntlet/**`, `.worktrees/**`, symlinks, and files whose first line is the context-draft marker; `**` never matches a dot directory, so `.pi/*.md` or `.github/*.md` is indexed only through an explicit include. A project replaces the include list with `- docs: <glob>` bullets under `## spec-index` in the `# shared` block of `gauntlet.md` (see [Project-specific overrides](#project-specific-overrides)); the exclusions are not configurable through the overrides file; the spec and plan dir exclusions follow `flowGuards.specDirs`. Both corpora pass the same confidence rule before `--limit` applies: a query term is evidence when it occurs in fewer than half the rows of the queried table (stem variants of one word count once); query tokens split on word boundaries, so `gauntlet-spec-index` searches as three words; a row is returned only when it matches at least two distinct evidence terms in the corpus's strong fields - `title` or `goal` for specs, `title` or `headings` for docs - and rows scoring below half the best live row's score are dropped (every docs row is live). A query with no real match therefore prints the header only and exits 0 - and when the queried corpus has fewer than 10 documents, also writes one stderr line naming the corpus and its size (`gauntlet-spec-index: docs corpus has 5 documents - too small for the confidence rule; no rows returned`), so a small corpus and a genuine miss stay distinguishable; a corpus of two or fewer files never returns rows. `--exclude` (repeatable) removes a path before the rule runs, so the spec under review never sets the bar. `state` is `superseded` when a `> **Superseded by:** ... - fully` banner sits in the block directly under the title and `live` otherwise; named-section banners and consumer-defined banner syntaxes both read as `live`. Live rows sort before superseded rows, then by score. The `files` column is a `;`-separated list of repo-relative paths the spec's shipped change modified and that still exist in the repository, the literal `missing` when the spec's telemetry record has no `derived.modified_files` list, or blank when there is no readable record or no recorded path remains. The cache lives at `.pi/gauntlet/index.sqlite`, and its first creation adds `/.pi/gauntlet/index.sqlite*` to Git's `info/exclude` so the database and SQLite sidecars stay out of `git status`. `/skill:gauntlet` queries the specs corpus twice - the scout at gather time from the request, and the main loop at spec-writing from the finished spec's title, goal, and headings, surfacing new `live` candidates at the review gate - and the scout queries the docs corpus once to render `Docs touched:` lines that round 2 weighs as documentation-impact candidates.
 
 ## Performance digest
 
@@ -382,32 +382,42 @@ instead of the GitHub source. Stop before tracker writes.
 
 ## Project-specific overrides
 
-The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown surface: skills read it as instructions, and `gauntlet-spec-index` reads `## Spec index`. Discovery checks `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, then `<repo root>/doc/gauntlet.md`; first found wins, never merged (`<repo root>` is `git rev-parse --show-toplevel`, or the current directory outside a repo). `## conventions` applies to every skill without a relevance judgment; `## <skill-name>` applies to that skill's steps and wins over conflicting conventions. Missing or empty conventions adds no rules; a lower-priority file cannot supplement the selected file. A repo declares procedure files for `forge-skill` in its `AGENTS.md` (Claude Code: `CLAUDE.md`), not here, because the overrides file is read only after a skill loads - for example `Edits to projects/*/README.md follow /skill:forge-skill`.
+Skills read the first `gauntlet.md` they find: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, then `<repo root>/doc/gauntlet.md`. Files are never merged. The repo root is `git rev-parse --show-toplevel`, or the current directory outside a repo. Put repo-wide rules in the repo's agent instructions (`AGENTS.md` in pi, `CLAUDE.md` in Claude Code). Put a rule for one skill directly under that skill's block heading; for the whole run, put it directly under `# gauntlet`.
 
 ### What you can tweak
 
-| Heading / key | Read by | Default (absent) | Extends or overrides | Effect |
-|---|---|---|---|---|
-| `## conventions` | every skill | no added rules | extends | repo-wide rules applied without a relevance judgment |
-| `## <skill-name>` (e.g. `## plan`) | that skill | no added rules | overrides the named step | replaces or extends the step it names |
-| `## worktrees` `- home: <path pattern>` | worktree setup, ship, gatekeep-pr, housekeeping | `<primary>/.worktrees/<name>` | overrides | where worktrees live; `<name>` is the branch (`/` -> `-`) or `pr-<N>`; the ownership test at cleanup |
-| `## worktrees` `- create: <command>` | worktree setup, gatekeep-pr | `git worktree add` at `home:` | overrides | creation command run from the primary; `<name>`, `<branch>` substituted, other `<token>`s resolved from context or asked once |
-| `## worktrees` `- destroy: <command>` | ship, gatekeep-pr | `git worktree remove` + `prune` when the path matches `home:` | overrides | removal command run from the primary; a failure keeps the branch |
-| `## cleanup` items `- <label>: <command or /skill:...>` | gatekeep-pr | git teardown and base sync only | extends | separate post-menu steps with `<issue>`, `<pr>`, `<merge-sha>` selected individually or in the recommended combination; inherits `## PR gate` `timeout minutes:`; missing placeholders or unlanded-change steps are skipped with a reason; `/skill:` items keep their own gates |
-| `## PR gate` keys (`verification command`, `timeout minutes`, `requires credentials`, `local verification`, `ci checks`, `issue fetch`, `merge policy`) | gatekeep-pr | per-key defaults in the block below | overrides | the gate's verification, evidence, and merge configuration |
-| `## comms style` | gatekeep-pr | shipped wording rules | extends | tone and format of reports, menus, and external payloads |
-| `## verification` | verification; gatekeep-pr (verification command only); chase-bug (hotfix verification); housekeeping (documented commands after `## housekeeping`, before rule files) | repo test entrypoint discovery | overrides | the canonical verification target |
-| `## Spec index` `- docs: <glob>` | `gauntlet-spec-index` bin | `**/doc/**/*.md`, `**/docs/**/*.md`, `README.md`, `AGENTS.md` | overrides | the docs corpus include list; quotes/backticks stripped, fixed exclusions still apply, no other keys read |
-| `## Issue tracker` keys | shape-ticket, linear, chase-bug, check-delivery, brainstorming (`repo:` and tracker selection), gatekeep-pr (`tracker:` and `workspace urlKey` from origin's default branch for list entries) | capability ladder / `git remote` | overrides | which tracker, repo, and commands ticket work uses |
-| `## shape-ticket` `- sibling: <clone url>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, ship | single-repo audit and run | extends | sibling checkouts for an already-stated second observable leg are expected beside `PRIMARY` (the primary checkout, not the current worktree) under the repository name; missing siblings report the path to clone to and never block, the committed URL names the sibling in report lines and supplies the clone hint while identity comparison ignores the clone scheme, and the flow never clones, fetches, or creates a sibling; paths are not accepted (see the [detailed grammar](skills/shape-ticket/reference/repo-audit.md#prepare-the-run)); only companions explicitly selected by the ask or ticket join the run |
-| `## Capabilities` | shape-ticket | tool discovery | extends | tools, commands, env hosts available to ticket authoring |
-| `## Ticket wording` | shape-ticket | the shipped wording contract | overrides | ticket self-containment rules |
-| `## Response channels` | chase-bug | ask the user | overrides | where bug responses are posted |
-| `## housekeeping` | housekeeping | shipped base rules and steps | extends | prose adding rules, path scopes/skips, documented commands/setup, time limits, file budget, unchanged-checkout declarations, recommendation guidance and step instructions; cannot change per-run picks or the spec card's Delete/Keep choices, base rules, the card-walk write gate, delivery or shape-ticket approval; see [the check contract](skills/housekeeping/reference/check.md) |
-| `## Deployment` | shape-ticket, planning | monolithic (no deployment split) | overrides | deploy topology that permits independently deployable slices; undocumented or monolithic topology fails closed to one artifact |
-| `## Happy path` | planning, wave execution | no happy-path run | overrides | path-prefixed rows naming the end-to-end command per area |
-| `## Delivery` | check-delivery | stage 2 skipped | overrides | the delivery target and its proof command; unset target state is comment-only; browser evidence defaults to never |
-| `## documentation` | brainstorming | generic materiality bar | extends | which docs are canonical for which topic |
+Each `#` heading opens a block; each `##` heading belongs to the block above it. Block and section names are lowercase tokens. Setting keys can contain spaces. Every skill applies the listed shared sections and its own block, not another skill's block, text directly under `# shared`, or unlisted shared sections. The readers named here consume the settings; they are not a filter on which shared sections to apply.
+
+- `# shared` - Settings with shared or package readers.
+  - `## issue-tracker` - Tracker-facing skills and tracker-reading extensions. Selects the tracker, repo, and commands for ticket work.
+  - `## worktrees` - `gauntlet`, `gatekeep-pr`, `housekeeping`, `gauntlet-resume`. Sets the worktree location (`home`), creation command (`create`) and cleanup command (`destroy`).
+  - `## verification` - `gauntlet`, `gatekeep-pr`, `chase-bug`, `housekeeping`. Sets `verification command`, `requires credentials`, and instructions for running checks.
+  - `## cleanup` - `gatekeep-pr`, `gauntlet`. Lists ordered post-merge steps as `- <label>: <command or /skill:...>`. Commands can use `<issue>`, `<pr>` and `<merge-sha>`; skill steps keep their own gates.
+  - `## siblings` - `shape-ticket`, `gauntlet`, `gauntlet-resume`, and the phase tracker extension. Declares eligible companions with `- sibling: <clone url>`; see the [URL and checkout rules](skills/shape-ticket/reference/repo-audit.md#prepare-the-run).
+  - `## deployment` - `shape-ticket`, `gauntlet`. Describes what can deploy independently; without that evidence the work stays one artifact.
+  - `## spec-index` - `gauntlet-spec-index`. Replaces the docs include list with `- docs: <glob>` entries; fixed exclusions still apply.
+- `# gauntlet` - Every run file reads the text above the first section. Each phase reads its own section, not another phase's.
+  - `## brainstorm` - The brainstorm phase.
+  - `## plan` - The plan phase.
+  - `## implement` - Both implementation engines (waves and loop).
+  - `## verify` - The verify phase.
+  - `## ship` - The ship phase.
+  - `## happy-path` - The plan step, `plan-writer` on its behalf, and both implementation engines. Maps path prefixes to end-to-end commands.
+  - `## documentation` - `documentation-impact.md`. Identifies the canonical project docs for each topic.
+- `# gatekeep-pr` - `gatekeep-pr` reads `timeout minutes`, `merge policy`, `local verification`, `ci checks`, `issue fetch` and text directly under the heading.
+- `# shape-ticket` - Instructions for `shape-ticket`.
+  - `## capabilities` - `shape-ticket`. Lists tools, commands and environments available for ticket work.
+  - `## wording` - `shape-ticket`. Sets project rules for writing tickets.
+- `# chase-bug` - Instructions for `chase-bug`.
+  - `## response-channels` - `chase-bug`. Identifies where to reply to a report.
+- `# check-delivery` - Instructions for `check-delivery`.
+  - `## delivery` - `check-delivery`. Sets the delivery target and its proof command.
+- `# housekeeping` - Text only, read by `housekeeping`; see the [check contract](skills/housekeeping/reference/check.md).
+- `# linear` - Text only, read by `linear`.
+- `# forge-skill` - Text only, read by `forge-skill`.
+- `# gauntlet-handoff` - Text only, read by `gauntlet-handoff`.
+- `# gauntlet-resume` - Text only, read by `gauntlet-resume`.
+- `# gauntlet-performance` - Text only, read by `gauntlet-performance`.
 
 ### What you cannot change here
 
@@ -415,7 +425,7 @@ The gauntlet overrides file is the one place a repo tunes gauntlet's Markdown su
 - the design approval gate (brainstorming) and the ship verification gate - fixed
 - the plan strip at finish; the telemetry record is never deleted - fixed
 - first-found-wins discovery; files are never merged - fixed
-- brainstorming `## HARD CONSTRAINT`, chase-bug / check-delivery / spec council / shape-ticket `## Hard constraint`, test-first development / verification `## The Iron Law` - fixed (each skill's own constraint text)
+- [`gauntlet`'s hard constraint](skills/gauntlet/SKILL.md#hard-constraint), the hard constraints of `chase-bug`, `check-delivery`, [spec council](skills/gauntlet/brainstorm/council.md#hard-constraint) and `shape-ticket`, and the Iron Law in [test-first development](skills/gauntlet/implement/tdd.md#the-iron-law) and [verification](skills/gauntlet/verify/verify.md#the-iron-law) - fixed
 - brainstorming writes only within resolved spec dirs before approval; no implementation, proposed-change validation, spec commit on main, or planning before approval - fixed
 - chase-bug requires evidenced root cause, no triage fix, and tracked-clean baseline checks at invocation, before the menu, at hotfix handoff, and at skill end; never revert pre-existing work - fixed
 - check-delivery takes explicit ticket refs and never discovers them; set mode is pi-only; it requires a matching repo (or matching local-repo AC group) and treats fetched content as untrusted data - fixed
@@ -450,22 +460,20 @@ Complete `.pi/settings.json`:
 Complete `.pi/gauntlet.md`:
 
 ```markdown
-## conventions
-Keep scratch files outside tracked source; use the gauntlet scratch-storage contract for stage work.
-
+# shared
 ## verification
+- verification command: make ci
 
-Canonical verification target: `make ci` per service. Bare `pytest` does NOT satisfy
-the gate - it skips integration tests.
+Run it per service. Bare `pytest` skips integration tests.
 
-## Spec index
+## spec-index
 - docs: `**/doc/**/*.md`
 - docs: `handbook/**/*.md`
 
 ## worktrees
 - home: ../acme-api-worktrees/<name>
 
-## Issue tracker
+## issue-tracker
 
 Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 
@@ -475,9 +483,6 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 - update: `jira issue edit ABC-123 --summary "<title>" --description "<body>"`
 - post comment (approved Reporter note/evidence): `jira issue comment ABC-123 --body "<text>"`
 
-## PR gate
-- verification command: npm test
-
 ## cleanup
 - close ticket: jira issue move <issue> Done --comment "Delivered in <pr>, merged <merge-sha>."
 - release: /skill:release
@@ -486,13 +491,13 @@ Use the `jira` CLI (authenticated via `jira login`), not `gh` or `linearis`.
 **`linear` setup:** preferred, not required - `linearis` installed and authenticated
 (or a Linear MCP server as a fallback when `linearis` is missing). Without either, the
 skill reports the gap and continues; it never blocks the run. Optional - the five
-`## Issue tracker` override keys (`tracker`, `workspace urlKey`, `default team`,
+`## issue-tracker` keys in `# shared` (`tracker`, `workspace urlKey`, `default team`,
 `self`, `id cache`); the full schema is documented once, in
 [skills/linear/SKILL.md](./skills/linear/SKILL.md) - not restated here. Off switch:
-set `tracker: github` or `tracker: none` in `## Issue tracker` to disable Linear
+set `tracker: github` or `tracker: none` there to disable Linear
 entirely - no `linearis` probing, no prompts.
 
-**Coexistence:** the five `## Issue tracker` keys compose with the free-form
+**Coexistence:** the five `## issue-tracker` keys compose with the free-form
 command-mapping convention above, they don't replace it. `tracker:` adds exclusive
 tracker selection; free-form verb mappings keep working both without a `tracker:`
 key (ladder rung 1, as today) and as the mechanics source when `tracker:` names an
@@ -501,7 +506,7 @@ unknown value.
 ### Close verb defaults and overrides
 
 `shape-ticket` resolves `close:` as a free-form command mapping under
-`## Issue tracker`, not a sixth Linear configuration key. Its defaults are:
+`# shared` in `## issue-tracker`, not a sixth Linear configuration key. Its defaults are:
 
 | Audit reason | GitHub reason | Linear status |
 |---|---|---|
@@ -518,7 +523,7 @@ or a Linear identifier such as `ABC-123`, for the selected tracker. Only that
 mapping includes `--duplicate-of`; a nonnative target uses `not planned` /
 `Canceled` and keeps the reference in the evidence.
 
-Add `- close: <command>` under `## Issue tracker` to replace the entire close
+Add `- close: <command>` to that section to replace the entire close
 sequence, including evidence posting. Override renamed Linear workflows there.
 Section prose also applies: if a mapped state is reserved for humans, the menu
 shows `Close as <reason> - run by hand: <operations>`; selecting it writes nothing.
@@ -544,6 +549,7 @@ Complete `.pi/settings.json`:
 Complete `.pi/gauntlet.md`:
 
 ```markdown
+# shared
 ## worktrees
 - home: ../acme-mono-<name>
 - create: script/worktree create <name> <subproject> --branch <branch>
@@ -551,11 +557,12 @@ Complete `.pi/gauntlet.md`:
 
 The wrapper symlinks build/ into the tree; never replace it with a directory.
 
-## Deployment
+## deployment
 
 One deploy workflow ships the whole system at once - nothing ships independently.
 
-## Happy path
+# gauntlet
+## happy-path
 
 | Row | Paths | Command | Timeout |
 |---|---|---|---|
@@ -563,7 +570,8 @@ One deploy workflow ships the whole system at once - nothing ships independently
 | excavation | `excavation/` | `cd excavation && make e2e` | 2m |
 | cross-cutting | `dashboard/`, `excavation/`, `docker-compose.yml`, `Makefile` | `script/e2e-stack` | 5m |
 
-## Delivery
+# check-delivery
+## delivery
 - target state: Ready
 - deploy watch: gh run watch --workflow deploy.yml (run for <sha>)
 - delivery target: curl -fsS https://staging.example.com/version | grep <sha>
@@ -641,26 +649,23 @@ name, its trigger phrases, and an instruction to follow `/skill:gatekeep-pr`. Al
 customization lives in three places, never in the wrapper itself:
 
 - **`REVIEW.md`** - the review rubric (see above).
-- **The gauntlet overrides file, `## PR gate` section** - everything operational:
+- **Operational settings in `gauntlet.md`** - put the verification command in `# shared`, and the gate's own keys directly under `# gatekeep-pr`:
 
 ```markdown
-## PR gate
+# shared
+## verification
 - verification command: <command>            # required unless documented elsewhere
-- timeout minutes: 15                        # optional; default 15; bounds each gh pr checks --watch window
 - requires credentials: false                # optional; true => skill reports "not run" as missing evidence
+
+# gatekeep-pr
+- timeout minutes: 15                        # optional; default 15; bounds each gh pr checks --watch window
 - local verification: always                 # optional; default (absent) = CI-first; "always" forces the local run even when exact-head CI is green
 - ci checks: <comma-separated check names>   # optional; narrows which checks count as evidence; absent = all checks on the assessed head
 - issue fetch: <command with <ref> placeholder>   # optional, replaces gh issue view
 - merge policy: squash | merge-commit | rebase   # optional; default squash; chooses gh pr merge flag for final merge only, never sync strategy or approval
 ```
 
-- **The gauntlet overrides file, `## cleanup` section** - the ordered follow-up steps selected through the post menu (contract under Project-specific overrides above).
-
-An existing `## verification` overrides section is an accepted
-equivalent source for the verification command only; all other PR-gate keys
-still live under `## PR gate`. A `## comms style` section in the same overrides
-file extends gatekeep-pr's wording rules - the rendered report and menu, and every
-external payload (review bodies, replies, tracker comments, commit subjects) alike. Worktree placement for the gate is the `## worktrees` contract above.
+- **Follow-up steps in `# shared` under `## cleanup`** - the ordered steps selected through the post menu. Worktree placement uses `## worktrees` in the same block.
 
 Anything a wrapper skill contains beyond trigger phrases is misplaced - move it to
 `REVIEW.md` or the overrides file instead.

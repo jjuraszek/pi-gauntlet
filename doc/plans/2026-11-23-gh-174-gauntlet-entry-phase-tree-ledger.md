@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
-returned: 23 | home | 94894d60ceb4adafdfc73f63d22bc7c1492598dd
+returned: 24 | home | 5bab9d13a9fa49f66691b046fbf160d5813db8a2
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -32,14 +32,14 @@ returned: 23 | home | 94894d60ceb4adafdfc73f63d22bc7c1492598dd
 | 21 | done | 1 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; moved-text check confirms both whole-diff routes and one resolving pointer before repair at each changed review site; 17 passed, 0 failed |
 | 22 | done | 0 | timeout -k 30 20 python3 -c 'assert all("cite the contrary hunk in the review outcome and select no edit for a disproved claim" in open(path).read() for path in ("skills/gauntlet/implement/waves/waves.md", "skills/gauntlet/conformance-check.md"))'; both changed sites require a citation and exclude the disproved claim from repairs; moved-text evidence, not a live review |
 | 23 | done | 1 | timeout -k 30 30 node --test scripts/gate-contract-lint.test.mjs; 23 gate and question rows and six ship endings match their rendering sites; tracker and menu examples quote the renamed IDs; 9 passed, 0 failed |
-| 24 | open | 0 | |
+| 24 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; README outline covers 12 blocks and 18 sections with named readers; 9 passed |
 | 25 | open | 0 | |
 | 26 | open | 0 | |
 | 27 | open | 0 | |
 | 28 | open | 0 | |
 | 29 | open | 0 | |
 | 30 | open | 0 | |
-| 31 | open | 0 | |
+| 31 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; repo tracker and cleanup settings resolve under shared and the release rule under gauntlet/ship; 10 passed |
 | 32 | open | 0 | |
 | 33 | open | 0 | |
 | 34 | open | 0 | |
@@ -53,3 +53,5 @@ row 0 done | seeded 20 rows, closed 19 on baseline | row 21
 row 21 done | Wave reviews, re-reviews and conformance-fix reviews now check each finding against the assigned diff before selecting repairs. | Reuse the review-point table in scripts/wave-review.test.mjs to check link resolution and ordering at both repair sites.
 row 22 done | Both review sites require the orchestrator to cite the contrary hunk and make no edit for a disproved finding. | nothing new to build on
 row 23 done | Verified the rendering sites for 23 gate and question rows and six ship endings, and made the lint reject unlisted gate IDs inside those sites. | Use the inventory in scripts/gate-contract-lint.test.mjs to check the renamed IDs and ship endings.
+row 24 done | Replaced the flat README settings table with an outline that names each block, its sections and their readers, and updated the worked examples. | Reuse the block and section inventory in scripts/gauntlet-tree-lint.mjs to check overrides files against the documented layout.
+row 31 done | Moved the repo's tracker and cleanup settings into shared sections and its release instructions into the ship section of the run block. | Pass overrides fixture text to lintOverridesFile in scripts/gauntlet-tree-lint.mjs to detect unknown blocks or misplaced sections.
