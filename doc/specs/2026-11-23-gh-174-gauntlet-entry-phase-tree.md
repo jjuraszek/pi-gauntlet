@@ -15,6 +15,10 @@ Framing: kept (ticket #174). The smaller remedy, hiding the eleven steps with th
 
 The four Reporter notes on the ticket hold text displaced by three repairs. Every row and paragraph in them is superseded by the current ticket body (for example "`brainstorming` stays as the only entry skill" and "a consumer overrides file written for the previous major applies without an edit"); none adds a requirement.
 
+Redraw framing: kept (ticket #174, repaired row 8). The live issue now permits one pointer to the existing review-reception instructions at integrated-wave review and one at review after a conformance fix. Reading `skills/gauntlet/implement/waves/waves.md` steps 5-6 and `skills/gauntlet/conformance-check.md` Convergence b-c shows each routes findings straight to repair. `skills/gauntlet/receiving-review.md` already requires verification before implementation. Keep the existing review dispatch, checked diff, escalation rules and failed-command handling; apply each pointer to reviewer findings before repair selection. Preserve the existing implementation commits and the AC 3 live-proof deferral.
+
+Redraw checks use `d3190e9a`. Retain `aa54901a..d3190e9a` and the prior evidence for rows 1-20, including the ordinary-request sample and row 3's proof-only deferral, not a live pass. Rows 21-38 remain open; `d3190e9a` records the failing text check for the two missing pointers.
+
 ### Decisions taken in the brainstorm
 
 | Decision | Outcome |
@@ -32,7 +36,7 @@ The four Reporter notes on the ticket hold text displaced by three repairs. Ever
 
 ### Checked claims
 
-Checked in the worktree at `590bb884` (Release 8.8.7).
+Original baseline observations at `590bb884` (Release 8.8.7), before implementation:
 
 - Held: 22 directories under `skills/`, each with a `SKILL.md`; six carry `disable-model-invocation: true` (`brainstorming`, `chase-bug`, `gauntlet-handoff`, `gauntlet-performance`, `gauntlet-resume`, `housekeeping`). Lookup: frontmatter scan of `skills/*/SKILL.md`.
 - Held: pi treats a directory containing `SKILL.md` as a skill root and does not recurse below it, so files under `skills/gauntlet/` register nothing else. Lookup: `node_modules/@earendil-works/pi-coding-agent/dist/core/skills.js:117-119`.
@@ -61,7 +65,7 @@ Checked in the worktree at `590bb884` (Release 8.8.7).
 
 - CI baseline commit - `.github/workflows/test.yml:12` and the tag-triggered publish job at `.github/workflows/release.yml:19` have no `fetch-depth`, and both run `npm test` - missing in both; the two workflow changes are in Design.
 - This run ships under the installed 8.8.7 package, whose ship step and extensions read `gauntlet-overrides.md` - once the branch renames the file they find no cleanup steps - Design names the two post-merge actions explicitly.
-- Tests and model evals of the change - not run; nothing is built before approval. They run in implementation.
+- At the original approval gate no tests or model evals of the change had run. The redraw carries forward the implementation evidence identified above.
 
 ## Acceptance criteria
 
@@ -81,7 +85,7 @@ Ticket #174, Acceptance Criteria, rows verbatim:
   in-scope
 - [ ] The instructions of all eleven retired steps (`writing-plans`, `subagent-driven-development`, `loop-implementation`, `roasting-the-spec`, `finishing-a-development-branch`, `using-git-worktrees`, `verification-before-completion`, `requesting-code-review`, `receiving-code-review`, `dispatching-parallel-agents`, `test-driven-development`) live in files of that tree, not in a separately registered skill.
   in-scope
-- [ ] Comparing each moved file with its text before the move shows changes only in: file paths and link targets; renamed names (entry skill, step, gate id, overrides file); the menu layout rule that says how a gate id is formed from its owner; the removed skill header of each step; sentences that advertise a step's standalone use or tell a person to invoke it as a command; the hand-off and recovery sentences that the phase tracker or `/skill:gauntlet-resume` replaces; and the sentences that say what to read from the overrides file, which follow the regrouped file - including the end of `## conventions`, the commit-subject convention now taken from the repo's agent instructions, and the loop engine's dropped fallback for the verification command. No other instruction is added, removed or reworded.
+- [ ] Comparing each moved file with its text before the move shows changes only in: file paths and link targets; renamed names (entry skill, step, gate id, overrides file); the menu layout rule that says how a gate id is formed from its owner; the removed skill header of each step; sentences that advertise a step's standalone use or tell a person to invoke it as a command; the hand-off and recovery sentences that the phase tracker or `/skill:gauntlet-resume` replaces; and the sentences that say what to read from the overrides file, which follow the regrouped file - including the end of `## conventions`, the commit-subject convention now taken from the repo's agent instructions, and the loop engine's dropped fallback for the verification command. The sole additional change allowed is one pointer to the existing review-reception instructions at each of two sites: the integrated-wave review and the review after a conformance fix. No other instruction is added, removed or reworded.
   in-scope
 - [ ] Searching the shipped skills, agent personas, extensions, bin sources and bundles, scripts, tests, `README.md`, `AGENTS.md`, the guides under `doc/`, this repo's own overrides file, and the eval runner, target definitions and sample inputs (specs, plans, the changelog and saved eval results excluded) finds none of the eleven retired step names, no `/skill:brainstorming`, no `skills/brainstorming` path, no gate id or overrides heading named `brainstorming`, and no `gauntlet-overrides`. The one exception is the input of a check that proves an old name is absent or ignored, plus the input key of a one-time record conversion if the spec picks one. No eval target directory carries a retired step's name.
   in-scope
@@ -166,13 +170,13 @@ Rules: doc/gate-contract.md
 Rules: doc/implement-engines.md
 Rules: README.md
 Rules: CHANGELOG.md
-Rules: .pi/gauntlet-overrides.md
+Rules: .pi/gauntlet.md
 Rules: skills/gauntlet-handoff/SKILL.md
 Rules: skills/gauntlet-resume/SKILL.md
 Rules: skills/gauntlet-resume/reference/brief-contract.md
 Rules: skills/gauntlet-resume/reference/coordinated.md
-Rules: skills/brainstorming/reference/legs.md
-Rules: skills/finishing-a-development-branch/reference/legs.md
+Rules: skills/gauntlet/legs.md
+Rules: skills/gauntlet/ship/legs.md
 scope: none
 design: owns `skills/`, `agents/`, `extensions/`, `src/bins/`, `bin/`, `scripts/`, `eval/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`, `doc/` guides, `.pi/gauntlet.md`, `.github/workflows/test.yml`, `.github/workflows/release.yml`
 
@@ -230,6 +234,7 @@ Readers are counted on the path graph after the edits of the next section, where
 | File | Anchor | Reason |
 |---|---|---|
 | `worktrees.md` | beside the entry file | the worktree step belongs to no phase; placed there in the brainstorm |
+| `receiving-review.md` | beside the entry file | shared by integrated-wave review in implement and review in verify; anchor it here in the guide because the verify callers sit beside the entry file and do not count as phase readers |
 | `tdd.md` | `implement/` | the test-first step; its only run reader, `receiving-review.md`, sits beside the entry file |
 | `implementer-prompt.md`, `wave-reviewer-prompt.md` | `implement/waves/`, owner `waves.md` | pasted by the task-plan engine and referenced by path nowhere |
 
@@ -244,6 +249,13 @@ The listing above is this rule and its anchors applied to the post-edit path gra
 ### Edits inside moved files
 
 Limited to the classes of acceptance row 8:
+
+The sole review additions are these two sentences, each after the result and before the first instruction selecting repairs:
+
+- `implement/waves/waves.md`, step 5, before the verdict branches: "On every wave review or re-review, before acting on the verdict, use only the verify-before-acting stance from [receiving-review.md](../../receiving-review.md): for `SHIP` with Minors read the existing findings section once within the report bound, check each finding against the assigned diff, cite the contrary hunk in the review outcome and select no edit for a disproved claim; if all findings on a green `FIX_FIRST` are disproved, record the disputed verdict and stop uncommitted without repair or re-review."
+- `conformance-check.md`, after Convergence b and before c: "Before selecting repairs, use only the verify-before-acting stance from [receiving-review.md](receiving-review.md): check each finding against b's assigned diff, cite the contrary hunk in the review outcome and select no edit for a disproved claim."
+
+These sentences qualify the existing repair lists; do not rewrite the lists or copy the reception procedure. Only a contradicted finding is excluded by verification; an unverified claim is not a rebutted claim. Apply the wave check before every verdict-driven selection, including escalated and funded re-reviews: a repeated claim contradicted by that review's diff still gets no repair. Keep reviewer inputs, ranges, severity thresholds, escalation and whole-diff review unchanged. The bounded `SHIP` read is solely for checking and citing Minor claims, not routing Minor-only feedback to repair. A red wave gate routes its log straight to repair without review. Convergence c takes every failed command from a plus the surviving Critical/Moderate findings from b.
 
 - Paths and link targets follow the tree.
 - A `/skill:` command or bare name of a retired step that carries a procedure - a line telling the agent to use, run or follow that step - becomes a path reference to that step's file, and the procedure stays. This holds inside a `Related skills`, `Called by` or `Pairs with` block too: the review-response step's line "Use `/skill:test-driven-development` for regression tests" stays an instruction and names `implement/tdd.md`.
@@ -387,7 +399,7 @@ Remove: the old key from the seal writer, the spec index reader, the shipped-spe
 
 `handoff-follows-pointer` measures a read, so narration cannot pass it. The text replay runs with no tools and no extensions, so this sample alone runs with the `read` tool enabled, in a scratch directory holding the sample's fixture. Its prompt carries the tracker tool description as the extension ships it, taken from `extensions/phase-tracker.ts` at each revision and not retyped in the case. The case gives the tracker's reply as a tool result whose `Instructions:` line names the fixture file; that path appears nowhere else in the prompt, and the case carries no instruction to read it. The fixture file holds a token found nowhere else, and the must-hold is a `mechanical:` fact on that token in the output: an agent that only says it read the file fails. The three samples stay the selected set.
 
-Each target's `intent.md` and sample-scoped `report.md` evidence follow `eval/README.md`. A file whose only change is the move gets no model-eval run.
+Each target's `intent.md` and sample-scoped `report.md` evidence follow `eval/README.md`. A file whose only change is the move gets no model-eval run. The two review pointers change behavior; separately from the three selected samples above, row 37 assigns review evidence to the moved-text check and the verify trace below. No new model sample or paid run for the pointers. When committing them, the implementer records that distinction and evidence in the commit body.
 
 ### Test script
 
@@ -417,15 +429,15 @@ Change in `scripts/`:
 
 ### Paid and external actions
 
-Run one live Pi session per engine with the candidate installed in disposable repositories if a person can operate the gates. The current noninteractive worker cannot supply a human ship selection. If impractical before merge, the maintainer runs both after merge and before release, recording the revision, gate order, selected ending and observed action. Do not report this proof as passed or close the delivery ticket before it is observed. Keep the underlying hand-off and shipping behavior in scope.
+Run one live Pi session per engine with the candidate installed in disposable repositories if a person can operate the gates. The current noninteractive worker cannot supply a human ship selection. If impractical before merge, the maintainer runs both after merge, before closing #174 or releasing. For each engine record in the delivery verification evidence the installed revision, expected gate and question sequence from the pre-move contract (map renamed ids with the Gate ids table), actual sequence, selected ending and observed action. If either observation fails, keep #174 open and hold the major release until the behavior is fixed and proven. Keep the underlying hand-off and shipping behavior in scope.
 
 Approving this spec authorizes each action below for the whole flow, across seed, rows, repairs and finish, with no per-step prompt. Any count is advisory.
 
 | Action | Runner | Inputs |
 |---|---|---|
 | Model-eval run `node eval/run.mjs <target> <sample>`, repeated after wording fixes | the main loop | `gauntlet handoff-follows-pointer`, `gauntlet ordinary-request-no-run`, `gatekeep-pr overrides-own-block-only` |
-| `gh issue close 174 --comment "Delivered in <pr>, merged <merge-sha>."` | the ship step, after the merge | the merge result |
-| `/skill:release major` | the ship step, after the close | none |
+| `gh issue close 174 --comment "Delivered in <pr>, merged <merge-sha>."` | after merge and both successful observations: the ship step for pre-merge proof, the maintainer for post-merge proof | the merge result |
+| `/skill:release major` | after the close: the ship step for pre-merge proof, the maintainer for post-merge proof | none |
 
 The two ship actions are named here because the installed package ships this run and finds no cleanup steps once the branch renames the overrides file. This run's own record is sealed under the old key and moves at conversion.
 
@@ -450,7 +462,7 @@ The two ship actions are named here because the installed package ships this run
 - One wording of the layout rule, in the skill-authoring guide - `scripts/gauntlet-tree-lint.test.mjs` (`placement`: rule missing from the guide, stated in `AGENTS.md`, or repeated in another shipped file)
 - Each file sits where the rule and its anchors put it; a file with no reader and no anchor fails; a misplaced file fails with both paths - `scripts/gauntlet-tree-lint.test.mjs` (`placement`)
 - All eleven steps live in the tree - `scripts/gauntlet-tree-lint.test.mjs` (`retired-names`, `tree-shape`)
-- Moved files change only in the allowed classes - none: after the merge no earlier text remains to compare; reviewed at verify from `git diff -M --word-diff <merge-base> -- skills/` against row 8's classes
+- Moved files change only in the allowed classes - none: after the merge no earlier text remains to compare; reviewed at verify from `git diff -M --word-diff <merge-base> -- skills/` against row 8's classes. Inspect both pointer sentences, explicitly including the single bounded `SHIP` findings read when Minor count is nonzero; allow no other review-instruction edit.
 - No retired name in the searched set - `scripts/gauntlet-tree-lint.test.mjs` (`retired-names`)
 - README inventory lists the eleven - `scripts/gauntlet-tree-lint.test.mjs` (`references`: inventory against the `SKILL.md` directories)
 - An ordinary request starts no phase - `eval/gauntlet/samples/ordinary-request-no-run`
@@ -468,7 +480,10 @@ The two ship actions are named here because the installed package ships this run
 - The Claude Code plugin lists the seven skills and their relative references resolve - `scripts/claude-plugin-smoke.test.mjs`
 - The three Claude-only reads find the commit-message and return-file content - `scripts/claude-plugin-smoke.test.mjs`
 - A reviewer result at each of the three review points, findings checked against the diff - `scripts/wave-review.test.mjs`, `scripts/finish-verification.test.mjs`
-- A contradicted finding is cited and not edited - `scripts/wave-review.test.mjs`
+- Structural text check, not live proof: tighten `scripts/wave-review.test.mjs` to require exactly one resolving path pointer at each changed site, after its reviewer result and before its first repair-selection instruction (wave verdict branches; Convergence c). Reject a late pointer or inline-only substitute and require the wave pointer to govern verdict-driven re-review as well as the first review.
+- At verify, the verifier records a separate decision trace in the verification evidence using this synthetic reviewed hunk in `load.js`: `+const result = readConfig();` followed by `+return result.value;`, without checking `result.error`. The two Moderate findings are "read error ignored" and "the return was removed". Independently, `node --test test/format.test.mjs` exits 1 on a formatting assertion.
+  - Waves: trace a red gate with the format failure: repair from its log, no reviewer. Once the gate is green, trace a mixed `FIX_FIRST` report: select the missing error check, cite `load.js: +return result.value;` in the review outcome, and make no edit for the return claim. Do not commit until green plus `SHIP`.
+  - Convergence: trace the format failure in a and the same mixed report in b. The repair payload in c includes the missing error check and the independent failing format command; cite `load.js: +return result.value;` in the review outcome, with no edit for that claim. Record expected selections and citations, not a claim of live execution.
 - Gate-contract rows carry the new ids and existing rendering files; the tracker and menu layout quote the new id - `scripts/gate-contract-lint.test.mjs`
 - README outline naming, per-block sections and readers - `scripts/gauntlet-tree-lint.test.mjs` (`overrides-outline`)
 - Every overrides paragraph follows its template: the seven shared section names written out, its own block, nothing else - `scripts/gauntlet-tree-lint.test.mjs` (`overrides-outline`)
