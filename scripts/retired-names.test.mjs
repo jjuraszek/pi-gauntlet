@@ -44,8 +44,3 @@ test("retired-names checks shipped text, executable contracts and eval inputs, n
   assert.ok(hits.includes(`eval/${steps[10]}: retired target name`));
   assert.equal(hits.length, samples.length + 1);
 });
-
-test("the checkout has no retired names", () => {
-  const hits = lintRetiredNames(join(import.meta.dirname, ".."));
-  assert.equal(hits.length, 0, `${hits.length} retired-name hits:\n${hits.join("\n")}`);
-});

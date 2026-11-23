@@ -3,7 +3,7 @@ import { cpSync, globSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, re
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlacementRule, lintReferences, lintReleaseNotes, lintTreeShape, retiredNames } from "./gauntlet-tree-lint.mjs";
+import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlacementRule, lintReferences, lintReleaseNotes, lintRetiredNames, lintTreeShape, retiredNames } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
@@ -250,6 +250,11 @@ test("release-notes: the major carries its migrations before and after promotion
       assert.ok(lintReleaseNotes(`${corrupted}\n## v8.8.7 - 2026-11-22${notes}`).length, `wrong migration: ${after}`);
     }
   }
+});
+
+test("retired-names: the checkout has no retired names", () => {
+  const hits = lintRetiredNames(join(import.meta.dirname, ".."));
+  assert.equal(hits.length, 0, `${hits.length} retired-name hits:\n${hits.join("\n")}`);
 });
 
 test("the run's tree has exactly five phases", () => {
