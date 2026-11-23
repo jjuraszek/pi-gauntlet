@@ -157,7 +157,7 @@ Run the complete set at verify step 1, after every whole-diff fix round, at ever
 
 ## After the loop
 
-Read SDD's `After All Tasks Complete`, `../happy-path-run.md`, and `../../conformance-check.md` IN FULL now with read. Stop on an unreadable reference; do not reconstruct it. Execute this continuation, not the waves engine or a generic verification skill:
+Read [After All Tasks Complete](../waves/waves.md#after-all-tasks-complete), `../happy-path-run.md`, and `../../conformance-check.md` IN FULL now with read. Stop on an unreadable reference; do not reconstruct it. Execute this continuation, not the waves engine or a generic verification skill:
 
 For coordinated runs, route each verification and review below to every leg with its own base, checkout, Rules and owned original ACs under home flow policy. Re-verify and re-review any changed leg; invoke coordinated finish once from home after every leg passes. Keep single-member/legacy paths free of a companion loop, leg file, `legs:` brief or `--leg` argument.
 
