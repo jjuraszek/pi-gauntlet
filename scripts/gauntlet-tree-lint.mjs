@@ -39,7 +39,7 @@ function instructionFileRows(text) {
   return table.matchAll(/([\w]+):\s*"([^"]+)"/g);
 }
 
-function stripMarkdownLinks(body, visit) {
+function stripMarkdownLinks(body, linkBase, visit) {
   return body
     .replace(/^  touched-files: .*$/gm, "") // example reviewer output
     .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
@@ -47,7 +47,7 @@ function stripMarkdownLinks(body, visit) {
       const { code, angle, plain } = args.at(-1);
       if (code) return code.replace(markdownLink, "");
       const target = (angle ?? plain).split("#", 1)[0];
-      if (target && !/^(?:[a-z][\w+.-]*:|\/)/i.test(target)) visit(target);
+      if (target && !/^(?:[a-z][\w+.-]*:|\/)/i.test(target)) visit(target, linkBase);
       return "";
     })
     .replace(/https?:\/\/[^\s)\]`]+/g, "")
@@ -191,7 +191,7 @@ export function lintPlacementRule(root) {
       const target = join(base, ref);
       if (target !== file) readers.get(target)?.add(reader);
     };
-    scanPathReferences(stripMarkdownLinks(read(file), visit), visit);
+    scanPathReferences(stripMarkdownLinks(read(file), base, visit), visit);
   }
   for (const [file, readersOfFile] of readers) {
     const actual = dirname(file);
@@ -274,7 +274,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
         return "";
       });
     }
-    const text = stripMarkdownLinks(body, (ref, base) => check(file, ref, base));
+    const text = stripMarkdownLinks(body, dirname(file), (ref, base) => check(file, ref, base));
     if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
       for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
         const target = join(referenceBase(file, ref), ref);
@@ -291,9 +291,9 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
       return "";
     }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "");
     const visit = (ref, base) => {
-      if (base !== undefined || packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref, base);
+      if (base === "" || packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref, base);
     };
-    scanPathReferences(stripMarkdownLinks(messages, visit), visit);
+    scanPathReferences(stripMarkdownLinks(messages, dirname(file), visit), visit);
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
     if (base) {
       const refs = [...instructionFileRows(text)].map(([, , ref]) => ref)

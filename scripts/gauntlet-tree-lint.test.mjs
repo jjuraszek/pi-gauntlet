@@ -10,25 +10,30 @@ const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 test("package references resolve from the caller or package root, not the consumer checkout", t => {
   const root = mkdtempSync(join(tmpdir(), "gauntlet-references-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
+  const brokenLinks = [
+    "skills/one/SKILL.md: ./skills/one/reference/guide.md",
+    "skills/one/SKILL.md: skills/one/reference/guide.md",
+  ];
   for (const [file, body] of [
-    ["skills/one/SKILL.md", "Read [the guide](reference/guide.md), `../two/helper.md`, and `skills/two/helper.md`. Read `doc/specs/example.md` in the consumer repo."],
+    ["skills/one/SKILL.md", "Read [the guide](reference/guide.md), [the helper](../two/helper.md), `../two/helper.md`, and skills/two/helper.md. Read `doc/specs/example.md` in the consumer repo. These links are broken: [guide](skills/one/reference/guide.md) and [guide](./skills/one/reference/guide.md)."],
     ["skills/one/reference/guide.md", "Read `../../two/helper.md`."],
     ["skills/two/helper.md", "# Helper"],
-    ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md) and [the helper](skills/two/helper.md). Read the consumer's `doc/gauntlet.md`. Example: `node --test extensions/x.test.ts`."],
+    ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md) and [the helper](../skills/two/helper.md). Read the consumer's `doc/gauntlet.md`. Example: `node --test extensions/x.test.ts`."],
     ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url); const message = "Run `bin/help.mjs`.";'],
     ["bin/help.mjs", ""],
   ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
     writeFileSync(join(root, file), body);
   }
-  assert.deepEqual(lintReferences(root), []);
+  assert.deepEqual(lintReferences(root), brokenLinks);
   rmSync(join(root, "skills/two/helper.md"));
   rmSync(join(root, "bin/help.mjs"));
   assert.deepEqual(lintReferences(root), [
-    "agents/reviewer.md: skills/two/helper.md",
+    "agents/reviewer.md: ../skills/two/helper.md",
     "extensions/advice.ts: ../skills/two/helper.md",
     "extensions/advice.ts: bin/help.mjs",
     "skills/one/SKILL.md: ../two/helper.md",
+    ...brokenLinks,
     "skills/one/SKILL.md: skills/two/helper.md",
     "skills/one/reference/guide.md: ../../two/helper.md",
   ]);
@@ -45,7 +50,7 @@ test("explicit package destinations override consumer example spellings", async 
   mkdirSync(dirname(caller), { recursive: true });
   for (const [scenario, body, ref, base = ""] of [
     ["plan example", "Example consumer path: `doc/plans/recovery.md`."],
-    ["plan link", "Read [recovery](doc/plans/recovery.md).", "doc/plans/recovery.md"],
+    ["plan link", "Read [recovery](doc/plans/recovery.md).", "doc/plans/recovery.md", dirname(file)],
     ["angle-bracketed link", "Read [recovery](<../skills/gauntlet/return-fiel.md>).", "../skills/gauntlet/return-fiel.md", dirname(file)],
     ["inline link example", "Print ``[recovery](doc/plans/recovery.md)``."],
     ["fenced link example", "Print:\n```markdown\n[recovery](doc/plans/recovery.md)\n```"],
@@ -364,7 +369,7 @@ test("placement reports each run file outside its assigned or computed directory
     ["skills/other/SKILL.md", "[Shared](../gauntlet/ship/shared.md)"],
     [`${tree}/SKILL.md`, "Read `plan/entry-help.md`, [Common](plan/common.md) and [Reader](common-reader.md)."],
     [`${tree}/verify.md`, "Read `plan/common.md`, `common-reader.md`, and `ship/plan.md`."],
-    [`${tree}/plan/plan.md`, "Read `anchored.md` and the consumer's `gauntlet.md`."],
+    [`${tree}/plan/plan.md`, `Read \`anchored.md\` and the consumer's \`gauntlet.md\`. This link is broken: [Unused](${tree}/plan/unused.md).`],
     [`${tree}/plan/gauntlet.md`, ""],
     [`${tree}/plan/entry-help.md`, ""],
     [`${tree}/plan/common.md`, ""],
