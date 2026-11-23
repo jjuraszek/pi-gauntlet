@@ -87,10 +87,10 @@ test('finish delegates squash and PR wording to the shared contract without rewr
   assert.match(wording, /Use the same subject for the pull request title; apply the ticket rule above/);
   assert.match(wording, /spec header's `\*\*Ticket:\*\*` line/);
   assert.match(wording, /place and form named by the overrides `# shared` `## issue-tracker` `refs:` line/);
-  assert.match(pr, /Read \[commit-message.md\]\(reference\/commit-message.md\) for the Landed message subject and resolve its ticket rule/);
+  assert.match(pr, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\) for the Landed message subject and resolve its ticket rule/);
   assert.match(pr, /Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style/);
   assert.match(pr, /Keep this disposition appendix out of Option 3's landed message/);
-  assert.match(squash, /Read \[commit-message.md\]\(reference\/commit-message.md\) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule/);
+  assert.match(squash, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule/);
   assert.match(squash, /Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below/);
   assert.match(skill, /Option 1's push and `gh pr create` commands with `--draft` added\. The PR body is unchanged/);
 });

@@ -48,7 +48,7 @@ test('the shared note has one exact positive branch and silent other-value and r
 });
 
 test('normal and draft PR options and gatekeep reuse the same read-only note rule', () => {
-  assert.match(pr, /Read \[commit-message.md\]\(reference\/commit-message.md\)/);
+  assert.match(pr, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\)/);
   assert.match(pr, /Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome/);
   assert.match(pr, /Option 1's push and `gh pr create` commands with `--draft` added/);
   const reads = preconditions.match(/`gh api repos\/<owner>\/<repo> --jq '[^']+'`/g);

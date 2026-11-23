@@ -83,9 +83,9 @@ test('handoff and implement entry establish originals with path-scoped staging',
   assert.match(handoff, /add -- "<home-relative plan path>"/);
   assert.match(handoff, /commit -F - -- "<home-relative plan path>"/);
   assert.ok(handoff.includes('compose the plan message from the spec H1 and bound ticket'));
-  assert.ok(handoff.includes('reference/commit-message.md'));
+  assert.ok(handoff.includes('[Subject, Body and Word sources](../commit-message.md)'));
   assert.ok(handoff.includes('supplying the composed message on stdin'));
-  const sdd = read('skills/gauntlet/implement/waves/prerequisites.md');
-  assert.match(sdd, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
-  assert.match(sdd, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
+  const prerequisites = read('skills/gauntlet/implement/waves/prerequisites.md');
+  assert.match(prerequisites, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
+  assert.match(prerequisites, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
 });
