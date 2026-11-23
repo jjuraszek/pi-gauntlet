@@ -16,7 +16,7 @@ after(() => {
 });
 
 const root = mkdtempSync(join(tmpdir(), "telemetry-trackers-"));
-const overrides = (tracker: string) => `# Project overrides\n\n## Issue tracker\n\n- tracker: ${tracker}\n- refs: prose, not a regular expression\n\n## Other settings\n- tracker: none\n`;
+const overrides = (tracker: string) => `# other\n## issue-tracker\n- tracker: none\n\n# shared\n## issue-tracker\n\n- tracker: ${tracker}\n- refs: prose, not a regular expression\n\n## Other settings\n- tracker: none\n`;
 
 async function settle(skill: string, rows: string[], files: Record<string, string>) {
   const handlers = new Map<string, ((event: any, ctx: any) => unknown)[]>();

@@ -498,6 +498,7 @@ try {
       R("extensions/lib/gauntlet-settings.test.ts"),
       R("extensions/lib/gauntlet-settings-loader.test.ts"),
       R("extensions/lib/checkout.test.ts"),
+      R("extensions/lib/overrides.test.ts"),
       R("extensions/lib/plan-check.test.ts"),
       R("extensions/lib/phase-tracker-helpers.test.ts"),
       R("extensions/lib/tool-result-warnings.test.ts"),

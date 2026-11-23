@@ -7,6 +7,7 @@ import { execFileSync } from "node:child_process";
 import process from "node:process";
 import { parse as parseYaml } from "yaml";
 import { mergeGauntlet, planDirsFor, resolveFlowGuards, resolveTelemetry } from "../../extensions/lib/gauntlet-settings.ts";
+import { readSharedSection } from "../../extensions/lib/overrides.ts";
 import { readTelemetryBranch, telemetryRepo } from "../../extensions/lib/telemetry-branch.ts";
 
 const SCHEMA_VERSION = 3;
@@ -25,7 +26,6 @@ const SKIP_DIRS = new Set([".worktrees", "node_modules", "build"]);
 const FENCE = /^\s*(`{3,}|~{3,})/;
 const DOC_INCLUDES = ["**/doc/**/*.md", "**/docs/**/*.md", "README.md", "AGENTS.md"];
 const DOC_EXCLUDE_GLOBS = ["**/node_modules/**", ".pi/gauntlet/**", ".worktrees/**"];
-const OVERRIDES_FILES = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS meta  (key TEXT PRIMARY KEY, value TEXT);
   CREATE TABLE IF NOT EXISTS files (corpus TEXT NOT NULL, path TEXT NOT NULL, mtime_ms INTEGER, size INTEGER, PRIMARY KEY (corpus, path));
@@ -129,19 +129,14 @@ function services(root) {
 }
 
 function includes(root) {
-  const file = OVERRIDES_FILES.map((rel) => join(root, rel)).find((abs) => existsSync(abs));
-  if (!file) return DOC_INCLUDES;
   const globs = [];
-  let inSection = false;
-  let text;
+  let section;
   try {
-    text = readFileSync(file, "utf8");
+    section = readSharedSection(root, "spec-index");
   } catch (e) {
-    die(`gauntlet-spec-index: unreadable overrides file ${file}: ${e.message}`);
+    die(`gauntlet-spec-index: unreadable overrides file: ${e.message}`);
   }
-  for (const line of text.split(/\r?\n/)) {
-    if (/^## /.test(line)) { inSection = line.trim() === "## Spec index"; continue; }
-    if (!inSection) continue;
+  for (const line of section.split("\n")) {
     const m = /^-\s+docs:\s*(.+?)\s*$/.exec(line);
     if (m) globs.push(m[1].replace(/^[`"']+|[`"']+$/g, ""));
   }

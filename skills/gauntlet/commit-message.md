@@ -17,7 +17,7 @@ Resolve the bound ticket once at the committing skill or dispatcher:
 | Hotfix | The ticket named in the handoff record |
 | Housekeeping | The ticket named on the card |
 
-Use `none` when the source has no value; never guess a ticket. Put the bound ticket on the landed message, pull request title and every worker, wave, spec and amendment commit, in the place and form named by the overrides `## Issue tracker` `refs:` line. Without that convention, append `(ref <ticket-id>)` to the subject. With no bound ticket, add no reference. Put no ticket reference on ledger bookkeeping commits.
+Use `none` when the source has no value; never guess a ticket. Put the bound ticket on the landed message, pull request title and every worker, wave, spec and amendment commit, in the place and form named by the overrides `# shared` `## issue-tracker` `refs:` line. Without that convention, append `(ref <ticket-id>)` to the subject. With no bound ticket, add no reference. Put no ticket reference on ledger bookkeeping commits.
 
 For worker dispatches, resolve this file to an absolute path relative to the installed file that links to it. Pass `wording: <absolute path>` and `ticket: <reference or none>` in the task. As the worker, read the supplied file and use the supplied ticket; never derive the ticket yourself. On an unreadable wording file, write one plain imperative sentence naming what the commit changes and continue. Inspect no subject at run time for attribution, admission or accounting.
 

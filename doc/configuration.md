@@ -103,9 +103,8 @@ An override travels in the approving turn's `run allowance: <n>` line immediatel
 
 Before seeding, the driver resolves verification once and prints `verification command: <command> (<source>)`:
 
-1. Use the overrides `## PR gate` `- verification command:` value when present.
-2. Otherwise, a `## verification` section must contain exactly one backticked command; zero or several stops as a configuration error.
-3. Otherwise discover the test entrypoint from actual project manifests/build instructions. Missing or ambiguous discovery stops, rather than guessing.
+1. Use the `- verification command:` value from `# shared` `## verification` when present.
+2. Otherwise discover the test entrypoint from actual project manifests/build instructions. Missing or ambiguous discovery stops, rather than guessing.
 
 After all rows close, the tracker completes implement and verify step 1 runs the [gate set](../skills/gauntlet/implement/loop/loop.md#gate-set): deduplicated (owning checkout, command) pairs from non-cut done rows' first evidence segments, ordered by the first contributing row. Coordinated ownership comes from the ledger's `## Leg mapping`; unmapped single-checkout ledgers run at home. Workers run only row evidence checks, never the full verification command or suite; `verification:` records CI's full command. Every loop verification site, including finish and conformance repairs, uses the gate set instead of a local full run. Each skill session mints its own log directory and redirects gate output there; the driver retains exit codes and log paths. A failed gate stops the set at its first nonzero exit, keeps verify active and implement complete, and hands the log path to the repair child. The verify-step-1 human stop alone quotes the last 20 log lines. The bounded verification-repair route and stop menu are in [loop execution](../skills/gauntlet/implement/loop/loop.md#after-the-loop).
 
@@ -259,7 +258,7 @@ Home overrides and `.pi/settings.json#piGauntlet` govern flow policy (council, c
 
 | Overrides declaration | Readers | Default | Effect |
 |---|---|---|---|
-| `## shape-ticket` `- sibling: <clone url>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, ship | single-repo audit and run | audit siblings and eligible run companions; only companions explicitly selected by the ask or ticket join the run |
+| `# shared` `## siblings` `- sibling: <clone url>` | shape-ticket (audit), brainstorming (membership), gauntlet-resume, ship | single-repo audit and run | audit siblings and eligible run companions; only companions explicitly selected by the ask or ticket join the run |
 
 Discovery and the full headings table are in [Project-specific overrides](../README.md#project-specific-overrides). The [leg contract](../skills/gauntlet/legs.md) records each leg's resolved `contract:` in the home spec's `## Legs`. Those recorded lines govern later stages, including finish and cleanup, for one-member and coordinated specs alike; amend the home block and affected companion file before using a changed contract. Overrides are not reread to replace recorded contracts. A legacy spec without `## Legs` is home-only and retains the finish-time reread.
 
@@ -378,9 +377,9 @@ The final assistant message starts with `gauntlet: done ...` or `gauntlet: stuck
 | gatekeep-pr | `#<N>@<head sha>` using the full assessed `headRefOid`, in singleton and set mode | `approved`, `merged`, `closed-pr`, `rejected`, `final`, `merge-queued`, `stuck - <reason>` |
 | check-delivery | Supplied ticket ref, in singleton and set mode | `delivered`, `manual`, `declined`, `already recorded`, `skipped`, `failed - <reason>` |
 
-Ticket refs include `#N`, `owner/repo#N`, tracker keys such as `ABC-123`, and issue URLs. Gatekeep rows append ` (<ticket ref>)` only when the PR title or body's first line names the ticket under the overrides `## Issue tracker` `refs:` convention; no match means no annotation. The row parser also accepts PR URLs. It matches outcomes at the line end, preserving colons in a draft title or failure reason. Other explanations go on separate lines; headings and cleanup lines such as `worktree: done` are not items. A keyless create records `kind: ticket` with no `key`.
+Ticket refs include `#N`, `owner/repo#N`, tracker keys such as `ABC-123`, and issue URLs. Gatekeep rows append ` (<ticket ref>)` only when the PR title or body's first line names the ticket under the overrides `# shared` `## issue-tracker` `refs:` convention; no match means no annotation. The row parser also accepts PR URLs. It matches outcomes at the line end, preserving colons in a draft title or failure reason. Other explanations go on separate lines; headings and cleanup lines such as `worktree: done` are not items. A keyless create records `kind: ticket` with no `key`.
 
-The writer never calls a tracker. GitHub and Linear use the same record fields, differing only in item refs. With `- tracker: none` under `## Issue tracker`, settlement refs and ticket annotations are stored as typed, including local labels such as `local/backlog: rollout 7`. Tracker selection uses the first overrides file found at the checkout root: `.pi/gauntlet.md`, `gauntlet.md`, then `doc/gauntlet.md`. The `refs:` convention is prose, not a parsed pattern.
+The writer never calls a tracker. GitHub and Linear use the same record fields, differing only in item refs. With `- tracker: none` under `# shared` `## issue-tracker`, settlement refs and ticket annotations are stored as typed, including local labels such as `local/backlog: rollout 7`. Tracker selection uses the first overrides file found at the checkout root: `.pi/gauntlet.md`, `gauntlet.md`, then `doc/gauntlet.md`. The `refs:` convention is prose, not a parsed pattern.
 
 For example, `#31@abc123456789abcdef0123456789abcdef01234567: merged (#12)` records the assessed PR key, ticket `#12`, and outcome `merged`. Only `items` comes from these lines. The extension observes usage and identity itself and publishes the leg record; gatekeep-pr's skill neither handles records nor renders publication warnings. A failed publication adds `telemetry: not pushed (<reason>)` below settlement without changing the chosen outcome.
 

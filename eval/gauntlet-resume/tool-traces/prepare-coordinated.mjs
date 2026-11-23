@@ -32,7 +32,7 @@ export function prepareCoordinated() {
   for (const leg of [home, companion]) {
     git(leg.primary, 'config', 'remote.origin.url', `https://example.test/${leg.repo}.git`);
   }
-  const overrides = '# Fixture overrides\n\n## Issue tracker\n- repo: acme/repo-a\n\n## shape-ticket\n- sibling: https://example.test/acme/repo-b.git\n';
+  const overrides = '# shared\n\n## issue-tracker\n- repo: acme/repo-a\n\n## siblings\n- sibling: https://example.test/acme/repo-b.git\n';
   for (const path of [home.primary, home.worktree]) {
     write(join(path, '.pi/gauntlet.md'), overrides);
     write(join(path, 'README.md'), rules);

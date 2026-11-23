@@ -45,7 +45,7 @@ const docsRepo = () => {
   return root;
 };
 const docsPaths = (root) => withDb(root, (db) => db.prepare("SELECT path FROM docs ORDER BY path").all().map((r) => r.path));
-const overrides = (root, globs) => write(root, ".pi/gauntlet.md", `## Issue tracker\ntracker: none\n\n## Spec index\n${globs.map((g) => `- docs: \`${g}\``).join("\n")}\n\n## release\nnothing\n`);
+const overrides = (root, globs) => write(root, ".pi/gauntlet.md", `# shared\n## issue-tracker\n- tracker: none\n\n## spec-index\n${globs.map((g) => `- docs: \`${g}\``).join("\n")}\n\n## release\nnothing\n`);
 
 const write = (root, rel, text) => {
   mkdirSync(join(root, dirname(rel)), { recursive: true });
@@ -600,7 +600,7 @@ test("D6: overrides replace defaults but cannot bypass exclusions", (t) => {
   overrides(root, ["CONTRIBUTING.md"]);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["CONTRIBUTING.md", "svc/CONTRIBUTING.md"]);
-  write(root, ".pi/gauntlet.md", "## Spec index\n\nno bullets here\n");
+  write(root, ".pi/gauntlet.md", "# other\n## spec-index\n- docs: `notes/**/*.md`\n# shared\n## spec-index\n\nno bullets here\n");
   assert.equal(search().status, 0);
   assert.ok(docsPaths(root).includes("doc/guide.md"));
   assert.ok(docsPaths(root).includes("svc/doc/inner.md"));
@@ -609,12 +609,12 @@ test("D6: overrides replace defaults but cannot bypass exclusions", (t) => {
 test("D6b: overrides file resolution order", (t) => {
   const root = docsRepo();
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  write(root, "doc/gauntlet.md", "## Spec index\n- docs: `notes/**/*.md`\n");
+  write(root, "doc/gauntlet.md", "# shared\n## spec-index\n- docs: `notes/**/*.md`\n");
   write(root, "notes/a.md", decoy);
   const search = () => run(root, ["--corpus", "docs", "--query", "ptarmigan gannet"]);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["notes/a.md"]);
-  write(root, "gauntlet.md", "## Spec index\n- docs: `other/**/*.md`\n");
+  write(root, "gauntlet.md", "# shared\n## spec-index\n- docs: `other/**/*.md`\n");
   write(root, "other/b.md", decoy);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["other/b.md"]);

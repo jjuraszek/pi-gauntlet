@@ -8,7 +8,7 @@ var __export = (target, all) => {
 // src/bins/gauntlet-performance.mjs
 import { existsSync as existsSync3, readdirSync, readFileSync as readFileSync2, realpathSync, statSync as statSync2 } from "node:fs";
 import { homedir } from "node:os";
-import { basename as basename2, join as join3, resolve } from "node:path";
+import { basename as basename2, join as join4, resolve } from "node:path";
 import { spawnSync as spawnSync2 } from "node:child_process";
 import process2 from "node:process";
 import { parse as parseYaml2 } from "yaml";
@@ -44,9 +44,9 @@ function resolveTelemetry(g) {
 }
 
 // extensions/lib/telemetry-branch.ts
-import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join as join2 } from "node:path";
+import { basename, join as join3 } from "node:path";
 
 // extensions/lib/checkout.ts
 import { execFileSync } from "node:child_process";
@@ -101,6 +101,35 @@ var commandSync = (bin) => (args, cwd) => {
 var gitSync = commandSync("git");
 var jjSync = commandSync("jj");
 
+// extensions/lib/overrides.ts
+import { existsSync as existsSync2, readFileSync } from "node:fs";
+import { join as join2 } from "node:path";
+var locations = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
+var disk = { exists: existsSync2, readFile: (path) => readFileSync(path, "utf8") };
+function readSharedSection(root, section, fs = disk) {
+  const path = locations.map((file) => join2(root, file)).find((file) => fs.exists(file));
+  if (!path) return "";
+  const lines = [];
+  let shared = false, selected = false, fence = "";
+  for (const line of (fs.readFile(path) ?? "").split(/\r?\n/)) {
+    if (fence) {
+      if (line.match(/^ {0,3}(`+|~+)[\t ]*$/)?.[1].startsWith(fence)) fence = "";
+    } else {
+      fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1] ?? "";
+      const heading = /^(#{1,2})[\t ]+(.*)$/.exec(line);
+      if (heading) {
+        const [, level, name] = heading;
+        if (selected || shared && level === "#") break;
+        if (level === "#") shared = name.trim() === "shared";
+        else selected = shared && name.trim() === section;
+        continue;
+      }
+    }
+    if (selected) lines.push(line);
+  }
+  return lines.join("\n");
+}
+
 // extensions/lib/vcs.ts
 import { spawnSync } from "node:child_process";
 
@@ -135,14 +164,9 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
-    const path2 = join2(top, file);
-    if (!existsSync2(path2)) continue;
-    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
@@ -150,8 +174,8 @@ function telemetryRepo(root) {
 var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join2(scratch, "index") };
+  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
   const git = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -746,9 +770,9 @@ function readLayer(file) {
   }
 }
 function branchCorpus(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join3(homedir(), ".pi", "agent");
-  const preset = readLayer(join3(agentDir, "settings.json"));
-  const repo = readLayer(join3(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
+  const preset = readLayer(join4(agentDir, "settings.json"));
+  const repo = readLayer(join4(root, ".pi", "settings.json"));
   const t = resolveTelemetry(mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet));
   if (t.warning) process2.stderr.write(`warning: ${t.warning}
 `);
@@ -776,7 +800,7 @@ function corpusFor(path) {
 function* yamlFiles(dir) {
   if (!existsSync3(dir)) return;
   for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-    const p = join3(dir, e.name);
+    const p = join4(dir, e.name);
     if (e.isDirectory()) yield* yamlFiles(p);
     else if (e.isFile() && e.name.endsWith(".yaml")) yield p;
   }

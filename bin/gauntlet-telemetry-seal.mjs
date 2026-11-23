@@ -4,7 +4,7 @@
 import { existsSync as existsSync3, mkdtempSync as mkdtempSync2, readdirSync, readFileSync as readFileSync2, realpathSync, rmSync as rmSync2, unlinkSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir as tmpdir2 } from "node:os";
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { isAbsolute as isAbsolute2, join as join4, relative as relative2, resolve as resolve2 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
@@ -273,9 +273,40 @@ function changedNames(vcs, base) {
 }
 
 // extensions/lib/telemetry-branch.ts
-import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename as basename2, join as join3 } from "node:path";
+import { basename as basename2, join as join4 } from "node:path";
+
+// extensions/lib/overrides.ts
+import { existsSync as existsSync2, readFileSync } from "node:fs";
+import { join as join3 } from "node:path";
+var locations = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
+var disk = { exists: existsSync2, readFile: (path) => readFileSync(path, "utf8") };
+function readSharedSection(root, section, fs = disk) {
+  const path = locations.map((file) => join3(root, file)).find((file) => fs.exists(file));
+  if (!path) return "";
+  const lines = [];
+  let shared = false, selected = false, fence = "";
+  for (const line of (fs.readFile(path) ?? "").split(/\r?\n/)) {
+    if (fence) {
+      if (line.match(/^ {0,3}(`+|~+)[\t ]*$/)?.[1].startsWith(fence)) fence = "";
+    } else {
+      fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1] ?? "";
+      const heading = /^(#{1,2})[\t ]+(.*)$/.exec(line);
+      if (heading) {
+        const [, level, name] = heading;
+        if (selected || shared && level === "#") break;
+        if (level === "#") shared = name.trim() === "shared";
+        else selected = shared && name.trim() === section;
+        continue;
+      }
+    }
+    if (selected) lines.push(line);
+  }
+  return lines.join("\n");
+}
+
+// extensions/lib/telemetry-branch.ts
 var TELEMETRY_REF = "refs/telemetry/records";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -283,7 +314,7 @@ function trackerRefs(text) {
 }
 function telemetryDir(root) {
   const result = gitRun(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
-  return result.ok ? join3(result.stdout, "gauntlet", "telemetry") : void 0;
+  return result.ok ? join4(result.stdout, "gauntlet", "telemetry") : void 0;
 }
 function telemetryRepo(root) {
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
@@ -291,14 +322,9 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
-    const path2 = join3(top, file);
-    if (!existsSync2(path2)) continue;
-    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename2(primary ?? top)}`;
@@ -336,8 +362,8 @@ function compareRecords(root, sources, destination) {
   return { conflicts, missing: [...missing].map(([path, source]) => ({ path, source })) };
 }
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
+  const scratch = mkdtempSync(join4(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join4(scratch, "index") };
   const git = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -636,9 +662,9 @@ function readLayer(file) {
   }
 }
 function settings(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
-  const preset = readLayer(join4(agentDir, "settings.json"));
-  const repo = readLayer(join4(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join5(homedir(), ".pi", "agent");
+  const preset = readLayer(join5(agentDir, "settings.json"));
+  const repo = readLayer(join5(root, ".pi", "settings.json"));
   const merged = mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet);
   const { specDirs } = resolveFlowGuards(merged);
   return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(specDirs), specDirs };
@@ -647,7 +673,7 @@ function walkRecords(absDir) {
   if (!existsSync3(absDir)) return [];
   const out = [];
   for (const e of readdirSync(absDir, { withFileTypes: true })) {
-    const p = join4(absDir, e.name);
+    const p = join5(absDir, e.name);
     if (e.isDirectory()) out.push(...walkRecords(p));
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
@@ -719,9 +745,9 @@ ${retry}`);
     compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid });
   }
   if (!compared.missing.length) return console.log("carried: 0 records");
-  const scratch = mkdtempSync2(join4(tmpdir2(), "gauntlet-ref-migration-"));
+  const scratch = mkdtempSync2(join5(tmpdir2(), "gauntlet-ref-migration-"));
   try {
-    const env = { GIT_INDEX_FILE: join4(scratch, "index") };
+    const env = { GIT_INDEX_FILE: join5(scratch, "index") };
     required(destOid ? ["read-tree", destOid] : ["read-tree", "--empty"], { env });
     for (const { path, source } of compared.missing) {
       const entry = required(["ls-tree", "-z", source.oid, "--", path], { raw: true });

@@ -44,7 +44,7 @@ test('hotfix landing and PR delegate the fault story and ticket to the shared wo
   assert.match(wording, /at most 72 characters/);
   assert.match(wording, /For a hotfix, use the handoff's fault story as the paragraph and omit bullets/);
   assert.match(wording, /Hotfix landing and hotfix pull request \| The fault story in the handoff record/);
-  assert.match(wording, /place and form named by the overrides `## Issue tracker` `refs:` line/);
+  assert.match(wording, /place and form named by the overrides `# shared` `## issue-tracker` `refs:` line/);
   assert.match(wording, /Without that convention, append `\(ref <ticket-id>\)` to the subject/);
   assert.match(wording, /With no bound ticket, add no reference/);
   assert.doesNotMatch(finish, /commit -m|fix: <slug>|--body\s/);

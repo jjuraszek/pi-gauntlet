@@ -19,7 +19,7 @@ Normalize `#N` to lowercase `<origin owner>/<origin repo>#N`; normalize a GitHub
 
 ## Shared prep
 
-Resolve the overrides `## Delivery` and `## Issue tracker` sections once. Resolve [../SKILL.md's tracker capability ladder](../SKILL.md#tracker-capability-ladder) per ref. Apply an exclusive `tracker:` override to every ref; otherwise select rung 3 by each ref's form (Linear key or URL -> `linearis`; GitHub forms -> `gh`). Probe each selected tracker's capabilities once and cache its verb table. Pass each ticket its own table, including a mixed-tracker set.
+Resolve the overrides `# check-delivery` `## delivery` and `# shared` `## issue-tracker` sections once. Resolve [../SKILL.md's tracker capability ladder](../SKILL.md#tracker-capability-ladder) per ref. Apply an exclusive `tracker:` override to every ref; otherwise select rung 3 by each ref's form (Linear key or URL -> `linearis`; GitHub forms -> `gh`). Probe each selected tracker's capabilities once and cache its verb table. Pass each ticket its own table, including a mixed-tracker set.
 
 Require each ticket's read verb to be callable from delivery-checker's tools, such as a CLI through `bash`. Start the message with `gauntlet: stuck` followed by `missing read capability for <ref>: <verb> is not callable from delivery-checker's tools` for an MCP- or extension-only read verb; stop before dispatch. Apply the ladder's own missing-read STOP the same way.
 

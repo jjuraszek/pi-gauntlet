@@ -35,7 +35,7 @@ If no spec exists, recommend `/skill:gauntlet` and await the user's explicit cho
 
 Before writing the plan, check the spec one more time:
 
-- Does an intermediate state need to be **independently deployable**, under a deploy topology documented in the gauntlet overrides file's `## Deployment` section? Fail closed: undocumented or monolithic topology -> no deployment-driven split.
+- Does an intermediate state need to be **independently deployable**, under a deploy topology documented in the gauntlet overrides file's `# shared` `## deployment` section? Fail closed: undocumented or monolithic topology -> no deployment-driven split.
 - Is there a **review-risk isolation** reason to land part separately (e.g. a large mechanical rename apart from the behavior change that motivated it)?
 
 If yes, decompose into separate plans, executed in order, and state the split and its reason in the handoff message. No approval prompt.

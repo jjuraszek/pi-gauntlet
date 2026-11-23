@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import registerVerifyBeforeShip from "./verify-before-ship.ts";
+import { retiredNames } from "../scripts/gauntlet-tree-lint.mjs";
 import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 import { execFileSync } from "node:child_process";
 
@@ -313,7 +314,10 @@ test("settings errors appear once per chained call", async () => {
   assert.equal(warning.split("gauntlet settings load error").length - 1, 1, warning);
 });
 
-for (const { name, home, state } of [
+for (const { name, home, state, overrides } of [
+  { name: "shared tracker in the new file", home: "", state: "member", overrides: "# shared\n## issue-tracker\n- repo: team/sib\n" },
+  { name: "tracker under another block", home: "", state: "nonmember", overrides: "# gatekeep-pr\n## issue-tracker\n- repo: team/sib\n" },
+  { name: "retired file alone", home: "", state: "nonmember", overrides: "" },
   { name: "no home", home: "", state: "member" },
   { name: "literal home", home: "home: ../sib-worktrees/slug\n", state: "member" },
   { name: "mismatching home pattern", home: "home: linked-<name>\n", state: "member" },
@@ -341,7 +345,11 @@ for (const { name, home, state } of [
       mkdirSync(join(root, ".pi"));
       writeFileSync(join(root, ".pi/settings.json"), JSON.stringify({ piGauntlet: { verifyBeforeShip: { testCommands: [command] } } }));
     }
-    git("remote", "add", "origin", "https://example.invalid/team/sib.git");
+    if (overrides === undefined) git("remote", "add", "origin", "https://example.invalid/team/sib.git");
+    else {
+      writeFileSync(join(primary, `.pi/${retiredNames.overrides}.md`), `# shared\n## issue-tracker\n- repo: ${overrides ? "other/repo" : "team/sib"}\n`);
+      if (overrides) writeFileSync(join(primary, ".pi/gauntlet.md"), overrides);
+    }
     const spec = join(h.dir, "spec.md");
     writeFileSync(spec, `## Legs\n### Leg: team/home\n### Leg: team/sib\nbranch: ${branch}\n${home}`);
     await h.emitEvent("tool_result", { toolName: "plan_check", isError: false, details: { status: "pass", specPath: spec } });

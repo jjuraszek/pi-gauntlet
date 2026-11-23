@@ -8,7 +8,7 @@ Allocate one `mktemp -d` root for the run. Fetch tracker tickets serially and st
 
 For create mode, complete necessary clarification and parent-owned overlap discovery through [overlap-check.md](overlap-check.md) before the audit. Store the clarified ask in `<tmp>/create/snapshot.md`; put a discovered candidate's body in a separate untrusted block. Audit the ask once. Fold findings into the create-anyway body and only added or changed enrichment prose; retain the overlap reference's legacy-body protections and existing alternative-selection menu.
 
-Read sibling identities only from `- sibling: <clone url>` lines under `## shape-ticket` in the resolved overrides file. Treat an absent section as a single-repository audit. Keep invocation arguments and configuration writes out of sibling discovery.
+Read sibling identities only from `- sibling: <clone url>` lines under `# shared` `## siblings` in the resolved overrides file. Treat an absent section as a single-repository audit. Keep invocation arguments and configuration writes out of sibling discovery.
 
 Use this shared parser for configured values and stored origins:
 

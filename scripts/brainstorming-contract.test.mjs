@@ -1116,7 +1116,7 @@ test('membership selects declared siblings before resolving paths or creating tr
 test('portable identifiers prefer origin, then own tracker overrides, then primary basename', () => {
   const text = legContract().replace(/\s+/g, ' ');
   assert.match(text, /Derive each companion's portable identifier from the shared parser's trailing `owner\/name` of `IDENTITY` for the validated stored origin read with `git -C <primary> config --get remote\.origin\.url`\./);
-  assert.match(text, /Derive the home's identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `## Issue tracker` section; without that value use the member's primary directory basename\./);
+  assert.match(text, /Derive the home's identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `# shared` `## issue-tracker` section; without that value use the member's primary directory basename\./);
   assert.match(text, /Compare case-insensitively, trailing `owner\/name` of `IDENTITY` before `NAME`/);
   assert.match(text, /Use the same identifier in `### Leg:`, task `Leg:`, and brief `repo:` fields/);
 });

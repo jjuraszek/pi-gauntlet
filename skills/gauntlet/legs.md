@@ -6,7 +6,7 @@ Keep tracker and dispatch APIs unchanged.
 ## Settle membership before Worktree First
 
 Read the home primary's first-found overrides file: `.pi/gauntlet.md`,
-`gauntlet.md`, `doc/gauntlet.md`. Treat `## shape-ticket`
+`gauntlet.md`, `doc/gauntlet.md`. Treat `# shared` `## siblings`
 `- sibling: <clone url>` declarations as eligibility, not membership. Parse selected values
 with shape-ticket's [shared parser](../shape-ticket/reference/repo-audit.md);
 use `PATH` = `<home PRIMARY parent>/<NAME>` as each companion primary.
@@ -18,7 +18,7 @@ from the shared parser's trailing `owner/name` of `IDENTITY` for the validated s
 read with `git -C <primary> config --get remote.origin.url`. Derive the home's identifier
 from `git -C <primary> remote get-url origin`'s `owner/name`, stripping `.git`;
 without origin use `repo:` from that member's own first-found overrides
-`## Issue tracker` section; without that value use the member's primary directory basename. Use the same identifier
+`# shared` `## issue-tracker` section; without that value use the member's primary directory basename. Use the same identifier
 in `### Leg:`, task `Leg:`, and brief `repo:` fields. For an ambiguous basename,
 ask once before any creation; never guess. Order members home first, then selected siblings in declared order.
 An existing PR alone never activates membership; PR home provisioning still uses
@@ -81,8 +81,7 @@ Record only the contract fields authorized by the creator; never record a produc
   `doc/specs`, `docs/specs`; derive plan directories with `planDirsFor`.
   Never read `planDirs` as settings input. Choose the leg's spec directory by the
   existing spec-location convention. Keep plan and ledger home-owned.
-- Verification: retain commands from `## verification` and
-  `## PR gate`, plus merged `piGauntlet.verifyBeforeShip`. Preserve templates
+- Verification: retain commands from `# shared` `## verification`, plus merged `piGauntlet.verifyBeforeShip`. Preserve templates
   describing execution against the leg's worktree or primary.
 
 Follow `worktrees.md` once per member with explicit `$ROOT` = primary and

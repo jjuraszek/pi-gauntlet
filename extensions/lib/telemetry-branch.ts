@@ -1,7 +1,8 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { checkoutOfSync } from "./checkout.ts";
+import { readSharedSection } from "./overrides.ts";
 import { gitRun } from "./vcs.ts";
 
 export const TELEMETRY_REF = "refs/telemetry/records";
@@ -26,14 +27,9 @@ export function telemetryRepo(root: string): string {
   if (result.ok && path) return path;
 
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
-    const path = join(top, file);
-    if (!existsSync(path)) continue;
-    const section = readFileSync(path, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : undefined;
   return `local/${basename(primary ?? top)}`;

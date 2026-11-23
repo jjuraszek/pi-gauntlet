@@ -28,6 +28,7 @@ import {
   resolveSpecCouncil,
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
+import { readSharedSection } from "./lib/overrides.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { textOf } from "./lib/telemetry-collect.ts";
 import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
@@ -1049,9 +1050,7 @@ export default function (pi: ExtensionAPI) {
           const worktrees = gitSync(["worktree", "list", "--porcelain"], root);
           const primary = /^worktree (.+)$/m.exec(worktrees.stdout)?.[1];
           if (worktrees.code !== 0 || !primary) return inputFailure("cannot resolve home primary");
-          const overridesPath = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
-          const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
-          const section = /^## shape-ticket\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
+          const section = readSharedSection(primary, "siblings");
           const parseClone = (value: string) => {
             let host: string, path: string;
             if (/^(ssh|https?|git):\/\//.test(value)) {

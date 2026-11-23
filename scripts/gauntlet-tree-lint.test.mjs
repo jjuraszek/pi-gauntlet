@@ -123,6 +123,16 @@ test("overrides-outline: each caller applies only the seven shared sections and 
   }
 });
 
+test("overrides-outline: readers no longer get shared settings from flat headings", () => {
+  const root = join(import.meta.dirname, "..");
+  for (const file of globSync(["{skills,agents}/**/*.md", "doc/*.md"], { cwd: root })) {
+    assert.doesNotMatch(readFileSync(join(root, file), "utf8"), /## (?:Issue tracker|Deployment|Spec index|PR gate|shape-ticket)\b/, file);
+  }
+  const assessment = readFileSync(join(root, "skills/gatekeep-pr/reference/assessment.md"), "utf8");
+  assert.match(assessment, /^# shared\n## verification\n- verification command:[^\n]*\n- requires credentials:/m);
+  assert.match(assessment, /merge-base of the PR's base branch[^\n]+never from the PR's head tree/);
+});
+
 test("overrides-outline: repo-wide wording comes from the agent instructions", () => {
   const root = join(import.meta.dirname, "..");
   const files = globSync(["{skills,agents}/**/*.md", "doc/*.md", "README.md", "AGENTS.md"], { cwd: root });

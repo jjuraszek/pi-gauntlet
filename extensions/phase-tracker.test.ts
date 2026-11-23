@@ -3065,7 +3065,7 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
-  writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
+  writeFileSync(join(primary, ".pi/gauntlet.md"), `# shape-ticket\n## siblings\n- sibling: invalid\n# shared\n## siblings\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
   const { planPath } = writePlanFixture(primary, {
     mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
     mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
@@ -3096,10 +3096,10 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
     assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
     assert.deepEqual(probes, [], "unselected sibling must receive no filesystem or Git probes");
-    writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
     const https = await tool.execute("https", { planPath }, undefined, undefined, h.ctx) as { details: { status: string } };
     assert.equal(https.details.status, "pass");
-    writeFileSync(join(primary, ".pi/gauntlet.md"), "## shape-ticket\n- sibling: ../viewer\n");
+    writeFileSync(join(primary, ".pi/gauntlet.md"), "# shared\n## siblings\n- sibling: ../viewer\n");
     const invalid = await tool.execute("invalid", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string; reason: string }[] } };
     assert.equal(invalid.details.status, "fail");
     assert.ok(invalid.details.findings.some(f => f.check === "input" && f.reason.includes("- sibling: ../viewer") && f.reason.includes("invalid configuration")));
@@ -3123,7 +3123,7 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
       const rewriteKey = "url.https://rewritten.test/other/.insteadOf";
       if ("rewrite" in row) execFileSync("git", ["config", rewriteKey, "https://example.test/team/"], { cwd: companion });
       const line = `- sibling: ${row.value}`;
-      writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n${line}\n`);
+      writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n${line}\n`);
       try {
         const result = await tool.execute(row.name, { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: { check: string; reason: string }[] } };
         assert.equal(result.details.status, row.reason ? "fail" : "pass", JSON.stringify(result.details.findings));
@@ -3134,11 +3134,11 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     });
     execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
     await t.test("identity precedes shared NAME without probing the other declaration", async () => {
-      writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
+      writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
       const result = await tool.execute("identity", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
       assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
     });
-    writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: ${cloneUrl}\n`);
   } finally {
     for (const spy of spies) spy.mock.restore();
     syncBuiltinESMExports();
@@ -3199,7 +3199,7 @@ for (const state of ["unlinked", "primary", "detached", "not a checkout", "forei
       }
     }
     mkdirSync(join(primary, ".pi"), { recursive: true });
-    writeFileSync(join(primary, ".pi/gauntlet.md"), `## shape-ticket\n- sibling: git@example.test:${repo}.git\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: git@example.test:${repo}.git\n`);
     const { planPath } = writePlanFixture(primary, {
       mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\n${state === "missing branch" ? "" : `branch: ${branch}\n`}contract:\n`,
       mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),

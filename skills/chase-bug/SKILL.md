@@ -100,13 +100,13 @@ Search both **open and closed** issues for the same symptom before deep
 discovery. This has its own resolution ladder, separate from the response-channel
 ladder in step 5 (the reply destination and the search target can differ):
 
-0. If the overrides `## Issue tracker` section has a `tracker:` key
+0. If the overrides `# shared` `## issue-tracker` section has a `tracker:` key
    (case-insensitive), that tracker is exclusive - no probing for others, no
    ask, others never mentioned. `tracker: none` -> prior-report search declared
    **not completed** (the existing rung-4 convention). Unknown value ->
    exclusive; use free-form command mappings in the same section if present,
    else ask. Unparseable `tracker:` line -> ask, never probe.
-1. `## Issue tracker` section in the gauntlet overrides file, if present.
+1. `# shared` `## issue-tracker` section in the gauntlet overrides file, if present.
 2. Repo tracker convention documented in `AGENTS.md` / `README`.
 3. Detected CLI (e.g. `gh` for a GitHub-origin repo, or another tracker tool/CLI
    on PATH).
@@ -344,7 +344,7 @@ or where `send it` sits.
 
 **Channel resolution**, in order:
 
-0. If the overrides `## Issue tracker` section has a `tracker:` key
+0. If the overrides `# shared` `## issue-tracker` section has a `tracker:` key
    (case-insensitive), that tracker is exclusive - no probing for others, no
    ask, others never mentioned. `tracker: none` -> response channel degrades to
    manual copy-paste. Unknown value -> exclusive; use free-form command

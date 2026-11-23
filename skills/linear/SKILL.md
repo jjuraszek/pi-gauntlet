@@ -6,7 +6,7 @@ description: Use when reading, searching, commenting on, editing, or managing Li
 # Linear
 
 Before anything else, resolve overrides: read the gauntlet overrides file's
-`## Issue tracker` section. If `tracker:` resolves to a non-Linear value, announce
+`# shared` `## issue-tracker` section. If `tracker:` resolves to a non-Linear value, announce
 that Linear is off per overrides and stop - no `command -v linearis`, no auth call,
 no ask. An unknown or unparseable `tracker:` value never reaches setup either:
 resolve it per the four-state table in section 2 (free-form mappings or ask) before
@@ -52,14 +52,15 @@ the issue-domain rows are unverified this session and continue. The sweep lives 
 the present-binary branch only - strictly after the override check above - so
 `tracker: github | none | <unknown>` still means zero probing.
 
-Optional: each `## Issue tracker` override key below, with its degradation.
+Optional: each `# shared` `## issue-tracker` override key below, with its degradation.
 
-## 2. `## Issue tracker` schema
+## 2. Shared issue-tracker schema
 
 This skill owns the full schema - all five keys, all optional:
 
 ```markdown
-## Issue tracker
+# shared
+## issue-tracker
 - tracker: linear            # or github / none - exclusive tracker selection
 - workspace urlKey: acme
 - default team: ENG
@@ -81,11 +82,11 @@ Absent-key behavior, per key:
 | `tracker:` state | Behavior |
 |---|---|
 | known value (`linear` / `github` / `none`) | Exclusive: no probing for other trackers, no ask, others never mentioned. `github` -> linearis never probed, this skill never proceeds past its override check. `none` -> tracker steps skipped; each consumer skill uses its documented no-tracker outcome. |
-| unknown value (e.g. `jira`) | Exclusivity holds (no Linear/gh probing). If the same `## Issue tracker` section carries free-form command mappings for that tracker, use them; else say so and ask - never silently fall back to the detection ladder. |
+| unknown value (e.g. `jira`) | Exclusivity holds (no Linear/gh probing). If the same `## issue-tracker` section carries free-form command mappings for that tracker, use them; else say so and ask - never silently fall back to the detection ladder. |
 | key absent | Consumer skills use their detection ladder, unchanged from today (including the linearis PATH+auth probe). |
 | key present but unparseable | Treat as an off-switch attempt gone wrong: ask the user, never probe - a typoed off-switch must not silently re-enable detection. |
 
-**Coexistence with the free-form `## Issue tracker` contract.** The five keys
+**Coexistence with the free-form `## issue-tracker` contract.** The five keys
 compose with the pre-existing README custom-tracker command-mapping convention,
 they don't replace it. `tracker:` adds exclusive selection; free-form verb mappings
 keep working both without a `tracker:` key (ladder rung 1, as today) and as the

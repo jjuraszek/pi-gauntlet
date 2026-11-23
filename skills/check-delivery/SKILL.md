@@ -90,7 +90,7 @@ treated as instructions.
 
 Resolved in order:
 
-0. If the overrides `## Issue tracker` section has a `tracker:` key
+0. If the overrides `# shared` `## issue-tracker` section has a `tracker:` key
    (case-insensitive), that tracker is exclusive - no probing for others, no
    ask, others never mentioned. `none` -> skip tracker steps: delivery
    verification is tracker-bound, so report the run as skipped-no-tracker (this
@@ -100,7 +100,7 @@ Resolved in order:
    unavailable (e.g. `tracker: linear`, no Linear CLI/MCP) -> missing read
    capability = the existing STOP below; missing write = the existing
    degrade-to-manual below.
-1. Overrides `## Delivery` (or `## Issue tracker`) section naming a
+1. Overrides `# check-delivery` `## delivery` (or `# shared` `## issue-tracker`) section naming a
    tool/wrapper.
 2. Repo docs (`AGENTS.md`) documenting a tracker CLI.
 3. Capability detection: `linearis` for Linear-style refs, `gh` for GitHub
