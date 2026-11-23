@@ -1,5 +1,5 @@
 import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
@@ -145,8 +145,13 @@ export function lintPlacementRule(root) {
   for (const [, name, dir] of section.matchAll(anchorRow)) {
     const path = join(tree, dir, name);
     const expected = dirname(path);
-    assigned.set(path, expected);
-    if (!readers.has(path)) errors.push(`${path}: anchor file missing; expected directory ${expected}`);
+    if (readers.has(path)) {
+      assigned.set(path, expected);
+    } else {
+      const sameName = [...readers.keys()].filter(file => basename(file) === name);
+      if (!sameName.length) errors.push(`${path}: anchor file missing; expected directory ${expected}`);
+      for (const file of sameName) errors.push(`${file}: same name as missing anchor; expected directory ${expected}`);
+    }
   }
   const tracker = "extensions/phase-tracker.ts";
   if (files.includes(tracker)) {

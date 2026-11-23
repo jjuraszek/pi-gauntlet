@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, globSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, globSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
@@ -263,7 +263,7 @@ test("placement reports each run file outside its assigned or computed directory
     ["skills/other/SKILL.md", "[Shared](../gauntlet/ship/shared.md)"],
     [`${tree}/SKILL.md`, "Read `plan/entry-help.md`, [Common](plan/common.md) and [Reader](common-reader.md)."],
     [`${tree}/verify.md`, "Read `plan/common.md`, `common-reader.md`, and `ship/plan.md`."],
-    [`${tree}/plan/plan.md`, "Read the consumer's `gauntlet.md`."],
+    [`${tree}/plan/plan.md`, "Read `anchored.md` and the consumer's `gauntlet.md`."],
     [`${tree}/plan/gauntlet.md`, ""],
     [`${tree}/plan/entry-help.md`, ""],
     [`${tree}/plan/common.md`, ""],
@@ -295,7 +295,17 @@ test("placement reports each run file outside its assigned or computed directory
     `${tree}/ship/shared.md: actual directory ${tree}/ship; expected ${tree}`,
     `${tree}/verify.md: actual directory ${tree}; expected ${tree}/verify`,
   ]);
-  rmSync(join(root, tree, "implement/anchored.md"));
+  renameSync(join(root, tree, "implement/anchored.md"), join(root, tree, "plan/anchored.md"));
+  const moved = lintPlacementRule(root);
+  assert.deepEqual(moved.filter(error => error.includes("anchored.md:")).sort(), [
+    `${tree}/plan/anchored.md: same name as missing anchor; expected directory ${tree}/implement`,
+    `${tree}/ship/anchored.md: same name as missing anchor; expected directory ${tree}/implement`,
+  ]);
+  assert.ok(moved.includes(`${tree}/anchor-help.md: actual directory ${tree}; expected ${tree}/plan`));
+  assert.ok(moved.includes(`${tree}/ship-help.md: actual directory ${tree}; expected ${tree}/ship`));
+
+  rmSync(join(root, tree, "plan/anchored.md"));
+  rmSync(join(root, tree, "ship/anchored.md"));
   assert.ok(lintPlacementRule(root).includes(`${tree}/implement/anchored.md: anchor file missing; expected directory ${tree}/implement`));
 });
 
