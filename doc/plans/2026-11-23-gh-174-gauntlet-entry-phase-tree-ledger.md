@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
-returned: seed | home | 76f0ae53ef5a4b48cde1d1cf95baa7a4ee4ef54f
+returned: 21 | home | 3ccd9925528072c42d193b31e2a0d8bad386b699
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -29,8 +29,8 @@ returned: seed | home | 76f0ae53ef5a4b48cde1d1cf95baa7a4ee4ef54f
 | 18 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; removing a cited heading fails even when its step number remains in prose; 8 passed |
 | 19 | done | 0 | timeout -k 30 180 node scripts/claude-plugin-smoke.test.mjs; installed Claude plugin lists exactly seven skills and their relative references resolve; broken-link negative control passed |
 | 20 | done | 0 | timeout -k 30 180 node scripts/claude-plugin-smoke.test.mjs; all three Claude-only callers read their installed commit rules; both linked cleanup recipes deleted a return file without pi |
-| 21 | open | 0 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; 16 passed, 1 failed; integrated-wave review and review after conformance fixes lack the finding check before repair |
-| 22 | open | 0 | |
+| 21 | done | 1 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; moved-text check confirms both whole-diff routes and one resolving pointer before repair at each changed review site; 17 passed, 0 failed |
+| 22 | done | 0 | timeout -k 30 20 python3 -c 'assert all("cite the contrary hunk in the review outcome and select no edit for a disproved claim" in open(path).read() for path in ("skills/gauntlet/implement/waves/waves.md", "skills/gauntlet/conformance-check.md"))'; both changed sites require a citation and exclude the disproved claim from repairs; moved-text evidence, not a live review |
 | 23 | open | 0 | |
 | 24 | open | 0 | |
 | 25 | open | 0 | |
@@ -50,3 +50,5 @@ returned: seed | home | 76f0ae53ef5a4b48cde1d1cf95baa7a4ee4ef54f
 
 ## Decisions
 row 0 done | seeded 20 rows, closed 19 on baseline | row 21
+row 21 done | Wave reviews, re-reviews and conformance-fix reviews now check each finding against the assigned diff before selecting repairs. | Reuse the review-point table in scripts/wave-review.test.mjs to check link resolution and ordering at both repair sites.
+row 22 done | Both review sites require the orchestrator to cite the contrary hunk and make no edit for a disproved finding. | nothing new to build on

@@ -46,26 +46,37 @@ test('integrated wave contract uses implementers then one post-gate wave review'
   assert.match(skill, /initial patch.*fails[\s\S]*staged[\s\S]*stop/);
 });
 test('review points route findings to the orchestrator for verification before repair', () => {
-  const readStep = name => readFileSync(new URL(`../skills/gauntlet/${name}.md`, import.meta.url), 'utf8');
+  const stepUrl = name => new URL(`../skills/gauntlet/${name}.md`, import.meta.url);
+  const readStep = name => readFileSync(stepUrl(name), 'utf8');
   const request = readStep('requesting-review');
   assert.match(request, /receiving-review\.md.*verify each finding/i);
   assert.match(readStep('receiving-review'), /VERIFY: Check against codebase reality/);
 
-  const points = [
-    ['integrated wave', wave.split('5. **Review.**')[1].split('For each attributed task')[0], /One `wave-reviewer` dispatch per wave/, /HEAD_SHA: WORKTREE/],
-    ['waves verify', skill.split('**Whole-diff code review.**')[1].split('\n3.')[0], /foreground whole-diff `wave-reviewer`/, /committed HEAD/],
-    ['loop verify', readStep('implement/loop/loop').split('\n## After the loop\n')[1].split('\n3.')[0], /foreground whole-diff `wave-reviewer`/, /ledger base through committed HEAD/],
-    ['after conformance fixes', readStep('conformance-check').split('**Convergence** -')[1].split('Any at the cap')[0], /Dispatch `wave-reviewer` directly \(foreground/, /git diff <r0-head>\.\.HEAD/],
-  ];
-  const unchecked = [];
-  for (const [point, instructions, dispatchRule, range] of points) {
-    assert.match(instructions, dispatchRule, point);
-    assert.match(instructions, range, point);
-    const delegates = /per `(?:\.\.\/)*requesting-review\.md`|receiving-review\.md/.test(instructions);
-    const inline = /(?:check|verify) each finding against (?:the|its) (?:reviewed )?diff/i.test(instructions);
-    if (!delegates && !inline) unchecked.push(point);
+  for (const [instructions, range] of [
+    [skill.split('**Whole-diff code review.**')[1].split('\n3.')[0], /committed HEAD/],
+    [readStep('implement/loop/loop').split('\n## After the loop\n')[1].split('\n3.')[0], /ledger base through committed HEAD/],
+  ]) {
+    assert.match(instructions, /foreground whole-diff `wave-reviewer` per `\.\.\/\.\.\/requesting-review\.md`/);
+    assert.match(instructions, range);
   }
-  assert.deepEqual(unchecked, [], 'Review points without a finding check before repairs');
+
+  const points = [
+    ['implement/waves/waves', wave, /One `wave-reviewer` dispatch per wave.*HEAD_SHA: WORKTREE/, 'report <path> tree <sha>`.', '`SHIP` -> step 7', /On every wave review or re-review, before acting on the verdict/],
+    ['conformance-check', readStep('conformance-check').split('**Convergence** -')[1], /Dispatch `wave-reviewer` directly \(foreground.*git diff <r0-head>\.\.HEAD/, 'An empty diff is nothing to review - no dispatch.', 'c. Repair items =', /Before selecting repairs/],
+  ];
+  for (const [caller, instructions, dispatchRule, result, select, scope] of points) {
+    assert.match(instructions, dispatchRule, caller);
+    const links = [...instructions.matchAll(/\[receiving-review\.md\]\(([^)]+)\)/g)];
+    assert.equal(links.length, 1, `${caller}: one review-reception link`);
+    const [link] = links;
+    assert.equal(new URL(link[1], stepUrl(caller)).href, stepUrl('receiving-review').href);
+    const start = instructions.indexOf(result);
+    const end = instructions.indexOf(select);
+    assert.ok(start >= 0 && start + result.length <= link.index && link.index < end, `${caller}: check findings between the result and repair selection`);
+    const beforeRepair = instructions.slice(start + result.length, end);
+    assert.match(beforeRepair, scope, caller);
+    assert.match(beforeRepair, /check each finding against [^.]*assigned diff/, caller);
+  }
 });
 test('unified schema requires counted findings and preserves amendment carriers', () => {
   const schema = JSON.parse(dispatch.match(/const WAVE_VERDICT_SCHEMA = (.*);/)[1]);
