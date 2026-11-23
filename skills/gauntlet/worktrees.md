@@ -254,7 +254,6 @@ Re-run tests after rebasing.
 **Called by:**
 - `/skill:gauntlet` — **before** writing the spec; the spec is the worktree's first commit
 - `implement/waves/waves.md` — required before any implementation tasks
-- Any skill needing isolated workspace
 
 **Pairs with:**
 - `ship/ship.md` — REQUIRED for cleanup. Default finish squashes the worktree's full history into a single commit on `main`. If the worktree was created by a project-native wrapper, cleanup defers to the wrapper's destroy command.
