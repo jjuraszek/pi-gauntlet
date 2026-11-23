@@ -229,7 +229,7 @@ test("placement has one owner; other guides link instead of restating the rule",
     writeFileSync(join(root, file), text);
   };
   const guide = "skills/forge-skill/SKILL.md";
-  const body = readFileSync(join(repo, guide), "utf8");
+  const body = "### Gauntlet file placement\n\nPut a file read by more than one phase beside the entry file.\n\nSkills outside the run never move a file.\n\n## Authoring rules\n";
   const pointer = `For links from skills outside the run, see [placement](${guide}#gauntlet-file-placement).`;
   put("AGENTS.md", pointer);
   put(guide, "# Authoring\n");
@@ -259,19 +259,25 @@ test("placement reports each run file outside its assigned or computed directory
   for (const [file, text] of [
     ["AGENTS.md", `[Placement](${guide}#gauntlet-file-placement)`],
     [guide, "### Gauntlet file placement\n\n| File | Directory | Owner |\n|---|---|---|\n| `anchored.md` | `implement/` | Engines |\n\nPut a file read by more than one phase beside the entry file.\n\nSkills outside the run never move a file."],
-    ["extensions/phase-tracker.ts", 'const instructionFiles = { plan: "plan.md", waves: "implement/waves/waves.md", loop: "implement/loop/loop.md" };'],
+    ["extensions/phase-tracker.ts", 'const instructionFiles = { plan: "plan/plan.md", waves: "implement/waves/waves.md", loop: "implement/loop/loop.md", verify: "verify.md", ship: "ship/ship.md" };'],
     ["skills/other/SKILL.md", "[Shared](../gauntlet/ship/shared.md)"],
     [`${tree}/SKILL.md`, "Read `plan/entry-help.md`, [Common](plan/common.md) and [Reader](common-reader.md)."],
-    [`${tree}/plan.md`, "[Common](plan/common.md) and [Reader](common-reader.md)."],
+    [`${tree}/verify.md`, "Read `plan/common.md`, `common-reader.md`, and `ship/plan.md`."],
+    [`${tree}/plan/plan.md`, "Read the consumer's `gauntlet.md`."],
+    [`${tree}/plan/gauntlet.md`, ""],
     [`${tree}/plan/entry-help.md`, ""],
     [`${tree}/plan/common.md`, ""],
     [`${tree}/plan/unused.md`, ""],
     [`${tree}/implement/waves/waves.md`, "[Engines](engine-help.md#heading)"],
     [`${tree}/implement/loop/loop.md`, "Read `../waves/engine-help.md`."],
     [`${tree}/implement/waves/engine-help.md`, ""],
-    [`${tree}/anchored.md`, "Read [Helper](anchor-help.md)."],
+    [`${tree}/implement/anchored.md`, "Read [Helper](../anchor-help.md)."],
     [`${tree}/anchor-help.md`, ""],
     [`${tree}/common-reader.md`, "Read [Shared](ship/shared.md) and [Entry help](plan/entry-help.md)."],
+    [`${tree}/ship/ship.md`, "Read `plan.md` and `anchored.md`."],
+    [`${tree}/ship/plan.md`, "Read `../ship-help.md`."],
+    [`${tree}/ship/anchored.md`, "Read `../ship-help.md`."],
+    [`${tree}/ship-help.md`, ""],
     [`${tree}/ship/shared.md`, ""],
   ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
@@ -279,14 +285,18 @@ test("placement reports each run file outside its assigned or computed directory
   }
   assert.deepEqual(lintPlacementRule(root).sort(), [
     `${tree}/anchor-help.md: actual directory ${tree}; expected ${tree}/implement`,
-    `${tree}/anchored.md: actual directory ${tree}; expected ${tree}/implement`,
     `${tree}/implement/waves/engine-help.md: actual directory ${tree}/implement/waves; expected ${tree}/implement`,
-    `${tree}/plan.md: actual directory ${tree}; expected ${tree}/plan`,
     `${tree}/plan/common.md: actual directory ${tree}/plan; expected ${tree}`,
     `${tree}/plan/entry-help.md: actual directory ${tree}/plan; expected ${tree}/brainstorm`,
+    `${tree}/plan/gauntlet.md: actual directory ${tree}/plan; expected no directory (no run reader or anchor)`,
     `${tree}/plan/unused.md: actual directory ${tree}/plan; expected no directory (no run reader or anchor)`,
+    `${tree}/ship-help.md: actual directory ${tree}; expected ${tree}/ship`,
+    `${tree}/ship/plan.md: actual directory ${tree}/ship; expected ${tree}`,
     `${tree}/ship/shared.md: actual directory ${tree}/ship; expected ${tree}`,
+    `${tree}/verify.md: actual directory ${tree}; expected ${tree}/verify`,
   ]);
+  rmSync(join(root, tree, "implement/anchored.md"));
+  assert.ok(lintPlacementRule(root).includes(`${tree}/implement/anchored.md: anchor file missing; expected directory ${tree}/implement`));
 });
 
 test("only the tracker supplies the next file at each engine's handoffs", (t) => {

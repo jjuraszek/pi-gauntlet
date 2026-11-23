@@ -1,11 +1,21 @@
 import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, relative, sep } from "node:path";
+import { dirname, join, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 const directories = new Set([...phases, "implement/waves", "implement/loop"]);
 const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
 const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
+// Scratch artifacts and consumer checkout names, not files in the install.
+const artifacts = /^(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$/;
+
+function scanPathReferences(text, visit) {
+  for (const [ref] of text.matchAll(pathReference)) {
+    if (artifacts.test(ref) || /^(?:(?:doc|docs)\/|(?:\.pi|pkg-x|repo-a\/pkg-x)\/|eval\/|src\/)|^\d{4}-\d\d-\d\d-/.test(ref)) continue;
+    if (ref.endsWith(".ts") && !ref.startsWith("extensions/lib/") && !ref.includes("../")) continue;
+    visit(ref);
+  }
+}
 
 function instructionFileRows(text) {
   const table = text.match(/const instructionFiles = \{([^}]+)\}/)?.[1] ?? "";
@@ -129,31 +139,36 @@ export function lintPlacementRule(root) {
       errors.push(`${file}: link to the placement rule instead of restating it`);
     }
   }
-  const assigned = new Map([...section.matchAll(anchorRow)].map(([, name, dir]) => [name, dirname(join(tree, dir, name))]));
-  assigned.set("SKILL.md", tree);
+  const readers = new Map(globSync(`${tree}/**/*`, { cwd: root })
+    .filter(file => statSync(join(root, file)).isFile()).sort().map(file => [file, new Set()]));
+  const assigned = new Map([[`${tree}/SKILL.md`, tree]]);
+  for (const [, name, dir] of section.matchAll(anchorRow)) {
+    const path = join(tree, dir, name);
+    const expected = dirname(path);
+    assigned.set(path, expected);
+    if (!readers.has(path)) errors.push(`${path}: anchor file missing; expected directory ${expected}`);
+  }
   const tracker = "extensions/phase-tracker.ts";
   if (files.includes(tracker)) {
     for (const [, step, file] of instructionFileRows(read(tracker))) {
       const dir = step === "waves" || step === "loop" ? `implement/${step}` : step;
-      if (step !== "brainstorm" && directories.has(dir)) assigned.set(basename(file), join(tree, dir));
+      if (step !== "brainstorm" && directories.has(dir)) assigned.set(join(tree, file), join(tree, dir));
     }
   }
-  const readers = new Map(globSync(`${tree}/**/*`, { cwd: root })
-    .filter(file => statSync(join(root, file)).isFile()).sort().map(file => [file, new Set()]));
   for (const file of readers.keys()) {
     if (!file.endsWith(".md")) continue;
     const base = dirname(file);
-    // A misplaced anchor still owns its reads in the directory the guide assigns it.
-    const reader = file === `${tree}/SKILL.md` ? `${tree}/brainstorm` : assigned.get(basename(file)) ?? base;
+    // A tracker file counts in its assigned phase even when the tracker names a misplaced path.
+    const reader = file === `${tree}/SKILL.md` ? `${tree}/brainstorm` : assigned.get(file) ?? base;
     const visit = ref => {
       const target = join(base, ref);
       if (target !== file) readers.get(target)?.add(reader);
     };
-    for (const [ref] of stripMarkdownLinks(read(file), visit).matchAll(pathReference)) visit(ref);
+    scanPathReferences(stripMarkdownLinks(read(file), visit), visit);
   }
   for (const [file, readersOfFile] of readers) {
     const actual = dirname(file);
-    let expected = assigned.get(basename(file));
+    let expected = assigned.get(file);
     if (!expected && readersOfFile.size) {
       const phaseReaders = [...readersOfFile].filter(dir => dir !== tree);
       expected = phaseReaders[0] ?? tree;
@@ -222,8 +237,6 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
     }
   }
   const read = file => readFileSync(join(root, file), "utf8");
-  // Scratch artifacts and consumer checkout names, not files in the install.
-  const artifacts = /^(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$/;
   for (const file of files.filter(f => f.endsWith(".md"))) {
     let body = read(file);
     if (file === "skills/forge-skill/SKILL.md") {
@@ -242,11 +255,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
         if (!new RegExp(`^#{1,6} (?:Step )?${number}\\b`, "im").test(read(target))) errors.add(`${file}: ${ref} Step ${number}`);
       }
     }
-    for (const [ref] of text.matchAll(pathReference)) {
-      if (artifacts.test(ref) || /^(?:(?:doc|docs)\/|(?:\.pi|pkg-x|repo-a\/pkg-x)\/|eval\/|src\/)|^\d{4}-\d\d-\d\d-/.test(ref)) continue;
-      if (ref.endsWith(".ts") && !ref.startsWith("extensions/lib/") && !ref.includes("../")) continue;
-      check(file, ref);
-    }
+    scanPathReferences(text, ref => check(file, ref));
   }
   for (const file of files.filter(f => f.endsWith(".ts"))) {
     const text = read(file);
