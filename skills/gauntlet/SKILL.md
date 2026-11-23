@@ -1,5 +1,5 @@
 ---
-name: brainstorming
+name: gauntlet
 description: "Use only when the user explicitly requests brainstorming or selects a handoff into it; the subject is a free prompt, one tracker ticket, or one open PR or a leading list of related open PRs reworked on the home PR's branch."
 disable-model-invocation: true
 ---
@@ -28,7 +28,7 @@ Set top-level `async: false` on every flow-owned dispatch and leave `forceTopLev
 
 ## Entry consent
 
-Start fresh only on `/skill:brainstorming`, explicit prose requesting brainstorming/the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
+Start fresh only on `/skill:gauntlet`, explicit prose requesting brainstorming/the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
 
 Treat the flag as discovery control, not harness authorization. The command reliably discovers this skill; honor prose when already loaded or identified by an available route, never promise otherwise unreachable prose discovery. Continue restored state and amend/redraw at their named steps without fresh entry.
 
@@ -172,7 +172,7 @@ Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for s
 
 ## Amending an approved spec
 
-Execute in place from any later phase; never invoke `/skill:brainstorming` for it (its entry resets both trackers). Worktree, spec commits, and plan survive.
+Execute in place from any later phase; never invoke `/skill:gauntlet` for it (its entry resets both trackers). Worktree, spec commits, and plan survive.
 
 Every skill resource in this flow (a `SKILL.md` or a `reference/*.md`) is loaded with the `read` tool at its absolute path under `skills/`, never with a shell command - pruning protection keys on `read`'s `path`.
 

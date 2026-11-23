@@ -1,8 +1,3 @@
----
-name: roasting-the-spec
-description: Use after writing a spec when the resolved piGauntlet.specCouncil members list is non-empty. Auto-dispatched by /skill:brainstorming as its configured critique pass with a fresh-context applier executor before the spec review gate.
----
-
 # Roasting the Spec (Spec Council)
 
 ## Overview

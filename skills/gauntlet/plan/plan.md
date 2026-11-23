@@ -1,8 +1,3 @@
----
-name: writing-plans
-description: Use when you have a spec or requirements for a multi-step task, before touching code
----
-
 > **Related skills:** Reached via the auto-chain from `/skill:brainstorming`, or via `/skill:gauntlet-resume` when a restored flow lands at the plan stage — otherwise not a direct human entry point. On completion this skill auto-invokes `/skill:subagent-driven-development`.
 
 # Writing Plans

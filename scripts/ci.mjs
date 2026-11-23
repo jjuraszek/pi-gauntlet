@@ -20,6 +20,8 @@ const errors = [];
 const fail = (msg) => errors.push(msg);
 const ok = (msg) => console.log(`  ok  ${msg}`);
 
+execFileSync(process.execPath, ["--test", R("scripts/gauntlet-tree-lint.test.mjs")], { stdio: "inherit" });
+
 const expectIdx = process.argv.indexOf("--expect-version");
 const expectVersion = expectIdx !== -1 ? process.argv[expectIdx + 1] : null;
 

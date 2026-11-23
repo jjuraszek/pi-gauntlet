@@ -1,8 +1,3 @@
----
-name: receiving-code-review
-description: Use when receiving code review feedback from a human or external reviewer (GitHub review, human partner), before implementing suggestions, especially when feedback is unclear or technically questionable - verify, push back with evidence, never perform agreement; the subagent-driven-development review-fix loop is out of scope
----
-
 > **Related skills:** Verify each fix with `/skill:verification-before-completion`. Use `/skill:test-driven-development` for regression tests.
 
 # Code Review Reception

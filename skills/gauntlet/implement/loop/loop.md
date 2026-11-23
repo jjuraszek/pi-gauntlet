@@ -1,8 +1,3 @@
----
-name: loop-implementation
-description: Use after approval selects the loop engine, or when resuming an acceptance-criteria ledger in the implement phase.
----
-
 # Loop implementation
 
 Run this driver in the main session. Carry the absolute implementation worktree path as a value; run git with `git -C "<worktree>"` and commands as `(cd "<worktree>" && <command>)`. Carry the approved spec path and resolved plan directory. Keep the original prompt for verify. Never run reviewers inside implement. Use `plan_tracker({ action: "refresh", path: <absolute ledger path> })` for every refresh; pass only the path and let the extension derive the view. After every admitted ledger commit (child or parent), refresh once; the seed refresh follows implement start below. Read [commit-message.md](../finishing-a-development-branch/reference/commit-message.md) for all commit wording. Resolve its absolute path from this loaded skill and resolve the ticket once at seed or authorized restore; pass `wording: <absolute path>` and `ticket: <reference or none>` to every worker. Use its fixed bookkeeping sentence for each parent event and its amendment source for amendments.
