@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -91,6 +93,52 @@ test('the engine test selects one restore reference per input', () => {
     ordered(skip, ['start brainstorm', 'skip brainstorm resume: <spec path>', `engine: "${engine}"`]);
   }
   assert.match(file['seed.md'], /8\. \*\*Continue\*\* with the spec pinned at `<full-path>\/<rel>`, skipping `reconstruction\.md`\s+"Candidates": `<full-path>\/<sibling plans dir>\/<basename of rel>` exists ->\s+`restore-plan\.md` "Spec with plan"; otherwise `reconstruction\.md` "Spec without plan"\./);
+});
+
+test('spec seed refuses remote terminal records when no local record exists', t => {
+  const seed = file['seed.md'];
+  assert.match(section(skill, '## Dispatch'), /^\| spec seed \| `reference\/seed\.md` \|$/m);
+  ordered(seed, ['every stop names the path', '3. **Not shipped.**', '5. **Reuse or create.**', '8. **Continue**']);
+  const guard = seed.match(/^3\. \*\*Not shipped\.\*\* (.+)$/m)?.[1];
+  assert.ok(guard, 'seed admission step');
+  const lookup = guard.match(/read `<git common dir>\/([^`]+)`.*When the local record is absent, fetch `([^`]+)` from `telemetry\.remote` \(default `([^`]+)`\) and read `([^`]+)` from the fetched ref.*A valued `(\w+):` or `(\w+):` stops: `([^`]+)`/);
+  assert.ok(lookup, 'local-miss lookup must read the fetched record and stop on terminal timestamps');
+  const [, localPath, ref, remote, remotePath, firstField, secondField, message] = lookup;
+  const terminalField = new RegExp(`^(?:${firstField}|${secondField}): (.+)$`, 'm');
+  const rows = [
+    ['shipped', 'shipped_at', '2026-01-05T12:00:00Z'],
+    ['abandoned', 'abandoned_at', '2026-01-06T13:00:00Z'],
+  ];
+  const dir = mkdtempSync(join(tmpdir(), 'resume-seed-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const git = (cwd, args, input) => execFileSync('git', args, {
+    cwd, input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 5000,
+  }).trim();
+  const origin = join(dir, 'origin.git');
+  git(dir, ['init', '--bare', origin]);
+  git(dir, ['init']);
+  git(dir, ['remote', 'add', 'origin', origin]);
+  const tree = git(origin, ['mktree'], rows.map(([name, field, ts]) => {
+    const blob = git(origin, ['hash-object', '-w', '--stdin'], `${field}: ${ts}\n`);
+    return `100644 blob ${blob}\t${name}.yaml\n`;
+  }).join(''));
+  const records = ['specs', 'gauntlet', 'widget', 'acme'].reduce((child, name) =>
+    git(origin, ['mktree'], `040000 tree ${child}\t${name}\n`), tree);
+  git(origin, ['update-ref', 'refs/telemetry/records', records]);
+
+  const expand = (path, name) => path.replace('<owner>/<repo>', 'acme/widget')
+    .replace('<rel with .md -> .yaml>', `specs/${name}.yaml`);
+  const commonDir = git(dir, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  for (const [name] of rows) {
+    assert.equal(existsSync(join(commonDir, expand(localPath, name))), false, `${name}: local record`);
+  }
+  git(dir, ['fetch', remote, ref]);
+  for (const [name, field, ts] of rows) {
+    const record = git(dir, ['show', `FETCH_HEAD:${expand(remotePath, name)}`]);
+    const terminal = record.match(terminalField);
+    assert.ok(terminal, `${name}: ${field} must trigger the seed stop`);
+    assert.equal(message.replace('<ts>', terminal[1]), `spec already shipped at ${ts} - write a superseding spec`, name);
+  }
 });
 
 test('PR identity stops precede every restore reference', () => {
