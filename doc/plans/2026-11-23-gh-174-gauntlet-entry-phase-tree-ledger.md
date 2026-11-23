@@ -6,7 +6,6 @@ checks: commands
 iterations: 12
 allowance: 10
 returned: 38 | home | adcd9f96505a882c68cee1706240be41e0495d5c
-pending: verify | home | c14cc246479d8627f0f2748cf3418556f6b96407
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -69,3 +68,4 @@ row 35 done | CI prepares every eval sample against the merge-base and working t
 row 36 done | A regression test checks both generated prompts and candidate instructions for retired skill commands while exempting verbatim baseline instructions. | Run eval/lib/run.test.mjs to check the command boundary against every sample.
 row 37 done | Both models followed the handoff pointer, kept an ordinary request outside the run, and applied only shared and gate-specific overrides. | Run scripts/entry-phase-evals.test.mjs to check the three saved samples without calling a model.
 row 38 done | The upgrade notes map the entry command, 11 retired steps, 19 gate IDs and project settings, and explain how to finish interrupted runs and migrate earlier records. | Use lintReleaseNotes in scripts/gauntlet-tree-lint.mjs to check the migration tables before and after release promotion.
+repair verification | home 424eb14 | iteration 12
