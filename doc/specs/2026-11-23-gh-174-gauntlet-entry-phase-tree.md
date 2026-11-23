@@ -72,7 +72,7 @@ Ticket #174, Acceptance Criteria, rows verbatim:
 - [ ] Invoking `/skill:gauntlet` starts a run as `/skill:brainstorming` does today: the phase tracker's status reports brainstorm in progress, and the guards that apply only to an entered run apply (for example, completing verify before the conformance review ran is refused).
   in-scope
 - [ ] On each engine, a run started with `/skill:gauntlet` goes from the entry command through the ship ending the person selects, and that ending performs its action, without the person typing a step command; the points where the instructions wait for a person - gates and questions, in order - are the same as before the move.
-  in-scope
+  deferred: #174 - live proof only; the two-engine behavior remains required
 - [ ] Under `skills/gauntlet/` the directories directly below the entry file are exactly `brainstorm`, `plan`, `implement`, `verify` and `ship`. A phase's files sit in its directory or in one optional sub-phase directory below it (for example the two ways implementation runs, under `implement`). No directory in the tree carries a retired step's name.
   in-scope
 - [ ] The layout rule - directories mirror the run - has one wording in the repo: the skill-authoring guide's placement rule for a skill's supporting files either states it for files under `skills/gauntlet/` or links to it, and no second wording exists. The rule says where a file goes that more than one phase reads, and where a file goes that skills outside the run read (today: the menu layout rules, the commit-message rules, the return-file cleanup).
@@ -417,6 +417,8 @@ Change in `scripts/`:
 
 ### Paid and external actions
 
+Run one live Pi session per engine with the candidate installed in disposable repositories if a person can operate the gates. The current noninteractive worker cannot supply a human ship selection. If impractical before merge, the maintainer runs both after merge and before release, recording the revision, gate order, selected ending and observed action. Do not report this proof as passed or close the delivery ticket before it is observed. Keep the underlying hand-off and shipping behavior in scope.
+
 Approving this spec authorizes each action below for the whole flow, across seed, rows, repairs and finish, with no per-step prompt. Any count is advisory.
 
 | Action | Runner | Inputs |
@@ -502,6 +504,8 @@ The two ship actions are named here because the installed package ships this run
 The materiality bar is `reference/documentation-impact.md`.
 
 ## Out of scope
+
+AC 3: only the pre-merge live proof is deferred to the maintainer if impractical here.
 
 - Prompts the model gets today on work outside a run (work test-first, show evidence before claiming completion, verify an outside reviewer's feedback, fan out parallel tasks, set up a worktree, finish a branch): they leave with their skills.
 - Merging a step's logic into the step that uses it, or rewording a moved instruction: a follow-up after this release.
