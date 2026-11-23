@@ -6,16 +6,31 @@ An implement engine turns an approved spec into a verified implementation. The p
 
 Keep the engine artifact in the resolved plan directory as a file with a path-only `**Spec:**` header containing the repo-relative spec path, optionally backticked. `plan_check({ planPath })` resolves that spec before checking the artifact. In [plan-check.ts](../extensions/lib/plan-check.ts), line 1 exactly `# Ledger - loop engine` selects ledger validation; other input follows task-plan validation. A passing parent tool call stamps both artifact and spec paths and SHA-256 hashes.
 
-The implement-start guard in [phase-tracker.ts](../extensions/phase-tracker.ts) is unchanged: in an armed flow with flow guards enforced, `start implement` requires the stamp, both files to exist, and both hashes to match. Skipping the plan phase does not bypass this guard. The loop driver stamps and commits its skeleton before starting implement. Once implement starts, ledger updates do not require repeated stamping; resume checks the current ledger again.
+In an armed flow with flow guards enforced, `start implement` requires the stamp, both files to exist, and both hashes to match. Neither a recorded engine nor skipping the plan phase substitutes for the stamp. The loop driver stamps and commits its skeleton before starting implement. Once implement starts, ledger updates do not require repeated stamping; resume checks the current ledger again. Non-file artifacts do not meet this contract.
 
 | Instance | Artifact | Execution |
 |---|---|---|
 | Waves/task engine | Task plan with waves, tasks, spec citations, scoped tests and verification headers | Task implementers and one integrated wave review, tracked by `plan_tracker` |
 | Loop engine | `<resolved plan dir>/<spec stem>-ledger.md` | Fresh `loop-implementer` per seed or row iteration; ledger-derived task view via `plan_tracker refresh`, no implement-phase reviewers |
 
-A non-file engine artifact is outside this contract. Supporting an engine whose plan cannot be a hashed file requires a phase-state engine field and corresponding admission changes; that field does not exist.
-
 Gatekeep-pr's [pi fix wave](../skills/gatekeep-pr/reference/fix-wave.md#row-dispatch) also consumes the loop worker on a parent-owned companion ledger. It dispatches file findings as rows without a seed, admits the worker's attributed return file after checking the clean single-commit boundary, never its reply or commit message, and keeps the round's `wave-reviewer` as the closure judge. Sync conflict-stop and base-merge helpers remain `implementer`; Claude Code keeps native drafted-payload helpers.
+
+## Phase instruction routing
+
+[The phase tracker](../extensions/phase-tracker.ts) accepts `engine: "waves" | "loop"` only on brainstorm completion or skip. The spec's `**Engine:**` header is the durable record; the tracker stores the engine in brainstorm phase state, restores that state on session replay, and clears the engine on `reset`. An entered run needs a recorded engine to start plan or implement. The engine selects the route, not how `plan_check` validates the artifact.
+
+Advancing completions append `Instructions: <absolute path>` to the reply. The line points to an installed file; it contains neither the file content nor a skill command.
+
+| Completion | Instruction file |
+|---|---|
+| `complete brainstorm` with `waves` | [Plan](../skills/gauntlet/plan/plan.md) |
+| `complete brainstorm` with `loop` | [Loop implement](../skills/gauntlet/implement/loop/loop.md) |
+| `complete plan` with `waves` recorded | [Waves implement](../skills/gauntlet/implement/waves/waves.md) |
+| `complete verify` | [Ship](../skills/gauntlet/ship/ship.md) |
+
+No other completion appends a pointer. Finish the current file's hand-off requirements, then read the named file before the next action. Implement completion does not point to verify; each engine handles that transition in its own instructions.
+
+In `status`, `Instructions:` appears before `Context:` and is only a locator, not a direction to read the file. In the parent session of an entered run, it names the active phase's file (the [entry file](../skills/gauntlet/SKILL.md) for brainstorm, [the verify file](../skills/gauntlet/verify/verify.md) for verify) or, between phases, the next unfinished phase's file, passing over pending plan for `loop`. There is no locator outside an entered run, in a child session, after the run finishes or publishes for handoff, or for plan or implement without a recorded engine.
 
 ## Ledger returns
 
