@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 15
+iterations: 16
 allowance: 10
-returned: 19 | home | cbf5b3971ad69ba403a5c38977baac48e6122218
+returned: 21 | home | ed1208ea28b510a48a7ae688d71c2e78d1b693f0
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -29,7 +29,7 @@ returned: 19 | home | cbf5b3971ad69ba403a5c38977baac48e6122218
 | 18 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 8 passed, 0 failed; removing a cited step heading fails even when its number remains in prose |
 | 19 | done | 1 | timeout -k 30 3600 node scripts/claude-plugin-smoke.test.mjs; Claude listed exactly seven gauntlet skills and no gauntlet agents; their file references resolved in the installed plugin; a broken link in the cached copy was detected |
 | 20 | done | 0 | timeout -k 30 3600 node scripts/claude-plugin-smoke.test.mjs; hotfix, fix wave and housekeeping each read the expected commit recipe from the Claude plugin cache; both linked cleanup recipes deleted a return file without the pi tracker |
-| 21 | open | 0 | |
+| 21 | failed | 1 | timeout -k 30 120 node --test scripts/wave-review.test.mjs; 16 passed, 1 failed; wave and post-conformance reviews route findings to repair without checking them against the diff; row 8 forbids adding that instruction to moved files |
 | 22 | open | 0 | |
 | 23 | open | 0 | |
 | 24 | open | 0 | |
@@ -72,3 +72,4 @@ row 17 done | Fixed package references so skills, personas and extension message
 row 18 done | Checked that numbered citations from retained skills name headings in the moved files, and linked plan repair to the handoff heading. | The missing-heading fixture in scripts/gauntlet-tree-lint.test.mjs distinguishes a step heading from a mention of the same step in prose.
 row 19 done | Claude Code loaded exactly seven marketplace skills, and their file references resolved in the installed plugin checkout. | Pass the plugin cache path and allowlisted file globs to lintReferences in scripts/gauntlet-tree-lint.mjs to check installed links.
 row 20 done | All three Claude-only callers found their commit rules, and both cleanup links led to recipes that deleted a return file without pi. | Extend the caller table in scripts/claude-plugin-smoke.test.mjs to exercise another shared recipe from an installed skill.
+row 21 failed | Both engines check whole-diff findings, but the wave and post-conformance paths send findings to repair without checking the diff. | Keep the wave-review test and reconcile row 8's move-only rule with the two missing checks before editing those procedures.
