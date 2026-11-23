@@ -7,25 +7,26 @@ const directories = new Set([...phases, "implement/waves", "implement/loop"]);
 const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
 const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
 const packageRooted = /^(?:skills|agents|extensions|bin|doc)\//;
-const sourceRepository = /^(?:[ \t]+"[^"\n]*")?`?[ \t]+(?:linked to [^.!?\n]+? )?in the source repository named in[ \t]+`(?:\.\.\/)+package\.json`/;
-const installedPackage = String.raw`(?:from|in|under|relative to)\s+the\s+(?:installed package(?: root| (?:install )?directory)?|package install directory)\b`;
-const installedBefore = new RegExp(`\\b${installedPackage},?[ \\t]+[\\w \\t]*\`?$`, "i");
-const installedAfter = new RegExp(`^\`?\\s+${installedPackage}`, "i");
+const sourceRepository = /\bsource repository named in\s+`(?:\.\.\/)+package\.json`/i;
+const installedPackage = /\b(?:installed\s+(?:[\w@./-]+\s+)?package|package\s+root|package(?:'s)?\s+install\s+directory)\b/i;
+const sentenceBoundary = /(?<=[.!?][`"')\]]*)\s+|\n[ \t]*\n|\n(?=[ \t]*(?:[-*] |\d+\. |#{1,6} ))/;
+const markdownLink = /\[[^\]\n]*\]\([ \t]*(?:<(?<angle>[^<>\n]+)>|(?<plain>[^<>\s)]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'|\([^()\n]*\)))?[ \t]*\)/g;
+const markdownCode = /(?<code>^[ \t]*(?<fence>`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^[ \t]*\k<fence>[`~]*[ \t]*$|(?![\s\S]))|(?<!`)(?<ticks>`+)(?!`)[^\n]*?(?<!`)\k<ticks>(?!`))/gm;
+const markdownReference = new RegExp(`${markdownCode.source}|${markdownLink.source}`, "gm");
 // Scratch artifacts and consumer checkout names, not files in the install.
 const artifacts = /^(?:(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$|doc\/gauntlet\.md$|extensions\/x\.test\.ts$|(?:doc\/(?:specs|plans|cache)|docs|\.pi|pkg-x|repo-a\/pkg-x|eval|src)\/|\d{4}-\d\d-\d\d-)/;
 
 function scanPathReferences(text, visit) {
-  for (const { 0: ref, index } of text.matchAll(pathReference)) {
-    const after = text.slice(index + ref.length);
-    if (artifacts.test(ref)) {
-      if (installedAfter.test(after) || installedBefore.test(text.slice(0, index))) visit(ref, "");
-      continue;
+  for (const sentence of text.split(sentenceBoundary)) {
+    const source = sourceRepository.test(sentence);
+    const installed = !source && installedPackage.test(sentence);
+    for (const [ref] of sentence.matchAll(pathReference)) {
+      if (artifacts.test(ref) || (!packageRooted.test(ref) && ref.endsWith(".ts") && !ref.includes("../"))) {
+        if (installed) visit(ref, "");
+      } else if (!source || !packageRooted.test(ref)) {
+        visit(ref);
+      }
     }
-    if (packageRooted.test(ref)) {
-      // Leave the manifest locator for the caller-relative check.
-      if (sourceRepository.test(after)) continue;
-    } else if (ref.endsWith(".ts") && !ref.includes("../")) continue;
-    visit(ref);
   }
 }
 
@@ -40,16 +41,20 @@ function instructionFileRows(text) {
 
 function stripMarkdownLinks(body, visit) {
   return body
-    .replace(/`\[[^`\n]*\]\([^`\n]+\)`/g, "") // inline example of Markdown syntax
     .replace(/^  touched-files: .*$/gm, "") // example reviewer output
     .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
-    .replace(/https?:\/\/[^\s)\]`]+/g, "")
-    .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
-      const target = href.split("#", 1)[0];
-      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) visit(target);
+    .replace(markdownReference, (...args) => {
+      const { code, angle, plain } = args.at(-1);
+      if (code) return code.replace(markdownLink, "");
+      const target = (angle ?? plain).split("#", 1)[0];
+      if (target && !/^(?:[a-z][\w+.-]*:|\/)/i.test(target)) visit(target);
       return "";
     })
-    .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
+    .replace(/https?:\/\/[^\s)\]`]+/g, "")
+    .replace(/(<[\w -]+>|\$[A-Z_]+)\/([\w./-]*[\w/-])(\.*)/g, (_, prefix, ref, punctuation) => {
+      if (prefix.toLowerCase() === "<package root>") visit(ref, "");
+      return punctuation;
+    });
 }
 
 const [entry, overrides, ...steps] = `
@@ -269,7 +274,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
         return "";
       });
     }
-    const text = stripMarkdownLinks(body, ref => check(file, ref));
+    const text = stripMarkdownLinks(body, (ref, base) => check(file, ref, base));
     if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
       for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
         const target = join(referenceBase(file, ref), ref);

@@ -40,19 +40,33 @@ test("package references resolve from the caller or package root, not the consum
 test("explicit package destinations override consumer example spellings", async t => {
   const root = mkdtempSync(join(tmpdir(), "gauntlet-explicit-references-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  for (const [scenario, file, body, missing] of [
-    ["plan example", "skills/one/SKILL.md", "Example consumer path: `doc/plans/recovery.md`.", []],
-    ["plan link", "skills/one/SKILL.md", "Read [recovery](doc/plans/recovery.md).", ["doc/plans/recovery.md"]],
-    ["consumer overrides", "agents/reviewer.md", "Read the consumer checkout's `doc/gauntlet.md`.", []],
-    ["installed root", "agents/reviewer.md", "Read `doc/gauntlet.md` from the installed package root.", ["doc/gauntlet.md"]],
-    ["install directory before path", "agents/reviewer.md", "In the package install directory, read `doc/gauntlet.md`.", ["doc/gauntlet.md"]],
-    ["unrelated sentence", "agents/reviewer.md", "Read the consumer checkout's `doc/gauntlet.md`. Start from the installed package root.", []],
+  const file = "agents/reviewer.md";
+  const caller = join(root, file);
+  mkdirSync(dirname(caller), { recursive: true });
+  for (const [scenario, body, ref, base = ""] of [
+    ["plan example", "Example consumer path: `doc/plans/recovery.md`."],
+    ["plan link", "Read [recovery](doc/plans/recovery.md).", "doc/plans/recovery.md"],
+    ["angle-bracketed link", "Read [recovery](<../skills/gauntlet/return-fiel.md>).", "../skills/gauntlet/return-fiel.md", dirname(file)],
+    ["inline link example", "Print ``[recovery](doc/plans/recovery.md)``."],
+    ["fenced link example", "Print:\n```markdown\n[recovery](doc/plans/recovery.md)\n```"],
+    ["consumer overrides", "Read the consumer checkout's `doc/gauntlet.md`."],
+    ["installed root", "Read `doc/gauntlet.md` from the installed package root.", "doc/gauntlet.md"],
+    ["install directory before path", "In the package install directory, read `doc/gauntlet.md`.", "doc/gauntlet.md"],
+    ["named installed package root", "Read `doc/gauntlet.md` from the installed pi-gauntlet package root, not the consumer checkout.", "doc/gauntlet.md"],
+    ["nonadjacent installed attribution", "Use the installed pi-gauntlet package,\nnot the consumer checkout, to read `doc/gauntlet.md`.", "doc/gauntlet.md"],
+    ["unrelated sentence", "Read the consumer checkout's `doc/gauntlet.md`. Start from the installed package root."],
+    ["package root placeholder", "Read `<package root>/skills/gauntlet/return-fiel.md`.", "skills/gauntlet/return-fiel.md"],
   ]) {
     await t.test(scenario, () => {
-      const path = join(root, file);
-      mkdirSync(dirname(path), { recursive: true });
-      writeFileSync(path, body);
-      assert.deepEqual(lintReferences(root, [file]), missing.map(ref => `${file}: ${ref}`));
+      writeFileSync(caller, body);
+      assert.deepEqual(lintReferences(root, [file]), ref ? [`${file}: ${ref}`] : []);
+      if (ref) {
+        const target = join(root, base, ref);
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, "");
+        assert.deepEqual(lintReferences(root, [file]), []);
+        rmSync(target);
+      }
     });
   }
 });
@@ -65,6 +79,7 @@ test("only a source-repository attribution for the reference exempts an unshippe
   writeFileSync(join(root, "package.json"), '{"repository":"example"}');
   for (const [scenario, suffix, errors] of [
     ["attributed label", " linked to the heading in the source repository named in `../../package.json`.", []],
+    ["source attribution wins", " linked to the heading in the source repository named in `../../package.json`, not in the installed package root.", []],
     ["unattributed label", ".", ["doc/configuration.md"]],
     ["attribution in a different sentence", ". Find the source repository named in `../../package.json`.", ["doc/configuration.md"]],
     ["broken manifest locator", " linked to the heading in the source repository named in `../package.json`.", ["../package.json"]],
