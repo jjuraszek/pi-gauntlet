@@ -10,7 +10,9 @@ assert.match(disclosure, /List S\.\.HEAD and every dirty path/);
 assert.match(disclosure, /Disclose that `interrupted` discards them through `reset --hard <S>` and `clean -fd`/);
 assert.doesNotMatch(recoveryText, /not discard permission/);
 
+const drop = "Drop the trailing `Context:` line and the preceding `Instructions:` line, if present.";
 const contract = [
+  drop,
   "# Handoff brief contract",
   "## Process state",
   "```text",
@@ -20,7 +22,7 @@ const contract = [
   "Gate history not restored - re-validate before advancing.",
   "```",
 ].join("\n");
-const handoff = "# Gauntlet Handoff\n\nAppends `## Process state`. See reference/brief-contract.md.\n";
+const handoff = `# Gauntlet Handoff\n\nAppends \`## Process state\`. See reference/brief-contract.md. ${drop}\n`;
 const resume = "# Gauntlet Resume\n\n| brief with `## Process state` | restore |\n\nGrammar: reference/brief-contract.md.\n";
 const other = "# reconstruction\n\nA brief without `## Process state` is reconstructed.\n";
 
@@ -40,6 +42,12 @@ assert.deepEqual(CITING_SKILLS, ["skills/gauntlet-handoff/SKILL.md", "skills/gau
 
 // clean repo shape: zero findings; inline mentions of the heading are legal
 assert.deepEqual(rules(files()), []);
+
+for (const [file, text] of [[CONTRACT_FILE, contract], [CITING_SKILLS[0], handoff]]) {
+  for (const field of ["Context:", "Instructions:"]) {
+    assert.deepEqual(rules(files({ [file]: text.replace(field, "Other:") })), [`status-drop:${file}`]);
+  }
+}
 
 // negative: a standalone heading line inserted into the producer skill
 assert.deepEqual(
@@ -87,6 +95,7 @@ const reconstruction = real("skills/gauntlet-resume/reference/reconstruction.md"
 const loop = real("skills/gauntlet-resume/reference/restore-loop.md");
 const planRestore = real("skills/gauntlet-resume/reference/restore-plan.md");
 const realHandoff = real("skills/gauntlet-handoff/SKILL.md");
+assert.match(realHandoff, /Read no phase file from status/);
 assert.ok(loop.includes("resume: <spec> (loop engine)"), "exact ledger skip reason");
 for (const rel of ["skills/gauntlet-resume/SKILL.md", CONTRACT_FILE, "skills/gauntlet-resume/reference/reconstruction.md"]) {
   assert.ok(!real(rel).includes("resume: <spec> (loop engine)"), `${rel}: the ledger restore is stated only in restore-loop.md`);

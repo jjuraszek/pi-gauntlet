@@ -272,12 +272,12 @@ test('ledger resume delegates gate execution to the loop skill', () => {
   }
 });
 
-test('handoff drops only the trailing phase Context line and preserves tracker state', () => {
+test('handoff preserves tracker state after dropping local status lines', () => {
   const handoff = readFileSync(new URL('skills/gauntlet-handoff/SKILL.md', root), 'utf8');
   const brief = readFileSync(new URL('skills/gauntlet-resume/reference/brief-contract.md', root), 'utf8');
-  assert.ok(handoff.includes('drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim'));
+  assert.ok(handoff.includes('Copy the remaining phase block and the full plan status verbatim'));
   const producers = brief.split('\n## Producers\n')[1].split('\n## ')[0];
-  assert.match(producers, /Drop exactly the last\s+line of the `phase_tracker status` output when it starts with `Context: `; copy the\s+rest verbatim/);
+  assert.match(producers, /Copy the remaining phase block verbatim/);
   assert.match(producers, /the `plan_tracker status` output\s+verbatim/);
 });
 

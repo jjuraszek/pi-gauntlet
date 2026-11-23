@@ -322,7 +322,6 @@ const tokenChecks = [
   ["skills/gauntlet-handoff/SKILL.md", "phase_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "plan_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "reference/brief-contract.md", true],
-  ["skills/gauntlet-handoff/SKILL.md", "drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim", true],
   ["skills/gauntlet-handoff/SKILL.md", "/skill:handoff", true],
   ["skills/gauntlet-handoff/SKILL.md", "node_modules/pi-cohort", false],
   ["skills/gauntlet-handoff/SKILL.md", ".pi/agent", false],

@@ -82,7 +82,7 @@ For a brief, `Read` `reference/brief-contract.md` in full before check 2.
 checks 3, 3b and 4, before any tracker write. Without that block, read nothing from
 that file.
 
-1. **Idle session.** `phase_tracker({ action: "status" })`. Any phase not pending ->
+1. **Idle session.** `phase_tracker({ action: "status" })`. Read no phase file from status. Any phase not pending ->
    stop: "session already carries flow state - reset is your call".
 2. **Target worktree.** Resolve from the brief's `worktree:` field, the override, or the
    bare argument. Stops: path missing or `git -C <path> rev-parse --is-inside-work-tree`

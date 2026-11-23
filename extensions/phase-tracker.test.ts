@@ -823,6 +823,38 @@ for (const engine of ["waves", "loop", undefined] as const) {
   });
 }
 
+test("status locates only the active or next phase of an entered parent run", async () => {
+  const done = { brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" } as const;
+  const cases: [string, ReturnType<typeof phases>, string?, ("cold" | "child")?][] = [
+    ["cold", phases({ plan: "in_progress" }), undefined, "cold"],
+    ["entry", phases({ brainstorm: "in_progress" }), "SKILL.md"],
+    ["after approval", phases({ brainstorm: "complete" }), "plan/plan.md"],
+    ["active plan", phases({ brainstorm: "complete", plan: "in_progress" }), "plan/plan.md"],
+    ["waves gap", phases({ brainstorm: "complete", plan: "complete" }), "implement/waves/waves.md"],
+    ["loop before plan skip", phases({ brainstorm: "complete" }, "loop"), "implement/loop/loop.md"],
+    ["active loop", phases({ brainstorm: "skipped", plan: "skipped", implement: "in_progress" }, "loop"), "implement/loop/loop.md"],
+    ["active before pending", phases({ brainstorm: "complete", verify: "in_progress" }), "verify/verify.md"],
+    ["ready to ship", phases(done), "ship/ship.md"],
+    ["finished", phases({ ...done, ship: "complete" })],
+    ["publish for handoff", phases({ brainstorm: "complete" }, null)],
+    ["implement without engine", phases({ brainstorm: "skipped", plan: "skipped", implement: "in_progress" }, null)],
+    ["child", phases({ brainstorm: "in_progress" }), undefined, "child"],
+  ];
+  for (const [name, state, file, session] of cases) {
+    const depth = process.env.PI_SUBAGENT_DEPTH;
+    try {
+      process.env.PI_SUBAGENT_DEPTH = session === "child" ? "1" : "0";
+      const h = harness({ branch: session === "cold" ? [phaseResult("start", state)] : enteredBranch(state) });
+      await h.emit("session_start");
+      const lines = (await phaseCall(h, "status")).content[0].text.split("\n");
+      assert.deepEqual(lines.slice(1 + PHASES.length), [...(file ? [instructionLine(file)] : []), "Context: unknown"], name);
+    } finally {
+      if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+      else process.env.PI_SUBAGENT_DEPTH = depth;
+    }
+  }
+});
+
 test("only completing or skipping brainstorm can set an engine; reset clears it", async () => {
   const h = harness();
   const initial = await phaseCall(h, "start", "brainstorm");

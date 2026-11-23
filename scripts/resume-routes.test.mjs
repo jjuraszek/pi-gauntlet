@@ -35,6 +35,11 @@ test('route read sets stay within their byte ceilings', () => {
   assert.deepEqual(Object.keys(file).sort(), ['SKILL.md', 'brief-contract.md', 'coordinated.md', 'plan-repair.md', 'reconstruction.md', 'restore-loop.md', 'restore-plan.md', 'seed.md']);
 });
 
+test('the idle-session check treats the status locator as observational', () => {
+  const idle = section(skill, '## Entry checks').split('2. **')[0];
+  ordered(idle, ['action: "status"', 'Read no phase file from status', 'Any phase not pending', 'stop: "session already carries flow state']);
+});
+
 test('only the current formats remain', () => {
   for (const [name, text] of [...Object.entries(file), [handoffPath, handoff]]) {
     assert.doesNotMatch(text, /legacy|migrat|conversion/i, name);

@@ -19,7 +19,7 @@ export const GRAMMAR_PATTERNS = [
 ];
 
 // files: [{ rel, text }] with rel repo-relative, forward slashes.
-// Returns [{ rule, file, text }]; rule is grammar-outside-contract | grammar-missing | cite-missing.
+// Returns [{ rule, file, text }].
 export function lintBriefGrammar(files) {
   const findings = [];
   for (const pattern of GRAMMAR_PATTERNS) {
@@ -51,6 +51,10 @@ export function lintBriefGrammar(files) {
   for (const rel of CITING_SKILLS) {
     const f = files.find((x) => x.rel === rel);
     if (!f || !f.text.includes(CITE)) findings.push({ rule: "cite-missing", file: rel, text: CITE });
+  }
+  for (const rel of [CONTRACT_FILE, CITING_SKILLS[0]]) {
+    const drop = "Drop the trailing `Context:` line and the preceding `Instructions:` line, if present.";
+    if (!files.find(f => f.rel === rel)?.text.includes(drop)) findings.push({ rule: "status-drop", file: rel, text: drop });
   }
   return findings;
 }

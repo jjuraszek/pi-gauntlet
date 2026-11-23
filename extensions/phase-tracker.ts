@@ -78,6 +78,15 @@ function instructionPath(phase: Phase, engine?: Engine): string | undefined {
   return key && gauntletFile(instructionFiles[key]);
 }
 
+function statusInstruction(phases: PhaseMap): string | undefined {
+  const { status, engine } = phases.brainstorm;
+  if (status === "complete" && !engine) return; // Published for handoff, not advancing here.
+  const active = PHASES.find(p => phases[p].status === "in_progress");
+  const phase = active ?? PHASES.find(p => phases[p].status === "pending" && !(p === "plan" && engine === "loop"));
+  if (!phase || (phase === "plan" && !engine)) return;
+  return instructionPath(phase, engine);
+}
+
 interface PhaseState {
   status: PhaseStatus;
   engine?: Engine;
@@ -1147,7 +1156,8 @@ export default function (pi: ExtensionAPI) {
     description:
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship); " +
       "ad-hoc calls do not arm gates. Not for ad-hoc use. After a complete reply with an Instructions: line, " +
-      "finish the current file's hand-off requirements, then read the named file before the next action.",
+      "finish the current file's hand-off requirements, then read the named file before the next action. " +
+      "In status the line is only a locator: continue the status check without reading the file.",
     parameters: PhaseTrackerParams,
     executionMode: "sequential",
 
@@ -1391,8 +1401,10 @@ export default function (pi: ExtensionAPI) {
           const context = usage && usage.tokens !== null && usage.contextWindow > 0
             ? `${(Math.ceil(usage.tokens * 1000 / usage.contextWindow) / 10).toFixed(1)}% of window`
             : "unknown";
+          const file = gauntletEntered && !isSubagentChild ? statusInstruction(phases) : undefined;
+          const lines = [formatStatus(phases), ...(file ? [`Instructions: ${file}`] : []), `Context: ${context}`];
           return {
-            content: [{ type: "text", text: `${formatStatus(phases)}\nContext: ${context}` }],
+            content: [{ type: "text", text: lines.join("\n") }],
             details: { action: "status", phases: { ...phases } } as PhaseTrackerDetails,
           };
         }

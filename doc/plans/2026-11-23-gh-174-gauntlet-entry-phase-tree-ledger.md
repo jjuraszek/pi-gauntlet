@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
-returned: 12 | home | 0c7179580ec4b89c718009fe62bb451bd71154ca
+returned: 13 | home | 0ec81dae7993245c08953fef733666a61b1c481d
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -21,7 +21,7 @@ returned: 12 | home | 0c7179580ec4b89c718009fe62bb451bd71154ca
 | 10 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; the README lists exactly the eleven directories with skill entries; 5 passed, 0 failed |
 | 11 | done | 1 | timeout -k 30 20 node scripts/delivery-stage-authoring.test.mjs gauntlet ordinary-request-no-run; node eval/run.mjs gauntlet ordinary-request-no-run ran 4 replays and 2 judgments; all 4 facts held on both models; 2 local checks passed |
 | 12 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; 266 passed; both engines returned installed paths on their advancing completions |
-| 13 | open | 0 | |
+| 13 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts scripts/brief-contract-lint.test.mjs scripts/resume-routes.test.mjs; 277 passed, 0 failed; status locates the active or next phase only in an entered parent run; handoff omits the locator and resume treats it as observational |
 | 14 | open | 0 | |
 | 15 | done | 0 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; both recovery messages, both guards and the ship advisory name installed files; 266 passed, 0 failed |
 | 16 | open | 0 | |
@@ -65,3 +65,4 @@ row 10 done | The README lists the eleven registered skills separately from thei
 row 11 done | Both models handled the CSV export request without starting a phase, creating a worktree or loading step instructions. | Reuse the ordinary-request-no-run records for local checks and the rename lookup in eval/run.mjs to replay other moved instructions against their baseline.
 row 12 done | Advancing completions append the installed file for the next phase on both engines, including after session replay. | Use instructionPath in extensions/phase-tracker.ts with the engine stored in phases.brainstorm.engine.
 row 15 done | The ship advisory, recovery messages and guards name installed files, and the implement messages select the recorded engine. | Reuse gauntletFile in extensions/phase-tracker.ts to resolve instructions from the package rather than the caller's working directory.
+row 13 done | Parent-run status names the active or next phase's file before Context; resume does not follow it and handoff omits it from the brief. | Extend the status cases in extensions/phase-tracker.test.ts to check phase selection and locator placement after session replay.
