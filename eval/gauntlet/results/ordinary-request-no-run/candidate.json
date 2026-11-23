@@ -1,7 +1,7 @@
 {
   "sample": "ordinary-request-no-run",
   "arm": "candidate",
-  "skillSha": "90d44352c58f6ab4e700d01fb68c11c2b67f562bff5c1243be6e7cd8aefdec04",
+  "skillSha": "3ecffb18cf3796e93c934617ab9333e142740e45cd771fd74b5067eda7aaf7dd",
   "inputSha": "9c1e217aa3c46900b2a8711ae4ffe24af01024f07b97e856b55fb1a5eae40d8a",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "I'll treat this as a direct fix, not a gauntlet run. A plain implementation request doesn't authorize starting the gauntlet, so I won't reset the trackers or create a worktree. If you'd rather run it through the full flow (spec, critique, review gate), say `/skill:gauntlet` or ask for it, and I'll start there instead.\n\n**Plan:** find where the CSV header row is built and where the on-screen labels are defined. Make the export use the same label source rather than a second hand-kept list. Then add a regression test asserting the exported header row equals the displayed labels.\n\n**Tool actions before my first edit, in order:**\n\n1. `bash`: `git status` and `git rev-parse --show-toplevel` in the cwd to confirm the clean checkout and the repo root.\n2. `read`: project overrides, checking `.pi/gauntlet.md`, then `<repo root>/gauntlet.md`, then `<repo root>/doc/gauntlet.md`. Only `# shared` → `## verification` and the other shared sections matter for verification commands.\n3. `bash`: `rg -n -i \"csv\" --type-not lock` across the repo to find the export entry point, serializer, and any header or column definitions.\n4. `read`: the export module(s) found in step 3, to see how the header row is produced (hardcoded strings, field keys, or a column config).\n5. `bash`: `rg -n` for the column field keys or header strings from step 4, to find the on-screen label source (table column definitions, i18n/label map, or view component).\n6. `read`: the label source and the view that renders it, to confirm which value the screen actually shows, including any transform such as i18n lookup or formatting.\n7. `bash`: `rg -n -i \"export|csv\" ` limited to test directories, to find existing export tests and the test framework's conventions.\n8. `read`: the closest existing test file from step 7, to match its fixtures and assertion style.\n9. `bash`: run the project's test command (from the overrides' `## verification`, or `package.json` / the equivalent manifest) scoped to the export tests, to get a baseline before changing anything.\n\nOnce these show where the headings and labels diverge, I'll make the export read from the shared label definition, add the header-row regression test, and rerun the tests.\n",
-      "words": 349,
-      "wallMs": 10915,
+      "text": "I'll treat this as a direct fix. An ordinary implementation request doesn't start the gauntlet, so I won't reset trackers, create a worktree, or write a spec. If you want the full brainstorm, spec, and review flow, say `/skill:gauntlet` or ask for the gauntlet and I'll start there.\n\nPlan: find where the CSV header row is built and where the on-screen labels are defined. I'll make the export use that same label source rather than copying the strings, so the two can't drift again. Then I'll add a test that checks the exported header row against those labels.\n\n**Tool actions before the first edit (in order):**\n\n1. `bash` → `git status && git log --oneline -5` to confirm the clean checkout and current branch.\n2. `bash` → `rg -n -i \"csv\" --type-not lock -l` to locate the export code and any existing CSV tests.\n3. `bash` → `rg -n -i \"header|headers|columns\" <files from step 2>` to find where the header row is built.\n4. `read` → the CSV export module found in steps 2-3.\n5. `bash` → `rg -n \"<a header string from step 4>|label\" <UI source dirs>` to find where the on-screen column labels are defined (column config, i18n strings, or the table component).\n6. `read` → the file that defines the on-screen labels.\n7. `bash` → `rg -n \"<label source symbol>\" -l` to list every consumer of that label source, so the change doesn't break other callers.\n8. `read` → the existing CSV export test file, or the nearest test for that module if there isn't one, to match its conventions and fixtures.\n9. `read` → the test config or `package.json` / equivalent to find the right test command.\n10. `bash` → run the existing CSV export tests to record a baseline before changing anything.\n\nAfter that I'll make the edit:\n- Point the export header row at the shared label source.\n- Add a regression test asserting the exported header row equals the on-screen labels in column order.\n- Rerun the tests.\n\nIf steps 5-7 show the labels can't be shared cleanly, I'll stop and tell you before choosing another approach. For example, the labels might be computed only inside a UI component, or other callers might depend on the current export headers.\n",
+      "words": 361,
+      "wallMs": 11986,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I’ll trace how the screen labels and CSV headers are generated, align the export with the displayed labels, and add a regression test for the header row. This is a direct implementation request, so I won’t start the gauntlet workflow or create a worktree.\n\nBefore my first edit, I would take these tool actions in order (none have run):\n\n1. **`read` — applicable `AGENTS.md` files:** Load repository instructions, including any scoped to the export code and tests.\n2. **`bash` — current checkout:** Run `git status --short` and inspect the tracked file list to identify the project structure and test configuration.\n3. **`bash` — tracked source and test files:** Search for CSV export entry points, header construction, and existing export tests.\n4. **`read` — discovered export implementation and screen column definitions:** Trace both label sources, including formatting or localization, to identify the owning contract and avoid duplicating labels.\n5. **`read` — relevant tests and test-runner configuration:** Check existing fixtures, CSV parsing helpers, and the command for running the focused regression test.\n\nThen I’d make the smallest supported change and run the relevant tests.\n",
-      "words": 177,
-      "wallMs": 12191,
+      "text": "I’ll trace the CSV headers and the on-screen labels, make the export use the same label source where possible, and add a regression test for the exported header row.\n\nBefore my first edit, I would take these tool actions in order; none have run yet:\n\n1. **`shell` — checkout:** Run `git rev-parse --show-toplevel` and `git status --short` to confirm the repository root and working-tree state.\n2. **`shell` — repository instructions:** Locate applicable `AGENTS.md` files, including instructions covering the export code and tests.\n3. **`read` — discovered instruction files:** Read those instructions before inspecting or changing their governed files.\n4. **`shell` — tracked source and tests:** Search for CSV generation, exported headers, column definitions, and existing export tests.\n5. **`read` — matching implementation files:** Trace how the screen obtains its labels and how the exporter constructs its header row, including any shared column metadata.\n6. **`read` — matching tests and test configuration:** Inspect export-test conventions and the configured test runner to choose the regression test and verification command.\n\nThen I would make the targeted fix and test. This is an implementation request, so I would not start the gauntlet or create its dedicated worktree.\n",
+      "words": 187,
+      "wallMs": 10659,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
       "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
-      "candidateOutputSha": "616f1185cc38658980a649123176f5ba80e6ffc6949fb05948a10de1992709ec",
+      "candidateOutputSha": "6966af02be43b6f2401d3c12b380c5f43cf893d6ed14df115cf04bf360b42528",
       "facts": {
         "tracker": {
           "before": "holds",
@@ -59,18 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved: both outputs decline to enter the gauntlet, take no tracker action, create no worktree, load no step instructions, and go straight to locating the exporter, the label source and the tests, offering the full flow only as an explicit opt-in. The one visible difference is that After adds a step reading project override files (`.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`) for verification commands. That is project configuration, not a file under skills/gauntlet/, so step-read still holds, but it is the closest After comes to a boundary. To keep the margin, the wording should say that an ordinary request may consult the repository's gauntlet.md only for verification commands and must not open anything under skills/gauntlet/ or invoke a workflow skill. After also drops Before's explicit statement that it will not start a brainstorm phase; it starts none, so tracker holds, but keeping the wording that an ordinary request starts no phase, resets no tracker and creates no worktree would make the refusal as explicit as Before's.",
-      "wallMs": 8048,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-2",
-      "thinking": "medium"
+      "feedback": "No fact moved: both outputs decline to reset trackers, start a brainstorm or other gauntlet phase, or create a worktree; neither lists any read of a file under skills/gauntlet/ or a workflow skill invocation among its pre-edit actions; and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, while offering the workflow only as an explicit opt-in rather than treating the request as entry consent. After's wording delivers the Change cleanly: it states that an ordinary implementation request does not start the gauntlet and names the opt-in (`/skill:gauntlet`) without invoking it. To keep this stable, retain the explicit statement that an ordinary request is not entry consent, keep the opt-in phrased as something the user must say rather than something the assistant does, and keep the pre-edit action list limited to project files (exporter, label source, tests, manifest) so no step-instruction read or tracker action can creep in. After's added `git status` step and its stop-and-tell condition are harmless to these facts.",
+      "wallMs": 5248,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
       "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
-      "candidateOutputSha": "331fbc886d45969de98acde77ced5d654c1492445e0845dbb374233143cdb3b3",
+      "candidateOutputSha": "06c77120d250d3d5b6c7422d005ad0e69cd383c1d2794abd07f99a3ebb7b0a0a",
       "facts": {
         "tracker": {
           "before": "holds",
@@ -93,14 +91,11 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: both outputs treat the CSV export request as a direct implementation task, explicitly decline to start the gauntlet or create a worktree, list only AGENTS.md, exporter, column-definition, and test reads (nothing under skills/gauntlet/ and no workflow skill invocation), and take no phase tracker action. After differs only in ordering (AGENTS.md read first, no baseline test run) and in saying 'gauntlet workflow' rather than 'gauntlet', neither of which touches a fact. To keep this stable, the After wording should continue to state plainly that an ordinary coding request is not entry consent and that no phase, worktree, or step-instruction read happens without explicit consent; avoid any phrasing that could invite a 'reset tracker' or 'check for a run in progress' action as a precaution, since that would fail the tracker fact.",
-      "wallMs": 4918,
-      "verdict": "unchanged",
-      "judgeModel": "anthropic-fable/claude-fable-5-2",
-      "thinking": "medium"
+      "feedback": "No fact moved: both outputs treat the CSV export request as ordinary implementation work, list only checkout, AGENTS.md, exporter, label-source and test reads before the first edit, and explicitly decline to start the gauntlet or create a worktree; neither takes a tracker action nor reads anything under skills/gauntlet/. After's wording keeps everything Before kept. The only slight softening is 'would not start the gauntlet or create its dedicated worktree', which a reader could take as leaving room for some other worktree; saying 'no worktree' outright, as Before did, would keep the worktree fact unambiguous, and keeping the explicit statement that no gauntlet phase starts continues to protect the tracker and step-read facts.",
+      "wallMs": 4081,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "5a969189c635da7c79a37e67d5d64b323132665d",
   "refresh": {
     "status": "complete",
     "identity": {
@@ -315,5 +310,6 @@
         "thinking": "medium"
       }
     }
-  }
+  },
+  "repoSha": "33996c110a277394c57357aa828c0d472428f229"
 }

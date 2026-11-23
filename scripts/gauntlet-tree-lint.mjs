@@ -58,6 +58,7 @@ export function lintRetiredNames(root) {
   const pattern = new RegExp([...steps, overrides, `/skill:${entry}\\b`, `skills/${entry}\\b`, `\\b${entry}/[a-z0-9-]+`, `#{1,2}\\s+${entry}\\b`].join("|"));
   const scope = ["{skills,agents,extensions,bin,src/bins,scripts,test,tests,doc}/**/*", "README.md", "AGENTS.md", ".pi/*.md", "gauntlet.md", `${overrides}.md`, "eval/**/*"];
   const exclude = ["doc/specs", "doc/plans", "eval/**/results", "eval/*/report.md", "eval/*/records.jsonl", "eval/*/replay/results.md"];
+  const consentPhrase = `explicit prose requesting ${entry}/the gauntlet,`;
   const hits = [];
   for (const file of globSync(scope, { cwd: root, exclude, withFileTypes: true })) {
     const path = relative(root, join(file.parentPath, file.name)).split(sep).join("/");
@@ -68,7 +69,7 @@ export function lintRetiredNames(root) {
     const lines = text.split("\n");
     for (const [i, line] of lines.entries()) {
       if (path === "scripts/gauntlet-tree-lint.mjs" && inputs.has(line)) continue;
-      const match = line.replaceAll("\\/", "/").match(pattern);
+      const match = line.replaceAll(consentPhrase, " ").replaceAll("\\/", "/").match(pattern);
       if (match) hits.push(`${path}:${i + 1}: ${match[0]}`);
     }
   }

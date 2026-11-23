@@ -28,7 +28,7 @@ Set top-level `async: false` on every flow-owned dispatch and leave `forceTopLev
 
 ## Entry consent
 
-Start fresh only on `/skill:gauntlet`, explicit prose requesting brainstorming or the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
+Start fresh only on `/skill:gauntlet`, explicit prose requesting brainstorming/the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
 
 Treat the flag as discovery control, not harness authorization. The command reliably discovers this skill; honor prose when already loaded or identified by an available route, never promise otherwise unreachable prose discovery. Continue restored state and amend/redraw at their named steps without fresh entry.
 

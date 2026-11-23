@@ -12,7 +12,7 @@ test("retired-names checks shipped text, executable contracts and eval inputs, n
   const samples = [
     ["skills/gauntlet/plan/plan.md", `/skill:${entry}`],
     ["agents/reviewer.md", `skills/${entry}/SKILL.md`],
-    ["extensions/tracker.ts", `gauntlet: gate=${entry}/new-gate`],
+    ["extensions/tracker.ts", `gauntlet: gate=${entry}/the`],
     ["bin/example.mjs", overrides],
     ["src/bins/example.mjs", steps[0]],
     ["scripts/example.test.mjs", steps[1]],
@@ -28,9 +28,13 @@ test("retired-names checks shipped text, executable contracts and eval inputs, n
     ["eval/example/samples/input/expected.md", steps[9]],
     ["eval/example/samples/other/case.md", steps[10]],
   ];
-  for (const [file, text] of [...samples, ...[
-    "CHANGELOG.md", "doc/specs/archived.md", "doc/plans/completed.md", "eval/example/results/input/transcript.md", "eval/example/report.md",
-  ].map(file => [file, steps[0]])]) {
+  for (const [file, text] of [
+    ...samples,
+    ["skills/gauntlet/SKILL.md", `Start fresh only on explicit prose requesting ${entry}/the gauntlet, or a human-selected handoff.`],
+    ...[
+      "CHANGELOG.md", "doc/specs/archived.md", "doc/plans/completed.md", "eval/example/results/input/transcript.md", "eval/example/report.md",
+    ].map(file => [file, steps[0]]),
+  ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
     writeFileSync(join(root, file), text);
   }
