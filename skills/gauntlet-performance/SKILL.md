@@ -23,7 +23,7 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 
 ## Reply - exactly this, in this order
 
-Start the message with `gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order`. Follow the [shared marker and reply mapping rules](../brainstorming/reference/menu-layout.md); append `recommended=<row number>` only when a rendered row carries `[recommended]`.
+Start the message with `gauntlet: gate=gauntlet-performance/reply-exactly-this-in-this-order`. Follow the [shared marker and reply mapping rules](../gauntlet/menu-layout.md); append `recommended=<row number>` only when a rendered row carries `[recommended]`.
 
 1. **Recommendation** (2-4 sentences). Make one claim. Compare file rankings within the same known repo and pi-gauntlet version across distinct complete, shipped, non-truncated runs. Look for an unusually large share **and** material byte volume for the same exact `pi-gauntlet:skills/...` key in at least two runs. Judge both against the rankings, not a fixed cutoff. When that pattern supports a specific tuning action, lead with the action and its example `spec` slug; identify both runs and quote the file's bytes and share in each. For example, inspect callers of a repeatedly loaded reference; the ranges can differ, so counts alone do not prove waste. Use other evidence only for the same claim. Recommend the action without applying it.
    Without actionable file evidence, lead with the example run's `spec` slug, `run_id` and the 1-3 numbers behind the ordinary recommendation. Call `grants` the fix-round proxy when using it. With no version group at `shipped >= 2`, give "sample too small" and the `n`/`shipped` counts per version.
@@ -40,8 +40,8 @@ Nothing else beyond the marker and prescribed body: no preamble, no restated dig
 ## Project overrides
 
 If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
+`.pi/gauntlet.md`, `<repo root>/gauntlet.md`,
+`<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
 and apply `## conventions` whenever present, without a relevance
 judgment.
 Give this skill's named section precedence over conflicting

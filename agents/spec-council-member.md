@@ -1,6 +1,6 @@
 ---
 name: spec-council-member
-description: Adversarial single-model spec critic dispatched by the roasting-the-spec or shape-ticket skills, and in `Mode: amendment-review` by brainstorming's amendment surface to clear or escalate proposed spec amendments; assesses whether a spec is sound, complete, and actionable. Not for direct dispatch.
+description: Adversarial single-model spec critic dispatched by the gauntlet spec council or shape-ticket, and in `Mode: amendment-review` by brainstorming's amendment surface to clear or escalate proposed spec amendments; assesses whether a spec is sound, complete, and actionable. Not for direct dispatch.
 tools: read, grep, find, ls, bash
 thinking: xhigh
 defaultContext: fresh

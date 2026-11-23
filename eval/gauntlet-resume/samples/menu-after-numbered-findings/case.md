@@ -1,4 +1,4 @@
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 bundle+: skills/gauntlet-resume/SKILL.md
 # Input
 

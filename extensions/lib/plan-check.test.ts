@@ -271,7 +271,7 @@ Keep the supported public entrypoint working.
 - [ ] The unused adapter is absent.
 - [ ] The supported public entrypoint still works.
 `;
-  const candidate = JSON.parse(readFileSync(new URL("../../eval/writing-plans/results/removal-lists-delete/candidate.json", import.meta.url), "utf8"));
+  const candidate = JSON.parse(readFileSync(new URL("../../eval/plan/results/removal-lists-delete/candidate.json", import.meta.url), "utf8"));
   const outputs = Object.entries(candidate.outputs) as [string, { status: string; text: string }][];
   assert.equal(outputs.length, 2);
   for (const [model, output] of outputs) {

@@ -82,7 +82,7 @@ for (const [skill, outcome] of [["shape-ticket", "written"], ["gatekeep-pr", "ap
       const pr = skill === "gatekeep-pr";
       const key = pr ? "#9@abc123" : ref;
       const row = `${key}: ${outcome}${pr ? ` (${ref})` : ""}`;
-      const records = await settle(skill, [row], { [`${root}/.pi/gauntlet-overrides.md`]: overrides(tracker) });
+      const records = await settle(skill, [row], { [`${root}/.pi/gauntlet.md`]: overrides(tracker) });
       assert.equal(records.length, 1, `${tracker} must publish the leg`);
       const { record } = records[0];
       assert.deepEqual(record.items, [{ kind: pr ? "pr" : "ticket", key, ...(pr ? { ticket: ref } : {}), outcome }]);
@@ -96,10 +96,10 @@ for (const [skill, outcome] of [["shape-ticket", "written"], ["gatekeep-pr", "ap
 }
 
 for (const [name, files, acceptsTypedRef] of [
-  ["root fallback", { "gauntlet-overrides.md": overrides("none") }, true],
-  ["doc fallback", { "doc/gauntlet-overrides.md": overrides("none") }, true],
-  ["first file wins", { ".pi/gauntlet-overrides.md": overrides("github"), "gauntlet-overrides.md": overrides("none") }, false],
-  ["first file lacks tracker section", { ".pi/gauntlet-overrides.md": "## Other settings\n- tracker: none\n", "doc/gauntlet-overrides.md": overrides("none") }, false],
+  ["root fallback", { "gauntlet.md": overrides("none") }, true],
+  ["doc fallback", { "doc/gauntlet.md": overrides("none") }, true],
+  ["first file wins", { ".pi/gauntlet.md": overrides("github"), "gauntlet.md": overrides("none") }, false],
+  ["first file lacks tracker section", { ".pi/gauntlet.md": "## Other settings\n- tracker: none\n", "doc/gauntlet.md": overrides("none") }, false],
   ["no overrides", {}, false],
 ] as const) {
   test(`tracker selection: ${name}`, async () => {

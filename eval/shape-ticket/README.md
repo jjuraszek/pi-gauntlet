@@ -5,7 +5,7 @@ Tests the draft, parent obsolete verdict, gated close/drop choices, single recom
 | Skill file | Slice |
 |---|---|
 | `skills/shape-ticket/SKILL.md` | `### 4 - Draft` through before `## Roast` |
-| `skills/brainstorming/reference/menu-layout.md` | whole file |
+| `skills/gauntlet/menu-layout.md` | whole file |
 | `skills/shape-ticket/SKILL.md` | `## Evidence gate` through before `## Ticket wording` |
 | `skills/shape-ticket/reference/ac-classes.md` | whole file |
 | `skills/shape-ticket/reference/repo-audit.md` | whole file, except sample-specific exclusions |

@@ -148,7 +148,7 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
     const path2 = join2(top, file);
     if (!existsSync2(path2)) continue;
     const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
@@ -273,7 +273,7 @@ var SKIP_DIRS = /* @__PURE__ */ new Set([".worktrees", "node_modules", "build"])
 var FENCE = /^\s*(`{3,}|~{3,})/;
 var DOC_INCLUDES = ["**/doc/**/*.md", "**/docs/**/*.md", "README.md", "AGENTS.md"];
 var DOC_EXCLUDE_GLOBS = ["**/node_modules/**", ".pi/gauntlet/**", ".worktrees/**"];
-var OVERRIDES_FILES = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"];
+var OVERRIDES_FILES = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
 var SCHEMA = `
   CREATE TABLE IF NOT EXISTS meta  (key TEXT PRIMARY KEY, value TEXT);
   CREATE TABLE IF NOT EXISTS files (corpus TEXT NOT NULL, path TEXT NOT NULL, mtime_ms INTEGER, size INTEGER, PRIMARY KEY (corpus, path));
@@ -605,7 +605,7 @@ function telemetryCorpus(root) {
 `);
   if (!settings.enabled) return /* @__PURE__ */ new Map();
   const repo = telemetryRepo(root);
-  const prefix = `${repo}/brainstorming/`;
+  const prefix = `${repo}/gauntlet/`;
   const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
   if (result.warning) process2.stderr.write(`warning: ${result.warning}
 `);

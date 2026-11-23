@@ -8,7 +8,7 @@ import { join } from "node:path";
 const seal = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname;
 const legacy = "refs/heads/gauntlet/telemetry";
 const destination = "refs/telemetry/records";
-const path = name => `team/product/brainstorming/doc/specs/${name}.yaml`;
+const path = name => `team/product/gauntlet/doc/specs/${name}.yaml`;
 
 function fixture(custom = false) {
   const scratch = mkdtempSync(join(tmpdir(), "telemetry-ref-migration-"));
@@ -99,7 +99,7 @@ for (const custom of [false, true]) {
     f.publish(legacy, late);
     result = f.cli("--retire-branch");
     assert.equal(result.status, 1, result.stdout + result.stderr);
-    assert.match(result.stdout + result.stderr, /not carried: team\/product\/brainstorming\/doc\/specs\/late.yaml/);
+    assert.match(result.stdout + result.stderr, /not carried: team\/product\/gauntlet\/doc\/specs\/late.yaml/);
     assert.equal(f.remoteTip(legacy), late);
     result = f.cli("--migrate-branch");
     assert.equal(result.status, 0, result.stderr);

@@ -6,7 +6,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('combined plan opt-out and funding persists only the budget before the waves handoff', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.ok(gate.includes('| `1 --amends-stop --fund-rounds=N` | approve; persist `fund N fix rounds`; engine `waves` |'));
   assert.ok(gate.includes('without `--amends-stop`, append `; fund N fix rounds` to `G`'));
   assert.ok(gate.includes('Apply this opt-out rule only without funding: For `--amends-stop` approvals, persist `none`'));

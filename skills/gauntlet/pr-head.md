@@ -33,7 +33,7 @@ Preserve all provisioned trees. Run no creation, local ref update or merge on th
 
 Apply to a companion block without `home:` and to a marked home's block without `home:`. Keep blocks with `home:` and unmarked PR subjects on their existing rows, including the another-path stop and the `create: override skipped (contains -b)` native fallback.
 
-Locate by [Locate a leg tree](../../brainstorming/reference/legs.md#locate-a-leg-tree) in ROOT using the recorded branch, including for marked home selection before its worktree exists. Use its linked-block and checkout identity checks; never derive a folder from NAME or default a missing recorded `home:`. Keep NAME as the branch with `/` replaced by `-` for creation tokens, not the located folder basename.
+Locate by [Locate a leg tree](legs.md#locate-a-leg-tree) in ROOT using the recorded branch, including for marked home selection before its worktree exists. Use its linked-block and checkout identity checks; never derive a folder from NAME or default a missing recorded `home:`. Keep NAME as the branch with `/` replaced by `-` for creation tokens, not the located folder basename.
 
 | Observed state | Action |
 |---|---|
@@ -52,7 +52,7 @@ Reuse the validated tip without reset, update-ref or `-b`: keep its selected tre
 
 ## Select home and stop before writes
 
-Consume SYNC beside the ordered array of admitted PR values, home first; use home's `headRefName` for checkout and `PRE_REWORK_HEAD=<home headRefOid>`. Carry the remaining entries as MEMBER_HEADS `{ number, url, title, headRefName, headRefOid }`. For a caller passing PR values, follow this reference instead of `using-git-worktrees/SKILL.md` Steps 0 and 1. Derive ROOT from the absolute git common directory as in Step 0, applying its submodule guard. For a marked home with a recorded block without `home:`, use [Recorded no-home provisioning](#recorded-no-home-provisioning) for selection and every add below. Otherwise resolve the worktree home through the existing overrides/native-tool/wrapper contract; default to `$ROOT/.worktrees/<name>`. Set `<name>` to `headRefName` with every `/` replaced by `-`. Never adopt the session's linked tree unless it is the selected home on `headRefName`.
+Consume SYNC beside the ordered array of admitted PR values, home first; use home's `headRefName` for checkout and `PRE_REWORK_HEAD=<home headRefOid>`. Carry the remaining entries as MEMBER_HEADS `{ number, url, title, headRefName, headRefOid }`. For a caller passing PR values, follow this reference instead of `worktrees.md` Steps 0 and 1. Derive ROOT from the absolute git common directory as in Step 0, applying its submodule guard. For a marked home with a recorded block without `home:`, use [Recorded no-home provisioning](#recorded-no-home-provisioning) for selection and every add below. Otherwise resolve the worktree home through the existing overrides/native-tool/wrapper contract; default to `$ROOT/.worktrees/<name>`. Set `<name>` to `headRefName` with every `/` replaced by `-`. Never adopt the session's linked tree unless it is the selected home on `headRefName`.
 
 Run `git -C "$ROOT" fetch origin`, then check reachability and remote equality for every admitted PR (home and members) before any worktree write: require each original `headRefOid` object and `origin/<headRefName>` equal to it; use the branch-moved stop below naming that PR. Resolve `BASE_SHA=$(git -C "$ROOT" rev-parse origin/<baseRefName>)` as a full SHA before any conflict helper needs fetched-base overrides. Then check these stops in order before creating or modifying any file in the primary or a worktree, or running `git worktree add`.
 
@@ -105,7 +105,7 @@ After exact-head verification, run `git -C "$WORKTREE" update-ref refs/gauntlet/
 | `rebase` | Save last-good SHA (PRE_REWORK_HEAD for a fresh run, validated local tip on recovery). Run `git -C "$WORKTREE" rebase --no-rebase-merges origin/<baseRefName>`; save last-good on success. Then replay remaining members in listed order: `git -C "$WORKTREE" rebase --no-rebase-merges --onto HEAD <BASE_SHA> <member headRefOid>`. After each success run `git -C "$WORKTREE" update-ref refs/heads/<home headRefName> HEAD`, then `git -C "$WORKTREE" checkout <home headRefName>` and save last-good. Never update member refs locally or on origin. On complete success run `git -C "$WORKTREE" update-ref refs/gauntlet/rework-base/pr-<home> HEAD`; stop on ref errors. |
 | `merge` | Follow the member-then-base recipe below verbatim; do not write rework-base. |
 
-On every sync outcome read the fetched-base constraints owned by `brainstorming/reference/pr-subject.md`. For rebase conflicts use the helper and fetched-base scoped-runner contract below, adding `git -C "$WORKTREE" rebase --show-current-patch` to its payload. Forbid helper commits and `rebase --continue`, `rebase --abort`, or `rebase --skip`. Require every listed file staged, empty unmerged index, and contained status delta before the orchestrator runs `GIT_EDITOR=true git -C "$WORKTREE" rebase --continue`. For an empty stopped commit the orchestrator runs `git -C "$WORKTREE" rebase --skip`. Dispatch a fresh helper at each later stop.
+On every sync outcome read the fetched-base constraints owned by `brainstorm/pr-subject.md`. For rebase conflicts use the helper and fetched-base scoped-runner contract below, adding `git -C "$WORKTREE" rebase --show-current-patch` to its payload. Forbid helper commits and `rebase --continue`, `rebase --abort`, or `rebase --skip`. Require every listed file staged, empty unmerged index, and contained status delta before the orchestrator runs `GIT_EDITOR=true git -C "$WORKTREE" rebase --continue`. For an empty stopped commit the orchestrator runs `git -C "$WORKTREE" rebase --skip`. Dispatch a fresh helper at each later stop.
 
 On helper or completion failure run `git -C "$WORKTREE" rebase --abort`; for a member additionally run `git -C "$WORKTREE" checkout <home headRefName>` before proving restoration. Require abort exit 0, HEAD equal to saved last-good SHA, branch equal to home, and successful empty `git -C "$WORKTREE" status --porcelain --untracked-files=all`. On failure stop with the complete restore-failure report in the merge recipe below, quoting the literal observed branch and HEAD output; never reset, clean, or delete to recover. After clean home abort record `sync: unresolved - <files>` and all members `pending`; continue on the saved pre-attempt home tip, opening Design with `rebase onto origin/<base> and resolve <files>` as Task 1. After clean member abort retain earlier outcomes, record `Member replay: #<N> unresolved - <files>` and later members `pending`; open Design with `replay #<N> onto home and resolve <files>` as Task 1. Do not replay later members on either failure. Task 1 completes pending replays and persists Rework base before finishing.
 
@@ -115,7 +115,7 @@ After complete rebase print `Rework base: <full sha>` immediately after `Base SH
 
 ### Merge admitted member heads
 
-Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) and use its Member pull request merge commit row for each message. Before the base merge, iterate remaining MEMBER_HEADS in listed order. Save the last-good home SHA before each merge. Run `git -C "$WORKTREE" merge --no-ff -F - <headRefOid>` with the composed message on stdin and the original supplied head, not a newly advanced remote tip. On success record `Member merge: #<N> <merge sha7>`; an ancestor no-op records no new commit.
+Read [commit-message.md](commit-message.md) and use its Member pull request merge commit row for each message. Before the base merge, iterate remaining MEMBER_HEADS in listed order. Save the last-good home SHA before each merge. Run `git -C "$WORKTREE" merge --no-ff -F - <headRefOid>` with the composed message on stdin and the original supplied head, not a newly advanced remote tip. On success record `Member merge: #<N> <merge sha7>`; an ancestor no-op records no new commit.
 
 For conflicts use the fetched-base scoped-runner selection and helper/completion recipe in "Merge the fetched base": fresh foreground implementer, exact conflicted paths, staging, empty unmerged index, contained status delta, and orchestrator `git -C "$WORKTREE" commit --no-edit`. Preserve the composed message, including in a manual resolution. Record any contract exception for the spec's Rework record.
 
@@ -125,7 +125,7 @@ After all members, merge the fetched base. In the Step 4 report print one `PR:` 
 
 ### Merge the fetched base
 
-Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) and use its Base-sync merge commit row. Run `git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>` with the composed message on stdin and record the matching outcome:
+Read [commit-message.md](commit-message.md) and use its Base-sync merge commit row. Run `git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>` with the composed message on stdin and record the matching outcome:
 
 | Outcome | Record and continuation |
 |---|---|
@@ -139,7 +139,7 @@ Read the first-found overrides file from BASE_SHA, not the conflicted tree: `git
 
 Continue only with an empty unmerged index (`git -C "$WORKTREE" diff --name-only --diff-filter=U`), every listed file staged (`git -C "$WORKTREE" diff --cached --name-only`), and the `git -C "$WORKTREE" status --porcelain` delta contained in the listed paths. Then complete with `git -C "$WORKTREE" commit --no-edit` and record `merge: <sha7>, <n> file(s) resolved, scoped tests <green | red in <file>: <tests> | none>`. Land a reported contract exception and name it in the spec's `## Rework record` `Changes:`.
 
-For any failed helper/completion checks, run `git -C "$WORKTREE" merge --abort`, record `merge: unresolved - <files>`, and continue on the original unmerged head. Open the spec's Design with `merge origin/<base> and resolve <files>` as eventual Task 1. On every outcome, require the base-SHA constraint reads owned by `brainstorming/reference/pr-subject.md`.
+For any failed helper/completion checks, run `git -C "$WORKTREE" merge --abort`, record `merge: unresolved - <files>`, and continue on the original unmerged head. Open the spec's Design with `merge origin/<base> and resolve <files>` as eventual Task 1. On every outcome, require the base-SHA constraint reads owned by `brainstorm/pr-subject.md`.
 
 ## Validate the sync outcome
 

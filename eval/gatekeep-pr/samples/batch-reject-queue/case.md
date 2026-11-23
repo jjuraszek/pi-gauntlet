@@ -1,6 +1,6 @@
 bundle+: skills/gatekeep-pr/reference/batch.md
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise parent queue routing only. Use no tools and do not simulate provisioning or child execution. All children have finished. State a compact routing table for A-D; for A render the parent's reject menu after the round is collected. For B/C name what enters the next round and whether a child dispatch occurs. D needs only its queued-answer routing and settlement ownership, not a full report.

@@ -5,7 +5,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 test('bare approve and plain approval prose echo the rendered recommendation before applying the selected row', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rule = gate.split('\n').find((line) => line.startsWith('For bare `approve`, resolve'));
   assert.ok(rule, 'explicit bare-approve normalization');
   for (const token of ['just-rendered gate', '1, 2, or 4', 'Taking "approve" as option <n> - <label>', 'before applying', 'bare digit', 'never recompute']) {

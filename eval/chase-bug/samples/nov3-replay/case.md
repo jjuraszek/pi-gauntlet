@@ -1,5 +1,5 @@
 bundle+: skills/chase-bug/SKILL.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Produce two independent step-4 gate messages separated by ---. These synthetic cases retain only the failure mechanisms from two reporting failures; names, locations, identifiers, and tools are replaced. All writes and handoffs are simulated. Do not run tools. Each case has a confirmed real-bug verdict, completed prior-report search without a match, and clean baseline checks.
 

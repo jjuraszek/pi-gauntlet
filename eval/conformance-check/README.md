@@ -4,9 +4,9 @@ This target tests the durable closure block and the finishing Step 3.5 render th
 
 | Skill file | Slice |
 |---|---|
-| `skills/verification-before-completion/reference/conformance-check.md` | Full file |
-| `skills/finishing-a-development-branch/reference/disposition-protocol.md` | Full file |
-| `skills/finishing-a-development-branch/SKILL.md` | From `### Step 3.5` up to but not including `### Step 5` |
+| `skills/gauntlet/conformance-check.md` | Full file |
+| `skills/gauntlet/ship/disposition-protocol.md` | Full file |
+| `skills/gauntlet/ship/ship.md` | From `### Step 3.5` up to but not including `### Step 5` |
 
 | Sample | Must hold |
 |---|---|

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const reference = read('skills/loop-implementation/reference/coordinated-legs.md');
+const reference = read('skills/gauntlet/implement/loop/coordinated-legs.md');
 
 test('companion interruptions use the common recovery before clean-return admission', () => {
   const resume = reference.split('## Resume\n')[1].split('## Targeting and dispatch')[0];
@@ -35,7 +35,7 @@ test('clean companion results retain attribution and row admission checks', () =
 });
 
 test('companion sample recovers absent provenance and skipped jobs without losing foreign state', () => {
-  const sample = 'eval/loop-implementation/samples/companion-interrupted-recovery';
+  const sample = 'eval/loop/samples/companion-interrupted-recovery';
   const input = read(`${sample}/case.md`);
   const expected = read(`${sample}/expected.md`);
   assert.match(input, /missing provenance/);

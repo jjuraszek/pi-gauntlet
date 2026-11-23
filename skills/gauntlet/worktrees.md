@@ -1,4 +1,4 @@
-> **Related skills:** Set up **before** `/skill:brainstorming` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `/skill:subagent-driven-development`. Clean up with `/skill:finishing-a-development-branch`.
+> **Related skills:** Set up **before** `/skill:gauntlet` — the spec is the worktree's first commit, not a separate one on `main`. Execute with `/skill:subagent-driven-development`. Clean up with `/skill:finishing-a-development-branch`.
 
 # Using Git Worktrees
 
@@ -19,7 +19,7 @@ primary as `$ROOT`; never reuse session isolation as another leg. Create a fresh
 member tree even when the session is linked. Without caller inputs, derive the
 primary as below and choose the feature branch by the existing convention.
 
-For a caller passing resolved PR values for home, read [reference/pr-head.md](reference/pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For a caller passing `$ROOT`, `$BRANCH`, and `REMOTE_BRANCH=existing`, read the same reference now and follow companion mode instead of Steps 0, 1, and 1a; bypass the fresh-branch collision check and new-branch creator. Keep fresh coordinated callers on the existing `-b` path. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
+For a caller passing resolved PR values for home, read [pr-head.md](pr-head.md) now and follow it instead of Steps 0 and 1, before generic linked-worktree reuse. For a caller passing `$ROOT`, `$BRANCH`, and `REMOTE_BRANCH=existing`, read the same reference now and follow companion mode instead of Steps 0, 1, and 1a; bypass the fresh-branch collision check and new-branch creator. Keep fresh coordinated callers on the existing `-b` path. For every other caller, check whether you are **already** inside an isolated worktree. Creating a worktree inside another worktree, or inside a submodule, produces silent corruption.
 
 ```bash
 CALLER_ROOT=${ROOT:-}
@@ -51,7 +51,7 @@ Use `$WORKTREE`, report it in the Step 4 shape (`Worktree ready at <that path>`)
 
 ## Step 1 — Announce, Don't Ask (skill-driven work defaults to a worktree)
 
-For a PR head, use [reference/pr-head.md](reference/pr-head.md) instead of this step. For gauntlet-driven work — brainstorming, plans, implementation — the worktree is the default, not a question. Announce and proceed:
+For a PR head, use [pr-head.md](pr-head.md) instead of this step. For gauntlet-driven work — brainstorming, plans, implementation — the worktree is the default, not a question. Announce and proceed:
 
 > "Setting up an isolated worktree at `<path>` on branch `<branch>` for this work."
 
@@ -120,7 +120,7 @@ Derive `NAME` from `$BRANCH` by replacing every `/` with `-`. The canonical home
 
 ### 2b. Create - gitignore the home first
 
-Run the Step 3 clean-base check in the source checkout before this sequence. `.worktrees/` must be gitignored before a worktree lands inside it. Read [commit-message.md](../finishing-a-development-branch/reference/commit-message.md) and set `IGNORE_SUBJECT` to its Worktree directory ignore bookkeeping sentence.
+Run the Step 3 clean-base check in the source checkout before this sequence. `.worktrees/` must be gitignored before a worktree lands inside it. Read [commit-message.md](commit-message.md) and set `IGNORE_SUBJECT` to its Worktree directory ignore bookkeeping sentence.
 
 ```bash
 # ROOT is the primary checkout derived in Step 0.
@@ -175,7 +175,7 @@ The check: `git -C "$ROOT" status --porcelain` in the source checkout — untrac
 
 **Dirty**:
 
-Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline. Never append a colon to the marker. Follow the [first-line rule](../brainstorming/reference/menu-layout.md). Report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md). Report the porcelain output verbatim and ask whether to clean up first (stash/commit) or proceed. Never run tests as a fallback; never auto-stash or auto-clean. On fresh paths the ask is about base hygiene — a user who *meant* the dirt to be part of the base commits it, and creation proceeds from the new HEAD. On the Step 0 path the ask is "continue working in a dirty workspace?" — the dirt is already in the workspace, not merely beside it.
 
 For a dirty-primary decline, stop this member before creation and list preserved
 created legs. Never auto-remove earlier members.
@@ -207,13 +207,13 @@ Every later skill takes `<full-path>` as a value: dispatch `cwd: "<full-path>"`,
 
 ## Detached HEAD
 
-Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for the branch/base choice. Never append a colon to the marker. Follow the [first-line rule](../brainstorming/reference/menu-layout.md).
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for the branch/base choice. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
 
 If `git symbolic-ref -q HEAD` returns nothing, you're on a detached HEAD. Do not create a worktree from this state — first ask the user whether to branch from the current commit or from `main`.
 
 ## Keeping a Worktree Current
 
-For a PR-subject branch, follow [reference/pr-head.md](reference/pr-head.md): sync per that reference. For other longer-running work the base branch advances:
+For a PR-subject branch, follow [pr-head.md](pr-head.md): sync per that reference. For other longer-running work the base branch advances:
 
 ```bash
 git -C "$WORKTREE" fetch origin
@@ -252,7 +252,7 @@ Re-run tests after rebasing.
 ## Integration
 
 **Called by:**
-- `/skill:brainstorming` — **before** writing the spec; the spec is the worktree's first commit
+- `/skill:gauntlet` — **before** writing the spec; the spec is the worktree's first commit
 - `/skill:subagent-driven-development` — required before any implementation tasks
 - Any skill needing isolated workspace
 
@@ -263,6 +263,6 @@ Re-run tests after rebasing.
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

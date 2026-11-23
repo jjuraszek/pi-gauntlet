@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 
-const skill = readFileSync(new URL("../skills/finishing-a-development-branch/SKILL.md", import.meta.url), "utf8");
-const verificationPath = new URL("../skills/finishing-a-development-branch/reference/verification-set.md", import.meta.url);
+const skill = readFileSync(new URL("../skills/gauntlet/ship/ship.md", import.meta.url), "utf8");
+const verificationPath = new URL("../skills/gauntlet/ship/verification-set.md", import.meta.url);
 const verification = readFileSync(verificationPath, "utf8");
 const rule = verification.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
 const commands = [...rule.matchAll(/`(git -C "\$WORKTREE"[^`]+)`/g)].map((m) => m[1]);
@@ -80,7 +80,7 @@ test("stripped ledger recovery keeps owning-checkout routing instead of spec ful
   assert.match(verification, /authorized ledger restore[\s\S]*\[pending recovery\]\(\.\.\/\.\.\/gauntlet-resume\/reference\/restore-loop\.md#pending-recovery\)[\s\S]*missing parent record alone is not an absent pre-strip source[\s\S]*git -C <home> show <strip commit>\^:<ledger path>/);
   assert.match(verification, /never from the spec's `contract:` `- verification:` lines/);
   assert.match(verification, /missing.*stop/i);
-  for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/coordinated.md']) {
+  for (const path of ['skills/gauntlet/ship/legs.md', 'skills/gauntlet-resume/reference/coordinated.md']) {
     const text = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
     assert.match(text, /pre-strip ledger/);
     assert.match(text, /gate pairs/);
@@ -101,7 +101,7 @@ test("non-ledger set resolution retains task and ad-hoc behavior", () => {
 
 test("telemetry docs and lifecycle skills describe ref records rather than checkout deliverables", () => {
   const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-  const brainstorm = read("skills/brainstorming/SKILL.md");
+  const brainstorm = read("skills/gauntlet/SKILL.md");
   const seed = read("skills/gauntlet-resume/reference/seed.md");
   const config = read("doc/configuration.md");
   const readme = read("README.md");
@@ -173,13 +173,13 @@ test("retired telemetry ref lint scans current files and confines historical exc
   assert.deepEqual(hits, [], hits.join("\n"));
   assert.match(read("extensions/lib/gauntlet-settings.ts"), /records live on the refs\/telemetry\/records ref/);
   assert.match(read("extensions/telemetry.ts"), /guardReason\(loc\.rel, shippedAt, "refs\/telemetry\/records"\)/);
-  for (const path of ["eval/brainstorming/samples/telemetry-branch-deliverable/expected.md", "eval/finishing-a-development-branch/samples/telemetry-branch-seal/expected.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/case.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/expected.md"]) {
+  for (const path of ["eval/gauntlet/samples/telemetry-branch-deliverable/expected.md", "eval/ship/samples/telemetry-branch-seal/expected.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/case.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/expected.md"]) {
     assert.ok(read(path).includes("refs/telemetry/records"), path);
   }
 });
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
-const legsPath = new URL("../skills/finishing-a-development-branch/reference/legs.md", import.meta.url);
+const legsPath = new URL("../skills/gauntlet/ship/legs.md", import.meta.url);
 const legs = () => readFileSync(legsPath, "utf8");
 
 for (const [name, pattern] of [

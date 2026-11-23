@@ -40,7 +40,7 @@ optional pasted text after the command line. Count tokens first; then first matc
 Spec dirs resolve per `reference/reconstruction.md` "Candidates" (`flowGuards.specDirs`
 precedence).
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 For the discovery menu, start the message with the marker specified below. Start the message with `gauntlet: gate=gauntlet-resume/discovery`.
 For no briefs and every stop route in the table, end without mutation. Start the message with `gauntlet: stuck` followed by the existing reason on that line.
@@ -57,7 +57,7 @@ For no briefs and every stop route in the table, end without mutation. Start the
 | one token, existing directory that is a git worktree root (`git -C <dir> rev-parse --show-toplevel` equals its `realpath`) other than `<primary>` | worktree |
 | one token, missing path (ends `.md` or contains a separator) | stop: `not found: <path>` |
 | one token, bare name | worktree at `<primary>/.worktrees/<name>`; missing or not a git worktree -> entry check 2 stop |
-| anything else | stop: "this is a new idea - run /skill:brainstorming" |
+| anything else | stop: "this is a new idea - run /skill:gauntlet" |
 
 A relative token resolves against the session cwd; a bare `name.md` absent there is
 tried at `<primary>/<specDir>/name.md` per resolved spec dir in order, first hit wins.
@@ -110,7 +110,7 @@ that file.
    entry actions run until Dispatch names one.
 6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before any tracker mutation or brainstorming invocation. Carry the resolved `<spec path>` without re-resolving it: use the restore reference's path, `reference/reconstruction.md`, or the seed's pinned `<full-path>/<rel>` (`reference/seed.md`).
    Read the spec's header block (between the H1 and the first `##`). An exact `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N`; make no phase_tracker or plan_tracker mutation. After deferred-header admission, apply the grant predicate only for an approved spec in
-   [Standing grants](../brainstorming/reference/amendment-surface.md#standing-grants): no
+   [Standing grants](../gauntlet/amendment-surface.md#standing-grants): no
    `**Amend-grant:**` line -> no grant;
    exactly one line whose trimmed value is `none` -> no grant;
    exactly one line whose trimmed value is any other non-empty single-line text ->
@@ -130,7 +130,7 @@ For the `worktree: no` brainstorming offer, keep the explicit-selection wait. St
 | brief with `## Process state` and a `Ledger:` field | `reference/reconstruction.md`, then `reference/restore-loop.md`: "Ledger admission", "Spec with ledger" |
 | brief with `## Process state` and no `Ledger:` field, at any stage | `reference/reconstruction.md`, then `reference/restore-plan.md`: "Process-state restore" |
 | brief without process state, `## Skills loaded` names `chase-bug` | hotfix route below, before any artifact reconstruction, no tracker calls |
-| brief without process state, `worktree: no` | offer `/skill:brainstorming` with `## Intent` as the idea and wait for explicit selection; then invoke [`/skill:brainstorming`](../brainstorming/SKILL.md) in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
+| brief without process state, `worktree: no` | offer `/skill:gauntlet` with `## Intent` as the idea and wait for explicit selection; then invoke [`/skill:gauntlet`](../gauntlet/SKILL.md) in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
 | brief without process state, worktree present | `reference/reconstruction.md` |
 | bare worktree | `reference/reconstruction.md` |
 | spec seed | `reference/seed.md` |
@@ -193,7 +193,7 @@ owning skill **without** its reset-bearing entry:
 
 | Active after restore | Continue in | Entry point |
 |---|---|---|
-| brainstorm | [brainstorming checklist](../brainstorming/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:brainstorming` entry (it resets both trackers) |
+| brainstorm | [brainstorming checklist](../gauntlet/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:gauntlet` entry (it resets both trackers) |
 | approved spec with `**Engine:** loop`, no ledger | loop-implementation | Entry steps 1-5, carried and labeled as `reference/reconstruction.md` "Spec without plan" states; a restored plan-stage brief makes no second arming call |
 | plan with task engine | writing-plans body | skip its `start plan` call (already in_progress) |
 | implement with a ledger | loop-implementation | `reference/restore-loop.md` "Spec with ledger" step 9: `Before each dispatch`; reuse the existing ledger |
@@ -212,8 +212,8 @@ owning skill **without** its reset-bearing entry:
 
 ## Project overrides
 If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
+`.pi/gauntlet.md`, `<repo root>/gauntlet.md`,
+`<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
 and apply `## conventions` whenever present, without a relevance
 judgment.
 Give this skill's named section precedence over conflicting

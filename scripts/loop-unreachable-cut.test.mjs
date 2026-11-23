@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
-const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-const section = readFileSync(new URL('skills/loop-implementation/reference/unreachable-returns.md', root), 'utf8');
+const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+const section = readFileSync(new URL('skills/gauntlet/implement/loop/unreachable-returns.md', root), 'utf8');
 
 test('admitted target evidence routes before budget and dispatch without driver diagnosis', () => {
   assert.match(driver, /Before the ordered table, route each admitted failed target through ## Unreachable returns once at admission \(including companions\), or on resume when admitted but not yet routed/);
@@ -32,7 +32,7 @@ test('admitted target evidence routes before budget and dispatch without driver 
 test('action accounting has no driver hook or eval resource', () => {
   assert.doesNotMatch(driver, /action-spend|action records|repair accounting/);
   assert.equal(existsSync(new URL('skills/loop-implementation/reference/action-spend.md', root)), false);
-  const { skillFiles } = JSON.parse(readFileSync(new URL('eval/loop-implementation/target.json', root), 'utf8'));
+  const { skillFiles } = JSON.parse(readFileSync(new URL('eval/loop/target.json', root), 'utf8'));
   assert.ok(skillFiles.every(({ path }) => !path.endsWith('/action-spend.md')));
   for (const name of ['unreachable-returns', 'interrupted-recovery']) {
     const resource = skillFiles.find(({ path }) => path.endsWith(`/${name}.md`));

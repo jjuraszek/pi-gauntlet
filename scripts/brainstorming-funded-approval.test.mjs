@@ -6,7 +6,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('plan funding appends its budget to the default grant before verified persistence', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.ok(gate.includes('| `1 --fund-rounds=N` | approve; persist `G; fund N fix rounds`; engine `waves` |'));
   assert.ok(!gate.includes('| `1` with a budget token |'), 'funding alone must not opt out of the default grant');
   assert.ok(gate.includes('N matching `[1-9][0-9]*`'));

@@ -1,5 +1,5 @@
-bundle+: skills/brainstorming/reference/legs.md
-bundle+: skills/finishing-a-development-branch/reference/legs.md
+bundle+: skills/gauntlet/legs.md
+bundle+: skills/gauntlet/ship/legs.md
 bundle+: skills/gauntlet-resume/reference/seed.md
 bundle+: skills/gauntlet-resume/SKILL.md
 bundle+: skills/gauntlet-resume/reference/brief-contract.md

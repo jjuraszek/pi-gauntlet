@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 8 | home | 49433d2f476ce81d4feaafc863ff87dcdc093b49
+returned: 9 | home | 38e1c748804eec5a51a90c50c3c3da597e21c301
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -17,7 +17,7 @@ returned: 8 | home | 49433d2f476ce81d4feaafc863ff87dcdc093b49
 | 6 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; CI's tree check reports the full path of an extra directory or nested SKILL.md; 2 passed, 0 failed |
 | 7 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; all eleven step files contain their instructions without skill frontmatter; 3 passed, 0 failed |
 | 8 | done | 1 | timeout -k 30 20 bash -c 'grep -e "^rename to " -e "\[-" -e "{+" <(git diff -M --word-diff=plain --diff-filter=R aa54901a8a18d84894a1a5683b3a8b287ea5952f -- skills/)'; reviewed all 52 moves against the base; 40 files are byte-identical, 11 lost only their skill headers, and only the skill name and two command references changed in the entry |
-| 9 | open | 0 | |
+| 9 | failed | 1 | timeout -k 30 30 node --test scripts/retired-names.test.mjs; scope fixture passed; checkout scan found 330 lines with retired names, including /skill:writing-plans at the approval handoff |
 | 10 | open | 0 | |
 | 11 | open | 0 | |
 | 12 | open | 0 | |
@@ -59,3 +59,4 @@ row 3 failed | This worker has no interactive session to observe the gate order 
 amended | cut row 3 | Defer live operator proof only
 row 5 done | The authoring guide places files shared across phases beside the entry and directs outside skills to link without moving them. | Read the anchor table in skills/forge-skill/SKILL.md for fixed locations and call lintPlacementRule(root) to check that the guide owns the rule.
 row 8 done | Compared all 52 moved files with the base: only the entry name, two references to its command and eleven skill headers changed. | nothing new to build on
+row 9 failed | Migrated direct file references, seven eval targets and gate IDs; the new checkout scan still finds retired names on 330 lines. | Use scripts/retired-names.test.mjs to find remaining lines; distinguish handoffs from procedure links and update their assertions together.

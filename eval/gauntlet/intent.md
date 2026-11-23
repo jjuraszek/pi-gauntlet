@@ -1,0 +1,391 @@
+for: 066863742c4753ca79a472632c99c528b6610d9fc442e144e423cb6e3b424ec8
+
+## Change
+
+Read the shared class table without changing the cut recommendation or the drafted-row rules. The baseline for workflow-stage-ticket-row, workflow-stage-drafted-row and pr-body-drafted-row has no class table after removal of the main-file bundle; use the candidate facts as evidence. Also check post-action-sorted against the new assembly. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
+
+Relocate the summary file's mint in spec-finalization.md's User Review Gate to the checkout-local gauntlet scratch folder. This path relocation changes no must-hold fact of pr-body-drafted-row or post-action-sorted. Rerun exactly those two samples serially with their existing baselines and unchanged expected.md facts; preserve all other evidence. These tool-free checkpoints prove authored sections, not filesystem behavior or target-wide coverage. The deterministic currency check is scripts/delivery-stage-authoring.test.mjs.
+
+Remove two unused ledger-conversion bookkeeping sentences from the shared commit wording file, skills/gauntlet/commit-message.md. No behavior of this target is meant to change. C8 selects only pr-body-drafted-row and post-action-sorted for candidate replies at base 3171d0e124e361836d163217ff976af02c86cf2f, preserving their saved baselines and target.json. These samples check model-authored acceptance rows and housekeeping classification, which deterministic assembly checks cannot establish; they stop at spec-writing, not workflow execution. Coverage is sample-scoped.
+
+Rebind this intent to the combined assembly on the rebased tree. Replay only post-action-sorted and pr-body-drafted-row, serially to preserve each partial report, using the runner's default merge-base and cache rules. No bundle selection or fact changes require baseline-only seeding. These samples test model-authored acceptance rows and operator-step classification at the supplied spec-writing checkpoint; assembly assertions cannot prove those authored decisions. Keep all other records as earlier-revision evidence, not current coverage. The following paragraphs retain earlier intent and coverage, not additional replay authorization.
+
+### Prior delivery-stage and commit-message context (not current replay authorization)
+
+Distinguish pull-request text as stage proof from text the change produces, and sort operator steps before every spec-writing branch. Run only pr-body-drafted-row and post-action-sorted against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit, with a baseline-only run first for the bundled drafting sample. Keep each committed behavior, copy ticket rows verbatim, and place the admin's after-merge secret step in the labeled Design paragraph rather than an acceptance row or Tests requirement. Remove the obsolete new-file markers for the commit-message reference, which exists at this base, without changing assembly content. Preserve prior evidence and facts; these tool-free checkpoints prove authored sections, not live writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs. The initial drafting comparison stopped on an unspecified Self-Review read in one replay; supply that successful prerequisite observation in both new fixtures without changing facts or weakening the read gate. Reseed the changed bundled case before its comparison, and reuse the unchanged base for every run.
+
+Compose spec, companion and amendment subjects through the shared commit-message reference, carrying the bound ticket under the project convention and preserving council and amendment audit lines. Consent changes use its fixed sentence with a body naming the new value. Ledger amendments record their boundary in Decisions, not the subject; selected spec dispositions use the same amendment recipe without another gate. Run only spec-and-amendment-subjects, which extends the spec-and-grant-message fixture with batch and disposition checkpoints; preserve that earlier sample and all its evidence. These narrated results prove message composition and scoped persistence, not live writes or target-wide coverage.
+
+### Prior change context (not current replay authorization)
+
+Prior intent for: 65abe58528f169348439b67695efa230f2300fdcc1a132548d4ce2ee6976dcb1
+
+Complete the selected four-row migrations in loop-gate, engine-waves, grant-budget-reply, spec-pr-regate-legs, spec-pr-unmarked, spec-pr-publish-legs and drafted-ac-rows. Grant-budget-reply already numbers rows 1/2/3/4 and tests the full funded grant; migrate its stale draft-PR sentence and token-only fact to the specified fresh-session command and single clarifying question for a rendered row. Preserve their original drafting, audit, waves, budget, provisioning, publication and cleanup subjects and non-gate facts. Replace six-row menus and approval numbers with plan 1, loop 2, council 3 and draft PR 4; default engine approvals persist the full amendment grant while explicit --amends-stop opts out. Cover the budget-only funded opt-out in spec-gate/flag-replies and ground recommendations with observed context/settings. Run only these seven migrated samples, seeding baseline first wherever case text changed; spec-pr-unmarked changes facts only. Preserve unrelated result records and partial-report rows. These selected tool-free narrations do not prove live Git/GitHub operations or target-wide coverage; later failures remain failures rather than accepted variance.
+
+On a marked draft-PR re-gate, accept plan 1 and loop 2 with the ordinary gate's flags, persist the decoded grant, selected engine and lowercase PR identity in a new commit, verify all three fields from HEAD, then continue through the selected engine. Keep the allowance carrier out of the spec and settings. Migrate only spec-pr-regate to the four-row menu and eight bare/flagged approval traces; retain audit, shape, change and unresolved-merge controls. Run only spec-pr-regate against base 855e872a42f9cac7a795704f3e0b383b182950ab. This tool-free replay proves narrated ordering, not live persistence or target-wide coverage. Preserve other records. The selective deterministic check lives beside its siblings in scripts/brainstorming-pr-regate-approval.test.mjs; model replay remains outside CI.
+
+Withhold draft row 4 on every PR-subject gate, retaining rows 1/2/3 and the existing-PR disclosure. Keep the unmarked spec-only classifier on the same withheld row and implementation approvals 1/2. Migrate only pr-subject-gate: at Context: 26.0%, recommend the unbundled loop row 2 and clarify independent replies 4, draft PR, and 6 without mutation or remapping. Run only pr-subject-gate against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve all unrelated records. This selected tool-free replay proves narrated gating, not live GitHub operations or target-wide coverage.
+
+Reject invalid gate replies before approval and spec-change handling. Migrate only loop-funded-reply to row-2 loop and row-1 plan flag grammar, preserving its funding rejection, opt-out, default grant, allowance carrier and waves controls. Replace comma-allowance acceptance with rejection, then add a table of malformed, duplicate, unknown, worded, old-suffix, wrong-row and withheld-row cases. Retain its bundle and 2200-word cap; narrate shared unchanged state once and one question per rejected input. Run only loop-funded-reply and spec-gate/flag-replies for this change against base 855e872a42f9cac7a795704f3e0b383b182950ab. These selected tool-free replays do not establish live writes or target-wide coverage; preserve all unrelated records.
+
+Migrate grant-budget-reply's funding approval to `1 --fund-rounds=3`, retaining its report-runner subject and token-only control. Persist the complete default grant, its terminal period included, plus `; fund 3 fix rounds` and Engine waves, preserve the audit and verify HEAD before completing brainstorm and planning. Run only grant-budget-reply for this edit against base 855e872a42f9cac7a795704f3e0b383b182950ab; preserve other sample records. This is partial narrated persistence coverage, not live git execution or a target-wide pass.
+
+Plain approval `2` now persists the default standing grant G with Engine loop, checks the amended commit before completing brainstorm, and invokes loop-implementation without writing-plans. Strengthen only loop-gate's plain-reply continuation to include the observed allowance 7 and absence of an override carrier. State the driver's plan skip and settings-write boundary explicitly in the handoff instead of leaving them implicit. Run loop-gate only; its other menu facts retain pre-migration wording and are not closure evidence for this row. Saved narration proves the selected continuation, not live Git execution or target-wide coverage.
+
+Record leg contracts by creator, omitting home for script/native creation and omitting home/destroy for host-owned trees. Keep keyed and built-in homes, portable script commands with explicit branch, distinct create/destroy name tokens, and branch-based lookup with identity checks. Run only multi-repo-script-placed-leg for this change against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f, within the spec's three-run/fourteen-call-per-run bound. Its bundled legs reference carries the changed instructions. Remove the stale opening-message new-file marker because that file exists at this base. Preserve other sample records; this synthetic replay proves narrated contracts, not live creation or target-wide coverage.
+
+Propose no flow-wide count when naming paid/external runners and inputs in round-two Design. The selected design-names-paid-actions replay restores flow-bound coverage and preserves all other facts, including no-deferral; retained unrelated samples do not establish current coverage.
+
+Render question one's opening message as three titled sections, `## Today`, `## The change`, and `## What I checked`, in everyday words with sources in the draft. The opening-message reference owns wording, the 220-word span cap, and holds/concern examples; SKILL.md keeps flow and records every checked claim before sending. The change describes shipped outcomes in one to three sentences, including any stated assumption; the tracker id stays inside the command option, and a request for an unsupplied destination appears in a lettered option. The seven selected samples are opening-message-shape, opening-message-ticket-not-fetched, gate-line-first, implicit-template-not-found, missing-db-extension, review-and-apply-containment, and workflow-stage-ticket-row. The latest coverage consists of a completed judgment refresh of review-and-apply-containment and an ordinary comparing run of workflow-stage-ticket-row; the other five selected samples have saved replies that predate the later rewording of the `## Today` row, the `## The change` row, and the tracker-id sentence. Preserve saved records and accepted variance; this is partial coverage, not a target-wide pass. The not-fetched sample supplies only a ticket reference, a denied fetch, and unrelated repo recon; require the `Not checked:` reason and design wait without inventing the ticket's request. Concern coverage is synthetic gate-line-first only; latest-run-indicator/framing and explicit-unit-normalization/framing are not run. Tool-free replays cannot prove draft writes or live overflow handling. The two dependency samples and containment sample add the mechanical opening-shape fact for ordered titles and locator-free chat through message one's `Recommendation:` line, retaining their domain facts and source-backed approaches; containment has seven facts and ticket-row has nine, with opening-titles checking the latter's title order and locator exclusion. Per-section sentence counts and the one-`Held:`-line rule are wording rules in the opening-message reference that no fact checks.
+
+
+Keep marked mixed-row provenance out of Design alongside marked stage-only provenance. Extend workflow-stage-ticket-row's Reporter note with the realistic bundled original and strengthen f7 to reject the make ci passes suite obligation while retaining importRows. Return to the cut question unchanged and report no repair after a confirmation cancel or an initial ticket-read abort. The fixed A-answer continuation cannot exercise that D-path abort; cover its owning clause in the deterministic contract test, not a claimed model continuation. Preserve prior result records and run only the selected ticket-row sample.
+
+Name the owning Workflow-stage proof class in the drafting integrity table. Leave stage-only validation out before drafting and preserve an already drafted row's Design commitment through proof rewriting. The selected workflow-stage-drafted-row checkpoint keeps two Design behaviors while replacing a suite-only proof sketch with the missing-id observable. Keep full verification in Tests and ask no scope-cut question for delivery notes. Both baseline models already render the required rows; this is regression coverage, not a claimed behavioral improvement. Preserve ticket-screening evidence and prior partial reports.
+
+Screen verbatim ticket rows at step 4 using shape-ticket's Workflow-stage proof class before ordinary question one. Recommend ticket repair for sole-stage and bundled observations without editing rows; retain CI-as-product and behavior rows. Exclude retired proof provenance from Design while carrying other Reporter-note requirements. The selected workflow-stage-ticket-row continuation covers seven facts on fixed observations, not live ticket repair; preserve prior reports and run no target-wide sweep.
+
+
+Name each paid/external action's runner and inputs in round-two Design and propose no flow-wide count; spec approval authorizes every needed run across seed, rows, repairs and finish without per-step prompts. Treat any already-stated count as advisory; only unnamed actions remain unreachable and need explicit authorization to add to Design. The design-names-paid-actions flow-bound fact checks runner/input naming, no proposed count and whole-flow authorization alongside the unchanged named-runs and no-deferral facts. Preserve the runner's per-invocation limits, the pending design-approval gate, other sample results and accepted variance. Run only this selected sample; tool-free model replay proves narrated authorization, not live external operations or target-wide coverage.
+
+Cover the resolved allowance gate, waves-only funding grammar and amendment allowance preservation with selected fixtures. Supply the newly required successful settings result in shared gate fixture state, with each case's explicit settings or unavailable-tool observation taking precedence. Keep sample IDs and all must-hold facts, including the waves controls. Preserve recovered model records without treating them as current verification; defer selected model checks to the parent. Never run full targets, including at completion.
+
+Keep fix-round budget decoding waves-only without changing either engine's amendment consent. Extend loop-ledger-amend with allowance preservation and budget-only/mixed-grant comparisons for both engines. Defer loop-ledger-amend and the existing engine-waves control to the parent's final selected verification.
+
+Resolve and display the setting allowance on both loop approval rows, before the final summary read, with a warning line or unavailable-tool stop. Reject funding on 4/5 and allowance on waves choices without writes. Carry accepted semicolon/comma allowance replies through exactly one run allowance line immediately before loop invocation. Update loop-gate and loop-funded-reply to cover these repairs, malformed/duplicate/trailing tokens and unchanged waves funding. Defer loop-gate and loop-funded-reply to the parent's final selected verification.
+
+The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
+
+Replace only loop-ledger-amend/bypass (holds -> replaced): keep the no-plan-writer and no-plan_check ledger aftermath, commit the reconciled spec/ledger with its audit, then project statuses through the driver's next ledger-path refresh, without task-plan add/update/init. Preserve every other existing expected fact byte-for-byte. The ledger-tracker-recovery sample in gauntlet-resume exercises verify re-bounds: keep verify active, require explicit row-return authorization, close on disk through the loop driver, then rerun the gate. Cuts and re-bounds retain attempts/iterations/cap and do not increment reopens. Parent verify owns this target's full model run and committed records; the worker's deterministic contract test is not model evidence.
+
+Publish N>1 committed spec handles in companion-first/home-last preflight and publication passes, with per-repo spec directories, absent/equal/foreign remote observations, retry inventories and branch-preserving cleanup. Re-settle only original-head marked coordinated Legs at the pinned base, preflight every companion before provisioning and preserve all partial worktrees and proven base-sync recovery. The synthetic spec-pr-publish-legs and spec-pr-regate-legs checkpoints require every publication, failure, recovery and home-only approval/shared-amendment fact; spec-pr-regate zero/one-block controls and pr-list-per-pr-attribution retain home-only and ordinary multi-PR behavior. Admission, relatedness and rework instructions remain unchanged. Structural lint RED names the two missing expected files; GREEN proves fixture shape only. Model replay is a separate parent verification gate for brainstorming and spec-gate, with no accepted failure or target configuration change here.
+
+The first intent token merge-forward, after the leading PR-reference run, selects member-then-base merge provisioning and is stripped alone; later occurrences remain intent. The pr-subject-merge-forward sample exercises that override, nonleading/free-text controls and unchanged unmarked spec-only routing. Preserve original-head records and existing admission/relatedness controls. This fixture extension accepts no failed must-hold fact and performs no live forge actions. Fixture-only sync-mode coverage does not change the bundle-free assembly SHA 85857677a59444256772a0801dea8590897a67d0dcf7c2699228c20b9d63a124; preserve the unrelated aftermath-unchanged-command inconclusive evidence rather than treating a cached partial report as target-wide verification.
+Check the two-item bound and repeated evidence before any tracked-path admission check or restoration; render rejected outcomes' step-6 exits in full without restoring paths.
+
+Persist the default amendment grant and Engine waves on plain reply `1`, retain the council audit while amending, and verify both committed fields before completing brainstorm and invoking writing-plans. Strengthen only engine-waves trace A with the full header value, full narration, and ordered continuation; its plan-default fact proves the new plan approval. Run only engine-waves against base 855e872a42f9cac7a795704f3e0b383b182950ab. The remaining traces keep their existing coverage for later reply migrations; this selected narrated replay proves no live git or tracker operations and no target-wide coverage. Preserve other samples and prior accepted variance.
+
+Feed attributable plan-aftermath failures back into the same amendment batch, restore only an entirely eligible dirtied-source row, honor amend permission independently of funding, and stop at two applied retry items or repeated evidence. Add amendment-surface section 5 immediately after section 4 in the headed assembly, retaining wordCap 1400, the denylist and existing bundle drops (a path drop removes both slices). This changes whole-target assembly cost: parent verification reseeds the baseline with `node eval/run.mjs gauntlet --baseline-only`, then runs the full `node eval/run.mjs gauntlet` on both models and produces report/records; the four additions alone are not the replay scope. Keep replays outside task Tests because the runner CLI cannot satisfy its file-token contract; add no Replays contract or selective bundle machinery.
+
+The four synthetic report-runner samples bind retry-grant restore/grant/dispatch/commit/protected facts, no-grant menu/pause facts (including budget-only and absent grants), unchanged-command fail/baseline/dirty/writer/mixed facts, and budget-exhausted stop/evidence/repeat-stop/repeat-evidence facts. Their Narrated read actions use fixed supplied observations and judge routing, exact restoration scope and audit order, not actual tools, git writes, reviewer calls or live PASS. The budget sample has two independent traces, not a shared ledger. Preserve the existing loop-ledger-amend bypass and all unrelated accepted history/variance below. Structural RED is the real-tree lintAll failure on the four missing expected.md files; structural GREEN does not establish model behavior.
+
+Ground the reuse-only candidate in gathered shared-path and caller evidence, change the nearly-fitting path instead of copying it, and disclose each approach's Removes/Adds inventory before Pattern. Carry the chosen inventory into Design imperatives and map every acceptance row and Design edge/error observable to a test in round two. The shared-helper-option and moving-parts-design-return samples add five judged facts; the continuation judges the generated recap, not its transcript. Preserve all earlier accepted moves and variance below without widening them, and retain wordCap 1400. Model baseline/candidate evidence is produced by parent verification against merge-base 812d46fa, not by these text fixtures.
+
+Evaluate source commit 71b39d7e6134b0f5487695cd123c4948adbb75c5 against the runner merge-base baseline, retaining all prior accepted variance and the 1400-word cap. Regression-safety clarifications require Design or human-supplied complete family enumeration without invented options, retention of approved presentation details, explicit human review of re-bounded rows without a grant, and loop: amend for mixed ledger batches. These preserve existing must-hold outcomes rather than accepting new regressions.
+
+Split drafted tree-wide and set-wide negative rows by the explicit complete Design family enumeration, retaining each family's observable and the full union. Stop on absent, partial, or unrelated enumeration; preserve ticket rows verbatim pending human ticket repair. The synthetic tree-wide-drafted-row sample is baseline-skipped: new sample, no pre-edit sample evidence; normal actual both-arm records still run. Contract and expected facts add split, set-wide, missing, partial, unrelated, and ticket coverage without weakening existing facts.
+
+The drafted-ac-recovery replay covers missing-yardstick clarification before spec writing and main-loop repair of council-erased drafted rows from the applied Design, with the repair audit appended before the gate; it adds the full spec-finalization reference because the target's gate-only slice omits the recovery procedure.
+
+Draft observable acceptance rows from the approved design when no ticket rows exist, including fetched tickets without ACs and unbound PR rework. Preserve verbatim ticket rows and the not-fetched sentinel. The rewritten loop-gate/no-ac covers only not-fetched zero-row gating; pr-subject-rule-added-later/no-ticket and pr-subject-resolution/open require drafted provenance and design-derived tenant-isolation or retry outcomes. Drafted rows appear verbatim at approval, enabling loop options without a separate pre-gate approval. Text replay demonstrates supplied-observation behavior, not actual writes or live gate execution.
+
+Supply the existing Standing grants decoding procedure to engine-waves and the owning redraw procedure to loop-ledger-amend. Render the actual unmatched group heading in the ticket attribution option rather than its template placeholder; preserve both existing facts.
+
+Route approval options 4/5 to the loop engine, persist engine and grant together, decode loop funding independently, and reconcile approved amendments against a ledger before task-plan aftermath. The target adds the owning User Review Gate slice; old questionary samples drop it, and the ledger sample adds the actual amendment source. New samples are skipped on the baseline because they do not exist there. Text replays prove narrated ordering and values, not live git writes or tracker operations.
+
+Wire PR-first subject resolution, trusted base-SHA gathering, and preservation of the fixed Rework record. Compare against PR_SUBJECT_EVAL_BASE `1b0f7dd2bbbf926a8ff65109414d05aa97acaa58`, which already contains the bundled PR reference. The four synthetic acme/widget samples exercise ordered classification and single-path routing, base-added constraints, policy weakening after a clean merge, and two-line repair over rewrite with original commits kept. Their facts cover bound-title precedence, no-ticket ACs, full SHA/merge/thread/scoped-result preservation, and dropped claims. Text replay proves supplied-observation behavior, not live GitHub calls or writes. Retain all prior rationale and moves; model replay and final target evidence are pending the final wave.
+
+Decode independent amendment and fix-round capabilities from the standing-grant value. Funded gate replies preserve the option-2 description and suffix, while a budget token alone re-presents the approval gate without writing. Keep the existing wordCap and accepted variance.
+
+Carry every Reporter-note section into implied spec requirements and scout search terms. Fetch complete comments independently in the parallel scout and context-builder tasks, including a second page after 50 ordinary comments. Quote notes verbatim in creation order regardless of author or combined-comment label order, retain contradictions without resolution, and keep AC extraction body-only. Preserve no-fetch degradation and retain body ACs with a body-only gate warning on comment-fetch failure. The two new replays prove narration and supplied-note carry-through, not live tracker integration. Retain the previously accepted moves below. Editing the ticket reference changes existing sample assemblies; cache reuse is hash-based.
+
+Trace implicit dependencies through retained loaders and repro steps, including when scout recon fails. Missing dependencies become corrected premises; not-checkable dependencies remain unverified. The opening premise note names what was looked at and found in everyday words; the draft and later approaches retain each lookup and result without stopping. Text replay checks this reporting from supplied observations, not live lookups.
+
+Questionary responses put the lead-in first, each labeled option on its own physical line, and Recommendation: on its own final line. The opening-message reference owns the framing template and holds/concern examples; section 3 retains the ordinary-question Good example and its wording.
+
+The amendment human batch uses numbered problem-first items with lettered options and one-line consequences, explicit letter recommendations, one numbered reply line per item, and bare 1 for all recommendations, re-asking any item without one by number without re-rendering the menu (vacuous for the amendment schema's required recommendation). Custom lines are unnumbered. Applying a letter records its option token; free text records custom(text), preserving the reply's free text verbatim in the Recorded confirmation. The target includes section 4 of amendment-surface, from Human batch up to ## 5. Apply, followed by section 5 from Apply, aftermath, commit up to Conformance entry; section 4's reply grammar includes the Recorded confirmation rule. Follow-up wording fixes keep custom lines unnumbered and require the Recorded echo to preserve free text verbatim. The section 4 scoping sentence confines this menu grammar to the amendment batch: brainstorming's labeled recommendation question and ticket cut question keep their own formats, including the scoping-sentence extension requiring the cut question's re-ask after a cancelled repair to re-render in full with the row unchanged. The assembly places the amendment-surface section 4 slice before ticket-acceptance.md so the ticket cut-question contract follows the amendment menu rather than being displaced by it. Render and continuation samples test the menu and Recorded confirmation separately; text replay proves neither file writes nor commits. The output word cap remains 1400: the first render replay produced 377 and 335 words, so a higher cap is not needed. It limits generated output, not the assembled prompt. Every existing sample is listed below because the assembly changed, with its prior behavior expected to stay unchanged; this edit does not aim to repair unrelated failures.
+
+The ticket-read-once, restored-step-8-reads-ticket, same-session-redraw-reuses-ticket, and overrides-read-once samples narrate ordered read and stage actions from fixed session-context observations. Ticket handling reads once at first use, restored step 8 reads before lint, same-session redraw reuses content while applying ticket rules, and unreadable references block without reconstruction. Overrides content is reused across stages while conventions still apply; unsure context requires a read. The assembly adds the brainstorming Ticket Handling and Project overrides slices while retaining existing slices and the ticket reference. Only overrides-read-once adds the real writing-plans skill via bundle+, using its overrides block only. The replay exception is limited to the Narrated read actions heading; existing continuation and questionary outputs keep their contracts. No new regression is accepted without model evidence.
+
+Admit a leading ordered list of same-base PRs, stop invalid membership before provisioning, and use per-PR diffs for relatedness even when paths overlap. Carry original-head specs and claims separately from combined BASE_SHA...HEAD scout code input; attribute shared-path claims and threads to their own PR groups and provenance subsections. Check record completeness against provisioned membership, not the record itself. Trailing context remains intent, not another lookup. Preserve untouched single-PR routing, ticket binding, thread-fetch failure stops and existing questionary behavior. New samples add synthetic narrated coverage, not a baseline skill improvement by themselves; setup-only both-arm outcomes remain held/pre-existing or intended but unchanged, never a reason to weaken must-hold facts. This comparison uses the runner's merge-base baseline; historical baseline references above describe prior edits only.
+
+Add spec-pr-regate, spec-pr-unmarked and pr-subject-gate with sample-local workflow references. Both arms use accepted Wave 1 commit `43b5ec3f2933c5a716c49916e9b1b7c002bb3da2` via `--base HEAD`. This setup-only comparison proves narrated behavior, not an instruction improvement or live GitHub execution. Require every new candidate fact regardless of aggregate verdict; preserve all existing PR facts and authorized moves below. Task 1 retains the original-base deterministic red/green proof.
+
+The approval gate now renders row 6 (approve, hand off as draft PR) beside rows 1-5, so loop-gate's menu facts count six options and its Not-fetched zero-row branch renders 1, 2, 3, and 6 without 4/5; the drafted-row disclosure, the exact option 4/5 sentences, the loop routing, and the grant decoding are unchanged. The target's wordCap rises from 1400 to 1600 for this edit only: loop-gate renders the gate three times and row 6 adds about 120 words across those renders, which pushed the measured long-model output to 1463-1512 words (the two cells the old cap rejected and the two it now admits); the shorter model stays at 1207-1243. No behavioral fact is dropped or weakened to fit; the cap bounds generated output, not the assembled prompt, and every other sample keeps its existing budget.
+
+The unmarked spec-only route now provisions through pr-head without a thread fetch, skips binding, context-builder, the PR scout block, and gather, resumes at checklist step 4 with the carried spec at its carried path, writes no Rework record, withholds 6, and persists Engine/Amend-grant/PR as a new commit on approval; spec-pr-unmarked adds the provision, skips, carried-path, no-record, withheld, and persist facts and bundles spec-finalization.md so the replay reads the rework-only wording, compared against `--base HEAD` (f7b7f3d1, the staged skill edits uncommitted).
+
+Require the first line of the new gate-line-first replay to classify the waiting question while preserving its existing choices and pause.
+
+Cover selected-sibling activation, primary-rooted provisioning, partial-creation failures, bounded nested rules and portable home/companion spec materialization. Preserve every legacy fact and its bundle selection. These are intended fact movements, not observed model results. Parent verification runs the full target; this task runs deterministic structural and assembly checks only.
+Cover coordinated-flow membership, recorded per-leg contracts, checkout-local rules and dispatch, home-bound handoff/admission, receipt-validated delivery retries and single-member/legacy identity. Synthetic text replays narrate supplied file/tool observations; they do not prove live runtime execution. Preserve existing facts and accepted variance. New cases use per-sample bundle additions for full procedures omitted by legacy slices; legacy cases retain their original bundle selections. Runtime leg/baseline/wave validation remains in extensions/lib/plan-check.test.ts, brief drift in scripts/brief-contract-lint.test.mjs, and seal acceptance in the source and shipped CLI tests. Parent verification must run model comparisons for every affected target and gauntlet-handoff; no model evidence is generated here.
+
+The aftermath routing in amendment-surface.md now ends a third human-facing outcome or repeated already-applied evidence with `Recommendation: none - <why>`, so the writing-plans step-6 exit waits under any amend grant instead of auto-taking a recommendation. The two-item limit, repeated-evidence route, and dirty-path handling are otherwise unchanged. The target's wordCap rises from 1600 to 2200 for this edit: the opus narration of aftermath-unchanged-command grew with the enlarged assembly to 1653, 1772, and 1949 words on identical input; no fact is dropped or weakened to fit.
+
+Extend only spec-pr-publish-legs success and cleanup coverage for remote-gated local branch deletion in companion-first/home-last order. Replace its old branch-retention expectations and add H2-H7 supplied observations for unequal remotes, host ownership, nonzero destroy read-back, guarded no-home scripts and missing branch lookup. Reuse spec-pr.md's Draft-PR cleanup procedure; keep unrelated facts, target settings and historical evidence unchanged. The sample's narration budget becomes 2100 words within the existing 2200 target cap to cover seven cleanup checkpoints. Run this sample only against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved records support local checks, not live forge execution or target-wide coverage.
+
+Continue marked script-created legs without a recorded home: compare create with the discovered portable template, skip absent home comparison, and use pr-head's branch-located reuse or existing-branch script creation. Keep explicit homes on their existing path rules and diagnose recorded home versus current absence as drift requiring a paired user-approved amendment. Extend only spec-pr-regate-legs checkpoint G, keeping its prior facts and raising its narration allowance to 1900 words within the 2200 target cap. Run only that selected sample against base 4dcd1f4c71da8f2ee56a8491727e40233ca4733f within its approved three-run/fourteen-call bound; saved results prove narrated continuation, not live provisioning or target-wide coverage.
+
+For spec-pr-regate-legs, replace unconditional missing-remote push advice with primary-local file-scoped recovery: offer push only when the branch log holds the leg-file commit, otherwise restore the remote elsewhere and regenerate nothing. Check both an absent local branch and an unrelated branch without leg-file history. Preserve other facts and run only this sample; its saved results provide sample-scoped narrated evidence, not live recovery.
+
+Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
+
+## Expected to move
+- pr-body-drafted-row/f1: fails -> holds - Leave PR-description proof out while keeping PR text produced by a script.
+- pr-body-drafted-row/f2: holds -> holds - Retain one row per committed file-deliverable behavior.
+- pr-body-drafted-row/f3: holds -> holds - Rewriting a proof does not ask a scope-cut question.
+- post-action-sorted/f1: fails -> holds - Keep the manual secret step in the labeled housekeeping paragraph with actor and timing.
+- post-action-sorted/f2: fails -> holds - Do not write delivery-note PR text as an obligation.
+- post-action-sorted/f3: holds -> holds - Preserve the verbatim ticket contract on the extracted-rows branch.
+- post-action-sorted/f4: holds -> holds - Keep generated PR text in Design and Tests as a behavior.
+- spec-and-amendment-subjects/spec: fails -> holds - Read the shared spec recipe and preserve the council audit.
+- spec-and-amendment-subjects/consent: fails -> holds - Use the fixed consent subject and name its new value in a body sentence.
+- spec-and-amendment-subjects/amendment: fails -> holds - Derive batch wording from the first item title and retain every audit row.
+- spec-and-amendment-subjects/ledger: fails -> holds - Record the amendment boundary in the ledger instead of the subject.
+- spec-and-amendment-subjects/disposition: fails -> holds - Apply the shared amendment recipe to approved spec dispositions.
+- spec-and-grant-message/spec: fails -> holds - Read the shared recipe and name the spec without an internal label.
+- spec-and-grant-message/ticket: fails -> holds - Carry the header ticket to both spec commits in the project-prescribed body form.
+- spec-and-grant-message/consent: fails -> holds - Use the fixed consent subject without a grant prefix; keep any bound ticket in the body under the supplied convention.
+- spec-pr-regate/gate: fails -> holds - Use the four-row gate with draft row 4 withheld and loop 2 recommended.
+- spec-pr-regate/audit: fails -> holds - Preserve pinned audit while the zero-row gate omits loop 2.
+- spec-pr-regate/approvals: fails -> holds - Bare and flagged replies 1/2 select waves/loop and persist all three fields in a new commit before continuing.
+- spec-pr-regate/flags: fails -> holds - Decode opt-out and funding separately while keeping allowance out of persisted spec fields.
+- spec-pr-regate/hidden: fails -> holds - Clarify hidden 4 and retired 6 using rendered choices without mutation or remapping.
+- pr-subject-gate/menu: fails -> holds - Render only rows 1/2/3 while withholding draft row 4.
+- pr-subject-gate/clarification: fails -> holds - Clarify hidden digit 4, draft PR label, and retired digit 6 without mutation or remapping.
+- pr-subject-gate/recommendation: fails -> holds - Recommend the rendered loop row despite high context when draft row 4 is withheld.
+- loop-funded-reply/words: fails -> holds - Reject worded intent with its matching flag rather than grant or edit.
+- loop-funded-reply/suffixes: fails -> holds - Reject retired suffixes in favor of engine-specific flags.
+- loop-funded-reply/flags: fails -> holds - Reject cross-engine and non-engine flags after any selector.
+- loop-funded-reply/selection: fails -> holds - Ask for rendered rows without remapping an invalid or withheld selection.
+- engine-waves/plan-default: fails -> holds - Reply 1 grants by default and commits both fields before completing brainstorm and invoking writing-plans.
+- spec-pr-regate-legs/missing-remote: fails -> holds - Select push or remote restoration only after the local file-scoped branch log.
+- spec-pr-regate-legs/script-reuse: fails -> holds - Match discovered templates and reuse the branch-located tree without home drift or another-path refusal.
+- spec-pr-regate-legs/script-create: fails -> holds - Use existing-branch script creation or stop unsupported scripts before any write.
+- spec-pr-regate-legs/absent-home-drift: fails -> holds - Surface resolved absent for a recorded home and require paired user-approved amendment.
+- spec-pr-publish-legs/success: fails -> holds - Delete local branches only after equal live remote/tree/local SHAs and tree removal; keep remotes.
+- spec-pr-publish-legs/cleanup: fails -> holds - Refuse unguarded deletion but continue all remaining leg cleanups and delete safe local refs.
+- spec-pr-publish-legs/cleanup-remote: fails -> holds - Preserve unequal-remote and host-owned trees and branches without blocking other legs.
+- spec-pr-publish-legs/cleanup-readback: fails -> holds - Report actual tree/ref state after nonzero destruction and delete only a remaining pinned ref.
+- spec-pr-publish-legs/cleanup-script: fails -> holds - Locate no-home scripts by branch and destroy with the located folder basename behind the gate.
+- spec-pr-publish-legs/cleanup-lookup: fails -> holds - Report failed lookup without an invented path or destructive action and continue cleanup.
+- multi-repo-script-placed-leg/script: fails -> holds - Record the discovered script templates without a fabricated home.
+- multi-repo-script-placed-leg/native: fails -> holds - Keep native creation and removal without recording its output folder.
+- multi-repo-script-placed-leg/host: fails -> holds - Preserve pre-existing host ownership without an invented removal contract.
+- multi-repo-script-placed-leg/tokens: fails -> holds - Separate shared creation NAME from located destruction basename.
+- multi-repo-script-placed-leg/locate: fails -> holds - Locate by linked branch block and validate identity after a folder rename.
+- workflow-stage-ticket-row/opening-titles: fails -> holds - the first message puts the three titles before the intact row's cut question.
+- workflow-stage-ticket-row/opening-register: fails -> holds - the surrounding opening prose names parts by role while leaving the quoted row intact.
+- opening-message-ticket-not-fetched/titles: fails -> holds - Render the three opening titles even when only an unread ticket reference is available.
+- opening-message-ticket-not-fetched/not-checked: fails -> holds - State the denied fetch and the wait for ticket content on a Not checked: line.
+- opening-message-ticket-not-fetched/unknown-content: fails -> holds - Keep current behavior and requested change unknown rather than infer them from unrelated recon.
+- opening-message-ticket-not-fetched/no-locator: fails -> holds - Keep file-and-line sources out of the unread-ticket opening.
+- opening-message-ticket-not-fetched/word-bound: fails -> holds - Keep the defined opening span within 220 words.
+- opening-message-ticket-not-fetched/register: fails -> holds - Say the ticket in everyday words without tracker ids or implementation details.
+- gate-line-first/correction: fails -> holds - State the corrected resolver behavior on one Corrected: line in everyday words, without a path or line number.
+- opening-message-shape/titles: fails -> holds - Render the three opening titles in order.
+- opening-message-shape/no-locator: fails -> holds - Keep file-and-line sources in the draft.
+- opening-message-shape/word-bound: fails -> holds - Keep the defined opening span within 220 words.
+- opening-message-shape/register: fails -> holds - Name parts by what they do in everyday words.
+- telemetry-branch-deliverable/store: fails -> holds - Recorder YAML stays outside the product checkout.
+- telemetry-branch-deliverable/delivery: fails -> holds - Finishing publishes the record to the orphan branch.
+- workflow-stage-drafted-row/f1: holds -> holds - Exclude stage-only drafted rows.
+- workflow-stage-drafted-row/f2: holds -> holds - Preserve one row per Design behavior, including the suite-proof sketch's outcome.
+- workflow-stage-drafted-row/f3: holds -> holds - Ask no scope-cut question and emit no none fallback.
+- workflow-stage-drafted-row/f4: holds -> holds - Keep the full-suite command and focused cases in Tests.
+- workflow-stage-ticket-row/f1: fails -> holds - Ask the sole-stage cut question first after the holds-statement.
+- workflow-stage-ticket-row/f2: fails -> holds - Keep A-D on separate lines in order.
+- workflow-stage-ticket-row/f3: fails -> holds - Name the ticket in D's shape-ticket repair command.
+- workflow-stage-ticket-row/f4: fails -> holds - Recommend D for the sole-stage row.
+- workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
+- workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
+- workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
+- design-names-paid-actions/flow-bound: fails -> holds - Propose no flow-wide count in round two, name each runner and inputs, and state that approval authorizes every named action for the whole flow.
+- design-names-paid-actions/named-runs: fails -> holds - Permit needed runs of named actions after spec approval without requiring a count or treating a stated count as a bound.
+- design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action the spec does not name, not for a missing count.
+- design-names-paid-actions/paid: fails -> holds - Name paid request count and per-invocation spending limit in Design.
+- design-names-paid-actions/external: fails -> holds - Name the bounded remote sandbox lifecycle in Design.
+- design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
+- design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.
+- design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
+- loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
+- loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
+- worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
+- worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
+- spec-pr-unmarked/provision: fails -> holds - Provision via pr-head with no thread fetch on the unmarked route.
+- spec-pr-unmarked/skips: fails -> holds - Skip binding, context-builder, the PR scout block, and gather on the unmarked route.
+- spec-pr-unmarked/carried-path: fails -> holds - Keep the carried spec path as the draft; mint no pr-42 filename.
+- spec-pr-unmarked/no-record: fails -> holds - Write and require no Rework record on the unmarked route.
+- spec-pr-unmarked/withheld: fails -> holds - Withhold draft row 4 naming the existing PR.
+- spec-pr-unmarked/persist: fails -> holds - Persist Engine, Amend-grant, and PR as a new commit on approval 1.
+- aftermath-budget-exhausted/no-restore: fails -> holds - Stop the attributable third dirty-row outcome before restoration and take its named paths and cause to the human to commit, discard, or move without re-dispatch.
+- aftermath-retry-grant/restore: fails -> holds - Restore exactly three tracked unprotected row paths before applying, preserve artifacts/parent paths, and root plain-jj filesets.
+- aftermath-retry-grant/grant: fails -> holds - Attribute through changed Tests/anchors, hold evidence/recommendation/location and apply under amend permission without a human question.
+- aftermath-retry-grant/dispatch: fails -> holds - Re-dispatch with Amend-only quoted evidence and spec/plan In-flight paths.
+- aftermath-retry-grant/commit: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the opus candidate's amend audit commit writes the placeholder "FAIL lines + dirtied row (verbatim)" where the fact keys on the verbatim FAIL line and dirtied-row text; a narration-detail drift on the new sample, reproduced on confirmation; follow-up work outside this ticket.
+- aftermath-retry-grant/protected: fails -> holds - Route untracked or protected row variants to step 6 with no partial restore.
+- aftermath-retry-grant/redraw: fails -> holds - Route a redraw-class aftermath finding to commit-as-is and step 6 before any restore, then the redraw path.
+- aftermath-retry-no-grant/menu: fails -> holds - Use the existing amendment prefilter/reviewer/numbered-letter menu rather than commit/discard/move.
+- aftermath-retry-no-grant/pause: fails -> holds - Pause without applying, re-dispatching or committing for none, budget-only and absent grants.
+- aftermath-unchanged-command/fail: holds -> holds - Preserve the verbatim second-identical-FAIL exit for unchanged text.
+- aftermath-unchanged-command/baseline: holds -> fails - accepted variance, approved by the repo owner at the eval gate: under the enlarged assembly the gpt candidate narrates the base-failure exit with fix-first/narrow/amend but omits the `Recommendation: none - <why>` line the fact keys on; the change touches amendment-surface section 5 (the repeated-evidence/third-item exit), not the base-failure exit text; pinning that line is follow-up work outside this ticket.
+- aftermath-unchanged-command/dirty: holds -> holds - Preserve commit/discard/move without restoration for unrelated dirty output.
+- aftermath-unchanged-command/writer: holds -> holds - Keep a writer-only missing baseline bullet on the original exit without spec backing.
+- aftermath-unchanged-command/mixed: fails -> holds - Admit only attributable output lines, retaining unrelated exits.
+- aftermath-budget-exhausted/stop: fails -> holds - Stop the third outcome without another apply or writer dispatch.
+- aftermath-budget-exhausted/evidence: fails -> holds - List both applied retry items with their distinct verbatim evidence.
+- aftermath-budget-exhausted/repeat-stop: fails -> holds - Independently stop repeated evidence below the numeric limit.
+- aftermath-budget-exhausted/repeat-evidence: fails -> holds - List only the independent repeated-evidence trace's one applied item and evidence.
+- shared-helper-option/reuse-path: fails -> holds - Name lib/notify.ts#post, its missing channel override, and a change to that shared path.
+- shared-helper-option/moving-parts: fails -> holds - Put Removes and Adds directly before Pattern on every viable approach.
+- shared-helper-option/no-copy: fails -> holds - Recommend changing the helper rather than copying formatting and retries beside the report caller.
+- moving-parts-design-return/carry-forward: holds -> fails - accepted variance, approved by the repo owner at the eval gate: under the enlarged assembly the candidate recap carries every Remove/Add imperative and all three test mappings but drops the literal `Design imperatives:` label and demotes the `## Tests` heading to a run-in; the change touches amendment-surface section 5, not the design-recap rules in brainstorming section 6; pinning those labels is follow-up work outside this ticket.
+- moving-parts-design-return/test-per-observable: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the same recap maps requested channel, preserved default, and empty-channel rejection to their named tests but without the `## Tests` heading the fact keys on; same cause and follow-up as carry-forward.
+- pr-list-admission-mixed-base/mixed-base: fails -> holds - Refuse mixed bases with the named home/member/base and umbrella remedy before writes; duplicate identity still stops without the remedy.
+- pr-list-admission-issue-in-list/issue: fails -> holds - Reject the issue member with the direct correction and no umbrella or ticket contract.
+- pr-list-relatedness-split/groups: fails -> holds - Separate unrelated shared-file concerns from per-PR diffs before provisioning; valid retry selection promotes its first PR, excludes dropped PRs downstream and retains the later framing question.
+- pr-list-per-pr-attribution/original-specs: fails -> holds - Read both versions of the shared spec at their own original heads; retain the home's dropped five-attempt claim and the member's three-attempt claim separately from merged code.
+- pr-list-per-pr-attribution/attribution: fails -> holds - Keep member thread RT13 and three-attempt claim in #13's group and subsection, never home's; preserve the other record, combined-scout and single-fetch-stop facts.
+- pr-list-record-missing-member/missing-member: fails -> holds - Reject missing #14 against the provisioned set before approval; a missing provenance subsection also fails completeness.
+- pr-subject-resolution/trailing-context: fails -> holds - Resolve only leading #12 and carry fix the retry path, see #13 for context without looking up #13; preserve the existing mention and single-PR facts.
+- tree-wide-drafted-row/split: holds -> holds - Require exactly three family observables for the broad drafted outcome. This was an intended improvement, but both models' recorded baseline and candidate already hold; the observed result is intended but unchanged.
+- tree-wide-drafted-row/set-wide: holds -> holds - Require splitting a single-kind set-wide negative by its complete Design families. This was an intended improvement, but both models' recorded baseline and candidate already hold; the observed result is intended but unchanged.
+- tree-wide-drafted-row/missing: fails -> holds - Stop for missing Design enumeration.
+- tree-wide-drafted-row/partial: fails -> holds - Stop for incomplete Design enumeration.
+- tree-wide-drafted-row/unrelated: fails -> holds - Stop for unrelated Design enumeration.
+- tree-wide-drafted-row/ticket: holds -> holds - Preserve the verbatim ticket contract and human repair route.
+- drafted-ac-recovery/missing-proof: fails -> holds - Ask for the external yardstick before writing without inventing proof, dropping the outcome, or falling back to none.
+- drafted-ac-recovery/erased-section: fails -> holds - Reject the erased section, re-draft from applied Design in the main loop, and append the repair audit after council counts before the gate.
+- pr-subject-resolution/ordered: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/open: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/issue: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/neither: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/mention: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/foreign: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-resolution/binding: fails -> holds - Classify once before provisioning, stop on foreign or absent subjects, and bind title before body.
+- pr-subject-rule-added-later/constraint: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/repair: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/grammar: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-rule-added-later/no-ticket: fails -> holds - Apply base-added rules through a repair while preserving original commits and the fixed record.
+- pr-subject-weakened-rule/authority: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/proposal: fails -> holds - Treat PR policy weakening as a proposal, never authority, even after a clean merge.
+- pr-subject-weakened-rule/preservation: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the candidate's per-PR keeps line reads `keeps: none` instead of naming the preserved original commits, in one of two runs under the enlarged assembly; the change touches amendment-surface section 5, not the PR-subject rework record rules; keeps-line wording is follow-up work outside this ticket.
+- pr-subject-repair-over-rewrite/minimal: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/contract: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- pr-subject-repair-over-rewrite/record: fails -> holds - Keep the two-line repair, verbatim bound-ticket AC, and complete thread dispositions.
+- loop-gate/menu: fails -> holds - Render rows 1/2/3/4 with row 2 recommended, resolved allowance 7 and engine-specific flags; offer funding only on row 1.
+- loop-gate/settings: fails -> holds - Resolve once before the summary read, show warnings and stop on unavailable settings.
+- loop-gate/loop: fails -> holds - Plain 2 persists G and loop, HEAD-checks both fields, then completes brainstorm and dispatches loop with the settings allowance.
+- loop-gate/no-ac: fails -> holds - Keep the 1/3/4 not-fetched zero-row gate without row 2 or its flags; drafted rows enable loop row 2.
+- engine-waves/waves: fails -> holds - Route bare 1 and 1 --amends-stop to waves with the full default grant and none respectively.
+- engine-waves/audit: fails -> holds - Audit re-gates without approval.
+- engine-waves/mixed: fails -> holds - Mixed requests re-gate without approval.
+- engine-waves/invalid: fails -> holds - Budget-only and malformed replies do not write.
+- loop-funded-reply/five: fails -> holds - Reject funded option5 without writes while bare5 retains its full amendment grant.
+- loop-funded-reply/four: fails -> holds - Reject funded option4 without writes or continuation.
+- loop-funded-reply/allowance: fails -> holds - Emit the exact carrier for semicolon/comma overrides only, independently of amend permission.
+- loop-funded-reply/waves: holds -> holds - Retain option2's funding suffix and waves route.
+- loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
+- loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.
+- loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
+- loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
+- loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
+- loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
+- grant-budget-reply/funded-value: fails -> holds - Reply 1 --fund-rounds=3 persists the full default grant and funding suffix with waves, then checks HEAD before planning.
+- grant-budget-reply/token-needs-approval: fails -> holds - A budget token alone cannot approve or write a grant.
+- questionary-option-lines/layout: fails -> holds - Require one labeled option per physical line with a preceding lead-in and final own-line recommendation.
+- amendment-menu-render/f1: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-render/f2: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-render/f3: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-render/f4: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-render/f5: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-render/f6: fails -> holds - Enforce one human-call sentence per numbered amendment item.
+- amendment-menu-reply/f1: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-reply/f2: fails -> holds - Enforce the new amendment menu and reply grammar.
+- amendment-menu-reply/f3: fails -> holds - Enforce the new amendment menu and reply grammar.
+- clarification-keeps-gate/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- clarification-keeps-gate/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- cut-without-human-words/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- cut-without-human-words/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- cut-without-human-words/f3: holds -> holds - Preserve existing behavior under the expanded assembly.
+- design-approval-return/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- design-approval-return/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-pause/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/framing: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/pivot: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/edges: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/routing: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/representation: holds -> holds - Preserve existing behavior under the expanded assembly.
+- explicit-unit-normalization/verification: holds -> holds - Preserve existing behavior under the expanded assembly.
+- human-raised-drop/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- human-raised-drop/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- human-raised-drop/f3: holds -> holds - Preserve existing behavior under the expanded assembly.
+- latest-run-indicator/framing: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the regenerated baseline raises both premise concerns in its first message while the candidate keeps the date concern in its approaches section, which the fact fails by its own rule; the change touches the amendment menu grammar, not the questionary premise rules; judge stability under baseline regeneration and a premise-note strengthening are follow-up work outside this ticket.
+- latest-run-indicator/pivot: holds -> holds - Preserve existing behavior under the expanded assembly.
+- latest-run-indicator/surfaces: holds -> holds - Preserve existing behavior under the expanded assembly.
+- latest-run-indicator/selection: holds -> holds - Preserve existing behavior under the expanded assembly.
+- latest-run-indicator/missing: holds -> holds - Preserve existing behavior under the expanded assembly.
+- latest-run-indicator/release: holds -> holds - Preserve existing behavior under the expanded assembly.
+- other-repo-group/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- other-repo-group/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- other-repo-group/f3: fails -> fails - Preserve existing behavior under the expanded assembly.
+- repair-cancelled/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- repair-cancelled/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- review-and-apply-containment/holds: holds -> holds - Preserve existing behavior under the expanded assembly.
+- review-and-apply-containment/no-pivot: holds -> holds - Preserve existing behavior under the expanded assembly.
+- review-and-apply-containment/review: holds -> holds - Preserve existing behavior under the expanded assembly.
+- review-and-apply-containment/containment: holds -> holds - Preserve existing behavior under the expanded assembly.
+- review-and-apply-containment/constraints: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the candidate drops the recorded "no migration; rerun processing for candidate-less rows" answer from its design summary under the enlarged assembly; the change touches the amendment menu grammar, not the questionary design rules; judge table/narrative consistency and detail retention under larger assemblies are follow-up work outside this ticket.
+- review-and-apply-containment/pattern: holds -> holds - Preserve existing behavior under the expanded assembly.
+- side-question-return/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- side-question-return/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- ticket-repair-return/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- ticket-repair-return/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- unmatched-group-asked/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- unmatched-group-asked/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- wrong-row-cut-question/f1: holds -> holds - Preserve existing behavior under the expanded assembly.
+- wrong-row-cut-question/f2: holds -> holds - Preserve existing behavior under the expanded assembly.
+- wrong-row-cut-question/f3: holds -> holds - Preserve existing behavior under the expanded assembly.
+- implicit-template-not-found/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
+- missing-db-extension/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
+- review-and-apply-containment/opening-shape: fails -> holds - Render the three opening titles without file-and-line locators before message one's Recommendation: line.
+- implicit-template-not-found/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- implicit-template-not-found/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- implicit-template-not-found/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/premise: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/approaches: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- missing-db-extension/problem: fails -> holds - Carry the traced missing dependency and lookup result through the premise note, approaches, and spec.
+- reporter-note/requirements: fails -> holds - Carry the note-only target and count into the spec's implied requirements.
+- reporter-note-fetch/paging: fails -> holds - Each parallel task fetches complete history independently.
+- reporter-note-fetch/terms: fails -> holds - Include older note terms in the scout query.
+- reporter-note-fetch/verbatim: fails -> holds - Preserve the labeled note with complete fetch accounting.
+- reporter-note-fetch/count: fails -> holds - Report full fetched comment and page counts.
+- reporter-note-fetch/multiple: fails -> holds - Preserve all authors and contradictions in creation order.
+- reporter-note-fetch/degraded: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the gpt candidate still surfaces the missing comments at the gate but moves the failure status out of the heading the fact keys on; already regressed at the PR head before this edit; follow-up work outside this ticket.
+- drafted-ac-rows/free-text: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/not-fetched: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/empty-ticket: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- drafted-ac-rows/unbound-pr: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+- loop-gate/drafted: fails -> holds - Preserve the drafted-row provenance and approval contract while retaining ticket and not-fetched behavior.
+
+- gate-line-first/first-line: fails -> holds - Put the question marker at column zero before any mandated prose.
+
+- multi-repo-activation/membership: fails -> holds - Enforce the new coordinated-flow must-hold fact: A and E stay single-member, B selects only repo-b and creates fresh trees with explicit primary ROOT and feature/shared-change despite linked session; C asks once to disambiguate before any creation.
+- multi-repo-activation/identity: fails -> holds - Enforce the new coordinated-flow must-hold fact: Single-member new specs carry exactly one ### Leg: under ## Legs and no companion file, legs: brief, --leg, receipt or companion loop; legacy specs stay home-only without requiring Legs.
+- multi-repo-bad-sibling/reject: fails -> holds - Enforce the new coordinated-flow must-hold fact: A/B/C stop before any creation, naming the selected declaration and missing/non-repository/equal-home cause; canonicalizes B before comparison and does not resolve or validate unselected repo-c.
+- multi-repo-branch-mismatch/mismatch: fails -> holds - Enforce the new coordinated-flow must-hold fact: A stops naming repo-b, expected feature/shared-change and observed feature/other; preserves and lists already created home tree, never deletes it.
+- multi-repo-branch-mismatch/preflight: fails -> holds - Enforce the new coordinated-flow must-hold fact: B and C stop on branch/path collision before creator, without suffixing or reusing; D aborts on decline; E asks once for subproject rather than guessing; each retains already-created legs.
+- multi-repo-legs/provision: fails -> holds - Enforce the new coordinated-flow must-hold fact: Invokes using-git-worktrees home first then repo-b then repo-c with each primary as ROOT and the same BRANCH; uses repo-a keyed contract, resolves repo-b subproject to pkg-x, uses repo-c default and never touches repo-unused.
+- multi-repo-legs/portable: fails -> holds - Enforce the new coordinated-flow must-hold fact: Home blocks retain portable create/destroy/home/spec-dir/plan-dir/verification contracts and repo-relative Rules; no committed machine-local path.
+- multi-repo-legs/scope: fails -> holds - Enforce the new coordinated-flow must-hold fact: Home scope claims AC 1, repo-b AC 1 and repo-c AC 2, using original indices.
+- multi-repo-legs/companion: fails -> holds - Enforce the new coordinated-flow must-hold fact: Commits home first; repo-b file has **Home:** repo-a feature/shared-change doc/specs/shared.md, a ## Problem section with the verbatim home Problem, a ## Decisions section with shared Design/Errors/Out-of-scope and only its own entire Leg block; no home or repo-c block.
+- nested-rules/walk: holds -> fails - accepted variance, approved by the repo owner at the eval gate: the gpt candidate renders the scout cwd/rules walk in prose instead of the exact listing the fact keys on, on text the amendment-surface edit never touched; follow-up work outside this ticket. Enforce the new coordinated-flow must-hold fact: Scouts run in their own worktrees; repo-a Rules includes root AGENTS.md, doc/root.md, pkg-x/AGENTS.md, pkg-x/doc/conventions.md and pkg-x/doc/parser.md; repo-b rules remain separate.
+- nested-rules/bounded: fails -> holds - Enforce the new coordinated-flow must-hold fact: Dedupes symlinked root CLAUDE.md by realpath, excludes untouched pkg-y/AGENTS.md and second-hop.md; reports missing outside.md without inventing contents.
+- nested-rules/unresolved: fails -> holds - Enforce the new coordinated-flow must-hold fact: Unknown touched paths retain root rules and emit Rules: root only - paths unresolved, leaving task path walks to plan-writer.
+
+## Rebased replay outcomes
+
+Both selected samples were replayed on the rebased tree. The first comparison completion lines follow verbatim; adding this outcome note requires a judgment-only cache update on the same saved primary replies. Records cover both samples; the final partial report covers pr-body-drafted-row only. No other sample is replayed.
+
+`node eval/run.mjs gauntlet post-action-sorted`:
+
+```text
+brainstorming: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 33s)
+```
+
+`node eval/run.mjs gauntlet pr-body-drafted-row`:
+
+```text
+brainstorming: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 30s)
+```

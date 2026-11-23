@@ -1,0 +1,3 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet/implement/loop/coordinated-legs.md
+All rows closed in an admitted clean single loop commit at HEAD abc. Ledger headers include checks: commands and verification: make check. Row 1 done evidence `node --test parser.test.mjs; passed`, row 2 done evidence `node --test parser.test.mjs; passed`, row 3 cut. No mapping; home /work/repo. No gate set has run. The next ledger refresh reports every task complete or skipped and implement complete. Trace the refresh through verify to finish, with no changes first; then a review repair; then conformance returns CONFORMS. Overrides Happy path selects CLI row. State exact closure sentinel and read references.

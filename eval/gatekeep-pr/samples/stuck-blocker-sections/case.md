@@ -1,6 +1,6 @@
 bundle+: skills/chase-bug/reference/verdict-report.md
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Render only the problems/standing and obstacle menu at these independent failed-repair exits. Use supplied results; no tools, retry, provisioning or helper simulation. Keep each stuck block under 180 words from its first heading. Do not copy internal IDs or decision-line syntax into user prose. Stop at each hint. The whole reply must be under 1600 words.

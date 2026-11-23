@@ -10,7 +10,7 @@ Read the active pi-cohort configuration's `parallel.maxTasks`, default `8`; gaun
 
 `multi-PR mode takes at most <max> PRs (pi-cohort parallel.maxTasks); got <n>`
 
-For `source: discovered`, send the rejection separately from discovery's earlier list. Use the [first-line rule](../../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print the cap or harness rejection text and end with exactly one `discovered, smallest first: <numbers comma-separated>` line, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. After successful admission of a discovered set, print that plain-number line once, before minting the run folder. For a typed set print no `discovered, smallest first:` line. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
+For `source: discovered`, send the rejection separately from discovery's earlier list. Use the [first-line rule](../../gauntlet/menu-layout.md#first-line-rule) for `stuck`, print the cap or harness rejection text and end with exactly one `discovered, smallest first: <numbers comma-separated>` line, in supplied sorted order; for example after cap 4 got 6: `discovered, smallest first: 101, 97, 112, 88, 130, 104`. After successful admission of a discovered set, print that plain-number line once, before minting the run folder. For a typed set print no `discovered, smallest first:` line. Preserve supplied token order through provisioning, summary rows, and queued menus; never trim.
 
 After admission, mint one parent `RUN_DIR` with `post-selection-loop.md` `### Continuation record` from the session checkout, before creating the roster or records. Stop on failure with the error before tracker initialization. Use each admitted token (URL or bare number) unchanged as `pr_token` for its gather:
 
@@ -24,7 +24,7 @@ For a typed set read `gh api user --jq .login` and the Section A `gh api user/te
 
 Before the first provisioning command for the set, apply [the provisioning list check](assessment.md#provision-the-worktree) in the parent: write the gathered roster as that reply's visible text only if no earlier reply text in view carries the linked list. Skip the check for subsequent PRs and retries; a child never sends the list.
 
-Start the message with `gauntlet: question` when asking unresolved create tokens or the set-wide other-author confirmation. Apply [menu-layout](../../brainstorming/reference/menu-layout.md), preserving the one yes for the set. Keep private `REPORT`, `CONFLICTING`, `FAILED`, and `STOPPED` child results unchanged; mark only the parent user-facing turn.
+Start the message with `gauntlet: question` when asking unresolved create tokens or the set-wide other-author confirmation. Apply [menu-layout](../../gauntlet/menu-layout.md), preserving the one yes for the set. Keep private `REPORT`, `CONFLICTING`, `FAILED`, and `STOPPED` child results unchanged; mark only the parent user-facing turn.
 
 Fetch origin once with `git fetch origin`; for each fork PR, run `git fetch origin pull/<N>/head:pr-<N>` only when no worktree holds a local `pr-<N>` branch, and otherwise leave the reuse row's `git fetch origin pull/<N>/head` + `git merge --ff-only FETCH_HEAD` to that PR's provisioning step. Apply assessment's gitignore-first rule before built-in creation when the resolved home is inside the primary; sibling homes need no edit. Provision in roster order, one at a time. No concurrent primary fetch or worktree add is allowed, regardless of cohort concurrency.
 

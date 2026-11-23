@@ -76,15 +76,15 @@ test("unknown kind or assembly, missing files", () => {
   writeFileSync(join(t, "target.json"), JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/x/SKILL.md" }], wordCap: 100 }));
   assert.deepEqual(lintTarget(t), ["unknown assembly: undefined"]);
 });
-test("lintAll skips brainstorming/replay and lib, includes _template", () => {
+test("lintAll skips gauntlet/replay and lib, includes _template", () => {
   const { root } = mk("text");
-  mkdirSync(join(root, "lib")); mkdirSync(join(root, "brainstorming", "replay"), { recursive: true });
+  mkdirSync(join(root, "lib")); mkdirSync(join(root, "gauntlet", "replay"), { recursive: true });
   writeFileSync(join(root, "README.md"), "");
   const r = lintAll(root);
-  assert.deepEqual(Object.keys(r), ["brainstorming", "t"]);
-  assert.match(r.brainstorming.join("\n"), /target.json missing/);
+  assert.deepEqual(Object.keys(r), ["gauntlet", "t"]);
+  assert.match(r.gauntlet.join("\n"), /target.json missing/);
   mkdirSync(join(root, "_template"));
-  assert.deepEqual(Object.keys(lintAll(root)), ["_template", "brainstorming", "t"]);
+  assert.deepEqual(Object.keys(lintAll(root)), ["_template", "gauntlet", "t"]);
 });
 test("every committed target and _template pass", () => {
   const r = lintAll(fileURLToPath(new URL("..", import.meta.url)));

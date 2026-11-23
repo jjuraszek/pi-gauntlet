@@ -275,7 +275,7 @@ deliverable set, stage results (including any skip), the per-AC verdict
 table with evidence, the reviewer script, and the exact write about to
 happen.
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```text
 1. approve the write
@@ -431,8 +431,8 @@ unset (no body edits).
 ## Project overrides
 
 If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
+`.pi/gauntlet.md`, `<repo root>/gauntlet.md`,
+`<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
 and apply `## conventions` whenever present, without a relevance
 judgment.
 Give this skill's named section precedence over conflicting

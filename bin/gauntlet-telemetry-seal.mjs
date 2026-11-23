@@ -291,7 +291,7 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
     const path2 = join3(top, file);
     if (!existsSync2(path2)) continue;
     const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
@@ -663,7 +663,7 @@ function migrate(root, dir, repo, remote) {
       continue;
     }
     record.repo ??= repo;
-    writes.set(`${repo}/brainstorming/${toPosix(relative2(dir, path))}`, serializeRecord(record));
+    writes.set(`${repo}/gauntlet/${toPosix(relative2(dir, path))}`, serializeRecord(record));
   }
   const result = syncTelemetryBranch(root, writes, remote);
   if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
@@ -758,7 +758,7 @@ function branchBlob(root, path, remote) {
 }
 async function seal(vcs, rec, o) {
   const abs = rec;
-  const path = `${o.repo}/brainstorming/${toPosix(relative2(o.store, rec))}`;
+  const path = `${o.repo}/gauntlet/${toPosix(relative2(o.store, rec))}`;
   if (!existsSync3(abs)) {
     const sync2 = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map(), o.remote);
     const stored2 = parseRecord(branchBlob(vcs.root, path, o.remote) ?? "");

@@ -202,7 +202,7 @@ export default function (pi: ExtensionAPI) {
     const remote = gitSync(["remote", "get-url", "origin"], primary);
     let repo = remote.stdout.trim().replace(/\.git$/, "").replace(/^.*[:/]([^/:]+\/[^/]+)$/, "$1").toLowerCase();
     if (remote.code !== 0) {
-      const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
+      const overridesPath = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
       const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
       const tracker = /^## Issue tracker\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
       repo = (/^- repo:\s*(\S+)\s*$/m.exec(tracker)?.[1] ?? primary.split("/").at(-1) ?? "").toLowerCase();

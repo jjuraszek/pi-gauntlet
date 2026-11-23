@@ -7,7 +7,7 @@ const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 test('engine and operator docs describe ledger attribution and decision counters', async () => {
   for (const path of ['doc/implement-engines.md', 'doc/configuration.md']) {
     const text = (await read(path)).replaceAll('\\|', '|');
-    for (const token of ['returned: <target> | <repo> | <pre-dispatch HEAD>`', 'repair seed |', 'repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'amended |', 'returns/', 'return-file.md', 'finishing-a-development-branch/reference/commit-message.md', 'the saved `returned:` value']) {
+    for (const token of ['returned: <target> | <repo> | <pre-dispatch HEAD>`', 'repair seed |', 'repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>', 'amended |', 'returns/', 'return-file.md', 'gauntlet/commit-message.md', 'the saved `returned:` value']) {
       assert.ok(text.includes(token), `${path}: ${token}`);
     }
     assert.doesNotMatch(text, /loop: (?:repair|retry|amend|cut|migrate|escalate|seed)/);
@@ -43,15 +43,15 @@ test('gate docs separate retained home tuples from wrong attribution and bound r
 
 test('front-door docs expose the shared message contract', async () => {
   const readme = await read('README.md');
-  assert.ok(readme.includes('skills/finishing-a-development-branch/reference/commit-message.md'));
+  assert.ok(readme.includes('skills/gauntlet/commit-message.md'));
   assert.ok(readme.includes('returned:'));
   for (const token of [
-    'Framework-run squash and merge-commit merges carry a [composed landed message](skills/finishing-a-development-branch/reference/commit-message.md#landed-message)',
+    'Framework-run squash and merge-commit merges carry a [composed landed message](skills/gauntlet/commit-message.md#landed-message)',
     'Rebase passes no message flags; a merge queue owns the landing and does not guarantee the composed text.',
     'The flow prints one line when the repo\'s `squash_merge_commit_message` is `COMMIT_MESSAGES`',
     'names `PR_BODY` and `BLANK` as settings that avoid pasting every branch commit into a GitHub-button merge',
     'prints nothing for other values or a failed read, and never writes a repo setting',
-    'skills/finishing-a-development-branch/reference/commit-message.md#squash-default-note',
+    'skills/gauntlet/commit-message.md#squash-default-note',
     'Gatekeep withholds merge while the assessed head\'s tree still holds the task plan paired by basename with its carried spec or that spec\'s loop ledger',
     'With no carried spec, this precondition is skipped.',
     'skills/gatekeep-pr/reference/post-selection-loop.md#plan-free-head',

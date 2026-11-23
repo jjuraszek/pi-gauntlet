@@ -67,7 +67,7 @@ Read and apply `reference/repo-audit.md` now in both modes (resolve against this
 
 ### 3 - Interactive questioning
 
-Start the message with `gauntlet: question` before the current clarification. Apply [menu-layout](../brainstorming/reference/menu-layout.md), preserving one free-text question at a time.
+Start the message with `gauntlet: question` before the current clarification. Apply [menu-layout](../gauntlet/menu-layout.md), preserving one free-text question at a time.
 
 One question at a time, only when intent is unclear or no AC is derivable; in repair, wait for all audits and ask in ref order. Never fabricate Context, Problem, or ACs to avoid asking.
 
@@ -138,7 +138,7 @@ Resolve each named gap under the same gate:
 
 Keep partially resolved create gates open with only unresolved rows; never fill unnamed create gaps with a constant. Keep the gate open on a non-approval reply. For proceed-without, use `date +%F` when a shell exists, else the session date. Discovery/Spike carries supplied sources but renders no gaps and needs no source re-ask.
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 Render the options from the gate menu template in `reference/repo-audit.md`, including its mode's exit row and `[recommended]` tag. Number the options. A split offers per-issue subset selection, e.g. "approve 1,3; decline 2". **No affirmative answer on the exact presented diff (or the close row's displayed operations and evidence) plus only the `source:` substitutions resolved by that same approving reply = no write; make no other post-approval edit and add no second gate.**
 
@@ -148,7 +148,7 @@ Complete the current ticket's write before presenting the next ticket. Immediate
 
 ## AC integrity gate
 
-Start the message with `gauntlet: question` for the recoverable hard-stop draft and targeted recovery question, singleton runs included. Apply [menu-layout](../brainstorming/reference/menu-layout.md); keep approval unavailable. While awaiting values, emit no terminal batch line. Once the human ends recovery without values, count that ticket as `stopped` in the ended batch under [Complete the batch and present gates](reference/repo-audit.md#complete-the-batch-and-present-gates).
+Start the message with `gauntlet: question` for the recoverable hard-stop draft and targeted recovery question, singleton runs included. Apply [menu-layout](../gauntlet/menu-layout.md); keep approval unavailable. While awaiting values, emit no terminal batch line. Once the human ends recovery without values, count that ticket as `stopped` in the ended batch under [Complete the batch and present gates](reference/repo-audit.md#complete-the-batch-and-present-gates).
 
 Runs twice: during gather (recovery via targeted questions) and on the assembled draft.
 
@@ -297,7 +297,7 @@ Read `reference/examples.md` now for the built-in bad->good Discovery pair exemp
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands.
 
 Read `## shape-ticket` `- sibling: <clone url>` lines through `reference/repo-audit.md` for parent-owned resolution and nonblocking reports; an absent section means single-repo audit. Keep invocation text and local configuration writes out of sibling discovery. Copy exact resolved read verbs and capabilities into the scout brief; the scout loads no skills and guesses no commands.
 

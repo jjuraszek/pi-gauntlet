@@ -4,7 +4,7 @@
 
 Run a multi-model critique pass for a freshly written spec. Each council **member** runs on a different model and critiques independently; the neutral **chair** consolidates and adjudicates disagreements. Dispatch a fresh-context **applier** inheriting the main loop's model and thinking to decide dispositions and edit the spec, returning only the audit. Hand the result to the **user** to ratify (or revert) at brainstorming's single gate.
 
-Auto-dispatched from `/skill:brainstorming` as the critique pass, after the inline lint and before the user review gate, **only when a council is configured** (`members` non-empty). brainstorming owns that gate; when no council is configured it runs a single fresh-`worker` critique instead and does not invoke this skill.
+Auto-dispatched from `/skill:gauntlet` as the critique pass, after the inline lint and before the user review gate, **only when a council is configured** (`members` non-empty). brainstorming owns that gate; when no council is configured it runs a single fresh-`worker` critique instead and does not invoke this skill.
 
 ## Hard constraint
 
@@ -20,7 +20,7 @@ This skill may read anything and edit **only** the spec under `doc/specs/`. It d
 
 ## Configuration and gating
 
-The caller (`/skill:brainstorming`) already resolved the council via `gauntlet_setting({ key: "specCouncil" })` and dispatched this skill only when `verdict` was `"council"`, passing the resolved `members` and `chair`. This skill therefore receives `members`/`chair` from that resolved value and does **not** read settings files itself. The resolved config looks like:
+The caller (`/skill:gauntlet`) already resolved the council via `gauntlet_setting({ key: "specCouncil" })` and dispatched this skill only when `verdict` was `"council"`, passing the resolved `members` and `chair`. This skill therefore receives `members`/`chair` from that resolved value and does **not** read settings files itself. The resolved config looks like:
 
 ```json
 {
@@ -40,11 +40,11 @@ brainstorming owns the gate: it resolves this config via `gauntlet_setting`, emi
 
 ## The council run
 
-Resolve `../brainstorming/reference/documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member, chair, and applier task below; do not add it to the spec.
+Resolve `../documentation-impact.md` relative to this loaded skill as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member, chair, and applier task below; do not add it to the spec.
 
 ### 1 — Fan out to members
 
-Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the checkout holding the spec under review (`<wt>`); use the invocation checkout for a standalone council. Create the council directory there and use its absolute path as `<tmpdir>` below:
+Read [scratch folder](../return-file.md#scratch-folder) with `CHECKOUT` = the checkout holding the spec under review (`<wt>`); use the invocation checkout for a standalone council. Create the council directory there and use its absolute path as `<tmpdir>` below:
 
 ```bash
 SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
@@ -160,7 +160,7 @@ First `read` the spec from disk, before any other post-applier action, including
 
 ### 5 - Scan, clean up, and hand off
 
-Then re-run brainstorming's placeholder scan; re-apply the `**Amend-grant:**` [predicate](../brainstorming/reference/amendment-surface.md#standing-grants) to the header block, repairing an altered or removed line to `none`, exactly once. Remove only this council's absolute temp directory with `rm -rf`. Nothing council-related is staged.
+Then re-run brainstorming's placeholder scan; re-apply the `**Amend-grant:**` [predicate](../amendment-surface.md#standing-grants) to the header block, repairing an altered or removed line to `none`, exactly once. Remove only this council's absolute temp directory with `rm -rf`. Nothing council-related is staged.
 
 Return the audit verbatim to brainstorming along with the now-final spec on success; on abort return only the failure notice. brainstorming retains the summarizer, quoted-heredoc spec commit with the audit as body, unchanged gate text and numbering, `Council:` counts, row-3 retrieval via `git show -s --format=%b HEAD`, and revert valve. The user ratifies at that single gate.
 
@@ -180,6 +180,6 @@ Single pass — no automatic re-roast loop. The user can invoke this skill again
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
-The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

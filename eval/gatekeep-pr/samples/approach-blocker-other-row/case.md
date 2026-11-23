@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise course selection's treatment of an already admitted approach blocker on both harnesses. These are isolated synthetic supplied outcomes. Use no tools and do not implement, post or push. Use a compact inspection table for lifecycle and dispatch details, omitting general gather/provision/tracker/CI setup and full resolver or freshness command listings. For A give the review body/event/head provenance, then its actual menu. For B give the common evidence pack once, the pi derived AC and matching Claude Code finding text, then actual needs-result obstacle reports and menus. Stop at each hint. Stay under 1500 words to leave room within the runner's 2000-word cap.

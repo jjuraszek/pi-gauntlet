@@ -16,7 +16,7 @@ PRIMARY=$(dirname "$(git -C "$WORKTREE" rev-parse --path-format=absolute --git-c
 FEATURE=$(git -C "$WORKTREE" branch --show-current)
 ```
 
-The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](reference/spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run brainstorming #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
+The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run brainstorming #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
@@ -25,9 +25,9 @@ Then call `phase_tracker({ action: "start", phase: "ship" })`.
 ## The Process
 ### Step 1: Verify Tests
 **Hard verification gate.** Tests/format/lint must pass before presenting any options — including Discard. The user's stated intent to throw the branch away does not change whether the diff is in a verifiable state; verifying first surfaces accidental damage to unrelated code before the branch is gone forever. The skip rule below is the only exception.
-Read [coordinated finish](reference/legs.md) once for `## Legs` activation, recorded contracts, per-leg Steps 1/3.5, the single Step 4 choice, Step 5 receipts and home strip-and-seal, and Step 6 cleanup. Apply its coordinated mechanics for multiple members; retain the ordinary path for one member or no section.
+Read [coordinated finish](legs.md) once for `## Legs` activation, recorded contracts, per-leg Steps 1/3.5, the single Step 4 choice, Step 5 receipts and home strip-and-seal, and Step 6 cleanup. Apply its coordinated mechanics for multiple members; retain the ordinary path for one member or no section.
 Reuse the selected run spec read in Input. Detect a rework PR subject by its `## Rework record`; use Input's header-linked route for `**PR:**`, never discover by an open PR on `$FEATURE`. For the rework route only, read every top-level `PR:`/`Pre-rework head:` pair, home first, retaining each full SHA; missing pre-head -> stop naming the spec path. Set `PRE_REWORK_HEAD` to home's SHA. Read only combined capitalized `Base:`, `Keeps:`, `Changes:`, `Dropped claims:`, `Scoped tests:` fields; ignore lowercase provenance under `### PR #<N>`. For N=1, read `Threads:` directly after `Pre-rework head:` and retain the provenance subsection without changing finish output. Confirm only home with `gh pr view <N> --json number,url,headRefName,baseRefName,state` (use the record's repository): non-`OPEN` -> stop: `PR #N is <state>; the rework cannot be pushed to it.`; headRefName != `$FEATURE` -> stop naming both branches. Retain baseRefName for Step 3.
-Resolve the verification set and skip rule now: use `read` at the absolute path of [verification-set.md](reference/verification-set.md), resolved from this skill's location. Retain the resolved set through minors fixes, plan stripping and delivery; apply that reference's ledger recovery and log handling.
+Resolve the verification set and skip rule now: use `read` at the absolute path of [verification-set.md](verification-set.md), resolved from this skill's location. Retain the resolved set through minors fixes, plan stripping and delivery; apply that reference's ledger recovery and log handling.
 **Scoping caveat — pre-existing findings.** Some services carry lint findings unrelated to the diff. If verification fails on lines you didn't touch:
 Confirm with `git -C "$WORKTREE" diff <base>...HEAD --name-only` that the offending file isn't in your diff. Surface the pre-existing finding to the user as a separate issue - do **not** auto-fix it in this completion ("surface, don't auto-fix"). Proceed only after the user acknowledges.
 **If tests fail (within your diff):**
@@ -38,7 +38,7 @@ Tests failing (<N> failures). Must fix before completing:
 
 Cannot proceed until tests pass.
 ```
-Stop. Don't proceed to Step 2. **If tests pass:** Continue to Step 2. No documentation prompt here: Documentation impact is decided at spec time (`/skill:brainstorming` section 6, gated by `brainstorming/reference/documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
+Stop. Don't proceed to Step 2. **If tests pass:** Continue to Step 2. No documentation prompt here: Documentation impact is decided at spec time (`/skill:gauntlet` section 6, gated by `../documentation-impact.md`) and has already shipped in the diff by the time you reach finishing.
 ### Step 2: Detect Environment
 
 For a header-linked PR, use the reference's five-row menu; for a rework PR subject, use the Step 4 PR menu. For other subjects: detached HEAD (`git -C "$WORKTREE" symbolic-ref -q HEAD` prints nothing) -> reduced 4-option menu (no merge), no cleanup. Otherwise the standard 5 options.
@@ -58,7 +58,7 @@ Or ask: "This branch split from main - is that correct?"
 
 This is an **enforced disposition gate**, not a surface-only notice. The user is about to choose how to ship; every carried-open decision must get an explicit disposition here, before Step 4's menu. Tests prove the code runs; conformance proves it does what was requested - different gates.
 
-`verification-before-completion/reference/conformance-check.md` is **canonical** for the durable handoff schema, concern-decomposition rules, the single disposition-availability table, the `UNAUTHORIZED` question text, the `recommended: none` preflight, the freshness rule, and the concern-scoped fix projection. This step owns only **render, response, and execute-order** and consumes the rest by link - it does not restate the availability table, the `UNAUTHORIZED` question, or the preflight prose.
+`../conformance-check.md` is **canonical** for the durable handoff schema, concern-decomposition rules, the single disposition-availability table, the `UNAUTHORIZED` question text, the `recommended: none` preflight, the freshness rule, and the concern-scoped fix projection. This step owns only **render, response, and execute-order** and consumes the rest by link - it does not restate the availability table, the `UNAUTHORIZED` question, or the preflight prose.
 
 **If no conformance check has run in this flow** (e.g. ad-hoc work that landed without an execution skill): say so, then dispatch a fresh-context `conformance-reviewer` with `cwd: "<worktree-path>"` against the origin (spec + verbatim prompt + full diff vs base) per that reference - it owns the audit-time input rule (stage/commit untracked deliverables before auditing; this path never runs a happy path and passes no happy-path input). Closing the loop is cheap relative to shipping unverified intent. Route the raw reviewer verdict through the reference's canonical pipeline (gap/concern partition, auto-fix where eligible, concern decomposition, emission of a durable `## Closure / conformance` block), then consume that block through the branching below exactly as a carried handoff.
 
@@ -76,12 +76,12 @@ then continue directly to Step 4 and render its menu in full, options included. 
 
 When the sentinel carries a `happy-path:` line, print it directly under `Closure / conformance: CONFORMS` as one informational, non-blocking line in the same shape as the `auto-applied fix commits` line: `happy-path: passed`, `happy-path: failed - unattributable`, or `happy-path: not run - <reason>` (a `failed - attributed to G<n>` value cannot reach this branch: its gaps are open). When the sentinel carries a `Deferred/deviates per spec:` line, print it verbatim as one informational line directly under the `happy-path:` line when present, else directly under `Closure / conformance: CONFORMS` or the `Conformance: N decisions needed before shipping.` header, and above the `whole-diff minors` line (both paths).
 
-**Pre-menu amendment funnel (GAPS only).** Before rendering the carried-open menu, `read` and run [`amendment-surface.md` § Conformance entry](../brainstorming/reference/amendment-surface.md) over the inventory once: gaps with `recommended: accept`, verdict `DRIFTED` or `PARTIAL`, not `UNAUTHORIZED`, whose `origin` is not an acceptance criterion are drafted as `accept-into-spec` items (the edit built from `origin` + `evidence`) and sent to the reviewer in one call; cleared items apply and land as one batch commit, the spec is re-audited, the inventory regenerated. Only concerns the re-audit actually closed drop out; sibling concerns in the same gap keep their rows and dispositions. Survivors and every other gap render as ordinary rows below - one menu, never two.
+**Pre-menu amendment funnel (GAPS only).** Before rendering the carried-open menu, `read` and run [`amendment-surface.md` § Conformance entry](../amendment-surface.md) over the inventory once: gaps with `recommended: accept`, verdict `DRIFTED` or `PARTIAL`, not `UNAUTHORIZED`, whose `origin` is not an acceptance criterion are drafted as `accept-into-spec` items (the edit built from `origin` + `evidence`) and sent to the reviewer in one call; cleared items apply and land as one batch commit, the spec is re-audited, the inventory regenerated. Only concerns the re-audit actually closed drop out; sibling concerns in the same gap keep their rows and dispositions. Survivors and every other gap render as ordinary rows below - one menu, never two.
 
-**Carried-open (`status: GAPS (N open)`).** Read `reference/disposition-protocol.md` and follow it for the carried-open render grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below; print the `Conformance: N decisions needed before shipping.` header below the item list, followed by the sentinel's informational lines (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) when present, in that order, above the reply instruction - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: gate=finishing-a-development-branch/carried-open` alone on the first output line, without `recommended=`; put item 1 on the next line, before summaries. Representative carried-open render (multi-concern gap split to `e2e`; single-concern gap `cache`; `UNAUTHORIZED` gap `auth`):
+**Carried-open (`status: GAPS (N open)`).** Read `disposition-protocol.md` and follow it for the carried-open render grammar, the response grammar, and the 9-step execute order. Render the human decision menu in the shape below; print the `Conformance: N decisions needed before shipping.` header below the item list, followed by the sentinel's informational lines (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) when present, in that order, above the reply instruction - a `failed - attributed to G<n>,...` value names the rows whose evidence is the transcript, a `rescope` recommendation on such a row means the failure lies in code the change never owned - drive the dispositions per that reference, then print the summary render and continue to Step 4. If that reference file cannot be read, stop and surface a blocking error — do **not** improvise the grammar from memory. Read and apply [menu-layout](../menu-layout.md). Start the message with `gauntlet: gate=ship/carried-open` alone on the first output line, without `recommended=`; put item 1 on the next line, before summaries. Representative carried-open render (multi-concern gap split to `e2e`; single-concern gap `cache`; `UNAUTHORIZED` gap `auth`):
 
 ```
-gauntlet: gate=finishing-a-development-branch/carried-open
+gauntlet: gate=ship/carried-open
 1. Source-image E2E validation - not run; blocked (HYDRA1.png, HTTP 401), so the branch ships without its end-to-end evidence.
    The spec requires this validation, but HYDRA1.png is unavailable; decide whether it stays in scope for this branch.
    what: The spec's Verification section gains a line deferring the source-image E2E run until the image is available.
@@ -126,7 +126,7 @@ Reply with one line per item: `1. C`, `2. A`. Bare `1` takes every recommendatio
 
 A single-concern render is identical minus the split: one numbered item, no siblings.
 
-Execute the chosen dispositions per `reference/disposition-protocol.md` (Execute order), then print the closure summary and continue to Step 4:
+Execute the chosen dispositions per `disposition-protocol.md` (Execute order), then print the closure summary and continue to Step 4:
 
 ```
 Closure / conformance: CONFORMS
@@ -144,12 +144,12 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 |---|---|---|---|
 | Cheap | Council edit, reverted at the `brainstorming` gate | Spec isn't yet plan- or code-bearing | Revise spec, re-present |
 | Light | Conformance fix, reverted at finish | Gap re-opens for a fresh disposition | Revert the `conformance fix Gn` commit(s), re-audit |
-| Heavy | Council edit, reverted at finish | Rewrites the already-ratified contract that drove the plan and code | Amend spec per brainstorming's [Amending an approved spec](../brainstorming/SKILL.md#amending-an-approved-spec) → regenerate affected plan/code → re-run verify before ship |
+| Heavy | Council edit, reverted at finish | Rewrites the already-ratified contract that drove the plan and code | Amend spec per brainstorming's [Amending an approved spec](../SKILL.md#amending-an-approved-spec) → regenerate affected plan/code → re-run verify before ship |
 
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-Start the message with `gauntlet: gate=finishing-a-development-branch/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b` for body-only output (`--format=%B` includes subjects). Take lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| ` from complete amendment audit rows (`handle | title | what | kind | reviewer | evidence`). Select by these body records, never by subject; commits without matching rows contribute nothing. Render, then the options:
+Start the message with `gauntlet: gate=ship/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b` for body-only output (`--format=%B` includes subjects). Take lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| ` from complete amendment audit rows (`handle | title | what | kind | reviewer | evidence`). Select by these body records, never by subject; commits without matching rows contribute nothing. Render, then the options:
 ```
 Amendments auto-applied (N):
 - <title> - <what changed>
@@ -162,9 +162,9 @@ Omit the block when N = 0.
 |---|---|
 | Rebase | Once, `git merge-base --is-ancestor <Rework base> HEAD`: exit 1 stops with `PR branch history was rewritten: <sha7> is not an ancestor of HEAD; the rework must restart from the recorded rework base.` After fetch, resolve `origin/<headRefName>` with `git rev-parse`: origin equals `PRE_REWORK_HEAD` -> lease push; origin descends from `Rework base` and is an ancestor of HEAD (prove both with `git merge-base --is-ancestor`) -> non-force push; otherwise withhold row 1: `push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>`. |
 | Merge | For every recorded original head, home first, `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD`: first exit 1 stops with `PR branch history was rewritten: <PRE_REWORK_HEAD7> is not an ancestor of HEAD; the rework must be re-merged, not rebased.` Only for home, `git merge-base --is-ancestor origin/<headRefName> HEAD`: exit 0 offers non-force push; exit 1 withholds: `push withheld: origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`. For that withheld push, prove `<PRE_REWORK_HEAD>` ancestor of `origin/<headRefName>`: exit 0 appends `(origin moved past the rework's base <PRE_REWORK_HEAD7>)`; exit 1 adds nothing. Divergence alone proves no origin advance. |
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:
+Read and apply [menu-layout](../menu-layout.md) for rendering and numeric replies. Present:
 ```
-gauntlet: gate=finishing-a-development-branch/step-4
+gauntlet: gate=ship/step-4
 Implementation complete. What would you like to do?
 
 1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)
@@ -179,10 +179,10 @@ Which option?
 Withhold row 1 by omitting it and placing `Withheld: push - <reason>` under the list; retain numbers 2-6. On that withheld menu read a bare reply by its displayed label: `2`-`6` select those rows; `1` or any other number gets the clarifying question naming `2`-`6` (this one menu overrides menu-layout's count-based `1`-`N` range). Recompute preflight on return to the menu. Add no approval gate. Map rows 2-6 to the existing Options 1-5 below, including their confirmation and cleanup rules; row 6 never deletes origin's branch.
 **Normal repo and named-branch worktree — present exactly these 5 options:**
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
-gauntlet: gate=finishing-a-development-branch/step-4
+gauntlet: gate=ship/step-4
 Implementation complete. What would you like to do?
 
 1. Push and create a Pull Request
@@ -196,10 +196,10 @@ Which option?
 
 **Detached HEAD — present exactly these 4 options:**
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```
-gauntlet: gate=finishing-a-development-branch/step-4
+gauntlet: gate=ship/step-4
 Implementation complete. You're on a detached HEAD (externally managed workspace).
 
 1. Push as new branch and create a Pull Request
@@ -214,13 +214,13 @@ Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Disc
 
 **Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
 
-**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`, retaining owning checkouts per [verification-set.md](reference/verification-set.md). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Read [commit-message.md](reference/commit-message.md), pass its resolved absolute path as `wording:` and its resolved `ticket:` in the task, and have the worker commit from its Whole-diff minors fix row. Return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
+**Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`, retaining owning checkouts per [verification-set.md](verification-set.md). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Read [commit-message.md](../commit-message.md), pass its resolved absolute path as `wording:` and its resolved `ticket:` in the task, and have the worker commit from its Whole-diff minors fix row. Return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
 
 ### Step 5: Execute Choice
 
 #### Strip the plan, seal the record (Options 1-3)
 
-Run this on the feature branch before any landing path. Ship the spec and implementation; strip only the plan. Let the seal publish the telemetry record to the `refs/telemetry/records` ref without changing the product checkout, index or HEAD. Keep in-progress records in Git common-dir metadata, outside the working tree. Resolve `<bin>` as `<directory of this skill's SKILL.md>/../../bin` from the skill's `<location>` in the system prompt.
+Run this on the feature branch before any landing path. Ship the spec and implementation; strip only the plan. Let the seal publish the telemetry record to the `refs/telemetry/records` ref without changing the product checkout, index or HEAD. Keep in-progress records in Git common-dir metadata, outside the working tree. Resolve `<bin>` as `<directory of this skill's ship.md>/../../bin` from the skill's `<location>` in the system prompt.
 
 Read the existing artifact's path-only `**Spec:**` header (repo-relative, backticks stripped) before removal; pass that value as `--spec`, including for a line-1 ledger. Resolve the spec dirs with `gauntlet_setting({ key: "flowGuards" })` and use their sibling `plans` dirs for plan paths. Enumerate both PLAN_PATH candidates: the task plan paired by basename and `<sibling plans dir>/<spec stem>-ledger.md`. Preserve the spec and telemetry.
 
@@ -244,7 +244,7 @@ node <bin>/gauntlet-telemetry-seal.mjs --worktree "$WORKTREE" --option <pr|squas
 
 Print the seal's stdout verbatim in the ship completion message. Continue landing on exit 0 for every telemetry outcome, including `no telemetry run`, `telemetry: skipped (unparseable record <path>)` and `telemetry: not pushed (<reason>)`; missing or malformed records and publication failures never block shipping. Retain an unparseable record in place and preserve unpublished telemetry for retry. In a plain jj workspace, report `telemetry: not pushed (jj workspace: no git remote)` and retain local metadata. Stop before the first landing command only on exit 1 for a usage error (invalid arguments or base), quote the bin's line and ask the user how to proceed.
 #### PR-subject row 1: Push to the PR branch
-For the close-absorbed-PR question, start the message with `gauntlet: gate=finishing-a-development-branch/pr-subject-row-1`. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Do not report `done pushed` while this gate awaits an answer. Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../using-git-worktrees/reference/pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
+For the close-absorbed-PR question, start the message with `gauntlet: gate=ship/pr-subject-row-1`. Read and apply [menu-layout](../menu-layout.md). Do not report `done pushed` while this gate awaits an answer. Capture the scoped verification set and accepted-complete task/thread evidence before the strip. Refetch threads per recorded PR using the paginated single-`$n` query (one invocation per PR) owned by [pr-head](../pr-head.md); retain PR attribution and use the query's location rendering. For home, use the table below and omit threads now resolved on GitHub. For members, copy recorded dispositions and mark newly resolved or newly opened states from the refresh; never use home's first-parent history as member-fix proof.
 | Refetched thread / evidence | Resolution |
 |---|---|
 | Recorded `fix`, matching task title carries id, task accepted by spec and code review and `complete`, with an explicitly recorded fix SHA | `fixed in <sha7>` |
@@ -256,7 +256,7 @@ For the close-absorbed-PR question, start the message with `gauntlet: gate=finis
 Emit `fixed in <sha7>` only when the rework flow actually recorded that fix SHA for the thread, for example in the plan task's receipt field. Use the accepted-complete fallback when no SHA is recorded; do not search commit messages. A touched file alone is not completion proof.
 Run the existing strip-and-seal block with `--option pr --base origin/<baseRefName>` and the selected spec; retain its stop-on-error behavior. This seal measures the whole PR, not rework-only; never use PRE_REWORK_HEAD as its base. Then probe each recorded PR with its own number using `git -C "$WORKTREE" rev-parse -q --verify refs/gauntlet/pre-rework/pr-<N>`; only when absent, run `git -C "$WORKTREE" update-ref refs/gauntlet/pre-rework/pr-<N> <PRE_REWORK_HEAD>` with that PR's original SHA. Preserve existing refs and stop on command error or update-ref failure. Push only home with the preflight-selected form: lease case `git -C "$WORKTREE" push --no-follow-tags --force-with-lease=<home headRefName>:<PRE_REWORK_HEAD> origin HEAD:refs/heads/<home headRefName>`; other admitted cases (including merge records) `git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<home headRefName>`.
 Save the pushed home head SHA on success. A lease refusal (`stale info`) skips body editing and closure, names members left open, preserves the worktree, and returns with row 1 withheld: `push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>`; no retry, no reset. Report any other rejected push once, skip body editing and closure, name members left open, and return to the menu without retrying or forcing. Preserve the worktree.
-After a successful push, fetch only home's description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder), then create a body file with `mktemp "$SCRATCH/pr-body.XXXXXX"`; write the existing body bytes exactly, then one blank line, then this block:
+After a successful push, fetch only home's description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder), then create a body file with `mktemp "$SCRATCH/pr-body.XXXXXX"`; write the existing body bytes exactly, then one blank line, then this block:
 ```markdown
 ## Rework
 
@@ -281,7 +281,7 @@ Only after a successful push and successful home body edit, refresh each member 
 Treat unexpected Git exits and failed refreshes as errors, withhold closure and report the reason; merge nothing implicitly.
 Ask nothing when none qualify or N=1. Otherwise render one gated question before marking ship complete. Instantiate each actual eligible target and its exact comment using its recorded pre-rework SHA7 and home's number/URL; the two-member rendering is:
 ```text
-gauntlet: gate=finishing-a-development-branch/pr-subject-row-1
+gauntlet: gate=ship/pr-subject-row-1
 Close the absorbed PRs with these comments?
 #13: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#13 pre-rework sha7>."
 #14: "Reworked into #12 (<home url>) by the gauntlet; this PR's commits are merged there and remain reachable as <#14 pre-rework sha7>."
@@ -293,7 +293,7 @@ On `1`, re-fetch state/head immediately before each `gh pr close <N> --comment "
 Rows 2-6, withheld/failed ancestry, withheld/rejected push, and failed body fetch/edit never offer closure; name untouched members with `Member PRs #13, #14 left open.` Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above.
 #### Option 1: Push and Create PR
 
-Read [commit-message.md](reference/commit-message.md) for the Landed message subject and resolve its ticket rule. Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](../commit-message.md) for the Landed message subject and resolve its ticket rule. Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 # Push branch
@@ -329,7 +329,7 @@ Run the strip-and-seal block above first (plan stripped, telemetry record sealed
 
 #### Option 3: Squash-merge to base
 
-Read [commit-message.md](reference/commit-message.md) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule. Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](../commit-message.md) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule. Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 ```bash
 git -C "$PRIMARY" checkout <base-branch>
 git -C "$PRIMARY" pull
@@ -342,7 +342,7 @@ EOF
 ```
 Keep only the spec and implementation in the staged squash tree; the stripped plan stays in feature history and the sealed telemetry record belongs to `refs/telemetry/records`.
 
-The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch. For a ledger, run the per-pair post-squash recipe in [verification-set.md](reference/verification-set.md) instead of the non-ledger subshell above.
+The post-squash re-verify is not optional - `git merge --squash` can surface conflict-resolution mistakes the worktree-side run couldn't catch. For a ledger, run the per-pair post-squash recipe in [verification-set.md](verification-set.md) instead of the non-ledger subshell above.
 
 Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `git -C "$PRIMARY" branch -D "$FEATURE"`.
 
@@ -355,7 +355,7 @@ Report: "Keeping branch <name>. Worktree preserved at <path>." Leave telemetry i
 **Don't cleanup worktree.**
 
 #### Option 5: Discard
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the typed-confirmation text. **Confirm first:**
+Read and apply [menu-layout](../menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the typed-confirmation text. **Confirm first:**
 ```
 gauntlet: question
 This will permanently delete:
@@ -374,7 +374,7 @@ If confirmed: Cleanup worktree (Step 6), then, if Step 6 removed the worktree, `
 
 **Only runs for the Squash-merge and Discard options (3 and 5).** The PR, draft PR, and Keep options always preserve the worktree.
 
-Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply [recorded cleanup ownership](reference/legs.md#recorded-cleanup-ownership) before the keyed path below. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section as the cleanup contract (keys written like `## cleanup` items: `using-git-worktrees/SKILL.md` Step 1a).
+Use recorded `contract:` lines when the spec carries `## Legs`, including one member; apply [recorded cleanup ownership](legs.md#recorded-cleanup-ownership) before the keyed path below. For a legacy spec without `## Legs`, read the gauntlet overrides file now (ladder in Project overrides) and its `## using-git-worktrees` section as the cleanup contract (keys written like `## cleanup` items: `../worktrees.md` Step 1a).
 
 **Keyed contract** - the section has at least one of `- home:`, `- create:`, `- destroy:`:
 
@@ -436,7 +436,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 
 **Cleaning up harness-owned worktrees**
 - **Problem:** Removing a worktree the harness created causes phantom state
-- **Fix:** Apply [recorded cleanup ownership](reference/legs.md#recorded-cleanup-ownership) for specs with `## Legs`; otherwise use Step 6's overrides or legacy ownership proof
+- **Fix:** Apply [recorded cleanup ownership](legs.md#recorded-cleanup-ownership) for specs with `## Legs`; otherwise use Step 6's overrides or legacy ownership proof
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work
@@ -451,7 +451,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 - **Fix:** Let the seal own publication from common-dir metadata; stage no telemetry record in the product checkout.
 
 ## Completion
-Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
+Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 ```
 phase_tracker({ action: "complete", phase: "ship" })
 ```
@@ -488,6 +488,6 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
-The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

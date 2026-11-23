@@ -8,7 +8,7 @@ import { join } from "node:path";
 const seal = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname;
 const library = new URL("../../extensions/lib/telemetry-branch.ts", import.meta.url).href;
 const ref = "refs/telemetry/records";
-const prefix = "team/product/brainstorming/doc/specs/";
+const prefix = "team/product/gauntlet/doc/specs/";
 
 function fixture() {
   const scratch = mkdtempSync(join(tmpdir(), "telemetry-concurrency-"));

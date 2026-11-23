@@ -122,12 +122,12 @@ Doc updates ship in the same commit as the code and the conformance gate verifie
 
 Keep this list in sync with the skills that cite this doc:
 
-- `brainstorming` section 6 and `brainstorming/reference/spec-finalization.md` self-review and worker dispatch context.
+- `brainstorming` section 6 and `brainstorm/spec-finalization.md` self-review and worker dispatch context.
 - `roasting-the-spec` member, chair, and applier dispatch context.
-- `brainstorming/reference/amendment-surface.md` amendment-review dispatch context.
+- `amendment-surface.md` amendment-review dispatch context.
 - `writing-plans` - sources doc-update tasks from the spec's Documentation
   impact section.
-- `verification-before-completion/reference/conformance-check.md` - docs named
+- `conformance-check.md` - docs named
   here are origin requirements the conformance pass verifies.
 - `finishing-a-development-branch` Step 1's doc-impact pointer.
 
@@ -135,5 +135,5 @@ Keep this list in sync with the skills that cite this doc:
 
 This doc is generic. Project-specific doc taxonomy (which docs a given
 project treats as canonical for which topic) lives in the gauntlet
-overrides file (see Project overrides in `brainstorming/SKILL.md`), in a
+overrides file (see Project overrides in `SKILL.md`), in a
 `## documentation` section (guidance only; no settings key) - not here.

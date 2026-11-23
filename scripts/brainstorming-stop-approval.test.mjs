@@ -10,7 +10,7 @@ const cases = [
 ];
 
 test('amends-stop persists none with the selected engine through verified approval', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const { row, engine } of cases) {
     assert.ok(gate.includes(`| \`${row} --amends-stop\` | approve; persist \`none\`; engine \`${engine}\``), `row ${row} opts out without changing engine`);
   }

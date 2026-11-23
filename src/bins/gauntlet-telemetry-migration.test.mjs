@@ -8,7 +8,7 @@ import { parseRecord } from "../../extensions/lib/telemetry-record.ts";
 
 const sourceRoot = new URL("../../", import.meta.url).pathname;
 const ref = "refs/telemetry/records";
-const prefix = "team/product/brainstorming/";
+const prefix = "team/product/gauntlet/";
 const legacyDir = ".pi/gauntlet/telemetry";
 const record = (id, repo) => `schema: 1\nspec: doc/specs/${id}.md\nrun_id: ${id}\nstatus: shipped\ncreated_at: 2026-01-01\nshipped_at: 2026-01-02\n${repo ? `repo: ${repo}\n` : ""}versions: {pi-gauntlet: 1.0.0}\nderived:\n  modified_files: [code.txt, gone.txt]\n  council:\n    members: {model: {dispatches: 1}}\n`;
 

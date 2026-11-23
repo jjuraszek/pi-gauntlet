@@ -2,7 +2,7 @@ bundle+: skills/gatekeep-pr/review-baseline.md
 bundle-: skills/gatekeep-pr/reference/sync.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Start at step 5 with the supplied review already returned. Integrate it and render the first report and menu for each independent checkpoint below. Put each checkpoint's label outside its message and start the message with its gate line. Stop at each menu's hint. No human has picked a row; simulate no repair, post, merge, cleanup, watch or helper. The completed refresh and source checks below need no further narration.

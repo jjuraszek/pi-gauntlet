@@ -5,10 +5,10 @@ Keep tracker and dispatch APIs unchanged.
 
 ## Settle membership before Worktree First
 
-Read the home primary's first-found overrides file: `.pi/gauntlet-overrides.md`,
-`gauntlet-overrides.md`, `doc/gauntlet-overrides.md`. Treat `## shape-ticket`
+Read the home primary's first-found overrides file: `.pi/gauntlet.md`,
+`gauntlet.md`, `doc/gauntlet.md`. Treat `## shape-ticket`
 `- sibling: <clone url>` declarations as eligibility, not membership. Parse selected values
-with shape-ticket's [shared parser](../../shape-ticket/reference/repo-audit.md);
+with shape-ticket's [shared parser](../shape-ticket/reference/repo-audit.md);
 use `PATH` = `<home PRIMARY parent>/<NAME>` as each companion primary.
 
 Match only companions explicitly selected by the ask (repo identifier, `NAME`,
@@ -22,7 +22,7 @@ without origin use `repo:` from that member's own first-found overrides
 in `### Leg:`, task `Leg:`, and brief `repo:` fields. For an ambiguous basename,
 ask once before any creation; never guess. Order members home first, then selected siblings in declared order.
 An existing PR alone never activates membership; PR home provisioning still uses
-`using-git-worktrees/reference/pr-head.md`.
+`pr-head.md`.
 
 Match identifiers before any filesystem or git probe; probe only matching siblings,
 or remaining declarations when nothing matches. Never probe unselected siblings. With no selected companion,
@@ -87,7 +87,7 @@ Record only the contract fields authorized by the creator; never record a produc
 
 Invoke using-git-worktrees once per member with explicit `$ROOT` = primary and
 `$BRANCH` = shared branch; require the affirmative read-back in
-[Step 4](../../using-git-worktrees/SKILL.md#step-4--report-location).
+[Step 4](worktrees.md#step-4--report-location).
 Carry every `Worktree ready at <path>` result, home
 first. On any failure stop naming repo and branch and list already-created legs;
 leave them preserved, never auto-remove them.
@@ -202,7 +202,7 @@ their ownership through original AC indices in `scope:`. Unmatched groups retain
 `this repo / elsewhere / repair` question; `elsewhere:` creates no leg.
 
 Commit home first using spec-finalization's gate and audit. Read
-[commit-message.md](../../finishing-a-development-branch/reference/commit-message.md)
+[commit-message.md](commit-message.md)
 for the companion spec commit's wording and ticket rule. Then write one companion
 file per companion in its own spec directory with the home's filename. Use
 `git -C <companion worktree>` to add and commit that file with the home spec subject:

@@ -1,6 +1,6 @@
 ---
 name: spec-council-applier
-description: Applies a spec-council chair report to the spec under review and returns the audit. Dispatched by the roasting-the-spec skill; not for direct dispatch.
+description: Applies a spec-council chair report to the spec under review and returns the audit. Dispatched by the gauntlet spec council; not for direct dispatch.
 tools: read, grep, find, ls, bash, edit, write
 defaultContext: fresh
 inheritProjectContext: true

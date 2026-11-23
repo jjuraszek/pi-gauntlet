@@ -29,13 +29,13 @@ List the files this implementation will create, modify, or delete. Group by comp
 - `src/services/legacy_foo.ts`
 ```
 
-If you can't list the files, the spec isn't ready: amend or redraw per brainstorming's [Amending an approved spec](../../brainstorming/SKILL.md#amending-an-approved-spec).
+If you can't list the files, the spec isn't ready: amend or redraw per brainstorming's [Amending an approved spec](../SKILL.md#amending-an-approved-spec).
 
 ## Legs (`leg-unknown`)
 
-Read the home spec's `## Legs` using [the leg contract](../../brainstorming/reference/legs.md) before recon. Write `Leg: <repo>` immediately after each task heading, before `**Files:**`; absence means home. Keep the plan and its `**Spec:**` header at home, citing the home spec. Repair a `leg-unknown` task in the plan, never by adding spec membership.
+Read the home spec's `## Legs` using [the leg contract](../legs.md) before recon. Write `Leg: <repo>` immediately after each task heading, before `**Files:**`; absence means home. Keep the plan and its `**Spec:**` header at home, citing the home spec. Repair a `leg-unknown` task in the plan, never by adding spec membership.
 
-Write one `Baseline <repo>: <sha>` header per member. Match each task's baseline bullets to its own leg's SHA; require equality within a leg, not across legs. Resolve `Modify:`/`Create:`/`Test:`/`Delete:` paths and globs against the admitted leg checkout from [Locate a leg tree](../../brainstorming/reference/legs.md#locate-a-leg-tree), keeping home at the session's home worktree; admit task ownership through `plan_check`, never from `design:` prose. Stop plan writing on a failed lookup and report its reason; create no plan against a guessed checkout. Key file overlap and cross-task created anchors on `(leg, path)`.
+Write one `Baseline <repo>: <sha>` header per member. Match each task's baseline bullets to its own leg's SHA; require equality within a leg, not across legs. Resolve `Modify:`/`Create:`/`Test:`/`Delete:` paths and globs against the admitted leg checkout from [Locate a leg tree](../legs.md#locate-a-leg-tree), keeping home at the session's home worktree; admit task ownership through `plan_check`, never from `design:` prose. Stop plan writing on a failed lookup and report its reason; create no plan against a guessed checkout. Key file overlap and cross-task created anchors on `(leg, path)`.
 
 Split mixed waves into consecutive leg-homogeneous waves, preserving dependencies. Re-walk each task's `Files:` under its leg using the leg contract's Gather rules procedure. Append task `Rules:` for files missing from the spec list; resolve `Rules: root only - paths unresolved`; retain missing-link evidence. Read the combined lists before execution and review.
 
@@ -55,7 +55,7 @@ Group tasks into **waves** so the executor can parallelize independent work (see
 
 **Doc tasks.** Doc updates are real plan tasks, not an afterthought. Task-local docs (a doc that only describes the file(s) a task already touches) ride with that task. Cross-cutting or index docs (README, `AGENTS.md`, topic guides, taxonomy indexes) sequence into a dedicated trailing doc-only wave - last wave by convention, file-disjoint from every code task so the pairwise-disjoint wave contract holds.
 
-**Doc-wave collision rule.** Amend-over-create (see `brainstorming/reference/documentation-impact.md`) concentrates edits into hub docs like README and `AGENTS.md`. Run a multi-task doc wave's tasks concurrently with pairwise-disjoint files; merge doc tasks that land on the *same* file into one task rather than splitting. A single-task trailing doc wave is the expected shape, not a smell.
+**Doc-wave collision rule.** Amend-over-create (see `../documentation-impact.md`) concentrates edits into hub docs like README and `AGENTS.md`. Run a multi-task doc wave's tasks concurrently with pairwise-disjoint files; merge doc tasks that land on the *same* file into one task rather than splitting. A single-task trailing doc wave is the expected shape, not a smell.
 
 ```markdown
 ## Wave 1 — Foundations
@@ -139,7 +139,7 @@ Each task uses `- [ ]` checkbox steps so execution tools (and humans) can track 
 | `sync: unresolved - <files>` | Run `git rebase --no-rebase-merges origin/<base>` and resolve `<files>`. |
 | `Member replay: #<N> unresolved - <files>` | Replay #<N> onto home and resolve `<files>`. |
 Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task. In both forms, keep Task 1 alone in Wave 1 and place every thread fix task in Wave 2 or later, behind Task 1.
-For both rebase forms, consume every `pending` member in listed order, run `git update-ref refs/gauntlet/rework-base/pr-<home> HEAD`, and persist `Rework base: <sha>` plus final `Member replay:` outcomes through the existing [amendment path](../../brainstorming/SKILL.md#amending-an-approved-spec) before finishing. Use [pr-head's sync and helper contract](../../using-git-worktrees/reference/pr-head.md), including replay commands, conflict checks, continuation and abort assertions; do not duplicate it. Make each `fix` thread exactly one task whose title carries that thread id. Name the thread's request in its `Tests:` block through the scoped command and `via:` seam that exercises it. Keep `keep open` and `decline: <reason>` as recorded dispositions, not repair tasks. Apply the existing file-disjoint wave, spec-anchor, baseline and checker rules to these tasks without changing executor or spec-commit mechanics.
+For both rebase forms, consume every `pending` member in listed order, run `git update-ref refs/gauntlet/rework-base/pr-<home> HEAD`, and persist `Rework base: <sha>` plus final `Member replay:` outcomes through the existing [amendment path](../SKILL.md#amending-an-approved-spec) before finishing. Use [pr-head's sync and helper contract](../pr-head.md), including replay commands, conflict checks, continuation and abort assertions; do not duplicate it. Make each `fix` thread exactly one task whose title carries that thread id. Name the thread's request in its `Tests:` block through the scoped command and `via:` seam that exercises it. Keep `keep open` and `decline: <reason>` as recorded dispositions, not repair tasks. Apply the existing file-disjoint wave, spec-anchor, baseline and checker rules to these tasks without changing executor or spec-commit mechanics.
 
 ```markdown
 ### Task N: [Component Name]
@@ -204,11 +204,11 @@ For both rebase forms, consume every `pending` member in listed order, run `git 
 
 Every code task carries this step (red -> green -> fmt/lint -> commit). Doc-only tasks omit it unless the project formats Markdown.
 
-Read [the commit-message reference](../../finishing-a-development-branch/reference/commit-message.md) now. Resolve its absolute path into every task's Commit step and bind the ticket through Word sources. Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
+Read [the commit-message reference](../commit-message.md) now. Resolve its absolute path into every task's Commit step and bind the ticket through Word sources. Use bare `git` in task commit steps: the orchestrator commits each wave after code review accepts; a task's own commit step runs inside its nested worktree and is captured as its patch.
 
 ## Spec anchors (`anchor-resolution`)
 
-**Anchor rules.** The task's `**Spec:**` line cites the plan header's spec path; multiple anchors sit comma-separated on one line (`§ "A" L10-L18, § "C" L40-L44`). Checks key on the `§` marker, so the header's path-only `**Spec:**` line is never matched. Anchors are captured against the gated spec at plan-writing time; a change to the approved spec follows brainstorming's [Amending an approved spec](../../brainstorming/SKILL.md#amending-an-approved-spec), executed in place. A task with no anchorable requirement (pure-mechanics chore) omits the `**Spec:**` line entirely (never `**Spec:** none`) and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
+**Anchor rules.** The task's `**Spec:**` line cites the plan header's spec path; multiple anchors sit comma-separated on one line (`§ "A" L10-L18, § "C" L40-L44`). Checks key on the `§` marker, so the header's path-only `**Spec:**` line is never matched. Anchors are captured against the gated spec at plan-writing time; a change to the approved spec follows brainstorming's [Amending an approved spec](../SKILL.md#amending-an-approved-spec), executed in place. A task with no anchorable requirement (pure-mechanics chore) omits the `**Spec:**` line entirely (never `**Spec:** none`) and carries a mechanical-task row in `## Spec coverage` — silence is never valid.
 
 ## Tests (`tests-block`)
 
@@ -272,7 +272,7 @@ Every plan failure mode:
 - ❌ "Wire it up to the existing system" - give file paths and call sites.
 - ❌ "Similar to Task N" - repeat the code. Implementers (and subagents with fresh context) may read tasks out of order; pointing at a sibling task is not a substitute for showing the code.
 - ❌ References to types, functions, methods, or fields not defined in any task in this plan. If it shows up in Task 5, it must be introduced by Task 1-4 or already exist in the codebase (with a file:line citation).
-- ❌ "Probably also need to update the docs" - either yes (which doc) or no. Docs are named plan tasks, sourced from the spec's Documentation impact section (materiality bar in `brainstorming/reference/documentation-impact.md`).
+- ❌ "Probably also need to update the docs" - either yes (which doc) or no. Docs are named plan tasks, sourced from the spec's Documentation impact section (materiality bar in `../documentation-impact.md`).
 
 If a decision is genuinely open, put it in an explicit **Open Questions** section at the top and resolve before execution starts.
 

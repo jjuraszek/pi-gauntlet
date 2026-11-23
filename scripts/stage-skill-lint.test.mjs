@@ -5,19 +5,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as stageSkillLint from "./stage-skill-lint.mjs";
 
-const { STAGE_SKILL_DIRS, lintStageSkill } = stageSkillLint;
+const { STAGE_FILES, lintStageFiles, lintStageSkill } = stageSkillLint;
 
 const fenced = (...lines) => ["```bash", ...lines, "```"].join("\n");
 const msgs = (text) => lintStageSkill(text).map((f) => `${f.line}:${f.rule}`);
 
-assert.deepEqual(STAGE_SKILL_DIRS, [
-  "skills/brainstorming",
-  "skills/writing-plans",
-  "skills/subagent-driven-development",
-  "skills/loop-implementation",
-  "skills/finishing-a-development-branch",
-  "skills/using-git-worktrees",
-]);
+assert.equal(new Set(STAGE_FILES).size, 38);
 
 // prohibited: cd at statement start (bare, after separator, in $(...))
 assert.deepEqual(msgs(fenced('cd "$WT"')), ["2:cd"]);
@@ -50,50 +43,39 @@ assert.deepEqual(
 // fences toggle correctly with ~~~ and multiple blocks; a line reports each rule once
 assert.deepEqual(msgs(["~~~", "cd x", "~~~", "cd in prose is fine", "```", "cd y", "```"].join("\n")), ["2:cd", "6:cd"]);
 
-assert.equal(typeof stageSkillLint.lintStageSkillDirs, "function");
 const tmp = mkdtempSync(join(tmpdir(), "stage-skill-lint-"));
 try {
-  const skillDir = join(tmp, "skills/brainstorming");
-  mkdirSync(join(skillDir, "reference"), { recursive: true });
-  writeFileSync(join(skillDir, "SKILL.md"), fenced('cd "$WT"'));
-  writeFileSync(join(skillDir, "reference/prose.md"), "Switch into the worktree\n");
-  writeFileSync(join(skillDir, "reference/show.md"), fenced("ROOT=$(git rev-parse --show-toplevel)"));
-  writeFileSync(
-    join(skillDir, "reference/allowed.md"),
-    fenced('(cd "$WT" && npm test)', 'git -C "$WT" rev-parse --show-toplevel'),
-  );
-  writeFileSync(join(skillDir, "reference/ignored.txt"), fenced('cd "$WT"'));
-
-  const rows = stageSkillLint
-    .lintStageSkillDirs(tmp, ["skills/brainstorming"])
-    .map(({ file, line, rule }) => ({ file, line, rule }))
-    .sort((a, b) => a.file.localeCompare(b.file));
-  assert.deepEqual(rows, [
-    { file: "skills/brainstorming/reference/prose.md", line: 1, rule: "prose" },
-    { file: "skills/brainstorming/reference/show.md", line: 2, rule: "show-toplevel" },
-    { file: "skills/brainstorming/SKILL.md", line: 2, rule: "cd" },
+  const tree = "skills/gauntlet/";
+  const fixtures = [
+    ["SKILL.md", fenced('cd "$WT"')],
+    ["implement/loop/loop.md", "Switch into the worktree\n"],
+    ["plan/plan.md", fenced("ROOT=$(git rev-parse --show-toplevel)")],
+    ["implement/waves/parallel-agents.md", fenced('cd "$WT"', 'mktemp -d')],
+    ["brainstorm/council.md", fenced('cd "$WT"', 'mktemp -d')],
+  ];
+  for (const [path, text] of fixtures) {
+    const file = join(tmp, tree, path);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, text);
+  }
+  assert.deepEqual(lintStageFiles(tmp).map(hit => [hit.file.slice(tree.length), hit.rule]).sort(), [
+    ["SKILL.md", "cd"], ["implement/loop/loop.md", "prose"], ["plan/plan.md", "show-toplevel"],
   ]);
-  assert.deepEqual(stageSkillLint.lintStageSkillDirs(tmp, ["skills/missing"]), []);
+  assert.deepEqual(stageSkillLint.lintTempPathScope(tmp).map(hit => hit.file), [tree + "brainstorm/council.md"]);
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-const stage = "skills/loop-implementation/SKILL.md";
+const stage = "skills/gauntlet/implement/loop/loop.md";
 const gate = "skills/gatekeep-pr/reference/assessment.md";
-assert.deepEqual(stageSkillLint.TEMP_PATH_SCOPE, [
-  ...STAGE_SKILL_DIRS,
-  "skills/gatekeep-pr",
-  "skills/roasting-the-spec",
-  "skills/verification-before-completion",
-  "agents/loop-implementer.md",
-]);
+assert.equal(stageSkillLint.TEMP_PATH_SCOPE.length, STAGE_FILES.length + 7);
 for (const [file, text, count] of [
   [stage, "mktemp", 1],
   [stage, "`mktemp -d`", 1],
   [stage, 'mktemp "$SCRATCH/a.XXXXXX" then `mktemp`', 1],
-  ["skills/brainstorming/gatherer.md", 'mktemp "gauntlet/tmp/report.XXXXXX"', 0],
-  ["skills/brainstorming/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp)).XXXXXX"', 1],
-  ["skills/brainstorming/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp "$SCRATCH/nested.XXXXXX")).XXXXXX"', 0],
+  ["skills/gauntlet/brainstorm/gatherer.md", 'mktemp "gauntlet/tmp/report.XXXXXX"', 0],
+  ["skills/gauntlet/brainstorm/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp)).XXXXXX"', 1],
+  ["skills/gauntlet/brainstorm/gatherer.md", 'mktemp "$SCRATCH/$(basename $(mktemp "$SCRATCH/nested.XXXXXX")).XXXXXX"', 0],
   [gate, 'mktemp "gauntlet/tmp/report.XXXXXX"', 1],
   [gate, 'mktemp "$RUN_DIR/a.XXXXXX" then `mktemp -d`', 1],
   [gate, 'mktemp "$SCRATCH/a.XXXXXX"', 1],
@@ -104,7 +86,7 @@ for (const [file, text, count] of [
   [gate, 'mktemp "$RUN_DIR/a.XXXXXX"', 0],
   [gate, 'mktemp -d "$COMMON_GIT/gauntlet/tmp/gate.XXXXXX"', 0],
   [stage, "Read `${TMPDIR:-/tmp}/loop-base-0.jobs`", 1],
-  ["skills/loop-implementation/reference/return-file.md", 'mktemp -d "${TMPDIR:-/tmp}/gauntlet.XXXXXX"', 0],
+  ["skills/gauntlet/return-file.md", 'mktemp -d "${TMPDIR:-/tmp}/gauntlet.XXXXXX"', 0],
   ["skills/gatekeep-pr/reference/post-selection-loop.md", 'mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX"', 0],
   [gate, 'mktemp "${TMPDIR:-/tmp}/gate-kept.XXXXXX"', 2],
   [stage, 'mktemp "$SCRATCH/a.XXXXXX" and ${TMPDIR:-/tmp}', 1],

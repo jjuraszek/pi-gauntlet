@@ -1,14 +1,14 @@
 # Stop note (subagent-driven-development companion)
 
-For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Keep source reads delegated; use the bounded direct-report read rule in SKILL.md for child reports. Stop on a delegated failure.
+For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Keep source reads delegated; use the bounded direct-report read rule in waves.md for child reports. Stop on a delegated failure.
 
-Emit when no escalation model resolves, the escalated dispatch errors, its one escalated round and any funded rounds fail (see `SKILL.md` "The Wave Loop"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
+Emit when no escalation model resolves, the escalated dispatch errors, its one escalated round and any funded rounds fail (see `waves.md` "The Wave Loop"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template
 
 Write the note from structured fields, bounded report findings and lookup observations. Never dispatch a child to relay a report. While a budget token exists, put `budget: <spent> of <N> spent` after `Problem:` and any `Searched:` lines and before findings, including zero-spent stops. On unrecoverable resume use `budget: <N> of <N> spent (not recovered on resume)`. Omit budget without a token.
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the stop note; this is an implementation decision, not a done or stuck outcome.
+Read and apply [menu-layout](../../menu-layout.md). Start the message with `gauntlet: question` alone on the first output line, followed by a newline before the stop note; this is an implementation decision, not a done or stuck outcome.
 
 ```
 gauntlet: question
@@ -30,7 +30,7 @@ Recommendation: <option> - <why>
 
 ## Rules
 
-- End every note with `Recommendation: <option> - <why>`, or `Recommendation: none - <why>` when no named change is recommended. Apply [takeable-decision ladder](./SKILL.md#escalation-and-funding) before emitting an execution decision note.
+- End every note with `Recommendation: <option> - <why>`, or `Recommendation: none - <why>` when no named change is recommended. Apply [takeable-decision ladder](./waves.md#escalation-and-funding) before emitting an execution decision note.
 - Bracketed header clause only when an escalated round actually ran; omit it when no model was resolvable or the dispatch errored.
 - For review stalls, quote only residual issues from the final review report; do not summarize history.
 - For fact asks, put one `Searched: <where> - <result>` line per lookup directly under `Problem:`, in lookup order. For an unavailable named tool, write `Searched: <tool> - not available`. Omit `Searched:` for decisions, including extra-round approval.

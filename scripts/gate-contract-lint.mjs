@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const CONTRACT = "doc/gate-contract.md";
-const MENU = "skills/brainstorming/reference/menu-layout.md";
+const MENU = "skills/gauntlet/menu-layout.md";
 const TOKEN = /^[A-Za-z0-9.-]+$/;
 
 function markdown(text) {

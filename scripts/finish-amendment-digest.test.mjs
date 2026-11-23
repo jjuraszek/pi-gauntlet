@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const skill = read('skills/finishing-a-development-branch/SKILL.md');
+const skill = read('skills/gauntlet/ship/ship.md');
 const digest = skill.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
 const command = digest.match(/`(git -C "\$WORKTREE" log [^`]+)`/)?.[1];
 const cache = '- cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds';
@@ -69,7 +69,7 @@ test('the extracted log recipe and selector keep every applied body row and excl
 });
 
 test('saved digest examples render the selected title and change fields, not current model execution', async t => {
-  const saved = JSON.parse(read('eval/finishing-a-development-branch/results/digest-from-record-lines/candidate.json'));
+  const saved = JSON.parse(read('eval/ship/results/digest-from-record-lines/candidate.json'));
   const outputs = Object.entries(saved.outputs);
   assert.ok(outputs.length > 0, 'reuse at least one saved rendering');
   const expected = [cache, bytes].map(line => {

@@ -26,7 +26,7 @@ export function telemetryRepo(root: string): string {
   if (result.ok && path) return path;
 
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+  for (const file of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
     const path = join(top, file);
     if (!existsSync(path)) continue;
     const section = readFileSync(path, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";

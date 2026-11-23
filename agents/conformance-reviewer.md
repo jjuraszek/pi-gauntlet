@@ -90,7 +90,7 @@ G1:
   origin: spec "Section 3 / Fix dispatch" - "implementer task not dispatched for gaps marked fix"
   evidence: absent
   remediation: implementer task not dispatched for gaps marked fix
-  touched-files: skills/verification-before-completion/reference/conformance-check.md
+  touched-files: skills/gauntlet/conformance-check.md
   touched-resources: none
   recommended: fix
 ```

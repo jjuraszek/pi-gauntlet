@@ -34,9 +34,9 @@ function historicalModels(candidate, baseline) {
   return models;
 }
 
-const driver = read('skills/loop-implementation/SKILL.md');
-const holds = read('skills/loop-implementation/reference/driver-holds.md');
-const recovery = read('skills/loop-implementation/reference/interrupted-recovery.md');
+const driver = read('skills/gauntlet/implement/loop/loop.md');
+const holds = read('skills/gauntlet/implement/loop/driver-holds.md');
+const recovery = read('skills/gauntlet/implement/loop/interrupted-recovery.md');
 const validation = driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0];
 
 test('home admission written contract limits attribution and all header deltas', () => {
@@ -87,7 +87,7 @@ test('home admission written contract limits attribution and all header deltas',
 });
 
 test('historical saved replies: home admission decisions, not a driver implementation', async t => {
-  const dir = 'eval/loop-implementation';
+  const dir = 'eval/loop';
   const sample = 'returned-line-admission';
   const target = JSON.parse(read(`${dir}/target.json`));
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));

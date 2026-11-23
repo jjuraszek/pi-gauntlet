@@ -5,9 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 
-const driver = readFileSync(new URL('../skills/loop-implementation/SKILL.md', import.meta.url), 'utf8');
-const stagnation = readFileSync(new URL('../skills/loop-implementation/reference/empty-child-stagnation.md', import.meta.url), 'utf8');
-const holds = readFileSync(new URL('../skills/loop-implementation/reference/driver-holds.md', import.meta.url), 'utf8');
+const driver = readFileSync(new URL('../skills/gauntlet/implement/loop/loop.md', import.meta.url), 'utf8');
+const stagnation = readFileSync(new URL('../skills/gauntlet/implement/loop/empty-child-stagnation.md', import.meta.url), 'utf8');
+const holds = readFileSync(new URL('../skills/gauntlet/implement/loop/driver-holds.md', import.meta.url), 'utf8');
 const dispatch = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0] + '\n' + stagnation;
 const ledgerPath = 'docs/ledger.md';
 const env = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',

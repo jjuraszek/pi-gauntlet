@@ -176,7 +176,7 @@ BEFORE mocking any method:
 
 ## Anti-Pattern 4: Incomplete Mocks
 
-Scope: a mock standing in for an external API response. Internal inputs (records, config, fixtures your own code consumes) follow the minimal-synthetic default in `SKILL.md` RED step rule 4 - the smallest hand-built value the tested behavior and its contract need.
+Scope: a mock standing in for an external API response. Internal inputs (records, config, fixtures your own code consumes) follow the minimal-synthetic default in `tdd.md` RED step rule 4 - the smallest hand-built value the tested behavior and its contract need.
 
 **The violation:**
 ```typescript

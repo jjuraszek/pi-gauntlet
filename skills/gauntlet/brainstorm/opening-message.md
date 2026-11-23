@@ -1,6 +1,6 @@
 # Opening message
 
-Use this wording for question one's message at checklist step 4, including fresh, redraw, restored, and unmarked spec-only PR entry. Apply [Menu layout](menu-layout.md) for the first-line rule. The relatedness question before provisioning belongs to `pr-subject.md`.
+Use this wording for question one's message at checklist step 4, including fresh, redraw, restored, and unmarked spec-only PR entry. Apply [Menu layout](../menu-layout.md) for the first-line rule. The relatedness question before provisioning belongs to `pr-subject.md`.
 
 ## Shape
 

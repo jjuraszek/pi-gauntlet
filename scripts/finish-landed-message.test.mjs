@@ -27,11 +27,11 @@ function historicalReplies(record) {
 }
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const skill = read('skills/finishing-a-development-branch/SKILL.md');
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const skill = read('skills/gauntlet/ship/ship.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const pr = skill.split('#### Option 1: Push and Create PR\n')[1].split('#### Option 2:')[0];
 const squash = skill.split('#### Option 3: Squash-merge to base\n')[1].split('#### Option 4:')[0];
-const saved = JSON.parse(read('eval/finishing-a-development-branch/results/landed-message/candidate.json'));
+const saved = JSON.parse(read('eval/ship/results/landed-message/candidate.json'));
 const subject = 'Count imported plants in compliance pagination';
 
 // Reuse only the saved message/title examples, not the historical workflow traces or their judgments.

@@ -4,10 +4,10 @@ import { readFileSync } from 'node:fs';
 import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const sample = 'eval/brainstorming/samples/spec-pr-regate';
+const sample = 'eval/gauntlet/samples/spec-pr-regate';
 
 test('marked PR approvals decode row 1/2 flags and commit all three headers without amending', () => {
-  const source = read('skills/brainstorming/reference/spec-pr.md');
+  const source = read('skills/gauntlet/brainstorm/spec-pr.md');
   const regate = source.slice(source.indexOf('## Re-gate a marked spec PR'));
   assert.match(regate, /Offer 1\/2 and optional 3; with zero AC rows omit 2 and its flags/);
   assert.match(regate, /Withhold 4 with `Withheld: draft PR - #N already exists`/);
@@ -27,7 +27,7 @@ test('marked PR approvals decode row 1/2 flags and commit all three headers with
 });
 
 test('saved marked PR re-gates persist engine, grant and PR for bare and flagged approvals on both models', () => {
-  const candidate = JSON.parse(read('eval/brainstorming/results/spec-pr-regate/candidate.json'));
+  const candidate = JSON.parse(read('eval/gauntlet/results/spec-pr-regate/candidate.json'));
   const expected = read(`${sample}/expected.md`);
   const facts = parseExpected(expected).facts;
   assert.ok(facts.some(({ id }) => id === 'flags'), 'flagged approval coverage');

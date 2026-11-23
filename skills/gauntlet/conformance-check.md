@@ -6,7 +6,7 @@ requirements. Docs named in a spec's "Documentation impact" section - any of
 the three classes (introduced, materially amended, derived/memory invalidated) -
 are origin requirements the same as code: a missing or drifted doc from that
 section is a conformance gap, not a code-review nit. See
-`../../brainstorming/reference/documentation-impact.md` for what that section
+`documentation-impact.md` for what that section
 contains and how its entries are scoped.
 
 ## Why this is distinct from code review
@@ -64,7 +64,7 @@ Self-checking in the main session is the fallback when delegation isn't possible
 | 2 | Original prompt | Catches inline requirements never folded into the spec. |
 | 3 | Re-fetch the ticket | **Fallback only**, when no spec exists. Skip when a spec exists — the live ticket may have drifted. |
 
-Project's issue-tracker skill (for the fallback) is named in the gauntlet overrides file (see Project overrides in `verification-before-completion/SKILL.md`).
+Project's issue-tracker skill (for the fallback) is named in the gauntlet overrides file (see Project overrides in `verify/verify.md`).
 
 ## Drift = red flag
 
@@ -151,7 +151,7 @@ canonical Disposition catalog and availability table below. `fix-now` is
 unavailable there; any other disposition is offered only when its table
 prerequisites hold.
 
-Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) before the first fix wave. Resolve its absolute path and the spec's bound ticket once; pass `wording: <absolute path>` and `ticket: <reference or none>` to every implementer, including retries and Convergence repairs. Retain the captured `r0-head` through every round.
+Read [commit-message.md](commit-message.md) before the first fix wave. Resolve its absolute path and the spec's bound ticket once; pass `wording: <absolute path>` and `ticket: <reference or none>` to every implementer, including retries and Convergence repairs. Retain the captured `r0-head` through every round.
 
 Per round:
 
@@ -160,7 +160,7 @@ Per round:
    whose `evidence` opens with the over-spec provenance (`spec "<section>" - "<clause>" (over-spec)`), the orchestrator adds the spec path to that gap's `touched-files` before dispatch,
    so the implementer deletes the surface **and** the clause/AC line in the same
    fix commit; the re-audit then has no `Rn` for it and no `MISSING` echo. The dispatch adds `SCOPED_TEST_COMMANDS`
-   to the gap block: for a ledger, the complete gate set with owning checkouts and the ledger-subject execution rule above; retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from `mktemp -d "$SCRATCH/gates.XXXXXX"`, after resolving `SCRATCH` for that isolated checkout through [scratch folder](../../loop-implementation/reference/return-file.md#scratch-folder); preserve the parent's checkout set and session `LOG_DIR` for post-integration runs; otherwise the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
+   to the gap block: for a ledger, the complete gate set with owning checkouts and the ledger-subject execution rule above; retain leg identity, remap the child's repaired leg to its actual isolated worktree and run that leg's pairs with `LOG_DIR` from `mktemp -d "$SCRATCH/gates.XXXXXX"`, after resolving `SCRATCH` for that isolated checkout through [scratch folder](return-file.md#scratch-folder); preserve the parent's checkout set and session `LOG_DIR` for post-integration runs; otherwise the gap-relevant plan-declared commands, or `none`; on an ad-hoc no-plan path, the project's canonical test command.
 3. **Integrate** serially via `git -C "<conformance-worktree>" apply` onto the worktree HEAD, one gap's
    patch at a time. Compose each message through the shared Conformance gap fix commit row; use the Convergence repair commit row for a Convergence wave. Record each integrated gap's full SHA under its `Gn` in the `auto-applied fix commits` index; identify fixes and reverts from that index, never from commit subjects.
    Failure handling is inherited verbatim from
@@ -184,7 +184,7 @@ Per round:
    that omits `model:` when `closureReview.model` is set, and warns (non-blocking)
    on one whose model differs. Mark every `Gn` the re-audit reports `DELIVERED`
    `complete`; open ones stay `in_progress`.
-6. **Converge or continue**: verdict `CONFORMS` -> Convergence below. Under the loop engine with amend permission, apply the loop driver's After the loop step 3 funding up to the ledger allowance before this ask; ask the human only when it declines. Start the message with `gauntlet: gate=verification-before-completion/step-6` alone on the first output line, followed by a newline before the human escalation text, including Convergence cap exhaustion. Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md); ask for explicit funding of additional rounds. Emit this proactively, independent of any runtime guard error. Keep verification incomplete; emit no done or stuck line here or at intermediate closure. Open gaps
+6. **Converge or continue**: verdict `CONFORMS` -> Convergence below. Under the loop engine with amend permission, apply the loop driver's After the loop step 3 funding up to the ledger allowance before this ask; ask the human only when it declines. Start the message with `gauntlet: gate=verify/step-6` alone on the first output line, followed by a newline before the human escalation text, including Convergence cap exhaustion. Read and apply [menu-layout](menu-layout.md); ask for explicit funding of additional rounds. Emit this proactively, independent of any runtime guard error. Keep verification incomplete; emit no done or stuck line here or at intermediate closure. Open gaps
    within the cap → re-partition (per the rule above) and start the next
    round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
    default `5`, floors negatives at `0`, normalizes missing or non-integer values to `5`) reached

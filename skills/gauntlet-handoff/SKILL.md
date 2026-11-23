@@ -31,7 +31,7 @@ loop: tracker state is extension state no subagent can read.
 
 ## Sequence
 
-Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-layout.md).
+Apply the first-line grammar in [menu-layout](../gauntlet/menu-layout.md).
 
 1. **Resolve the target.**
    - `--out` and `--key` both given -> STOP: they are exclusive in cohort's grammar. Start the message with `gauntlet: stuck` followed by the exclusivity reason on that line.
@@ -108,8 +108,8 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
 ## Project overrides
 
 If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
+`.pi/gauntlet.md`, `<repo root>/gauntlet.md`,
+`<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
 and apply `## conventions` whenever present, without a relevance
 judgment.
 Give this skill's named section precedence over conflicting

@@ -6,7 +6,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('rejected gate replies stop before approval or change-request persistence', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rejectAt = gate.indexOf('**Rejected replies.**');
   const acceptAt = gate.indexOf('| bare `1` |');
   assert.ok(rejectAt >= 0 && rejectAt < acceptAt, 'validate before accepted reply mapping');

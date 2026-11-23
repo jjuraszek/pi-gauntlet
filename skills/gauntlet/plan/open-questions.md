@@ -1,6 +1,6 @@
 ## Ask the human
 
-Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for every user-facing baseline-failure, dirty-source, or contract question, including a second verbatim `FAIL`. Never append a colon to the marker. Follow the [first-line rule](../../brainstorming/reference/menu-layout.md).
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for every user-facing baseline-failure, dirty-source, or contract question, including a second verbatim `FAIL`. Never append a colon to the marker. Follow the [first-line rule](../menu-layout.md).
 
 | Row form | Parent handling |
 |---|---|

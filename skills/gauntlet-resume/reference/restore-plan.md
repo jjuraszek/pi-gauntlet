@@ -24,7 +24,7 @@ Apply SKILL.md "Restore rules" at every `plan_tracker init`, restoring the brief
 
 ## Spec with plan
 
-Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../gauntlet/menu-layout.md).
 
 Show, and ask the human to confirm or edit both in one reply:
 

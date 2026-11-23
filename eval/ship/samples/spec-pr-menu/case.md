@@ -1,0 +1,16 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
+bundle+: skills/gauntlet/ship/ship.md
+bundle+: skills/gauntlet/ship/spec-pr.md
+## Narrated finish checkpoints
+No tools exist; narrate calls/printed output in order with supplied results, not live verification. One shared sequence/menu then independent deltas; maximum 1700 words. Start at selected-spec Input before announce/start ship or verification. Worktree /work/widget/.worktrees/spec-export, FEATURE spec-export. Selected doc/specs/export.md header Engine waves / Amend-grant none / PR acme/widget#42, no Rework record. Ordinary header Verification test-all; plan tasks have only test-export. All required closure/conformance gates pass, test-all passes, tree clean except telemetry. Strip/seal succeeds unless a variant says otherwise.
+
+Draft: gh pr view returns number42, URL https://github.com/acme/widget/pull/42, state OPEN, isDraft true, headRefName spec-export, baseRefName release. Fetch origin succeeds; origin/spec-export aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa is ancestor of local HEAD bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb. Render five-row menu. Select1: narrate strip/seal including --option pr --base origin/release and selected spec, then non-force push and gh pr ready. Preserve checkout and PR body. Separate select2 gives push only. Ready variant observed isDraft false: show alternate row2 and no redraft.
+
+Closed independently returns CLOSED: stop before verification. Wrong head independently returns teammate-export: stop naming both branches before verification. Query failure stops; ancestry proof exit128 is a command error, not divergence. Squash uses live release base and --option squash --base origin/release, no common-base probe.
+
+Divergence: fetch succeeds, ancestor proof exit1 with origin/spec-export aaaaaaa and HEAD bbbbbbb. Print withheld line and keep rows3-5 numbers. Replies1 and2 clarify, no push. Rejected push independently prints "remote: stale head" after successful strip/seal; return menu and refresh proof now exit1, no ready/force/retry/body edit. Row1 ready failure independently occurs after successful push and prints "GraphQL: ready failed": report pushed but still draft, preserve checkout.
+
+Seal failure independently prints "seal: invalid telemetry", exit1: no push/ready. Rework precedence independently selected spec has both header PR acme/widget#42 and ## Rework record for acme/widget#77; describe selection of ordinary rework checks/menu instead, not header-only route. Do not rewrite body or append Rework for header-only case. Completion follows successful delivery only.
+
+Single-member controls, independent: run the same header-linked checkpoints with exactly one `## Legs` block for acme/widget, branch spec-export, recorded built-in create/destroy and home .worktrees/<name>, doc/specs and doc/plans, verification test-all, Rules AGENTS.md, scope AC1. Then repeat with no Legs (legacy). Both keep the same home-only verification, menu, strip/seal/push/ready ordering and immutable body; no companion artifact, receipt, loop or --leg. Use the recorded contract for one block and ordinary finish-time overrides for legacy cleanup.

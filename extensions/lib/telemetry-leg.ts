@@ -64,7 +64,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   let terminal: string | undefined;
   let lastSkill: LegSkill | undefined;
   const trackerless = (root: string): boolean => {
-    for (const path of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
+    for (const path of [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"]) {
       const text = deps.fs.readFile(join(root, path));
       if (text === undefined) continue;
       const section = text.split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";

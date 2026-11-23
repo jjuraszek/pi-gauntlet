@@ -86,7 +86,7 @@ After the batch returns, read every report file yourself. Treat the tool result 
 
 ## Turns
 
-Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before each menu and numeric reply. Render one ticket per message in roster order after every child returns. Use exactly one marker at column zero, before headings or outcome text; never combine two tickets' gates or picks. Keep the private handoff and final result line out of messages.
+Read and apply [menu-layout](../../gauntlet/menu-layout.md) before each menu and numeric reply. Render one ticket per message in roster order after every child returns. Use exactly one marker at column zero, before headings or outcome text; never combine two tickets' gates or picks. Keep the private handoff and final result line out of messages.
 
 For `REPORT`, use the confirmation gate below. For a STOP other than already recorded, or any FAILED, use the recovery gate below. For `STOPPED - already recorded`, mark the row `complete` and carry the plain `<ref>: already recorded` outcome into the next advancing message or summary, with no gate.
 

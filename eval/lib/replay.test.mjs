@@ -16,12 +16,12 @@ test("chase-bug prose samples preserve slices and reject label leaks", () => {
   assert.deepEqual(target.skillFiles, [
     { path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" },
     { path: "skills/chase-bug/reference/verdict-report.md" },
-    { path: "skills/finishing-a-development-branch/reference/commit-message.md" },
+    { path: "skills/gauntlet/commit-message.md" },
     { path: "skills/chase-bug/reference/attempt-budget.md", new: true },
   ]);
   for (const sample of ["prose-verdict-above-menu", "returned-ticket-link"]) {
     const { bundle } = parseCase(read(`eval/chase-bug/samples/${sample}/case.md`));
-    assert.deepEqual(bundle, sample === "prose-verdict-above-menu" ? ["skills/brainstorming/reference/menu-layout.md", "skills/chase-bug/SKILL.md"] : ["skills/chase-bug/SKILL.md"]);
+    assert.deepEqual(bundle, sample === "prose-verdict-above-menu" ? ["skills/gauntlet/menu-layout.md", "skills/chase-bug/SKILL.md"] : ["skills/chase-bug/SKILL.md"]);
     const result = assemble(target, read, bundle);
     assert.ok(result.includes(stripFrontmatter(read("skills/chase-bug/SKILL.md")))) ;
     assert.ok(result.includes("### What is broken"));
@@ -47,7 +47,7 @@ const auditSamples = ["batch-repair", "audit-repo-fit", "scenario-best-effort", 
 const auditPath = "skills/shape-ticket/reference/repo-audit.md";
 const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
-  { path: "skills/brainstorming/reference/menu-layout.md" },
+  { path: "skills/gauntlet/menu-layout.md" },
   { path: "skills/shape-ticket/SKILL.md", slice: "## Evidence gate", sliceTo: "## Ticket wording" },
   { path: "skills/shape-ticket/reference/ac-classes.md", new: true },
 ];
@@ -64,7 +64,7 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
     if (["gate-line-first", "per-ref-settlement"].includes(sample)) {
       assert.deepEqual(parseCase(raw).bundle, sample === "per-ref-settlement"
         ? ["skills/shape-ticket/SKILL.md"]
-        : ["skills/shape-ticket/SKILL.md", auditPath, "skills/brainstorming/reference/menu-layout.md"]);
+        : ["skills/shape-ticket/SKILL.md", auditPath, "skills/gauntlet/menu-layout.md"]);
       assert.deepEqual(parseCase(raw).drop, []);
       continue;
     }
@@ -153,7 +153,7 @@ test("sliceTo spans sibling sections", () => {
 });
 test("conformance slice spans Step 3.5 to before Step 5", () => {
   const root = new URL("../../", import.meta.url);
-  const text = readFileSync(new URL("skills/finishing-a-development-branch/SKILL.md", root), "utf8");
+  const text = readFileSync(new URL("skills/gauntlet/ship/ship.md", root), "utf8");
   const slice = sliceText(text, "### Step 3.5", "### Step 5");
   assert.ok(slice.includes("### Step 4"));
   assert.ok(!slice.includes("### Step 5"));
@@ -242,7 +242,7 @@ test("inputSha hashes fixture in sorted order", (t) => {
 
 
 test("brainstorming slice spans sections 3 through 5", () => {
-  const text = readFileSync(new URL("../../skills/brainstorming/SKILL.md", import.meta.url), "utf8");
+  const text = readFileSync(new URL("../../skills/gauntlet/SKILL.md", import.meta.url), "utf8");
   const slice = sliceText(text, "### 3", "### 6");
   assert.ok(slice.includes("### 5"));
   assert.ok(!slice.includes("### 6"));
@@ -353,19 +353,19 @@ test("capture reports zero lines for an empty file", (t) => {
 test("brainstorming read-once assembly includes owners and the second stage", () => {
   const root = new URL("../../", import.meta.url);
   const read = (path) => readFileSync(new URL(path, root), "utf8");
-  const target = JSON.parse(read("eval/brainstorming/target.json"));
+  const target = JSON.parse(read("eval/gauntlet/target.json"));
   const result = assemble(target, read);
   assert.ok(result.includes("## Ticket Handling"));
   assert.ok(result.includes("## Project overrides"));
-  const { bundle, text } = parseCase(read("eval/brainstorming/samples/overrides-read-once/case.md"));
-  assert.deepEqual(bundle, ["skills/writing-plans/SKILL.md"]);
+  const { bundle, text } = parseCase(read("eval/gauntlet/samples/overrides-read-once/case.md"));
+  assert.deepEqual(bundle, ["skills/gauntlet/plan/plan.md"]);
   assert.ok(text.includes("## Narrated read actions"));
-  assert.ok(assemble(target, read, bundle).includes("# skills/writing-plans/SKILL.md"));
+  assert.ok(assemble(target, read, bundle).includes("# skills/gauntlet/plan/plan.md"));
 });
 
 test("SDD assembly keeps completion and runner with candidate late read", () => {
   const root = new URL("../../", import.meta.url).pathname;
-  const target = JSON.parse(readFileSync(join(root, "eval/subagent-driven-development/target.json"), "utf8"));
+  const target = JSON.parse(readFileSync(join(root, "eval/waves/target.json"), "utf8"));
   const candidate = assemble(target, replay.treeReader(root));
   assert.ok(candidate.includes("## After All Tasks Complete"));
   assert.ok(candidate.includes("Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)"));

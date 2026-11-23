@@ -4,9 +4,9 @@ import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const note = wording.split('## Squash-default note\n')[1];
-const finish = read('skills/finishing-a-development-branch/SKILL.md');
+const finish = read('skills/gauntlet/ship/ship.md');
 const pr = finish.split('#### Option 1: Push and Create PR\n')[1].split('#### Option 3:')[0];
 const gatekeep = read('skills/gatekeep-pr/reference/post-selection-loop.md');
 const preconditions = gatekeep.split('### Merge preconditions\n')[1].split('### Plan-free head\n')[0];
@@ -61,7 +61,7 @@ test('normal and draft PR options and gatekeep reuse the same read-only note rul
 
 // Inspect only historical note excerpts, not workflow claims, commands or judge verdicts.
 test('saved finish note excerpts preserve the exact text and silent PR_BODY and permission-denied outcomes', async t => {
-  for (const [model, output] of savedOutputs('eval/finishing-a-development-branch/results/landed-message/candidate.json')) {
+  for (const [model, output] of savedOutputs('eval/ship/results/landed-message/candidate.json')) {
     await t.test(model, () => {
       const section = output.text.split(/^## Trace B[^\n]*\n/m)[1]?.split(/^## Trace C/m)[0];
       assert.ok(section, 'saved PR note section is present');

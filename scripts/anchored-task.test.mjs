@@ -50,7 +50,7 @@ test('SDD local templates pass paths, independent scope and preserve review trig
     assert.doesNotMatch(text, /FULL TEXT|paste it here|pasted verbatim|\[From implementer's report\]|Read `Verdict:`/);
     assert.match(text, /Previous review report \(re-review trigger\)/);
   }
-  const cr = read('skills/subagent-driven-development/wave-reviewer-prompt.md');
+  const cr = read('skills/gauntlet/implement/waves/wave-reviewer-prompt.md');
   assert.match(cr, /HEAD_SHA:.*WORKTREE/);
   assert.match(cr, /TRAJECTORY: CONVERGING/);
   assert.doesNotMatch(cr, /Behaviour-change:|behaviourChange/);

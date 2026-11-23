@@ -12,7 +12,7 @@ const CLI = join(dirname(fileURLToPath(import.meta.url)), "gauntlet-telemetry-se
 const SPEC = "doc/specs/x.md";
 const REC = ".git/gauntlet/telemetry/doc/specs/x.yaml";
 const REF = "refs/telemetry/records";
-const BLOB = "team/product/brainstorming/doc/specs/x.yaml";
+const BLOB = "team/product/gauntlet/doc/specs/x.yaml";
 const RECORD = `schema: 1
 spec: doc/specs/x.md
 run_id: r-1

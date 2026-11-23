@@ -36,7 +36,7 @@ that could land in minutes. The gap is a ceremony tier, not new capability.
    so in prose at the menu (the row label advertises it). No finish menu, no
    push without an explicit request.
 4. **Placement: companion file** `skills/chase-bug/hotfix.md` (the
-   `brainstorming/gatherer.md` precedent), not a new skill. Promotion to a
+   `gauntlet/brainstorm/gatherer.md` precedent), not a new skill. Promotion to a
    standalone skill is a cheap later move if direct invocation proves wanted.
 5. **Self-containment.** Zero changes to `finishing-a-development-branch`,
    `subagent-driven-development`, `verification-before-completion`, the tracker
@@ -96,7 +96,7 @@ channel ladder are unchanged. The edits:
 
   ```
   1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
-  2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+  2. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed.
   3. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
   4. [ ] Respond to reporter only.
   ```
@@ -104,7 +104,7 @@ channel ladder are unchanged. The edits:
   Tracker/GitHub origin (ticket row omitted as today, renumbered):
 
   ```
-  1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+  1. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed.
   2. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
   3. [ ] Respond to reporter only.
   ```
@@ -373,7 +373,7 @@ Per writing-skills' Iron Law (skill edits are TDD for process docs):
 
 ## Documentation impact
 
-Materiality bar: `skills/brainstorming/reference/documentation-impact.md`.
+Materiality bar: `skills/gauntlet/documentation-impact.md`.
 
 ```markdown
 ## Documentation impact

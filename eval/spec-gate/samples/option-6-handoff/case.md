@@ -1,5 +1,5 @@
-bundle+: skills/brainstorming/reference/spec-pr.md
-bundle+: skills/finishing-a-development-branch/SKILL.md
+bundle+: skills/gauntlet/brainstorm/spec-pr.md
+bundle+: skills/gauntlet/ship/ship.md
 ## Narrated handoff checkpoints
 Override normal replay output: no tools exist. Narrate calls and printed lines in order, not claims of live execution. Render the initial gate once; subsequent labeled independent turns give deltas only. Stay within 1000 words total. Define shared command sequences once and refer to them by name in variant deltas; render both retry gates explicitly. Never repeat the success sequence for a variant.
 

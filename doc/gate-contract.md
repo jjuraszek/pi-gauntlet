@@ -1,6 +1,6 @@
 # Gauntlet gate contract
 
-A driver reads the first line of the last user-facing assistant message at settlement (`agent_settled`), not an intermediate report or private handoff. The [shared first-line grammar and reply mapping](../skills/brainstorming/reference/menu-layout.md) own marker syntax, token charsets, recommendation rules, and numeric remapping. The `/gauntlet:` slash-command namespace is different from the `gauntlet:` message marker.
+A driver reads the first line of the last user-facing assistant message at settlement (`agent_settled`), not an intermediate report or private handoff. The [shared first-line grammar and reply mapping](../skills/gauntlet/menu-layout.md) own marker syntax, token charsets, recommendation rules, and numeric remapping. The `/gauntlet:` slash-command namespace is different from the `gauntlet:` message marker.
 
 A proper reply can advance a `gate` or `question`; `done` and `stuck` are true endings with no advancing reply. Questions retain inventory IDs below but emit only the bare `gauntlet: question` line, not their IDs. Row bodies define input: there is no `picks=` field or per-gate token list in the marker.
 
@@ -20,29 +20,29 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 
 | gate id | kind | rendering file | site | layout |
 |---|---|---|---|---|
-| brainstorming/understand-the-idea | question | skills/brainstorming/SKILL.md | ### 3. Understand the idea | X) options; templates=1 |
-| brainstorming/understand-the-idea | question | skills/brainstorming/reference/opening-message.md | # Opening message | X) options; templates=3 |
-| brainstorming/present-the-design | question | skills/brainstorming/SKILL.md | ### 6. Present the design in two rounds | X) options |
-| brainstorming/cut-question | question | skills/brainstorming/reference/ticket-acceptance.md | # Ticket Handling | X) options |
-| brainstorming/relatedness-before-provisioning | question | skills/brainstorming/reference/pr-subject.md | ## Relatedness before provisioning | X) options |
-| brainstorming/user-review-gate | gate | skills/brainstorming/reference/spec-finalization.md | ## User Review Gate | 1 - rows |
-| brainstorming/user-review-gate | gate | skills/brainstorming/reference/spec-pr.md | ## Publish row 4 | 4 - create-only retry |
-| brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## 4. Human batch - one menu | item-letter |
-| brainstorming/human-batch | gate | skills/brainstorming/reference/amendment-surface.md | ## Worked example | item-letter |
-| writing-plans/step-6-baseline-failure | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
-| writing-plans/step-6-baseline-dirty | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
-| writing-plans/step-6-contract-questions | question | skills/writing-plans/reference/open-questions.md | ## Ask the human | X) options |
-| subagent-driven-development/stop-note | question | skills/subagent-driven-development/stop-note.md | ## Template | free |
-| loop-implementation/human-stop | question | skills/loop-implementation/SKILL.md | ## Human stop | free |
-| loop-implementation/discard-authorization | question | skills/loop-implementation/SKILL.md | ## Human stop | free |
-| verification-before-completion/step-6 | gate | skills/verification-before-completion/reference/conformance-check.md | ### Fix loop - SDD wave-loop mirror, per round | free |
-| finishing-a-development-branch/step-4 | gate | skills/finishing-a-development-branch/SKILL.md | ### Step 4: Present Options | N. rows; templates=3 |
-| finishing-a-development-branch/carried-open | gate | skills/finishing-a-development-branch/reference/disposition-protocol.md | # Carried-open disposition protocol | item-letter |
-| finishing-a-development-branch/carried-open | gate | skills/finishing-a-development-branch/SKILL.md | ### Step 3.5: Closure / Conformance Disposition Gate | item-letter |
-| finishing-a-development-branch/pr-subject-row-1 | gate | skills/finishing-a-development-branch/SKILL.md | #### PR-subject row 1: Push to the PR branch | 1 - rows |
-| finishing-a-development-branch/option-5 | question | skills/finishing-a-development-branch/SKILL.md | #### Option 5: Discard | free |
-| using-git-worktrees/step-3 | question | skills/using-git-worktrees/SKILL.md | ## Step 3 | free |
-| using-git-worktrees/detached-head | question | skills/using-git-worktrees/SKILL.md | ## Detached HEAD | free |
+| brainstorm/understand-the-idea | question | skills/gauntlet/SKILL.md | ### 3. Understand the idea | X) options; templates=1 |
+| brainstorm/understand-the-idea | question | skills/gauntlet/brainstorm/opening-message.md | # Opening message | X) options; templates=3 |
+| brainstorm/present-the-design | question | skills/gauntlet/SKILL.md | ### 6. Present the design in two rounds | X) options |
+| brainstorm/cut-question | question | skills/gauntlet/brainstorm/ticket-acceptance.md | # Ticket Handling | X) options |
+| brainstorm/relatedness-before-provisioning | question | skills/gauntlet/brainstorm/pr-subject.md | ## Relatedness before provisioning | X) options |
+| brainstorm/user-review-gate | gate | skills/gauntlet/brainstorm/spec-finalization.md | ## User Review Gate | 1 - rows |
+| brainstorm/user-review-gate | gate | skills/gauntlet/brainstorm/spec-pr.md | ## Publish row 4 | 4 - create-only retry |
+| brainstorm/human-batch | gate | skills/gauntlet/amendment-surface.md | ## 4. Human batch - one menu | item-letter |
+| brainstorm/human-batch | gate | skills/gauntlet/amendment-surface.md | ## Worked example | item-letter |
+| plan/step-6-baseline-failure | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
+| plan/step-6-baseline-dirty | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
+| plan/step-6-contract-questions | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
+| implement/stop-note | question | skills/gauntlet/implement/waves/stop-note.md | ## Template | free |
+| implement/human-stop | question | skills/gauntlet/implement/loop/loop.md | ## Human stop | free |
+| implement/discard-authorization | question | skills/gauntlet/implement/loop/loop.md | ## Human stop | free |
+| verify/step-6 | gate | skills/gauntlet/conformance-check.md | ### Fix loop - SDD wave-loop mirror, per round | free |
+| ship/step-4 | gate | skills/gauntlet/ship/ship.md | ### Step 4: Present Options | N. rows; templates=3 |
+| ship/carried-open | gate | skills/gauntlet/ship/disposition-protocol.md | # Carried-open disposition protocol | item-letter |
+| ship/carried-open | gate | skills/gauntlet/ship/ship.md | ### Step 3.5: Closure / Conformance Disposition Gate | item-letter |
+| ship/pr-subject-row-1 | gate | skills/gauntlet/ship/ship.md | #### PR-subject row 1: Push to the PR branch | 1 - rows |
+| ship/option-5 | question | skills/gauntlet/ship/ship.md | #### Option 5: Discard | free |
+| gauntlet/step-3 | question | skills/gauntlet/worktrees.md | ## Step 3 | free |
+| gauntlet/detached-head | question | skills/gauntlet/worktrees.md | ## Detached HEAD | free |
 | gatekeep-pr/initial | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
 | gatekeep-pr/final | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
 | gatekeep-pr/assess-terminal | gate | skills/gatekeep-pr/reference/menus.md | ## States | N. rows |
@@ -85,12 +85,12 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 
 | skill | ending | report site | line |
 |---|---|---|---|
-| finishing-a-development-branch | Options 1-2: normal or draft PR created | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done pr-created |
-| finishing-a-development-branch | Option 3: squash-merged and verified | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done merged |
-| finishing-a-development-branch | Option 4: Keeping branch <name>. Worktree preserved at <path>. | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done kept |
-| finishing-a-development-branch | Option 5: authorized discard completed | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done discarded |
-| finishing-a-development-branch | PR-subject push and body edit; close-member gate answered or no qualifying members | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: done pushed |
-| finishing-a-development-branch | Executed option fails after the gate | skills/finishing-a-development-branch/SKILL.md § ## Completion | gauntlet: stuck |
+| ship | Options 1-2: normal or draft PR created | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done pr-created |
+| ship | Option 3: squash-merged and verified | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done merged |
+| ship | Option 4: Keeping branch <name>. Worktree preserved at <path>. | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done kept |
+| ship | Option 5: authorized discard completed | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done discarded |
+| ship | PR-subject push and body edit; close-member gate answered or no qualifying members | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done pushed |
+| ship | Executed option fails after the gate | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: stuck |
 | gatekeep-pr | post pick or stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
 | gatekeep-pr | post pick or stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
 | gatekeep-pr | post pick or stop on closed-pr | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done closed-pr |
@@ -148,9 +148,9 @@ Gatekeep's multi-PR parent starts a per-PR retirement message with `gauntlet: re
 | Layout | Reply |
 |---|---|
 | N. rows | Send the displayed row number. Apply the shared grammar's numeric remap-and-echo rule before acting, not a guessed stable row index. Gatekeep's own-merge, approved, closed-pr and reject post menus accept a comma-separated set of displayed numbers, excluding back and stop from any set; row 1 expands its combination and duplicate steps run once in step order. Other menus take one number. Gatekeep recognizes `show evidence`, `reply <n>` for a drafted reply, `check <name> flaky`, `check <name> real`, and `check <name> ci-broken`, and `overrule <n>` (an approach blocker at any time; another finding-based blocker after an unrepaired attempt) before numeric parsing on their eligible states; another string is a change request. Finishing Step 4 also accepts `fix minors` or selected IDs such as `fix minors F3, F9`. |
-| 1 - rows | Send the leading number, row label, or `approve` (which echoes and takes `recommended=<n>`). At the spec approval gate (`gauntlet: gate=brainstorming/user-review-gate recommended=<n>`), accept approval prose that names no row and carries no amendment, grant, or budget wording as the just-rendered recommended row's plain digit, with the same literal `Taking "approve" as option <n> - <label>` echo before acting. Rows 1 (`plan engine`), 2 (`loop engine`), 3 (`council explanation`), and 4 (`draft PR`) take `--amends-stop` on 1/2, `--fund-rounds=N` on 1, and `--allowance=N` on 2; N must be a positive safe integer. `--allowance=N` on 1, `--fund-rounds=N` on 2, any flag on 3/4, old suffix forms, worded stop/grant/budget intent, and malformed tokens ask one clarifying question quoting the token without writes; a second invalid reply leaves it waiting. The close-absorbed-members gate uses its displayed approval/revision rows. |
+| 1 - rows | Send the leading number, row label, or `approve` (which echoes and takes `recommended=<n>`). At the spec approval gate (`gauntlet: gate=brainstorm/user-review-gate recommended=<n>`), accept approval prose that names no row and carries no amendment, grant, or budget wording as the just-rendered recommended row's plain digit, with the same literal `Taking "approve" as option <n> - <label>` echo before acting. Rows 1 (`plan engine`), 2 (`loop engine`), 3 (`council explanation`), and 4 (`draft PR`) take `--amends-stop` on 1/2, `--fund-rounds=N` on 1, and `--allowance=N` on 2; N must be a positive safe integer. `--allowance=N` on 1, `--fund-rounds=N` on 2, any flag on 3/4, old suffix forms, worded stop/grant/budget intent, and malformed tokens ask one clarifying question quoting the token without writes; a second invalid reply leaves it waiting. The close-absorbed-members gate uses its displayed approval/revision rows. |
 | X) options | Send the letter or free text, preserving the question's recommendation format. |
-| item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/finishing-a-development-branch/reference/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
+| item-letter | Send `<item>. <letter>` per the [carried-open response grammar](../skills/gauntlet/ship/disposition-protocol.md#response-grammar); use the displayed choices for each item. |
 | free / question | Answer the words requested by the body: a number of funded rounds or stop for conformance escalation, typed `discard` for discard authorization, `retry <n> \| <hint>` or `rows +N` for loop row stops, or `yes`/`no` for the named confirmations. |
 
 Housekeeping's [card reply owner](../skills/housekeeping/reference/card.md#replies) accepts an available row number to record the pick and show the next card; `<n> except 1 3` leaves those numbered items unchanged. An available Fix number (Delete on the spec card) followed by text records that text verbatim as the class's fix instruction. `list` shows the full numbered item list and keeps the card open. `go` ends the walk and executes only picks recorded so far; unanswered classes remain not decided. `stop` ends the run with nothing executed, keeps the decisions file and names the run folder. An unavailable pick, unknown item or unrecognized reply repeats the full card with one line naming the valid replies; the card stays open without recording a pick or advancing the walk. Nothing executes during the walk; execution starts after the last answer or `go`.
@@ -167,7 +167,7 @@ With no `pending:` tuple, a dirty tree at entry or resume instead renders `Stopp
 
 Verification repairs count current home `repair verification | <repo> <child sha7, or interrupted - <reason>> | iteration <i>` decisions plus one for a `pending: verify` tuple on disk against the allowance. The parent writes the decision and clears pending together, so one dispatch is never counted twice. Interrupted repairs append exactly one home decision after reset, with saved row cells, the consumed iteration, no pending tuple and no repair code. The parent record changes the ledger rather than writing an empty commit and preserves `returned:`. Remaining dirt blocks neither the ledger record nor gate rerun; wrong HEAD or an unwritten record takes the same failure pass against the verification repair allowance. Exhaustion renders `Stopped: verification failed with every row closed` and `repairs: <k> of <allowance>`, offering amend/stop only, as do missing-capability stops. Conformance's step-6 ask is preceded by the loop driver's allowance-based funding under amend permission; a live cap block receives `allowance - used` through `grant_fix_rounds`, and `closureReview.enforce: false` continues without a tool call. Used rounds at or above allowance, no amend permission or a tool error retain the step-6 stop.
 
-An admitted target failure with first result `unreachable: <what> - <where>` enters the amendment surface: auto-apply the audited cut under amend permission, otherwise show its human batch. A `venue:` row retains its ordinary failed-attempt path. Approval authorizes every paid or external action named in an AC or Design, with its runner and inputs, for the whole flow. A count or wording deferring it to later approval does not withhold authorization. Run it whenever an attempt needs it without asking and reuse output for local rechecks; evidence commands name local replay or fixtures. An unnamed action or missing prerequisite still uses `unreachable:`. Execution and budget replies do not grant amendment permission. The [loop driver](../skills/loop-implementation/SKILL.md#human-stop) owns these routes.
+An admitted target failure with first result `unreachable: <what> - <where>` enters the amendment surface: auto-apply the audited cut under amend permission, otherwise show its human batch. A `venue:` row retains its ordinary failed-attempt path. Approval authorizes every paid or external action named in an AC or Design, with its runner and inputs, for the whole flow. A count or wording deferring it to later approval does not withhold authorization. Run it whenever an attempt needs it without asking and reuse output for local rechecks; evidence commands name local replay or fixtures. An unnamed action or missing prerequisite still uses `unreachable:`. Execution and budget replies do not grant amendment permission. The [loop driver](../skills/gauntlet/implement/loop/loop.md#human-stop) owns these routes.
 
 These are the stops this recovery and authorization contract keeps or touches, not the driver's whole stop set. Missing capabilities or references, malformed grants, unresolved verification entrypoints, repeated-evidence amendment handling and failed refresh guards retain their own text. The driver renders only stops named in its skill and references; another failed dispatch consumes an attempt, not an invented menu or approval.
 

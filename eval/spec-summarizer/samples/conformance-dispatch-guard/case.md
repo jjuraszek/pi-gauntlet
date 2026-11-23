@@ -62,8 +62,8 @@ Predicate (shared with replay): `subagent` result, `isError !== true`, `details.
 
 ### 3.5 Prose
 
-- `skills/verification-before-completion/reference/conformance-check.md`: line 176 `default \`2\``/`coerces non-integers to \`2\`` -> `3`; the cap sentence names the runtime block ("the phase tracker blocks the wave after the cap"); the retry/conflict-rerun path inside the loop (lines 154-162) states the shape explicitly: a one-task `tasks` wave, which counts as a wave against the cap.
-- `skills/dispatching-parallel-agents/SKILL.md` "Review and Integrate": the retry line gains "inside the conformance loop the retry is a one-task `tasks` wave".
+- `skills/gauntlet/conformance-check.md`: line 176 `default \`2\``/`coerces non-integers to \`2\`` -> `3`; the cap sentence names the runtime block ("the phase tracker blocks the wave after the cap"); the retry/conflict-rerun path inside the loop (lines 154-162) states the shape explicitly: a one-task `tasks` wave, which counts as a wave against the cap.
+- `skills/gauntlet/implement/waves/parallel-agents.md` "Review and Integrate": the retry line gains "inside the conformance loop the retry is a one-task `tasks` wave".
 
 ### 3.6 Why the distinction needs no metadata
 
@@ -116,7 +116,7 @@ Predicate (shared with replay): `subagent` result, `isError !== true`, `details.
 - Feature / user-facing docs introduced: none
 - Materially amended existing docs:
   - `doc/configuration.md`: line 12 and line 23 default `2` -> `3`; line 23's closing sentence "Enforced by the protocol prose in ..., not by the phase-tracker extension." rewritten to describe the runtime shape block and cap block and the `enforce: false` switch; the closure-review paragraph at line 19 gains the two new blocks; the "Six guards" list (lines 81-88) becomes eight and names them
-  - `skills/verification-before-completion/reference/settings-precedence.md` line 25: `maxFixRounds` 2 -> 3
+  - `skills/gauntlet/brainstorm/settings-precedence.md` line 25: `maxFixRounds` 2 -> 3
   - `CHANGELOG.md` `## Unreleased`
 - Derived / memory docs invalidated: none
 

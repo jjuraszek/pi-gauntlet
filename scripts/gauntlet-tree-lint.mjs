@@ -5,6 +5,45 @@ const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 const directories = new Set([...phases, "implement/waves", "implement/loop"]);
 
+const [entry, overrides, ...steps] = `
+brainstorming
+gauntlet-overrides
+writing-plans
+subagent-driven-development
+loop-implementation
+roasting-the-spec
+finishing-a-development-branch
+using-git-worktrees
+verification-before-completion
+requesting-code-review
+receiving-code-review
+dispatching-parallel-agents
+test-driven-development
+`.trim().split("\n");
+export const retiredNames = { entry, overrides, steps };
+
+export function lintRetiredNames(root) {
+  const inputs = new Set([entry, overrides, ...steps]);
+  const pattern = new RegExp([...steps, overrides, `/skill:${entry}\\b`, `skills/${entry}\\b`, `\\b${entry}/[a-z0-9-]+`, `#{1,2}\\s+${entry}\\b`].join("|"));
+  const scope = ["{skills,agents,extensions,bin,src/bins,scripts,test,tests,doc}/**/*", "README.md", "AGENTS.md", ".pi/*.md", "gauntlet.md", `${overrides}.md`, "eval/**/*"];
+  const exclude = ["doc/specs", "doc/plans", "eval/**/results", "eval/*/report.md", "eval/*/records.jsonl", "eval/*/replay/results.md"];
+  const hits = [];
+  for (const file of globSync(scope, { cwd: root, exclude, withFileTypes: true })) {
+    const path = relative(root, join(file.parentPath, file.name)).split(sep).join("/");
+    if (file.isDirectory() && path === `eval/${file.name}` && (steps.includes(file.name) || file.name === entry)) hits.push(`${path}: retired target name`);
+    if (!file.isFile()) continue;
+    if (file.name === `${overrides}.md`) hits.push(`${path}: retired overrides filename`);
+    const text = readFileSync(join(root, path), "utf8");
+    const lines = text.split("\n");
+    for (const [i, line] of lines.entries()) {
+      if (path === "scripts/gauntlet-tree-lint.mjs" && inputs.has(line)) continue;
+      const match = line.replaceAll("\\/", "/").match(pattern);
+      if (match) hits.push(`${path}:${i + 1}: ${match[0]}`);
+    }
+  }
+  return hits.sort();
+}
+
 export function lintPlacementRule(root) {
   const guide = "skills/forge-skill/SKILL.md";
   const files = globSync(["AGENTS.md", "README.md", "CHANGELOG.md", "doc/*.md", "{skills,agents,extensions,bin}/**/*.{md,ts,mjs}"], { cwd: root });

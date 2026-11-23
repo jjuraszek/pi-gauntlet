@@ -8,10 +8,10 @@ import test from 'node:test';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFileSync(resolve(root, path), 'utf8');
-const reference = 'skills/finishing-a-development-branch/reference/commit-message.md';
+const reference = 'skills/gauntlet/commit-message.md';
 const wording = read(reference);
-const spec = read('skills/brainstorming/reference/spec-finalization.md');
-const amendment = read('skills/brainstorming/reference/amendment-surface.md');
+const spec = read('skills/gauntlet/brainstorm/spec-finalization.md');
+const amendment = read('skills/gauntlet/amendment-surface.md');
 const housekeeping = read('skills/housekeeping/reference/fix.md');
 
 function fixture() {
@@ -36,13 +36,13 @@ function fixture() {
 }
 
 const sites = [
-  ['spec', 'skills/brainstorming/reference/spec-finalization.md', 'Spec commit', /spec H1/, /council audit.*verbatim/s],
-  ['amendment', 'skills/brainstorming/reference/amendment-surface.md', 'Amendment commit', /one commit per batch from its Amendment commit row/, /retain these audit body lines/],
-  ['consent change', 'skills/brainstorming/reference/amendment-surface.md', 'Consent change', /Consent change bookkeeping message/, /one body sentence naming the new consent value/],
-  ['plan', 'skills/writing-plans/SKILL.md', 'Plan commit', /compose the plan message from the spec H1 and bound ticket/, /commit -F - --/],
-  ['wave', 'skills/subagent-driven-development/SKILL.md', 'Plan task and wave commit', /accepted manifest task headings and held ticket/, /wording: <absolute path>/],
+  ['spec', 'skills/gauntlet/brainstorm/spec-finalization.md', 'Spec commit', /spec H1/, /council audit.*verbatim/s],
+  ['amendment', 'skills/gauntlet/amendment-surface.md', 'Amendment commit', /one commit per batch from its Amendment commit row/, /retain these audit body lines/],
+  ['consent change', 'skills/gauntlet/amendment-surface.md', 'Consent change', /Consent change bookkeeping message/, /one body sentence naming the new consent value/],
+  ['plan', 'skills/gauntlet/plan/plan.md', 'Plan commit', /compose the plan message from the spec H1 and bound ticket/, /commit -F - --/],
+  ['wave', 'skills/gauntlet/implement/waves/waves.md', 'Plan task and wave commit', /accepted manifest task headings and held ticket/, /wording: <absolute path>/],
   ['plan citation repair', 'skills/gauntlet-resume/reference/plan-repair.md', 'Plan citation repair', /entire subject verbatim from its Plan citation repair row/, /commit -q -F - --/],
-  ['companion spec', 'skills/brainstorming/reference/legs.md', 'Companion spec file commit', /with the home spec subject/, /companion spec commit's wording and ticket rule/],
+  ['companion spec', 'skills/gauntlet/legs.md', 'Companion spec file commit', /with the home spec subject/, /companion spec commit's wording and ticket rule/],
   ['housekeeping class', 'skills/housekeeping/reference/fix.md', 'Housekeeping class commit', /recipe with the card's title and supplied ticket/, /ticket: <reference or none>/],
 ];
 
@@ -99,9 +99,9 @@ test('amendment body fixtures keep all audit records and the quoted grant on std
 
 test('saved message examples cover routine word sources without replaying their workflows', async t => {
   for (const [target, sample, patterns] of [
-    ['brainstorming', 'spec-and-amendment-subjects', [/Add the [Pp]rofile caching spec/, /Change the standing amendment consent/, /Amend the spec for [Cc]ache lifetime and 1 more/, /Coverage: 1 of 1\n\s*Applied:/]],
-    ['writing-plans', 'plan-commit-wording', [/Add the implementation plan for [Cc]ache profile lookups/]],
-    ['subagent-driven-development', 'wave-commit-wording', [/Add the implementation plan for [Cc]ache profile lookups/, /Cache profile lookups and invalidate stale (?:profile cache|cache entries)/]],
+    ['gauntlet', 'spec-and-amendment-subjects', [/Add the [Pp]rofile caching spec/, /Change the standing amendment consent/, /Amend the spec for [Cc]ache lifetime and 1 more/, /Coverage: 1 of 1\n\s*Applied:/]],
+    ['plan', 'plan-commit-wording', [/Add the implementation plan for [Cc]ache profile lookups/]],
+    ['waves', 'wave-commit-wording', [/Add the implementation plan for [Cc]ache profile lookups/, /Cache profile lookups and invalidate stale (?:profile cache|cache entries)/]],
     ['housekeeping', 'commit-subject', [/Replace deprecated assertions/]],
   ]) await t.test(`${target}/${sample}`, () => {
     const outputs = Object.values(JSON.parse(read(`eval/${target}/results/${sample}/candidate.json`)).outputs);

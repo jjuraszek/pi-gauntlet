@@ -29,7 +29,7 @@ function historicalReplies(record) {
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const loop = read('skills/gatekeep-pr/reference/post-selection-loop.md');
 const merge = loop.split('### Merge course\n')[1].split('### Re-render\n')[0];
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const saved = JSON.parse(read('eval/gatekeep-pr/results/merge-landed-message/candidate.json'));
 const policies = [['squash', '--squash'], ['merge-commit', '--merge'], ['rebase', '--rebase']];
 

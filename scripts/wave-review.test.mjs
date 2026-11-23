@@ -27,8 +27,8 @@ function historicalReplies(record) {
   return replies;
 }
 
-const skill = readFileSync(new URL('../skills/subagent-driven-development/SKILL.md', import.meta.url), 'utf8');
-const template = readFileSync(new URL('../skills/requesting-code-review/wave-reviewer.md', import.meta.url), 'utf8');
+const skill = readFileSync(new URL('../skills/gauntlet/implement/waves/waves.md', import.meta.url), 'utf8');
+const template = readFileSync(new URL('../skills/gauntlet/wave-reviewer.md', import.meta.url), 'utf8');
 const wave = skill.split('## The Wave Loop')[1].split('## When a Subagent Fails')[0];
 
 const loadReference = name => { const path = new URL(`../skills/subagent-driven-development/reference/${name}.md`, import.meta.url); return existsSync(path) ? readFileSync(path, 'utf8') : ''; };
@@ -57,18 +57,18 @@ test('unified schema requires counted findings and preserves amendment carriers'
 });
 test('replacement samples and retired protocol inventory', () => {
   for (const name of ['one-review-per-wave','direct-report-read','repair-on-top','gate-repair-before-review','empty-delta-attempt','apply-failure-rebuild','escalation-same-tree','convergence-exception','funded-failure-stop','reject-stop','blocked-resume-tree']) {
-    for (const file of ['case','expected']) assert.ok(existsSync(new URL(`../eval/subagent-driven-development/samples/${name}/${file}.md`, import.meta.url)), name);
+    for (const file of ['case','expected']) assert.ok(existsSync(new URL(`../eval/waves/samples/${name}/${file}.md`, import.meta.url)), name);
   }
-  for (const name of ['chain-wave-dispatch', 'patch-review-snapshot', 'report-by-path-fix', 'test-gate-repair']) assert.equal(existsSync(new URL(`../eval/subagent-driven-development/samples/${name}`, import.meta.url)), false, name);
+  for (const name of ['chain-wave-dispatch', 'patch-review-snapshot', 'report-by-path-fix', 'test-gate-repair']) assert.equal(existsSync(new URL(`../eval/waves/samples/${name}`, import.meta.url)), false, name);
   for (const path of ['reference/fix-loop.md','spec-reviewer-prompt.md','code-quality-reviewer-prompt.md']) assert.equal(existsSync(new URL(`../skills/subagent-driven-development/${path}`, import.meta.url)), false);
 });
 test('planning and wave dispatch bind task roots and Rules to admitted legs', () => {
-  const contract = readFileSync(new URL('../skills/writing-plans/reference/plan-contract.md', import.meta.url), 'utf8');
+  const contract = readFileSync(new URL('../skills/gauntlet/plan/plan-contract.md', import.meta.url), 'utf8');
   for (const token of ['Leg: <repo>', 'Baseline <repo>: <sha>', '(leg, path)', 'leg-unknown']) assert.ok(contract.includes(token), token);
   assert.match(contract, /brainstorming\/reference\/legs\.md#locate-a-leg-tree/, 'plan contract: branch-location citation');
   assert.doesNotMatch(contract, /recorded `home:` with shared `NAME`/, 'plan contract: retired path formula');
   assert.match(contract, /Stop plan writing on a failed lookup and report its reason/, 'plan contract: failed lookup');
-  const record = JSON.parse(readFileSync(new URL('../eval/writing-plans/results/leg-checkout-by-branch/candidate.json', import.meta.url), 'utf8'));
+  const record = JSON.parse(readFileSync(new URL('../eval/plan/results/leg-checkout-by-branch/candidate.json', import.meta.url), 'utf8'));
   assert.equal(Object.keys(record.outputs).length, 2);
   for (const [model, output] of historicalReplies(record)) {
     assert.equal(output.status, 'ok', model);
@@ -230,7 +230,7 @@ test('missing live index fails tree capture without a SHA or scratch residue', (
 
 
 test('implementer template carries task scope and evidence, not persona conduct', () => {
-  const prompt = readFileSync(new URL('../skills/subagent-driven-development/implementer-prompt.md', import.meta.url), 'utf8');
+  const prompt = readFileSync(new URL('../skills/gauntlet/implement/waves/implementer-prompt.md', import.meta.url), 'utf8');
   const ordered = ['planPath: [absolute plan path]', 'anchor: "### Task N:"', 'anchors: [use instead of anchor for a multi-task repair]', 'Spec: [absolute authoritative home spec path]', 'Work from: [worker checkout]', 'SCOPED_TEST_COMMANDS: [', 'Read the selected task sections, Spec anchors, Tests:/via: and Files: Create:/Test: paths yourself.', 'Tests call the via: seam directly', 'Create every Create: path at exactly that path.', 'one line per SCOPED_TEST_COMMANDS command', 'Any `unmet` -> `DONE_WITH_CONCERNS`.', '**Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT', 'Conduct (TDD scenarios, test economy, scope discipline, escalation, report shape) is your persona; this prompt carries only the task and its test scope.'];
   let previous = -1;
   for (const text of ordered) { const at = prompt.indexOf(text); assert.ok(at > previous, text); previous = at; }
@@ -353,7 +353,7 @@ test('rebuild restores base-owned Delete paths without touching siblings or pass
 });
 
 test('rebuild Delete sample retains passing candidate facts for successful replay models', () => {
-  const record = JSON.parse(readFileSync(new URL('../eval/subagent-driven-development/results/rebuild-delete-paths/candidate.json', import.meta.url), 'utf8'));
+  const record = JSON.parse(readFileSync(new URL('../eval/waves/results/rebuild-delete-paths/candidate.json', import.meta.url), 'utf8'));
   assert.equal(Object.keys(record.outputs).length, 2);
   for (const [model, output] of historicalReplies(record)) {
     assert.equal(output.status, 'ok', model);

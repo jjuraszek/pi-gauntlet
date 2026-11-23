@@ -10,8 +10,8 @@ The live persona (`agents/code-reviewer.md`, loaded with `systemPromptMode: repl
 
 Meanwhile every orchestrator surface already treats Critical and Moderate as blocking:
 
-- `skills/requesting-code-review/SKILL.md:55-60` - "Fix Critical and Moderate issues before proceeding"; re-review after fixes.
-- `skills/subagent-driven-development/SKILL.md:238-240` - whole-diff review: address Critical and Moderate findings before verify.
+- `skills/gauntlet/requesting-review.md:55-60` - "Fix Critical and Moderate issues before proceeding"; re-review after fixes.
+- `skills/gauntlet/implement/waves/waves.md:238-240` - whole-diff review: address Critical and Moderate findings before verify.
 - `skills/chase-bug/hotfix.md:90` - a `FIX_FIRST` round fixes every Critical and Moderate finding.
 - `README.md:347-348` and `skills/gatekeep-pr/SKILL.md:166-168,301-302` state the same mapping.
 

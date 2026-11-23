@@ -6,7 +6,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('loop allowance flag stays separate from grant persistence and precedes the handoff', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.ok(gate.includes('| `2 --allowance=N` | approve; persist `G`; engine `loop`; carry `run allowance: N` to ledger seeding |'));
   assert.ok(gate.includes('On row 2, accept one `--allowance=N` flag'));
   assert.ok(gate.includes('Strip only an accepted `--allowance=N` flag before decoding the grant'));

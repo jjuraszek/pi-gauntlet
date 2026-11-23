@@ -44,7 +44,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `maxIterationsPerRow` (default 4) as the ledger allowance. Resolve
    `gauntlet_setting({ key: "escalationLoop" })` and retain `implModel`;
    require it only at an escalated dispatch under the [attempt budget](reference/attempt-budget.md). Any settings
-   error -> abort (pre-land). Nothing exists yet. Read [commit message](../finishing-a-development-branch/reference/commit-message.md); resolve its absolute path and the ticket named in the record once. Pass them as `wording:` and `ticket:` to every worker and use the reference for inline commits and landing.
+   error -> abort (pre-land). Nothing exists yet. Read [commit message](../gauntlet/commit-message.md); resolve its absolute path and the ticket named in the record once. Pass them as `wording:` and `ticket:` to every worker and use the reference for inline commits and landing.
 3. **Worktree.** From the primary checkout:
 
    ```bash
@@ -102,7 +102,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    mapping locally as `1 | 1 | hotfix`, without tracker tools or the loop driver's
    coordinated admission shell. Remove the ledger as the last action of every
    exit: after step 9's evidence on squash or PR exit, or after the abort class's
-   bash block and report. Remove any remaining return file through the [Return file deletion recipe](../loop-implementation/reference/return-file.md) before every exit's worktree cleanup, while its checkout-local git dir still exists; include binding aborts that retain the tree. Leave the handoff record in place.
+   bash block and report. Remove any remaining return file through the [Return file deletion recipe](../gauntlet/return-file.md) before every exit's worktree cleanup, while its checkout-local git dir still exists; include binding aborts that retain the tree. Leave the handoff record in place.
 
    Run the project's dependency install inside the worktree. Every dispatch
    below: `cwd` = the worktree path, `output:` an absolute `$TMPDIR` path. Reuse
@@ -124,7 +124,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    current `iterations` as `i`, and the worktree HEAD as `HEAD_BEFORE`;
    write `iterations: i + 1` and
    `pending: <target> | hotfix | <HEAD_BEFORE>` to the ledger. Pass that exact
-   tuple to the child, with the pre-bump `iteration: <i>`. Run the [Return file recipes](../loop-implementation/reference/return-file.md) with `CHECKOUT` = `WORKTREE`, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`; pass the prepared path as `return:`. Abort pre-land on a failed path read, directory creation or stale-file deletion. On recovery recompute the path without deleting it before admission; delete it through the same recipe after admission, a miss or abort.
+   tuple to the child, with the pre-bump `iteration: <i>`. Run the [Return file recipes](../gauntlet/return-file.md) with `CHECKOUT` = `WORKTREE`, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`; pass the prepared path as `return:`. Abort pre-land on a failed path read, directory creation or stale-file deletion. On recovery recompute the path without deleting it before admission; delete it through the same recipe after admission, a miss or abort.
 
    ```text
    subagent({ agent: "loop-implementer", context: "fresh", async: false,

@@ -48,7 +48,7 @@ Immediately after sorting, write the list in the visible text of the assistant r
 | 0 | Stop: `no open PRs awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
-| 2+ Claude Code | Use the stop-format instructions read as the first tool call after the sort and put the list in that reply. Skip the `reference/batch.md` read. In a separate stop message, write three consecutive lines with no blank lines: use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
+| 2+ Claude Code | Use the stop-format instructions read as the first tool call after the sort and put the list in that reply. Skip the `reference/batch.md` read. In a separate stop message, write three consecutive lines with no blank lines: use the [first-line rule](../gauntlet/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
 Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. GitHub resolves both `@me` qualifiers: include direct and team review requests but exclude the viewer's PRs even when `viewer.login` is unreadable.
 

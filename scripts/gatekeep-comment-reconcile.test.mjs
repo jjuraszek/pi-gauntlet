@@ -500,7 +500,7 @@ test('post-selection-loop.md reads the merge state before offering coverage post
 });
 
 test('conformance-check.md sentinel names the deferred/deviates line', () => {
-  const cc = read('../skills/verification-before-completion/reference/conformance-check.md');
+  const cc = read('../skills/gauntlet/conformance-check.md');
   assert.ok(cc.includes('Deferred/deviates per spec:'));
 });
 
@@ -1070,9 +1070,9 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
           assert.deepEqual(commands[1].split('\n'), [
             ...preamble,
             'git symbolic-ref --short refs/remotes/origin/HEAD',
-            'git show origin/main:.pi/gauntlet-overrides.md',
-            'git show origin/main:gauntlet-overrides.md',
-            'git show origin/main:doc/gauntlet-overrides.md',
+            'git show origin/main:.pi/gauntlet.md',
+            'git show origin/main:gauntlet.md',
+            'git show origin/main:doc/gauntlet.md',
           ], `${model}: Run B uses only the fixed preamble and applicable Ticket display reads`);
           assert.match(output.text, /^---\n\*\*PRs to gate:\*\*\n/m, `${model}: set reply starts with the visible heading`);
           assert.match(output.text, /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list -R acme\/gadgets -c \S+ --json databaseId,status,conclusion,workflowName,url`?$/m, `${model}: single reply starts with the visible heading and carries the Gather call for the PR-view repository`);
@@ -1116,7 +1116,7 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
     if (['no-arg-discovery-over-cap', 'no-arg-discovery-cc-multi'].includes(sample)) {
       const cap = sample.endsWith('over-cap');
       const rule = cap ? section(batch, 'For `source: discovered`,', 'After successful admission') : section(brief, '| 2+ Claude Code |', ' |\n');
-      const link = `(${cap ? '../../' : '../'}brainstorming/reference/menu-layout.md#first-line-rule)`;
+      const link = `(${cap ? '../../' : '../'}gauntlet/menu-layout.md#first-line-rule)`;
       assert.ok(rule.includes(`${link} for \`stuck\``));
       if (!cap) assert.match(rule, /stop-format instructions read as the first tool call after the sort and put the list in that reply\. Skip the `reference\/batch\.md` read\./);
       assert.ok(rule.includes(cap ? 'cap or harness rejection text' : "multi-PR mode requires pi's nested dispatch"));

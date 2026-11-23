@@ -12,7 +12,7 @@ bundle-: skills/gatekeep-pr/reference/sync.md
 - scope: source pr; the PR body states the intent "cap sync retries at a configurable budget"
 - worktree: .worktrees/pr-523 provisioned, HEAD == headRefOid, clean
 - harness: pi with the subagent facility; closureReview.maxFixRounds 3; timeout minutes 15
-- merge-base overrides file (`.pi/gauntlet-overrides.md` at `$MB`), relevant excerpt:
+- merge-base overrides file (`.pi/gauntlet.md` at `$MB`), relevant excerpt:
   `## PR gate` - `verification command: sh scripts/run-all-tests.sh`
   `## Project` - `Scoped Python tests: uv run --group test python -m pytest <paths> -q`
   `## routing` - `dashboard: cd dashboard && mise x -- bin/rspec <paths>`

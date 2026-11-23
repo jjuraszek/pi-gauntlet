@@ -1,0 +1,9 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
+bundle+: skills/gauntlet/ship/ship.md
+bundle+: skills/gauntlet/pr-head.md
+The verify completion reply points to `skills/gauntlet/ship/ship.md`. The worktree to finish is `/work/widget/.worktrees/fix-timeout`.
+Synthetic independent preflight checkpoints, no tools. Target 450 words, hard maximum 600. Spend at most 200 words on the two menus, 100 on verification, 80 on stops and 100 on divergence/replies. Use one shared command/SHA legend and compact variant tables; do not restate checkpoints or narrate later finishing steps. Spec doc/specs/rework.md Rework record PR acme/widget#42, Pre-rework head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, Base main @ 1234567 - merge: bbbbbbb. OPEN branch fix-timeout, base main. Header Verification lint and format; task Tests test-timeout and test-retry. All passed at known clean commit ccccccc; telemetry-excluding checks clean. Original head and origin/fix-timeout are ancestors of HEAD cccccccccccccccccccccccccccccccccccccccc. Gates passed.
+Render exact six-row PR menu and ordinary-spec five-row control with full verification test-all, despite existing open PR. Describe verification selection and skip evidence, comparing sentinel header none - PR subject, scoped.
+Stop variants: missing prehead; CLOSED PR; wrong head branch; original prehead not ancestor of HEAD; ancestry exit 128 (fatal error). State diagnostic and operation boundary.
+Divergence: origin/fix-timeout 9999999999999999999999999999999999999999 is not ancestor of HEAD. Show exact withheld treatment with both SHAs and unchanged numeric rows. Compare separate prehead-to-origin proof success versus failure before claiming origin advance. Give bare replies 1, 5 and 6, including confirmation/warning and remote effect. No push/body work.

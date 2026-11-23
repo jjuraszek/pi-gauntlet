@@ -1,4 +1,4 @@
-bundle-: skills/subagent-driven-development/implementer-prompt.md
+bundle-: skills/gauntlet/implement/waves/implementer-prompt.md
 
 You are implementing Task 5: Reject a record posted in the future
 

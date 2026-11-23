@@ -97,7 +97,7 @@ function migrate(root, dir, repo, remote) {
       continue;
     }
     record.repo ??= repo;
-    writes.set(`${repo}/brainstorming/${toPosix(relative(dir, path))}`, serializeRecord(record));
+    writes.set(`${repo}/gauntlet/${toPosix(relative(dir, path))}`, serializeRecord(record));
   }
   const result = syncTelemetryBranch(root, writes, remote);
   if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
@@ -199,7 +199,7 @@ function branchBlob(root, path, remote) {
 
 async function seal(vcs, rec, o) {
   const abs = rec;
-  const path = `${o.repo}/brainstorming/${toPosix(relative(o.store, rec))}`;
+  const path = `${o.repo}/gauntlet/${toPosix(relative(o.store, rec))}`;
   if (!existsSync(abs)) {
     const sync = syncTelemetryBranch(vcs.root, new Map(), o.remote);
     const stored = parseRecord(branchBlob(vcs.root, path, o.remote) ?? "");

@@ -1,14 +1,14 @@
 bundle-: skills/gatekeep-pr/reference/menus.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/report.md
-bundle-: skills/brainstorming/reference/menu-layout.md
+bundle-: skills/gauntlet/menu-layout.md
 ## Digest
 
 - pr: { number: 81, title: "Bound retries", body: "Stop after the configured retry budget.", author: "river-example", state: OPEN, isDraft: false, headRefName: fix/retries, baseRefName: main, headRefOid: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, mergeable: MERGEABLE, mergeStateStatus: CLEAN }
 - base_repository: orchard/widgets; viewer: { login: river-example, is_author: true }; permissions: { viewer_permission: WRITE, head_pushable: true, head_url: "git@git.example.invalid:orchard/widgets.git", head_ref: fix/retries }
 - worktree: /work/widgets-pr-81; HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, clean; no sync trigger; merge-tree exits 0; MB bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 - harness: pi; sequential fresh helper facility available; closureReview.maxFixRounds 5; loopEngine.maxIterationsPerRow 5; loopEngine.escalateAfter 3; escalationLoop.implModel resolves to the configured model; no phase-tracker verify window
-- configuration at MB: AGENTS.md documents `node --test <files>` as scoped; .pi/gauntlet-overrides.md resolves verification command `npm test`; no other scoped runner
+- configuration at MB: AGENTS.md documents `node --test <files>` as scoped; .pi/gauntlet.md resolves verification command `npm test`; no other scoped runner
 - scope: { source: pr, original_intent: { title: "Bound retries", body: "Stop after the configured retry budget." } }
 - P1: Moderate blocker, retry budget is never decremented (src/retry.mjs:9); failing test test/retry.test.mjs expects termination at zero; drafted payload adds a branch before the loop; the finding can instead be closed by decrementing after each attempt; N1 unselected nit renames a local
 - continuation record: /tmp/gatekeep-81.record; repair.course deliver, rounds_used 0, rounds_cap 10, syncs_used 0, syncs_cap 10; current wave pre_wave_head and round_start_head aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, counted false

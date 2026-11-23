@@ -3,7 +3,7 @@ bundle-: skills/gauntlet-resume/reference/reconstruction.md
 bundle-: skills/gauntlet-resume/reference/restore-plan.md
 bundle-: skills/gauntlet-resume/reference/plan-repair.md
 bundle-: skills/gauntlet-resume/reference/coordinated.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 
 ## Entry boundary
 Override replay.md's call-table entry: each independent case starts when the supplied ledger is first read at Ledger admission, before the confirmation question or any tracker call. Do not replay entry checks or proceed to plan_check.

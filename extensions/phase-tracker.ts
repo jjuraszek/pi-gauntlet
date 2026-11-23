@@ -284,7 +284,7 @@ const fixRoundCapBlockReason = (used: number, cap: number, settingsPath: string)
   `Last resort: set piGauntlet.closureReview.enforce: false in ${settingsPath} (disables all closure guards; ` +
   "applies on the next tool call, no restart - a gauntlet_setting read in the same message sees the write; " +
   "a repo closureReview block replaces the preset's whole block, so restate model and maxFixRounds alongside). " +
-  "Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6";
+  "Start the escalation message with the line: gauntlet: gate=verify/step-6";
 
 const closureModelBlockReason = (model: string, missing: number, total: number): string =>
   `Blocked: ${missing} of ${total} conformance-reviewer ${total === 1 ? "dispatch" : "entries"} ` +
@@ -1018,7 +1018,7 @@ export default function (pi: ExtensionAPI) {
           const worktrees = gitSync(["worktree", "list", "--porcelain"], root);
           const primary = /^worktree (.+)$/m.exec(worktrees.stdout)?.[1];
           if (worktrees.code !== 0 || !primary) return inputFailure("cannot resolve home primary");
-          const overridesPath = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
+          const overridesPath = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"].map(p => resolve(primary, p)).find(p => existsSync(p));
           const overrides = overridesPath ? readFileSync(overridesPath, "utf8") : "";
           const section = /^## shape-ticket\s*\n([\s\S]*?)(?=^## |$(?![\s\S]))/m.exec(overrides)?.[1] ?? "";
           const parseClone = (value: string) => {

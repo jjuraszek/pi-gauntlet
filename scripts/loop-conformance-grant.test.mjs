@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
-const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
-const conformance = readFileSync(new URL('skills/verification-before-completion/reference/conformance-check.md', root), 'utf8');
+const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+const conformance = readFileSync(new URL('skills/gauntlet/conformance-check.md', root), 'utf8');
 const step3 = driver.split('\n3. Run happy path')[1].split('\n4. Complete verify')[0];
 const step6 = conformance.split('6. **Converge or continue**')[1].split('**Convergence**')[0];
 

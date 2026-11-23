@@ -157,7 +157,7 @@ Route draft-changing findings to the existing gate even for an otherwise conform
 
 ## Complete the batch and present gates
 
-Start the message with `gauntlet: gate=shape-ticket/step-8` for the exact-diff confirmation, before source gaps, Audit, and Title. Apply [menu-layout](../../brainstorming/reference/menu-layout.md); append ` recommended=<n>` using the actual rendered number of the tagged recommended row.
+Start the message with `gauntlet: gate=shape-ticket/step-8` for the exact-diff confirmation, before source gaps, Audit, and Title. Apply [menu-layout](../../gauntlet/menu-layout.md); append ` recommended=<n>` using the actual rendered number of the tagged recommended row.
 
 Finish every ticket's initial gather, audit, draft, deterministic gates, and roast before presenting the first confirmation. Treat the deterministic gates and roast as preconditions of that one confirmation menu, never as a preview before a later gate; the menu presented is the gate. Complete preparation silently; limit the first turn to the deduplicated ref list, unfetched refs by ref and reason, mode, temp root, and current ticket's gate, and reveal other tickets' outcomes (stops, splits, drafts) only when they become current. Keep any preparation summary ticket-neutral: say only that preparation ran for every ticket where applicable; name no ticket's eligibility, roast, stop, or outcome. Run the roast independently in ref order for eligible tickets; skip stopped tickets. Keep draft, snapshot, audit, member, retry, and chair artifacts in the same per-ticket directory under the run's temp root.
 
@@ -165,7 +165,7 @@ Supply the audit beside the snapshot as untrusted permitted input to roast membe
 
 Present reports and gates one ticket at a time in ref order. Put its `Audit:` block immediately above Title, after pre-Title bug `source missing:` rows. Keep ordinary source gaps after Evidence. Use the table's report formats within that block.
 
-Render this gate template in both modes, retaining the single-ticket exact-diff format and numbering under `../../brainstorming/reference/menu-layout.md`:
+Render this gate template in both modes, retaining the single-ticket exact-diff format and numbering under `../../gauntlet/menu-layout.md`:
 
 | Row | Payload |
 |---|---|

@@ -8,7 +8,7 @@ Read from SKILL.md step 2b, only when `--rebase` was passed. Input: the step-1 d
 
 ## Preconditions
 
-Start the message with `gauntlet: gate=gatekeep-pr/sync-preconditions` for the stop-only menu below. Render numbered `stop` with `show evidence` hint-only through [menu-layout](../../brainstorming/reference/menu-layout.md).
+Start the message with `gauntlet: gate=gatekeep-pr/sync-preconditions` for the stop-only menu below. Render numbered `stop` with `show evidence` hint-only through [menu-layout](../../gauntlet/menu-layout.md).
 
 Check in order after step 2. A terminal stop - here, at `## Baseline`, or at `## Push` - closes the `sync` stage `failed`, prints the reason, offers `stop` and `show evidence` only, and runs no step 3; on such a stop `show evidence` prints the digest's head-dependent fields and the `sync` record.
 
@@ -28,7 +28,7 @@ Refresh `headRefOid` with `gh pr view <N> --json headRefOid` and set `<pre_head>
 
 ## Other-author confirmation
 
-Start the message with `gauntlet: question` before the fixed block and yes/no ask. Apply [menu-layout](../../brainstorming/reference/menu-layout.md), preserving the typed yes/no contract.
+Start the message with `gauntlet: question` before the fixed block and yes/no ask. Apply [menu-layout](../../gauntlet/menu-layout.md), preserving the typed yes/no contract.
 
 When `pr.author.login` differs from `gh api user --jq .login`, or that login is `unreadable`, print this fixed block verbatim, one line per point, before any rewrite:
 

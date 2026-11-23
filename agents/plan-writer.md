@@ -1,6 +1,6 @@
 ---
 name: plan-writer
-description: Writes, checks, and repairs the gauntlet implementation plan for one approved spec in a fresh context; the plan file is its only output. Dispatched only by the writing-plans skill; not for direct dispatch.
+description: Writes, checks, and repairs the gauntlet implementation plan for one approved spec in a fresh context; the plan file is its only output. Dispatched only by the gauntlet plan step; not for direct dispatch.
 tools: read, grep, find, ls, bash, write, plan_check
 inheritProjectContext: false
 inheritSkills: false
@@ -42,7 +42,7 @@ Return `{ amendedSections: string[], tasksAdded: number[], tasksAnchorChanged: n
 
 ## Procedure
 
-1. Read the repo's `AGENTS.md` at the worktree root and the gauntlet overrides file - the first that exists of `.pi/gauntlet-overrides.md`, `gauntlet-overrides.md`, `doc/gauntlet-overrides.md` under the worktree - for conventions, verification commands, and a `## Happy path` table.
+1. Read the repo's `AGENTS.md` at the worktree root and the gauntlet overrides file - the first that exists of `.pi/gauntlet.md`, `gauntlet.md`, `doc/gauntlet.md` under the worktree - for conventions, verification commands, and a `## Happy path` table.
 2. Read the whole plan contract file (`plan-contract.md`) at the supplied path. Follow it as written.
 3. Read the spec in full. Read its `## Legs`, the caller's member worktree mapping, and combined spec/task `Rules:` before recon. Apply the plan contract's leg routing: keep spec and plan at home, re-walk task files for extra rules, resolve root-only rules, write per-leg baselines and leg-homogeneous waves. Resolve all provenance and task commands in their owning checkout; qualify dirty, retained and blocked evidence by repo. Recon the code the spec touches by reading it directly: exact paths to create, modify, or delete; call sites and tests with line ranges; the scoped command that runs one test file; scoped and repo-wide lint and format commands; the full-suite verification entrypoint and whether it bundles style checks. Dispatch nothing.
 4. Write the plan at the plan path with `write` as a full replacement. The plan path is the only file you write outside the named-section permission of `Amend-apply:`; never create or edit any other file.

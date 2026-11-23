@@ -54,7 +54,7 @@ Evidence is proportionate to the claim: a task or wave claim is proven by the co
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
-| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes only on a current `CONFORMS` result or a current durable carried-open closure inventory permitted by `reference/conformance-check.md` (including declared-precondition-unavailable `recommended: fix` gaps). A started positive-cap fix loop that blocks, fails, or exhausts rounds with an open `fix` gap is escalation, not completion. | Plan-vs-code review, tests passing |
+| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes only on a current `CONFORMS` result or a current durable carried-open closure inventory permitted by `../conformance-check.md` (including declared-precondition-unavailable `recommended: fix` gaps). A started positive-cap fix loop that blocks, fails, or exhausts rounds with an open `fix` gap is escalation, not completion. | Plan-vs-code review, tests passing |
 
 ## Rationalization Prevention
 
@@ -114,7 +114,7 @@ The shape of an honest claim is `[Run command] [See: verbatim output] "claim"`. 
 ❌ "Plan-vs-code review passed, so the intent is delivered"
 ```
 Single-step plan-vs-code review inherits drift the plan introduced; this loop
-confronts the outcome against the origin. Follow `reference/conformance-check.md`.
+confronts the outcome against the origin. Follow `../conformance-check.md`.
 
 **Agent delegation:**
 ```
@@ -165,6 +165,6 @@ phase_tracker({ action: "complete", phase: "verify" })
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
-The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

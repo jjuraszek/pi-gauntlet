@@ -47,7 +47,7 @@ function fixture({ linked = false } = {}) {
 
 test('stage scratch resolves checkout-local Git metadata and refuses a failed lookup', () => {
   const { primary, checkout, scratch } = fixture({ linked: true });
-  const reference = readFileSync(new URL('../skills/loop-implementation/reference/return-file.md', import.meta.url), 'utf8');
+  const reference = readFileSync(new URL('../skills/gauntlet/return-file.md', import.meta.url), 'utf8');
   const block = reference.match(/<!-- stage-scratch-shell -->\s*```bash\n([\s\S]*?)\n```/)?.[1];
   assert.ok(block, 'shared scratch recipe exists');
   for (const root of [primary, checkout]) {
@@ -63,9 +63,9 @@ test('fenced stage mints derive scratch without inherited shell state', () => {
   const { checkout } = fixture({ linked: true });
   const expected = join(git(checkout, 'rev-parse', '--path-format=absolute', '--git-dir'), 'gauntlet/tmp');
   for (const [file, variable, role] of [
-    ['brainstorming/gatherer.md', 'GATHER_DIR', 'gather'],
-    ['brainstorming/reference/spec-finalization.md', 'SUMMARY_PATH', 'spec-summary'],
-    ['roasting-the-spec/SKILL.md', 'COUNCIL_DIR', 'council'],
+    ['gauntlet/brainstorm/gatherer.md', 'GATHER_DIR', 'gather'],
+    ['gauntlet/brainstorm/spec-finalization.md', 'SUMMARY_PATH', 'spec-summary'],
+    ['gauntlet/brainstorm/council.md', 'COUNCIL_DIR', 'council'],
   ]) {
     const text = readFileSync(new URL(`../skills/${file}`, import.meta.url), 'utf8');
     const block = [...text.matchAll(/```bash\n([\s\S]*?)\n```/g)].find(match => match[1].includes(`${variable}=$(mktemp`))?.[1];

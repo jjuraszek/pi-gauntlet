@@ -1,8 +1,8 @@
-Read this reference with the loop driver when its held membership has more than one leg. Read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md) for all worker and parent commit wording; take the companion record or repair sentence from its event table.
+Read this reference with the loop driver when its held membership has more than one leg. Read [commit-message.md](../../commit-message.md) for all worker and parent commit wording; take the companion record or repair sentence from its event table.
 
 ## Entry
 
-At seed, read `## Legs` with [the scope grammar](../../brainstorming/reference/legs.md#scope-grammar-and-validation) before skeleton commit. Require exactly one `scope:` per block: `scope: AC 1, AC 3` or `scope: none`. Reject missing/duplicate scope lines, duplicate indices within a list, malformed tokens and out-of-range original indices through the amendment stop. Include cut original AC indices; never infer ownership from a `design:` mention or path. Default only indices absent from every valid list to home; repeat shared indices in every owner's list.
+At seed, read `## Legs` with [the scope grammar](../../legs.md#scope-grammar-and-validation) before skeleton commit. Require exactly one `scope:` per block: `scope: AC 1, AC 3` or `scope: none`. Reject missing/duplicate scope lines, duplicate indices within a list, malformed tokens and out-of-range original indices through the amendment stop. Include cut original AC indices; never infer ownership from a `design:` mention or path. Default only indices absent from every valid list to home; repeat shared indices in every owner's list.
 
 Retain the home skeleton's `**Spec:**`, `verification:`, `checks: commands`, `iterations:`, `allowance:`, `returned: none` directly after allowance, and `## Decisions` fields and its `plan_check`/commit admission. Use the driver's gate set grouped by `## Leg mapping` for verification; keep the home verification header as the CI command.
 

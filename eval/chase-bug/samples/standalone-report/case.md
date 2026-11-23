@@ -1,5 +1,5 @@
 bundle+: skills/chase-bug/SKILL.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Simulate step 4 only; no tools, mutations, or handoffs. Origin: free text; response target: none. Baseline and checkpoint 2 are clean. Prior-report search completed without a match.
 

@@ -80,7 +80,7 @@ Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the
 
 ### Shared worker context
 
-Read [commit message](../../finishing-a-development-branch/reference/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed. Pass `scratch: <absolute RUN_DIR>` to Sync and pre-push review helpers too.
+Read [commit message](../../gauntlet/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed. Pass `scratch: <absolute RUN_DIR>` to Sync and pre-push review helpers too.
 
 Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Include the payload-limit sentence verbatim in every dispatch on both harnesses. Mint a fresh output path per dispatch with `mktemp "$RUN_DIR/row.XXXXXX"`.
 
@@ -120,7 +120,7 @@ For an eligible row with no `row <n> escalated` line, compute `threshold = min(e
 
 On pi, use the wave's derived spec and companion ledger. Never seed-dispatch: start at `target: <row>`. Apply Budgets before changing the ledger. For each eligible row in review order, save its attempts, the ledger's iterations as `i`, and `git -C <worktree> rev-parse HEAD` as `HEAD_BEFORE`. Write `iterations: i + 1` and `pending: <row> | gatekeep | <HEAD_BEFORE>` before dispatch. Resolve `MB` as `git -C <worktree> merge-base origin/<baseRefName> <headRefOid>`; use it as the worker's diff base, not the per-attempt commit boundary. Supply one `Rules:` line per existing worktree `AGENTS.md` and overrides file, using repo-relative paths; with neither file use `Rules: none`.
 
-Resolve the checkout-local `--git-dir` with the [Return file recipes](../../loop-implementation/reference/return-file.md), using `CHECKOUT` = the PR worktree, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`. Pass the prepared path as `return:`. On re-entry recompute it without deleting it before admission. Keep this private file outside tracked source and the external ledger; delete it through the same recipe after admission or a validation miss. Stop before dispatch on any path read, directory creation or stale-file deletion failure.
+Resolve the checkout-local `--git-dir` with the [Return file recipes](../../gauntlet/return-file.md), using `CHECKOUT` = the PR worktree, `HEAD_BEFORE` = the pending tuple's SHA and `ITERATION` = `i + 1`. Pass the prepared path as `return:`. On re-entry recompute it without deleting it before admission. Keep this private file outside tracked source and the external ledger; delete it through the same recipe after admission or a validation miss. Stop before dispatch on any path read, directory creation or stale-file deletion failure.
 
 Dispatch through `../SKILL.md` `## Harness notes` with this row task:
 

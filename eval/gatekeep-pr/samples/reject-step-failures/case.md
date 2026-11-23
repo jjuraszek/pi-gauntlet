@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise reject step execution and settlement only, as independent rows in a compact result table. No tools, no live PR, no provisioning, full report or helper. For each row show selected-step results, terminal marker and settlement outcome, note retention and cleanup count. Render only G's full reject menu and H's unchanged waiting menu response. Keep within 1700 words.

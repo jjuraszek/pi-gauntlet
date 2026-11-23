@@ -14,11 +14,11 @@ Collaborate on designs.
 
 Do **not** implement until the design is presented and approved, regardless of simplicity. Implementation-heavy requests define spec scope; they do not lift this gate.
 
-You **may** read code/docs, run the existing system to observe current behavior, write under a resolved spec dir (`gauntlet_setting({ key: "flowGuards" })` -> `specDirs`), and `edit` a predecessor spec there to add a [supersession banner](reference/superseding.md).
+You **may** read code/docs, run the existing system to observe current behavior, write under a resolved spec dir (`gauntlet_setting({ key: "flowGuards" })` -> `specDirs`), and `edit` a predecessor spec there to add a [supersession banner](brainstorm/superseding.md).
 
 You may **not** write outside the resolved spec dirs; build, deploy, validate, or exercise the proposed change; run implementation skills; commit the spec on `main`; or start `/skill:writing-plans`.
 
-For a PR subject, the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `using-git-worktrees/reference/pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
+For a PR subject, the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests in `pr-head.md` are the sole pre-approval writes and runs outside the spec dirs; nothing else moves.
 
 The line: current-system observation is research; exercising the proposed change waits for approval.
 
@@ -28,7 +28,7 @@ Set top-level `async: false` on every flow-owned dispatch and leave `forceTopLev
 
 ## Entry consent
 
-Start fresh only on `/skill:gauntlet`, explicit prose requesting brainstorming/the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
+Start fresh only on `/skill:gauntlet`, explicit prose requesting brainstorming or the gauntlet, or a human-selected handoff. Ordinary implementation requests, discussion about usefulness, and recommendations are not consent: wait for explicit choice before reset or worktree creation.
 
 Treat the flag as discovery control, not harness authorization. The command reliably discovers this skill; honor prose when already loaded or identified by an available route, never promise otherwise unreachable prose discovery. Continue restored state and amend/redraw at their named steps without fresh entry.
 
@@ -44,13 +44,13 @@ Work through the items below **in order**. After a user answer or completed side
    phase_tracker({ action: "start", phase: "brainstorm" })
    ```
 
-2. **Set up the worktree** - resolve the leading run per `reference/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. For a marked spec PR, follow `reference/spec-pr.md`'s re-gate after provisioning (steps 3-11 skipped); otherwise see [Worktree First](#worktree-first).
-3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`gatherer.md`](gatherer.md) without a human stop.
-4. **Understand the idea against the draft** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
+2. **Set up the worktree** - resolve the leading run per `brainstorm/pr-subject.md`; pass the ordered per-PR array (home first) to `/skill:using-git-worktrees`' PR-head path. For a marked spec PR, follow `brainstorm/spec-pr.md`'s re-gate after provisioning (steps 3-11 skipped); otherwise see [Worktree First](#worktree-first).
+3. **Gather context** - read [Ticket Handling](#ticket-handling), then follow [`brainstorm/gatherer.md`](brainstorm/gatherer.md) without a human stop.
+4. **Understand the idea against the draft** - if `brainstorm/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then see [Understand the idea](#3-understand-the-idea).
 5. **Propose 2-3 approaches** - see [Explore approaches](#4-explore-approaches).
 6. **Present the design** - see [Present the design in two rounds](#6-present-the-design-in-two-rounds).
 7. **Write the spec** - read [Spec Self-Review](#spec-self-review-before-user-review-gate) before writing; follow steps 1-5.
-8. **Spec self-review (lint)** - if `reference/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then run the inline checks in [Spec Self-Review](#spec-self-review-before-user-review-gate).
+8. **Spec self-review (lint)** - if `brainstorm/ticket-acceptance.md` is not already in context this session (restored entry, or a redraw after a fresh start), read [Ticket Handling](#ticket-handling) before the rest of this step; then run the inline checks in [Spec Self-Review](#spec-self-review-before-user-review-gate).
 9. **Critique pass (auto-dispatched)** - use [Spec Council](#spec-council).
 10. **Re-run placeholder scan** - follow [Spec Self-Review](#spec-self-review-before-user-review-gate).
 11. **Generate spec summary** - follow [User Review Gate](#user-review-gate).
@@ -67,7 +67,7 @@ Detection order: (1) infer from ticket labels, description, or paths; (2) use th
 
 The spec is the first commit in a dedicated worktree, never a separate commit on `main`. For a PR subject, the worktree is the PR's branch and the spec commit is appended to it.
 
-Read [reference/legs.md](reference/legs.md) and settle membership before creation. Invoke `/skill:using-git-worktrees` for each member with explicit `$ROOT` = its primary and `$BRANCH` = the shared branch; carry every `Worktree ready at <full-path>` value, home first. Root the home spec at `<home worktree>/<home spec dir>/<filename>.md`; root each dispatch and `git -C` in its owning leg's worktree. Keep the process cwd unchanged. Gather each leg's rules and record portable contracts and companion artifacts using that reference; a one-member run adds only its one-block `## Legs` section.
+Read [legs.md](legs.md) and settle membership before creation. Invoke `/skill:using-git-worktrees` for each member with explicit `$ROOT` = its primary and `$BRANCH` = the shared branch; carry every `Worktree ready at <full-path>` value, home first. Root the home spec at `<home worktree>/<home spec dir>/<filename>.md`; root each dispatch and `git -C` in its owning leg's worktree. Keep the process cwd unchanged. Gather each leg's rules and record portable contracts and companion artifacts using that reference; a one-member run adds only its one-block `## Legs` section.
 
 Keep spec, plan, and implementation in this worktree. Ship the spec and implementation; strip only the plan. Let `/skill:finishing-a-development-branch` seal and publish the telemetry record to the `refs/telemetry/records` ref before landing; keep recorder state in Git common-dir metadata, outside the working tree. In a plain jj workspace, retain local metadata and report that publication is unavailable. Use no worktree for explicit trivial one-off edits outside this flow.
 
@@ -89,9 +89,9 @@ If any test fails, offer no split. Never split by service, package, repo, layer,
 
 ### 3. Understand the idea
 
-Write exactly `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for every waiting question, before any premise correction or `The framing holds: ...` sentence. Never append a colon to the marker. Follow the [first-line rule](reference/menu-layout.md).
+Write exactly `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for every waiting question, before any premise correction or `The framing holds: ...` sentence. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
 
-Clarify freely. For a PR subject, run the framing check against the PR's diff as the ask (`reference/pr-subject.md`).
+Clarify freely. For a PR subject, run the framing check against the PR's diff as the ask (`brainstorm/pr-subject.md`).
 
 `Read` the gathered draft unconditionally before question one. Treat it as a helper, not a fence: verify load-bearing claims from primary code, and confirm whether the codebase or ecosystem already solves the problem.
 
@@ -114,7 +114,7 @@ Before approaches, state in chat the supported, disproved, corrected, and unveri
 
 Before question one, verify the draft's `Framing:` line against primary code and add your own recon. This check adds to the premise verification above and never replaces it: trace every consumer, caller, and data path the ask's constraints name, including retained loaders and every repro and verification step's implicit dependencies, before writing the holds-statement or the question; check those dependencies with the lookup the repo or spec names, and record the traces and dependencies in the draft through the evidence write above. A framing concern exists when you can state a cited case that the ask is misdiagnosed, wrong-sized, already solved, a band-aid where the root cause is reachable, or cuts across a sound pattern - including a repo convention that is itself the debt - and can name the alternative it implies; an objection without an alternative is a lead to investigate, not a concern. With a concern, question one is the framing question; without a concern, the message carries the holds-statement and the first ordinary question.
 
-Read [Opening message](reference/opening-message.md) now and write question one's message against it; unreadable -> stop with a blocking error, never write it from memory.
+Read [Opening message](brainstorm/opening-message.md) now and write question one's message against it; unreadable -> stop with a blocking error, never write it from memory.
 
 After any premise correction in the same message, ask the framing question or give the holds-statement. Ask the framing question at most once per brainstorm, including after pushback; the user's reply is final, and later doubts on the same point go to Open Questions or a `Pattern:` line. Recommend; never pivot without the reply. A ticket-recorded decision on the exact point follows the ticket rule above; an adopted decision records `Framing: kept (ticket <id>)`. A pivot never rewrites AC rows: rows it no longer satisfies take `deviates:` dispositions, and a pivot that changes the topic re-mints the slug.
 
@@ -132,15 +132,15 @@ Prefer clear testable boundaries, YAGNI, existing conventions when they are soun
 
 ### 6. Present the design in two rounds
 
-Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for each round's approval question. Never append a colon to the marker. Follow the [first-line rule](reference/menu-layout.md).
+Start the message with `gauntlet: question` alone at column zero on the first physical line, followed by a newline, for each round's approval question. Never append a colon to the marker. Follow the [first-line rule](menu-layout.md).
 
-Use two rounds, targeting 300-500 words each, with one approval each; revisions remain within that approval point. Ask once per round; round-1 approval without correction confirms the predecessor. Round 1 covers architecture, responsibilities, data flow, and `supersedes <path>, <scope>` when applicable. Round 2 covers errors, edges, tests, and `## Documentation impact`. In round 2, read and apply [Documentation impact](reference/documentation-impact.md), including its verbatim template; cite that portable relative path in the spec; do not restate its categories. Ask the user when doc impact is unclear. Unreadable -> stop the step with a blocking error. Cite the draft's `Docs touched:` entries as candidates for "Materially amended existing docs"; admit or drop each by that owner's materiality bar, never list them automatically. In round 1, carry chosen `Removes:`/`Adds:` into Design as exhaustive `Remove:`/`Add:` imperatives naming every moving part; route unlisted parts through `reference/amendment-surface.md`. In round 2, write `## Tests`: one `<observable> - <test name or file>` per acceptance row and Design edge/error clause; `<observable> - none: <why>` for untestable.
+Use two rounds, targeting 300-500 words each, with one approval each; revisions remain within that approval point. Ask once per round; round-1 approval without correction confirms the predecessor. Round 1 covers architecture, responsibilities, data flow, and `supersedes <path>, <scope>` when applicable. Round 2 covers errors, edges, tests, and `## Documentation impact`. In round 2, read and apply [Documentation impact](documentation-impact.md), including its verbatim template; cite that portable relative path in the spec; do not restate its categories. Ask the user when doc impact is unclear. Unreadable -> stop the step with a blocking error. Cite the draft's `Docs touched:` entries as candidates for "Materially amended existing docs"; admit or drop each by that owner's materiality bar, never list them automatically. In round 1, carry chosen `Removes:`/`Adds:` into Design as exhaustive `Remove:`/`Add:` imperatives naming every moving part; route unlisted parts through `amendment-surface.md`. In round 2, write `## Tests`: one `<observable> - <test name or file>` per acceptance row and Design edge/error clause; `<observable> - none: <why>` for untestable.
 
 In round 2, name every paid or external action needed for implementation or verification in Design with its runner and inputs. Propose no flow-wide count for a named action. State that approving the spec authorizes every named action for the whole flow across seed, rows, repairs and finish, without per-step permission prompts; treat any stated count as advisory. Never block a named action for a missing or exhausted count, and never write a hold that makes a named action wait for a later approval. Treat a needed action the spec does not name as unreachable, and require separate explicit authorization to add it to Design.
 
 ## Ticket Handling
 
-Read [Ticket Handling](reference/ticket-acceptance.md) at first use - before gathering context, even with no ticket. Steps 4 and 8 carry the same read behind an in-context check so a restored session (`gauntlet-resume` routes there) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context. Unreadable -> stop with a blocking error, never reconstruct from memory.
+Read [Ticket Handling](brainstorm/ticket-acceptance.md) at first use - before gathering context, even with no ticket. Steps 4 and 8 carry the same read behind an in-context check so a restored session (`gauntlet-resume` routes there) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context. Unreadable -> stop with a blocking error, never reconstruct from memory.
 
 ## First-Feature Oversight (Early Project Stages)
 
@@ -154,21 +154,21 @@ Inside an opted-in flow, shared schemas, contracts, and invariants require a spe
 
 Write under the routed spec dir: pick the routing prose's dir (overrides file, `AGENTS.md`) when it is one of the resolved dirs, else the one resolved dir from `gauntlet_setting({ key: "flowGuards" })` that already exists in the repo, else the first resolved dir (`doc/specs` under the default). Name ticketed files `YYYY-MM-DD-<ticket-id>-<topic>.md`, otherwise `YYYY-MM-DD-<topic>.md`. Use a filename-safe tracker slug (`E-12345`, `gh-123`), but native references in plan headers and commits. `<topic>` is 3-6 kebab-case words without `-design` or another suffix.
 
-For a PR subject, apply `reference/pr-subject.md`: keep the bound-ticket filename; name an unbound rework spec `YYYY-MM-DD-pr-<N>-<topic>.md` from the PR title; the unmarked spec-only route keeps the carried spec path.
+For a PR subject, apply `brainstorm/pr-subject.md`: keep the bound-ticket filename; name an unbound rework spec `YYYY-MM-DD-pr-<N>-<topic>.md` from the PR title; the unmarked spec-only route keeps the carried spec path.
 
 Mint the slug once during gather and reuse it. If questionary invalidates it, write to the new path and delete the uncommitted draft.
 
 ## Spec Self-Review (Before User Review Gate)
 
-Read [Spec Self-Review](reference/spec-finalization.md#spec-self-review-before-user-review-gate) before spec-writing or restored step 8; unreadable -> stop with a blocking error, never reconstruct from memory.
+Read [Spec Self-Review](brainstorm/spec-finalization.md#spec-self-review-before-user-review-gate) before spec-writing or restored step 8; unreadable -> stop with a blocking error, never reconstruct from memory.
 
 ## Spec Council
 
-Follow [Spec Council](reference/spec-finalization.md#spec-council) for the mandatory critique pass.
+Follow [Spec Council](brainstorm/spec-finalization.md#spec-council) for the mandatory critique pass.
 
 ## User Review Gate
 
-Follow [User Review Gate](reference/spec-finalization.md#user-review-gate) for summary, commit, approval, and selected-engine transition or row-4 publication.
+Follow [User Review Gate](brainstorm/spec-finalization.md#user-review-gate) for summary, commit, approval, and selected-engine transition or row-4 publication.
 
 ## Amending an approved spec
 
@@ -178,7 +178,7 @@ Every skill resource in this flow (a `SKILL.md` or a `reference/*.md`) is loaded
 
 Classify a text correction to an approved drafted acceptance-criteria row backed by implementer evidence (a quoted test, assertion, or code line in a `BLOCKED`/`NEEDS_CONTEXT` return) as an amend item. Keep ticket rows, row add/remove, reviewer-only or taste objections, problem statement changes, and component boundary changes as redraws at batch preparation, before any standing grant: re-draft from the new design and ratify at the full gate. Keep a disposition-only change to such a row in the amendment grammar so it keeps the cut question. Apply an item the human has answered by letter or custom text as recorded. Redraw test: the change alters the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call; the user overrides either way.
 
-Amend -> `read` `reference/amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](reference/amendment-surface.md#standing-grants) boundaries.
+Amend -> `read` `amendment-surface.md` and follow it (unreadable -> stop with a blocking error; never improvise the grammar). Apply its [Standing grants](amendment-surface.md#standing-grants) boundaries.
 
 Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "clear" })`, `phase_tracker({ action: "reset" })`, `phase_tracker({ action: "start", phase: "brainstorm" })`, delete the plan file and the loop ledger (identified by line 1 `# Ledger - loop engine` in the resolved plan dir), resume at checklist step 4 with the approved spec as the draft (steps 2-3 skipped); step 4's first-use check covers the read. Spec-writing overwrites it; the full gate follows.
 
@@ -190,17 +190,17 @@ Redraw: keep the worktree and the approved spec file. `plan_tracker({ action: "c
 - Inline scope or ambiguity checks ([owner](#spec-council)).
 - Gate after failed/skipped critique or before placeholder re-scan, except the marked spec-PR re-gate ([owner](#spec-self-review-before-user-review-gate)).
 - Gate without summary `Read` last, or with a paraphrased summary ([owner](#user-review-gate)).
-- Human stop between gather and question one ([owner](gatherer.md)).
+- Human stop between gather and question one ([owner](brainstorm/gatherer.md)).
 - Proposed-change execution before approval ([owner](#hard-constraint)).
 - Plan before approval; brainstorming invocation for an amend ([owner](#user-review-gate)).
 - Missing predecessor banner; invalid multi-spec split ([owner](#spec-self-review-before-user-review-gate); [owner](#2-scope-check)).
 - Gate reached without the second predecessor pass, except the marked spec-PR re-gate ([owner](#spec-self-review-before-user-review-gate)).
 - Approaches before the premise note states a contradicted claim's correction ([owner](#3-understand-the-idea)).
 - Approaches before the framing question or the holds-statement (either may follow the premise correction in the same message); a holds-statement that names nothing checked ([owner](#3-understand-the-idea)).
-- Amend without `reference/amendment-surface.md`; waiting after an amend grant; auto-applying a redraw ([owner](#amending-an-approved-spec)).
+- Amend without `amendment-surface.md`; waiting after an amend grant; auto-applying a redraw ([owner](#amending-an-approved-spec)).
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
+If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context — check it for project-specific routing tables, service paths, and verification commands.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

@@ -136,12 +136,12 @@ assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
 assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
 for (const token of ["pre-dispatch", "## Interrupted recovery", "without a human turn", "already-consumed iteration"]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /exclusive checkout|ownership-fenced|recovery incomplete|recovery-incomplete|owned-job exit|verified process identity\/exit|discard-authorization/);
-const interrupted = readFileSync(join(root, 'skills/loop-implementation/reference/interrupted-recovery.md'), 'utf8');
+const interrupted = readFileSync(join(root, 'skills/gauntlet/implement/loop/interrupted-recovery.md'), 'utf8');
 for (const sample of ["interrupted-ownership", "ledger-tracker-recovery"]) {
   const sampleDir = join(root, "eval/gauntlet-resume/samples", sample);
   const input = readFileSync(join(sampleDir, "case.md"), "utf8");
   const expected = readFileSync(join(sampleDir, "expected.md"), "utf8");
-  assert.match(input, /bundle\+: skills\/loop-implementation\/reference\/interrupted-recovery\.md/, sample);
+  assert.match(input, /bundle\+: skills\/gauntlet\/implement\/loop\/interrupted-recovery\.md/, sample);
   assert.match(interrupted, /repair row <n> \| interrupted - <reason> \| iteration <consumed>/, sample);
   assert.match(expected, /without (?:another|a second).*bump/, sample);
   assert.doesNotMatch(expected, /recovery incomplete|provenance.*before.*reset|stops for discard\/reset authorization/, sample);
@@ -182,7 +182,7 @@ const candidateRules = reconstruction.split("## Candidates")[1].split("## Spec w
 for (const token of ["first pair's", "## Problem", "Read candidate contents before choosing", "exclude exactly those paths", "before the multi-spec prompt", "Keep this explicit exclusion set authoritative through plan/ledger pairing", "skip that pair", "Never promote an excluded member spec", "Never choose by filename"]) assert.ok(candidateRules.includes(token), token);
 assert.ok(realHandoff.includes("every top-level PR identity"));
 assert.match(realHandoff, /Never refresh or mutate either tracker/);
-const amendment = real("skills/brainstorming/reference/amendment-surface.md");
+const amendment = real("skills/gauntlet/amendment-surface.md");
 assert.match(amendment, /skip `plan-writer` and `plan_check`/);
 assert.match(amendment, /commit[^\n]*refresh/i);
 assert.match(amendment, /Stopped: row <n> reopened by amendment during verify/);
@@ -227,7 +227,7 @@ assert.ok(!actualContract.includes('## Coordinated'));
 const coordinatedAdmission = coordinated.split('\n## Coordinated admission\n')[1];
 for (const token of [
   "brief's `worktree: missing`",
-  '[Locate a leg tree](../../brainstorming/reference/legs.md#locate-a-leg-tree)',
+  '[Locate a leg tree](../../gauntlet/legs.md#locate-a-leg-tree)',
   'declared primary and recorded branch',
   'Use a found tree as the companion worktree for the remaining admission checks',
   'Keep an explicit brief `worktree:` path as recorded',

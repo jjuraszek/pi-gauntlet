@@ -15,7 +15,7 @@ const MIN_EVIDENCE_TOKENS = 2;
 const SCORE_RATIO = 0.5;
 // Policy floor, not derived from the rule: below it an empty result says little about coverage.
 const MIN_CORPUS = 10;
-// Default banner grammar of skills/brainstorming/reference/superseding.md; a named-section
+// Default banner grammar of skills/gauntlet/brainstorm/superseding.md; a named-section
 // scope or anything after `- fully` keeps the spec live.
 const FULLY_BANNER = /^> \*\*Superseded by:\*\* \[.*\]\(.*\) - fully$/;
 const MIN_NODE = [24, 15, 0];
@@ -25,7 +25,7 @@ const SKIP_DIRS = new Set([".worktrees", "node_modules", "build"]);
 const FENCE = /^\s*(`{3,}|~{3,})/;
 const DOC_INCLUDES = ["**/doc/**/*.md", "**/docs/**/*.md", "README.md", "AGENTS.md"];
 const DOC_EXCLUDE_GLOBS = ["**/node_modules/**", ".pi/gauntlet/**", ".worktrees/**"];
-const OVERRIDES_FILES = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"];
+const OVERRIDES_FILES = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
 const SCHEMA = `
   CREATE TABLE IF NOT EXISTS meta  (key TEXT PRIMARY KEY, value TEXT);
   CREATE TABLE IF NOT EXISTS files (corpus TEXT NOT NULL, path TEXT NOT NULL, mtime_ms INTEGER, size INTEGER, PRIMARY KEY (corpus, path));
@@ -359,7 +359,7 @@ function telemetryCorpus(root) {
   if (settings.warning) process.stderr.write(`warning: ${settings.warning}\n`);
   if (!settings.enabled) return new Map();
   const repo = telemetryRepo(root);
-  const prefix = `${repo}/brainstorming/`;
+  const prefix = `${repo}/gauntlet/`;
   const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
   if (result.warning) process.stderr.write(`warning: ${result.warning}\n`);
   return new Map(result.records.map(({ path, bytes }) => [path.slice(prefix.length), bytes]));

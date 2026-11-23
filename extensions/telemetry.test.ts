@@ -482,7 +482,7 @@
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     const wt = join(h.root, ".worktrees/x");
-    const sealedPath = "test/repo/brainstorming/doc/specs/b.yaml";
+    const sealedPath = "test/repo/gauntlet/doc/specs/b.yaml";
     const before = serializeRecord({ ...h.readRecord(), spec: "doc/specs/b.md", status: "shipped", shipped_at: "2026-09-17T18:00:00Z" });
     h.fetchedRecords.set(sealedPath, before);
     await h.emit("tool_result", { toolName: "write", toolCallId: "w", input: { path: join(wt, "doc/specs/b.md"), content: "# B\n" }, content: [], isError: false, details: undefined });
@@ -561,19 +561,19 @@
 
   test("the run records the skill and reference bytes returned in their respective phases", async () => {
     const h = harness({ piVersion: "1.5.0" });
-    const skill = join(import.meta.dirname, "../skills/brainstorming");
+    const skill = join(import.meta.dirname, "../skills/gauntlet");
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     assert.equal(h.readRecord().derived.skill_read_coverage, "complete", "a live bind can measure zero");
     await h.read("skill", join(skill, "SKILL.md"), "skill text");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "in_progress" }));
-    await h.read("reference", join(skill, "reference/legs.md"), "reference text");
+    await h.read("reference", join(skill, "legs.md"), "reference text");
     await h.emit("session_shutdown", { type: "session_shutdown", reason: "quit" });
     const { brainstorm, verify } = h.readRecord().derived.phases;
     assert.deepEqual([brainstorm?.skill_reads, verify?.skill_reads], [
-      [{ path: "pi-gauntlet:skills/brainstorming/SKILL.md", bytes: 10 }],
-      [{ path: "pi-gauntlet:skills/brainstorming/reference/legs.md", bytes: 14 }],
+      [{ path: "pi-gauntlet:skills/gauntlet/SKILL.md", bytes: 10 }],
+      [{ path: "pi-gauntlet:skills/gauntlet/legs.md", bytes: 14 }],
     ]);
   });
 
@@ -1758,7 +1758,7 @@
     const before = readFileSync(h.recordPath(), "utf8");
     const h2 = harness();
     h2.ctx.cwd = h.root;
-    h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
+    h2.fetchedRecords.set("test/repo/gauntlet/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w", input: { path: "doc/specs/a.md" } });
     assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", rec.shipped_at, "refs/telemetry/records") });
@@ -1775,7 +1775,7 @@
     const before = readFileSync(first.recordPath("doc/specs/old.md"), "utf8");
     const h = harness({ sessionId: "s2" });
     h.ctx.cwd = first.root;
-    h.fetchedRecords.set("test/repo/brainstorming/doc/specs/old.yaml", before);
+    h.fetchedRecords.set("test/repo/gauntlet/doc/specs/old.yaml", before);
     await h.phaseResult("start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/old.md");
     await h.emit("tool_result", { toolName: "plan_check", input: {}, content: [], isError: false, details: { status: "pass", specPath: join(first.root, "doc/specs/old.md") } });
@@ -2157,7 +2157,7 @@
     const before = readFileSync(h.recordPath(), "utf8");
     const h2 = harness();
     h2.ctx.cwd = h.root;
-    h2.fetchedRecords.set("test/repo/brainstorming/doc/specs/a.yaml", before);
+    h2.fetchedRecords.set("test/repo/gauntlet/doc/specs/a.yaml", before);
     await h2.phaseResult("start", P({ brainstorm: "in_progress" }));
     const [blocked] = await h2.emit("tool_call", { toolName: "write", toolCallId: "w1", input: { path: "doc/specs/a.md", content: "# again" } });
     assert.deepEqual(blocked, { block: true, reason: guardReason("doc/specs/a.md", h.readRecord().shipped_at!, "refs/telemetry/records") });

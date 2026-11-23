@@ -7,7 +7,7 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const hotfix = read('skills/chase-bug/hotfix.md');
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const finish = hotfix.split('8. **Finish.**')[1].split('9. **Cleanup evidence.**')[0];
 const sample = read('eval/chase-bug/samples/hotfix-plain-landing/case.md');
 const story = sample.match(/Fault story: (.*?) Bound ticket:/)?.[1];

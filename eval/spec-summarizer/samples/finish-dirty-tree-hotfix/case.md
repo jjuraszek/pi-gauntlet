@@ -12,7 +12,7 @@ The commit-to-HEAD comparison returns success with staged, unstaged, or untracke
 
 ## Contract
 
-Use [finishing Step 1](../../skills/finishing-a-development-branch/SKILL.md#step-1-verify-tests) as the command owner. Reuse verification only after a pass on a known clean commit in this session with no subsequent non-telemetry writes. Compare that commit to the working tree, and require an empty tracked/untracked status outside the configured telemetry directory. Both checks must succeed. Otherwise rerun verification.
+Use [finishing Step 1](../../skills/gauntlet/ship/ship.md#step-1-verify-tests) as the command owner. Reuse verification only after a pass on a known clean commit in this session with no subsequent non-telemetry writes. Compare that commit to the working tree, and require an empty tracked/untracked status outside the configured telemetry directory. Both checks must succeed. Otherwise rerun verification.
 
 | Case | Required behavior |
 |---|---|

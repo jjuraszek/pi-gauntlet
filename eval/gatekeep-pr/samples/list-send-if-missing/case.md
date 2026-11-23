@@ -7,8 +7,8 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
 bundle-: skills/gatekeep-pr/reference/report.md
 bundle-: skills/gatekeep-pr/reference/reject.md
-bundle-: skills/brainstorming/reference/menu-layout.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/menu-layout.md
+bundle-: skills/gauntlet/commit-message.md
 ## Arguments
 
 Run A: `18`. Run B: no arguments. Run C: `18`. Treat the runs independently.

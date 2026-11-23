@@ -6,7 +6,7 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/report.md
 bundle-: skills/gatekeep-pr/verification-brief.md
 bundle-: skills/gatekeep-pr/reference/assessment.md
-bundle-: skills/brainstorming/reference/menu-layout.md
+bundle-: skills/gauntlet/menu-layout.md
 ## Entry boundary
 Decide the Admission result for one already-returned pi fix row. No worker is run.
 

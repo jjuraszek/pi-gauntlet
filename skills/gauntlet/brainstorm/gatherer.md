@@ -1,12 +1,12 @@
 # Context Gather (brainstorming supplementary)
 
-Consumed only by `SKILL.md` in this directory. Runs unconditionally between worktree
+Consumed only by `../SKILL.md` in this directory. Runs unconditionally between worktree
 setup and the questionary. **Foreground, no user interaction** — the first thing the
 operator sees after gather is questionary question one. Do not announce, do not ask.
 
 ## Dispatch
 
-Read [scratch folder](../loop-implementation/reference/return-file.md#scratch-folder) with `CHECKOUT` = the home worktree. Mint this stage's directory in its Git metadata:
+Read [scratch folder](../return-file.md#scratch-folder) with `CHECKOUT` = the home worktree. Mint this stage's directory in its Git metadata:
 
 ```bash
 SCRATCH="$(git -C "$CHECKOUT" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp" || exit 1
@@ -16,7 +16,7 @@ GATHER_DIR=$(mktemp -d "$SCRATCH/gather.XXXXXX") || exit 1
 
 For each companion scout, resolve `SCRATCH` from that leg's checkout and mint its own `GATHER_DIR` with the same template. Pass each scout its leg-local absolute output path; keep context-builder in home's directory. Retain all minted paths for cleanup.
 
-Read [reference/legs.md](reference/legs.md) for the settled member order and rules walk.
+Read [../legs.md](../legs.md) for the settled member order and rules walk.
 Expand the scout task below once per leg, home first, using that leg's worktree
 as `cwd` and a distinct `<GATHER_DIR>/scout-<index>.md` output. Preserve one scout
 for a single-member run. Keep context-builder home-owned and conditional.
@@ -44,10 +44,10 @@ subagent({
 Absolute `output:` paths are mandatory: relative paths in parallel mode resolve
 against the worktree and would get committed.
 
-`<SPEC_INDEX>` is `<directory of this skill's SKILL.md>/../../bin/gauntlet-spec-index.mjs`,
-resolved to an absolute path by the main loop from the loaded brainstorming `SKILL.md` path
+`<SPEC_INDEX>` is `<directory of this skill's ../SKILL.md>/../../bin/gauntlet-spec-index.mjs`,
+resolved to an absolute path by the main loop from the loaded brainstorming `../SKILL.md` path
 in the command's skill envelope or the absolute path used to read it, before pasting the task.
-Use that SKILL.md directory, never `reference/` as the base.
+Use that ../SKILL.md directory, never `reference/` as the base.
 
 ## Task templates
 
@@ -55,7 +55,7 @@ Scout (always dispatched):
 
 > Recon for an upcoming design discussion. The request: `<initial prompt verbatim>`.
 > Owning leg: `<repo>`; touched paths in this leg: `<paths or unresolved>`.
-> Apply `reference/legs.md`'s rules walk: root and touched-directory `AGENTS.md`
+> Apply `../legs.md`'s rules walk: root and touched-directory `AGENTS.md`
 > and `CLAUDE.md`, one hop of local documentation links in prose, bullets, and
 > tables, deduped by `realpath`; linked documents contribute no more links.
 > Emit repo-relative `Rules:` lines, `Rules: missing: <path>` for unresolved
@@ -78,7 +78,7 @@ Scout (always dispatched):
 > (default: a `> **Superseded by:**` banner; the project's overrides may define
 > another format), follow the successor for the superseded scope and cite it
 > instead; cite the old spec only for its unsuperseded sections (banner contract:
-> `reference/superseding.md`). Predecessor check: compose a 5-15 term keyword query
+> `superseding.md`). Predecessor check: compose a 5-15 term keyword query
 > from the request (topic nouns, component names, file names - not stop words; if
 > the request is only a ticket reference, take the terms from the ticket title, body,
 > and every `Reporter note:` labeled section in its comments via the resolved tracker
@@ -142,14 +142,14 @@ Scout (always dispatched):
 > section. Compact handoff, not a dump.
 
 For a rework PR subject (shape fails), supply this additional scout block as values
-from `reference/pr-subject.md` (keep scout unconditional):
+from `pr-subject.md` (keep scout unconditional):
 
 > Require every retained PR's title/body, carried specs, and full threads before
 > gather, including N=1. Stop on query failure: `threads for #<N> not fetched (<gh error>)`.
 > Per PR, home first: PR title and body verbatim: `<title>`, `<body>`;
 > PR-carried specs: `<paths and stated contracts>`; own changed paths:
 > `<that PR's BASE_SHA...headRefOid file list>`; full comment threads
-> `<in order, with ids and locations from using-git-worktrees/reference/pr-head.md>`.
+> `<in order, with ids and locations from ../pr-head.md>`.
 > Combined changed paths: `git diff --name-only <BASE_SHA>...HEAD` output, after the
 > member replays and base sync. Read `git diff <BASE_SHA>...HEAD` from the worktree.
 > Preserve PRE_REWORK_HEAD for home's Before provenance, not scout's code input.
@@ -203,7 +203,7 @@ Context-builder (conditional):
 ## Context-builder trigger rule
 
 For a resolved PR subject, dispatch context-builder only for the bound ticket of home
-using `reference/pr-subject.md`; an unbound PR supplies intent, not ticket ACs.
+using `pr-subject.md`; an unbound PR supplies intent, not ticket ACs.
 Title wins a title/body-first-line ticket conflict; carry the other reference into
 `## Problem` as context. For other subjects, dispatch context-builder when the initial prompt (or a file it explicitly references)
 contains any of:
@@ -249,7 +249,7 @@ convention; slug minted from the initial prompt):
 ## PR under rework
 <rework PR subject only: every per-PR scout subsection, ordered original heads, threads,
 member-carried spec paths, and supplied Member replay or Member merge/base values per
-reference/pr-subject.md; retain these values even when scout failed>
+pr-subject.md; retain these values even when scout failed>
 
 ## External context
 <context-builder output, degraded text, or unfetched-ref list; omit this section

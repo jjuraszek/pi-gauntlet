@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise typed overrule at the report/menu boundary. Use no tools. For A-C state eligible IDs and record/note changes in one compact table (IDs are allowed in this inspection table only). Render the updated report's problems/standing and full menu for accepted commands A and B. For invalid commands C, the earlier report remains displayed: show the one-sentence refusal and same menu again; do not treat a refusal as an updated report. Stop at each hint. Do not repair, post, close, approve or merge.

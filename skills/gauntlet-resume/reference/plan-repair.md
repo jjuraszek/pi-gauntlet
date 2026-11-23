@@ -17,8 +17,8 @@ Run `plan_check({ planPath })` in the parent after either child reply. Route the
 | Result / substantive row | Continuation |
 |---|---|
 | `PLAN WRITTEN` + `PASS`, section absent or exactly `- none` | Return to the originating restore's remaining steps: the call table from `skip plan R` through the appropriate implement/verify continuation (ship restores at verify), or `## Spec with plan` step 3. Initialize `plan_tracker` only from the saved task snapshot, never the generated fresh-plan list. |
-| `- Task N: ... fails on <sha>` | Present the task, command, base SHA and exit code, then `writing-plans/reference/open-questions.md`'s three options, one per line: **fix-first** - `/skill:shape-ticket` for the base failure (its gate applies), then pause; **narrow** - human supplies filter or path text, re-dispatch with `Findings: Task N Tests: narrow to <text>`; **amend** - brainstorming's `reference/amendment-surface.md` section 5. Print a `Recommendation:` line and wait for selection. |
-| Global or contamination rows (`Baseline: worktree dirty`, `Baseline: in-flight source edits`, `dirtied tracked source`, `moved HEAD`) | Take `writing-plans/reference/open-questions.md`'s restore-and-rerun path, not the menu. Name paths and causes; the parent's own in-flight work uses its own commit step (doc-only paths can be listed under `In-flight:`); ask the human to commit, discard, or move other paths and test-produced dirt. Never clean automatically. After restoration re-dispatch with `Findings: rerun baseline`, then parent check. |
+| `- Task N: ... fails on <sha>` | Present the task, command, base SHA and exit code, then `../../gauntlet/plan/open-questions.md`'s three options, one per line: **fix-first** - `/skill:shape-ticket` for the base failure (its gate applies), then pause; **narrow** - human supplies filter or path text, re-dispatch with `Findings: Task N Tests: narrow to <text>`; **amend** - brainstorming's `reference/amendment-surface.md` section 5. Print a `Recommendation:` line and wait for selection. |
+| Global or contamination rows (`Baseline: worktree dirty`, `Baseline: in-flight source edits`, `dirtied tracked source`, `moved HEAD`) | Take `../../gauntlet/plan/open-questions.md`'s restore-and-rerun path, not the menu. Name paths and causes; the parent's own in-flight work uses its own commit step (doc-only paths can be listed under `In-flight:`); ask the human to commit, discard, or move other paths and test-produced dirt. Never clean automatically. After restoration re-dispatch with `Findings: rerun baseline`, then parent check. |
 | Other substantive `open-questions` rows (contract questions) | Present the rows, wait for answers, re-dispatch per step 3 with answers in `Findings:`, then parent check and this same return route. |
 | Other checks | Use the citation table and its three-round rollback below. |
 
@@ -43,7 +43,7 @@ Every other `check` (`input`, `placeholder-scan`, `header-entrypoint`, `header-h
 
 Loop: write every classified edit, re-run `plan_check({ planPath })`, classify any new finding the same way; at most 3 rounds.
 
-PASS with the plan tracked and clean before the loop -> read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md), take the entire subject verbatim from its Plan citation repair row, and commit the plan alone with that message on stdin:
+PASS with the plan tracked and clean before the loop -> read [commit-message.md](../../gauntlet/commit-message.md), take the entire subject verbatim from its Plan citation repair row, and commit the plan alone with that message on stdin:
 
 ```bash
 git -C <worktree> add -- <plan path> && git -C <worktree> commit -q -F - -- <plan path>
