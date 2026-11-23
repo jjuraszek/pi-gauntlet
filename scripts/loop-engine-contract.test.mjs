@@ -7,8 +7,15 @@ import test from 'node:test';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_FILES, lintStageFiles } from './stage-skill-lint.mjs';
 import './loop-home-admission.test.mjs';
-import './loop-verification-command.test.mjs';
 const root = new URL('../', import.meta.url);
+
+test('the loop uses the shared verification command or discovers the project test entrypoint', () => {
+  const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+  const table = driver.split('| Observed configuration | Action |')[1].split('\n\n')[0].trim().split('\n').slice(1);
+  assert.equal(table.length, 2, 'only the shared command and discovery supply verification');
+  assert.match(table[0], /`# shared`.*`## verification`.*`- verification command:`.*Use that command/);
+  assert.match(table[1], /Otherwise.*Discover the project's test entrypoint from its actual manifest\/build instructions/);
+});
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const stagnation = readFileSync(new URL('skills/gauntlet/implement/loop/empty-child-stagnation.md', root), 'utf8');
