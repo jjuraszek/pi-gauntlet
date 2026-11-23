@@ -51,7 +51,7 @@ test('unreachable cuts reuse the amendment owner and preserve ledger accounting'
     'single amendment commit', 'amended | cut row <n> | <first item title>', 'Preserve attempts, iterations, allowance and spent escalation',
     '`Deferred/deviates per spec:`', 'never convert the disposition to `venue:`',
   ]) assert.ok(section.includes(token), token);
-  assert.match(driver, /Read \[unreachable-returns\]\(reference\/unreachable-returns.md\) in full now with read at its absolute path/);
+  assert.match(driver, /Read \[unreachable-returns\]\(unreachable-returns\.md\) in full now with read at its absolute path/);
   assert.ok(Buffer.byteLength(driver) < 45_000);
   assert.ok(Buffer.byteLength(section) < 50_000);
   assert.ok(driver.split('\n').length <= 500);

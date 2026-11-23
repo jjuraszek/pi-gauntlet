@@ -183,7 +183,7 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'With no marker and recoverable history, apply the threshold predicate',
     'a previously missing model or migrated row has not spent escalation',
   ]) assert.ok(before.includes(token), token);
-  assert.ok(driver.includes('reference/interrupted-recovery.md'));
+  assert.ok(driver.includes('[interrupted recovery](interrupted-recovery.md)'));
   const recovery = readFileSync(new URL('skills/gauntlet/implement/loop/interrupted-recovery.md', root), 'utf8');
   for (const token of [
     'including spent escalation', 'attempts = saved attempts +1',
@@ -252,7 +252,7 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
   const pointer = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
-  assert.equal(pointer?.trim(), 'Read [driver holds](reference/driver-holds.md) in full now at its absolute path; stop if unreadable.');
+  assert.equal(pointer?.trim(), 'Read [driver holds](driver-holds.md) in full now at its absolute path; stop if unreadable.');
   const holds = readFileSync(new URL('skills/gauntlet/implement/loop/driver-holds.md', root), 'utf8');
   for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
   assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
@@ -291,7 +291,7 @@ test('handoff preserves tracker state after dropping local status lines', () => 
 
 test('coordinated reference reads use held membership before dispatch decisions', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
-  const path = 'reference/coordinated-legs.md';
+  const path = '`coordinated-legs.md`';
   assert.equal(driver.split(path).length - 1, 2);
   const recovery = readFileSync(new URL('skills/gauntlet/implement/loop/interrupted-recovery.md', root), 'utf8');
   assert.ok(recovery.includes('(coordinated-legs.md#companion-return-validation)'));
@@ -813,7 +813,7 @@ test('configuration-allowance: documented gate and entry behavior matches instru
   const gateOnly = gate.slice(gate.indexOf('## User Review Gate'));
   assert.match(gateOnly, /Before the summary `Read` below, resolve `gauntlet_setting\(\{ key: "loopEngine" \}\)` once/);
   assert.match(gateOnly, /Render any settings warning as one adjacent line\. Stop on an unavailable settings tool/);
-  assert.match(gateOnly, /print exactly one line `run allowance: <n>` immediately before invoking/);
+  assert.match(gateOnly, /print exactly one line `run allowance: <n>` before reading the file named by `Instructions:`/);
   assert.match(gateOnly, /omit that line on a bare approval/);
   const funding = gateOnly.split('\n').find(line => line.startsWith('| `--fund-rounds=N` on row 2'));
   assert.ok(funding, 'rejection table guards engine-specific flags');
