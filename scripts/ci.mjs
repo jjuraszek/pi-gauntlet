@@ -722,7 +722,6 @@ try {
       if (mpSkills.length === 0) fail("marketplace.json: plugin skills must be a non-empty array");
       // These entries re-enable Claude Code's full scan and would leak all skills.
       const scanLeaks = new Set([".", "./", "./skills", "./skills/"]);
-      const skillDirs = [];
       for (const entry of mpSkills) {
         if (scanLeaks.has(entry)) {
           fail(`marketplace.json: skills entry "${entry}" would re-enable the full scan (allowlist must name specific skill dirs)`);
@@ -740,32 +739,8 @@ try {
         }
         const err = hasFrontmatter(skillFile, ["name", "description"]);
         if (err) fail(`marketplace.json: ${entry}/SKILL.md: ${err}`);
-        else skillDirs.push(dir);
       }
-      // Bundle-local reference integrity: every .md path a bundled file mentions
-      // must resolve against that file's own directory. Exempt consumer-repo
-      // placeholders and references immediately following a <...>/ placeholder;
-      // exempt temp artifacts audit.md, snapshot.md, spec.md and ledger.md only as bare names.
-      const refExcludedBasenames = new Set(["REVIEW.md", "AGENTS.md", "CLAUDE.md", "SKILL.md", "gauntlet.md", "linear.md"]);
-      const tempArtifactNames = new Set(["audit.md", "snapshot.md", "spec.md", "ledger.md"]);
-      const brokenRefs = [];
-      for (const dir of skillDirs) {
-        for (const file of walk(dir).filter((f) => f.endsWith(".md"))) {
-          const txt = readFileSync(file, "utf8");
-          for (const m of txt.matchAll(/[A-Za-z0-9_.][A-Za-z0-9_./-]*\.md\b/g)) {
-            const ref = m[0].replace(/^\.\//, "");
-            const base = ref.split("/").at(-1);
-            if (refExcludedBasenames.has(base)) continue;
-            if (/<[^<>\s]+>\/$/.test(txt.slice(0, m.index))) continue;
-            if (!ref.includes("/") && tempArtifactNames.has(base)) continue;
-            if (!existsSync(join(dirname(file), ref))) brokenRefs.push(`${file.replace(root + "/", "")}: "${ref}"`);
-          }
-        }
-      }
-      if (brokenRefs.length) fail("marketplace.json: broken bundle-local .md refs:\n    " + brokenRefs.join("\n    "));
-      if (errors.length === mpErrorsBefore) {
-        ok(`marketplace allowlist valid (${mpSkills.length} skills), bundle refs resolve`);
-      }
+      if (errors.length === mpErrorsBefore) ok(`marketplace allowlist valid (${mpSkills.length} skills)`);
     }
   }
 }

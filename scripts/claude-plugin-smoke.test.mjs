@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import { execFileSync, spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { lintReferences } from "./gauntlet-tree-lint.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const claude = process.env.CLAUDE_BIN || join(root, "node_modules/.bin/claude");
@@ -130,7 +131,40 @@ fresh.configure("candidate", "1.0.1");
 fresh.install();
 assertPortable(await fresh.inventory("candidate"));
 assert.equal(fresh.installed().version, "1.0.1", "versionless manifest must use marketplace version");
-console.log("PASS: fresh Git-marketplace install loads zero pi agents and exactly seven portable skills");
+const cache = fresh.installed().installPath;
+const portableFiles = candidateMarketplace.plugins[0].skills.map(dir => `${dir.replace(/^\.\//, "")}/**/*.md`);
+assert.deepEqual(lintReferences(cache, portableFiles), [], "broken file references in installed skills");
+console.log("PASS: fresh Git-marketplace install loads zero pi agents and exactly seven portable skills with working file references");
+
+for (const [file, wordSource, cleanup] of [
+  ["chase-bug/hotfix.md", "Hotfix landing and hotfix pull request", "Return file deletion recipe"],
+  ["gatekeep-pr/reference/fix-wave.md", "Gatekeep fix row or helper", "Return file recipes"],
+  ["housekeeping/reference/fix.md", "Housekeeping class commit"],
+]) {
+  const caller = join(cache, "skills", file);
+  const text = readFileSync(caller, "utf8");
+  function readLink(label) {
+    const href = text.match(new RegExp(`\\[${label}\\]\\(([^)#]+)\\)`))?.[1];
+    assert.ok(href, `${file}: missing ${label} link`);
+    const instructions = readFileSync(join(dirname(caller), href), "utf8");
+    assert.doesNotMatch(instructions, /\bphase_tracker\s*\(/, `${file}: ${label} requires pi`);
+    return instructions;
+  }
+  assert.ok(readLink("commit message").includes(`| ${wordSource} |`), `${file}: missing ${wordSource} recipe`);
+  if (cleanup) {
+    const shell = readLink(cleanup).match(/<!-- return-delete-shell -->\s*```bash\n([\s\S]*?)\n```/)?.[1];
+    assert.ok(shell, `${file}: missing deletion recipe`);
+    const returnFile = join(scratch, "worker return.md");
+    writeFileSync(returnFile, "result\n");
+    fresh.run("bash", ["-eu", "-c", `RETURN_FILE=$1\n${shell}`, "cleanup", returnFile]);
+    assert.ok(!existsSync(returnFile), `${file}: return file survived cleanup`);
+  }
+}
+console.log("PASS: all three installed callers read their commit rules, and both cleanup links delete a return file without pi");
+
+const caller = "skills/chase-bug/hotfix.md";
+appendFileSync(join(cache, caller), "\n[Missing diagram](../gauntlet/missing.svg)\n");
+assert.deepEqual(lintReferences(cache, portableFiles), [`${caller}: ../gauntlet/missing.svg`], "check links in the installed copy");
 
 const upgrade = fixture("upgrade");
 upgrade.configure("baseline", "1.0.0");

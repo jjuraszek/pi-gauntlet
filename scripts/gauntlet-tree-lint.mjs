@@ -113,7 +113,8 @@ export function lintHandoffPointers(root) {
   return [...errors];
 }
 
-export function lintReferences(root) {
+export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extensions/**/*.ts"]) {
+  const files = globSync(scope, { cwd: root, exclude: ["**/*.test.ts"] });
   const errors = new Set();
   function check(file, ref, base = dirname(file)) {
     const target = join(base, ref);
@@ -124,7 +125,7 @@ export function lintReferences(root) {
   const read = file => readFileSync(join(root, file), "utf8");
   // Scratch artifacts and consumer checkout names, not files in the install.
   const artifacts = /^(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$/;
-  for (const file of globSync("{skills,agents}/**/*.md", { cwd: root })) {
+  for (const file of files.filter(f => f.endsWith(".md"))) {
     let body = read(file);
     if (file === "skills/forge-skill/SKILL.md") {
       // The placement table declares its base and directory separately from each filename.
@@ -139,7 +140,11 @@ export function lintReferences(root) {
       .replace(/^  touched-files: .*$/gm, "") // example reviewer output
       .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
       .replace(/https?:\/\/[^\s)\]`]+/g, "")
-      .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, target) => ` ${target} `)
+      .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
+        const target = href.split("#", 1)[0];
+        if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) check(file, target);
+        return "";
+      })
       .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
     if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
       for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
@@ -154,7 +159,7 @@ export function lintReferences(root) {
       check(file, ref);
     }
   }
-  for (const file of globSync("extensions/**/*.ts", { cwd: root, exclude: ["**/*.test.ts"] })) {
+  for (const file of files.filter(f => f.endsWith(".ts"))) {
     const text = read(file);
     for (const [, ref] of text.matchAll(/(?:new URL\(["'`]([^$"'`]+\.(?:md|mjs))["'`],\s*import\.meta\.url\))/g)) check(file, ref);
     for (const [ref] of text.matchAll(/(?<![\w./-])(?:\.\.\/)*skills\/[\w./-]+\.md\b/g)) check(file, ref);

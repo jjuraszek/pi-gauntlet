@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 14
+iterations: 15
 allowance: 10
-returned: 17 | home | 55222dd1f46e747a229380af3d609223734351c2
+returned: 19 | home | cbf5b3971ad69ba403a5c38977baac48e6122218
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -27,8 +27,8 @@ returned: 17 | home | 55222dd1f46e747a229380af3d609223734351c2
 | 16 | done | 1 | timeout -k 30 20 node --test scripts/resume-routes.test.mjs; saved-run fixtures select all seven continuation routes; brainstorm skips pass the recorded engine; 10 passed, 0 failed |
 | 17 | done | 1 | timeout -k 30 90 node --test scripts/gauntlet-tree-lint.test.mjs scripts/packed-install-smoke.test.mjs; 17 passed, 0 failed; references resolve in the npm tarball and missing targets fail in fixtures |
 | 18 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 8 passed, 0 failed; removing a cited step heading fails even when its number remains in prose |
-| 19 | open | 0 | |
-| 20 | open | 0 | |
+| 19 | done | 1 | timeout -k 30 3600 node scripts/claude-plugin-smoke.test.mjs; Claude listed exactly seven gauntlet skills and no gauntlet agents; their file references resolved in the installed plugin; a broken link in the cached copy was detected |
+| 20 | done | 0 | timeout -k 30 3600 node scripts/claude-plugin-smoke.test.mjs; hotfix, fix wave and housekeeping each read the expected commit recipe from the Claude plugin cache; both linked cleanup recipes deleted a return file without the pi tracker |
 | 21 | open | 0 | |
 | 22 | open | 0 | |
 | 23 | open | 0 | |
@@ -70,3 +70,5 @@ row 14 done | Only the tracker names the next file at the five handoffs; wave in
 row 16 done | Resume passes the saved engine when skipping brainstorm and links each restored phase to its next unfinished step without resetting the run. | Run scripts/resume-routes.test.mjs to check all seven continuation routes against saved-run fixtures.
 row 17 done | Fixed package references so skills, personas and extension messages reach their targets from the installed caller. | Run lintReferences(root) from scripts/gauntlet-tree-lint.mjs against a checkout or unpacked package to find broken references.
 row 18 done | Checked that numbered citations from retained skills name headings in the moved files, and linked plan repair to the handoff heading. | The missing-heading fixture in scripts/gauntlet-tree-lint.test.mjs distinguishes a step heading from a mention of the same step in prose.
+row 19 done | Claude Code loaded exactly seven marketplace skills, and their file references resolved in the installed plugin checkout. | Pass the plugin cache path and allowlisted file globs to lintReferences in scripts/gauntlet-tree-lint.mjs to check installed links.
+row 20 done | All three Claude-only callers found their commit rules, and both cleanup links led to recipes that deleted a return file without pi. | Extend the caller table in scripts/claude-plugin-smoke.test.mjs to exercise another shared recipe from an installed skill.
