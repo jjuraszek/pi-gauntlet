@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 ## Overview
 
-Collaborate on designs. When `phase_tracker` completes a phase and returns `Instructions: <absolute path>`, finish the local handoff and read that file before continuing.
+Collaborate on designs.
 
 ## HARD CONSTRAINT
 
