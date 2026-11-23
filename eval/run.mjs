@@ -174,9 +174,13 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   let baseRef;
   try { baseRef = base ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
   catch { return refuse("no valid --base and no origin/main: cannot resolve the baseline ref"); }
+  const renamed = new Map();
+  const baselinePath = (path) => renamed.get(path) ?? path;
   try {
+    const changes = git(root, "diff", "-M", "--diff-filter=R", "--name-status", "-z", baseRef, "--", "skills/").split("\0");
+    for (let i = 0; i + 2 < changes.length; i += 3) renamed.set(changes[i + 2], changes[i + 1]);
     const baselineErrors = lintTarget(dir, {
-      baselineHas: (path) => git(root, "ls-tree", "-r", "--name-only", baseRef, "--", `:(literal)${path}`).split("\n").includes(path),
+      baselineHas: (path) => git(root, "ls-tree", "-r", "-z", "--name-only", baseRef, "--", `:(literal)${baselinePath(path)}`).split("\0").includes(baselinePath(path)),
       treeHas: (path) => { treeReader(root)(path); return true; },
     });
     if (baselineErrors.length) return refuse(`lint: ${name}:\n  ${baselineErrors.join("\n  ")}`);
@@ -196,7 +200,8 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
     try { return reader(path); }
     catch (e) { throw new Error(`${path} at ${ref}: ${e.message}${ref === baseRef ? "; use --base <ref> to pick a base that has this file" : ""}`); }
   };
-  const baseRead = checkedReader(baseRef, baseReader(root, baseRef));
+  const readBaseFile = baseReader(root, baseRef);
+  const baseRead = checkedReader(baseRef, (path) => readBaseFile(baselinePath(path)));
   const treeRead = checkedReader("working tree", treeReader(root));
   const checkedAssembly = (reader, ref, skillFiles, bundle = []) => {
     const arm = reader === baseRead ? "baseline" : "candidate";

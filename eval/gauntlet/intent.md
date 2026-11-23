@@ -1,6 +1,10 @@
-for: 066863742c4753ca79a472632c99c528b6610d9fc442e144e423cb6e3b424ec8
+for: a2e8216936cf441d144f2edb4161fb33662e06a64b7e58b65b4a74e3d1acb9e9
 
 ## Change
+
+An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout.
+
+## Earlier comparisons
 
 Read the shared class table without changing the cut recommendation or the drafted-row rules. The baseline for workflow-stage-ticket-row, workflow-stage-drafted-row and pr-body-drafted-row has no class table after removal of the main-file bundle; use the candidate facts as evidence. Also check post-action-sorted against the new assembly. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
 

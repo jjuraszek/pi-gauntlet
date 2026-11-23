@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
-returned: 9 | home | d5d864a3fd95d0ec6688ed67d265d418b916a3f2
+returned: 11 | home | 8b0d1735c23d11fb2b11e2d67ea7aa87d12b9546
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -19,7 +19,7 @@ returned: 9 | home | d5d864a3fd95d0ec6688ed67d265d418b916a3f2
 | 8 | done | 1 | timeout -k 30 20 bash -c 'grep -e "^rename to " -e "\[-" -e "{+" <(git diff -M --word-diff=plain --diff-filter=R aa54901a8a18d84894a1a5683b3a8b287ea5952f -- skills/)'; reviewed all 52 moves against the base; 40 files are byte-identical, 11 lost only their skill headers, and only the skill name and two command references changed in the entry |
 | 9 | done | 2 | timeout -k 30 30 node --test scripts/retired-names.test.mjs; scope fixture passed; checkout scan found no retired names or eval target directories; 2 passed, 0 failed |
 | 10 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; the README lists exactly the eleven directories with skill entries; 5 passed, 0 failed |
-| 11 | open | 0 | |
+| 11 | done | 1 | timeout -k 30 20 node scripts/delivery-stage-authoring.test.mjs gauntlet ordinary-request-no-run; node eval/run.mjs gauntlet ordinary-request-no-run ran 4 replays and 2 judgments; all 4 facts held on both models; 2 local checks passed |
 | 12 | open | 0 | |
 | 13 | open | 0 | |
 | 14 | open | 0 | |
@@ -62,3 +62,4 @@ row 8 done | Compared all 52 moved files with the base: only the entry name, two
 row 9 failed | Migrated direct file references, seven eval targets and gate IDs; the new checkout scan still finds retired names on 330 lines. | Use scripts/retired-names.test.mjs to find remaining lines; distinguish handoffs from procedure links and update their assertions together.
 row 9 done | Replaced retired names in instructions, tracker messages, guides and eval inputs; the checkout scan now finds none. | Run scripts/retired-names.test.mjs after changing a caller or moving a procedure to catch retired references.
 row 10 done | The README lists the eleven registered skills separately from their descriptions. | The inventory assertion in scripts/gauntlet-tree-lint.test.mjs compares the README names and count with the registered skill directories.
+row 11 done | Both models handled the CSV export request without starting a phase, creating a worktree or loading step instructions. | Reuse the ordinary-request-no-run records for local checks and the rename lookup in eval/run.mjs to replay other moved instructions against their baseline.

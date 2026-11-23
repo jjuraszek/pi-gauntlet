@@ -4,7 +4,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 
 | Skill file | Slice |
 |---|---|
-| `skills/gauntlet/SKILL.md` | `## Checklist` through before `## Project Routing` |
+| `skills/gauntlet/SKILL.md` | `## Entry consent` through before `## Project Routing` |
 | `skills/gauntlet/SKILL.md` | `### 3` through before `### 6` |
 | `skills/gauntlet/SKILL.md` | `### 6` through before `## Ticket Handling` |
 | `skills/gauntlet/brainstorm/ticket-acceptance.md` | Whole file |
@@ -13,6 +13,7 @@ Tests questionary and approaches messages (checklist steps 3-5) and same-turn co
 
 | Sample | Must-hold behavior |
 |---|---|
+| `ordinary-request-no-run` | A coding request in a fresh session starts no phase, creates no worktree and loads no gauntlet step instructions. |
 | `opening-message-shape` | First message only: three titles, everyday role names, no source locator, a 220-word span, then holds-statement and one question. |
 | `opening-message-ticket-not-fetched` | Keep ticket content unknown after a denied fetch; state the reason and design wait on a `Not checked:` line, then the holds-statement and one question on how to obtain the content. |
 | `explicit-unit-normalization` | Correct the premise and preserve the shared representation contract. |
