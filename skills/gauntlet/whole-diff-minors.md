@@ -5,8 +5,8 @@ The trailing section of every `## Closure / conformance` block
 change that introduced it.
 
 Then, in every block (a `CONFORMS` handoff too), the whole-diff review's Minor
-findings - the source is the final `SHIP` whole-diff report (SDD "After All
-Tasks Complete" step 2; a `FIX_FIRST` whole-diff review's re-review `SHIP`
+findings - the source is the final `SHIP` whole-diff report ([After All Tasks Complete](implement/waves/waves.md#after-all-tasks-complete)
+step 2; a `FIX_FIRST` whole-diff review's re-review `SHIP`
 report when one ran):
 
 ```text
