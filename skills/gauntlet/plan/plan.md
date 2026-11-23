@@ -47,7 +47,7 @@ Otherwise one plan. Service, contract, or schema count is not a split signal - o
 The main loop never writes the plan. One fresh `plan-writer` child does the recon, writes the plan at the plan path, runs `plan_check` itself, and repairs its own findings; the parent dispatches it, runs the stamping `plan_check`, and reads the finished plan once. Foreground, no announcement, no user interaction.
 
 1. The Overview already ran `phase_tracker({ action: "start", phase: "plan" })`, or skipped it because `plan` was `in_progress`. Set the substep: `phase_tracker({ action: "substep", phase: "plan", substep: "plan-write" })`.
-2. Resolve four absolute paths: the worktree (the `../worktrees.md` Step 4 value), the spec, the plan (table above), and `plan-contract.md` beside this skill - the last from the loaded skill's path in the command's skill envelope or the absolute path used to read it.
+2. Resolve four absolute paths: the worktree (the `../worktrees.md` Step 4 value), the spec, the plan (table above), and `plan-contract.md` beside this installed file - resolve it from the absolute path used to read this step.
 3. Entry branch. A plan file already at the plan path in a flow restored by `/skill:gauntlet-resume` is checked before anything overwrites it: skip to step 5. Otherwise dispatch:
 
    ```
@@ -69,7 +69,7 @@ The main loop never writes the plan. One fresh `plan-writer` child does the reco
    - No child reply (the step 3 entry branch on a restored plan) -> read the result as if the reply were `OPEN QUESTIONS` when the plan carries substantive Open Questions rows, else `PLAN WRITTEN` (section absent or exactly `- none`), and take that reply's branch above; a `FAIL` re-dispatch overwrites the restored plan with a repaired one.
 7. Clear the substep (`phase_tracker({ action: "substep", phase: "plan", substep: null })`). Read the plan once, then `## Execution Handoff` as written below: `phase_tracker({ action: "complete", phase: "plan" })`, `plan_tracker({ action: "init", ... })` from the `W<k>: <title>` list.
 
-The parent holds no run id and never calls `resume` or `status`; every dispatch here is `async: false`. Re-entering this section without a restored plan overwrites whatever the plan path holds - a committed prior plan (recoverable from git history) or an uncommitted one (destroyed); re-planning is a deliberate overwrite. An amendment of the approved spec after the plan exists re-enters at step 3 with an `Amend:` block (brainstorming's `reference/amendment-surface.md` section 5 owns that call).
+The parent holds no run id and never calls `resume` or `status`; every dispatch here is `async: false`. Re-entering this section without a restored plan overwrites whatever the plan path holds - a committed prior plan (recoverable from git history) or an uncommitted one (destroyed); re-planning is a deliberate overwrite. An amendment of the approved spec after the plan exists re-enters at step 3 with an `Amend:` block (brainstorming's `../amendment-surface.md` section 5 owns that call).
 
 Use `plan-contract.md` as the plan contract: `plan-writer` reads and executes it; the main loop never reads it.
 

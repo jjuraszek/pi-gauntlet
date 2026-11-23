@@ -10,9 +10,9 @@ The CLI parses and aggregates; you reason. Never open a telemetry YAML record yo
 
 ## Run the digest
 
-1. Resolve the CLI: `<directory of this SKILL.md>/../../bin/gauntlet-performance.mjs`.
+1. Resolve `<cli>` to `../../bin/gauntlet-performance.mjs` from the directory of this installed file.
 2. Run it from the repo root, passing the user's `--dir` and `--since` arguments verbatim:
-   `node <bin>/gauntlet-performance.mjs [--dir <path>]... [--since <version>]`.
+   `node <cli> [--dir <path>]... [--since <version>]`.
    Default corpus is the current repo; each `--dir` adds a repo root or a telemetry dir.
 3. When bash reports truncated output, read the saved CLI output in bounded pages from the beginning through the end before comparing runs or rendering rankings. Use the complete digest, not just the visible tail.
 4. If the command is missing or the output contains `no records found`, relay that line and stop - no menu.

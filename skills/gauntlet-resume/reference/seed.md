@@ -1,6 +1,6 @@
 # Spec seed (gauntlet-resume supplementary)
 
-Consumed only by `SKILL.md` in this directory, for a one-token `.md` argument classified
+Consumed only by `../SKILL.md`, for a one-token `.md` argument classified
 as a spec seed. `<seed>` is its `realpath`; `<rel>` is `<seed>` relative to `<primary>`.
 Entry check 1 (idle session) runs first. Then, in order; every stop names the path.
 

@@ -143,9 +143,9 @@ one spec with a task plan only, or seed step 8 finding a plan beside the pinned 
 `reference/restore-plan.md` "Spec with plan"; no spec, more than one spec, or one spec
 without a plan -> no restore reference, the route stays in `reference/reconstruction.md`.
 
-**Hotfix route.** `skills/chase-bug/hotfix.md` consumes only a hotfix record at
+**Hotfix route.** `../chase-bug/hotfix.md` consumes only a hotfix record at
 `$TMPDIR/hotfix-<slug>.md`. If `## Decisions` or `## Intent` names an existing record
-path, hand it to hotfix.md and skip its worktree-create step when the brief's worktree
+path, hand it to ../chase-bug/hotfix.md and skip its worktree-create step when the brief's worktree
 exists (reuse it). Otherwise invoke `/skill:chase-bug` triage with `## Intent` to
 re-derive the record.
 

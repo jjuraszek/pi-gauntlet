@@ -4,7 +4,7 @@ Read in full only for a brief that carries a `legs:` block (resume, before entry
 
 ## Entry checks
 
-Apply these beside SKILL.md entry checks, before any tracker write:
+Apply these beside ../SKILL.md entry checks, before any tracker write:
 
 - **Check 3.** For member-primary entry, also print `home is <repo>; restart there`, naming the run home.
 - **Check 3b. Coordinated admission.** After check 3, apply `## Coordinated admission`: resolve the home spec without inferring approval, compare ordered membership, validate each declared primary/common directory, shared branch and full home tuple, and live-validate receipts before admitting any missing tree. Preserve check 3's home binding.

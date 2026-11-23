@@ -45,7 +45,7 @@ full parsed `IDENTITY`; canonicalize paths before the home comparison. Keep thes
 
 Read each primary's first-found overrides using the ladder above. Read its
 `.pi/settings.json` by file and apply the existing preset rules in
-`extensions/lib/gauntlet-settings.ts`: repo top-level piGauntlet keys replace
+`../../extensions/lib/gauntlet-settings.ts`: repo top-level piGauntlet keys replace
 preset keys wholesale; absent keys fall through. Missing configuration uses defaults.
 Keep flow policy (council, grants, tracker, response channels, finish choice and
 home flow guards) under home `.pi/settings.json#piGauntlet` and home overrides.

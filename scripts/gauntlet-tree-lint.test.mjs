@@ -3,9 +3,45 @@ import { cpSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writ
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintHandoffPointers, lintPlacementRule, lintTreeShape } from "./gauntlet-tree-lint.mjs";
+import { lintHandoffPointers, lintPlacementRule, lintReferences, lintTreeShape } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
+
+test("package references resolve from the caller, not the checkout or a same-named sibling", t => {
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-references-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  for (const [file, body] of [
+    ["skills/one/SKILL.md", "Read [the guide](reference/guide.md) and `../two/helper.md`. Read `doc/specs/example.md` in the consumer repo."],
+    ["skills/one/reference/guide.md", "Read `../../two/helper.md`."],
+    ["skills/two/helper.md", "# Helper"],
+    ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md)."],
+    ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url);'],
+  ]) {
+    mkdirSync(join(root, dirname(file)), { recursive: true });
+    writeFileSync(join(root, file), body);
+  }
+  assert.deepEqual(lintReferences(root), []);
+  rmSync(join(root, "skills/two/helper.md"));
+  assert.deepEqual(lintReferences(root), [
+    "extensions/advice.ts: ../skills/two/helper.md", "skills/one/SKILL.md: ../two/helper.md", "skills/one/reference/guide.md: ../../two/helper.md",
+  ]);
+  rmSync(join(root, "skills/one/reference/guide.md"));
+  assert.ok(lintReferences(root).includes("agents/reviewer.md: ../skills/one/reference/guide.md"));
+  assert.deepEqual(lintReferences(join(import.meta.dirname, "..")), []);
+});
+
+test("numbered citations from retained skills name headings in the moved file", t => {
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-steps-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  for (const name of ["gatekeep-pr", "gauntlet"]) mkdirSync(join(root, "skills", name), { recursive: true });
+  const file = "skills/gatekeep-pr/SKILL.md";
+  const ref = "../gauntlet/worktrees.md";
+  writeFileSync(join(root, file), `Read \`${ref}\` Step 1a and \`${ref}\` Step 2b.`);
+  writeFileSync(join(root, "skills/gauntlet/worktrees.md"), "## Step 1a - Contract\n### 2b. Create\n");
+  assert.deepEqual(lintReferences(root), []);
+  writeFileSync(join(root, "skills/gauntlet/worktrees.md"), "## Step 1a - Contract\nStep 2b is not a heading.\n");
+  assert.deepEqual(lintReferences(root), [`${file}: ${ref} Step 2b`]);
+});
 
 test("the README inventory matches the registered skill directories", () => {
   const root = join(import.meta.dirname, "..");

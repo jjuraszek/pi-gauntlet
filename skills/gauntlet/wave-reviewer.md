@@ -84,4 +84,4 @@ fi
 - Documentation complete?
 - No obvious bugs?
 
-Report in the output format `agents/wave-reviewer.md` defines in your system prompt.
+Report in the output format `../../agents/wave-reviewer.md` defines in your system prompt.

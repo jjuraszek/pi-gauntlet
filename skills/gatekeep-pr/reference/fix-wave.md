@@ -80,7 +80,7 @@ Persist the absolute paths as `repair.wave.spec` and `repair.wave.ledger` in the
 
 ### Shared worker context
 
-Read [commit message](../../gauntlet/commit-message.md). Resolve its absolute path from the loaded skill and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed. Pass `scratch: <absolute RUN_DIR>` to Sync and pre-push review helpers too.
+Read [commit message](../../gauntlet/commit-message.md). Resolve its absolute path from this installed reference and the bound ticket through its Gatekeep rule, using the carried spec before the roster ticket. Pass `wording: <absolute path>` and `ticket: <reference or none>` to every committing helper, including Sync helpers and both harness tails; take words from the finding closed. Pass `scratch: <absolute RUN_DIR>` to Sync and pre-push review helpers too.
 
 Build this block once for both harnesses, substituting the finding's evidence pack (`findings.md` `## Drafted payloads`), the stored scope baseline, and the resolved commands. Include the payload-limit sentence verbatim in every dispatch on both harnesses. Mint a fresh output path per dispatch with `mktemp "$RUN_DIR/row.XXXXXX"`.
 

@@ -1,6 +1,6 @@
 # Context Gather (brainstorming supplementary)
 
-Consumed only by `../SKILL.md` in this directory. Runs unconditionally between worktree
+Consumed only by `../SKILL.md`. Runs unconditionally between worktree
 setup and the questionary. **Foreground, no user interaction** — the first thing the
 operator sees after gather is questionary question one. Do not announce, do not ask.
 
@@ -44,10 +44,7 @@ subagent({
 Absolute `output:` paths are mandatory: relative paths in parallel mode resolve
 against the worktree and would get committed.
 
-`<SPEC_INDEX>` is `<directory of this skill's ../SKILL.md>/../../bin/gauntlet-spec-index.mjs`,
-resolved to an absolute path by the main loop from the loaded brainstorming `../SKILL.md` path
-in the command's skill envelope or the absolute path used to read it, before pasting the task.
-Use that ../SKILL.md directory, never `reference/` as the base.
+Before pasting the task, resolve `<SPEC_INDEX>` to `../../../bin/gauntlet-spec-index.mjs` from the directory of this installed file.
 
 ## Task templates
 

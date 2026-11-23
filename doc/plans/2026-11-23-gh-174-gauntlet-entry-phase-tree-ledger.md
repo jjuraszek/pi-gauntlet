@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 13
+iterations: 14
 allowance: 10
-returned: 16 | home | d619506257efe8db478dd8462373ad9697c6226e
+returned: 17 | home | 55222dd1f46e747a229380af3d609223734351c2
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -25,8 +25,8 @@ returned: 16 | home | d619506257efe8db478dd8462373ad9697c6226e
 | 14 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; both engines use tracker pointers at all five handoffs and preserve wave initialization, loop allowance and ship worktree inputs; 6 passed, 0 failed |
 | 15 | done | 0 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; both recovery messages, both guards and the ship advisory name installed files; 266 passed, 0 failed |
 | 16 | done | 1 | timeout -k 30 20 node --test scripts/resume-routes.test.mjs; saved-run fixtures select all seven continuation routes; brainstorm skips pass the recorded engine; 10 passed, 0 failed |
-| 17 | open | 0 | |
-| 18 | open | 0 | |
+| 17 | done | 1 | timeout -k 30 90 node --test scripts/gauntlet-tree-lint.test.mjs scripts/packed-install-smoke.test.mjs; 17 passed, 0 failed; references resolve in the npm tarball and missing targets fail in fixtures |
+| 18 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 8 passed, 0 failed; removing a cited step heading fails even when its number remains in prose |
 | 19 | open | 0 | |
 | 20 | open | 0 | |
 | 21 | open | 0 | |
@@ -68,3 +68,5 @@ row 15 done | The ship advisory, recovery messages and guards name installed fil
 row 13 done | Parent-run status names the active or next phase's file before Context; resume does not follow it and handoff omits it from the brief. | Extend the status cases in extensions/phase-tracker.test.ts to check phase selection and locator placement after session replay.
 row 14 done | Only the tracker names the next file at the five handoffs; wave initialization, loop allowance and the retained ship worktree stay in order. | Run lintHandoffPointers in scripts/gauntlet-tree-lint.mjs against a skill tree to check both engines' handoffs.
 row 16 done | Resume passes the saved engine when skipping brainstorm and links each restored phase to its next unfinished step without resetting the run. | Run scripts/resume-routes.test.mjs to check all seven continuation routes against saved-run fixtures.
+row 17 done | Fixed package references so skills, personas and extension messages reach their targets from the installed caller. | Run lintReferences(root) from scripts/gauntlet-tree-lint.mjs against a checkout or unpacked package to find broken references.
+row 18 done | Checked that numbered citations from retained skills name headings in the moved files, and linked plan repair to the handoff heading. | The missing-heading fixture in scripts/gauntlet-tree-lint.test.mjs distinguishes a step heading from a mention of the same step in prose.

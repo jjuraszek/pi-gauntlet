@@ -1,6 +1,6 @@
 # gatekeep-pr: step 5 - report
 
-Read after `findings.md` at step 5. Render report, then `menus.md`; apply SKILL.md's wording rules.
+Read after `findings.md` at step 5. Render report, then `menus.md`; apply ../SKILL.md's wording rules.
 
 ## Report
 

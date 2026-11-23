@@ -1,8 +1,7 @@
 # Handoff brief contract (gauntlet-resume + gauntlet-handoff supplementary)
 
-Consumed by `gauntlet-resume/SKILL.md` (consumer) and `gauntlet-handoff/SKILL.md`
-(producer). Brief grammar lives only here; both skills cite this file and inline none of it
-(`scripts/ci.mjs` drift lint). The six headings before `## Process state` and the
+Consumed by `../SKILL.md` (consumer) and `../../gauntlet-handoff/SKILL.md`
+(producer). Brief grammar lives only here; both skills cite this file and inline none of it. The six headings before `## Process state` and the
 `## Repo state` fields are pi-cohort's `handoff` skill's; cohort drift is reconciled
 here and nowhere else.
 

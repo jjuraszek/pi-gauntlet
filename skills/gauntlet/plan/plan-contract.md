@@ -277,7 +277,7 @@ If a decision is genuinely open, put it in an explicit **Open Questions** sectio
 - ❌ "timeout/gtimeout ladder" when the spec fixes the literal `timeout 30` — never paraphrase an exact-string requirement (setting keys, error messages, banner/format strings, command names and invocations, API shapes); transcribe it as a backtick-quoted spec literal: `timeout 30`. Spec-side backtick spans containing `<placeholder>` segments are templates the plan instantiates, not exact-string requirements — exempt from quote integrity.
 - ❌ `[fill in]`, `<example>`, `xxx` markers anywhere in the doc.
 
-The banned token list is `BANNED_TOKENS` in `extensions/lib/plan-check.ts`; a token inside a literal the anchored spec requires is exempt.
+The banned token list is `BANNED_TOKENS` in `../../../extensions/lib/plan-check.ts`; a token inside a literal the anchored spec requires is exempt.
 
 ## Open Questions (`open-questions`)
 

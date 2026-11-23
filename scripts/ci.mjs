@@ -288,7 +288,7 @@ const tokenChecks = [
   ["skills/chase-bug/hotfix.md", 'context: "fresh"', true],
   ["skills/chase-bug/hotfix.md", "fork context", false],
   ["skills/chase-bug/hotfix.md", "git -C <WORKTREE>", true],
-  ["skills/gauntlet/SKILL.md", "reference/amendment-surface.md", true],
+  ["skills/gauntlet/SKILL.md", "`amendment-surface.md`", true],
   ["skills/gauntlet/SKILL.md", "Show `git -C <abs worktree path> --no-pager diff -- <spec path>`", false],
   ["skills/gauntlet/amendment-surface.md", "Mode: amendment-review", true],
   ["skills/gauntlet/amendment-surface.md", "auto-apply", true],
@@ -385,9 +385,6 @@ if (roastProbeHits < 2) fail(`skills/gauntlet/brainstorm/council.md: expected ^l
 if (!existsSync(R("skills/gauntlet/brainstorm/superseding.md"))) {
   fail("skills/gauntlet/brainstorm/superseding.md missing");
 }
-if (!existsSync(R("skills/gauntlet/../../bin/gauntlet-spec-index.mjs"))) fail("gauntlet-spec-index: path from the entry does not resolve");
-if (!existsSync(R("skills/gauntlet/ship/../../../bin/gauntlet-telemetry-seal.mjs"))) fail("gauntlet-telemetry-seal: path from ship does not resolve");
-if (!existsSync(R("skills/gauntlet-performance/../../bin/gauntlet-performance.mjs"))) fail("gauntlet-performance: path from skills/gauntlet-performance does not resolve");
 // Telemetry publication stays separate from product delivery and gatekeep-pr instructions.
 {
   const trackedTelemetry = execFileSync("git", ["ls-files", "--", ".pi/gauntlet/telemetry"], { cwd: root, encoding: "utf8" }).trim();

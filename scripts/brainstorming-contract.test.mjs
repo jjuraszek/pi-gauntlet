@@ -474,7 +474,7 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
   assert.match(text, /last three are the \*\*critique pass\*\*, dispatched/);
   for (const marker of ['branch strictly on `verdict`', 'never infer the worker path from `malformed` alone', 'If `gauntlet_setting` is unavailable, stop and report', 'agent: "worker", context: "fresh", async: false', 'agent: "spec-summarizer", context: "fresh", async: false', 'outputMode: "file-only"', 'Human input (verbatim; off-limits for over-spec)', 'ticket AC snapshot', 'passes no `model:`']) assert.ok(text.includes(marker), marker);
   assert.match(text, /relative to this loaded reference as one absolute/);
-  assert.match(text, /portable citation `reference\/documentation-impact.md`/);
+  assert.match(text, /portable documentation-impact citation is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>/);
 });
 
 test('summary faults, partial coverage, commit and revisions retain their routes', () => {
@@ -685,19 +685,16 @@ test('incoming routes wait for fresh consent but retain stateful continuation an
 
 test('locator and the specifically moved relative resources resolve from their owners', () => {
   const gatherer = read('skills/gauntlet/brainstorm/gatherer.md');
-  assert.match(gatherer, /loaded brainstorming `SKILL.md` path/);
-  assert.match(gatherer, /command's skill envelope or the absolute path used to read it/);
-  assert.match(gatherer, /never `reference\/` as the base/);
-  assert.match(gatherer, /\.\.\/\.\.\/bin\/gauntlet-spec-index.mjs/);
+  assert.match(gatherer, /`\.\.\/\.\.\/\.\.\/bin\/gauntlet-spec-index.mjs` from the directory of this installed file/);
   assert.match(gatherer, /Spec index unavailable - predecessor check used directory listing/);
   const links = [
-    ['skills/gauntlet/SKILL.md', 'reference/ticket-acceptance.md', null],
-    ['skills/gauntlet/SKILL.md', 'reference/spec-finalization.md', 'Spec Self-Review (Before User Review Gate)'],
+    ['skills/gauntlet/SKILL.md', 'brainstorm/ticket-acceptance.md', null],
+    ['skills/gauntlet/SKILL.md', 'brainstorm/spec-finalization.md', 'Spec Self-Review (Before User Review Gate)'],
     ['skills/gauntlet/brainstorm/ticket-acceptance.md', '../SKILL.md', 'Amending an approved spec'],
     ['skills/gauntlet/brainstorm/spec-finalization.md', '../SKILL.md', 'Filename Convention'],
     ['skills/gauntlet/brainstorm/spec-finalization.md', 'superseding.md', null],
-    ['skills/gauntlet/brainstorm/spec-finalization.md', '../settings-precedence.md', null],
-    ['skills/gauntlet/brainstorm/spec-finalization.md', '../gatherer.md', null],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', 'settings-precedence.md', null],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', 'gatherer.md', null],
   ];
   for (const [owner, target, heading] of links) {
     const targetUrl = new URL(target, new URL(`../${owner}`, import.meta.url));

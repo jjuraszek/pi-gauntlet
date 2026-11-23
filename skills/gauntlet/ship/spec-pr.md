@@ -12,7 +12,7 @@ Stop on query failure. Require OPEN, otherwise print `PR #N is <state>; the bran
 
 ## Menu and preflight
 
-At Step 4, the header-linked route bypasses both menus below the amendment digest in SKILL.md and uses this preflight, five-row menu, and rows 1/2 push recipe; retain the shared amendment digest and informational lines. At Step 4 fetch `git -C "$WORKTREE" fetch origin` and prove `git -C "$WORKTREE" merge-base --is-ancestor origin/<headRefName> HEAD`. Stop on fetch failure or proof exits other than 0/1. Exit 1 omits rows 1/2 and prints `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`; retain numbers 3-5. A hidden 1/2 gets the clarifying question naming rendered rows. Recompute this proof on every menu return.
+At Step 4, the header-linked route bypasses both menus below the amendment digest in ship.md and uses this preflight, five-row menu, and rows 1/2 push recipe; retain the shared amendment digest and informational lines. At Step 4 fetch `git -C "$WORKTREE" fetch origin` and prove `git -C "$WORKTREE" merge-base --is-ancestor origin/<headRefName> HEAD`. Stop on fetch failure or proof exits other than 0/1. Exit 1 omits rows 1/2 and prints `Withheld: push - origin/<headRefName> is at <sha7>, local HEAD at <sha7>; a non-force push cannot land`; retain numbers 3-5. A hidden 1/2 gets the clarifying question naming rendered rows. Recompute this proof on every menu return.
 
 Render exactly these five rows (plus ordinary nonblocking informational lines):
 

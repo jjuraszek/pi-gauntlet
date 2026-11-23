@@ -90,7 +90,7 @@ defined subset and names the deferred requirements. Silent partial coverage = fa
 ## When the check finds gaps
 
 The reviewer **proposes, it does not dispose.** It emits structured gap blocks
-(see `agents/conformance-reviewer.md`); the orchestrator (the main session running
+(see `../../agents/conformance-reviewer.md`); the orchestrator (the main session running
 the verify gate) drives disposition, fixes, and re-audit. The reviewer never edits,
 dispatches, or re-audits itself.
 

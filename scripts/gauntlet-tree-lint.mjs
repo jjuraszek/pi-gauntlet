@@ -1,5 +1,5 @@
-import { globSync, readFileSync, readdirSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, join, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
@@ -111,6 +111,62 @@ export function lintHandoffPointers(root) {
     errors.add(`${tree}/${ship}: use the retained or restored worktree, never a command argument`);
   }
   return [...errors];
+}
+
+export function lintReferences(root) {
+  const errors = new Set();
+  function check(file, ref, base = dirname(file)) {
+    const target = join(base, ref);
+    if (target.startsWith("../") || !statSync(join(root, target), { throwIfNoEntry: false })?.isFile()) {
+      errors.add(`${file}: ${ref}`);
+    }
+  }
+  const read = file => readFileSync(join(root, file), "utf8");
+  // Scratch artifacts and consumer checkout names, not files in the install.
+  const artifacts = /^(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$/;
+  for (const file of globSync("{skills,agents}/**/*.md", { cwd: root })) {
+    let body = read(file);
+    if (file === "skills/forge-skill/SKILL.md") {
+      // The placement table declares its base and directory separately from each filename.
+      body = body.replace(/^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm, (_, name, dir, owner) => {
+        check(file, name, join(tree, dir));
+        if (/^`[\w-]+\.md`$/.test(owner)) check(file, owner.slice(1, -1), join(tree, dir));
+        return "";
+      });
+    }
+    const text = body
+      .replace(/`\[[^`\n]*\]\([^`\n]+\)`/g, "") // inline example of Markdown syntax
+      .replace(/^  touched-files: .*$/gm, "") // example reviewer output
+      .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
+      .replace(/https?:\/\/[^\s)\]`]+/g, "")
+      .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, target) => ` ${target} `)
+      .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
+    if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
+      for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
+        const target = join(dirname(file), ref);
+        if (!target.startsWith(`${tree}/`) || !statSync(join(root, target), { throwIfNoEntry: false })?.isFile()) continue;
+        if (!new RegExp(`^#{1,6} (?:Step )?${number}\\b`, "im").test(read(target))) errors.add(`${file}: ${ref} Step ${number}`);
+      }
+    }
+    for (const { 0: ref } of text.matchAll(/(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g)) {
+      if (artifacts.test(ref) || /^(?:(?:doc|docs)\/|(?:\.pi|pkg-x|repo-a\/pkg-x)\/|eval\/|src\/)|^\d{4}-\d\d-\d\d-/.test(ref)) continue;
+      if (ref.endsWith(".ts") && !ref.startsWith("extensions/lib/") && !ref.includes("../")) continue;
+      check(file, ref);
+    }
+  }
+  for (const file of globSync("extensions/**/*.ts", { cwd: root, exclude: ["**/*.test.ts"] })) {
+    const text = read(file);
+    for (const [, ref] of text.matchAll(/(?:new URL\(["'`]([^$"'`]+\.(?:md|mjs))["'`],\s*import\.meta\.url\))/g)) check(file, ref);
+    for (const [ref] of text.matchAll(/(?<![\w./-])(?:\.\.\/)*skills\/[\w./-]+\.md\b/g)) check(file, ref);
+    const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
+    if (base) {
+      const table = text.match(/const instructionFiles = \{([^}]+)\}/)?.[1] ?? "";
+      for (const [, ref] of [...table.matchAll(/:\s*"([^"]+)"/g), ...text.matchAll(/gauntletFile\("([^"]+)"\)/g)]) {
+        check(file, ref, join(dirname(file), base));
+      }
+    }
+  }
+  return [...errors].sort();
 }
 
 export function lintTreeShape(root) {

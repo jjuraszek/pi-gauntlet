@@ -45,7 +45,7 @@ For each remaining file, count the run files that reference it by path. Place it
 
 Ignore readers already beside the entry file, except the entry itself. When those shared files are the only run readers, place the referenced file beside them. Report any unanchored file with no run reader as unplaced; give it an anchor naming its owner to keep it.
 
-Link from skills outside the run to the file at its assigned location; external readers do not change placement. For example, those skills read `menu-layout.md`, `commit-message.md` and `return-file.md` beside the entry file.
+Link from skills outside the run to the file at its assigned location; external readers do not change placement. For example, those skills read [the menu layout](../gauntlet/menu-layout.md), [commit wording](../gauntlet/commit-message.md) and [return-file cleanup](../gauntlet/return-file.md) beside the entry file.
 
 ## Authoring rules
 

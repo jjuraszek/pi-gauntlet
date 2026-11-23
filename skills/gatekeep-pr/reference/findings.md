@@ -1,6 +1,6 @@
 # gatekeep-pr: step 5 - integrate
 
-Read from SKILL.md step 5, before `report.md`. Inputs: the digest, the step-2 `scope` block, the step-3 evidence and claim dispositions, the step-4 reviewer output and comment ledger. Output: AC outcomes, blockers, nits, drafted payloads - the report's content, not its rendering.
+Read from ../SKILL.md step 5, before `report.md`. Inputs: the digest, the step-2 `scope` block, the step-3 evidence and claim dispositions, the step-4 reviewer output and comment ledger. Output: AC outcomes, blockers, nits, drafted payloads - the report's content, not its rendering.
 
 ## Provenance
 
@@ -141,4 +141,4 @@ Extend each finding-keyed evidence pack with `target: file | description`. For f
 
 A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module. A failure caused outside the repo (image pull, toolchain, credentials, external service) gets the smallest in-repo workaround with its reason in one sentence; a skip never removes a test an AC row relies on. Keep a finding whose smallest fix needs another repo, infrastructure, or a credential open with the `loop-implementer` failed decision's `needs <what>` second slot on pi, or the native helper's `open - needs <what>` sentence on Claude Code. A delivery course applies a description payload alongside the file payloads through `post-selection-loop.md` `### Description repair`; show compact exact old-to-new text under the blocker and the full replacement body under `show evidence`. Apply a requested factual clarification only within selected course work; mint no fake blocker. Never draft an unsolicited style rewrite.
 
-Compose a posted review body at post time from the blockers being addressed through SKILL.md `## Wording rules`. This post-time composition rule does not apply to the rejection note: use the saved bytes from `reject.md` `## Draft note`. For a carried open blocker backed by a pi row, include `open - <last decision line>` on its item so the next run's prior review retains the failed-attempt knowledge.
+Compose a posted review body at post time from the blockers being addressed through ../SKILL.md `## Wording rules`. This post-time composition rule does not apply to the rejection note: use the saved bytes from `reject.md` `## Draft note`. For a carried open blocker backed by a pi row, include `open - <last decision line>` on its item so the next run's prior review retains the failed-attempt knowledge.

@@ -60,7 +60,7 @@ For a coordinated brief, use `coordinated.md` "Coordinated admission" before tra
 
 ## Spec without plan
 
-Run SKILL.md entry check 6's deferred-header admission on the resolved spec before the approval/handoff question below; apply it to both routes, including the unapproved-draft brainstorming handoff. Keep grant decoding exempt for the unapproved route.
+Run ../SKILL.md entry check 6's deferred-header admission on the resolved spec before the approval/handoff question below; apply it to both routes, including the unapproved-draft brainstorming handoff. Keep grant decoding exempt for the unapproved route.
 
 Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../gauntlet/menu-layout.md).
 
@@ -68,7 +68,7 @@ Ask exactly one question: is this spec approved, or do you select `/skill:gauntl
 with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
-- Approved: run SKILL.md entry check 6 on `<spec path>` first (its deferred stop or a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
+- Approved: run ../SKILL.md entry check 6 on `<spec path>` first (its deferred stop or a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
   - `loop`: after check 6, call `start brainstorm`, then `skip brainstorm resume: <spec path>` with `engine: "loop"` before driver admission. Carry absolute worktree/spec paths and plan directory into `../../gauntlet/implement/loop/loop.md` Entry steps 1-5 and label Entry steps 1-5 explicitly in the response as Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start; refresh by ledger path after implement starts. Use no `../../gauntlet/plan/plan.md` body or task tracker initialization.
   - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>` with `engine: "waves"`; `start plan`; continue in `../../gauntlet/plan/plan.md`, skipping its `start plan` call.
 - Selected unapproved-draft brainstorming handoff: invoke [`/skill:gauntlet`](../../gauntlet/SKILL.md) with

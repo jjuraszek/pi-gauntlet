@@ -40,12 +40,12 @@ Do **not** read or merge these files by hand. Resolution is centralized:
   report - never fall back to a manual bash/JSON merge (that fallback is exactly
   the failure mode this centralization removes).
 - **Extensions** call `loadGauntletSettings(ctx.cwd)` from
-  `extensions/lib/gauntlet-settings-loader.ts`, which returns `{ gauntlet, errors, root }`
+  `../../../extensions/lib/gauntlet-settings-loader.ts`, which returns `{ gauntlet, errors, root }`
   with `root` set to that toplevel, then call the matching resolver in
-  `extensions/lib/gauntlet-settings.ts`.
+  `../../../extensions/lib/gauntlet-settings.ts`.
 
 Both paths go through pi's own `SettingsManager`, so they resolve the same merged
-value. The `phase-tracker.ts` closure guard reads via `loadGauntletSettings` +
+value. The `../../../extensions/phase-tracker.ts` closure guard reads via `loadGauntletSettings` +
 `resolveClosureReview`, resolving the same value the tool returns.
 
 ## Scope: the session cwd's checkout

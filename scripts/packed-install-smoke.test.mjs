@@ -23,6 +23,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { lintReferences } from "./gauntlet-tree-lint.mjs";
 import { loadSkillsFromDir } from "@earendil-works/pi-coding-agent";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -104,6 +105,10 @@ test("spec-index: runs from the packed install (usage error, no crash)", () => {
   const r = run("bin/gauntlet-spec-index.mjs", []);
   assert.equal(r.status, 1);
   assert.ok(!r.stderr.includes(CRASH), r.stderr);
+});
+
+test("installed skill, persona and extension references stay inside the tarball", () => {
+  assert.deepEqual(lintReferences(pkgDir), []);
 });
 
 test("pi registers eleven packed skills and hides six from the model", () => {

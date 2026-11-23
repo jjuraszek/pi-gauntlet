@@ -1,6 +1,6 @@
 # gatekeep-pr: menus
 
-Read at step 6; execute picks through `post-selection-loop.md` `### Next action`. Apply SKILL.md's wording rules and [menu-layout](../../gauntlet/menu-layout.md)'s numeric mapping. Derive availability from the digest's permissions; `unreadable` fails closed.
+Read at step 6; execute picks through `post-selection-loop.md` `### Next action`. Apply ../SKILL.md's wording rules and [menu-layout](../../gauntlet/menu-layout.md)'s numeric mapping. Derive availability from the digest's permissions; `unreadable` fails closed.
 
 Render every menu in full: the standing sentence, every available row as `<n>. <verb> - <consequence>`, then the hint. Never narrate or summarize a menu. Quote a numeric pick only after the rendered menu. Move the recommended action to row 1 before numbering every menu, including child and batch menus; tag only it `[recommended]`. Keep non-recommended stop last; other rows follow table order. Append ` recommended=1` to each gate line. Emit one first line per turn: the parent batch-summary marker for combined nonterminal child menus, each terminal post menu's marker in its own message. Keep runtime guard text inside the obstacle body, not a second marker.
 
