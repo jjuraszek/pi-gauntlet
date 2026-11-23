@@ -20,7 +20,7 @@ export function lintTarget(dir, context) {
     else for (const f of target.skillFiles) {
       if (!f.path) errs.push("skillFiles entry without path");
       if (context && f.new === true && f.path) {
-        if (context.baselineHas(f.path)) errs.push(`${f.path}: new file exists at baseline`);
+        if (context.baselineHas(f.path) && !context.selfBaseline) errs.push(`${f.path}: new file exists at baseline`);
         if (!context.treeHas(f.path)) errs.push(`${f.path}: new file missing from working tree`);
       }
       if (target.kind === "edit" && f.path && target.skillFiles[0].path) {

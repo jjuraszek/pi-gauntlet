@@ -1,14 +1,29 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, statSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
-import { runTarget } from "../run.mjs";
+import { prepareTarget, runTarget } from "../run.mjs";
+import { fileURLToPath } from "node:url";
+import { retiredNames } from "../../scripts/gauntlet-tree-lint.mjs";
 import { sha256 } from "./checks.mjs";
 import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
 import { writeRecordAtomic } from "./records.mjs";
+
+test("neither arm invokes a retired step outside verbatim baseline instructions", () => {
+  const root = fileURLToPath(new URL("../../", import.meta.url));
+  const retired = new RegExp(`/skill:(?:${[retiredNames.entry, ...retiredNames.steps].join("|")})(?![\\w-])`);
+  for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
+    if (!dir.isDirectory() || ["lib", "_template"].includes(dir.name)) continue;
+    const prepared = prepareTarget({ root, target: dir.name });
+    assert.ok(prepared.plans?.length, prepared.message);
+    for (const { sample, basePrompt, candPrompt, candSkill } of prepared.plans) {
+      for (const text of [basePrompt, candPrompt, candSkill]) assert.doesNotMatch(text, retired, `${dir.name}/${sample}: ${text.match(retired)}`);
+    }
+  }
+});
 
 function repo() {
   const root = mkdtempSync(join(tmpdir(), "run-"));

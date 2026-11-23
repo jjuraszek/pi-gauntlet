@@ -17,7 +17,7 @@ test("chase-bug prose samples preserve slices and reject label leaks", () => {
     { path: "skills/chase-bug/SKILL.md", slice: "### 5. Response to origin (human gate 2)", sliceTo: "## Quick Reference" },
     { path: "skills/chase-bug/reference/verdict-report.md" },
     { path: "skills/gauntlet/commit-message.md" },
-    { path: "skills/chase-bug/reference/attempt-budget.md", new: true },
+    { path: "skills/chase-bug/reference/attempt-budget.md" },
   ]);
   for (const sample of ["prose-verdict-above-menu", "returned-ticket-link"]) {
     const { bundle } = parseCase(read(`eval/chase-bug/samples/${sample}/case.md`));
@@ -49,7 +49,7 @@ const shapeTicketFiles = [
   { path: "skills/shape-ticket/SKILL.md", slice: "### 4 - Draft", sliceTo: "## Roast" },
   { path: "skills/gauntlet/menu-layout.md" },
   { path: "skills/shape-ticket/SKILL.md", slice: "## Evidence gate", sliceTo: "## Ticket wording" },
-  { path: "skills/shape-ticket/reference/ac-classes.md", new: true },
+  { path: "skills/shape-ticket/reference/ac-classes.md" },
 ];
 
 test("shape-ticket baseline preserves slices and excludes only audit from all existing cases", () => {
@@ -293,10 +293,14 @@ test("runner validates new files before calls and binds intent to candidate text
     prompts.push(readFileSync(args[args.indexOf("--system-prompt") + 1], "utf8"));
     return { status: "error", stderr: "stub stopped", wallMs: 0 };
   };
-  const run = () => runTarget({ root, target: "t", base: "HEAD", judgePath: join(root, "eval", "judge.md"), spawn, recordWriter: (...args) => records.push(args) });
+  const run = (base = "HEAD^") => runTarget({ root, target: "t", base, judgePath: join(root, "eval", "judge.md"), spawn, recordWriter: (...args) => records.push(args) });
+  git("commit", "--allow-empty", "--no-verify", "-qm", "feature branch");
   target.skillFiles[0].new = true; save();
   assert.match((await run()).message, /old.md.*baseline/);
   assert.equal(prompts.length, 0); assert.equal(records.length, 0);
+  await run("HEAD");
+  assert.ok(prompts.includes(`${baseline}\n# new.md\n`), "a self-baseline reads a merged new file verbatim");
+  prompts.length = 0;
   delete target.skillFiles[0].new; save();
   intent(baseline);
   assert.match((await run()).message, /intent:.*for:/);
@@ -371,6 +375,6 @@ test("SDD assembly keeps completion and runner with candidate late read", () => 
   assert.ok(candidate.includes("Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)"));
   assert.ok(candidate.includes("<!-- happy-path-shell -->"));
   assert.ok(candidate.includes("## When a Subagent Fails") && candidate.includes("after 2 failed attempts the transition table's escalated round runs; STOP only when that round and any funded round are spent. Keep `in_progress` pending the human decision; completion requires the wave commit."));
-  assert.ok(candidate.includes("reference/happy-path-run.md` at its absolute path"));
+  assert.ok(candidate.includes("../happy-path-run.md` at its absolute path"));
   assert.ok(candidate.includes("On an unreadable reference, stop with a blocking error"));
 });

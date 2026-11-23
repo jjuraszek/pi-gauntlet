@@ -1,4 +1,4 @@
-for: 124fc7e127d9ada3f5df4d74191592cac03af42ea0dba49874e3952e418873ef
+for: bc5e9a622a44e58ff60728d15b85088aefb92980cf66ba953770f47a94eb212d
 
 ## Change
 Flag a requirement, acceptance row, or Design clause sourced from a PR title/body as a major gap with pr-source in the finding text on ordinary and PR-rework reviews. Re-source from approved human input or agreed design, or ask for the user's Design scope decision before cutting; preserve drafting ownership and provenance exemptions. The two new tool-free samples require the finding/correction and passing design/provenance controls. Deterministic coverage proves instruction and fixture structure; parent verification supplies model evidence. Preserve every prior accepted move below.

@@ -1,4 +1,4 @@
-for: d89fe7c03af0185c760c12417c38943f39c424d6252427d19205b801f370f96b
+for: 39ff2477f5b780fad661edfc8f76224e862b9cd2f8458e8b92e53d0f993de4e8
 
 ## Change
 Replace separate spec and code review personas with one integrated wave review. Review only selected tasks' cited spec ranges, block unmet in-slice requirements, omit later-wave clauses, and reject unreadable anchors with their exact identity. Keep prioritized code findings and spec-observable test economy for anchor-less callers, with Minor-only SHIP. Mirror verdict and severity counts without a behavior-change footer or field. Candidate-only assembly entries have no invented baseline records.

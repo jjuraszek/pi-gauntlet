@@ -52,9 +52,9 @@ function* walk(dir) {
 }
 
 // The target is the first path segment under root.
-export function scanTree(root, { denylists }) {
+export function scanTree(root, { denylists, target }) {
   const hits = [];
-  for (const file of walk(root)) {
+  for (const file of walk(target ? join(root, target) : root)) {
     const rel = relative(root, file);
     if (rel.startsWith("lib/") || rel.startsWith("lib\\")) continue;
     const target = rel.split("/")[0];

@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
-returned: 34 | home | 176fde27513762e9aac707aaec492b470aa76a9d
+returned: 35 | home | 89fae4f080a284f5a8368b06890c2515498109e3
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -43,8 +43,8 @@ returned: 34 | home | 176fde27513762e9aac707aaec492b470aa76a9d
 | 32 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs extensions/lib/overrides.test.ts; 15 passed; all skill entries name the same three locations in the order used by the shared reader |
 | 33 | done | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/lib/overrides.test.ts extensions/verify-before-ship.test.ts; 37 passed; tracker lookup ignores the retired file and foreign blocks, and sibling and index sections stop at block boundaries |
 | 34 | done | 1 | timeout -k 30 300 node --test src/bins/gauntlet-telemetry-ref-migration.test.mjs bin/gauntlet-performance.test.mjs bin/gauntlet-spec-index.test.mjs bin/gauntlet-telemetry-seal.test.mjs; 115 passed; 0 failed |
-| 35 | open | 0 | |
-| 36 | open | 0 | |
+| 35 | done | 1 | timeout -k 30 120 node --test eval/lib/prepare.test.mjs; all samples of 28 targets prepared on both arms; 28 passed, 0 failed model-free |
+| 36 | done | 0 | timeout -k 30 120 node --test eval/lib/run.test.mjs; neither arm generates a retired step command and candidate instructions contain none; 129 passed, 0 failed |
 | 37 | open | 0 | |
 | 38 | open | 0 | |
 
@@ -64,3 +64,5 @@ row 32 done | Verified that all skill entries name the same three gauntlet.md lo
 row 33 done | Verified tracker selection with both filenames, the retired filename alone and a tracker under another block, plus sibling and spec-index section boundaries. | Extend the originless membership cases in extensions/verify-before-ship.test.ts to check which repository supplies the ship policy.
 row 28 done | Scoped private settings to the skill that reads them and migrated sample overrides to the same outline. | Use the overrides-outline checks in scripts/gauntlet-tree-lint.test.mjs to validate skill readers and sample file excerpts.
 row 34 done | The report and index omit earlier run records until the seal command moves them to the gauntlet key without changing their bytes. | Reuse the bare-remote fixture in src/bins/gauntlet-telemetry-ref-migration.test.mjs to check migration conflicts and concurrent pushes.
+row 35 done | CI prepares every eval sample against the merge-base and working tree without calling a model. | Use prepareTarget in eval/run.mjs to inspect each sample's baseline and candidate prompts without changing its saved results.
+row 36 done | A regression test checks both generated prompts and candidate instructions for retired skill commands while exempting verbatim baseline instructions. | Run eval/lib/run.test.mjs to check the command boundary against every sample.

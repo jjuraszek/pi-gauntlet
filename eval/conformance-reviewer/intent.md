@@ -1,4 +1,4 @@
-for: ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7
+for: 072adbf4d8fbc9c97539bf42bebc8788375e70de47abecfc15c6bacf794e1cda
 
 ## Change
 Exclude delivery-stage clauses from conformance requirements without excluding file deliverables on the same leg verification line. The leg sample keeps two delivered behaviors and a delivered bundle clause in coverage, and reports CONFORMS without quoting or commenting on the PR gate or ship evidence.

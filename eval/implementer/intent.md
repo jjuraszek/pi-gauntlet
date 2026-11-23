@@ -1,4 +1,4 @@
-for: 9e82598000a5bb3eb0c6c287f01e8534a914c39544fe62d584aaf78559866c48
+for: 6fa7757f6746a609df9c281ce99c45bea181e6ddada456babfbd11bff71bf076
 
 ## Change
 Load task text conditionally from planPath and exact task anchors, including the union for multi-task repairs; derive Spec/Files/Tests and combined task/home-leg Rules in the worker checkout. Preserve inline callers, TDD, direct-seam/exact-Create test-contract evidence and scoped-command discipline. Mirror the written status into structured output and fail unreadable anchors with BLOCKED plus anchorUnreadable. Copy exactly the dispatched anchor or anchors into every anchored status, disable the implementer's mutation guard, and keep blocked reports away from the BLOCKED: first-line sentinel. Inline callers keep their response format and invent no identity. New no-edit cases use the existing anchored replay modes and supplied observations; model reports/results remain parent verification-owned.

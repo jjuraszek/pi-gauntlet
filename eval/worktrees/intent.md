@@ -1,4 +1,4 @@
-for: 3cc120aace0ad0d3269b3abdf4b2cef3afb9b987a07b77ef3e742674a6b58819
+for: 1c9af21f64b15b017545406565e0e233e26fdcdb24c45189dcbbd221b0204d86
 
 ## Change
 Read the shared commit-message reference for the worktree-ignore bookkeeping sentence rather than copying a path-bearing subject. Run only ignore-subject for this edit; preserve ignore-before-create ordering, scoped staging, ready reporting and prior sample records. These supplied observations prove narrated wording, not live provisioning or a target-wide pass.
