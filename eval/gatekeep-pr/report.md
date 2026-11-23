@@ -10,6 +10,8 @@ Search once for other authors' open PRs awaiting the viewer's review, even when 
 
 For overrides-own-block-only, a verifier runs the shared verification command on an already green head because gatekeep-pr requests local verification. The shape-ticket report suffix has no effect.
 
+Unselected samples, including `merge-landed-message` and `fix-row-return-file`, retain their historical results. They are not coverage for this change.
+
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
