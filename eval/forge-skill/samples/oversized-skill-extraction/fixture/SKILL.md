@@ -537,4 +537,4 @@ Run the checks of group 12 in order and record each result as `check-12-<k>: pas
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it and apply its `## conventions` section.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# audit-runbook` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.

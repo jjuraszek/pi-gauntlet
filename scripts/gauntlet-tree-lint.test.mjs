@@ -159,13 +159,22 @@ test("overrides-outline: private settings come from the reader's own block", () 
 test("overrides-outline: sample inputs use the same blocks as the installed skills", () => {
   const root = join(import.meta.dirname, "..");
   const errors = [];
-  for (const file of globSync("eval/*/samples/*/case.md", { cwd: root })) {
+  const inputs = ["eval/*/replay.md", "eval/*/samples/*/case.md", "eval/*/samples/*/fixture/**/*.md", "eval/*/samples/*/fixture/.pi/gauntlet.md"];
+  for (const file of globSync(inputs, { cwd: root })) {
     const text = readFileSync(join(root, file), "utf8");
+    if (file.endsWith("/gauntlet.md")) {
+      errors.push(...lintOverridesFile(text).map(reason => `${file}: ${reason}`));
+      continue;
+    }
     // Unfenced excerpts end at the next sample paragraph; fenced excerpts can contain blank lines.
     for (const [, fenced, plain] of text.matchAll(/^(?:[^\n]*\bgauntlet\.md[^\n]*:|## Overrides at merge-base)\n\n?(?:```markdown\n([\s\S]*?)\n```|(#{1,2} [^\n]+(?:\n[^\n]+)*))/gm)) {
       errors.push(...lintOverridesFile(fenced ?? plain).map(reason => `${file}: ${reason}`));
     }
     assert.doesNotMatch(text, /(?:Overrides, |Resolved overrides |supplied project overrides' `)## (?:shape-ticket|Issue tracker)\b|`## PR gate` - /, file);
+    const overrides = text.split(/^## Project overrides\n/m)[1]?.split(/^#{1,2} /m, 1)[0] ?? "";
+    for (const [, heading] of overrides.matchAll(/\bapply (?:its |the )?`(## (?:conventions|comms style))`/gi)) {
+      errors.push(`${file}: obsolete section ${heading}`);
+    }
   }
   assert.deepEqual(errors, []);
 });
