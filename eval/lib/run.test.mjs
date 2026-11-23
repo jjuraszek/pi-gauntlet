@@ -36,7 +36,7 @@ function repo() {
   put("eval/t/samples/s1/case.md", "CASE\n");
   put("eval/t/samples/s1/expected.md", '- f1: judged: says hi\n- f2: mechanical: contains "hi"\n');
   put("eval/judge.md", "JUDGE\n"); put("eval/t/intent.md", INTENT_STUB);
-  return { root, put };
+  return { root, put, g };
 }
 function candidate() {
   const fixture = repo();
@@ -408,15 +408,61 @@ for (const { name, declare, diagnostic } of [
     diagnostic: /s1: bundle\+ skills\/x\/extra\.md.*--base <ref>/,
   },
 ]) test(`missing base ${name} refuses with its file and base selection advice`, (t) => {
-  const { root, put } = repo();
+  const { root, put, g } = repo();
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = "skills/x/extra.md";
   put(path, "extra\n");
+  g("add", "--", path);
   declare(put, path);
   const result = prepareTarget({ root, target: "t", base: "HEAD", baselineOnly: true });
   assert.equal(result.exit, 2);
   assert.match(result.message, diagnostic);
   assert.doesNotMatch(result.message, /new(?:\s*:\s*true| declaration)/);
+});
+
+test("rename lookup reuses one Git scan for skill and bundle declarations", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const paths = ["skills/x/guide.md", "skills/x/notes.md"];
+  const shared = ["Use the sample instructions to format the reply.\n", "Keep the response focused on the requested topic.\n"];
+  const baseline = shared.map((text) => `${text}Before.\n`);
+  const candidate = shared.map((text) => `${text}After.\n`);
+  const added = "skills/x/extra.md";
+  const addedText = "Extra instructions.\n";
+  const sources = ["skills/x/SKILL.md", "skills/x/appendix.md"];
+  for (const [i, source] of sources.entries()) put(source, baseline[i]);
+  g("add", "--", "skills/");
+  commit(root, "seed instructions");
+  const base = g("rev-parse", "HEAD").trim();
+  for (const [i, path] of paths.entries()) {
+    g("mv", "--", sources[i], path);
+    put(path, candidate[i]);
+  }
+  put(added, addedText);
+  g("add", "--", "skills/");
+  commit(root, "move instructions");
+  put("eval/t/target.json", JSON.stringify({
+    kind: "text", skillFiles: [{ path: paths[0] }, { path: added, new: true }], assembly: "concat", wordCap: 50,
+  }));
+  put("eval/t/samples/s1/case.md", `bundle+: ${paths[1]}\nCASE\n`);
+
+  const trace = join(root, "git-trace.jsonl");
+  const previousTrace = process.env.GIT_TRACE2_EVENT;
+  process.env.GIT_TRACE2_EVENT = trace;
+  let prepared;
+  try {
+    prepared = prepareTarget({ root, target: "t", base, baselineOnly: true });
+  } finally {
+    if (previousTrace === undefined) delete process.env.GIT_TRACE2_EVENT;
+    else process.env.GIT_TRACE2_EVENT = previousTrace;
+  }
+  assert.ok(prepared.plans, prepared.message);
+  const [{ baseSkill, candSkill }] = prepared.plans;
+  assert.equal(baseSkill, [baseline[0], "", baseline[1]].join("\n"));
+  assert.equal(candSkill, [candidate[0], addedText, candidate[1]].join("\n"));
+  const diffs = readFileSync(trace, "utf8").trim().split("\n").map((line) => JSON.parse(line))
+    .filter(({ event, argv }) => event === "start" && argv[1] === "diff").map(({ argv }) => argv.slice(1));
+  assert.deepEqual(diffs, [["diff", "-M", "--diff-filter=R", "--name-status", "-z", base, "--", "skills/"]]);
 });
 
 test("missing tree skill refuses with its file and ref", async () => {
