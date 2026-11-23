@@ -67,7 +67,7 @@ Resolve per concern, first match wins, evaluated unconditionally - never delegat
 
 Read every ladder source from the **merge-base of the PR's base branch**, never from the PR's head tree - a PR cannot weaken its own rubric or swap the command that will gate it: `MB=$(git merge-base origin/<baseRefName> <headRefOid>)`, then `git show "$MB:<path>"` per source (`git show "$MB:REVIEW.md"`, `git show "$MB:AGENTS.md"`). A plain cwd read (`cat REVIEW.md`, the file open in the PR worktree) is invalid for any ladder source. Exception: a PR that itself changes `REVIEW.md` or the overrides file makes that diff review subject matter, surfaced as a finding - never applied to this run's configuration.
 
-**Thin-wrapper contract.** A consumer wrapper skill is a pure proxy: trigger phrases plus "follow `/skill:gatekeep-pr`" - zero configuration data. Customization lives in the repo's `REVIEW.md` (rubric) and the overrides file's `## PR gate` section (everything else) and `## cleanup` section (post-gate steps); a `## comms style` section extends the wording rules in ../SKILL.md.
+**Thin-wrapper contract.** A consumer wrapper skill is a pure proxy: trigger phrases plus "follow `/skill:gatekeep-pr`" - zero configuration data. Use the repo's `REVIEW.md` for the rubric, the recognized sections of `# shared` for shared settings, and `# gatekeep-pr` for gate-specific settings and wording.
 
 ## Fetch the ticket
 

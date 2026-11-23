@@ -6,7 +6,7 @@ Read this reference at every framework commit site. Derive wording here; keep re
 
 Write one imperative sentence stating what the commit changes for a reader who has not seen the code. Capitalize its first word and omit the trailing period. Use at most 72 characters, excluding a trailing ticket or pull request reference.
 
-Keep file paths, code identifiers and commit ids out of the subject. Use ledger row numbers only in the fixed bookkeeping sentences below. Never start a subject with a framework label (`loop:`, `amend:`, `grant:`, `plan:`, `resume:`, `fix:`, or another framework-internal word followed by a colon). Apply the project's subject convention from the overrides `## conventions` on top of these rules.
+Keep file paths, code identifiers and commit ids out of the subject. Use ledger row numbers only in the fixed bookkeeping sentences below. Never start a subject with a framework label (`loop:`, `amend:`, `grant:`, `plan:`, `resume:`, `fix:`, or another framework-internal word followed by a colon). Apply the project's subject convention from the repo's agent instructions on top of these rules.
 
 Resolve the bound ticket once at the committing skill or dispatcher:
 

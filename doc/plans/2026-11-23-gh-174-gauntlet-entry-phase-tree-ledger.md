@@ -3,9 +3,9 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
-returned: 24 | home | 5bab9d13a9fa49f66691b046fbf160d5813db8a2
+returned: 25 | home | 53379534eb4c008d48dd2fea90b052cfb8b6a8f1
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -33,12 +33,12 @@ returned: 24 | home | 5bab9d13a9fa49f66691b046fbf160d5813db8a2
 | 22 | done | 0 | timeout -k 30 20 python3 -c 'assert all("cite the contrary hunk in the review outcome and select no edit for a disproved claim" in open(path).read() for path in ("skills/gauntlet/implement/waves/waves.md", "skills/gauntlet/conformance-check.md"))'; both changed sites require a citation and exclude the disproved claim from repairs; moved-text evidence, not a live review |
 | 23 | done | 1 | timeout -k 30 30 node --test scripts/gate-contract-lint.test.mjs; 23 gate and question rows and six ship endings match their rendering sites; tracker and menu examples quote the renamed IDs; 9 passed, 0 failed |
 | 24 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; README outline covers 12 blocks and 18 sections with named readers; 9 passed |
-| 25 | open | 0 | |
-| 26 | open | 0 | |
+| 25 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 12 passed, 0 failed; checked seven shared sections and caller scope in all 22 overrides paragraphs |
+| 26 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; all five phases apply the run-wide text and their own phase section; both engines apply implement |
 | 27 | open | 0 | |
 | 28 | open | 0 | |
-| 29 | open | 0 | |
-| 30 | open | 0 | |
+| 29 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; 12 passed, 0 failed; no shipped instruction or guide applies the retired wording sections |
+| 30 | done | 0 | timeout -k 30 30 node --test scripts/loop-verification-command.test.mjs; the only command sources are the shared verification key and project test entrypoint discovery |
 | 31 | done | 0 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; repo tracker and cleanup settings resolve under shared and the release rule under gauntlet/ship; 10 passed |
 | 32 | open | 0 | |
 | 33 | open | 0 | |
@@ -55,3 +55,7 @@ row 22 done | Both review sites require the orchestrator to cite the contrary hu
 row 23 done | Verified the rendering sites for 23 gate and question rows and six ship endings, and made the lint reject unlisted gate IDs inside those sites. | Use the inventory in scripts/gate-contract-lint.test.mjs to check the renamed IDs and ship endings.
 row 24 done | Replaced the flat README settings table with an outline that names each block, its sections and their readers, and updated the worked examples. | Reuse the block and section inventory in scripts/gauntlet-tree-lint.mjs to check overrides files against the documented layout.
 row 31 done | Moved the repo's tracker and cleanup settings into shared sections and its release instructions into the ship section of the run block. | Pass overrides fixture text to lintOverridesFile in scripts/gauntlet-tree-lint.mjs to detect unknown blocks or misplaced sections.
+row 25 done | Updated all 22 overrides paragraphs to apply the seven shared sections and only the caller's own scope, reusing reads only for the same repository and trusted revision. | Reuse the caller table in scripts/gauntlet-tree-lint.test.mjs to check phase, helper and retained-skill scopes.
+row 26 done | Verified that each phase applies run-wide text and its own phase section and that both implementation engines apply the implement section. | nothing new to build on
+row 29 done | Removed instructions to apply the retired wording sections and directed commit writers to the repo's agent instructions for subject conventions. | Run scripts/gauntlet-tree-lint.test.mjs to catch retired wording sections in skills, personas and guides.
+row 30 done | Changed the loop to discover the project's test entrypoint when shared verification has no command instead of taking a backticked command from phase prose. | Run scripts/loop-verification-command.test.mjs to check the loop's two command sources independently.

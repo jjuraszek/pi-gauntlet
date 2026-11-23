@@ -45,7 +45,7 @@ For pi file-finding row dispatch, use `subagent({ agent: "loop-implementer", con
 
 ## Wording rules
 
-These bind every rendered report, menu, and external payload (review bodies, replies, commit subjects, tracker comments). A `## comms style` section in the overrides file extends them.
+These bind every rendered report, menu, and external payload (review bodies, replies, commit subjects, tracker comments). Wording rules directly under `# gatekeep-pr` extend them.
 
 - Write for a reader with neither the code nor this run's notes open. Ground each claim in gathered facts; name the behavior and give one concrete example per problem. Explain a needed term in everyday words before using it.
 - Write one or two whole sentences per finding: what is wrong, then why it matters. In a posted review body, trail each finding with its file and line in parentheses. Name files, lines and checks only where the reader must open or type them; keep exact supplied failing-test locators with their blocker.
@@ -93,6 +93,8 @@ Before sending any report, menu or external payload, reread it for internal jarg
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands. `## PR gate` keys are read in step 2 (`reference/assessment.md`); `## comms style` extends the wording rules. `## cleanup` items are separate steps selected through the post menu (`reference/menus.md` `## post`); execute them through `reference/cleanup.md`.
+Read gate configuration at the PR's merge base, never its head; read tracker display settings from the remote default branch. If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# gatekeep-pr` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
+
+Read gate keys in step 2 (`reference/assessment.md`). Select shared cleanup items through the post menu (`reference/menus.md` `## post`) and execute them through `reference/cleanup.md`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

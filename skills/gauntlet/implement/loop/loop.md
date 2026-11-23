@@ -9,9 +9,8 @@ Run this driver in the main session. Carry the absolute implementation worktree 
 
 | Observed configuration | Action |
 |---|---|
-| Overrides `## PR gate` contains `- verification command:` | Use that command; source PR gate. |
-| Otherwise overrides has `## verification` | Use its exactly one backticked command; zero or several is a configuration error. |
-| Neither section supplies a command | Discover the project's test entrypoint from its actual manifest/build instructions; print discovery as source. Stop on an unresolved or ambiguous entrypoint. |
+| `# shared` supplies a command in `## verification` under `- verification command:` | Use that command; print shared verification as the source. |
+| Otherwise | Discover the project's test entrypoint from its actual manifest/build instructions; print discovery as source. Stop on an unresolved or ambiguous entrypoint. |
 
 At seed and at an authorized restore, before entering the dispatch loop, read the spec in full. Decode `**Amend-grant:**` through [amendment-surface Value decoding](../../amendment-surface.md). Capture the decoded grant, row dispositions, ordered leg membership, each leg's absolute checkout paths and combined spec/task Rules for dispatch and handoff; use home for zero or one leg. At an authorized fresh-session restore, resolve `gauntlet_setting({ key: "loopEngine" })` exactly once at this boundary and hold `escalateAfter` for the run; share that read with gauntlet-resume's `../../../gauntlet-resume/reference/restore-loop.md`. With an unavailable tool, stop before dispatch with `cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)`; never supply an in-loop default.
 
@@ -177,6 +176,6 @@ For coordinated runs, route each verification and review below to every leg with
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply `# gauntlet`: its text above the first section, and `## implement`. Apply no other phase's section. Apply `## happy-path` from the same block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

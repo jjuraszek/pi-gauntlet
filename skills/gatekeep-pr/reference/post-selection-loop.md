@@ -266,7 +266,7 @@ On completion or timeout, refresh then run steps 2-5 of Re-render plus step 1's 
 
 ### Output done-check
 
-Before posting/committing external payloads, apply ../SKILL.md `### Output done-check` and `## Wording rules` (including coverage) and any `## comms style`. End reviews/replies on the fix or asked action, not a recap; invent no filler.
+Before posting/committing external payloads, apply ../SKILL.md `### Output done-check` and `## Wording rules` (including coverage). End reviews/replies on the fix or asked action, not a recap; invent no filler.
 
 ### Settlement rows
 

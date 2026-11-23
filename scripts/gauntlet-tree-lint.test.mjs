@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { cpSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, globSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
@@ -90,6 +90,46 @@ test("the overrides outline gives every block its sections and names their reade
     assert.notEqual(changed, readme);
     assert.ok(lintOverridesOutline(changed).length, `${from} changed to ${to}`);
   }
+});
+
+test("overrides-outline: each caller applies only the seven shared sections and its own scope", () => {
+  const root = join(import.meta.dirname, "../skills");
+  const shared = ["issue-tracker", "worktrees", "verification", "cleanup", "siblings", "deployment", "spec-index"];
+  const moved = ["brainstorm/council", "plan/plan", "implement/loop/loop", "implement/waves/waves", "implement/waves/parallel-agents", "implement/tdd", "verify/verify", "ship/ship", "worktrees", "requesting-review", "receiving-review"];
+  const entries = readdirSync(root, { withFileTypes: true }).filter(d => d.isDirectory()).map(d => `${d.name}/SKILL.md`);
+  for (const file of [...entries, ...moved.map(step => `gauntlet/${step}.md`)]) {
+    const [skill, dir] = file.split("/");
+    const phase = dir === "SKILL.md" ? "brainstorm" : phases.find(p => p === dir);
+    const section = readFileSync(join(root, file), "utf8").split("\n## Project overrides\n")[1] ?? "";
+    const paragraph = section.trim().split(/\n\s*\n/)[0].replace(/\s+/g, " ");
+    assert.match(paragraph, /`\.pi\/gauntlet\.md`, `<repo root>\/gauntlet\.md`, `<repo root>\/doc\/gauntlet\.md`; first found wins/, file);
+    assert.match(paragraph, /only when the file from the same repository at the same trusted revision is already in context/, file);
+    assert.ok(paragraph.includes("Apply, without a relevance judgment, these sections of `# shared`: " + shared.map(s => "`## " + s + "`").join(", ") + "."), file);
+    const own = skill !== "gauntlet" ? `Apply the whole \`# ${skill}\` block.` : phase
+      ? `Apply \`# gauntlet\`: its text above the first section, and \`## ${phase}\`. Apply no other phase's section.`
+      : "Apply the block of the skill that invoked this file: inside a run the text directly under `# gauntlet`; from another skill, that skill's block.";
+    assert.ok(paragraph.includes(own), file);
+    assert.ok(paragraph.endsWith("Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`."), file);
+    const allowed = new Set(["# shared", `# ${skill}`, ...shared.map(s => `## ${s}`)]);
+    if (skill === "gauntlet" && phase) allowed.add(`## ${phase}`);
+    if (["gauntlet/plan/plan.md", "gauntlet/implement/loop/loop.md", "gauntlet/implement/waves/waves.md"].includes(file)) {
+      assert.match(paragraph, /Apply `## happy-path`/, file);
+      allowed.add("## happy-path");
+    }
+    for (const [, heading] of paragraph.matchAll(/`(#{1,2} [^`]+)`/g)) assert.ok(allowed.has(heading), `${file}: ${heading}`);
+    assert.match(section, /README\.md#project-specific-overrides/, file);
+    assert.match(section, /never lifts this skill's HARD CONSTRAINT or MUST text/, file);
+    if (skill === "gatekeep-pr") assert.match(paragraph, /gate configuration at the PR's merge base, never its head/, file);
+  }
+});
+
+test("overrides-outline: repo-wide wording comes from the agent instructions", () => {
+  const root = join(import.meta.dirname, "..");
+  const files = globSync(["{skills,agents}/**/*.md", "doc/*.md", "README.md", "AGENTS.md"], { cwd: root });
+  const old = files.filter(file => /`## (?:conventions|comms style)`/i.test(readFileSync(join(root, file), "utf8")));
+  assert.deepEqual(old.sort(), []);
+  assert.match(readFileSync(join(root, "skills/gauntlet/commit-message.md"), "utf8"), /subject convention from the repo's agent instructions/);
+  assert.match(readFileSync(join(root, "README.md"), "utf8"), /repo-wide rules in the repo's agent instructions[^\n]+one skill directly under that skill's block heading[^\n]+whole run, put it directly under `# gauntlet`/);
 });
 
 test("the repo's overrides put tracker and cleanup in shared and release in ship", () => {

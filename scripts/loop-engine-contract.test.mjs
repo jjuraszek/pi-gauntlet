@@ -7,6 +7,7 @@ import test from 'node:test';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_FILES, lintStageFiles } from './stage-skill-lint.mjs';
 import './loop-home-admission.test.mjs';
+import './loop-verification-command.test.mjs';
 const root = new URL('../', import.meta.url);
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
