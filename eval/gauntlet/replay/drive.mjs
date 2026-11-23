@@ -78,7 +78,7 @@ export async function driveRun({ caseLabel, candidate, variant, rep, variants })
     try {
       let questionsAnswered = 0;
       let approachesSkipped = false;
-      let prompt = `The run is in brainstorm. Follow the entry instructions at \`${skill.filePath}\`. Resume at checklist step 4 with the draft at \`${specPath}\`; steps 1-3 are done. The draft's ticket content under \`## External context\` is the fetched ticket; the tracker CLI is unavailable in this environment, do not re-fetch.`;
+      let prompt = `The \`phase_tracker\` status reply shows brainstorm in progress and includes \`Instructions: ${skill.filePath}\`. Read that file and resume at checklist step 4 with the draft at \`${specPath}\`; steps 1-3 are done. The draft's ticket content under \`## External context\` is the fetched ticket; the tracker CLI is unavailable in this environment, do not re-fetch.`;
       for (let turn = 1; turn <= CONFIG.turnCap; turn++) {
         const before = session.messages.length;
         log.push(`## Turn ${turn} - user${turn === 1 ? "" : "-sim"}\n\n${prompt}\n`);
