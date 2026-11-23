@@ -11,6 +11,7 @@
 
 import { existsSync, realpathSync, globSync, readdirSync, readFileSync, readFileSync as readFileBytes } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { StringEnum } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext, SessionEntry, Theme } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
@@ -58,8 +59,28 @@ const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
 type Phase = (typeof PHASES)[number];
 type PhaseStatus = "pending" | "in_progress" | "complete" | "skipped";
 
+const ENGINES = ["waves", "loop"] as const;
+type Engine = (typeof ENGINES)[number];
+
+const instructionFiles = {
+  brainstorm: "SKILL.md",
+  plan: "plan/plan.md",
+  waves: "implement/waves/waves.md",
+  loop: "implement/loop/loop.md",
+  verify: "verify/verify.md",
+  ship: "ship/ship.md",
+} as const;
+
+const gauntletFile = (file: string) => fileURLToPath(new URL(`../skills/gauntlet/${file}`, import.meta.url));
+
+function instructionPath(phase: Phase, engine?: Engine): string | undefined {
+  const key = phase === "implement" ? engine : phase;
+  return key && gauntletFile(instructionFiles[key]);
+}
+
 interface PhaseState {
   status: PhaseStatus;
+  engine?: Engine;
   reason?: string;
   substep?: string;
 }
@@ -170,8 +191,8 @@ const CLOSURE_GATE_ERROR =
 const SHIP_ADVISORY =
   "Verify is complete and ship is pending. Verify may complete when the conformance\n" +
   "verdict is CONFORMS, or every gap is either fixed or carried open as a deferred\n" +
-  "accept/rescope/unauthorized decision. Read skills/gauntlet/ship/ship.md\n" +
-  "now - do not add a 'ready to finish?' prompt; its disposition + squash/PR/keep/discard\n" +
+  `accept/rescope/unauthorized decision. Follow ${instructionPath("ship")}\n` +
+  "without adding a 'ready to finish?' prompt; its disposition + squash/PR/keep/discard\n" +
   "menu is the human gate that resolves any carried-open decision. Only reopen verify if\n" +
   "a `fix` gap was left unresolved (neither fixed nor deferred).";
 
@@ -202,10 +223,9 @@ function unmarkedStopAfterMovement(branch: SessionEntry[]): boolean {
   return taskListMoved(predecessor, snapshots.reverse());
 }
 
-const RECOVERY_MESSAGES: Record<RecoveryEdge, string> = {
-  "plan-implement": "Continue the approved workflow now. Follow the recorded engine's implement instructions.",
-  "verify-ship": "Continue the approved workflow now. Read skills/gauntlet/ship/ship.md.",
-};
+const implementInstructions = (engine?: Engine): string => engine
+  ? `Read ${instructionPath("implement", engine)}.`
+  : "Record the engine on brainstorm before starting implement.";
 
 const recoveryEdgeFromDetails = (details: unknown): RecoveryEdge | undefined => {
   if (!details || typeof details !== "object") return undefined;
@@ -235,7 +255,7 @@ const SCRATCH_MENTION = /\/tmp\/|\/var\/folders\/|\/dev\//;
 const branchBlockReason = (phase: Phase): string =>
   `Branch switch/creation in the primary checkout is blocked during the ${phase} phase. ` +
   "Gauntlet flows run in a dedicated worktree (git worktree add ... is allowed here); " +
-  "create/enter one by following skills/gauntlet/worktrees.md and run this there. " +
+  `create/enter one by following ${gauntletFile("worktrees.md")} and run this there. ` +
   "To override, set piGauntlet.flowGuards.enforce: false.";
 
 // Walk the single / tasks / chain / parallel dispatch shapes and return every
@@ -310,10 +330,10 @@ const brainstormWriteWarning = (specDirs: string[]): string =>
   `Brainstorming may only edit the spec under ${specDirs.join(", ")}. Implementation\n` +
   "waits for the spec approval gate. If this edit IS the spec, place it under the spec dir.";
 
-const implementWriteWarning = (): string =>
+const implementWriteWarning = (engine?: Engine): string =>
   "⚠️ Parent write during the implement phase.\n" +
   "During implement the main loop orchestrates; subagents write the code - dispatch\n" +
-  "this using the recorded engine's implement instructions instead of editing directly.\n" +
+  `this instead of editing directly. ${implementInstructions(engine)}\n` +
   "If this edit is merge-conflict resolution between parallel waves, proceed.";
 
 // Contiguous-subsequence match of a configured spec dir against path components.
@@ -343,6 +363,7 @@ const PhaseTrackerParams = Type.Object({
       description: "Reason (required for skip and grant_fix_rounds; for grant, the human's approval quoted)",
     }),
   ),
+  engine: Type.Optional(StringEnum(ENGINES, { description: "Selected engine (complete or skip brainstorm only)" })),
   rounds: Type.Optional(
     Type.Integer({
       minimum: 1,
@@ -687,7 +708,8 @@ export default function (pi: ExtensionAPI) {
     pi.sendMessage(
       {
         customType: RECOVERY_CUSTOM_TYPE,
-        content: RECOVERY_MESSAGES[edge],
+        content: "Continue the approved workflow now. " + (edge === "plan-implement"
+          ? implementInstructions(phases.brainstorm.engine) : `Read ${instructionPath("ship")}.`),
         display: true,
         details: { piGauntletRecoveryEdge: edge },
       },
@@ -785,7 +807,7 @@ export default function (pi: ExtensionAPI) {
       if (firedGuards.get("implement-write")) return undefined;
       if (typeof p !== "string" || pathInSpecDirs(p, implementExemptDirs(specDirs()))) return undefined;
       firedGuards.set("implement-write", true);
-      pendingWarnings.add(event.toolCallId, implementWriteWarning());
+      pendingWarnings.add(event.toolCallId, implementWriteWarning(phases.brainstorm.engine));
       return undefined;
     }
 
@@ -1124,11 +1146,20 @@ export default function (pi: ExtensionAPI) {
     label: "Phase Tracker",
     description:
       "Track workflow phase progress (brainstorm → plan → implement → verify → ship); " +
-      "ad-hoc calls do not arm gates. Not for ad-hoc use.",
+      "ad-hoc calls do not arm gates. Not for ad-hoc use. After a complete reply with an Instructions: line, " +
+      "finish the current file's hand-off requirements, then read the named file before the next action.",
     parameters: PhaseTrackerParams,
     executionMode: "sequential",
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+      const reject = (error: string) => ({
+        content: [{ type: "text" as const, text: `Error: ${error}` }],
+        details: { action: params.action, phases: { ...phases }, error } as PhaseTrackerDetails,
+      });
+      if (params.engine !== undefined && (!ENGINES.includes(params.engine) || params.phase !== "brainstorm" ||
+        (params.action !== "complete" && params.action !== "skip"))) {
+        return reject("engine must be waves or loop and is only accepted on complete or skip brainstorm");
+      }
       switch (params.action) {
         case "start": {
           if (!params.phase) {
@@ -1169,15 +1200,14 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
+          if (gauntletEntered && !phases.brainstorm.engine && (params.phase === "plan" || params.phase === "implement")) {
+            return reject("complete or skip brainstorm with engine before starting plan or implement");
+          }
           if (
             params.phase === "implement" &&
             gauntletEntered &&
             resolveFlowGuards(loadGauntletSettings(ctx.cwd).gauntlet).enforce
           ) {
-            const reject = (text: string) => ({
-              content: [{ type: "text" as const, text: `Error: ${text}` }],
-              details: { action: "start", phases: { ...phases }, error: text } as PhaseTrackerDetails,
-            });
             if (!planCheckStamp) {
               return reject(
                 'plan not verified - run plan_check({ planPath: "<plan path>" }) and fix findings before starting implementation',
@@ -1279,14 +1309,20 @@ export default function (pi: ExtensionAPI) {
             }
           }
           if (liveDispatch?.phase === params.phase) liveDispatch = undefined;
-          phases = { ...phases, [params.phase]: transitionPhaseState("complete") as PhaseState };
+          phases = { ...phases, [params.phase]: { status: "complete", ...(params.engine && { engine: params.engine }) } };
           firedGuards.clear();
           updateWidget(ctx);
           const advisory =
             params.phase === "verify" && phases.ship.status === "pending" ? `\n\n${SHIP_ADVISORY}` : "";
+          const engine = phases.brainstorm.engine;
+          let next: Phase | undefined;
+          if (params.phase === "brainstorm" && engine) next = engine === "waves" ? "plan" : "implement";
+          if (params.phase === "plan" && engine === "waves") next = "implement";
+          if (params.phase === "verify") next = "ship";
+          const pointer = next ? `\nInstructions: ${instructionPath(next, engine)}` : "";
           return {
             content: [
-              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}${advisory}` },
+              { type: "text", text: `Phase "${params.phase}" → complete\n${formatStatus(phases)}${advisory}${pointer}` },
             ],
             details: { action: "complete", phases: { ...phases } } as PhaseTrackerDetails,
           };
@@ -1312,7 +1348,7 @@ export default function (pi: ExtensionAPI) {
           }
           const reason = params.reason;
           if (liveDispatch?.phase === params.phase) liveDispatch = undefined;
-          phases = { ...phases, [params.phase]: transitionPhaseState("skipped", reason) as PhaseState };
+          phases = { ...phases, [params.phase]: { status: "skipped", reason, ...(params.engine && { engine: params.engine }) } };
           firedGuards.clear();
           updateWidget(ctx);
           return {
@@ -1381,10 +1417,6 @@ export default function (pi: ExtensionAPI) {
         }
 
         case "grant_fix_rounds": {
-          const reject = (error: string) => ({
-            content: [{ type: "text" as const, text: `Error: ${error}` }],
-            details: { action: "grant_fix_rounds", phases: { ...phases }, error } as PhaseTrackerDetails,
-          });
           if (params.rounds === undefined) return reject("grant_fix_rounds requires rounds: a positive integer");
           const reason = params.reason?.trim() ?? "";
           if (reason.length === 0) return reject("grant_fix_rounds requires reason: the human's approval, quoted");
