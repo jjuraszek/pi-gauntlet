@@ -2,7 +2,75 @@
 
 ## Unreleased
 
+### Upgrade from 8.x
+
+- Finish an interrupted run before upgrading, or finish it on the previous major. Version 9 cannot resume a version 8 run. (#174)
 - New run records use the `gauntlet` key. The performance report, spec search index and shipped-spec guard omit earlier records until you run `gauntlet-telemetry-seal --migrate-records` once per repo. The migration moves records from `brainstorming` to `gauntlet` without changing their contents. (#174)
+
+Start a new run with `/skill:gauntlet`. The retired step commands have no aliases: during a run, follow the phase tracker's file pointer rather than typing the next command. The last column shows where to move run instructions from a project's old `## <skill-name>` headings.
+
+| Version 8 command | Version 9 command or instruction file | New home for run instructions |
+|---|---|---|
+| `/skill:brainstorming` | `/skill:gauntlet` | `# gauntlet` > `## brainstorm` |
+| `/skill:roasting-the-spec` | `skills/gauntlet/brainstorm/council.md` | `# gauntlet` > `## brainstorm` |
+| `/skill:writing-plans` | `skills/gauntlet/plan/plan.md` | `# gauntlet` > `## plan` |
+| `/skill:subagent-driven-development` | `skills/gauntlet/implement/waves/waves.md` | `# gauntlet` > `## implement` |
+| `/skill:loop-implementation` | `skills/gauntlet/implement/loop/loop.md` | `# gauntlet` > `## implement` |
+| `/skill:test-driven-development` | `skills/gauntlet/implement/tdd.md` | `# gauntlet` > `## implement` |
+| `/skill:dispatching-parallel-agents` | `skills/gauntlet/implement/waves/parallel-agents.md` | `# gauntlet` > `## implement` |
+| `/skill:verification-before-completion` | `skills/gauntlet/verify/verify.md` | `# gauntlet` > `## verify` |
+| `/skill:finishing-a-development-branch` | `skills/gauntlet/ship/ship.md` | `# gauntlet` > `## ship` |
+| `/skill:requesting-code-review` | `skills/gauntlet/requesting-review.md` | Directly under `# gauntlet` |
+| `/skill:receiving-code-review` | `skills/gauntlet/receiving-review.md` | Directly under `# gauntlet` |
+| `/skill:using-git-worktrees` | `skills/gauntlet/worktrees.md` | Directly under `# gauntlet`; move the worktree settings as shown below |
+
+**Gate and question IDs.** Update drivers to match the new IDs. The questions, gate order and reply formats have not changed.
+
+| Version 8 ID | Version 9 ID |
+|---|---|
+| `brainstorming/understand-the-idea` | `brainstorm/understand-the-idea` |
+| `brainstorming/present-the-design` | `brainstorm/present-the-design` |
+| `brainstorming/cut-question` | `brainstorm/cut-question` |
+| `brainstorming/relatedness-before-provisioning` | `brainstorm/relatedness-before-provisioning` |
+| `brainstorming/user-review-gate` | `brainstorm/user-review-gate` |
+| `brainstorming/human-batch` | `brainstorm/human-batch` |
+| `writing-plans/step-6-baseline-failure` | `plan/step-6-baseline-failure` |
+| `writing-plans/step-6-baseline-dirty` | `plan/step-6-baseline-dirty` |
+| `writing-plans/step-6-contract-questions` | `plan/step-6-contract-questions` |
+| `subagent-driven-development/stop-note` | `implement/stop-note` |
+| `loop-implementation/human-stop` | `implement/human-stop` |
+| `loop-implementation/discard-authorization` | `implement/discard-authorization` |
+| `verification-before-completion/step-6` | `verify/step-6` |
+| `finishing-a-development-branch/step-4` | `ship/step-4` |
+| `finishing-a-development-branch/carried-open` | `ship/carried-open` |
+| `finishing-a-development-branch/pr-subject-row-1` | `ship/pr-subject-row-1` |
+| `finishing-a-development-branch/option-5` | `ship/option-5` |
+| `using-git-worktrees/step-3` | `gauntlet/step-3` |
+| `using-git-worktrees/detached-head` | `gauntlet/detached-head` |
+
+**Project overrides.** Rename the file in place, then move its settings into the blocks below. The search order is still `.pi/`, the repo root, then `doc/`. Only the first file found is read. A block's direct text goes before its first `##` section.
+
+| Version 8 file or heading | Version 9 file or destination |
+|---|---|
+| `gauntlet-overrides.md` | `gauntlet.md` |
+| `## Issue tracker` | `# shared` > `## issue-tracker` |
+| `## using-git-worktrees` | `# shared` > `## worktrees` for `home`, `create` and `destroy`; run-only prose directly under `# gauntlet` |
+| `## PR gate` | `# shared` > `## verification` for `verification command` and `requires credentials`; all other keys and text directly under `# gatekeep-pr` |
+| `## verification-before-completion` | `# gauntlet` > `## verify` for run-only instructions; `# shared` > `## verification` for checks also used by `gatekeep-pr`, `chase-bug` or `housekeeping` |
+| `## cleanup` | `# shared` > `## cleanup` |
+| `## shape-ticket` | `# shared` > `## siblings` for `sibling` lines; other text directly under `# shape-ticket` |
+| `## Deployment` | `# shared` > `## deployment` |
+| `## Spec index` | `# shared` > `## spec-index` |
+| `## Happy path` | `# gauntlet` > `## happy-path` |
+| `## documentation` | `# gauntlet` > `## documentation` |
+| `## Capabilities` | `# shape-ticket` > `## capabilities` |
+| `## Ticket wording` | `# shape-ticket` > `## wording` |
+| `## Response channels` | `# chase-bug` > `## response-channels` |
+| `## Delivery` | `# check-delivery` > `## delivery` |
+| `## housekeeping` | Directly under `# housekeeping` |
+| `## <skill-name>` | Directly under `# <skill-name>` for a retained skill; for the entry and retired steps, use the command table above |
+| `## conventions` | No longer read. Put repo-wide rules in the repo's agent instructions. |
+| `## comms style` | No longer read. Put rules for one skill directly under its block; put run-wide rules directly under `# gauntlet`. |
 
 ## v8.8.7 - 2026-11-22
 

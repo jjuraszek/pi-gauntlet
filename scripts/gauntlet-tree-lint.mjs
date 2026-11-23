@@ -44,6 +44,48 @@ export function lintRetiredNames(root) {
   return hits.sort();
 }
 
+export function lintReleaseNotes(changelog) {
+  const sections = changelog.split(/^## /m).slice(1);
+  const notes = sections.find(s => /^v9\.0\.0(?: |\n)/.test(s)) ?? sections.find(s => s.startsWith("Unreleased\n")) ?? "";
+  const rows = new Map([...notes.matchAll(/^\| `([^`\n]+)` \| (.+) \|$/gm)].map(([, old, destination]) => [old, destination]));
+  const errors = [];
+  function expect(old, ...destinations) {
+    for (const destination of destinations) {
+      if (!rows.get(old)?.includes(destination)) errors.push(`release-notes: ${old} -> ${destination}`);
+    }
+  }
+  const code = text => `\`${text}\``;
+  const section = (block, name) => `${code(`# ${block}`)} > ${code(`## ${name}`)}`;
+  const [plan, waves, loop, council, ship, worktrees, verify, request, receive, parallel, tdd] = steps;
+  expect(`/skill:${entry}`, code("/skill:gauntlet"), section("gauntlet", "brainstorm"));
+  for (const [old, file] of [
+    [plan, "plan/plan.md"], [waves, "implement/waves/waves.md"], [loop, "implement/loop/loop.md"],
+    [council, "brainstorm/council.md"], [ship, "ship/ship.md"], [worktrees, "worktrees.md"],
+    [verify, "verify/verify.md"], [request, "requesting-review.md"], [receive, "receiving-review.md"],
+    [parallel, "implement/waves/parallel-agents.md"], [tdd, "implement/tdd.md"],
+  ]) expect(`/skill:${old}`, code(`${tree}/${file}`), file.includes("/") ? section("gauntlet", file.split("/")[0]) : "Directly under `# gauntlet`");
+  for (const [old, owner, ids] of [
+    [entry, "brainstorm", "understand-the-idea present-the-design cut-question relatedness-before-provisioning user-review-gate human-batch"],
+    [plan, "plan", "step-6-baseline-failure step-6-baseline-dirty step-6-contract-questions"],
+    [waves, "implement", "stop-note"], [loop, "implement", "human-stop discard-authorization"], [verify, "verify", "step-6"],
+    [ship, "ship", "step-4 carried-open pr-subject-row-1 option-5"], [worktrees, "gauntlet", "step-3 detached-head"],
+  ]) for (const id of ids.split(" ")) expect(`${old}/${id}`, code(`${owner}/${id}`));
+  expect(`${overrides}.md`, code("gauntlet.md"));
+  for (const [old, ...destinations] of [
+    ["Issue tracker", section("shared", "issue-tracker")], [worktrees, section("shared", "worktrees"), "`# gauntlet`"],
+    ["PR gate", section("shared", "verification"), "`verification command`", "`requires credentials`", "`# gatekeep-pr`"],
+    [verify, section("gauntlet", "verify"), section("shared", "verification")], ["cleanup", section("shared", "cleanup")],
+    ["shape-ticket", section("shared", "siblings"), "`# shape-ticket`"], ["Deployment", section("shared", "deployment")],
+    ["Spec index", section("shared", "spec-index")], ["Happy path", section("gauntlet", "happy-path")], ["documentation", section("gauntlet", "documentation")],
+    ["Capabilities", section("shape-ticket", "capabilities")], ["Ticket wording", section("shape-ticket", "wording")],
+    ["Response channels", section("chase-bug", "response-channels")], ["Delivery", section("check-delivery", "delivery")],
+    ["housekeeping", "`# housekeeping`"], ["<skill-name>", "`# <skill-name>`"], ["conventions", "No longer read"], ["comms style", "No longer read"],
+  ]) expect(`## ${old}`, ...destinations);
+  if (!/finish an interrupted run before upgrading, or finish it on the previous major/i.test(notes)) errors.push("release-notes: interrupted run");
+  if (!/omit earlier records until you run `gauntlet-telemetry-seal --migrate-records`/.test(notes)) errors.push("release-notes: earlier records");
+  return errors;
+}
+
 export function lintPlacementRule(root) {
   const guide = "skills/forge-skill/SKILL.md";
   const files = globSync(["AGENTS.md", "README.md", "CHANGELOG.md", "doc/*.md", "{skills,agents,extensions,bin}/**/*.{md,ts,mjs}"], { cwd: root });

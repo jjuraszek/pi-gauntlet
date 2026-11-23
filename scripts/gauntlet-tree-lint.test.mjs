@@ -3,7 +3,7 @@ import { cpSync, globSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rm
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlacementRule, lintReferences, lintTreeShape } from "./gauntlet-tree-lint.mjs";
+import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlacementRule, lintReferences, lintReleaseNotes, lintTreeShape, retiredNames } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
@@ -190,6 +190,29 @@ test("the repo's overrides put tracker and cleanup in shared and release in ship
     ["# gatekeep-pr\n## cleanup", ["unknown section: gatekeep-pr/cleanup"]],
     ["# gatekeep-pr\n```markdown\n## cleanup\n```", []],
   ]) assert.deepEqual(lintOverridesFile(`${file}\n${suffix}`), errors);
+});
+
+test("release-notes: the major carries its migrations before and after promotion", () => {
+  const changelog = readFileSync(join(import.meta.dirname, "../CHANGELOG.md"), "utf8");
+  assert.deepEqual(lintReleaseNotes(changelog), []);
+  const sections = changelog.split(/^## /m);
+  const major = sections.find(s => s.startsWith("v9.0.0 ")) ?? sections.find(s => s.startsWith("Unreleased\n"));
+  const notes = major.slice(major.indexOf("\n"));
+  const unreleased = `## Unreleased${notes}`;
+  const promoted = `## Unreleased\nLater changes.\n\n## v9.0.0 - 2026-12-01${notes}`;
+  for (const text of [unreleased, promoted]) {
+    assert.deepEqual(lintReleaseNotes(text), []);
+    for (const [before, after] of [
+      [`/skill:${retiredNames.entry}`, "/skill:missing"], ["skills/gauntlet/plan/plan.md", "skills/gauntlet/ship/ship.md"],
+      ["`implement/stop-note`", "`plan/stop-note`"], [`${retiredNames.overrides}.md`, "another-file.md"],
+      ["`## issue-tracker`", "`## siblings`"], ["No longer read", "Still read"],
+      ["on the previous major", "on the new major"], ["--migrate-records", "--other"],
+    ]) {
+      const corrupted = text.replace(before, after);
+      assert.notEqual(corrupted, text, before);
+      assert.ok(lintReleaseNotes(`${corrupted}\n## v8.8.7 - 2026-11-22${notes}`).length, `wrong migration: ${after}`);
+    }
+  }
 });
 
 test("the run's tree has exactly five phases", () => {
