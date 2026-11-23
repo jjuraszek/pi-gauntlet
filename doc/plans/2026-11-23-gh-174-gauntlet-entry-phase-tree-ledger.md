@@ -3,9 +3,9 @@
 base: aa54901a8a18d84894a1a5683b3a8b287ea5952f
 verification: npm test
 checks: commands
-iterations: 12
+iterations: 13
 allowance: 10
-returned: 14 | home | cd64ded75d8c1d5e35d1b3c28fdee255b5e55551
+returned: 16 | home | d619506257efe8db478dd8462373ad9697c6226e
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -24,7 +24,7 @@ returned: 14 | home | cd64ded75d8c1d5e35d1b3c28fdee255b5e55551
 | 13 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts scripts/brief-contract-lint.test.mjs scripts/resume-routes.test.mjs; 277 passed, 0 failed; status locates the active or next phase only in an entered parent run; handoff omits the locator and resume treats it as observational |
 | 14 | done | 1 | timeout -k 30 30 node --test scripts/gauntlet-tree-lint.test.mjs; both engines use tracker pointers at all five handoffs and preserve wave initialization, loop allowance and ship worktree inputs; 6 passed, 0 failed |
 | 15 | done | 0 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; both recovery messages, both guards and the ship advisory name installed files; 266 passed, 0 failed |
-| 16 | open | 0 | |
+| 16 | done | 1 | timeout -k 30 20 node --test scripts/resume-routes.test.mjs; saved-run fixtures select all seven continuation routes; brainstorm skips pass the recorded engine; 10 passed, 0 failed |
 | 17 | open | 0 | |
 | 18 | open | 0 | |
 | 19 | open | 0 | |
@@ -67,3 +67,4 @@ row 12 done | Advancing completions append the installed file for the next phase
 row 15 done | The ship advisory, recovery messages and guards name installed files, and the implement messages select the recorded engine. | Reuse gauntletFile in extensions/phase-tracker.ts to resolve instructions from the package rather than the caller's working directory.
 row 13 done | Parent-run status names the active or next phase's file before Context; resume does not follow it and handoff omits it from the brief. | Extend the status cases in extensions/phase-tracker.test.ts to check phase selection and locator placement after session replay.
 row 14 done | Only the tracker names the next file at the five handoffs; wave initialization, loop allowance and the retained ship worktree stay in order. | Run lintHandoffPointers in scripts/gauntlet-tree-lint.mjs against a skill tree to check both engines' handoffs.
+row 16 done | Resume passes the saved engine when skipping brainstorm and links each restored phase to its next unfinished step without resetting the run. | Run scripts/resume-routes.test.mjs to check all seven continuation routes against saved-run fixtures.

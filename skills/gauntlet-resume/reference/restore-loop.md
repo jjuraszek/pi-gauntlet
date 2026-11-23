@@ -28,7 +28,7 @@ Worktree input, after admission. Start the message with exactly `gauntlet: quest
 Then, stating the entire ordered sequence explicitly even when entry checks are already reported as passed:
 
 1. Run SKILL.md entry checks 1-6 in order on the resolved spec, naming check 6 (**Grant field**), before any tracker mutation. Classify `## Pending recovery`'s settled evidence read-only and resolve its question before any tracker call.
-2. `start brainstorm`; `skip brainstorm` with reason `resume: <spec path>`; `start plan`.
+2. `start brainstorm`; `skip brainstorm` with `engine: "loop"` and reason `resume: <spec path>`; `start plan`.
 3. `plan_check({ planPath: <absolute ledger path> })`. On FAIL stop with the findings and keep plan in_progress. Start the message with `gauntlet: stuck` followed by the findings reason on that line. Never send a ledger task list through task-plan repair or `../../gauntlet/plan/plan.md`. On PASS `skip plan` with reason `resume: <spec> (loop engine)`, using the resolved absolute spec path as `<spec>`.
 4. Restore the phase:
    - implement brief or worktree: `start implement`. Restore tasks through refresh, never `init`.

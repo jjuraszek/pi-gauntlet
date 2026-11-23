@@ -8,13 +8,13 @@ Use `R = resume: <brief file or "pasted brief">` for plan/implement/verify skips
 
 Honor SKILL.md entry check 6's deferred stop before any arming call below. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after row 4's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
 
-Calls in order, keyed by the brief's active phase (`→`):
+For every brainstorm skip, pass `engine` from the approved spec's `**Engine:**` header (`waves` when absent). Restore the brief's active phase (`→`) in this order:
 
 | Active | Calls, in order |
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |
-| plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |
-| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL `Read` `plan-repair.md` in full and run its `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
+| plan | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `substep` if shown |
+| implement | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `plan_check({ planPath })`; on FAIL `Read` `plan-repair.md` in full and run its `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init`. Never call `start implement`. |
 | ship | as verify, except that a brief with a `legs:` block and a correctly stripped plan takes `coordinated.md` "Coordinated admission"'s fully receipt-validated retry instead of plan repair. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
@@ -50,7 +50,7 @@ edits override proposals; never rewrite confirmed state silently.
 
 After confirmation:
 
-1. Run SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`.
+1. Run SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>` with `engine`; `start plan`.
 2. `plan_check` with `planPath` = the plan's absolute path. FAIL -> `Read` `plan-repair.md` in full and
    run its `## Plan repair`; its PASS continues at step 3, its stop ends the restore with plan
    in_progress, no `init`.

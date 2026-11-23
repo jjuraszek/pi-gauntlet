@@ -86,6 +86,10 @@ test('the engine test selects one restore reference per input', () => {
   assert.match(candidates, /For a coordinated brief, use `coordinated\.md` "Coordinated admission" before tracker writes/);
   const noPlan = section(file['reconstruction.md'], '## Spec without plan');
   ordered(noPlan, ['Ask exactly one question: is this spec approved', '- Approved:', '  - `loop`:', '  - `waves` or absent:', '- Selected unapproved-draft brainstorming handoff:']);
+  for (const [branch, engine] of [['`loop`', 'loop'], ['`waves` or absent', 'waves']]) {
+    const skip = noPlan.split('\n').find(line => line.startsWith(`  - ${branch}:`));
+    ordered(skip, ['start brainstorm', 'skip brainstorm resume: <spec path>', `engine: "${engine}"`]);
+  }
   assert.match(file['seed.md'], /8\. \*\*Continue\*\* with the spec pinned at `<full-path>\/<rel>`, skipping `reconstruction\.md`\s+"Candidates": `<full-path>\/<sibling plans dir>\/<basename of rel>` exists ->\s+`restore-plan\.md` "Spec with plan"; otherwise `reconstruction\.md` "Spec without plan"\./);
 });
 
@@ -111,6 +115,7 @@ test('ledger admission accepts only the current ledger format', () => {
     '`recovery: doc/configuration.md "Loop engine operations"`',
   ]);
   ordered(loop, ['\n## Ledger admission\n', '\n## Spec with ledger\n', 'Ask the human to confirm the approved spec and continuation', '`start brainstorm`', '`plan_check({ planPath: <absolute ledger path> })`', '`start implement`', 'Apply `## Pending recovery` before refresh', 'plan_tracker({ action: "refresh"', '\n## Pending recovery\n']);
+  ordered(section(loop, '## Spec with ledger'), ['`start brainstorm`', '`skip brainstorm`', '`engine: "loop"`', '`start plan`']);
   assert.match(section(loop, '## Spec with ledger'), /verify or ship brief: `skip implement R`; `start verify`[^\n]*SKILL\.md "Restore rules"[^\n]*Never call `start implement` on this route/);
 });
 
@@ -141,8 +146,44 @@ test('task-plan restore keeps each stage call sequence', () => {
   const restore = section(file['restore-plan.md'], '## Process-state restore');
   const row = stage => restore.split('\n').find(line => line.startsWith(`| ${stage} |`));
   assert.equal(row('brainstorm'), '| brainstorm | `start brainstorm`; `substep` if the brief shows one |');
-  assert.equal(row('plan'), '| plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |');
+  assert.match(file['restore-plan.md'], /`engine` from the approved spec's `\*\*Engine:\*\*` header \(`waves` when absent\)/);
+  for (const call of file['restore-plan.md'].matchAll(/`skip brainstorm [^`]+`([^;]*);/g)) assert.match(call[1], /with `engine`/);
+  assert.equal(row('plan'), '| plan | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `substep` if shown |');
   assert.match(row('implement'), /`plan_check\(\{ planPath \}\)`; on FAIL[^|]*on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` \|$/);
   assert.match(row('verify'), /`skip implement R`; `start verify`; `substep` if shown; `plan_tracker init`\. Never call `start implement`\./);
   assert.match(row('ship'), /as verify[^|]*`legs:` block[^|]*Restoration stops at verify in_progress/);
+});
+
+test('saved runs continue at the linked step, never the reset-bearing entry', () => {
+  const table = section(skill, '## Post-restore continuation');
+  const sample = name => read(`eval/gauntlet-resume/samples/${name}/case.md`);
+  const check = (condition, stepFile, boundary) => {
+    const row = table.split('\n').find(line => line.startsWith(`| ${condition} |`));
+    assert.ok(row, condition);
+    const [, target, entry] = row.split(' | ');
+    const [, link] = target.match(/^\[[^\]]+\]\(([^)]+)\)$/) ?? [];
+    assert.ok(link, `${condition}: missing file link`);
+    const [path, anchor] = link.split('#');
+    assert.equal(path, `../gauntlet/${stepFile}`, condition);
+    const headings = read(`${resume}/${path}`).match(/^## .+$/gm);
+    if (anchor) assert.ok(headings.some(h => h.slice(3).toLowerCase().replaceAll(' ', '-') === anchor), link);
+    assert.match(entry, boundary, condition);
+  };
+  for (const [name, qualifier, path, boundary] of [
+    ['current-brainstorm-brief', '', 'SKILL.md', /step 3.*step 4.*step 8.*Never `\/skill:gauntlet` entry/],
+    ['current-plan-brief', ' with task engine', 'plan/plan.md', /skip its `start plan`/],
+    ['clean-pass-unchanged', ' with task plan', 'implement/waves/waves.md', /re-run its `Tests:`/],
+    ['baseline-upgrade-preserves-statuses', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
+    ['current-ship-brief', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
+  ]) {
+    const [, active] = sample(name).match(/^  → (\w+)/m);
+    check((active === 'ship' ? 'verify' : active) + qualifier, path, boundary);
+  }
+  const ledger = read('eval/gauntlet-resume/tool-traces/results/ledger-brief.md');
+  assert.match(ledger, /^Ledger: .+$/m);
+  check(`${ledger.match(/^  → (\w+)/m)[1]} with a ledger`, 'implement/loop/loop.md', /Before each dispatch/);
+  assert.match(sample('ledger-tracker-verify'), /verify and ship briefs each save tasks/);
+  check('verify with `Ledger:` (including ship-stage ledger briefs restored at verify)', 'implement/loop/loop.md', /After the loop` step 1/);
+  const [, engine] = sample('loop-no-ledger').match(/no plan or ledger\..*?\*\*Engine:\*\* (\w+)/);
+  check(`approved spec with \`**Engine:** ${engine}\`, no ledger`, 'implement/loop/loop.md', /Entry steps 1-5/);
 });
