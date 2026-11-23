@@ -3,9 +3,10 @@
 base: ba5be45f1d17c8856e24c4b50c6ffee02ac52692
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
 returned: 38 | home | adcd9f96505a882c68cee1706240be41e0495d5c
+pending: verify | home | c14cc246479d8627f0f2748cf3418556f6b96407
 
 | row | status | attempts | evidence |
 |---|---|---|---|

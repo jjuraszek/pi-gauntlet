@@ -1,4 +1,4 @@
-for: a9c38d94db71652ece3873994c3ea7e5358dbe261165612af069ccd3e2420a3f
+for: 38d81b9573908d6c1d372c01f12ff30b038cb90ceeda490763c2843c3eb7c3b5
 
 ## Change
 forge-skill now binds any file a repo's AGENTS.md or CLAUDE.md routes to it, and its authoring rules gain "No history": an added or changed line carries no date or narration of a rule's past, and when the edited rule sits inside a changelog, dated-entry list, or "previously" section, that section's surviving rules move into the section that owns their topic and the history section is deleted in the same edit. A history section the edit does not touch stays byte-identical. Every other rule (imperative voice, minimal diff, low conditionality, one example) is unchanged.
