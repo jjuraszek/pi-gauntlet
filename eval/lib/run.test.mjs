@@ -383,13 +383,40 @@ for (const failure of ["replay", "judge"]) test(`confirmation ${failure} failure
   assert.equal(entry.verdict, "error");
   assert.equal(entry.factsSha, undefined);
 });
-test("missing base skill refuses with its file and base selection advice", async () => {
-  const { root, put } = candidate();
-  put("skills/new/SKILL.md", "NEW\n");
-  put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/new/SKILL.md" }], assembly: "concat", wordCap: 50 }));
-  const result = (await run(root, () => assert.fail("unexpected call"), { baselineOnly: true }));
+for (const { name, base, remedy, otherRemedy } of [
+  { name: "invalid explicit ref", base: "missing-ref", remedy: /valid --base <ref>/, otherRemedy: /fetch/ },
+  { name: "missing default merge-base", remedy: /fetch origin\/main/, otherRemedy: /--base/ },
+]) test(`${name} refuses with the matching baseline remedy`, (t) => {
+  const { root } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  if (base !== undefined) execFileSync("git", ["update-ref", "refs/remotes/origin/main", "HEAD"], { cwd: root });
+  const result = prepareTarget({ root, target: "t", base, baselineOnly: true });
   assert.equal(result.exit, 2);
-  assert.match(result.message, /skills\/new\/SKILL.md at [\s\S]*--base/);
+  assert.match(result.message, remedy);
+  assert.doesNotMatch(result.message, otherRemedy);
+});
+
+for (const { name, declare, diagnostic } of [
+  {
+    name: "skill file",
+    declare: (put, path) => put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path }], assembly: "concat", wordCap: 50 })),
+    diagnostic: /skills\/x\/extra\.md at .*--base <ref>/s,
+  },
+  {
+    name: "sample bundle file",
+    declare: (put, path) => put("eval/t/samples/s1/case.md", `bundle+: ${path}\nCASE\n`),
+    diagnostic: /s1: bundle\+ skills\/x\/extra\.md.*--base <ref>/,
+  },
+]) test(`missing base ${name} refuses with its file and base selection advice`, (t) => {
+  const { root, put } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const path = "skills/x/extra.md";
+  put(path, "extra\n");
+  declare(put, path);
+  const result = prepareTarget({ root, target: "t", base: "HEAD", baselineOnly: true });
+  assert.equal(result.exit, 2);
+  assert.match(result.message, diagnostic);
+  assert.doesNotMatch(result.message, /new(?:\s*:\s*true| declaration)/);
 });
 
 test("missing tree skill refuses with its file and ref", async () => {

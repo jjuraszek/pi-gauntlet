@@ -202,7 +202,7 @@ Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix 
 
 ## Testing Anti-Patterns
 
-When adding mocks or test utilities, read `testing-anti-patterns.md` in this skill directory to avoid common pitfalls:
+When adding mocks or test utilities, read `testing-anti-patterns.md` in the directory containing this file to avoid common pitfalls:
 - Testing mock behavior instead of real behavior
 - Adding test-only methods to production classes
 - Mocking without understanding dependencies

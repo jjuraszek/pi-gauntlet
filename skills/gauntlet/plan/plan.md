@@ -40,7 +40,7 @@ Before writing the plan, check the spec one more time:
 
 If yes, decompose into separate plans, executed in order, and state the split and its reason in the handoff message. No approval prompt.
 
-Otherwise one plan. Service, contract, or schema count is not a split signal - one concern routinely spans several. The concern test itself lives in `../../shape-ticket/reference/split-axes.md` (resolve the path against this skill's own directory) and was applied upstream at spec time; plans do not re-litigate it. A single plan should land in one PR worth of work.
+Otherwise one plan. Service, contract, or schema count is not a split signal - one concern routinely spans several. The concern test itself lives in `../../shape-ticket/reference/split-axes.md` (resolve the path against the directory containing this file) and was applied upstream at spec time; plans do not re-litigate it. A single plan should land in one PR worth of work.
 
 ## Author the plan
 

@@ -37,6 +37,7 @@ Place anchored files at the directories below, relative to `skills/gauntlet/`:
 | File | Directory | Owner |
 |---|---|---|
 | `worktrees.md` | `.` | Run setup |
+| `receiving-review.md` | `.` | Integrated-wave and verify review |
 | `tdd.md` | `implement/` | Both implement engines |
 | `implementer-prompt.md` | `implement/waves/` | `waves.md` |
 | `wave-reviewer-prompt.md` | `implement/waves/` | `waves.md` |

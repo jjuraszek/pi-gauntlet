@@ -1,9 +1,30 @@
 import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 const directories = new Set([...phases, "implement/waves", "implement/loop"]);
+const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
+const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
+
+function instructionFileRows(text) {
+  const table = text.match(/const instructionFiles = \{([^}]+)\}/)?.[1] ?? "";
+  return table.matchAll(/([\w]+):\s*"([^"]+)"/g);
+}
+
+function stripMarkdownLinks(body, visit) {
+  return body
+    .replace(/`\[[^`\n]*\]\([^`\n]+\)`/g, "") // inline example of Markdown syntax
+    .replace(/^  touched-files: .*$/gm, "") // example reviewer output
+    .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
+    .replace(/https?:\/\/[^\s)\]`]+/g, "")
+    .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
+      const target = href.split("#", 1)[0];
+      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) visit(target);
+      return "";
+    })
+    .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
+}
 
 const [entry, overrides, ...steps] = `
 brainstorming
@@ -108,6 +129,42 @@ export function lintPlacementRule(root) {
       errors.push(`${file}: link to the placement rule instead of restating it`);
     }
   }
+  const assigned = new Map([...section.matchAll(anchorRow)].map(([, name, dir]) => [name, dirname(join(tree, dir, name))]));
+  assigned.set("SKILL.md", tree);
+  const tracker = "extensions/phase-tracker.ts";
+  if (files.includes(tracker)) {
+    for (const [, step, file] of instructionFileRows(read(tracker))) {
+      const dir = step === "waves" || step === "loop" ? `implement/${step}` : step;
+      if (step !== "brainstorm" && directories.has(dir)) assigned.set(basename(file), join(tree, dir));
+    }
+  }
+  const readers = new Map(globSync(`${tree}/**/*`, { cwd: root })
+    .filter(file => statSync(join(root, file)).isFile()).sort().map(file => [file, new Set()]));
+  for (const file of readers.keys()) {
+    if (!file.endsWith(".md")) continue;
+    const base = dirname(file);
+    // A misplaced anchor still owns its reads in the directory the guide assigns it.
+    const reader = file === `${tree}/SKILL.md` ? `${tree}/brainstorm` : assigned.get(basename(file)) ?? base;
+    const visit = ref => {
+      const target = join(base, ref);
+      if (target !== file) readers.get(target)?.add(reader);
+    };
+    for (const [ref] of stripMarkdownLinks(read(file), visit).matchAll(pathReference)) visit(ref);
+  }
+  for (const [file, readersOfFile] of readers) {
+    const actual = dirname(file);
+    let expected = assigned.get(basename(file));
+    if (!expected && readersOfFile.size) {
+      const phaseReaders = [...readersOfFile].filter(dir => dir !== tree);
+      expected = phaseReaders[0] ?? tree;
+      for (const dir of phaseReaders.slice(1)) {
+        while (expected !== "." && dir !== expected && !dir.startsWith(`${expected}/`)) expected = dirname(expected);
+      }
+    }
+    if (expected !== actual) {
+      errors.push(`${file}: actual directory ${actual}; expected ${expected ?? "no directory (no run reader or anchor)"}`);
+    }
+  }
   return errors;
 }
 
@@ -171,23 +228,13 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
     let body = read(file);
     if (file === "skills/forge-skill/SKILL.md") {
       // The placement table declares its base and directory separately from each filename.
-      body = body.replace(/^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm, (_, name, dir, owner) => {
+      body = body.replace(anchorRow, (_, name, dir, owner) => {
         check(file, name, join(tree, dir));
         if (/^`[\w-]+\.md`$/.test(owner)) check(file, owner.slice(1, -1), join(tree, dir));
         return "";
       });
     }
-    const text = body
-      .replace(/`\[[^`\n]*\]\([^`\n]+\)`/g, "") // inline example of Markdown syntax
-      .replace(/^  touched-files: .*$/gm, "") // example reviewer output
-      .replace(/^\| .*? \| checker fixtures: .*? \| Task \d+ \|$/gm, "")
-      .replace(/https?:\/\/[^\s)\]`]+/g, "")
-      .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
-        const target = href.split("#", 1)[0];
-        if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) check(file, target);
-        return "";
-      })
-      .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
+    const text = stripMarkdownLinks(body, ref => check(file, ref));
     if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
       for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
         const target = join(dirname(file), ref);
@@ -195,7 +242,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
         if (!new RegExp(`^#{1,6} (?:Step )?${number}\\b`, "im").test(read(target))) errors.add(`${file}: ${ref} Step ${number}`);
       }
     }
-    for (const { 0: ref } of text.matchAll(/(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g)) {
+    for (const [ref] of text.matchAll(pathReference)) {
       if (artifacts.test(ref) || /^(?:(?:doc|docs)\/|(?:\.pi|pkg-x|repo-a\/pkg-x)\/|eval\/|src\/)|^\d{4}-\d\d-\d\d-/.test(ref)) continue;
       if (ref.endsWith(".ts") && !ref.startsWith("extensions/lib/") && !ref.includes("../")) continue;
       check(file, ref);
@@ -207,10 +254,9 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
     for (const [ref] of text.matchAll(/(?<![\w./-])(?:\.\.\/)*skills\/[\w./-]+\.md\b/g)) check(file, ref);
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
     if (base) {
-      const table = text.match(/const instructionFiles = \{([^}]+)\}/)?.[1] ?? "";
-      for (const [, ref] of [...table.matchAll(/:\s*"([^"]+)"/g), ...text.matchAll(/gauntletFile\("([^"]+)"\)/g)]) {
-        check(file, ref, join(dirname(file), base));
-      }
+      const refs = [...instructionFileRows(text)].map(([, , ref]) => ref)
+        .concat([...text.matchAll(/gauntletFile\("([^"]+)"\)/g)].map(([, ref]) => ref));
+      for (const ref of refs) check(file, ref, join(dirname(file), base));
     }
   }
   return [...errors].sort();

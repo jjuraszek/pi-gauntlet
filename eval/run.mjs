@@ -173,9 +173,14 @@ export function prepareTarget({ root, target: name, sample: only, baselineOnly =
   const target = JSON.parse(read(join(dir, "target.json")));
   const hygiene = scanTree(join(root, "eval"), { denylists: { [name]: target.denylist ?? [] }, target: name });
   if (hygiene.length) return refuse(`hygiene:\n  ${hygiene.map((h) => `${h.where}: ${h.rule}`).join("\n  ")}`);
+  const explicitBase = base !== undefined;
   let baseRef;
-  try { baseRef = base ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
-  catch { return refuse("no valid --base and no origin/main: cannot resolve the baseline ref"); }
+  try { baseRef = explicitBase ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
+  catch {
+    return refuse(explicitBase
+      ? `cannot resolve baseline ref ${JSON.stringify(base)}; pass a valid --base <ref>`
+      : "cannot resolve the baseline merge-base; fetch origin/main");
+  }
   const renamed = new Map();
   const baselinePath = (path) => renamed.get(path) ?? path;
   const repoSha = git(root, "rev-parse", "HEAD");

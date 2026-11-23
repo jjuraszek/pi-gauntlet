@@ -48,7 +48,7 @@ export function lintTarget(dir, context) {
       if (target?.kind === "edit" && drop.length) errs.push(`${n}: bundle- not allowed for kind edit`);
       const paths = Array.isArray(target?.skillFiles) ? target.skillFiles.map((f) => f.path) : [];
       if (context) for (const p of bundle) {
-        if (!context.baselineHas(p) && !target?.skillFiles?.some((f) => f.path === p && f.new === true)) errs.push(`${n}: bundle+ ${p} absent at baseline without new declaration`);
+        if (!context.baselineHas(p) && !target?.skillFiles?.some((f) => f.path === p && f.new === true)) errs.push(`${n}: bundle+ ${p} absent at baseline; use --base <ref> to pick a base that has this file`);
       }
       for (const p of drop) if (!paths.includes(p)) errs.push(`${n}: bundle- ${p} not in skillFiles`);
       if (drop.length && paths.length && paths.every((p) => drop.includes(p))) errs.push(`${n}: bundle- leaves an empty assembly`);

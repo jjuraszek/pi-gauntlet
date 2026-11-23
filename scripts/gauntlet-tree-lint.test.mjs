@@ -251,6 +251,44 @@ test("placement has one owner; other guides link instead of restating the rule",
   assert.deepEqual(lintPlacementRule(root), []);
 });
 
+test("placement reports each run file outside its assigned or computed directory", t => {
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-placement-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const tree = "skills/gauntlet";
+  const guide = "skills/forge-skill/SKILL.md";
+  for (const [file, text] of [
+    ["AGENTS.md", `[Placement](${guide}#gauntlet-file-placement)`],
+    [guide, "### Gauntlet file placement\n\n| File | Directory | Owner |\n|---|---|---|\n| `anchored.md` | `implement/` | Engines |\n\nPut a file read by more than one phase beside the entry file.\n\nSkills outside the run never move a file."],
+    ["extensions/phase-tracker.ts", 'const instructionFiles = { plan: "plan.md", waves: "implement/waves/waves.md", loop: "implement/loop/loop.md" };'],
+    ["skills/other/SKILL.md", "[Shared](../gauntlet/ship/shared.md)"],
+    [`${tree}/SKILL.md`, "Read `plan/entry-help.md`, [Common](plan/common.md) and [Reader](common-reader.md)."],
+    [`${tree}/plan.md`, "[Common](plan/common.md) and [Reader](common-reader.md)."],
+    [`${tree}/plan/entry-help.md`, ""],
+    [`${tree}/plan/common.md`, ""],
+    [`${tree}/plan/unused.md`, ""],
+    [`${tree}/implement/waves/waves.md`, "[Engines](engine-help.md#heading)"],
+    [`${tree}/implement/loop/loop.md`, "Read `../waves/engine-help.md`."],
+    [`${tree}/implement/waves/engine-help.md`, ""],
+    [`${tree}/anchored.md`, "Read [Helper](anchor-help.md)."],
+    [`${tree}/anchor-help.md`, ""],
+    [`${tree}/common-reader.md`, "Read [Shared](ship/shared.md) and [Entry help](plan/entry-help.md)."],
+    [`${tree}/ship/shared.md`, ""],
+  ]) {
+    mkdirSync(join(root, dirname(file)), { recursive: true });
+    writeFileSync(join(root, file), text);
+  }
+  assert.deepEqual(lintPlacementRule(root).sort(), [
+    `${tree}/anchor-help.md: actual directory ${tree}; expected ${tree}/implement`,
+    `${tree}/anchored.md: actual directory ${tree}; expected ${tree}/implement`,
+    `${tree}/implement/waves/engine-help.md: actual directory ${tree}/implement/waves; expected ${tree}/implement`,
+    `${tree}/plan.md: actual directory ${tree}; expected ${tree}/plan`,
+    `${tree}/plan/common.md: actual directory ${tree}/plan; expected ${tree}`,
+    `${tree}/plan/entry-help.md: actual directory ${tree}/plan; expected ${tree}/brainstorm`,
+    `${tree}/plan/unused.md: actual directory ${tree}/plan; expected no directory (no run reader or anchor)`,
+    `${tree}/ship/shared.md: actual directory ${tree}/ship; expected ${tree}`,
+  ]);
+});
+
 test("only the tracker supplies the next file at each engine's handoffs", (t) => {
   const repo = join(import.meta.dirname, "..");
   assert.deepEqual(lintHandoffPointers(repo), []);
