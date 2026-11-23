@@ -8,15 +8,22 @@ const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
 const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
 const packageRooted = /^(?:skills|agents|extensions|bin|doc)\//;
 const sourceRepository = /^(?:[ \t]+"[^"\n]*")?`?[ \t]+(?:linked to [^.!?\n]+? )?in the source repository named in[ \t]+`(?:\.\.\/)+package\.json`/;
+const installedPackage = String.raw`(?:from|in|under|relative to)\s+the\s+(?:installed package(?: root| (?:install )?directory)?|package install directory)\b`;
+const installedBefore = new RegExp(`\\b${installedPackage},?[ \\t]+[\\w \\t]*\`?$`, "i");
+const installedAfter = new RegExp(`^\`?\\s+${installedPackage}`, "i");
 // Scratch artifacts and consumer checkout names, not files in the install.
 const artifacts = /^(?:(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$|doc\/gauntlet\.md$|extensions\/x\.test\.ts$|(?:doc\/(?:specs|plans|cache)|docs|\.pi|pkg-x|repo-a\/pkg-x|eval|src)\/|\d{4}-\d\d-\d\d-)/;
 
 function scanPathReferences(text, visit) {
   for (const { 0: ref, index } of text.matchAll(pathReference)) {
-    if (artifacts.test(ref)) continue;
+    const after = text.slice(index + ref.length);
+    if (artifacts.test(ref)) {
+      if (installedAfter.test(after) || installedBefore.test(text.slice(0, index))) visit(ref, "");
+      continue;
+    }
     if (packageRooted.test(ref)) {
       // Leave the manifest locator for the caller-relative check.
-      if (sourceRepository.test(text.slice(index + ref.length))) continue;
+      if (sourceRepository.test(after)) continue;
     } else if (ref.endsWith(".ts") && !ref.includes("../")) continue;
     visit(ref);
   }
@@ -39,7 +46,7 @@ function stripMarkdownLinks(body, visit) {
     .replace(/https?:\/\/[^\s)\]`]+/g, "")
     .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
       const target = href.split("#", 1)[0];
-      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target) && !(packageRooted.test(target) && artifacts.test(target))) visit(target);
+      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) visit(target);
       return "";
     })
     .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
@@ -175,8 +182,8 @@ export function lintPlacementRule(root) {
     const base = dirname(file);
     // A tracker file counts in its assigned phase even when the tracker names a misplaced path.
     const reader = file === `${tree}/SKILL.md` ? `${tree}/brainstorm` : assigned.get(file) ?? base;
-    const visit = ref => {
-      const target = join(referenceBase(file, ref), ref);
+    const visit = (ref, base = referenceBase(file, ref)) => {
+      const target = join(base, ref);
       if (target !== file) readers.get(target)?.add(reader);
     };
     scanPathReferences(stripMarkdownLinks(read(file), visit), visit);
@@ -270,7 +277,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
         if (!new RegExp(`^#{1,6} (?:Step )?${number}\\b`, "im").test(read(target))) errors.add(`${file}: ${ref} Step ${number}`);
       }
     }
-    scanPathReferences(text, ref => check(file, ref));
+    scanPathReferences(text, (ref, base) => check(file, ref, base));
   }
   for (const file of files.filter(f => f.endsWith(".ts"))) {
     const text = read(file);
@@ -278,8 +285,8 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
       check(file, ref, dirname(file));
       return "";
     }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "");
-    const visit = ref => {
-      if (packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref);
+    const visit = (ref, base) => {
+      if (base !== undefined || packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref, base);
     };
     scanPathReferences(stripMarkdownLinks(messages, visit), visit);
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];

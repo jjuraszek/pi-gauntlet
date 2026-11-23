@@ -37,6 +37,26 @@ test("package references resolve from the caller or package root, not the consum
   assert.deepEqual(lintReferences(join(import.meta.dirname, "..")), []);
 });
 
+test("explicit package destinations override consumer example spellings", async t => {
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-explicit-references-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  for (const [scenario, file, body, missing] of [
+    ["plan example", "skills/one/SKILL.md", "Example consumer path: `doc/plans/recovery.md`.", []],
+    ["plan link", "skills/one/SKILL.md", "Read [recovery](doc/plans/recovery.md).", ["doc/plans/recovery.md"]],
+    ["consumer overrides", "agents/reviewer.md", "Read the consumer checkout's `doc/gauntlet.md`.", []],
+    ["installed root", "agents/reviewer.md", "Read `doc/gauntlet.md` from the installed package root.", ["doc/gauntlet.md"]],
+    ["install directory before path", "agents/reviewer.md", "In the package install directory, read `doc/gauntlet.md`.", ["doc/gauntlet.md"]],
+    ["unrelated sentence", "agents/reviewer.md", "Read the consumer checkout's `doc/gauntlet.md`. Start from the installed package root.", []],
+  ]) {
+    await t.test(scenario, () => {
+      const path = join(root, file);
+      mkdirSync(dirname(path), { recursive: true });
+      writeFileSync(path, body);
+      assert.deepEqual(lintReferences(root, [file]), missing.map(ref => `${file}: ${ref}`));
+    });
+  }
+});
+
 test("only a source-repository attribution for the reference exempts an unshipped guide", t => {
   const root = mkdtempSync(join(tmpdir(), "gauntlet-source-guide-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
