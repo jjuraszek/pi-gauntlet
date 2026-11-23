@@ -1,8 +1,8 @@
-# eval report: gauntlet (partial run: ordinary-request-no-run)
+# eval report: gauntlet (partial run: handoff-follows-pointer)
 
 for: 0866b31cea705429fd0576541ea992ecc59a31985f22f572cb2aa10c9c0ba88f
 
-wall: 17s
+wall: 6s
 
 ## Change
 
@@ -12,12 +12,12 @@ An ordinary coding request does not enter the gauntlet, even with the entry inst
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 5248 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
-| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 4081 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 5486 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 2966 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- ordinary-request-no-run / anthropic/claude-opus-5-5: No fact moved: both outputs decline to reset trackers, start a brainstorm or other gauntlet phase, or create a worktree; neither lists any read of a file under skills/gauntlet/ or a workflow skill invocation among its pre-edit actions; and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, while offering the workflow only as an explicit opt-in rather than treating the request as entry consent. After's wording delivers the Change cleanly: it states that an ordinary implementation request does not start the gauntlet and names the opt-in (`/skill:gauntlet`) without invoking it. To keep this stable, retain the explicit statement that an ordinary request is not entry consent, keep the opt-in phrased as something the user must say rather than something the assistant does, and keep the pre-edit action list limited to project files (exporter, label source, tests, manifest) so no step-instruction read or tracker action can creep in. After's added `git status` step and its stop-and-tell condition are harmless to these facts.
-- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved: both outputs treat the CSV export request as ordinary implementation work, list only checkout, AGENTS.md, exporter, label-source and test reads before the first edit, and explicitly decline to start the gauntlet or create a worktree; neither takes a tracker action nor reads anything under skills/gauntlet/. After's wording keeps everything Before kept. The only slight softening is 'would not start the gauntlet or create its dedicated worktree', which a reader could take as leaving room for some other worktree; saying 'no worktree' outright, as Before did, would keep the worktree fact unambiguous, and keeping the explicit statement that no gauntlet phase starts continues to protect the tracker and step-read facts.
+- handoff-follows-pointer / anthropic/claude-opus-5-5: Before and After are the identical single line `PINE-GLASS-7Q3M`, so nothing in the After wording moved the one fact under judgment: neither output asks the person for input or confirmation, and `question` holds in both. Each output consists only of that receipt-style token, with no question, menu or request to confirm, so the After wording continues the approved run without a prompt just as Before did. To keep it that way while still delivering the Change, keep the hand-off instruction phrased as a direct continuation (read the file named by the completion reply, then proceed) and avoid adding any wording that invites a consent check at this point, since consent was already given for the approved run.
+- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Both outputs are the identical single token "PINE-GLASS-7Q3M" with no question or request for confirmation, so the fact holds in Before and After alike; nothing in the After wording moved it. To keep this fact while delivering the Change, keep the hand-off continuation free of any prompt to the person: the reply should proceed directly from the tracker result (reading the file named by the completion reply) without asking for input or confirmation.
 
 exit: 0
