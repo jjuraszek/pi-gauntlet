@@ -469,7 +469,7 @@ Once the merge (and any deploy) has landed, `/skill:check-delivery <ticket-ref>`
 - Remove a worktree before confirming merge success
 - Clean up worktrees you didn't create (provenance check)
 - Retry a failed `destroy:` with `git worktree remove --force`
-- Run any step without the `<worktree-path>` argument
+- Run any step without the retained or restored worktree path
 - Auto-proceed past an undispositioned carried-open gap
 - Skip the strip-and-seal block before the Option 3 squash or the Option 1/2 push
 - Delete common-dir telemetry metadata or stage it into the product checkout

@@ -69,6 +69,50 @@ export function lintPlacementRule(root) {
   return errors;
 }
 
+export function lintHandoffPointers(root) {
+  const errors = new Set();
+  const read = file => readFileSync(join(root, tree, file), "utf8");
+  function visit(file, start, nextFile, ...actions) {
+    const body = read(file);
+    const offset = body.indexOf(`\n${start}`);
+    const site = offset < 0 ? "" : body.slice(offset + 1).split(/\n## /, 1)[0];
+    const report = message => errors.add(`${tree}/${file}: ${message}`);
+    if (!site) return report(`missing handoff site ${start}`);
+    const pointer = site.match(new RegExp(`/skill:[\\w-]+|\\b${nextFile}\\.md\\b`));
+    if (pointer) report(`handoff names ${pointer[0]} instead of using the tracker's pointer`);
+    let previous = -1;
+    for (const action of actions) {
+      const index = site.search(action);
+      if (index <= previous) return report(`missing or out-of-order handoff action: ${action.source}`);
+      previous = index;
+    }
+  }
+  const complete = phase => `phase_tracker({ action: "complete", phase: "${phase}"`;
+  for (const engine of ["waves", "loop"]) {
+    const next = engine === "waves" ? "plan" : "loop";
+    visit("SKILL.md", "13. **Transition**", next);
+    const allowance = engine === "loop" ? [/print (?:exactly one line )?`run allowance: /, /before reading the file named by `Instructions:`/] : [];
+    visit("brainstorm/spec-finalization.md", "After implementation approval (1/2)", next, /phase: "brainstorm", engine/, ...allowance);
+    visit("brainstorm/spec-pr.md", "For approval 1/2", next, /completing brainstorm with the selected engine/, ...allowance);
+    if (engine === "waves") {
+      visit("plan/plan-contract.md", "## Plan header", "waves");
+      visit("plan/plan.md", "## Execution Handoff", "waves", /phase_tracker\(\{ action: "complete", phase: "plan"/, /plan_tracker\(\{ action: "init", tasks: \["W1:/, /read the file named by the phase tracker's `Instructions:`/);
+      visit("implement/waves/waves.md", "## After All Tasks Complete", "ship", /phase_tracker\(\{ action: "complete", phase: "verify"/);
+    } else {
+      visit("implement/loop/loop.md", "4. Require a clean named-branch", "ship", /Read the literal `run allowance: <n>`/, /Write `<resolved plan dir>/, /^allowance: <n>$/m);
+      visit("implement/loop/loop.md", "## After the loop", "ship", /Complete verify only on current CONFORMS/);
+    }
+  }
+  visit("verify/verify.md", complete("verify"), "ship");
+  const ship = "ship/ship.md";
+  const input = read(ship).split("## Input\n")[1]?.split("\n## ")[0] ?? "";
+  if (!/retained absolute worktree path.*on resume.*restore.*if it is missing, stop/i.test(input)
+      || /worktree(?:-| )path[^.\n]*\bargument\b|WORKTREE=.*(?:\$1\b|\$ARGUMENTS)/i.test(read(ship))) {
+    errors.add(`${tree}/${ship}: use the retained or restored worktree, never a command argument`);
+  }
+  return [...errors];
+}
+
 export function lintTreeShape(root) {
   const base = join(root, tree);
   const entries = readdirSync(base, { recursive: true, withFileTypes: true });

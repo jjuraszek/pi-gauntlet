@@ -94,8 +94,6 @@ Treat `Create`, `Modify`, and `Delete` as writers and `Test:` entries as run anc
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **REQUIRED PROCEDURE:** Follow `skills/gauntlet/implement/waves/waves.md` to implement this plan task-by-task.
-
 **Goal:** [one sentence]
 
 **Architecture:** [2-3 sentences]

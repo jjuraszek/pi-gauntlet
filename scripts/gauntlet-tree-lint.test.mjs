@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { lintPlacementRule, lintTreeShape } from "./gauntlet-tree-lint.mjs";
+import { lintHandoffPointers, lintPlacementRule, lintTreeShape } from "./gauntlet-tree-lint.mjs";
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
@@ -75,6 +75,34 @@ test("placement has one owner; other guides link instead of restating the rule",
     put(file, pointer);
   }
   assert.deepEqual(lintPlacementRule(root), []);
+});
+
+test("only the tracker supplies the next file at each engine's handoffs", (t) => {
+  const repo = join(import.meta.dirname, "..");
+  assert.deepEqual(lintHandoffPointers(repo), []);
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-handoff-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const tree = "skills/gauntlet";
+  cpSync(join(repo, tree), join(root, tree), { recursive: true });
+  for (const [file, from, to] of [
+    ["SKILL.md", "13. **Transition**", "13. **Transition** - read plan/plan.md"],
+    ["brainstorm/spec-finalization.md", "Continue without another prompt.", "Continue in implement/loop/loop.md."],
+    ["plan/plan.md", "## Execution Handoff", "## Execution Handoff\nRead implement/waves/waves.md."],
+    ["implement/waves/waves.md", "## After All Tasks Complete", "## After All Tasks Complete\nRead ship/ship.md."],
+    ["implement/loop/loop.md", "## After the loop", "## After the loop\nInvoke /skill:example."],
+    ["plan/plan.md", 'plan_tracker({ action: "init", tasks:', 'plan_tracker({ action: "clear", tasks:'],
+    ["brainstorm/spec-pr.md", "print `run allowance: N`", "omit the carrier"],
+    ["implement/loop/loop.md", "Read the literal `run allowance: <n>`", "Ignore the carrier"],
+    ["ship/ship.md", "WORKTREE=<worktree-path>", 'WORKTREE="$1"'],
+  ]) {
+    const path = join(root, tree, file);
+    const saved = readFileSync(path, "utf8");
+    const changed = saved.replaceAll(from, to);
+    assert.notEqual(changed, saved, from);
+    writeFileSync(path, changed);
+    assert.ok(lintHandoffPointers(root).some(error => error.startsWith(`${tree}/${file}:`)), `${file}: ${to}`);
+    writeFileSync(path, saved);
+  }
 });
 
 test("tree-shape names each path that breaks the phase layout", (t) => {
