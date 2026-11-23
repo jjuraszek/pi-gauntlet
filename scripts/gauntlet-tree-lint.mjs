@@ -6,15 +6,24 @@ const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 const directories = new Set([...phases, "implement/waves", "implement/loop"]);
 const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
 const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
+const packageRooted = /^(?:skills|agents|extensions|bin|doc)\//;
+const sourceRepository = /^(?:[ \t]+"[^"\n]*")?`?[ \t]+(?:linked to [^.!?\n]+? )?in the source repository named in[ \t]+`(?:\.\.\/)+package\.json`/;
 // Scratch artifacts and consumer checkout names, not files in the install.
-const artifacts = /^(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$/;
+const artifacts = /^(?:(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapshot|spec|ledger|context|meta-prompt|gauntlet|name)\.md$|doc\/gauntlet\.md$|extensions\/x\.test\.ts$|(?:doc\/(?:specs|plans|cache)|docs|\.pi|pkg-x|repo-a\/pkg-x|eval|src)\/|\d{4}-\d\d-\d\d-)/;
 
 function scanPathReferences(text, visit) {
-  for (const [ref] of text.matchAll(pathReference)) {
-    if (artifacts.test(ref) || /^(?:(?:doc|docs)\/|(?:\.pi|pkg-x|repo-a\/pkg-x)\/|eval\/|src\/)|^\d{4}-\d\d-\d\d-/.test(ref)) continue;
-    if (ref.endsWith(".ts") && !ref.startsWith("extensions/lib/") && !ref.includes("../")) continue;
+  for (const { 0: ref, index } of text.matchAll(pathReference)) {
+    if (artifacts.test(ref)) continue;
+    if (packageRooted.test(ref)) {
+      // Leave the manifest locator for the caller-relative check.
+      if (sourceRepository.test(text.slice(index + ref.length))) continue;
+    } else if (ref.endsWith(".ts") && !ref.includes("../")) continue;
     visit(ref);
   }
+}
+
+function referenceBase(file, ref) {
+  return packageRooted.test(ref) ? "" : dirname(file);
 }
 
 function instructionFileRows(text) {
@@ -30,7 +39,7 @@ function stripMarkdownLinks(body, visit) {
     .replace(/https?:\/\/[^\s)\]`]+/g, "")
     .replace(/\[[^\]\n]*\]\(([^)\n]*)\)/g, (_, href) => {
       const target = href.split("#", 1)[0];
-      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target)) visit(target);
+      if (target && !/^(?:[a-z][\w+.-]*:|\/|<)/i.test(target) && !(packageRooted.test(target) && artifacts.test(target))) visit(target);
       return "";
     })
     .replace(/(?:<[\w -]+>|\$[A-Z_]+)\/[\w./-]+/g, "");
@@ -167,7 +176,7 @@ export function lintPlacementRule(root) {
     // A tracker file counts in its assigned phase even when the tracker names a misplaced path.
     const reader = file === `${tree}/SKILL.md` ? `${tree}/brainstorm` : assigned.get(file) ?? base;
     const visit = ref => {
-      const target = join(base, ref);
+      const target = join(referenceBase(file, ref), ref);
       if (target !== file) readers.get(target)?.add(reader);
     };
     scanPathReferences(stripMarkdownLinks(read(file), visit), visit);
@@ -236,7 +245,7 @@ export function lintHandoffPointers(root) {
 export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extensions/**/*.ts"]) {
   const files = globSync(scope, { cwd: root, exclude: ["**/*.test.ts"] });
   const errors = new Set();
-  function check(file, ref, base = dirname(file)) {
+  function check(file, ref, base = referenceBase(file, ref)) {
     const target = join(base, ref);
     if (target.startsWith("../") || !statSync(join(root, target), { throwIfNoEntry: false })?.isFile()) {
       errors.add(`${file}: ${ref}`);
@@ -256,7 +265,7 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
     const text = stripMarkdownLinks(body, ref => check(file, ref));
     if (file.startsWith("skills/") && !file.startsWith(`${tree}/`)) {
       for (const [, ref, number] of text.matchAll(/`([\w./-]+\.md)` Step (\d+[a-z]?)\b/gi)) {
-        const target = join(dirname(file), ref);
+        const target = join(referenceBase(file, ref), ref);
         if (!target.startsWith(`${tree}/`) || !statSync(join(root, target), { throwIfNoEntry: false })?.isFile()) continue;
         if (!new RegExp(`^#{1,6} (?:Step )?${number}\\b`, "im").test(read(target))) errors.add(`${file}: ${ref} Step ${number}`);
       }
@@ -265,8 +274,14 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
   }
   for (const file of files.filter(f => f.endsWith(".ts"))) {
     const text = read(file);
-    for (const [, ref] of text.matchAll(/(?:new URL\(["'`]([^$"'`]+\.(?:md|mjs))["'`],\s*import\.meta\.url\))/g)) check(file, ref);
-    for (const [ref] of text.matchAll(/(?<![\w./-])(?:\.\.\/)*skills\/[\w./-]+\.md\b/g)) check(file, ref);
+    const messages = text.replace(/new URL\(["'`]([^$"'`]+\.(?:md|mjs))["'`],\s*import\.meta\.url\)/g, (_, ref) => {
+      check(file, ref, dirname(file));
+      return "";
+    }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "");
+    const visit = ref => {
+      if (packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref);
+    };
+    scanPathReferences(stripMarkdownLinks(messages, visit), visit);
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
     if (base) {
       const refs = [...instructionFileRows(text)].map(([, , ref]) => ref)

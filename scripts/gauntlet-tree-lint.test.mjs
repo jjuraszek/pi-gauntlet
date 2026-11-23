@@ -7,27 +7,51 @@ import { lintHandoffPointers, lintOverridesFile, lintOverridesOutline, lintPlace
 
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
 
-test("package references resolve from the caller, not the checkout or a same-named sibling", t => {
+test("package references resolve from the caller or package root, not the consumer checkout", t => {
   const root = mkdtempSync(join(tmpdir(), "gauntlet-references-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const [file, body] of [
-    ["skills/one/SKILL.md", "Read [the guide](reference/guide.md) and `../two/helper.md`. Read `doc/specs/example.md` in the consumer repo."],
+    ["skills/one/SKILL.md", "Read [the guide](reference/guide.md), `../two/helper.md`, and `skills/two/helper.md`. Read `doc/specs/example.md` in the consumer repo."],
     ["skills/one/reference/guide.md", "Read `../../two/helper.md`."],
     ["skills/two/helper.md", "# Helper"],
-    ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md)."],
-    ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url);'],
+    ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md) and [the helper](skills/two/helper.md). Read the consumer's `doc/gauntlet.md`. Example: `node --test extensions/x.test.ts`."],
+    ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url); const message = "Run `bin/help.mjs`.";'],
+    ["bin/help.mjs", ""],
   ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
     writeFileSync(join(root, file), body);
   }
   assert.deepEqual(lintReferences(root), []);
   rmSync(join(root, "skills/two/helper.md"));
+  rmSync(join(root, "bin/help.mjs"));
   assert.deepEqual(lintReferences(root), [
-    "extensions/advice.ts: ../skills/two/helper.md", "skills/one/SKILL.md: ../two/helper.md", "skills/one/reference/guide.md: ../../two/helper.md",
+    "agents/reviewer.md: skills/two/helper.md",
+    "extensions/advice.ts: ../skills/two/helper.md",
+    "extensions/advice.ts: bin/help.mjs",
+    "skills/one/SKILL.md: ../two/helper.md",
+    "skills/one/SKILL.md: skills/two/helper.md",
+    "skills/one/reference/guide.md: ../../two/helper.md",
   ]);
   rmSync(join(root, "skills/one/reference/guide.md"));
   assert.ok(lintReferences(root).includes("agents/reviewer.md: ../skills/one/reference/guide.md"));
   assert.deepEqual(lintReferences(join(import.meta.dirname, "..")), []);
+});
+
+test("only a source-repository attribution for the reference exempts an unshipped guide", t => {
+  const root = mkdtempSync(join(tmpdir(), "gauntlet-source-guide-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = "skills/one/SKILL.md";
+  mkdirSync(join(root, dirname(file)), { recursive: true });
+  writeFileSync(join(root, "package.json"), '{"repository":"example"}');
+  for (const [scenario, suffix, errors] of [
+    ["attributed label", " linked to the heading in the source repository named in `../../package.json`.", []],
+    ["unattributed label", ".", ["doc/configuration.md"]],
+    ["attribution in a different sentence", ". Find the source repository named in `../../package.json`.", ["doc/configuration.md"]],
+    ["broken manifest locator", " linked to the heading in the source repository named in `../package.json`.", ["../package.json"]],
+  ]) {
+    writeFileSync(join(root, file), "Print `help: doc/configuration.md`" + suffix);
+    assert.deepEqual(lintReferences(root), errors.map(ref => `${file}: ${ref}`), scenario);
+  }
 });
 
 test("numbered citations from retained skills name headings in the moved file", t => {
