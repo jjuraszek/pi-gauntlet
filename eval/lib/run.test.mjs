@@ -12,13 +12,24 @@ import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
 import { writeRecordAtomic } from "./records.mjs";
 
+function caseCommands(text) {
+  const cleanupList = /^(?:`\.pi\/gauntlet\.md` at merge-base:\n# shared\n## cleanup|The merge-base overrides file has exactly two cleanup items, in this order:)\n(?:- [^\n]+(?:\n|$))+/gm;
+  return text.replace(cleanupList, list => list.replace(/^- release: \/skill:release(?: patch)?$/gm, ""))
+    .replace(/; release `\/skill:release`; notify|, row \d+ `\/skill:release`, row \d+/g, "")
+    .replace(/A standalone `\/skill:[\w-]+` skill|Written under `\/skill:[\w-]+` discipline/g, "");
+}
+
+function instructionCommands(text) {
+  // These spans describe command syntax, cleanup values and output, not commands to run.
+  return text.replace(/\| Invocation \| `\/skill:name \[args\]` \||invocation name \(pi `\/skill:name`|cannot expand `\/skill:[\w-]+`/g, "")
+    .replace(/(?:or|A) `\/skill:release` item\b|the text contains `<merge-sha>` or `\/skill:release`/g, "")
+    .replace(/\(for example `release: invoked \/skill:release - [^`\n]+`\)|`\/skill:release` with no level runs/g, "");
+}
+
 function checkInvocations(text, registered, injected, source) {
-  // Commands can be written as code spans after a directive. Other spans quote
-  // source text, syntax examples and cleanup items rather than invoking a skill.
-  const tokens = /(?:^\s*(?:[-*]\s+|\d+\.\s+)?|\b(?:run|invoke|call|use|follow|load|type|via|through|live in|you are)\s+)\[?[`"']?\/skill:([\w-]+)|`[^`\n]*`|"[^"\n]*"|(?<!\w)'[^'\n]*'|\/skill:([\w-]+)/gim;
-  for (const match of text.matchAll(tokens)) {
-    const name = match[1] ?? match[2];
-    if (name) assert.ok(registered.has(name) || name === injected, `${source}: unregistered /skill:${name}`);
+  const commands = text.replace(/\bquoted input says (["'`])[^\n]*?\1/gi, "");
+  for (const [, name] of commands.matchAll(/\/skill:([\w-]+)/g)) {
+    assert.ok(registered.has(name) || name === injected, `${source}: unregistered /skill:${name}`);
   }
 }
 
@@ -26,18 +37,21 @@ test("neither arm invokes an unregistered skill outside verbatim baseline instru
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const { skills } = loadSkillsFromDir({ dir: join(root, "skills"), source: "npm:pi-gauntlet" });
   const registered = new Set(skills.map(({ name }) => name));
-  for (const command of ["Run /skill:waves now.", "Invoke `/skill:waves` next."]) {
-    assert.throws(() => checkInvocations(command, registered, undefined, "replay"), /unregistered \/skill:waves/);
+  for (const command of [
+    "Run /skill:waves now.", "Invoke `/skill:waves` next.", "Execute `/skill:waves` now.",
+    caseCommands("- Next action: /skill:waves"),
+  ]) {
+    assert.throws(() => checkInvocations(command, registered, undefined, "replay"), /unregistered \/skill:waves/, command);
   }
+  assert.equal(caseCommands("- release: /skill:release"), "- release: /skill:release");
   checkInvocations('The quoted input says "Run /skill:waves now."', registered, undefined, "case");
   for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
     if (!dir.isDirectory() || ["lib", "_template"].includes(dir.name)) continue;
     const prepared = prepareTarget({ root, target: dir.name });
     assert.ok(prepared.plans?.length, prepared.message);
     for (const { sample, caseText, basePrompt, baseFiles, candPrompt, candFiles, candSkill } of prepared.plans) {
-      // A case may supply literal downstream cleanup configuration as input.
-      const commands = caseText.replace(/^(- [\w -]+: )\/skill:[\w-]+/gm, "$1");
-      for (const [prompt, files, instructions] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, candSkill]]) {
+      const commands = caseCommands(caseText);
+      for (const [prompt, files, instructions] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, instructionCommands(candSkill)]]) {
         const injected = files && parseFrontmatter(files[0].content).frontmatter.name;
         const text = prompt.replace(caseText, () => commands);
         checkInvocations(`${instructions}\n${text}`, registered, injected, `${dir.name}/${sample}`);
