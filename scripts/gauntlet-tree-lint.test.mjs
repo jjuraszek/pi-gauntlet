@@ -11,18 +11,23 @@ test("package references resolve from the caller or package root, not the consum
   const root = mkdtempSync(join(tmpdir(), "gauntlet-references-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const brokenLinks = [
-    "extensions/guard.ts: ./skills/one/reference/guide.md",
-    "extensions/guard.ts: skills/one/reference/guide.md",
+    "extensions/guard-string.ts: ./skills/one/reference/guide.md",
+    "extensions/guard-string.ts: skills/one/reference/guide.md",
+    "extensions/guard-template.ts: ./skills/one/reference/guide.md",
+    "extensions/guard-template.ts: skills/one/reference/guide.md",
     "skills/one/SKILL.md: ./skills/one/reference/guide.md",
     "skills/one/SKILL.md: skills/one/reference/guide.md",
   ];
+  const guard = "Read [the guide](../skills/one/reference/guide.md), [the guide](skills/one/reference/guide.md), or [the guide](./skills/one/reference/guide.md).";
   for (const [file, body] of [
     ["skills/one/SKILL.md", "Read [the guide](reference/guide.md), [the helper](../two/helper.md), `../two/helper.md`, and skills/two/helper.md. Read `doc/specs/example.md` in the consumer repo. These links are broken: [guide](skills/one/reference/guide.md) and [guide](./skills/one/reference/guide.md)."],
     ["skills/one/reference/guide.md", "Read `../../two/helper.md`."],
     ["skills/two/helper.md", "# Helper"],
     ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md) and [the helper](../skills/two/helper.md). Read the consumer's `doc/gauntlet.md`. Example: `node --test extensions/x.test.ts`."],
     ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url); const message = "Run `bin/help.mjs`.";'],
-    ["extensions/guard.ts", 'throw new Error("Read [the guide](../skills/one/reference/guide.md), [the guide](skills/one/reference/guide.md), or [the guide](./skills/one/reference/guide.md).");'],
+    ["extensions/guard-string.ts", `throw new Error("${guard}");`],
+    ["extensions/guard-template.ts", `throw new Error(\`${guard}\`);`],
+    ["extensions/example.ts", 'const example = `Print \\`[guide](skills/one/reference/guide.md)\\`.`;'],
     ["bin/help.mjs", ""],
   ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
@@ -41,7 +46,10 @@ test("package references resolve from the caller or package root, not the consum
     "skills/one/reference/guide.md: ../../two/helper.md",
   ].sort());
   rmSync(join(root, "skills/one/reference/guide.md"));
-  assert.ok(lintReferences(root).includes("agents/reviewer.md: ../skills/one/reference/guide.md"));
+  const missingGuide = lintReferences(root);
+  for (const caller of ["agents/reviewer.md", "extensions/guard-string.ts", "extensions/guard-template.ts"]) {
+    assert.ok(missingGuide.includes(`${caller}: ../skills/one/reference/guide.md`), caller);
+  }
   assert.deepEqual(lintReferences(join(import.meta.dirname, "..")), []);
 });
 

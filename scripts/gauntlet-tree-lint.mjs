@@ -289,7 +289,10 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
     const messages = text.replace(/new URL\(["'`]([^$"'`]+\.(?:md|mjs))["'`],\s*import\.meta\.url\)/g, (_, ref) => {
       check(file, ref, dirname(file));
       return "";
-    }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "");
+    }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "")
+      // Template delimiters are source syntax; escaped backticks belong to the emitted Markdown.
+      .replace(/"(?:[^"\\\n]|\\[\s\S])*"|'(?:[^'\\\n]|\\[\s\S])*'|`((?:[^`\\]|\\[\s\S])*)`/g,
+        (literal, template) => template === undefined ? literal : `\n${template.replace(/\\[\\`]/g, escape => escape === "\\`" ? "`" : escape)}\n`);
     const visit = (ref, base) => {
       const path = base ? normalize(ref) : ref;
       if (base === "" || packageRooted.test(path) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(path)) check(file, ref, base);
