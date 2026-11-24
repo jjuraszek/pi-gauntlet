@@ -12,6 +12,7 @@ test("retired-names checks shipped text, executable contracts and eval inputs, n
   const samples = [
     ["skills/gauntlet/plan/plan.md", `/skill:${entry}`],
     ["agents/reviewer.md", `skills/${entry}/SKILL.md`],
+    ["agents/plan-writer.md", `---\nname: plan-writer\ndescription: Dispatched only by the ${steps[0]} skill.\n---`],
     ["extensions/tracker.ts", `gauntlet: gate=${entry}/the`],
     ["bin/example.mjs", overrides],
     ["src/bins/example.mjs", steps[0]],
