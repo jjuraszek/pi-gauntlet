@@ -1,5 +1,5 @@
 import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, normalize, relative, sep } from "node:path";
+import { basename, dirname, join, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
@@ -18,12 +18,17 @@ const artifacts = /^(?:(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapsho
 
 function scanPathReferences(text, visit) {
   for (const sentence of text.split(sentenceBoundary)) {
-    const source = sourceRepository.test(sentence);
-    const installed = !source && installedPackage.test(sentence);
-    for (const [ref] of sentence.matchAll(pathReference)) {
-      if (artifacts.test(ref) || (!packageRooted.test(ref) && ref.endsWith(".ts") && !ref.includes("../"))) {
+    const refs = [...sentence.matchAll(pathReference)];
+    const source = sentence.search(sourceRepository);
+    const attributed = source < 0 ? undefined : refs.findLast(match => match.index < source);
+    const installed = installedPackage.test(sentence);
+    for (const match of refs) {
+      const [ref] = match;
+      const rooted = packageRooted.test(ref);
+      if (match === attributed && rooted) continue;
+      if (artifacts.test(ref) || (!rooted && ref.endsWith(".ts") && !ref.includes("../"))) {
         if (installed) visit(ref, "");
-      } else if (!source || !packageRooted.test(ref)) {
+      } else {
         visit(ref);
       }
     }
@@ -290,14 +295,15 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
       check(file, ref, dirname(file));
       return "";
     }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "")
+      .matchAll(/"(?:[^"\\\n]|\\[\s\S])*"|'(?:[^'\\\n]|\\[\s\S])*'|`((?:[^`\\]|\\[\s\S])*)`/g);
+    for (const [literal, template] of messages) {
       // Template delimiters are source syntax; escaped backticks belong to the emitted Markdown.
-      .replace(/"(?:[^"\\\n]|\\[\s\S])*"|'(?:[^'\\\n]|\\[\s\S])*'|`((?:[^`\\]|\\[\s\S])*)`/g,
-        (literal, template) => template === undefined ? literal : `\n${template.replace(/\\[\\`]/g, escape => escape === "\\`" ? "`" : escape)}\n`);
-    const visit = (ref, base) => {
-      const path = base ? normalize(ref) : ref;
-      if (base === "" || packageRooted.test(path) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(path)) check(file, ref, base);
-    };
-    scanPathReferences(stripMarkdownLinks(messages, dirname(file), visit), visit);
+      const message = template === undefined ? literal.slice(1, -1) : template.replace(/\\[\\`]/g, escape => escape === "\\`" ? "`" : escape);
+      const prose = stripMarkdownLinks(message, dirname(file), (ref, base) => check(file, ref, base));
+      scanPathReferences(prose, (ref, base) => {
+        if (base === "" || packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref, base);
+      });
+    }
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
     if (base) {
       const refs = [...instructionFileRows(text)].map(([, , ref]) => ref)

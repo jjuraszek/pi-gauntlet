@@ -18,8 +18,9 @@ test("package references resolve from the caller or package root, not the consum
     "skills/one/SKILL.md: ./skills/one/reference/guide.md",
     "skills/one/SKILL.md: skills/one/reference/guide.md",
   ];
-  const guard = "Read [the guide](../skills/one/reference/guide.md), [the guide](skills/one/reference/guide.md), or [the guide](./skills/one/reference/guide.md).";
+  const guard = "Read [the guide](../skills/one/reference/guide.md), [the guide](skills/one/reference/guide.md), or [the guide](./skills/one/reference/guide.md). See [readme](../README.md).";
   for (const [file, body] of [
+    ["README.md", "# Readme"],
     ["skills/one/SKILL.md", "Read [the guide](reference/guide.md), [the helper](../two/helper.md), `../two/helper.md`, and skills/two/helper.md. Read `doc/specs/example.md` in the consumer repo. These links are broken: [guide](skills/one/reference/guide.md) and [guide](./skills/one/reference/guide.md)."],
     ["skills/one/reference/guide.md", "Read `../../two/helper.md`."],
     ["skills/two/helper.md", "# Helper"],
@@ -36,10 +37,13 @@ test("package references resolve from the caller or package root, not the consum
   assert.deepEqual(lintReferences(root), brokenLinks);
   rmSync(join(root, "skills/two/helper.md"));
   rmSync(join(root, "bin/help.mjs"));
+  rmSync(join(root, "README.md"));
   assert.deepEqual(lintReferences(root), [
     "agents/reviewer.md: ../skills/two/helper.md",
     "extensions/advice.ts: ../skills/two/helper.md",
     "extensions/advice.ts: bin/help.mjs",
+    "extensions/guard-string.ts: ../README.md",
+    "extensions/guard-template.ts: ../README.md",
     "skills/one/SKILL.md: ../two/helper.md",
     ...brokenLinks,
     "skills/one/SKILL.md: skills/two/helper.md",
@@ -93,14 +97,16 @@ test("only a source-repository attribution for the reference exempts an unshippe
   const file = "skills/one/SKILL.md";
   mkdirSync(join(root, dirname(file)), { recursive: true });
   writeFileSync(join(root, "package.json"), '{"repository":"example"}');
-  for (const [scenario, suffix, errors] of [
-    ["attributed label", " linked to the heading in the source repository named in `../../package.json`.", []],
-    ["source attribution wins", " linked to the heading in the source repository named in `../../package.json`, not in the installed package root.", []],
-    ["unattributed label", ".", ["doc/configuration.md"]],
-    ["attribution in a different sentence", ". Find the source repository named in `../../package.json`.", ["doc/configuration.md"]],
-    ["broken manifest locator", " linked to the heading in the source repository named in `../package.json`.", ["../package.json"]],
+  const label = "Print `help: doc/configuration.md`";
+  for (const [scenario, body, errors] of [
+    ["attributed label", `${label} linked to the heading in the source repository named in \`../../package.json\`.`, []],
+    ["source attribution wins", `${label} linked to the heading in the source repository named in \`../../package.json\`, not in the installed package root.`, []],
+    ["unattributed label", `${label}.`, ["doc/configuration.md"]],
+    ["attribution in a different sentence", `${label}. Find the source repository named in \`../../package.json\`.`, ["doc/configuration.md"]],
+    ["broken manifest locator", `${label} linked to the heading in the source repository named in \`../package.json\`.`, ["../package.json"]],
+    ["mixed installed and source references", "Run `bin/missing.mjs` from the installed package and read `doc/configuration.md` in the source repository named in `../../package.json`.", ["bin/missing.mjs"]],
   ]) {
-    writeFileSync(join(root, file), "Print `help: doc/configuration.md`" + suffix);
+    writeFileSync(join(root, file), body);
     assert.deepEqual(lintReferences(root), errors.map(ref => `${file}: ${ref}`), scenario);
   }
 });
