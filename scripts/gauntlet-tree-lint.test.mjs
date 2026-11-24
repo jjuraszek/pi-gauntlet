@@ -310,6 +310,8 @@ test("the repo's overrides put tracker and cleanup in shared and release in ship
   assert.match(file, /^## ship\n\s*`\/skill:release`/m);
   for (const [suffix, errors] of [
     ["# unlisted", ["unknown block: unlisted"]],
+    ["#\tunlisted  ", ["unknown block: unlisted"]],
+    ["#\tshared \r\n##\tverification \r\n##\tunlisted\t", ["unknown section: shared/unlisted"]],
     ["# gatekeep-pr\n## cleanup", ["unknown section: gatekeep-pr/cleanup"]],
     ["# gatekeep-pr\n```markdown\n## cleanup\n```", []],
   ]) assert.deepEqual(lintOverridesFile(`${file}\n${suffix}`), errors);

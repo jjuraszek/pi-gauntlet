@@ -341,16 +341,17 @@ const overrideSections = {
 export function lintOverridesFile(text) {
   const errors = [];
   let block, fence;
-  for (const line of text.split("\n")) {
+  for (const line of text.split(/\r?\n/)) {
     if (fence) {
       const close = line.match(/^ {0,3}(`+|~+)\s*$/)?.[1];
       if (close?.startsWith(fence)) fence = undefined;
       continue;
     }
     fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1];
-    const heading = line.match(/^(#{1,2}) (.+)$/);
+    const heading = line.match(/^(#{1,2})[\t ]+(.*)$/);
     if (!heading) continue;
-    const [, level, name] = heading;
+    const [, level, rawName] = heading;
+    const name = rawName.trim();
     if (level === "#") {
       block = name;
       if (!Object.hasOwn(overrideSections, block)) errors.push(`unknown block: ${block}`);
