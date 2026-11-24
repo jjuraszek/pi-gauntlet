@@ -109,7 +109,7 @@ that file.
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
 6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before any tracker mutation or brainstorming invocation. Carry the resolved `<spec path>` without re-resolving it: use the restore reference's path, `reference/reconstruction.md`, or the seed's pinned `<full-path>/<rel>` (`reference/seed.md`).
-   Read the spec's header block (between the H1 and the first `##`). An exact `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N`; make no phase_tracker or plan_tracker mutation. After deferred-header admission, apply the grant predicate only for an approved spec in
+   Read the spec's header block (between the H1 and the first `##`). On an exact `**Engine:** deferred`, stop with `spec approved for handoff only - run /skill:gauntlet #N`. Replace `#N` with the PR number from `**PR:**` or the known PR subject before printing; make no phase_tracker or plan_tracker mutation. After deferred-header admission, apply the grant predicate only for an approved spec in
    [Standing grants](../gauntlet/amendment-surface.md#standing-grants): no
    `**Amend-grant:**` line -> no grant;
    exactly one line whose trimmed value is `none` -> no grant;

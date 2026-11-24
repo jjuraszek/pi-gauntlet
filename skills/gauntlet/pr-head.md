@@ -24,8 +24,8 @@ Print `origin/<branch> is missing in <repo>`. Run `git -C <primary> log -1 --for
 
 | Observation | Recovery ending |
 |---|---|
-| The file-scoped log prints a commit | Offer `git push -u origin <branch>` from that primary, then rerun `brainstorming #N`. |
-| No local branch, or a local branch without the leg-file commit; the log prints nothing | State `no local branch on this machine holds the leg file; restore origin/<branch> from a clone that still has it and rerun brainstorming #N; nothing is regenerated`. Offer no push from this machine. |
+| The file-scoped log prints a commit | Offer `git push -u origin <branch>` from that primary, then rerun `/skill:gauntlet #N`. |
+| No local branch, or a local branch without the leg-file commit; the log prints nothing | State `no local branch on this machine holds the leg file; restore origin/<branch> from a clone that still has it and rerun /skill:gauntlet #N; nothing is regenerated`. Offer no push from this machine. |
 
 Preserve all provisioned trees. Run no creation, local ref update or merge on this stop.
 

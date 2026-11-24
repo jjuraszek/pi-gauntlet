@@ -16,7 +16,7 @@ PRIMARY=$(dirname "$(git -C "$WORKTREE" rev-parse --path-format=absolute --git-c
 FEATURE=$(git -C "$WORKTREE" branch --show-current)
 ```
 
-The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run brainstorming #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
+The process cwd never changes; every command targets `$WORKTREE` or `$PRIMARY` explicitly. Resolve the selected run spec now per the Input rules in [header-linked PR finishing](spec-pr.md) and read its header before announcing: an exact `**Engine:** deferred` before the first `##` stops here with `spec approved for handoff only - run /skill:gauntlet #N` (no phase change, verification, strip, seal, or push); `**PR:**` without a Rework record takes that reference's live identity checks before Step 1 and its Step 4 menu and push recipe instead of the ordinary create rows.
 
 **Announce at start:** "I'm completing this development branch."
 

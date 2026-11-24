@@ -2,7 +2,7 @@
 
 ## Input
 
-Resolve the selected run spec once: use the carried spec path or the active plan/ledger's path-only `**Spec:**` header; with neither, enumerate candidates under resolved `flowGuards.specDirs`, read them, and ask on ambiguity. Carry this path through finish; perform no second discovery. Read its header before announcing or starting ship. An exact `**Engine:** deferred` before the first `##` stops with `spec approved for handoff only - run brainstorming #N`; perform no phase change, verification, strip, seal, or push. A `## Rework record` wins over `**PR:**` (record wins when both exist): follow the ordinary rework path. For a header-only `**PR:** <owner/repo#N>`, use the header's repository for every gh call and run this check before Step 1 verification:
+Resolve the selected run spec once: use the carried spec path or the active plan/ledger's path-only `**Spec:**` header; with neither, enumerate candidates under resolved `flowGuards.specDirs`, read them, and ask on ambiguity. Carry this path through finish; perform no second discovery. Read its header before announcing or starting ship. An exact `**Engine:** deferred` before the first `##` stops with `spec approved for handoff only - run /skill:gauntlet #N`; perform no phase change, verification, strip, seal, or push. A `## Rework record` wins over `**PR:**` (record wins when both exist): follow the ordinary rework path. For a header-only `**PR:** <owner/repo#N>`, use the header's repository for every gh call and run this check before Step 1 verification:
 
 ```bash
 gh pr view <N> -R <owner/repo> --json number,url,state,isDraft,headRefName,baseRefName

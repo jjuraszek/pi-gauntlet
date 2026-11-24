@@ -1,24 +1,25 @@
-# finishing-a-development-branch eval report
+# eval report: ship (partial run: deferred-spec-stop)
 
-for: a0884ca933d96ad47df4de3cc79e567ff17754b66eef8bf8c283a3e228fcc652
+for: 7ebcf0ef9a82a98e5ef879e0062d7f249acab95738f8b56d22877668b4065adf
 
-## Scope
+wall: 17s
 
-Selected ticket #158 finishing-recovery samples against `09c9f4e1`. Both samples bundle the loop driver with its protected history and legacy-and-single-member clauses restored. The bundle-free intent binding and judge-read intent body are unchanged. Coverage is sample-scoped, not a target-wide pass; C5-C7 remain unselected.
+## Change
 
-| Sample | Evidence | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
-|---|---|---|---|
-| ledger-pending-return | replayed; exit 0 | improved; 6/6 | unchanged; 6/6 |
-| ledger-post-strip | restored from ef3d3387 | unchanged; 5/5 | unchanged; 5/5 |
+Read current ledger pending recovery from restore-loop.md before verification or stripping, and read coordinated recovery rules only for multi-leg delivery. Preserve once-only admission from ledger-held home attribution or a companion return file, consumed iterations, allowance accounting, rejected-boundary recovery and the stop on an unavailable before-image. Preserve post-strip verification ownership and receipt-validated recovery after the owner split. The selected ledger-pending-return fixture uses allowance: and returned: rather than an old cap header or commit-body decoder. Selected text replays inspect supplied recovery and delivery observations; they do not prove live Git or tracker execution. Coverage is sample-scoped, not a target-wide pass.
 
-## Evidence and findings
+For a deferred spec, print the numbered gauntlet command before starting delivery so the user can open the PR in a fresh session.
 
-`ledger-post-strip` uses a candidate record restored byte-for-byte from `ef3d3387`, before `a77b7b04`. Its instruction assembly is byte-identical to that revision and matches its saved `skillSha`; `case.md`, `expected.md`, `target.json` and judge-read intent body are byte-identical too. Its replay input and judgment identity hashes match current inputs. No paid replay is needed for this sample.
+## Cells
 
-`ledger-pending-return` cannot reuse that revision's record: `a77b7b04` changes its case, expected fact and bundle to supply the interrupted-recovery owner. The current fixture and assertions are retained. The candidate comparison ran with `timeout -k 30 600 node eval/run.mjs finishing-a-development-branch ledger-pending-return --base 09c9f4e1`, exit 0. Actual runner output: `finishing-a-development-branch: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 51s)`. The current baseline inputs are unchanged, so the existing baseline record is retained without a baseline-only pass.
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| deferred-spec-stop | anthropic/claude-opus-5-5 | improved | 5383 | boundary: holds -> holds (held); notice: fails -> holds (intended change) |
+| deferred-spec-stop | github-copilot/gpt-6.1-sol | improved | 7386 | boundary: holds -> holds (held); notice: fails -> holds (intended change) |
 
-Both models hold every candidate fact in both samples. No fact held in the baseline or in the pre-fix candidate is lost. Opus's `once` improvement is observed, not an intended move: the candidate names the absolute ledger refresh path, which the saved baseline does not. No expected fact, word cap or assertion changed in this repair. Text replays inspect supplied recovery and delivery observations; they do not prove live Git or tracker execution.
+## Feedback
 
-## Reproduction
+- deferred-spec-stop / anthropic/claude-opus-5-5: The boundary fact holds in both outputs: in each, all three variants stop at the resolved `**Engine:** deferred` header before the announcement, ship phase start, verification, strip, seal or push; grant `all` is explicitly said not to lift the stop; the absent-PR variant uses the known subject #42; and no delivery or tracker call is narrated as happening after the stop. The After wording changed only the printed notice from `run brainstorming #42` to `run /skill:gauntlet #42`, which delivers the intended gauntlet-entry naming without disturbing the boundary. After also consolidates the entry steps into a shared section; this still reads as applying to every variant because each variant says the steps are the same and restates its own outcome. To keep this fact safe, retain the explicit per-variant statement that nothing runs after the stop (Variant A and C are terser than Before here, e.g. 'nothing ran' rather than listing announce/verify/strip/seal/push), and keep the lines stating that the grant does not exempt the stop and that #42 comes from the known subject when the PR header is absent.
+- deferred-spec-stop / github-copilot/gpt-6.1-sol: The boundary fact did not move: in both Before and After, all three variants (PR header present, PR header absent with known subject #42, and grant all) end in a single stop line, 'spec approved for handoff only', with no announce/start ship, tracker mutation, verification, strip, seal or push narrated afterwards. Grant all gets the same stop as the others, and the absent-header variant resolves to #42. The only visible difference is that After names the explicit '/skill:gauntlet #42' entry where Before said 'run brainstorming #42'; this delivers the intended notice change without disturbing the boundary. To keep it that way, keep the wording that prints the gauntlet command as part of the stop itself, before any delivery starts, and keep stating that grant values do not exempt deferred admission and that a missing PR header falls back to the known subject number. One small risk: After's variant labels dropped the explicit 'acme/widget#42' and, in the second line, the grant value, so consider having the output state the resolved Engine: deferred header as the reason for the stop, so the boundary is explicit in the text rather than implied by the stop line alone.
 
-Restore only `eval/finishing-a-development-branch/results/ledger-post-strip/candidate.json` from `ef3d3387` after checking its assembly, fixture and judgment identities. Replay only `ledger-pending-return` with the command above if needed. Reseed a baseline only when its input changes. Unselected samples are historical evidence, not a current target-wide pass.
+exit: 0

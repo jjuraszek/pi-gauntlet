@@ -510,6 +510,10 @@ test('spec publication and re-entry share shape proof and published persistence'
   assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
   assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
   for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
+  for (const path of ['skills/gauntlet/brainstorm/spec-pr.md', 'skills/gauntlet/pr-head.md']) {
+    assert.match(read(path), /rerun `?\/skill:gauntlet #N/, path);
+    assert.doesNotMatch(read(path), /\bbrainstorming #N\b/i, path);
+  }
   assert.ok(gate.indexOf('2 - loop engine:') < gate.indexOf('4 - draft PR:'));
   assert.ok(gate.indexOf('1 - plan engine:') < gate.indexOf('--fund-rounds=N'));
   assert.ok(gate.indexOf('--fund-rounds=N') < gate.indexOf('2 - loop engine:'));
@@ -517,18 +521,25 @@ test('spec publication and re-entry share shape proof and published persistence'
 
 test('deferred boundaries precede ship and restore arming; header PR finish owns non-force delivery', () => {
   const finish = read('skills/gauntlet/ship/ship.md');
-  const stop = 'spec approved for handoff only - run brainstorming #N';
-  assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'));
+  const stop = 'spec approved for handoff only - run /skill:gauntlet #N';
+  assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'), stop);
   const specPrAt = finish.indexOf('[header-linked PR finishing](spec-pr.md)');
   assert.ok(specPrAt > 0 && specPrAt < finish.indexOf('**Announce at start:**'));
   const ref = read('skills/gauntlet/ship/spec-pr.md');
-  for (const marker of ['record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
+  for (const marker of [stop, 'record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
   assert.ok(ref.indexOf('push --no-follow-tags') < ref.indexOf('gh pr ready <N> -R <owner/repo>'));
   assert.match(ref, /At Step 4, the header-linked route bypasses both menus below/);
   assert.match(read('skills/gauntlet/ship/verification-set.md'), /Rework PR subject with a task plan/);
   assert.match(ref, /Option 3 squash seal uses `--option squash --base origin\/<baseRefName>`/);
   const resume = read('skills/gauntlet-resume/SKILL.md');
   assert.ok(resume.indexOf(stop) > resume.indexOf('6. **Grant field.**') && resume.indexOf(stop) < resume.indexOf('## Dispatch'));
+  for (const target of ['ship', 'gauntlet-resume']) {
+    const candidate = JSON.parse(read(`eval/${target}/results/deferred-spec-stop/candidate.json`));
+    for (const model of candidate.models.replay) {
+      const output = candidate.outputs[model];
+      assert.ok(output.text.includes(stop.replace('#N', '#42')), `${target}/${model}: resolved PR number`);
+    }
+  }
   for (const path of ['reconstruction.md', 'restore-plan.md']) {
     const text = read(`skills/gauntlet-resume/reference/${path}`);
     assert.match(text, /entry check 6[^\n]*deferred/);
