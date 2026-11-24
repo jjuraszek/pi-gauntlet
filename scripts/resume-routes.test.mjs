@@ -218,7 +218,7 @@ test('saved runs continue at the linked step, never the reset-bearing entry', ()
     assert.match(entry, boundary, condition);
   };
   for (const [name, qualifier, path, boundary] of [
-    ['current-brainstorm-brief', '', 'SKILL.md', /step 3.*step 4.*step 8.*Never `\/skill:gauntlet` entry/],
+    ['current-brainstorm-brief', '', 'SKILL.md', /^on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8\. Never `\/skill:gauntlet` entry/],
     ['current-plan-brief', ' with task engine', 'plan/plan.md', /skip its `start plan`/],
     ['clean-pass-unchanged', ' with task plan', 'implement/waves/waves.md', /re-run its `Tests:`/],
     ['baseline-upgrade-preserves-statuses', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],

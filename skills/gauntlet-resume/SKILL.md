@@ -192,7 +192,7 @@ After a successful restore, print the closing line, then on its own line exactly
 
 | Active after restore | Continue in | Entry point |
 |---|---|---|
-| brainstorm | [brainstorming checklist](../gauntlet/SKILL.md#checklist) | No spec -> gather context (step 3); draft marker on line 1 -> step 4; spec title -> step 8. Never `/skill:gauntlet` entry (it resets both trackers) |
+| brainstorm | [brainstorming checklist](../gauntlet/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:gauntlet` entry (it resets both trackers) |
 | approved spec with `**Engine:** loop`, no ledger | [Loop](../gauntlet/implement/loop/loop.md#entry) | Entry steps 1-5 per `reference/reconstruction.md` "Spec without plan"; a restored plan-stage brief makes no second arming call |
 | plan with task engine | [Plan](../gauntlet/plan/plan.md) | skip its `start plan` call (already in_progress) |
 | implement with a ledger | [Loop](../gauntlet/implement/loop/loop.md#before-each-dispatch) | `Before each dispatch`; reuse the ledger per `reference/restore-loop.md` step 9 |

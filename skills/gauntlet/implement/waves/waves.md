@@ -1,4 +1,4 @@
-> Set up isolation with `../../worktrees.md` and use `../../plan/plan.md` for the task plan. To recover after a stop, use `/skill:gauntlet-resume`.
+> **Related skills:** Need an isolated workspace? `../../worktrees.md`. Need a plan first? `../../plan/plan.md`. To recover after a stop, use `/skill:gauntlet-resume`.
 
 # Subagent-Driven Development
 

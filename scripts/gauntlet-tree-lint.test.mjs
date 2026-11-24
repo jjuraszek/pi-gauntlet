@@ -65,6 +65,7 @@ test("explicit package destinations override consumer example spellings", async 
   mkdirSync(dirname(caller), { recursive: true });
   for (const [scenario, body, ref, base = ""] of [
     ["plan example", "Example consumer path: `doc/plans/recovery.md`."],
+    ["portable spec citation", "The portable citation `documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>.", "documentation-impact.md", "skills/gauntlet"],
     ["plan link", "Read [recovery](doc/plans/recovery.md).", "doc/plans/recovery.md", dirname(file)],
     ["angle-bracketed link", "Read [recovery](<../skills/gauntlet/return-fiel.md>).", "../skills/gauntlet/return-fiel.md", dirname(file)],
     ["inline link example", "Print ``[recovery](doc/plans/recovery.md)``."],

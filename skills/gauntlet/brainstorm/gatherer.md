@@ -44,7 +44,7 @@ subagent({
 Absolute `output:` paths are mandatory: relative paths in parallel mode resolve
 against the worktree and would get committed.
 
-Before pasting the task, resolve `<SPEC_INDEX>` to `../../../bin/gauntlet-spec-index.mjs` from the directory of this installed file.
+Before pasting the scout task, resolve `../../../bin/gauntlet-spec-index.mjs` from the directory of this installed file and pass the absolute path as `<SPEC_INDEX>`.
 
 ## Task templates
 

@@ -22,7 +22,12 @@ function scanPathReferences(text, visit) {
     for (const match of sentence.matchAll(pathReference)) {
       const [ref] = match;
       const rooted = packageRooted.test(ref);
-      if (rooted && sourceRepositorySuffix.test(sentence.slice(match.index + ref.length))) continue;
+      const suffix = sentence.slice(match.index + ref.length);
+      if (rooted && sourceRepositorySuffix.test(suffix)) continue;
+      if (sentence.slice(0, match.index).endsWith("The portable citation `") && suffix.startsWith("` in the spec is the pi-gauntlet guideline")) {
+        visit(ref, tree);
+        continue;
+      }
       if (artifacts.test(ref) || (!rooted && ref.endsWith(".ts") && !ref.includes("../"))) {
         if (installed) visit(ref, "");
       } else {
