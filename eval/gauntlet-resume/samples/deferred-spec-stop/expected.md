@@ -1,6 +1,7 @@
 anonymized: true
 - notice: mechanical: contains "spec approved for handoff only - run /skill:gauntlet #42"
-- routes: judged: Bare tree, Brief, Process-state and Seed each encounter resolved Engine deferred at entry check6 and print handoff-only stop before any tracker mutation or dispatch/continuation, rather than treating deferred as waves.
-- published: judged: Published brainstorm after push/create failure stops before restored brainstorm preamble and any phase_tracker/plan_tracker/plan_check or planning, even with no PR header. It does not repair/create PR or restart brainstorm.
-- exemption: judged: Grant all variant also stops; grant exemptions never bypass deferred admission.
-- ordered: judged: No route narrates actual verification, strip, seal, push, tracker start/reset/skip/restore or continuation after stop. Explanatory statements of forbidden actions are not calls.
+- routes: judged: Brief, Process-state and Seed each identify the deferred spec PR and print the handoff-only stop with /skill:gauntlet #42 at entry check 6, before any tracker mutation or dispatch.
+- unknown: judged: Bare tree stops and asks for the draft PR identifying this spec; it gives no numbered re-entry command and does not assume creation failed.
+- published: judged: Published brainstorm stops and points to the create-only retry (option 4 to retry opening the draft PR), without a numbered re-entry command, PR creation, tracker restoration or brainstorm restart.
+- exemption: judged: Grant all does not bypass deferred admission: this route gives the same create-only retry pointer as Published brainstorm, not a numbered command.
+- ordered: judged: No route mutates phase_tracker or plan_tracker, runs verification, strips, seals, pushes, or continues after the stop. Explanatory statements of forbidden actions are not calls.
