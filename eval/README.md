@@ -98,7 +98,7 @@ eval/
   _template/
     README.md                how to add a target or a sample; restates the anonymization rule
     target.json              kind, skill files, word cap
-    replay.md                text kind only: instruction prepended to case.md as the user turn
+    replay.md                required for every target; prompt prefix for ordinary text replay
     intent.md                stub with the two required headings
     samples/<sample-name>/
       case.md                the replay input for this sample
@@ -115,9 +115,11 @@ The CLI also accepts `--base <ref>`. A baseline-only or refused run does not wri
 
 ## Files per target
 
-Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, `replay.md`, and leading `bundle+` lines apply to `kind: text` only, as do leading `bundle-` lines, which drop `skillFiles` entries for one sample. An edit kind's user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list; lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
+Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, and leading `bundle+` lines apply to `kind: text` only, as do leading `bundle-` lines, which drop `skillFiles` entries for one sample. Lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
 
-`gauntlet/handoff-follows-pointer` is the exception to tool-free text replay. Its `tracker-result.json` seeds a Pi session with the prior user turn, tracker call and tool result. Only the result names the fixture path (`{{cwd}}` expands to the scratch checkout). The system prompt includes the registered tracker description from the arm's revision. The runner sends `case.md` without `replay.md`, enables only `read`, and includes the tracker result and fixture tree in the input hash.
+Every target requires `replay.md`. Ordinary text replay prepends it to `case.md`. The edit prompt omits it, but `inputSha` includes it for both kinds, so changing the file invalidates saved replies even for edits. The edit user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list.
+
+`gauntlet/handoff-follows-pointer` is the exception to tool-free text replay. Its `tracker-result.json` seeds a Pi session with the prior user turn, tracker call and tool result. Only the result names the fixture path (`{{cwd}}` expands to the scratch checkout). The system prompt includes the registered tracker description from the arm's revision. The runner sends `case.md` without `replay.md` and enables only `read`. The input hash uses `tracker-result.json` instead of `replay.md` and includes the fixture tree.
 
 `expected.md` has one stable, unique fact id per line: `- <id>: judged: <sentence>` or `- <id>: mechanical: <check>`. An optional first line is `anonymized: true`; other non-blank lines are errors. Mechanical checks are substring tests `contains "<literal>"` and `lacks "<literal>"`, or JavaScript regex tests `matches /<regex>/<flags>`. They run in code, not in the judge. Empty text or an empty edit diff fails the cell. For text only, `wordCap` limits whitespace-delimited tokens containing a letter or digit.
 
@@ -175,7 +177,7 @@ Changed labels or verdicts update the candidate record and regenerate `report.md
   "kind": "text",
   "assembly": "concat",
   "skillSha": "<sha256 of the assembled skill text>",
-  "inputSha": "<sha256 of replay.md + case.md + bundle+ paths + sorted fixture tree>",
+  "inputSha": "<sha256 of (tracker-result.json or replay.md) + case.md + bundle+ paths + sorted fixture tree>",
   "repoSha": "<git HEAD>",
   "models": { "replay": ["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"], "judge": "anthropic-fable/claude-fable-5-2", "thinking": "medium" },
   "outputs": {
@@ -194,7 +196,7 @@ Changed labels or verdicts update the candidate record and regenerate `report.md
 
 The alternatives above describe a shape, not literal JSON. Shipped records also carry top-level `thinking`; edit records without an assembly setting use `"assembly": "n/a"`. `tree` exists only for edits. Confirmation includes the replay fields and, on successful judgment, facts and feedback; error judgments may contain only verdict and error. Baseline records have no paired `judge` block.
 
-Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. In ordinary comparison or baseline-only mode (not judgment refresh), a stored candidate whose `skillSha` matches the base assembly is promoted first, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
+Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (tracker result or replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. In ordinary comparison or baseline-only mode (not judgment refresh), a stored candidate whose `skillSha` matches the base assembly is promoted first, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
 
 Judgment currency requires matching `factsSha`, `judgePromptSha`, `intentSha`, `baselineOutputSha`, and `candidateOutputSha`. `wallMs` on a judge entry sums its attempts; `confirmation.judgeWallMs` times the confirmation judgment; both are optional and never affect currency. The report carries a `wall:` line and a `judge ms` column. Changing facts, judge prompt, or intent rejudges reusable outputs without replaying. Ordinary runs write records only when changed; `repoSha` updates on that write, not on a no-op run. Explicit refresh writes audit checkpoints even when primary replies are unchanged. Scratch paths in outputs are stored as `<scratch>`. The comparison report contains the change, bundle-free `for:` SHA, per-cell outcomes and labels, feedback/errors, and final exit code.
 
