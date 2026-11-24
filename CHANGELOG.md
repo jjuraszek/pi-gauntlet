@@ -6,6 +6,8 @@
 
 - Finish an interrupted run before upgrading, or finish it on the previous major. Version 9 cannot resume a version 8 run. (#174)
 - New run records use the `gauntlet` key. The performance report, spec search index and shipped-spec guard omit earlier records until you run `gauntlet-telemetry-seal --migrate-records` once per repo. The migration moves records from `brainstorming` to `gauntlet` without changing their contents. (#174)
+- At wave review and after a conformance fix, the orchestrating agent checks each reviewer finding against the diff before acting, makes no edit for a disproved finding, and keeps independently failing verification commands as repair items; only when a per-wave `FIX_FIRST` has a green test gate and all its findings are disproved does the agent record the verdict as disputed and stop without committing. (#174)
+- The loop engine reads its verification command only from `- verification command:` under `# shared` > `## verification` and otherwise discovers the project's test entrypoint, so moving a backticked command into `# gauntlet` > `## verify` does not configure the loop. (#174)
 
 Start a new run with `/skill:gauntlet`. The retired step commands have no aliases: during a run, follow the phase tracker's file pointer rather than typing the next command. The last column shows where to move run instructions from a project's old `## <skill-name>` headings.
 
