@@ -108,14 +108,13 @@ that file.
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
-6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before any tracker mutation or brainstorming invocation. Carry the resolved `<spec path>` without re-resolving it: use the restore reference's path, `reference/reconstruction.md`, or the seed's pinned `<full-path>/<rel>` (`reference/seed.md`).
-   Read the spec's header block (between the H1 and the first `##`). On an exact `**Engine:** deferred`, stop without phase_tracker or plan_tracker mutation. Give the stop message for the observed handoff:
+6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before tracker writes or brainstorm entry. Reuse the restore path, `reference/reconstruction.md`'s path or `reference/seed.md`'s pinned `<full-path>/<rel>`. Read between H1 and the first `##`. On exact `**Engine:** deferred`, stop and report handoff-only approval:
 
-   | Evidence for this spec | Stop message |
+   | Draft spec PR | Reply |
    |---|---|
-   | `**PR:**` or the session identifies the draft spec PR | Print `spec approved for handoff only - run /skill:gauntlet #N`, replacing `#N` with that PR's number. |
-   | The push succeeded but draft PR creation failed | Print `spec approved for handoff only - return to option 4 to retry opening the draft PR` and point to the [create-only retry](../gauntlet/brainstorm/spec-pr.md#publish-row-4). |
-   | Neither | Ask `spec approved for handoff only - which draft PR contains this spec?` |
+   | `**PR:**` or session identifies #N | `spec approved for handoff only - run /skill:gauntlet #N` |
+   | Push succeeded, creation failed | Point to [option 4's create-only retry](../gauntlet/brainstorm/spec-pr.md#publish-row-4). |
+   | Neither | Ask which draft PR contains this spec. |
 
    After deferred-header admission, apply the grant predicate only for an approved spec in
    [Standing grants](../gauntlet/amendment-surface.md#standing-grants): no
