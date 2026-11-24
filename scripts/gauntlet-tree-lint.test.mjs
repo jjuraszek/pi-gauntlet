@@ -11,6 +11,8 @@ test("package references resolve from the caller or package root, not the consum
   const root = mkdtempSync(join(tmpdir(), "gauntlet-references-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const brokenLinks = [
+    "extensions/guard.ts: ./skills/one/reference/guide.md",
+    "extensions/guard.ts: skills/one/reference/guide.md",
     "skills/one/SKILL.md: ./skills/one/reference/guide.md",
     "skills/one/SKILL.md: skills/one/reference/guide.md",
   ];
@@ -20,6 +22,7 @@ test("package references resolve from the caller or package root, not the consum
     ["skills/two/helper.md", "# Helper"],
     ["agents/reviewer.md", "Use [the guide](../skills/one/reference/guide.md) and [the helper](../skills/two/helper.md). Read the consumer's `doc/gauntlet.md`. Example: `node --test extensions/x.test.ts`."],
     ["extensions/advice.ts", 'const help = new URL("../skills/two/helper.md", import.meta.url); const message = "Run `bin/help.mjs`.";'],
+    ["extensions/guard.ts", 'throw new Error("Read [the guide](../skills/one/reference/guide.md), [the guide](skills/one/reference/guide.md), or [the guide](./skills/one/reference/guide.md).");'],
     ["bin/help.mjs", ""],
   ]) {
     mkdirSync(join(root, dirname(file)), { recursive: true });
@@ -36,7 +39,7 @@ test("package references resolve from the caller or package root, not the consum
     ...brokenLinks,
     "skills/one/SKILL.md: skills/two/helper.md",
     "skills/one/reference/guide.md: ../../two/helper.md",
-  ]);
+  ].sort());
   rmSync(join(root, "skills/one/reference/guide.md"));
   assert.ok(lintReferences(root).includes("agents/reviewer.md: ../skills/one/reference/guide.md"));
   assert.deepEqual(lintReferences(join(import.meta.dirname, "..")), []);

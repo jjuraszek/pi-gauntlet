@@ -1,5 +1,5 @@
 import { globSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, relative, sep } from "node:path";
+import { basename, dirname, join, normalize, relative, sep } from "node:path";
 
 const tree = "skills/gauntlet";
 const phases = ["brainstorm", "plan", "implement", "verify", "ship"];
@@ -291,7 +291,8 @@ export function lintReferences(root, scope = ["{skills,agents}/**/*.md", "extens
       return "";
     }).replace(/^[\t ]*(?:\/\/|\/\*|\*).*$/gm, "");
     const visit = (ref, base) => {
-      if (base === "" || packageRooted.test(ref) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(ref)) check(file, ref, base);
+      const path = base ? normalize(ref) : ref;
+      if (base === "" || packageRooted.test(path) || /^(?:\.\.\/)+(?:skills\/.+\.md|package\.json)$/.test(path)) check(file, ref, base);
     };
     scanPathReferences(stripMarkdownLinks(messages, dirname(file), visit), visit);
     const base = text.match(/new URL\(`([^`]+)\/\$\{file\}`, import\.meta\.url\)/)?.[1];
