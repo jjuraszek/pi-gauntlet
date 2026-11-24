@@ -42,6 +42,18 @@ test('the idle-session check treats the status locator as observational', () => 
   ordered(idle, ['action: "status"', 'Read no phase file from status', 'Any phase not pending', 'stop: "session already carries flow state']);
 });
 
+test('deferred specs stop with the reply for the observed draft PR', () => {
+  const check = section(skill, '## Entry checks').split('6. **Grant field.**')[1];
+  for (const [evidence, reply] of [
+    ['`**PR:**` or session identifies #N', 'spec approved for handoff only - run /skill:gauntlet #N'],
+    ['Push succeeded,', 'spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec'],
+    ['Neither', 'spec approved for handoff only - which draft PR contains this spec?'],
+  ]) {
+    const row = check.split('\n').find(line => line.trimStart().startsWith(`| ${evidence}`));
+    assert.equal(row?.split('|').at(-2)?.trim(), `\`${reply}\``, evidence);
+  }
+});
+
 test('only the current formats remain', () => {
   for (const [name, text] of [...Object.entries(file), [handoffPath, handoff]]) {
     assert.doesNotMatch(text, /legacy|migrat|conversion/i, name);

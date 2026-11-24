@@ -108,22 +108,17 @@ that file.
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
-6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before tracker writes or brainstorm entry. Reuse the restore path, `reference/reconstruction.md`'s path or `reference/seed.md`'s pinned `<full-path>/<rel>`. Read between H1 and the first `##`. On exact `**Engine:** deferred`, stop and report handoff-only approval:
+6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before tracker writes or brainstorm entry. Reuse the restore path, `reference/reconstruction.md`'s path or `reference/seed.md`'s pinned `<full-path>/<rel>`. Read between H1 and the first `##`. On exact `**Engine:** deferred`, stop:
 
-   | Draft spec PR | Reply |
+   | Draft spec PR | Exact reply (replace #N with its PR number) |
    |---|---|
    | `**PR:**` or session identifies #N | `spec approved for handoff only - run /skill:gauntlet #N` |
-   | Push succeeded, creation failed | Point to [option 4's create-only retry](../gauntlet/brainstorm/spec-pr.md#publish-row-4). |
-   | Neither | Ask which draft PR contains this spec. |
+   | Push succeeded, [creation failed](../gauntlet/brainstorm/spec-pr.md#publish-row-4) | `spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec` |
+   | Neither | `spec approved for handoff only - which draft PR contains this spec?` |
 
-   After deferred-header admission, apply the grant predicate only for an approved spec in
-   [Standing grants](../gauntlet/amendment-surface.md#standing-grants): no
-   `**Amend-grant:**` line -> no grant;
-   exactly one line whose trimmed value is `none` -> no grant;
-   exactly one line whose trimmed value is any other non-empty single-line text ->
-   grant active, the sentence is that value;
-   two or more lines, one line with an empty value, or a value continued onto the next physical line ->
-   malformed, stop, print the offending line(s), no tracker call. Skip only grant decoding for routes that resolve no
+   After admission, decode `**Amend-grant:**` only for an approved spec per [Standing grants](../gauntlet/amendment-surface.md#standing-grants).
+   No line or one line whose trimmed value is `none` -> no grant; one other non-empty trimmed single-line value -> grant active, the sentence is that value.
+   Two or more lines, a blank value, or a value continued onto the next physical line -> malformed, stop, print the offending line(s), no tracker call. Skip only grant decoding for routes that resolve no
    approved spec (hotfix, `worktree: no`, a brief whose active phase is brainstorm,
    reconstruction's unapproved-draft brainstorming handoff); print no grant line.
    Resume reports the line; it never writes it.
