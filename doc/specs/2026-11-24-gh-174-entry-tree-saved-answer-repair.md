@@ -218,11 +218,11 @@ Rules: skills/gauntlet-resume/reference/coordinated.md
 Rules: skills/gauntlet/legs.md
 Rules: skills/gauntlet/ship/legs.md
 scope: none
-design: owns `scripts/gatekeep-comment-reconcile.test.mjs`, `scripts/replay-facts.mjs`, `scripts/brainstorming-bare-approve.test.mjs`, `scripts/brainstorming-draft-publication.test.mjs`, `scripts/ci.mjs`, `CHANGELOG.md`, `eval/{shape-ticket,gauntlet,conformance-reviewer,spec-council-applier,gatekeep-pr,spec-gate}/results/` and `report.md`, and both specs under `doc/specs/`
+design: owns `scripts/gatekeep-comment-reconcile.test.mjs`, `scripts/replay-facts.mjs`, `scripts/brainstorming-bare-approve.test.mjs`, `scripts/brainstorming-draft-publication.test.mjs`, `scripts/ci.mjs`, `CHANGELOG.md`, `eval/{shape-ticket,gauntlet,conformance-reviewer,spec-council-applier,gatekeep-pr,spec-gate}/results/` and `report.md`, the `for:` line of `eval/{conformance-reviewer,council,forge-skill,gauntlet,gauntlet-resume,loop,waves}/intent.md`, and both specs under `doc/specs/`
 
 ## Design
 
-The repair is four small edits and twelve runs of the existing eval runner on the PR branch. No file under `skills/`, `agents/`, `extensions/`, `src/bins/` or `bin/`, and no runner code under `eval/run.mjs` or `eval/lib/`, changes. In the six targets of section 3 (`shape-ticket`, `gauntlet`, `conformance-reviewer`, `spec-council-applier`, `gatekeep-pr`, `spec-gate`) no `intent.md`, `target.json`, `judge.md`, `replay.md` or `samples/` file is edited or added: `intentSha` covers the whole `intent.md` body, so an upkeep note there would stale the row 37 judgments.
+The repair is four small edits and twelve runs of the existing eval runner on the PR branch. No file under `skills/`, `agents/`, `extensions/`, `src/bins/` or `bin/`, and no runner code under `eval/run.mjs` or `eval/lib/`, changes. In the six targets of section 3 (`shape-ticket`, `gauntlet`, `conformance-reviewer`, `spec-council-applier`, `gatekeep-pr`, `spec-gate`) no `intent.md`, `target.json`, `judge.md`, `replay.md` or `samples/` file is edited or added: `intentSha` covers the whole `intent.md` body, so an upkeep note there would stale the row 37 judgments. Section 6 records what the review of PR #176 added after these edits: the `for:` line of seven `intent.md` files and ten further runs.
 
 ### Reading of ticket row 37
 
@@ -292,13 +292,37 @@ supersedes doc/specs/2026-11-23-gh-174-gauntlet-entry-phase-tree.md, `### Eval` 
 
 - Add: none. The carried spec already holds the one supersession banner below its title (line 3), naming this spec and that scope; keep that single banner and add no second one. Every other section of the carried spec stands, including its Tests for the ticket rows and its Post-deployment housekeeping paragraph.
 
+### 6. Answers re-recorded after the review repairs
+
+Sections 1-5 are the repair as first approved. The review of PR #176 then found moved instruction text reworded beyond what the carried spec's `### Edits inside moved files` allows, and its repairs restore that text under `skills/gauntlet/`, `skills/gauntlet-resume/SKILL.md`, `skills/forge-skill/SKILL.md` and `agents/conformance-reviewer.md`. Those repairs follow the carried spec, not this one; the sentence above that no file under `skills/` or `agents/` changes describes sections 1-5 only. The restored text changes the candidate fingerprint of seven eval targets, so their `intent.md` `for:` line no longer matches and the saved candidate answers recorded against the earlier text are stale.
+
+- Change: the `for:` line of `eval/<target>/intent.md` for `conformance-reviewer`, `council`, `forge-skill`, `gauntlet`, `gauntlet-resume`, `loop` and `waves`, to the fingerprint the runner reports for the current candidate text. No other line of an `intent.md` changes: the judge does not read the `for:` line and `intentSha` excludes it, so saved judgments stay current.
+- Run `node eval/run.mjs <target> <sample>` for each row below, after the review repairs to instruction text are committed, under the rules of section 3 (pre-attempt snapshot, serial order within a target, at most two targets at once, per-sample report copy, report restore to `97a48eeb`, runner-written records only) and the one-retry rule of Errors and edge cases. These ten runs are the only widening of section 3's "No other sample is run".
+
+| Target | Sample | Read by |
+|---|---|---|
+| `conformance-reviewer` | `ci-step-is-the-change` | `eval/conformance-reviewer/ci-step-is-the-change.test.mjs` |
+| `conformance-reviewer` | `legs-verification-line` | `eval/conformance-reviewer/legs-verification-line.test.mjs` |
+| `conformance-reviewer` | `prompt-stage-sentence` | `eval/conformance-reviewer/prompt-stage-sentence.test.mjs` |
+| `conformance-reviewer` | `stage-only-sentences` | `eval/conformance-reviewer/stage-exclusion.test.mjs` |
+| `conformance-reviewer` | `mixed-row` | `eval/conformance-reviewer/stage-exclusion.test.mjs` |
+| `gauntlet` | `pr-body-drafted-row` | `scripts/delivery-stage-authoring.test.mjs` |
+| `gauntlet` | `post-action-sorted` | `scripts/delivery-stage-authoring.test.mjs` |
+| `gauntlet` | `handoff-follows-pointer` | `scripts/entry-phase-evals.test.mjs` |
+| `gauntlet` | `ordinary-request-no-run` | `scripts/entry-phase-evals.test.mjs` |
+| `gatekeep-pr` | `typed-list-note` | `scripts/gatekeep-comment-reconcile.test.mjs`, `scripts/gatekeep-reject.test.mjs` |
+
+- `handoff-follows-pointer` and `ordinary-request-no-run` stay row 37 evidence of the move's behavior, now recorded against the restored text. The other eight runs are upkeep of the tests that read them and claim nothing about the move.
+- The `typed-list-note` run replaces a saved judgment that credits one model with the diff and paginated-comment reads its answer does not make. A fresh answer is kept only when each model's saved judgment agrees with what that model's answer shows.
+- No other limit of sections 1-5, Errors and edge cases or Out of scope is relaxed: restored instruction text is not reworded again to make a fresh answer pass.
+
 ### Paid and external actions
 
 Approving this spec authorizes the action below for the whole flow, across seed, rows, repairs and finish, with no per-step permission prompt. Any count in this spec is an estimate, not a limit.
 
 | Action | Runner | Inputs |
 |---|---|---|
-| Model-eval run `node eval/run.mjs <target> <sample>`, including the runner's own judge retries and confirmation replays and the reruns allowed under Errors and edge cases | the implementing agent, from the PR worktree, through the local `pi` binary with the replay models and judge fixed in `eval/lib/models.mjs` | the twelve target and sample pairs of section 3 |
+| Model-eval run `node eval/run.mjs <target> <sample>`, including the runner's own judge retries and confirmation replays and the reruns allowed under Errors and edge cases | the implementing agent, from the PR worktree, through the local `pi` binary with the replay models and judge fixed in `eval/lib/models.mjs` | the twelve target and sample pairs of section 3 and the ten of section 6 |
 
 This table covers the repair work only and replaces only the model-eval row of the carried spec's `### Paid and external actions`. A paid or external action of the repair work that is not named here needs separate explicit authorization that adds it to this section. The carried spec's `gh issue close 174` and `/skill:release major` rows stand with their conditions (the close after merge and both successful live observations, the release after the close): this spec neither authorizes closing #174 or releasing now nor cancels those proof and sequencing gates.
 
@@ -342,7 +366,7 @@ Per `reference/documentation-impact.md`.
 
 - `scripts/resume-read-traces.test.mjs` and `scripts/resume-coordinated-evidence.test.mjs`: their recorded tool-enabled sessions need a fresh capture, a separate procedure from the eval runner.
 - The four tests that fail identically on main: `eval/housekeeping/unpushed-amend-report`, `eval/housekeeping/unpushed-remote-ahead-stop`, `scripts/commit-contract-docs`, `scripts/resume-current-stages`.
-- Every stale saved answer other than the fifteen samples named here.
+- Every stale saved answer other than the fifteen samples of sections 2 and 3 and the ten runs of section 6.
 - Rewording moved instruction text to make a fresh answer pass.
 - A warning, fallback or conversion for an old-named overrides file; the ticket excludes all three.
 - Sibling repos: the pi-condense protection for root `gauntlet.md` and `doc/gauntlet.md`, and the retired names in the pi-cohort, pi-quiver and pi-condense `AGENTS.md` files, are companion changes per the ticket.
