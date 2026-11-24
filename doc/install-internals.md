@@ -34,10 +34,8 @@ v4.0.0 was the first public release and was a **breaking rename** (no behavior c
 
 - Reinstall under the new name: `pi install -l npm:pi-gauntlet` (was `@jjuraszek/pi-superpowers`).
 - Rename settings namespace `piSuperpowers.*` -> `piGauntlet.*` in every preset's `settings.json` (a preset still on the old key silently gets defaults).
-- Rename your override file `.pi/superpowers-overrides.md` -> `.pi/gauntlet.md`.
+- For v4, follow the [overrides file rename in the v4.0.0 release notes](../CHANGELOG.md#v400---2026-07-02). For a direct upgrade to v9, rename `.pi/superpowers-overrides.md` to `.pi/gauntlet.md` and move its sections as shown in [Upgrade from 8.x](../CHANGELOG.md#upgrade-from-8x).
 - Rename the env override `PI_SUPERPOWERS_AGENT_DIR` -> `PI_GAUNTLET_AGENT_DIR` if you set it.
-
-See [CHANGELOG.md](../CHANGELOG.md) for the full v4.0.0 entry.
 
 ## Versioning
 
