@@ -90,7 +90,7 @@ for (const scenario of ["move", "conflict", "race"]) {
       [path("dup"), scenario === "conflict" ? "other" : Buffer.from([0, 255])],
       [path("new"), run("new")], [other, run("foreign")], ["team/product/unknown/a.yaml", run("unknown")],
       ["team/product/shape-ticket/misfiled.yaml", run("misfiled")], ...legs];
-    const before = f.commit(records);
+    let before = f.commit(scenario === "move" ? records.filter(([p]) => p !== oldPath("old") && p !== oldPath("dup")) : records);
     f.publish(destination, before);
     let env = {};
     let expected = before;
@@ -109,6 +109,15 @@ for (const scenario of ["move", "conflict", "race"]) {
       const visible = report();
       assert.deepEqual(visible.runs.map(r => r.run_id), ["new"]);
       assert.equal(visible.corpus["team/product"], 4, "includes the three leg skills");
+      const local = f.commit(records, before);
+      f.git("update-ref", destination, local);
+      const refused = f.cli("--migrate-records");
+      assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+      assert.match(refused.stderr, /gauntlet-performance.*re-run --migrate-records/);
+      assert.equal(f.remoteTip(destination), before);
+      report();
+      assert.equal(f.remoteTip(destination), local, "the reader publishes the pending records");
+      before = local;
     }
     const result = f.cli("--migrate-records", env);
     if (scenario !== "move") {
@@ -123,6 +132,7 @@ for (const scenario of ["move", "conflict", "race"]) {
     const wanted = f.commit(records.filter(([p]) => p !== oldPath("dup")).map(([p, v]) => [p === oldPath("old") ? path("old") : p, v]));
     assert.equal(f.git("rev-parse", `${migrated}^{tree}`), f.git("rev-parse", `${wanted}^{tree}`));
     assert.deepEqual(report().runs.map(r => r.run_id).sort(), ["new", "old"]);
+    assert.equal(f.remoteTip(destination), migrated, "the reader does not republish the old keys");
     const repeat = f.cli("--migrate-records");
     assert.equal(repeat.status, 0, repeat.stderr);
     assert.equal(repeat.stdout.trim(), "nothing to migrate");

@@ -147,6 +147,11 @@ function migrateRef(root, remote = "origin", { retireBranch: retire, migrateReco
   };
   if (migrateRecords) {
     const tip = discover(TELEMETRY_REF, trackingRef(remote));
+    const local = gitRun(["rev-parse", "--verify", "--quiet", TELEMETRY_REF], root);
+    if (!local.ok && local.code !== 1) throw new Error(local.stderr || "git rev-parse failed");
+    if (local.ok && (!tip || required(["rev-list", "-1", `${tip}..${local.stdout}`]))) {
+      throw new Error("Unpublished local telemetry: run gauntlet-performance to publish it, then re-run --migrate-records");
+    }
     const repo = telemetryRepo(root);
     const from = `${repo}/brainstorming/`, to = `${repo}/gauntlet/`;
     const tree = tip ? required(["ls-tree", "-r", "-z", tip, "--", from, to], { raw: true }) : "";

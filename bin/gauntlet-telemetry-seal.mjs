@@ -736,6 +736,11 @@ ${retry}`);
   };
   if (migrateRecords) {
     const tip = discover(TELEMETRY_REF, trackingRef(remote));
+    const local2 = gitRun(["rev-parse", "--verify", "--quiet", TELEMETRY_REF], root);
+    if (!local2.ok && local2.code !== 1) throw new Error(local2.stderr || "git rev-parse failed");
+    if (local2.ok && (!tip || required(["rev-list", "-1", `${tip}..${local2.stdout}`]))) {
+      throw new Error("Unpublished local telemetry: run gauntlet-performance to publish it, then re-run --migrate-records");
+    }
     const repo = telemetryRepo(root);
     const from = `${repo}/brainstorming/`, to = `${repo}/gauntlet/`;
     const tree = tip ? required(["ls-tree", "-r", "-z", tip, "--", from, to], { raw: true }) : "";
