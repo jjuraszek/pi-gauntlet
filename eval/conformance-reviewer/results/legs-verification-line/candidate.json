@@ -1,7 +1,7 @@
 {
   "sample": "legs-verification-line",
   "arm": "candidate",
-  "skillSha": "072adbf4d8fbc9c97539bf42bebc8788375e70de47abecfc15c6bacf794e1cda",
+  "skillSha": "4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c",
   "inputSha": "93f9797b89afd869f6bb0fcb6686dc913a65b828d76344843594ae4c6d1f1566",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (the diff and complete numbered files show every requirement; the only fact not visible in numbered lines, that the CLI entry point calls `label` before printing, is stated as given in the inputs)\n\nRequirement coverage:\n  - [DELIVERED]    R1: The label formatter trims surrounding whitespace. — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" (the prompt repeats it: \"trims surrounding whitespace\") — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: The label formatter lowercases the label. — origin: spec \"Design\" - \"The label formatter lowercases the label.\" (the prompt repeats it: \"lowercases the label\") — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Labels are normalized before the CLI prints them. — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2 (`return value.trim().toLowerCase();`); the CLI entry point is unchanged and, per the inputs, already calls `label` before printing\n  - [DELIVERED]    R4: The regenerated CLI bundle is committed with the change. — origin: spec \"Legs / Leg: acme/widgets\" - \"[...] regenerated bundles committed [...]\" (the prompt repeats it: \"Commit the regenerated CLI bundle as part of the change\") — evidence: bin/widget.mjs:1-3 is tracked and committed, and its formatter matches src/label.mjs:1-3\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
-      "words": 186,
-      "wallMs": 14069,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small diff fully inlined; every requirement maps to a cited line. No checks could be run because no tools were available.)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Regenerated CLI bundle committed with the change — origin: spec \"Legs / acme/widgets contract\" - \"[...] regenerated bundles committed [...]\" — evidence: bin/widget.mjs:2 (`return value.trim().toLowerCase();`), which matches src/label.mjs:2. The bundle is tracked and committed in the audited change.\n  - [DELIVERED]    R4: Labels are normalized before the CLI prints them — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:1-3. The bundled `label` now normalizes, and the stated, unchanged CLI entry point already calls `label` before printing.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 148,
+      "wallMs": 12173,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Normalize labels before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2; supplied file description confirms the unchanged CLI entry point calls `label` before printing.\n  - [DELIVERED] R2: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2, bin/widget.mjs:2\n  - [DELIVERED] R3: Lowercase the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2, bin/widget.mjs:2\n  - [DELIVERED] R4: Include the regenerated CLI bundle in the committed change — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:1-3; supplied file description confirms this bundle was regenerated from src/label.mjs and both files are tracked and committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 125,
-      "wallMs": 8309,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace before CLI output — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2; bin/widget.mjs:2. The supplied file context confirms the CLI calls `label` before printing.\n  - [DELIVERED] R2: Lowercase the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2; bin/widget.mjs:2.\n  - [DELIVERED] R3: Include the regenerated CLI bundle — origin: spec \"Legs / Leg: acme/widgets\" - \"[...] regenerated bundles committed; [...]\" — evidence: bin/widget.mjs:1-3. The supplied delivery context confirms this is the regenerated bundle and is committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
+      "words": 97,
+      "wallMs": 8221,
       "mechanical": {
         "f1": "holds"
       }
@@ -40,7 +40,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
       "baselineOutputSha": "0c57b0e0d2d780b438871c129e92ecfa7e6cf6e82301aa52942011b751d4299b",
-      "candidateOutputSha": "229c01496077d7b26894add3c3971e24fb8a497fa6396ede1ca15296e8385876",
+      "candidateOutputSha": "ccfd5c5685faf9534ec4cf836f5d5227eca7234b1f7656948a1941dd2ca15dee",
       "facts": {
         "f2": {
           "before": "holds",
@@ -63,8 +63,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "On this sample none of the three facts moved: both Before and After report CONFORMS with DELIVERED rows for trimming and lowercasing citing src/label.mjs:2, a separate DELIVERED row for the bundle clause whose origin quotes only \"regenerated bundles committed\" from the leg verification line with evidence in bin/widget.mjs, and no row, gap, drift line or skip note mentioning npm run pr-check, green exact-head CI, or the PR gate. The expected fails -> holds movement therefore does not show here, because Before already satisfied these facts; the After wording did no harm but this sample gives no evidence that it caused the improvement. The only visible differences in After are the parenthetical \"the prompt repeats it\" notes on origins (consistent with keeping the spec's file clause as the origin when the prompt repeats it) and the dropped \"no tests were run\" remark in the confidence line. To keep all three facts, retain the wording that splits a leg verification line clause by clause, keeping file deliverables as requirements with an elided origin quote of just the file clause, and that omits stage clauses silently rather than listing them as skipped; be careful that the prompt-repeat parenthetical never quotes the prompt's stage sentence (\"the PR gate and green exact-head CI are the ship evidence\"), since that would break f2.",
-      "wallMs": 5937,
+      "feedback": "No fact moved on this sample: f2, f3 and f4 hold in both Before and After, so the expected fails -> holds movement is not visible here because Before already satisfied them. Both outputs give DELIVERED rows for trimming and lowercasing citing src/label.mjs:2, and both give the bundle clause its own DELIVERED row whose origin quotes only \"regenerated bundles committed\" from the leg verification line with evidence in bin/widget.mjs. Neither output quotes, treats as a requirement, or comments on the PR gate command or the exact-head CI ship evidence, and neither lists skipped stage clauses. The only nearby text is the confidence note that no tests or checks could be run because no tools were available, which is a statement about the audit's limits rather than a skip note; to keep f2 safe, the wording should keep that note generic and never name npm run pr-check, CI or the ship evidence. The After wording delivers the Change on this sample without losing anything Before kept, but this sample cannot show that the wording caused the result; if the expected movement matters, the Before arm may need a sample or run where the old wording actually fails.",
+      "wallMs": 7641,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -72,7 +72,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
       "baselineOutputSha": "417a302e6c50f939623b38506d0fbfef2b5fde6584e11bf2296d8a098ff33cf1",
-      "candidateOutputSha": "cdbe3fb457c01ad140ec1c69d81fa9997e12ec4643a3c0c66cb7389ed912e17e",
+      "candidateOutputSha": "c8dc460de07dc3bc5f6b67eb00ea4e3a0067febe4af293978cc64498e67a1ecc",
       "facts": {
         "f2": {
           "before": "holds",
@@ -95,8 +95,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "On this sample nothing moved: Before and After both report CONFORMS with DELIVERED rows for trimming and lowercasing (citing src/label.mjs:2 and bin/widget.mjs:2), a separate DELIVERED row for \"regenerated bundles committed\" with a leg-contract origin and bin/widget.mjs evidence, and neither output quotes or comments on the PR gate, npm run pr-check, green CI, or lists skipped stage clauses. The expected fails -> holds movement for f2, f3 and f4 therefore does not show in this pair, because the Before output already satisfied all three facts; the After wording is not doing visible work on this input, so either the Before arm was not reproducing the failure this run or the sample does not discriminate the change. The After wording does preserve everything Before kept, so no fix is needed for regression: keep the instruction that splits a leg verification line by clause, retaining file deliverables as requirements with the file clause alone as the origin quote, and dropping stage clauses silently with no row, drift entry or skip note. The only differences are cosmetic (\"supplied file description\" versus \"supplied delivery evidence\", and \"- none\" versus \"none\" under origin drift); if the drift format matters downstream, pin it explicitly.",
-      "wallMs": 5925,
+      "feedback": "On this sample none of the three facts moved: both Before and After report CONFORMS with DELIVERED rows for trimming and lowercasing citing src/label.mjs:2 and bin/widget.mjs:2, a separate DELIVERED row for the bundle clause whose origin quotes \"regenerated bundles committed\" with evidence in bin/widget.mjs, and no row, gap, drift entry or skip note mentioning npm run pr-check or green exact-head CI. So the expected fails -> holds movement is not visible here because Before already satisfied these facts. Two small things to watch in After: the bundle row's origin is rendered as \"[...] regenerated bundles committed; [...]\", and those ellipsis markers hint at omitted neighbouring clauses - they do not quote or explain the stage clauses, so f2 still holds, but wording that tells the model to quote just the file clause verbatim with no elision markers would make this more robust. After also dropped the Goal row that Before had; that does not affect any fact here, but if you want Goal-level coverage preserved, state that excluding stage clauses does not remove non-stage Goal/Design requirements. Keep the instruction that a file deliverable on a leg verification line gets its own row with the spec file clause as origin, while stage clauses on the same line are omitted silently.",
+      "wallMs": 6213,
       "verdict": "unchanged"
     }
   },
@@ -284,5 +284,5 @@
       }
     }
   },
-  "repoSha": "43b5c7b1a38cbb773808bc23fecac5694582da0a"
+  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
 }

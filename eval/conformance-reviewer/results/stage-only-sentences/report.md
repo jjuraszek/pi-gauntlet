@@ -1,8 +1,8 @@
 # eval report: conformance-reviewer (partial run: stage-only-sentences)
 
-for: 072adbf4d8fbc9c97539bf42bebc8788375e70de47abecfc15c6bacf794e1cda
+for: 4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c
 
-wall: 13s
+wall: 17s
 
 ## Change
 
@@ -14,12 +14,12 @@ Exclude standalone stage sentences from Design, Errors and edge cases, and Tests
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| stage-only-sentences | anthropic/claude-opus-5-5 | unchanged | 5140 | f1: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
-| stage-only-sentences | github-copilot/gpt-6.1-sol | unchanged | 5139 | f1: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
+| stage-only-sentences | anthropic/claude-opus-5-5 | unchanged | 8584 | f1: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
+| stage-only-sentences | github-copilot/gpt-6.1-sol | unchanged | 4065 | f1: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- stage-only-sentences / anthropic/claude-opus-5-5: Neither fact moved on this sample: both Before and After report CONFORMS with only the two trimming requirements (Design and Goal origins) backed by src/label.mjs line evidence, quote none of the three named stage sentences, give no row, gap, verdict or drift line to the PR-title, PR-state, review, merge, npm test or release-workflow sentences, and carry no skip note or explanation of omitted stage sentences in confidence text or origin drift. So the expected fails -> holds movement for these facts is not visible here, because Before already satisfied them on this run. The After wording keeps what Before kept; the only differences are cosmetic (evidence annotations in parentheses, range 1-3 instead of 1-2, and the dropped "Parallel-safe: none" line). If that line is part of the required report format, restore it in the After wording. Otherwise keep the current exclusion phrasing, which removes stage sentences silently without prompting a skip note, and still anchors the delivered behavior to file evidence.
-- stage-only-sentences / github-copilot/gpt-6.1-sol: Both outputs are effectively identical on these facts: each reports CONFORMS with a single delivered row for the trimming behavior, cites src/label.mjs:2 as file evidence, quotes only the Design behavior sentence, and contains no quote, row, gap, drift line, skip note or confidence commentary about the PR-description, ship-evidence, scan-time, PR-title, PR-state, review, merge, full-suite or workflow-run sentences. The After wording moved neither fact; the only visible differences are that After drops the inline code snippet from the evidence and prints the drift 'none' without a bullet, neither of which affects f1 or f3. To keep both facts while delivering the Change, keep instructing the skill to silently omit delivery-stage sentences (no skip list, no drift, no confidence caveat) while still requiring a file:line citation for each delivered behavior; if you want the evidence snippet retained as in Before, say so explicitly, since After shows it can be dropped.
+- stage-only-sentences / anthropic/claude-opus-5-5: Neither fact moved: both outputs report CONFORMS with only the two trimming requirements, quote none of the PR, CI, review, merge, suite or workflow sentences, give them no row, gap or drift line, and cite src/label.mjs as evidence for the delivered behavior. The one borderline spot in After is the confidence sentence "No checks were runnable, but none are needed to confirm the behavior." I read it as a remark about the auditor's own verification rather than a summary or explanation of skipped spec sentences, so f3 holds, but it sits close to the excluded `npm test` and CI clauses and a stricter reader could take it as an implicit skip note. To keep f3 safe, tell the skill that confidence text should cite only the file evidence (diff size, visible lines) and should not mention checks, suites, CI or anything not run when those belong only to excluded delivery-stage sentences. R2's aside that the prompt repeats the clause and the spec clause is quoted as origin is harmless here, but it is process narration that could be trimmed from the requirement line.
+- stage-only-sentences / github-copilot/gpt-6.1-sol: Both outputs are effectively identical on these facts: each reports a single DELIVERED row for the trimming behavior with file evidence at src/label.mjs:2, quotes only the Design behavior sentence, and contains no coverage row, gap block, verdict text, drift line, confidence note or skip summary for any PR-title, PR-state, review, merge, CI, scan-time, full-suite or workflow sentence. Nothing in the After wording moved either fact; the only difference is the phrasing of the evidence text ("returns `value.trim()`" versus a parenthesized code quote). To keep this, continue to exclude standalone delivery-stage sentences silently (no skip note, no drift entry, no confidence caveat) while retaining the behavior requirement with its file:line evidence.
 
 exit: 0

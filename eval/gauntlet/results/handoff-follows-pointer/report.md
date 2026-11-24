@@ -1,8 +1,8 @@
 # eval report: gauntlet (partial run: handoff-follows-pointer)
 
-for: cf2dd692c72e07a639b5bcea86df8bb1b1ebe4d0e0034cd29fd1bd0436e69f8b
+for: eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97
 
-wall: 16s
+wall: 6s
 
 ## Change
 

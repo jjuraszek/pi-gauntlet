@@ -1,8 +1,8 @@
 # eval report: gauntlet (partial run: ordinary-request-no-run)
 
-for: 0866b31cea705429fd0576541ea992ecc59a31985f22f572cb2aa10c9c0ba88f
+for: eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97
 
-wall: 17s
+wall: 16s
 
 ## Change
 
@@ -12,12 +12,12 @@ An ordinary coding request does not enter the gauntlet, even with the entry inst
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 5248 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
-| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 4081 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 5343 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 4233 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
 
 ## Feedback
 
-- ordinary-request-no-run / anthropic/claude-opus-5-5: No fact moved: both outputs decline to reset trackers, start a brainstorm or other gauntlet phase, or create a worktree; neither lists any read of a file under skills/gauntlet/ or a workflow skill invocation among its pre-edit actions; and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, while offering the workflow only as an explicit opt-in rather than treating the request as entry consent. After's wording delivers the Change cleanly: it states that an ordinary implementation request does not start the gauntlet and names the opt-in (`/skill:gauntlet`) without invoking it. To keep this stable, retain the explicit statement that an ordinary request is not entry consent, keep the opt-in phrased as something the user must say rather than something the assistant does, and keep the pre-edit action list limited to project files (exporter, label source, tests, manifest) so no step-instruction read or tracker action can creep in. After's added `git status` step and its stop-and-tell condition are harmless to these facts.
-- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved: both outputs treat the CSV export request as ordinary implementation work, list only checkout, AGENTS.md, exporter, label-source and test reads before the first edit, and explicitly decline to start the gauntlet or create a worktree; neither takes a tracker action nor reads anything under skills/gauntlet/. After's wording keeps everything Before kept. The only slight softening is 'would not start the gauntlet or create its dedicated worktree', which a reader could take as leaving room for some other worktree; saying 'no worktree' outright, as Before did, would keep the worktree fact unambiguous, and keeping the explicit statement that no gauntlet phase starts continues to protect the tracker and step-read facts.
+- ordinary-request-no-run / anthropic/claude-opus-5-5: No fact moved: both outputs decline to reset trackers, start a phase, or create a worktree, list only repo-search, read, and test-baseline actions targeting the CSV exporter, label source, tests, and manifest (nothing under skills/gauntlet/ and no skill invocation), and offer the workflow only as an opt-in the user must explicitly request, so the request is addressed directly and not treated as entry consent. After's wording differs only in naming `/skill:gauntlet` instead of `/skill:brainstorming` as the opt-in and in stating it will work in the current checkout; both are mentions of an option, not invocations. To keep all four facts stable, keep the explicit 'not a gauntlet run / no tracker reset / no worktree' statement, keep the workflow offer phrased as a conditional the user must trigger, and keep the pre-edit action list restricted to project files so no step-instruction read or skill invocation can slip in.
+- ordinary-request-no-run / github-copilot/gpt-6.1-sol: Nothing moved on this case: both Before and After treat the CSV export request as ordinary direct work, explicitly decline to start the gauntlet or create a worktree, list only status checks, AGENTS.md reads, source/test searches and reads as pre-edit actions, and neither reads anything under skills/gauntlet/ nor invokes a workflow skill or phase tracker. After differs only in tool naming (`terminal` vs `bash`), splitting locate/read into separate steps, and dropping the baseline test run, none of which touches a fact. To keep all four facts, preserve the wording that an ordinary coding request with entry instructions in context still requires explicit consent before any phase start, worktree creation, or step-instruction read, so the assistant keeps routing straight to locating the exporter and its tests.
 
 exit: 0
