@@ -7,7 +7,7 @@ const directories = new Set([...phases, "implement/waves", "implement/loop"]);
 const anchorRow = /^\| `([\w-]+\.md)` \| `([.\w/-]+)` \| (.*?) \|$/gm;
 const pathReference = /(?<![\w./<>*-])(?:(?:[\w.-]+\/)*[\w][\w.-]*\.(?:md|mjs|ts)|(?:\.\.\/)+package\.json)\b/g;
 const packageRooted = /^(?:skills|agents|extensions|bin|doc)\//;
-const sourceRepository = /\bsource repository named in\s+`(?:\.\.\/)+package\.json`/i;
+const sourceRepositorySuffix = /^`?(?:\s+"[^"`\n]+"`?)?(?:\s+linked to\s+[^`,;.!?\n]+?)?\s+in the source repository named in\s+`(?:\.\.\/)+package\.json`/i;
 const installedPackage = /\b(?:installed\s+(?:[\w@./-]+\s+)?package|package\s+root|package(?:'s)?\s+install\s+directory)\b/i;
 const sentenceBoundary = /(?<=[.!?][`"')\]]*)\s+|\n[ \t]*\n|\n(?=[ \t]*(?:[-*] |\d+\. |#{1,6} ))/;
 const markdownLink = /\[[^\]\n]*\]\([ \t]*(?:<(?<angle>[^<>\n]+)>|(?<plain>[^<>\s)]+))(?:[ \t]+(?:"[^"\n]*"|'[^'\n]*'|\([^()\n]*\)))?[ \t]*\)/g;
@@ -18,14 +18,11 @@ const artifacts = /^(?:(?:AGENTS|CHANGELOG|CLAUDE|REVIEW|ITERATION|audit|snapsho
 
 function scanPathReferences(text, visit) {
   for (const sentence of text.split(sentenceBoundary)) {
-    const refs = [...sentence.matchAll(pathReference)];
-    const source = sentence.search(sourceRepository);
-    const attributed = source < 0 ? undefined : refs.findLast(match => match.index < source);
     const installed = installedPackage.test(sentence);
-    for (const match of refs) {
+    for (const match of sentence.matchAll(pathReference)) {
       const [ref] = match;
       const rooted = packageRooted.test(ref);
-      if (match === attributed && rooted) continue;
+      if (rooted && sourceRepositorySuffix.test(sentence.slice(match.index + ref.length))) continue;
       if (artifacts.test(ref) || (!rooted && ref.endsWith(".ts") && !ref.includes("../"))) {
         if (installed) visit(ref, "");
       } else {

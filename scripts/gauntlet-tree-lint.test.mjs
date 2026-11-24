@@ -97,14 +97,18 @@ test("only a source-repository attribution for the reference exempts an unshippe
   const file = "skills/one/SKILL.md";
   mkdirSync(join(root, dirname(file)), { recursive: true });
   writeFileSync(join(root, "package.json"), '{"repository":"example"}');
-  const label = "Print `help: doc/configuration.md`";
+  const label = 'Print `help: doc/configuration.md "Recovery"`';
+  const installed = "Run `bin/missing.mjs` from the installed package";
+  const source = "the source repository named in `../../package.json`";
   for (const [scenario, body, errors] of [
-    ["attributed label", `${label} linked to the heading in the source repository named in \`../../package.json\`.`, []],
-    ["source attribution wins", `${label} linked to the heading in the source repository named in \`../../package.json\`, not in the installed package root.`, []],
+    ["attributed label", `${label} linked to that heading in ${source}.`, []],
+    ["source attribution wins", `${label} linked to that heading in ${source}, not in the installed package root.`, []],
     ["unattributed label", `${label}.`, ["doc/configuration.md"]],
-    ["attribution in a different sentence", `${label}. Find the source repository named in \`../../package.json\`.`, ["doc/configuration.md"]],
-    ["broken manifest locator", `${label} linked to the heading in the source repository named in \`../package.json\`.`, ["../package.json"]],
-    ["mixed installed and source references", "Run `bin/missing.mjs` from the installed package and read `doc/configuration.md` in the source repository named in `../../package.json`.", ["bin/missing.mjs"]],
+    ["attribution in a different sentence", `${label}. Find ${source}.`, ["doc/configuration.md"]],
+    ["broken manifest locator", `${label} linked to that heading in the source repository named in \`../package.json\`.`, ["../package.json"]],
+    ["missing installed bin", `${installed}.`, ["bin/missing.mjs"]],
+    ["mixed installed and source references", `${installed} and read \`doc/configuration.md\` in ${source}.`, ["bin/missing.mjs"]],
+    ["unrelated source repository mention", `${installed}, then open ${source}.`, ["bin/missing.mjs"]],
   ]) {
     writeFileSync(join(root, file), body);
     assert.deepEqual(lintReferences(root), errors.map(ref => `${file}: ${ref}`), scenario);
