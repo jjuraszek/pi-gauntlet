@@ -70,3 +70,4 @@ row 37 done | Both models followed the handoff pointer, kept an ordinary request
 row 38 done | The upgrade notes map the entry command, 11 retired steps, 19 gate IDs and project settings, and explain how to finish interrupted runs and migrate earlier records. | Use lintReleaseNotes in scripts/gauntlet-tree-lint.mjs to check the migration tables before and after release promotion.
 repair verification | home 424eb14 | iteration 12
 amended | 1 item(s) | Reference check coverage
+amended | 1 item(s) | Reference check forms
