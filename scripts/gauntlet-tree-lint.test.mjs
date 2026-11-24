@@ -224,26 +224,24 @@ test("overrides-outline: readers no longer get shared settings from flat heading
 test("overrides-outline: a cached PR-head file cannot supply gate configuration", () => {
   const root = join(import.meta.dirname, "../skills/gatekeep-pr");
   const paragraph = readFileSync(join(root, "SKILL.md"), "utf8").split("\n## Project overrides\n\n")[1].split("\n\n", 1)[0];
-  const assessment = readFileSync(join(root, "reference/assessment.md"), "utf8");
+  assert.match(paragraph, trustedReuse, "cannot reuse the cached PR-head file without checking repository and revision");
+  assert.doesNotMatch(paragraph.replace(trustedReuse, "when the file is already in context"), trustedReuse);
+
   const path = ".pi/gauntlet.md";
   const overrides = command => `# shared\n## verification\n- verification command: ${command}\n`;
   const mergeBase = overrides("make verify");
   const cachedHead = overrides("true");
   const gitShow = new Map([[`$MB:${path}`, mergeBase], [`HEAD:${path}`, cachedHead]]);
 
-  function assertTrusted(reuse, ladder) {
-    assert.match(reuse, trustedReuse, "cannot reuse the cached PR-head file without checking repository and revision");
-    const revision = ladder.match(/`git show "([^":]+):<path>"` per source/)?.[1];
-    assert.equal(gitShow.get(`${revision}:${path}`), mergeBase, "read the merge-base file for gate configuration");
-  }
-
-  assertTrusted(paragraph, assessment);
-  for (const [source, reuse, ladder, error] of [
-    ["head read", paragraph, assessment.replace('git show "$MB:<path>"', 'git show "HEAD:<path>"'), /read the merge-base file/],
-    ["unqualified reuse", paragraph.replace(trustedReuse, "when the file is already in context"), assessment, /cannot reuse the cached PR-head file/],
-  ]) {
-    assert.ok(reuse !== paragraph || ladder !== assessment, source);
-    assert.throws(() => assertTrusted(reuse, ladder), error, source);
+  for (const file of ["reference/assessment.md", "reference/fix-wave.md"]) {
+    const source = readFileSync(join(root, file), "utf8");
+    function assertTrusted(text) {
+      const revision = text.match(/`git show "([^":]+):<path>"`/)?.[1];
+      assert.equal(gitShow.get(`${revision}:${path}`), mergeBase, `${file}: read the merge-base file for gate configuration`);
+    }
+    assertTrusted(source);
+    const headRead = source.replace('git show "$MB:<path>"', 'git show "HEAD:<path>"');
+    assert.throws(() => assertTrusted(headRead), err => err.message.startsWith(`${file}: read the merge-base file`));
   }
 });
 
