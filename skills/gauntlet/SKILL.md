@@ -174,7 +174,7 @@ Follow [User Review Gate](brainstorm/spec-finalization.md#user-review-gate) for 
 
 Execute in place from any later phase; never invoke `/skill:gauntlet` for it (its entry resets both trackers). Worktree, spec commits, and plan survive.
 
-Every skill resource in this flow (a `SKILL.md` or a `reference/*.md`) is loaded with the `read` tool at its absolute path under `skills/`, never with a shell command - pruning protection keys on `read`'s `path`.
+Load every Markdown skill resource this flow uses, including phase steps, their helpers and shared files, with the `read` tool at its absolute path under the installed `skills/` directory, never with a shell command - pruning protection keys on `read`'s `path`.
 
 Classify a text correction to an approved drafted acceptance-criteria row backed by implementer evidence (a quoted test, assertion, or code line in a `BLOCKED`/`NEEDS_CONTEXT` return) as an amend item. Keep ticket rows, row add/remove, reviewer-only or taste objections, problem statement changes, and component boundary changes as redraws at batch preparation, before any standing grant: re-draft from the new design and ratify at the full gate. Keep a disposition-only change to such a row in the amendment grammar so it keeps the cut question. Apply an item the human has answered by letter or custom text as recorded. Redraw test: the change alters the problem statement, adds or removes a component, or moves a component boundary -> redraw. A change inside one component (a persistence mechanism, a worker's HTTP client, dropping a fallback and its task) -> amend. State the call; the user overrides either way.
 
