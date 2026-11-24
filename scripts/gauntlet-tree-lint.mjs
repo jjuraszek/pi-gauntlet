@@ -83,7 +83,7 @@ export const retiredNames = { entry, overrides, steps };
 
 export function lintRetiredNames(root) {
   const inputs = new Set([entry, overrides, ...steps]);
-  const pattern = new RegExp([...steps, overrides, `/skill:${entry}\\b`, `skills/${entry}\\b`, `\\b${entry}/[a-z0-9-]+`, `#{1,2}\\s+${entry}\\b`].join("|"));
+  const pattern = new RegExp([`(?i:${steps.join("|")})`, overrides, `/skill:${entry}\\b`, `skills/${entry}\\b`, `\\b${entry}/[a-z0-9-]+`, `#{1,2}\\s+${entry}\\b`].join("|"));
   const scope = ["{skills,agents,extensions,bin,src/bins,scripts,test,tests,doc}/**/*", "README.md", "AGENTS.md", ".pi/*.md", "gauntlet.md", `${overrides}.md`, "eval/**/*"];
   const exclude = ["doc/specs", "doc/plans", "eval/**/results", "eval/*/report.md", "eval/*/records.jsonl", "eval/*/replay/results.md"];
   const consentPhrase = `explicit prose requesting ${entry}/the gauntlet,`;

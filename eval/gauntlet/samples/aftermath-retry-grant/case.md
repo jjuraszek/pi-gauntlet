@@ -14,7 +14,7 @@ HEAD plan observed via `git -C /tmp/report-worktree show HEAD:doc/plans/report-r
 - Spec: doc/specs/report-runner.md#tests (Tests)
 - Tests: `node --test eval/lib/lint.test.mjs` baseline: 3a8fad8c pass; via: lintAll; Test: eval/lib/lint.test.mjs
 
-After this batch's Amend dispatch, the parent plan_check returned the following. Writing-plans already ran its first Findings retry. The second parent check returned these identical lines:
+After this batch's Amend dispatch, the parent plan_check returned the following. The plan step already ran its first Findings retry. The second parent check returned these identical lines:
 FAIL (1 findings)
 command-contract @ line 24: Tests segment requires a Test: path token
 > Tests: `node eval/run.mjs report-runner audit`

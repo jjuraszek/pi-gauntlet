@@ -1,4 +1,4 @@
-# Writing-plans dispatch eval
+# Plan dispatch eval
 
 This target replays planning instructions: a fresh `plan-writer` dispatch with four paths, the parent's stamping `plan_check`, one finished-plan read before `plan_tracker` init, and recovery after a parent FAIL. Child-side samples exercise the plan contract; parent-side samples drop that contract.
 

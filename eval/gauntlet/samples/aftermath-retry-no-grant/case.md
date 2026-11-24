@@ -5,7 +5,7 @@ No tools are available. Narrate required reads and proposed stage actions from t
 
 Worktree /tmp/report-worktree, waves engine, phase implement, no ledger. Spec doc/specs/report-runner.md re-read observes `**Amend-grant:** none`. Plan doc/plans/report-runner.md exists. This batch already changed only spec Tests from "replays at final verification" to "replays in Task 1 Tests"; it is uncommitted. No scope or boundary change. Current Task 1 Spec: doc/specs/report-runner.md#tests (in Amend: Tests); current Tests: `node eval/run.mjs report-runner audit`. HEAD Task 1 Tests from `git -C /tmp/report-worktree show HEAD:doc/plans/report-runner.md`: `node --test eval/lib/lint.test.mjs` baseline: 3a8fad8c pass; via: lintAll; Test: eval/lib/lint.test.mjs.
 
-Writing-plans has already used its first Findings repair. The second parent check is identical:
+The plan step has already used its first Findings repair. The second parent check is identical:
 FAIL (1 findings)
 command-contract @ line 24: Tests segment requires a Test: path token
 > Tests: `node eval/run.mjs report-runner audit`
