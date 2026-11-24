@@ -1,0 +1,25 @@
+# eval report: conformance-reviewer (partial run: prompt-stage-sentence)
+
+for: 072adbf4d8fbc9c97539bf42bebc8788375e70de47abecfc15c6bacf794e1cda
+
+wall: 23s
+
+## Change
+
+Exclude delivery-stage clauses from conformance requirements without excluding file deliverables on the same leg verification line. The leg sample keeps two delivered behaviors and a delivered bundle clause in coverage, and reports CONFORMS without quoting or commenting on the PR gate or ship evidence.
+
+Exclude standalone stage sentences from Design, Errors and edge cases, and Tests whether a pull request exists or not. Keep one delivered requirement for the behavior half of each mixed acceptance row, with only the behavior in its origin quote. The stage-only-sentences and mixed-row samples exercise semantic classification and report omission, which token checks alone cannot prove. The prompt-stage-sentence sample omits a prompt-only CI sentence from the spec and requires no requirement, drift entry or skip note for that sentence, while a dropped prompt-only lowercase behavior and a missing Tests-file clause remain gaps with prompt and spec origins respectively; only the Tests line's suite-run clause is excluded from coverage, origin, remediation and touched files. The ci-step-is-the-change regression sample keeps the unchanged audit behavior for an undeleted browser-install step and a missing regenerated bundle on a leg verification line. Its four facts must hold on both arms; no movement is intended for them. Keep the spec's file clause as the origin when the prompt repeats it, so a leg verification line's missing file deliverable stays visible as spec coverage. The post-merge-action sample leaves out the after-merge admin secret-creation step and commit-message text without a row, drift or skip note, while delivered trimming still yields CONFORMS. Coverage is limited to these six samples.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| prompt-stage-sentence | anthropic/claude-opus-5-5 | unchanged | 9629 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
+| prompt-stage-sentence | github-copilot/gpt-6.1-sol | unchanged | 9478 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
+
+## Feedback
+
+- prompt-stage-sentence / anthropic/claude-opus-5-5: No fact moved on this sample: all three hold in both Before and After, so the expected fails -> holds movement for f1, f2 and f4 does not show up, because Before already satisfied them. Both outputs leave "Both pull requests pass CI." out entirely, with no row, gap, drift line or mention. Both keep the lowercase gap G2 with the prompt origin "Make the label formatter lowercase its output." Both keep the missing test/label.test.mjs gap G1 with a spec Tests origin that quotes only the file clause and elides the `npm test` clause with "[...]". The After wording does deliver the Change here and loses nothing Before kept. The one thing to watch is the "[...]" elision marker in the G1 origin quote, which a stricter reader could take as a trace of the excluded suite-run clause. If you want that unambiguous, tell the skill to end the origin quote at the file clause without an elision marker, while still quoting the file clause verbatim from the spec. After also widens G2's remediation and touched-files to include test/label.test.mjs and the spec file; this breaks no fact, but keep the instruction that excluded stage clauses never appear in remediation or touched files so that widening does not bring the suite run back in.
+- prompt-stage-sentence / github-copilot/gpt-6.1-sol: No fact moved on this sample: both outputs never mention the CI sentence, both keep the lowercase gap with the prompt origin quote "Make the label formatter lowercase its output.", and both keep the missing test/label.test.mjs gap with the spec Tests file-clause origin and no row, gap or drift for the `npm test` suite run. The expected fails -> holds movement therefore does not show here, because Before already satisfied all three facts. Two things in After are worth tightening. First, both outputs end the Tests origin quote with "[...]", which a strict reader could take as a trace of the excluded suite-run clause; wording that tells the model to end the quote at the file clause with no elision marker would remove that risk. Second, After widens G1's remediation and touched-files to include a regression test in test/label.test.mjs, which the prompt's lowercase sentence does not ask for, and this flips Parallel-safe from disjoint to conflicting. To avoid that, say that a gap's remediation and touched files are limited to what its own origin quote requires, so the prompt-origin behavior gap stays on src/label.mjs and the test file belongs only to the spec Tests gap.
+
+exit: 0
