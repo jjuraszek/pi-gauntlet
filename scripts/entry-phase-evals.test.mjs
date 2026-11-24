@@ -9,12 +9,14 @@ import { MODELS } from '../eval/lib/models.mjs';
 import { readRecord, cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
+// The saved baseline replies used the pre-move tree, even after main advances.
+const base = '590bb884eaaff246d10e169cf0fcff70cba9a732';
 for (const [target, sample] of [
   ['gauntlet', 'handoff-follows-pointer'],
   ['gauntlet', 'ordinary-request-no-run'],
   ['gatekeep-pr', 'overrides-own-block-only'],
 ]) test(`${target}/${sample}: both candidate models meet every must-hold`, () => {
-  const prep = prepareTarget({ root, target, sample });
+  const prep = prepareTarget({ root, target, sample, base });
   assert.ok(prep.plans, prep.message);
   const [plan] = prep.plans;
   const [before, after] = ['baseline', 'candidate'].map(arm => readRecord(join(prep.dir, 'results'), sample, arm));
