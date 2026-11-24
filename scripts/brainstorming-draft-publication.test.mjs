@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
+import { replayFactsSha } from './replay-facts.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const sample = 'eval/spec-gate/samples/option-6-handoff';
@@ -32,6 +33,7 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
 
 test('saved row-4 publication replay proves persistence, spec-only push and safe retry on both models', () => {
   const candidate = JSON.parse(read('eval/spec-gate/results/option-6-handoff/candidate.json'));
+  const factsSha = replayFactsSha(candidate, read(`${sample}/expected.md`));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, 'ok', model);
@@ -40,7 +42,7 @@ test('saved row-4 publication replay proves persistence, spec-only push and safe
     assert.doesNotMatch(initialGate, /--allowance/);
     assert.ok(output.text.includes('Loop engine unavailable: this spec has no acceptance-criteria rows.'), `${model}: omission explained`);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, sha256(read(`${sample}/expected.md`)), `${model}: current facts`);
+    assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged output`);
     for (const id of ['menu', 'persistence', 'publication', 'single-member', 'completion', 'replies', 'invalid', 'rejection', 'create-failure', 'retry', 'retry-menu', 'continue']) {
       assert.equal(judged.facts[id]?.after, 'holds', `${model}/${id}`);

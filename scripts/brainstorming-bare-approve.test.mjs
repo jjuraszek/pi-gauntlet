@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
+import { replayFactsSha } from './replay-facts.mjs';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 test('bare approve and plain approval prose echo the rendered recommendation before applying the selected row', () => {
@@ -30,12 +31,12 @@ for (const [sample, ids] of [
 ]) {
   test(`saved ${sample} replays normalize approval and preserve rejection rules on both models`, () => {
     const candidate = JSON.parse(read(`eval/spec-gate/results/${sample}/candidate.json`));
-    const factsSha = sha256(read(`eval/spec-gate/samples/${sample}/expected.md`));
+    const factsSha = replayFactsSha(candidate, read(`eval/spec-gate/samples/${sample}/expected.md`));
     assert.equal(Object.keys(candidate.outputs).length, 2);
     for (const [model, output] of Object.entries(candidate.outputs)) {
       assert.equal(output.status, 'ok', model);
       const judged = candidate.judge[model];
-      assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
+      assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
       assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
       for (const id of ids) {
         assert.equal(judged.facts[id]?.after, 'holds', `${model}/${id}`);

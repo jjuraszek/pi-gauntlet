@@ -178,7 +178,7 @@ for (const [name, text, patterns] of [
     /skip the fetch, run no worktree add, verify HEAD/,
     /selected skill's absolute `filePath` metadata/,
     /procedure root: <absolute installed skill directory>/,
-    /Resolve all named procedure dependencies relative to this root, never the PR worktree or cwd/,
+    /Use this root to locate the installed procedure\. Follow each relative link from the file that contains it, never the PR worktree or cwd/,
     /never overwrite course, counters, caps, deadline, ledger, or helper paths/,
     /REPORT <report path>/, /CONFLICTING <report path> - <sync record>/,
     /FAILED - <reason>/, /STOPPED - <ask> - <what the user must supply>/,
@@ -537,7 +537,7 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
-  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through SKILL\.md `## Wording rules`/);
+  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through \.\.\/SKILL\.md `## Wording rules`/);
   assert.match(brief, /Render a `pending` row through `reference\/report\.md`'s waits rule/);
   assert.match(brief, /Render a run with `status != completed` through `reference\/report\.md`'s waits rule;\nwithhold pre-composed merge exactly like a `pending` row/);
   assert.match(loop, /render the queued-merge wait through `report\.md`/);
