@@ -7,7 +7,7 @@ import { execFileSync } from "node:child_process";
 import { prepareTarget, runTarget } from "../run.mjs";
 import { fileURLToPath } from "node:url";
 import { loadSkillsFromDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
-import { assemble, parseCase, treeReader } from "./replay.mjs";
+import { assemble, parseCase, readTree, treeReader } from "./replay.mjs";
 import { sha256 } from "./checks.mjs";
 import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
@@ -43,11 +43,10 @@ function checkInvocations(text, registered, injected, source) {
   }
 }
 
-test("neither arm invokes an unregistered skill outside verbatim baseline instructions", () => {
+test("neither arm invokes an unregistered skill outside verbatim baseline instructions", (t) => {
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const { skills } = loadSkillsFromDir({ dir: join(root, "skills"), source: "npm:pi-gauntlet" });
   const registered = new Set(skills.map(({ name }) => name));
-  const read = treeReader(root);
   const seen = new Set();
   function commands(owner, text) {
     for (const literal of examplesByOwner.get(owner) ?? []) {
@@ -66,25 +65,47 @@ test("neither arm invokes an unregistered skill outside verbatim baseline instru
       { message: `unlisted: unregistered /skill:${name}` }, input);
   }
   checkInvocations(commands("example/quoted-input", quotedInput), registered, undefined, "case");
-  for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
-    if (!dir.isDirectory() || ["lib", "_template"].includes(dir.name)) continue;
-    const prepared = prepareTarget({ root, target: dir.name });
+  function checkPlans(root, name, options) {
+    const read = treeReader(root);
+    const prepared = prepareTarget({ root, target: name, ...options });
     assert.ok(prepared.plans?.length, prepared.message);
-    for (const { sample, caseText, basePrompt, baseFiles, candPrompt, candFiles, candSkill } of prepared.plans) {
-      const owner = `${dir.name}/${sample}`;
-      const { bundle, drop } = parseCase(read(`eval/${dir.name}/samples/${sample}/case.md`));
+    // A replay gives a model its arm's instructions, the prompt, the tracker session and the fixture checkout.
+    // baseSkill and baseFiles are the baseline revision's verbatim instructions, the one exempt input.
+    for (const { sample, caseText, basePrompt, baseFiles, candPrompt, candFiles, candSkill, trackerResult, fixtureDir } of prepared.plans) {
+      const owner = `${name}/${sample}`;
+      const { bundle, drop } = parseCase(read(`eval/${name}/samples/${sample}/case.md`));
       const target = { ...prepared.target, skillFiles: prepared.target.skillFiles.filter(file => !drop.includes(file.path)) };
       const original = assemble(target, read, bundle);
       assert.ok(candSkill.startsWith(original), `${owner}: candidate assembly differs`);
       const instructions = assemble(target, path => commands(path, read(path)), bundle) + candSkill.slice(original.length);
+      for (const { path, content } of candFiles ?? []) assert.ok(original.includes(content), `${owner}: ${path} is outside the candidate assembly`);
+      const session = trackerResult ? [trackerResult.user, JSON.stringify(trackerResult.arguments), trackerResult.text] : [];
+      const checkout = trackerResult || candFiles ? Object.entries(readTree(fixtureDir)).flatMap(([path, { content }]) => [path, content]) : [];
       for (const [prompt, files, skill] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, instructions]]) {
         const injected = files && parseFrontmatter(files[0].content).frontmatter.name;
         const start = files ? prompt.indexOf(" ") + 1 : prompt.length - caseText.length;
         assert.equal(prompt.slice(start, start + caseText.length), caseText);
         const text = prompt.slice(0, start) + commands(owner, caseText) + prompt.slice(start + caseText.length);
-        checkInvocations(`${skill}\n${text}`, registered, injected, owner);
+        checkInvocations([skill, text, ...session, ...checkout].join("\n"), registered, injected, owner);
       }
     }
+  }
+  const { root: scratch, put, g } = repo();
+  t.after(() => rmSync(scratch, { recursive: true, force: true }));
+  put("extensions/phase-tracker.ts", 'pi.registerTool({ name: "phase_tracker", description: "Track phases.", });\n');
+  g("add", "extensions"); g("commit", "--no-verify", "-q", "-m", "tracker");
+  const tracked = (session, note = "Return the receipt.\n") => {
+    put("eval/t/samples/s1/tracker-result.json", JSON.stringify({ user: "Continue.", arguments: { action: "complete" }, text: "Completed.", ...session }));
+    put("eval/t/samples/s1/fixture/next-step.md", note);
+    checkPlans(scratch, "t", { base: "HEAD", baselineOnly: true });
+  };
+  tracked({});
+  const order = "Run /skill:waves now.";
+  for (const replayed of [[{ user: order }], [{ arguments: { action: order } }], [{ text: order }], [{}, order]]) {
+    assert.throws(() => tracked(...replayed), { message: "t/s1: unregistered /skill:waves" }, JSON.stringify(replayed));
+  }
+  for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
+    if (dir.isDirectory() && !["lib", "_template"].includes(dir.name)) checkPlans(root, dir.name);
   }
   assert.deepEqual(seen, new Set(examplesByOwner.keys()));
 });
