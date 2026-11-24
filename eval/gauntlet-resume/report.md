@@ -1,25 +1,50 @@
-# eval report: gauntlet-resume (partial run: deferred-spec-stop)
+# gauntlet-resume eval report
 
-for: 6abb95989c5289609d984124b64b6eb4f724679d4b5eb485c01eaa097d1c3551
+for: cac2fd24472bb56415c0ff6a3027cacec468fb49c0b053ea5485292d06f6dd44
 
-wall: 35s
+## Scope
 
-## Change
+Selected ticket #158 regression samples, the three C3 current-stage samples and the five C4 coordinated stops against `09c9f4e1`. This is sample-scoped coverage, not a target-wide pass. C5-C7 remain unselected. Unselected samples are historical evidence, not current passes. The bundle-free intent binding and judge-read intent body are unchanged.
 
-Accept only current-format briefs and ledgers through the single gauntlet-resume entry point. Load loop restoration, plan restoration and plan repair from their owning references, and load coordinated rules only for multi-leg briefs. Preserve the continuation skill, phase, exact task snapshot and fresh-gate boundary for current-format brainstorm, plan, implement, verify and ship briefs. Recover current ledger returns from ledger-held attribution before tracker refresh without counting a consumed attempt twice; preserve mixed verification/conformance tasks and plan baseline upgrades. Stop old ledgers at admission with the unsupported-format sentence and recovery pointer, without conversion or tracker mutation. Selected text replays compare supplied observations against 09c9f4e1; they do not prove live reads or tracker execution. Coverage is sample-scoped, not a target-wide pass.
+Only three selected samples bundle the restored loop driver. `ledger-tracker-recovery` reuses a byte-identical candidate record from `ef3d3387`; `ledger-tracker-verify` and `loop-ledger-brief` replay on their current fixtures. The other fifteen selected records are retained without replay because their assemblies do not include the changed file. No resume or handoff instruction file, sample, expected fact or word cap changes in this repair.
 
-For a deferred spec, print the numbered gauntlet command before restoring a tracker so the user can open the PR in a fresh session.
+Model columns show runner verdict and candidate facts held/total in the saved judgment. An inconclusive cell with a failed fact blocks completion even when the runner's confirmation mechanism declines to label it a confirmed regression.
 
-## Cells
+| Sample | anthropic/claude-opus-5-5 | github-copilot/gpt-6.1-sol |
+|---|---|---|
+| legs-ok | unchanged; 1/1 | unchanged; 1/1 |
+| ledger-tracker-verify | unchanged; 6/6 | unchanged; 6/6 |
+| clean-pass-unchanged | unchanged; 3/3 | unchanged; 3/3 |
+| pending-owner-stops | unchanged; 4/4 | unchanged; 4/4 |
+| loop-ledger-brief | unchanged; 6/6 on a second Opus replay (the first failed `continuation` once) | unchanged; 6/6 |
+| ledger-tracker-recovery | improved; 6/6 | unchanged; 6/6 |
+| returned-line-recovery | unchanged; 1/1 | unchanged; 1/1 |
+| baseline-upgrade-preserves-statuses | unchanged; 3/3 | unchanged; 3/3 |
+| legs-receipt | unchanged; 2/2 | unchanged; 2/2 |
+| old-ledger-stops | improved; 3/3 | improved; 3/3 |
+| current-brainstorm-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-plan-brief | unchanged; 3/3 | unchanged; 3/3 |
+| current-ship-brief | unchanged; 3/3 | unchanged; 3/3 |
+| legs-membership | unchanged; 1/1 | unchanged; 1/1 |
+| legs-wrong-primary | unchanged; 1/1 | unchanged; 1/1 |
+| legs-home-mismatch | unchanged; 1/1 | unchanged; 1/1 |
+| legs-missing | unchanged; 4/4 | unchanged; 4/4 |
+| legs-wrong-repo | unchanged; 1/1 | unchanged; 1/1 |
 
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| deferred-spec-stop | anthropic/claude-opus-5-5 | improved | 7514 | routes: holds -> holds (held); published: holds -> holds (held); exemption: holds -> holds (held); ordered: holds -> holds (held); notice: fails -> holds (intended change) |
-| deferred-spec-stop | github-copilot/gpt-6.1-sol | improved | 10643 | routes: holds -> holds (held); published: holds -> holds (held); exemption: holds -> holds (held); ordered: holds -> holds (held); notice: fails -> holds (intended change) |
+## Evidence reuse and replay
 
-## Feedback
+`ledger-tracker-recovery` is restored byte-for-byte from `ef3d3387`, before `a77b7b04`. Its instruction assembly is byte-identical to that revision and matches its saved `skillSha`; `case.md`, `expected.md`, `target.json` and judge-read intent body are also byte-identical. Current replay input and judgment identity hashes match. Both models hold 6/6; Opus's observed improvement on `rejected-return` is not an intended move.
 
-- deferred-spec-stop / anthropic/claude-opus-5-5: None of the four facts moved: in both outputs every route reads Engine: deferred at entry check 6, prints the handoff-only stop and ends with no tracker call, dispatch into a phase, grant line or continuation. The After wording delivered the Change visibly, since the printed line now names the explicit entry and resolved number (`run /skill:gauntlet #42` instead of `run brainstorming #42`), and the Published brainstorm route still stops before `start brainstorm` with #42 taken from the known subject when no PR header exists, without repairing the PR or restarting brainstorm. The Grant exemption route still stops with `all` never decoded. To keep this stable, keep the sentence that deferred-header admission runs before grant decoding, the approval question and any arming call, and keep the explicit statement that the brainstorm-stage push-succeeded/PR-create-failed case stops on the deferred header rather than the ordinary gate. One small risk: After's lists of calls not reached (`start brainstorm`, `plan_check`, `skip implement`, `start verify`, `init`) are clearly explanatory, but they are less complete in the verify and seed routes than Before's, so wording that says 'no tracker call of any kind' in the stop rule would protect the ordered fact without relying on enumerations. After also dropped the offending path/line report that Before printed after each stop; if the skill still prescribes it, restore that wording.
-- deferred-spec-stop / github-copilot/gpt-6.1-sol: None of the four facts moved: in both outputs every route reads the header at entry check 6, sees Engine: deferred, prints the handoff-only stop line and ends with no tracker call, dispatch, PR repair, brainstorm restart or continuation, and the Amend-grant: all variant stops the same way. The only visible effect of the After wording is the stop line itself, which now names the explicit entry and PR number (`run /skill:gauntlet #42` instead of `run brainstorming #42`), plus an explicit step saying the stop comes before grant decoding and that the known PR subject is used when no PR header exists. That delivers the Change without cost to these facts. To keep them safe, keep the wording that places deferred-header admission before grant decoding and before any tracker restoration, keep the sentence that the brainstorm-stage grant exemption does not bypass it, and keep forbidden actions phrased as things not done rather than as calls. One fragility present in both outputs: the line "I'm using the gauntlet-resume skill to continue an interrupted flow." is printed after the stop line, which a stricter reader could take as a preamble or continuation after the stop; wording that prints the announcement before the stop line, or suppresses it on a deferred stop, would remove that ambiguity.
+`ledger-tracker-verify` cannot reuse that revision's record because its case changes in `a77b7b04` to supply the observed cut-row label and ask for the producer. `loop-ledger-brief` also changes its case there to describe exactly one settled `returned:` tuple and no `pending:`. Their expected facts are unchanged. Both current baseline assemblies and replay input hashes match the saved baseline records, so no baseline-only pass is needed. Their candidate comparisons use `timeout -k 30 600 node eval/run.mjs gauntlet-resume <sample> --base 09c9f4e1` separately, never a target-wide sweep.
 
-exit: 0
+Actual runner output for `ledger-tracker-verify`, exit 0: `gauntlet-resume: unchanged (report.md written; replay 2, judge 2, confirm 0, wall 106s)`.
+
+Actual runner output for `loop-ledger-brief`, exit 1: `gauntlet-resume: inconclusive (report.md written; replay 2, judge 3, confirm 1, wall 152s)`.
+
+## First replay of the loop brief sample
+
+`loop-ledger-brief`, model `anthropic/claude-opus-5-5`, fact `continuation`: the pre-fix candidate and baseline hold it; the first replay after the driver text was restored failed it. The judge says: "Only the continuation fact moved. After still renders the current rows, the last decision, allowance 4, iterations 5 and attempts 2 of 4, but it hands off to loop-implementation at \"step 9 -> Before each dispatch\" rather than step 5, and it makes the dispatch target conditional: row 1 only if HEAD holds an admitted `row 0 done | seeded ...` decision, otherwise seed. Before continued unconditionally at step 5 with row 1 as the target." A second replay of that one cell, run as `node eval/run.mjs gauntlet-resume loop-ledger-brief --base 09c9f4e1` after removing the saved Opus reply, holds all six facts on both models (`gauntlet-resume: unchanged (replay 1, judge 1, confirm 0)`); the saved record is that second reply, and the first failure is kept here as observed variance.
+
+On that first replay the runner performed one automatic confirmation and returned inconclusive. The saved candidate record is the second reply, in which `continuation` holds on both models; no assertion or expected fact changed. All other facts held by the ten affected samples before this repair remain held afterward.
+
+Tool traces and the fifteen unaffected selected records are retained. Deterministic scoped tests check their bindings separately; text replays do not prove live tool execution.
