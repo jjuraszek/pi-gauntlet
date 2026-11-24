@@ -7,28 +7,38 @@ import { execFileSync } from "node:child_process";
 import { prepareTarget, runTarget } from "../run.mjs";
 import { fileURLToPath } from "node:url";
 import { loadSkillsFromDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
+import { assemble, parseCase, treeReader } from "./replay.mjs";
 import { sha256 } from "./checks.mjs";
 import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
 import { writeRecordAtomic } from "./records.mjs";
 
-function caseCommands(text) {
-  const cleanupList = /^(?:`\.pi\/gauntlet\.md` at merge-base:\n# shared\n## cleanup|The merge-base overrides file has exactly two cleanup items, in this order:)\n(?:- [^\n]+(?:\n|$))+/gm;
-  return text.replace(cleanupList, list => list.replace(/^- release: \/skill:release(?: patch)?$/gm, ""))
-    .replace(/; release `\/skill:release`; notify|, row \d+ `\/skill:release`, row \d+/g, "")
-    .replace(/A standalone `\/skill:[\w-]+` skill|Written under `\/skill:[\w-]+` discipline/g, "");
-}
-
-function instructionCommands(text) {
-  // These spans describe command syntax, cleanup values and output, not commands to run.
-  return text.replace(/\| Invocation \| `\/skill:name \[args\]` \||invocation name \(pi `\/skill:name`|cannot expand `\/skill:[\w-]+`/g, "")
-    .replace(/(?:or|A) `\/skill:release` item\b|the text contains `<merge-sha>` or `\/skill:release`/g, "")
-    .replace(/\(for example `release: invoked \/skill:release - [^`\n]+`\)|`\/skill:release` with no level runs/g, "");
-}
+const cleanupRecord = '`.pi/gauntlet.md` at merge-base:\n# shared\n## cleanup\n- close ticket: gh issue close <issue> --comment "Delivered in <pr>, merged <merge-sha>."\n- release: /skill:release\n';
+const quotedInput = 'The quoted input says "Run /skill:waves now."';
+const examplesByOwner = new Map([
+  ["example/quoted-input", [quotedInput]],
+  ...["cleanup-after-approve", "cleanup-merged-at-step-1", "cleanup-null-issue", "cleanup-closed-unmerged"]
+    .map(sample => [`gatekeep-pr-scope/${sample}`, [cleanupRecord]]),
+  ["gatekeep-pr/post-menu-combined", ['The merge-base overrides file has exactly two cleanup items, in this order:\n- notify: gh issue comment 91 -R sample/forge-kit --body "Health version merged."\n- release: /skill:release patch\n']],
+  ["gatekeep-pr/batch-cleanup-stop", ["Ordered cleanup items: close ticket `gh issue close <issue>`; release `/skill:release`; notify `echo <pr> <merge-sha>`."]],
+  ["gatekeep-pr/post-menu-set-reply", ["row 4 `gh issue close 45 -R sample/forge-kit`, row 5 `/skill:release`, row 6 `/work/forge-kit/scripts/notify-release.sh`, row 7 stop."]],
+  ["spec-summarizer/chase-bug-hotfix", ["- A standalone `/skill:hotfix` skill (promotion path noted, decision 4)."]],
+  ["spec-summarizer/gh-8-shape-ticket-skill", ["- Written under `/skill:writing-skills` discipline during implementation (description is a trigger phrase;"]],
+  ["skills/forge-skill/SKILL.md", [
+    "| Invocation | `/skill:name [args]` |", "Cross-reference a skill by its invocation name (pi `/skill:name`, Claude Code `/name` or `/plugin:name`)",
+  ]],
+  ["skills/gauntlet-handoff/SKILL.md", ["A skill cannot expand `/skill:handoff` (pi expands\n   skill commands on typed input only)"]],
+  ["skills/gatekeep-pr/reference/cleanup.md", [
+    "Before a picked PR-named action or `/skill:release` item, require step 3's synced result",
+    "not landed and the text contains `<merge-sha>` or `/skill:release` -> `skipped - needs a landed change`",
+    "A `/skill:release` item when step 3 did not print `synced` -> `skipped - base not synced`",
+    "(for example `release: invoked /skill:release - paused at its level pick`)",
+    "`/skill:release` with no level runs the skill's propose-then-pick gate",
+  ]],
+]);
 
 function checkInvocations(text, registered, injected, source) {
-  const commands = text.replace(/\bquoted input says (["'`])[^\n]*?\1/gi, "");
-  for (const [, name] of commands.matchAll(/\/skill:([\w-]+)/g)) {
+  for (const [, name] of text.matchAll(/\/skill:([\w-]+)/g)) {
     assert.ok(registered.has(name) || name === injected, `${source}: unregistered /skill:${name}`);
   }
 }
@@ -37,27 +47,46 @@ test("neither arm invokes an unregistered skill outside verbatim baseline instru
   const root = fileURLToPath(new URL("../../", import.meta.url));
   const { skills } = loadSkillsFromDir({ dir: join(root, "skills"), source: "npm:pi-gauntlet" });
   const registered = new Set(skills.map(({ name }) => name));
-  for (const command of [
-    "Run /skill:waves now.", "Invoke `/skill:waves` next.", "Execute `/skill:waves` now.",
-    caseCommands("- Next action: /skill:waves"),
-  ]) {
-    assert.throws(() => checkInvocations(command, registered, undefined, "replay"), /unregistered \/skill:waves/, command);
+  const read = treeReader(root);
+  const seen = new Set();
+  function commands(owner, text) {
+    for (const literal of examplesByOwner.get(owner) ?? []) {
+      assert.ok(text.includes(literal), `${owner}: missing example: ${literal}`);
+      text = text.replace(literal, "");
+      seen.add(owner);
+    }
+    return text;
   }
-  assert.equal(caseCommands("- release: /skill:release"), "- release: /skill:release");
-  checkInvocations('The quoted input says "Run /skill:waves now."', registered, undefined, "case");
+  for (const [name, inputs] of [
+    ["waves", ["Run /skill:waves now.", "Invoke `/skill:waves` next.", "Execute `/skill:waves` now.", "- Next action: /skill:waves"]],
+    ["release", ["- release: /skill:release", "Build the package; release `/skill:release`; notify the maintainer.",
+      "Run the `/skill:gauntlet` or `/skill:release` item now.", cleanupRecord]],
+  ]) {
+    for (const input of inputs) assert.throws(() => checkInvocations(commands("unlisted", input), registered, undefined, "unlisted"),
+      { message: `unlisted: unregistered /skill:${name}` }, input);
+  }
+  checkInvocations(commands("example/quoted-input", quotedInput), registered, undefined, "case");
   for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
     if (!dir.isDirectory() || ["lib", "_template"].includes(dir.name)) continue;
     const prepared = prepareTarget({ root, target: dir.name });
     assert.ok(prepared.plans?.length, prepared.message);
     for (const { sample, caseText, basePrompt, baseFiles, candPrompt, candFiles, candSkill } of prepared.plans) {
-      const commands = caseCommands(caseText);
-      for (const [prompt, files, instructions] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, instructionCommands(candSkill)]]) {
+      const owner = `${dir.name}/${sample}`;
+      const { bundle, drop } = parseCase(read(`eval/${dir.name}/samples/${sample}/case.md`));
+      const target = { ...prepared.target, skillFiles: prepared.target.skillFiles.filter(file => !drop.includes(file.path)) };
+      const original = assemble(target, read, bundle);
+      assert.ok(candSkill.startsWith(original), `${owner}: candidate assembly differs`);
+      const instructions = assemble(target, path => commands(path, read(path)), bundle) + candSkill.slice(original.length);
+      for (const [prompt, files, skill] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, instructions]]) {
         const injected = files && parseFrontmatter(files[0].content).frontmatter.name;
-        const text = prompt.replace(caseText, () => commands);
-        checkInvocations(`${instructions}\n${text}`, registered, injected, `${dir.name}/${sample}`);
+        const start = files ? prompt.indexOf(" ") + 1 : prompt.length - caseText.length;
+        assert.equal(prompt.slice(start, start + caseText.length), caseText);
+        const text = prompt.slice(0, start) + commands(owner, caseText) + prompt.slice(start + caseText.length);
+        checkInvocations(`${skill}\n${text}`, registered, injected, owner);
       }
     }
   }
+  assert.deepEqual(seen, new Set(examplesByOwner.keys()));
 });
 
 function repo() {
