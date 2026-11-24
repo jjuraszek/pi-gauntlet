@@ -1,5 +1,7 @@
 # One gauntlet entry skill with the run's steps as a phase tree
 
+> **Superseded by:** [doc/specs/2026-11-24-gh-174-entry-tree-saved-answer-repair.md](./2026-11-24-gh-174-entry-tree-saved-answer-repair.md) - `### Eval` bullet "Three new samples, the only model-eval runs of this change" and the model-eval row of `### Paid and external actions` only
+
 **Goal:** The package registers eleven skills instead of 22: one hidden entry skill, `gauntlet`, holds every step of the run as a file in a five-phase tree, the phase tracker names the file that comes next, and gate ids, the overrides file and its layout, the run-record key and the eval targets take their names from that tree with no alias for an old name.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop
