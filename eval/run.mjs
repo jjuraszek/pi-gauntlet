@@ -186,7 +186,7 @@ export function prepareTarget({ root, target: name, sample: only, baselineOnly =
   const repoSha = git(root, "rev-parse", "HEAD");
   const newPaths = [];
   try {
-    const changes = git(root, "diff", "-M", "--diff-filter=R", "--name-status", "-z", baseRef, "--", "skills/").split("\0");
+    const changes = git(root, "diff", "-M40%", "--diff-filter=R", "--name-status", "-z", baseRef, "--", "skills/").split("\0");
     for (let i = 0; i + 2 < changes.length; i += 3) renamed.set(changes[i + 2], changes[i + 1]);
     const presence = new Map();
     const baselineHas = (path) => {

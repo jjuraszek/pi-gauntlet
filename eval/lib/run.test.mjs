@@ -482,7 +482,7 @@ test("rename lookup reuses one Git scan for skill and bundle declarations", (t) 
   assert.equal(candSkill, [candidate[0], addedText, candidate[1]].join("\n"));
   const diffs = readFileSync(trace, "utf8").trim().split("\n").map((line) => JSON.parse(line))
     .filter(({ event, argv }) => event === "start" && argv[1] === "diff").map(({ argv }) => argv.slice(1));
-  assert.deepEqual(diffs, [["diff", "-M", "--diff-filter=R", "--name-status", "-z", base, "--", "skills/"]]);
+  assert.deepEqual(diffs, [["diff", "-M40%", "--diff-filter=R", "--name-status", "-z", base, "--", "skills/"]]);
 });
 
 test("new-marked files are refused against a branch baseline but read on a self-baseline", (t) => {
