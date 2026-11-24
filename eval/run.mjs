@@ -194,7 +194,7 @@ export function prepareTarget({ root, target: name, sample: only, baselineOnly =
       if (!presence.has(p)) presence.set(p, git(root, "--literal-pathspecs", "ls-tree", "-r", "-z", "--name-only", baseRef, "--", p).split("\0").includes(p));
       return presence.get(p);
     };
-    for (const file of target.skillFiles) if (file.new && !baselineHas(file.path)) newPaths.push(file.path);
+    for (const file of target.skillFiles) if (file.new === true && !baselineHas(file.path)) newPaths.push(file.path);
     const baselineErrors = lintTarget(dir, {
       baselineHas, selfBaseline: baseRef === repoSha,
       treeHas: (path) => { treeReader(root)(path); return true; },

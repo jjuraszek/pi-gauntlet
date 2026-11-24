@@ -417,11 +417,11 @@ test("detached tag checkout uses the origin/main merge-base by default", (t) => 
 });
 
 for (const { name, declare, diagnostic } of [
-  {
-    name: "skill file",
-    declare: (put, path) => put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path }], assembly: "concat", wordCap: 50 })),
+  ...[undefined, "false"].map((flag) => ({
+    name: flag === undefined ? "skill file" : "skill file with a string new flag",
+    declare: (put, path) => put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path, new: flag }], assembly: "concat", wordCap: 50 })),
     diagnostic: /skills\/x\/extra\.md at .*--base <ref>/s,
-  },
+  })),
   {
     name: "sample bundle file",
     declare: (put, path) => put("eval/t/samples/s1/case.md", `bundle+: ${path}\nCASE\n`),
