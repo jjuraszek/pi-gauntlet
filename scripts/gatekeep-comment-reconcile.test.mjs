@@ -1075,7 +1075,21 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
             'git show origin/main:doc/gauntlet.md',
           ], `${model}: Run B uses only the fixed preamble and applicable Ticket display reads`);
           assert.match(output.text, /^---\n\*\*PRs to gate:\*\*\n/m, `${model}: set reply starts with the visible heading`);
-          assert.match(output.text, /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list -R acme\/gadgets -c \S+ --json databaseId,status,conclusion,workflowName,url`?$/m, `${model}: single reply starts with the visible heading and carries the Gather call for the PR-view repository`);
+          const paired = /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list -R acme\/gadgets -c \S+ --json databaseId,status,conclusion,workflowName,url`?$/m;
+          const runB = section(output.text, 'Run B:');
+          const list = runB.match(paired);
+          assert.ok(list, `${model}: single reply starts with the visible heading and carries the Gather call for the PR-view repository`);
+          let remaining = runB.slice(list.index + list[0].length);
+          for (const read of [
+            /\bgh pr diff\b[^`\n]*\b97\b/,
+            ...['pulls/97/reviews', 'pulls/97/comments', 'issues/97/comments'].map((path) =>
+              new RegExp(`\\bgh api (?=[^\`\\n]*--paginate\\b)[^\`\\n]*repos/acme/gadgets/${path}\\b`)),
+          ]) {
+            const call = remaining.match(read);
+            assert.ok(call, `${model}: missing post-list Gather read: ${read}`);
+            remaining = remaining.slice(call.index + call[0].length);
+          }
+          assert.match(remaining, /\b(?:next|proceed|continue|move|advance|begin)\b[^\n.!?]*\bprovision(?:ing)?\b/i, `${model}: Provision follows the Gather reads`);
         }
         assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
         for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
