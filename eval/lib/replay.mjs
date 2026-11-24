@@ -104,7 +104,7 @@ export function captureEdit(scratch) {
 }
 
 export function readTree(scratch) {
-  const tree = {};
+  const tree = Object.create(null);
   for (const rel of walk(scratch)) { const content = readFileSync(join(scratch, rel), "utf8"); tree[rel] = { lines: content === "" ? 0 : content.split("\n").length - (content.endsWith("\n") ? 1 : 0), content }; }
   return tree;
 }
