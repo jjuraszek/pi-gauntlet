@@ -1,5 +1,7 @@
 # A ticket ships in full per repo: AC attribution, human-only scope cuts, venue-free rows
 
+> **Superseded by:** [doc/specs/2026-11-25-gh-172-acceptance-criteria-integration-section.md](./2026-11-25-gh-172-acceptance-criteria-integration-section.md) - the `venue:` disposition in Vocabulary, D1's venue stripping, D2's gate line and D3's production-venue blocker only
+
 **Goal:** One gauntlet delivers every acceptance criterion the ticket assigns to its repo. Rows another repo owns are attributed at ticket authoring and marked `elsewhere:` without a question; every other row ships `in-scope` unless the human cuts it in their own words; a row the code contradicts is repaired on the ticket through `/skill:shape-ticket`, never papered over with a disposition; the council blocks any cut the human did not make and any production venue; the gate lists every scope cut on one line; every downstream consumer reads `elsewhere:` as settled attribution.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Date:** 2026-10-09
