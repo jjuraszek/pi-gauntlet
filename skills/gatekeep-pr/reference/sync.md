@@ -1,6 +1,6 @@
 # gatekeep-pr: step 2b - sync (`--rebase [base]`)
 
-Read from SKILL.md step 2b, only when `--rebase` was passed. Input: the step-1 digest, the provisioned worktree, and the base name (`<base>` = the argument's value, else `baseRefName`; `--rebase release-1.x` rebases onto `origin/release-1.x`). Output: the worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head, or the worktree on a rebased, unpushed head with `rebased locally` in the digest. The sync runs once per invocation; a loop re-entry never returns here. This file is self-contained: `fix-wave.md` is the post-menu contract and is not loaded here; `assessment.md` owns step 2.
+Read from ../SKILL.md step 2b, only when `--rebase` was passed. Input: the step-1 digest, the provisioned worktree, and the base name (`<base>` = the argument's value, else `baseRefName`; `--rebase release-1.x` rebases onto `origin/release-1.x`). Output: the worktree on the rebased, pushed head with a refreshed digest, or a `sync` record and the unsynced head, or the worktree on a rebased, unpushed head with `rebased locally` in the digest. The sync runs once per invocation; a loop re-entry never returns here. This file is self-contained: `fix-wave.md` is the post-menu contract and is not loaded here; `assessment.md` owns step 2.
 
 ## Permitted orchestrator git writes
 
@@ -8,11 +8,11 @@ Read from SKILL.md step 2b, only when `--rebase` was passed. Input: the step-1 d
 
 ## Preconditions
 
-Start the message with `gauntlet: gate=gatekeep-pr/sync-preconditions` for the stop-only menu below. Render numbered `stop` with `show evidence` hint-only through [menu-layout](../../brainstorming/reference/menu-layout.md).
+Start the message with `gauntlet: gate=gatekeep-pr/sync-preconditions` for the stop-only menu below. Render numbered `stop` with `show evidence` hint-only through [menu-layout](../../gauntlet/menu-layout.md).
 
 Check in order after step 2. A terminal stop - here, at `## Baseline`, or at `## Push` - closes the `sync` stage `failed`, prints the reason, offers `stop` and `show evidence` only, and runs no step 3; on such a stop `show evidence` prints the digest's head-dependent fields and the `sync` record.
 
-1. The harness has a helper facility (SKILL.md `## Harness notes`); none -> terminal stop before any write: `sync: stopped - no helper facility for conflict resolution and review`.
+1. The harness has a helper facility (../SKILL.md `## Harness notes`); none -> terminal stop before any write: `sync: stopped - no helper facility for conflict resolution and review`.
 2. `permissions.head_pushable` is `true`; `false` or `unreadable` -> terminal stop naming the reason; no rebase, no push.
 3. `origin/<base>` exists after `git fetch origin <base>`; missing -> terminal stop with one line naming the missing ref.
 4. `git merge-base --is-ancestor origin/<base> HEAD` exits 1 (the head is behind); 0 -> `sync: no-op - head already contains origin/<base>`, stage `complete`, continue to step 3 with no push and no review; any other exit -> terminal stop quoting it.
@@ -28,7 +28,7 @@ Refresh `headRefOid` with `gh pr view <N> --json headRefOid` and set `<pre_head>
 
 ## Other-author confirmation
 
-Start the message with `gauntlet: question` before the fixed block and yes/no ask. Apply [menu-layout](../../brainstorming/reference/menu-layout.md), preserving the typed yes/no contract.
+Start the message with `gauntlet: question` before the fixed block and yes/no ask. Apply [menu-layout](../../gauntlet/menu-layout.md), preserving the typed yes/no contract.
 
 When `pr.author.login` differs from `gh api user --jq .login`, or that login is `unreadable`, print this fixed block verbatim, one line per point, before any rewrite:
 
@@ -47,13 +47,13 @@ Then ask for a yes/no confirmation. Any other reply -> `sync: declined - other a
 
 ## Conflict stop
 
-One fresh `implementer` per stop, sequential, `cwd` the PR worktree, dispatched per SKILL.md `## Harness notes` (pi: the `implementer` persona; Claude Code: the sync conflict-stop duty). Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "implementer", context: "fresh", async: false, cwd: <worktree> })`), and name each conflicted file by path in the task text. Before dispatch, record the stop's `git status --porcelain` (the clean replays git already staged belong to it) and the conflicted file list. Resolve `SCOPED_TEST_COMMANDS` yourself: the resolved `verification command` from the configuration ladder (`assessment.md` `## Configuration`) followed by the paths of the test files among the stopped commit's changed files when the ladder documents a file-scoped form, otherwise `none`. The task carries the conflicted file list, the stopped commit (`git rebase --show-current-patch`), the base being rebased onto, `SCOPED_TEST_COMMANDS`, and this rule verbatim: "resolve every listed file so both sides' intent survives, run exactly the supplied scoped test commands and report each result (or report that none were supplied), `git add` each resolved file, return `done` with the list of files you changed; report every failing scoped test with its file and test names; never run `git rebase --continue`, `git rebase --abort`, `git rebase --skip`, or `git commit`; never edit a file outside the list".
+One fresh `implementer` per stop, sequential, `cwd` the PR worktree, dispatched per ../SKILL.md `## Harness notes` (pi: the `implementer` persona; Claude Code: the sync conflict-stop duty). Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "implementer", context: "fresh", async: false, cwd: <worktree> })`), and name each conflicted file by path in the task text. Before dispatch, record the stop's `git status --porcelain` (the clean replays git already staged belong to it) and the conflicted file list. Resolve `SCOPED_TEST_COMMANDS` yourself: the resolved `verification command` from the configuration ladder (`assessment.md` `## Configuration`) followed by the paths of the test files among the stopped commit's changed files when the ladder documents a file-scoped form, otherwise `none`. The task carries the conflicted file list, the stopped commit (`git rebase --show-current-patch`), the base being rebased onto, `SCOPED_TEST_COMMANDS`, and this rule verbatim: "resolve every listed file so both sides' intent survives, run exactly the supplied scoped test commands and report each result (or report that none were supplied), `git add` each resolved file, return `done` with the list of files you changed; report every failing scoped test with its file and test names; never run `git rebase --continue`, `git rebase --abort`, `git rebase --skip`, or `git commit`; never edit a file outside the list".
 
 Continue by running `GIT_EDITOR=true git rebase --continue` spelled exactly so, recorded verbatim in the rendered command block, only when `--diff-filter=U` is empty, every listed file is fully staged, `git status --porcelain` differs from the recorded snapshot only in the listed files, and the helper returned `done` with the scoped results or `open` whose only stated reason is a failing scoped test in a file outside the list; a non-zero `--continue` with unmerged paths is the next conflict stop; without unmerged paths it takes `## Failure path`. Anything else (`open` for any other reason, residue outside the listed files, unmerged paths left) takes `## Failure path`. Record each reported failing test with its stop. One attempt per stop, no round counter; the fix-round cap (`closureReview.maxFixRounds`) is untouched. Resolved file names accumulate across stops.
 
 ## Review before push
 
-Runs on every rewritten head, with or without a stop; only a `no-op` skips it. One fresh `wave-reviewer`, `cwd` the PR worktree, read-only, dispatched per SKILL.md `## Harness notes` (Claude Code: the sync review duty), over `git range-diff origin/<base> <pre_head> HEAD` and, when stops were resolved, `git diff <pre_head> HEAD -- <resolved files>`; the task asks for the reviewer's native findings report with "rebase replay and conflict resolutions" as the review subject and no closure lines. Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> })`). A Critical or Moderate finding takes `## Failure path`; no second helper.
+Runs on every rewritten head, with or without a stop; only a `no-op` skips it. One fresh `wave-reviewer`, `cwd` the PR worktree, read-only, dispatched per ../SKILL.md `## Harness notes` (Claude Code: the sync review duty), over `git range-diff origin/<base> <pre_head> HEAD` and, when stops were resolved, `git diff <pre_head> HEAD -- <resolved files>`; the task asks for the reviewer's native findings report with "rebase replay and conflict resolutions" as the review subject and no closure lines. Write out the dispatch as the harness call with `context: "fresh"`, `async: false`, and the worktree `cwd` (pi: `subagent({ agent: "wave-reviewer", context: "fresh", async: false, cwd: <worktree> })`). A Critical or Moderate finding takes `## Failure path`; no second helper.
 
 ## Push
 

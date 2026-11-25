@@ -8,7 +8,7 @@ var __export = (target, all) => {
 // src/bins/gauntlet-performance.mjs
 import { existsSync as existsSync3, readdirSync, readFileSync as readFileSync2, realpathSync, statSync as statSync2 } from "node:fs";
 import { homedir } from "node:os";
-import { basename as basename2, join as join3, resolve } from "node:path";
+import { basename as basename2, join as join4, resolve } from "node:path";
 import { spawnSync as spawnSync2 } from "node:child_process";
 import process2 from "node:process";
 import { parse as parseYaml2 } from "yaml";
@@ -44,9 +44,9 @@ function resolveTelemetry(g) {
 }
 
 // extensions/lib/telemetry-branch.ts
-import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join as join2 } from "node:path";
+import { basename, join as join3 } from "node:path";
 
 // extensions/lib/checkout.ts
 import { execFileSync } from "node:child_process";
@@ -101,6 +101,35 @@ var commandSync = (bin) => (args, cwd) => {
 var gitSync = commandSync("git");
 var jjSync = commandSync("jj");
 
+// extensions/lib/overrides.ts
+import { existsSync as existsSync2, readFileSync } from "node:fs";
+import { join as join2 } from "node:path";
+var locations = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
+var disk = { exists: existsSync2, readFile: (path) => readFileSync(path, "utf8") };
+function readSharedSection(root, section, fs = disk) {
+  const path = locations.map((file) => join2(root, file)).find((file) => fs.exists(file));
+  if (!path) return "";
+  const lines = [];
+  let shared = false, selected = false, fence = "";
+  for (const line of (fs.readFile(path) ?? "").split(/\r?\n/)) {
+    if (fence) {
+      if (line.match(/^ {0,3}(`+|~+)[\t ]*$/)?.[1].startsWith(fence)) fence = "";
+    } else {
+      fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1] ?? "";
+      const heading = /^(#{1,2})[\t ]+(.*)$/.exec(line);
+      if (heading) {
+        const [, level, name] = heading;
+        if (selected || shared && level === "#") break;
+        if (level === "#") shared = name.trim() === "shared";
+        else selected = shared && name.trim() === section;
+        continue;
+      }
+    }
+    if (selected) lines.push(line);
+  }
+  return lines.join("\n");
+}
+
 // extensions/lib/vcs.ts
 import { spawnSync } from "node:child_process";
 
@@ -135,14 +164,9 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-    const path2 = join2(top, file);
-    if (!existsSync2(path2)) continue;
-    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
@@ -150,8 +174,8 @@ function telemetryRepo(root) {
 var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join2(scratch, "index") };
+  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
   const git = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -230,12 +254,14 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("	");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("	");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some((p) => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });
@@ -746,9 +772,9 @@ function readLayer(file) {
   }
 }
 function branchCorpus(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join3(homedir(), ".pi", "agent");
-  const preset = readLayer(join3(agentDir, "settings.json"));
-  const repo = readLayer(join3(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
+  const preset = readLayer(join4(agentDir, "settings.json"));
+  const repo = readLayer(join4(root, ".pi", "settings.json"));
   const t = resolveTelemetry(mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet));
   if (t.warning) process2.stderr.write(`warning: ${t.warning}
 `);
@@ -757,7 +783,8 @@ function branchCorpus(root) {
     process2.stderr.write("telemetry disabled\n");
     return { label, records: [] };
   }
-  const result = readTelemetryBranch(root, { remote: t.remote, prefix: `${label}/` });
+  const prefix = ["gauntlet", ...LEG_SKILLS].map((key4) => `${label}/${key4}/`);
+  const result = readTelemetryBranch(root, { remote: t.remote, prefix });
   if (result.warning) process2.stderr.write(`warning: ${result.warning}
 `);
   return { label, records: result.records };
@@ -776,12 +803,12 @@ function corpusFor(path) {
 function* yamlFiles(dir) {
   if (!existsSync3(dir)) return;
   for (const e of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-    const p = join3(dir, e.name);
+    const p = join4(dir, e.name);
     if (e.isDirectory()) yield* yamlFiles(p);
     else if (e.isFile() && e.name.endsWith(".yaml")) yield p;
   }
 }
-function loadRecord(file, bytes) {
+function loadRecord(file, bytes, key4) {
   let doc;
   try {
     doc = parseYaml2(bytes);
@@ -790,7 +817,9 @@ function loadRecord(file, bytes) {
   }
   const d = obj(doc);
   if (!d) return { skip: "unparseable" };
-  if (LEG_SKILLS.includes(d.skill)) return loadLeg(d);
+  const leg = LEG_SKILLS.includes(d.skill);
+  if (key4 !== void 0 && key4 !== (leg ? d.skill : "gauntlet")) return { skip: "wrong record key" };
+  if (leg) return loadLeg(d);
   if (d.schema !== 1) return { skip: `schema ${d.schema === void 0 ? "missing" : String(d.schema)}` };
   if (typeof d.spec !== "string" || typeof d.run_id !== "string") return { skip: "not a record" };
   const derived = obj(d.derived) ?? {};
@@ -903,7 +932,8 @@ function main() {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map((path) => ({ path, bytes: readFileSync2(path, "utf8") }));
     for (const { path: file, bytes } of records) {
-      const res = loadRecord(file, bytes);
+      const key4 = c.records ? file.slice(c.label.length + 1).split("/", 1)[0] : void 0;
+      const res = loadRecord(file, bytes, key4);
       if (res.skip) {
         skipped.push({ file, reason: res.skip });
         continue;

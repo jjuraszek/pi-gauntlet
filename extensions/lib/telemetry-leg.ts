@@ -1,7 +1,7 @@
-import { join } from "node:path";
 import { stringify } from "yaml";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { Deps } from "../telemetry.ts";
+import { readSharedSection } from "./overrides.ts";
 import { checkoutOf } from "./checkout.ts";
 import { syncTelemetryBranch, telemetryRepo, trackerRefs } from "./telemetry-branch.ts";
 import { textOf } from "./telemetry-collect.ts";
@@ -63,15 +63,7 @@ export function registerLegTelemetry(pi: ExtensionAPI, deps: Deps, runBound: () 
   let active: { skill: LegSkill; provisional: boolean; session: string; ts: string; acc: Accumulators; models: Set<string> } | undefined;
   let terminal: string | undefined;
   let lastSkill: LegSkill | undefined;
-  const trackerless = (root: string): boolean => {
-    for (const path of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-      const text = deps.fs.readFile(join(root, path));
-      if (text === undefined) continue;
-      const section = text.split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-      return /^-\s*tracker:\s*none\s*$/m.test(section);
-    }
-    return false;
-  };
+  const trackerless = (root: string) => /^-\s*tracker:\s*none\s*$/m.test(readSharedSection(root, "issue-tracker", deps.fs));
   const enabled = (ctx: ExtensionContext) => Number(process.env.PI_SUBAGENT_DEPTH ?? "0") === 0 && deps.settings(ctx.cwd).telemetry.enabled;
   const reset = () => { active = undefined; terminal = undefined; };
   const start = (skill: LegSkill | undefined, ctx: ExtensionContext, provisional = false) => {

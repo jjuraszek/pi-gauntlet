@@ -4,7 +4,7 @@
 import { existsSync as existsSync3, mkdtempSync as mkdtempSync2, readdirSync, readFileSync as readFileSync2, realpathSync, rmSync as rmSync2, unlinkSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir as tmpdir2 } from "node:os";
 import { spawnSync as spawnSync2 } from "node:child_process";
-import { isAbsolute as isAbsolute2, join as join4, relative as relative2, resolve as resolve2 } from "node:path";
+import { isAbsolute as isAbsolute2, join as join5, relative as relative2, resolve as resolve2 } from "node:path";
 import process2 from "node:process";
 
 // extensions/lib/gauntlet-settings.ts
@@ -273,9 +273,40 @@ function changedNames(vcs, base) {
 }
 
 // extensions/lib/telemetry-branch.ts
-import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename as basename2, join as join3 } from "node:path";
+import { basename as basename2, join as join4 } from "node:path";
+
+// extensions/lib/overrides.ts
+import { existsSync as existsSync2, readFileSync } from "node:fs";
+import { join as join3 } from "node:path";
+var locations = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
+var disk = { exists: existsSync2, readFile: (path) => readFileSync(path, "utf8") };
+function readSharedSection(root, section, fs = disk) {
+  const path = locations.map((file) => join3(root, file)).find((file) => fs.exists(file));
+  if (!path) return "";
+  const lines = [];
+  let shared = false, selected = false, fence = "";
+  for (const line of (fs.readFile(path) ?? "").split(/\r?\n/)) {
+    if (fence) {
+      if (line.match(/^ {0,3}(`+|~+)[\t ]*$/)?.[1].startsWith(fence)) fence = "";
+    } else {
+      fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1] ?? "";
+      const heading = /^(#{1,2})[\t ]+(.*)$/.exec(line);
+      if (heading) {
+        const [, level, name] = heading;
+        if (selected || shared && level === "#") break;
+        if (level === "#") shared = name.trim() === "shared";
+        else selected = shared && name.trim() === section;
+        continue;
+      }
+    }
+    if (selected) lines.push(line);
+  }
+  return lines.join("\n");
+}
+
+// extensions/lib/telemetry-branch.ts
 var TELEMETRY_REF = "refs/telemetry/records";
 function trackerRefs(text) {
   const tokens = text.match(/https?:\/\/[^\s<>\])]+|[\w.-]+\/[\w.-]+#\d+|#\d+|\b[A-Z][A-Z0-9]*-\d+\b|\bgh-\d+\b/g) ?? [];
@@ -283,7 +314,7 @@ function trackerRefs(text) {
 }
 function telemetryDir(root) {
   const result = gitRun(["rev-parse", "--path-format=absolute", "--git-common-dir"], root);
-  return result.ok ? join3(result.stdout, "gauntlet", "telemetry") : void 0;
+  return result.ok ? join4(result.stdout, "gauntlet", "telemetry") : void 0;
 }
 function telemetryRepo(root) {
   const result = gitRun(["config", "--get", "remote.origin.url"], root);
@@ -291,14 +322,9 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-    const path2 = join3(top, file);
-    if (!existsSync2(path2)) continue;
-    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename2(primary ?? top)}`;
@@ -336,8 +362,8 @@ function compareRecords(root, sources, destination) {
   return { conflicts, missing: [...missing].map(([path, source]) => ({ path, source })) };
 }
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
+  const scratch = mkdtempSync(join4(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join4(scratch, "index") };
   const git = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -589,7 +615,7 @@ var fail = (code, message) => {
   process2.stderr.write(message + "\n");
   process2.exit(code);
 };
-var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] <--migrate-branch|--retire-branch>");
+var usage = () => fail(1, "usage: gauntlet-telemetry-seal --worktree <abs path> --option <pr|squash> --base <ref> [--spec <spec path inside the checkout>]\n       gauntlet-telemetry-seal [--worktree <abs path>] --migrate [<telemetry dir>]\n       gauntlet-telemetry-seal [--worktree <abs path>] <--migrate-records|--migrate-branch|--retire-branch>");
 function parseArgs(argv) {
   const opts = { worktree: void 0, option: void 0, base: void 0, spec: void 0, legs: [] };
   for (let i = 0; i < argv.length; i++) {
@@ -600,6 +626,7 @@ function parseArgs(argv) {
       opts[key] = argv[++i];
     };
     if (a === "--migrate") opts.migrate = value !== void 0 && !value.startsWith("--") ? argv[++i] : ".pi/gauntlet/telemetry";
+    else if (a === "--migrate-records") opts.migrateRecords = true;
     else if (a === "--migrate-branch") opts.migrateBranch = true;
     else if (a === "--retire-branch") opts.retireBranch = true;
     else if (a === "--worktree") takes("worktree");
@@ -616,7 +643,7 @@ function parseArgs(argv) {
       opts.legs.push(leg);
     } else usage();
   }
-  const modes = [opts.migrate !== void 0, opts.migrateBranch, opts.retireBranch].filter(Boolean).length;
+  const modes = [opts.migrate !== void 0, opts.migrateRecords, opts.migrateBranch, opts.retireBranch].filter(Boolean).length;
   if (modes > 1) usage();
   if (modes) {
     opts.worktree ??= process2.cwd();
@@ -636,9 +663,9 @@ function readLayer(file) {
   }
 }
 function settings(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
-  const preset = readLayer(join4(agentDir, "settings.json"));
-  const repo = readLayer(join4(root, ".pi", "settings.json"));
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join5(homedir(), ".pi", "agent");
+  const preset = readLayer(join5(agentDir, "settings.json"));
+  const repo = readLayer(join5(root, ".pi", "settings.json"));
   const merged = mergeGauntlet(preset?.piGauntlet, repo?.piGauntlet);
   const { specDirs } = resolveFlowGuards(merged);
   return { telemetry: resolveTelemetry(merged), planDirs: planDirsFor(specDirs), specDirs };
@@ -647,7 +674,7 @@ function walkRecords(absDir) {
   if (!existsSync3(absDir)) return [];
   const out = [];
   for (const e of readdirSync(absDir, { withFileTypes: true })) {
-    const p = join4(absDir, e.name);
+    const p = join5(absDir, e.name);
     if (e.isDirectory()) out.push(...walkRecords(p));
     else if (e.isFile() && e.name.endsWith(".yaml")) out.push(p);
   }
@@ -663,14 +690,14 @@ function migrate(root, dir, repo, remote) {
       continue;
     }
     record.repo ??= repo;
-    writes.set(`${repo}/brainstorming/${toPosix(relative2(dir, path))}`, serializeRecord(record));
+    writes.set(`${repo}/gauntlet/${toPosix(relative2(dir, path))}`, serializeRecord(record));
   }
   const result = syncTelemetryBranch(root, writes, remote);
   if (!result.ok) return console.log(`telemetry: not pushed (${result.reason})`);
   console.log(`migrated ${writes.size} records from ${dir}`);
 }
 var LEGACY_REF = "refs/heads/gauntlet/telemetry";
-function branchMigration(root, remote = "origin", retire) {
+function migrateRef(root, remote = "origin", { retireBranch: retire, migrateRecords }) {
   const required = (args, options) => {
     const result = gitRun(args, root, void 0, options);
     if (!result.ok) throw new Error(result.stderr || `git ${args[0]} failed`);
@@ -683,6 +710,59 @@ function branchMigration(root, remote = "origin", retire) {
     required(["fetch", "--no-tags", remote, tracking ? `+${ref}:${tracking}` : ref]);
     return required(["rev-parse", "--verify", tracking ?? "FETCH_HEAD"]);
   };
+  const push = (args, config = []) => {
+    const result = spawnSync2("git", [...config, "push", ...args], { cwd: root, encoding: "utf8", timeout: 3e4 });
+    if (result.status !== 0) {
+      const stderr = result.stderr?.trim() || result.error?.message || "git push failed";
+      const retry = retire ? "gauntlet/telemetry moved since verification - re-run --migrate-branch then --retire-branch" : `destination changed since comparison - re-run ${migrateRecords ? "--migrate-records" : "--migrate-branch"}`;
+      throw new Error(`${stderr}
+${retry}`);
+    }
+  };
+  const publish = (parent, message, editIndex) => {
+    const scratch = mkdtempSync2(join5(tmpdir2(), "gauntlet-ref-migration-"));
+    try {
+      const env = { GIT_INDEX_FILE: join5(scratch, "index") };
+      const index = (args) => required(args, { env });
+      index(parent ? ["read-tree", parent] : ["read-tree", "--empty"]);
+      editIndex(index);
+      const tree = index(["write-tree"]);
+      const author = { ...env, GIT_AUTHOR_NAME: "gauntlet", GIT_AUTHOR_EMAIL: "gauntlet@local", GIT_COMMITTER_NAME: "gauntlet", GIT_COMMITTER_EMAIL: "gauntlet@local" };
+      const commit = required(["-c", "commit.gpgsign=false", "commit-tree", tree, ...parent ? ["-p", parent] : [], "-m", message], { env: author });
+      push([`--force-with-lease=${TELEMETRY_REF}:${parent ?? ""}`, remote, `${commit}:${TELEMETRY_REF}`]);
+    } finally {
+      rmSync2(scratch, { recursive: true, force: true });
+    }
+  };
+  if (migrateRecords) {
+    const tip = discover(TELEMETRY_REF, trackingRef(remote));
+    const local2 = gitRun(["rev-parse", "--verify", "--quiet", TELEMETRY_REF], root);
+    if (!local2.ok && local2.code !== 1) throw new Error(local2.stderr || "git rev-parse failed");
+    if (local2.ok && (!tip || required(["rev-list", "-1", `${tip}..${local2.stdout}`]))) {
+      throw new Error("Unpublished local telemetry: run gauntlet-performance to publish it, then re-run --migrate-records");
+    }
+    const repo = telemetryRepo(root);
+    const from = `${repo}/brainstorming/`, to = `${repo}/gauntlet/`;
+    const tree = tip ? required(["ls-tree", "-r", "-z", tip, "--", from, to], { raw: true }) : "";
+    const blobs = /* @__PURE__ */ new Map();
+    for (const entry of tree.split("\0").filter(Boolean)) {
+      const tab = entry.indexOf("	");
+      const [mode, type, oid] = entry.slice(0, tab).split(" ");
+      if (type === "blob") blobs.set(entry.slice(tab + 1), { mode, oid });
+    }
+    const moves = [...blobs].filter(([path]) => path.startsWith(from) && path.endsWith(".yaml"));
+    if (!moves.length) return console.log("nothing to migrate");
+    publish(tip, "Move run records to the gauntlet key", (index) => {
+      for (const [oldPath, { mode, oid }] of moves) {
+        const path = to + oldPath.slice(from.length);
+        const existing = blobs.get(path);
+        if (existing && existing.oid !== oid) throw new Error(`conflict: ${path} differs from ${oldPath}`);
+        if (!existing) index(["update-index", "--add", "--cacheinfo", mode, oid, path]);
+        index(["update-index", "--force-remove", "--", oldPath]);
+      }
+    });
+    return console.log(`migrated ${moves.length} records`);
+  }
   const oldRemote = discover(LEGACY_REF);
   if (retire && !oldRemote) return console.log("nothing to retire");
   const sources = oldRemote ? [{ label: `${remote}/${LEGACY_REF}`, oid: oldRemote }] : [];
@@ -694,15 +774,6 @@ function branchMigration(root, remote = "origin", retire) {
   let compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid ?? null });
   if (compared.conflicts.length) throw new Error(compared.conflicts.map(({ path, a, b }) => `conflict: ${path} differs between ${a} and ${b}`).join("\n"));
   if (retire && compared.missing.length) throw new Error(compared.missing.map(({ path }) => `not carried: ${path}`).join("\n"));
-  const push = (args, config = []) => {
-    const result = spawnSync2("git", [...config, "push", ...args], { cwd: root, encoding: "utf8", timeout: 3e4 });
-    if (result.status !== 0) {
-      const stderr = result.stderr?.trim() || result.error?.message || "git push failed";
-      const retry = retire ? "gauntlet/telemetry moved since verification - re-run --migrate-branch then --retire-branch" : "destination changed since comparison - re-run --migrate-branch";
-      throw new Error(`${stderr}
-${retry}`);
-    }
-  };
   if (retire) {
     const remotes = required(["remote"]).split("\n");
     const pushRemote = remotes.includes(remote) ? required(["remote", "get-url", "--push", remote]) : remote;
@@ -719,23 +790,14 @@ ${retry}`);
     compared = compareRecords(root, sources, { label: `${remote}/${TELEMETRY_REF}`, oid: destOid });
   }
   if (!compared.missing.length) return console.log("carried: 0 records");
-  const scratch = mkdtempSync2(join4(tmpdir2(), "gauntlet-ref-migration-"));
-  try {
-    const env = { GIT_INDEX_FILE: join4(scratch, "index") };
-    required(destOid ? ["read-tree", destOid] : ["read-tree", "--empty"], { env });
+  publish(destOid, "Carry legacy gauntlet telemetry", (index) => {
     for (const { path, source } of compared.missing) {
       const entry = required(["ls-tree", "-z", source.oid, "--", path], { raw: true });
       const [mode, , blob] = entry.slice(0, entry.indexOf("	")).split(" ");
-      required(["update-index", "--add", "--cacheinfo", `${mode},${blob},${path}`], { env });
+      index(["update-index", "--add", "--cacheinfo", mode, blob, path]);
     }
-    const tree = required(["write-tree"], { env });
-    const author = { ...env, GIT_AUTHOR_NAME: "gauntlet", GIT_AUTHOR_EMAIL: "gauntlet@local", GIT_COMMITTER_NAME: "gauntlet", GIT_COMMITTER_EMAIL: "gauntlet@local" };
-    const commit = required(["-c", "commit.gpgsign=false", "commit-tree", tree, ...destOid ? ["-p", destOid] : [], "-m", "Carry legacy gauntlet telemetry"], { env: author });
-    push([`--force-with-lease=${TELEMETRY_REF}:${destOid ?? ""}`, remote, `${commit}:${TELEMETRY_REF}`]);
-    console.log(`carried: ${compared.missing.length} records from ${[...new Set(compared.missing.map(({ source }) => source.label))].join(", ")}`);
-  } finally {
-    rmSync2(scratch, { recursive: true, force: true });
-  }
+  });
+  console.log(`carried: ${compared.missing.length} records from ${[...new Set(compared.missing.map(({ source }) => source.label))].join(", ")}`);
 }
 var isoNow = () => (/* @__PURE__ */ new Date()).toISOString().replace(/\.\d{3}Z$/, "Z");
 function runTickets(vcs, record, base) {
@@ -758,7 +820,7 @@ function branchBlob(root, path, remote) {
 }
 async function seal(vcs, rec, o) {
   const abs = rec;
-  const path = `${o.repo}/brainstorming/${toPosix(relative2(o.store, rec))}`;
+  const path = `${o.repo}/gauntlet/${toPosix(relative2(o.store, rec))}`;
   if (!existsSync3(abs)) {
     const sync2 = syncTelemetryBranch(vcs.root, /* @__PURE__ */ new Map(), o.remote);
     const stored2 = parseRecord(branchBlob(vcs.root, path, o.remote) ?? "");
@@ -812,9 +874,9 @@ async function main() {
 `);
   if (!telemetry.enabled) return console.log("telemetry disabled");
   if (vcs.kind === "jj") return console.log("telemetry: not pushed (jj workspace: no git remote)");
-  if (opts.migrateBranch || opts.retireBranch) {
+  if (opts.migrateBranch || opts.retireBranch || opts.migrateRecords) {
     try {
-      return branchMigration(root, telemetry.remote, opts.retireBranch);
+      return migrateRef(root, telemetry.remote, opts);
     } catch (error) {
       fail(1, error.message);
     }

@@ -13,8 +13,8 @@ run_id    repo          spec          version  status   wall  grants  big
 
 skill reads: run=6320d345-5166-45f1-b7b0-31bc5f232854 coverage=complete total_bytes=80000
 path                                               bytes  reads  share
-pi-gauntlet:skills/brainstorming/reference/legs.md  66000  6      82.5%
-pi-gauntlet:skills/writing-plans/SKILL.md           14000  1      17.5%
+pi-gauntlet:skills/gauntlet/legs.md  66000  6      82.5%
+pi-gauntlet:skills/gauntlet/plan/plan.md           14000  1      17.5%
 ```
 
 Page 2 (end of saved output):
@@ -22,8 +22,8 @@ Page 2 (end of saved output):
 ```text
 skill reads: run=44418c32-9395-4db4-b24f-d53090163b87 coverage=complete total_bytes=60000
 path                                               bytes  reads  share
-pi-gauntlet:skills/brainstorming/reference/legs.md  48000  4      80.0%
-pi-gauntlet:skills/brainstorming/SKILL.md           12000  1      20.0%
+pi-gauntlet:skills/gauntlet/legs.md  48000  4      80.0%
+pi-gauntlet:skills/gauntlet/SKILL.md           12000  1      20.0%
 
 by version
 repo          version  n  shipped  truncated  wall p50/max  grants p50/max  models

@@ -5,7 +5,7 @@ bundle-: skills/gatekeep-pr/reference/post-selection-loop.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
 bundle-: skills/gatekeep-pr/reference/reject.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Arguments
 
 `(no PR token)`

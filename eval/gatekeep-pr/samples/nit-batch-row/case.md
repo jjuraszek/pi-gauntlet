@@ -1,7 +1,7 @@
 bundle-: skills/gatekeep-pr/reference/menus.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/report.md
-bundle-: skills/brainstorming/reference/menu-layout.md
+bundle-: skills/gauntlet/menu-layout.md
 ## Digest
 
 - harness: pi; fresh sequential helpers and gauntlet_setting available; no bound verify window

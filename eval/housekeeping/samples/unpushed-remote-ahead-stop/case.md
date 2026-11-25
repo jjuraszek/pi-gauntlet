@@ -1,7 +1,7 @@
 bundle-: skills/housekeeping/reference/check.md
 bundle-: skills/housekeeping/reference/base-rules.md
 bundle-: skills/housekeeping/reference/card.md
-bundle-: skills/brainstorming/reference/menu-layout.md
+bundle-: skills/gauntlet/menu-layout.md
 bundle-: skills/chase-bug/hotfix.md
 bundle-: skills/chase-bug/reference/verdict-report.md
 

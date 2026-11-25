@@ -1,5 +1,5 @@
 bundle+: skills/chase-bug/SKILL.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Render three independent checkpoints separated by ---. Use only the supplied facts; tools, writes and handoffs are simulated.
 

@@ -6,7 +6,7 @@ description: Use when reading, searching, commenting on, editing, or managing Li
 # Linear
 
 Before anything else, resolve overrides: read the gauntlet overrides file's
-`## Issue tracker` section. If `tracker:` resolves to a non-Linear value, announce
+`# shared` `## issue-tracker` section. If `tracker:` resolves to a non-Linear value, announce
 that Linear is off per overrides and stop - no `command -v linearis`, no auth call,
 no ask. An unknown or unparseable `tracker:` value never reaches setup either:
 resolve it per the four-state table in section 2 (free-form mappings or ask) before
@@ -52,14 +52,15 @@ the issue-domain rows are unverified this session and continue. The sweep lives 
 the present-binary branch only - strictly after the override check above - so
 `tracker: github | none | <unknown>` still means zero probing.
 
-Optional: each `## Issue tracker` override key below, with its degradation.
+Optional: each `# shared` `## issue-tracker` override key below, with its degradation.
 
-## 2. `## Issue tracker` schema
+## 2. Shared issue-tracker schema
 
 This skill owns the full schema - all five keys, all optional:
 
 ```markdown
-## Issue tracker
+# shared
+## issue-tracker
 - tracker: linear            # or github / none - exclusive tracker selection
 - workspace urlKey: acme
 - default team: ENG
@@ -81,11 +82,11 @@ Absent-key behavior, per key:
 | `tracker:` state | Behavior |
 |---|---|
 | known value (`linear` / `github` / `none`) | Exclusive: no probing for other trackers, no ask, others never mentioned. `github` -> linearis never probed, this skill never proceeds past its override check. `none` -> tracker steps skipped; each consumer skill uses its documented no-tracker outcome. |
-| unknown value (e.g. `jira`) | Exclusivity holds (no Linear/gh probing). If the same `## Issue tracker` section carries free-form command mappings for that tracker, use them; else say so and ask - never silently fall back to the detection ladder. |
+| unknown value (e.g. `jira`) | Exclusivity holds (no Linear/gh probing). If the same `## issue-tracker` section carries free-form command mappings for that tracker, use them; else say so and ask - never silently fall back to the detection ladder. |
 | key absent | Consumer skills use their detection ladder, unchanged from today (including the linearis PATH+auth probe). |
 | key present but unparseable | Treat as an off-switch attempt gone wrong: ask the user, never probe - a typoed off-switch must not silently re-enable detection. |
 
-**Coexistence with the free-form `## Issue tracker` contract.** The five keys
+**Coexistence with the free-form `## issue-tracker` contract.** The five keys
 compose with the pre-existing README custom-tracker command-mapping convention,
 they don't replace it. `tracker:` adds exclusive selection; free-form verb mappings
 keep working both without a `tracker:` key (ladder rung 1, as today) and as the
@@ -258,6 +259,6 @@ for product behavior the CLI doesn't expose.
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands. `## Issue tracker` is the named extension point for this skill.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# linear` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

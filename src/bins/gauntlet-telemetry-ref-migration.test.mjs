@@ -8,7 +8,7 @@ import { join } from "node:path";
 const seal = new URL("./gauntlet-telemetry-seal.mjs", import.meta.url).pathname;
 const legacy = "refs/heads/gauntlet/telemetry";
 const destination = "refs/telemetry/records";
-const path = name => `team/product/brainstorming/doc/specs/${name}.yaml`;
+const path = name => `team/product/gauntlet/doc/specs/${name}.yaml`;
 
 function fixture(custom = false) {
   const scratch = mkdtempSync(join(tmpdir(), "telemetry-ref-migration-"));
@@ -76,6 +76,70 @@ process.exit(result.status ?? 1);
   return { PATH: `${dir}:${process.env.PATH}` };
 }
 
+const oldPath = name => path(name).replace("/gauntlet/", "/brainstorming/");
+
+for (const scenario of ["move", "conflict", "race"]) {
+  test(`record-key migration: ${scenario}`, () => {
+    const f = fixture(true);
+    writeFileSync(join(f.root, ".pi/gauntlet.md"), "# shared\n## issue-tracker\n- repo: team/product\n");
+    const run = name => JSON.stringify({ schema: 1, spec: `doc/specs/${name}.md`, run_id: name });
+    const other = oldPath("foreign").replace("team/product/", "team/product-2/");
+    const legs = ["shape-ticket", "gatekeep-pr", "check-delivery"].map(skill =>
+      [`team/product/${skill}/a.yaml`, JSON.stringify({ skill, session: "s", ts: "2026-01-01", items: [] })]);
+    const records = [[oldPath("old"), run("old")], [oldPath("dup"), Buffer.from([0, 255])],
+      [path("dup"), scenario === "conflict" ? "other" : Buffer.from([0, 255])],
+      [path("new"), run("new")], [other, run("foreign")], ["team/product/unknown/a.yaml", run("unknown")],
+      ["team/product/shape-ticket/misfiled.yaml", run("misfiled")], ...legs];
+    let before = f.commit(scenario === "move" ? records.filter(([p]) => p !== oldPath("old") && p !== oldPath("dup")) : records);
+    f.publish(destination, before);
+    let env = {};
+    let expected = before;
+    if (scenario === "race") {
+      expected = f.commit([[path("late"), "late"]], before);
+      f.publish("refs/test/late", expected);
+      env = intercept(f, `if (args[0] === "push") spawnSync(git, ["--git-dir", ${JSON.stringify(f.remote)}, "update-ref", ${JSON.stringify(destination)}, ${JSON.stringify(expected)}]);`);
+    }
+    const report = () => {
+      const cli = new URL("./gauntlet-performance.mjs", import.meta.url).pathname;
+      const result = f.run(process.execPath, [cli, "--json"]);
+      assert.equal(result.status, 0, result.stderr);
+      return JSON.parse(result.stdout);
+    };
+    if (scenario === "move") {
+      const visible = report();
+      assert.deepEqual(visible.runs.map(r => r.run_id), ["new"]);
+      assert.equal(visible.corpus["team/product"], 4, "includes the three leg skills");
+      const local = f.commit(records, before);
+      f.git("update-ref", destination, local);
+      const refused = f.cli("--migrate-records");
+      assert.equal(refused.status, 1, refused.stdout + refused.stderr);
+      assert.match(refused.stderr, /gauntlet-performance.*re-run --migrate-records/);
+      assert.equal(f.remoteTip(destination), before);
+      report();
+      assert.equal(f.remoteTip(destination), local, "the reader publishes the pending records");
+      before = local;
+    }
+    const result = f.cli("--migrate-records", env);
+    if (scenario !== "move") {
+      assert.equal(result.status, 1, result.stdout + result.stderr);
+      assert.ok(result.stderr.includes(scenario === "race" ? "re-run --migrate-records" : path("dup")), result.stderr);
+      assert.equal(f.remoteTip(destination), expected);
+      return;
+    }
+    assert.equal(result.status, 0, result.stderr);
+    const migrated = f.remoteTip(destination);
+    assert.equal(f.git("rev-parse", `${migrated}^`), before);
+    const wanted = f.commit(records.filter(([p]) => p !== oldPath("dup")).map(([p, v]) => [p === oldPath("old") ? path("old") : p, v]));
+    assert.equal(f.git("rev-parse", `${migrated}^{tree}`), f.git("rev-parse", `${wanted}^{tree}`));
+    assert.deepEqual(report().runs.map(r => r.run_id).sort(), ["new", "old"]);
+    assert.equal(f.remoteTip(destination), migrated, "the reader does not republish the old keys");
+    const repeat = f.cli("--migrate-records");
+    assert.equal(repeat.status, 0, repeat.stderr);
+    assert.equal(repeat.stdout.trim(), "nothing to migrate");
+    assert.equal(f.remoteTip(destination), migrated);
+  });
+}
+
 for (const custom of [false, true]) {
   test(`branch migration is lossless and repeatable on ${custom ? "configured remote" : "origin"}`, () => {
     const f = fixture(custom);
@@ -99,7 +163,7 @@ for (const custom of [false, true]) {
     f.publish(legacy, late);
     result = f.cli("--retire-branch");
     assert.equal(result.status, 1, result.stdout + result.stderr);
-    assert.match(result.stdout + result.stderr, /not carried: team\/product\/brainstorming\/doc\/specs\/late.yaml/);
+    assert.match(result.stdout + result.stderr, /not carried: team\/product\/gauntlet\/doc\/specs\/late.yaml/);
     assert.equal(f.remoteTip(legacy), late);
     result = f.cli("--migrate-branch");
     assert.equal(result.status, 0, result.stderr);

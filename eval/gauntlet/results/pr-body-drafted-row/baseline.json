@@ -1,0 +1,34 @@
+{
+  "sample": "pr-body-drafted-row",
+  "arm": "baseline",
+  "skillSha": "a63b1b0908eca109f06055f55e798dbc233083e86d9449aa2d2b35e98ebb2248",
+  "inputSha": "5b660b24987e0b53cd8b6faa1a1b34aa8ff256dba535c87969c0277ab837c316",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "1. **Read skipped: Ticket Handling reference.** `reference/ticket-acceptance.md` is already in context from this session, as the fixed observations state, so I use it rather than reading it again. Nothing is reconstructed from memory.\n\n2. **Read skipped: Spec Self-Review instructions.** These were read from `skills/gauntlet/brainstorm/spec-finalization.md` earlier in this session and are still in context. No prerequisite read is outstanding or unreadable, so there is no blocking stop.\n\n3. **Read skipped: workflow-stage class table.** `shape-ticket/reference/ac-classes.md` is already in context, so its first-use read is satisfied. I use it as a read only and do not invoke `/skill:shape-ticket`.\n\n4. **Sort changes from operator steps.**\n   - Both approved commitments are changes that files deliver: deleting test files, and release-script code that writes the pull request body.\n   - Neither is an operator step or a post action, so there is no `**Post-deployment housekeeping.**` paragraph.\n\n5. **Choose the section body from the gathered result.** The gather sentinel is `none - no ticket`, so I draft rows under the header `Drafted from the design, no ticket rows:`. There are no ticket rows, pasted rows, or `none` fallback.\n\n6. **Draft behavior 1 and apply the integrity classes.**\n   - The draft's proof sketch, \"the PR description lists every deleted test file\", is a workflow-stage proof: pull request body text that is not a behavior of this change.\n   - It is attached to an outcome the design commits to, not a separate commitment. So I keep the outcome and rewrite the proof to the Design behavior: the retired parser's test directory is empty.\n   - Nothing is cut, so no scope decision is involved.\n   - The row checks one directory's emptiness, which is a single observation. It does not ask for zero findings of several kinds across a tree, so the tree-wide split does not apply.\n\n7. **Draft behavior 2 and apply the integrity classes.**\n   - The pull request body text here is itself the behavior under change, because the release script writes it. So it is not a workflow-stage proof.\n   - The row is a binary behavioral outcome with a setup, an action, and an expected result. It needs no invented baseline.\n   - It is not wishful, tautological, unspecified-but-binding, external-input, or post-deployment.\n\n8. **Check whether a question is needed before writing.**\n   - No outcome was cut, so no cut question is triggered.\n   - No value, baseline, target, or external yardstick is missing.\n   - No enumeration is incomplete.\n   - Question required before writing: **none**.\n\n9. **Render the section** (my drafted text, not a claimed file write). Both rows keep the default `in-scope` disposition.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] After the change, the retired parser's test directory contains no files: none of the obsolete parser test files remain.\n  in-scope\n- [ ] Running the release script with a sample changelog produces a pull request body that contains that changelog's section.\n  in-scope\n```\n\n10. **Next stage.** Continue spec-writing (`## Tests`, with one line per row and per Design edge or error clause), then step 8 self-review. No tests are claimed as executed and no file is claimed as written. At the gate, these drafted rows render verbatim under `Drafted acceptance criteria (approval ratifies):`, and `Scope cuts: none`.\n",
+      "words": 510,
+      "wallMs": 17250,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Read prerequisite — already satisfied.** The fixed observations confirm that the required Spec Self-Review read succeeded earlier and that the draft, ticket-acceptance reference, and acceptance-criteria class table are already in context. No additional prerequisite read is outstanding.\n\n2. **Spec-writing — classify the commitments and their proofs.**\n   - Keep the obsolete-test removal outcome. The PR-description file list is only a workflow-stage proof sketch, so exclude that proof from the acceptance row without cutting the underlying behavior.\n   - Keep the changelog-in-PR-body outcome. Here, the generated body text is itself the behavior being changed, not merely delivery-stage evidence. Retain the sample-changelog check in Tests.\n   - Neither outcome requires a clarification or scope-cut question before writing.\n\n3. **Spec-writing — proposed section.** With `none - no ticket` as the gather sentinel, use drafted provenance:\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The retired parser's test directory is empty after the obsolete parser test files are removed.\n  in-scope\n- [ ] Running the release script with a changelog writes its changelog section into the pull request body.\n  in-scope\n\n4. **Next stage — spec self-review.** Check the completed spec against the already-loaded self-review instructions before the critique pass. This narration proposes the section; it does not claim a file write, an executed test, or a completed review.\n",
+      "words": 202,
+      "wallMs": 12484,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "43b5c7b1a38cbb773808bc23fecac5694582da0a"
+}

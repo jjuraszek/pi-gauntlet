@@ -7,7 +7,7 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 bundle-: skills/gatekeep-pr/reference/report.md
 bundle-: skills/gatekeep-pr/verification-brief.md
 bundle-: skills/gatekeep-pr/reference/assessment.md
-bundle-: skills/brainstorming/reference/menu-layout.md
+bundle-: skills/gauntlet/menu-layout.md
 ## Entry boundary
 Compose one landed message through commit-message.md. The change is complete; this is not a merge or menu simulation.
 

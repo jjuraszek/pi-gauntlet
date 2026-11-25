@@ -1,0 +1,84 @@
+{
+  "sample": "deferred-spec-stop",
+  "arm": "candidate",
+  "skillSha": "f8fca4fcb9e495ad66c8c1a2f375cc9b7b9c5fe39c70c59d5230fa50b14da4bd",
+  "inputSha": "8c495dcbdcf58b7276e0694315e2a117c93d739d134a4b824654d0a0c3fbe0bc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Deferred-engine finish entry: three variants\n\n## Shared entry steps\n\nThese steps run before the announcement, before `phase_tracker` start, and before any verification, strip or seal.\n\n1. **Worktree path is present.** I derive the primary checkout and feature branch without changing directory:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n2. **Selected run spec.** The resolved spec is `doc/specs/export.md`. I read its header up to the first `##` and carry the path forward without a second discovery.\n3. **Header check.** The header contains an exact `**Engine:** deferred` line before the first `##`. The deferred stop applies before the Rework and `**PR:**` checks, so the PR route and the live `gh pr view` identity check are never reached.\n\nNo announcement, no `phase_tracker` call, no Step 1 verification, no strip, no seal and no push happen. The clean checkout and test-all verification stay unused.\n\n## Variant A: `**PR:** acme/widget#42`, grant `none`\n\nPrinted:\n```\nspec approved for handoff only - run /skill:gauntlet #42\n```\nOutcome: stopped at Input, because the deferred engine means handoff only; nothing ran and the ship phase never started.\n\n## Variant B: no `**PR:**` header, known subject #42\n\nThe steps are the same; the missing PR header doesn't matter because the deferred stop comes first.\n\nPrinted:\n```\nspec approved for handoff only - run /skill:gauntlet #42\n```\nOutcome: the same Input stop, with #42 taken from the known subject; no gh query, phase change, verification, strip, seal or push.\n\n## Variant C: `**Amend-grant:** all` (PR header as in A)\n\nThe steps are the same. The amendment grant does not lift the deferred-engine stop, which is read first.\n\nPrinted:\n```\nspec approved for handoff only - run /skill:gauntlet #42\n```\nOutcome: the same Input stop; the `all` grant changes nothing, and nothing runs.\n",
+      "words": 283,
+      "wallMs": 10019,
+      "mechanical": {
+        "notice": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "PR header present, grant none: spec approved for handoff only - run /skill:gauntlet #42\nPR header absent, known subject #42: spec approved for handoff only - run /skill:gauntlet #42\nGrant all: spec approved for handoff only - run /skill:gauntlet #42\n",
+      "words": 37,
+      "wallMs": 4721,
+      "mechanical": {
+        "notice": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3222186bb7e76a4ba347af4b55b19465aa99fe346fe4a5354a29b71906a513b5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "edfd7a75fa2fcb974a84d40639b1b7d1951a0e124b5d1bfce0aac85c335df79a",
+      "baselineOutputSha": "b1351ad41d39ced1a5595180518f9f7a15e800f8bd1a8f5448ae79908e89666b",
+      "candidateOutputSha": "509dee78b83b74e3d3722f972c9cbbab2c55d73f1e56b555547d0e0d9610bee0",
+      "facts": {
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The boundary fact holds in both outputs: in each, all three variants stop at the resolved `**Engine:** deferred` header before the announcement, ship phase start, verification, strip, seal or push; grant `all` is explicitly said not to lift the stop; the absent-PR variant uses the known subject #42; and no delivery or tracker call is narrated as happening after the stop. The After wording changed only the printed notice from `run brainstorming #42` to `run /skill:gauntlet #42`, which delivers the intended gauntlet-entry naming without disturbing the boundary. After also consolidates the entry steps into a shared section; this still reads as applying to every variant because each variant says the steps are the same and restates its own outcome. To keep this fact safe, retain the explicit per-variant statement that nothing runs after the stop (Variant A and C are terser than Before here, e.g. 'nothing ran' rather than listing announce/verify/strip/seal/push), and keep the lines stating that the grant does not exempt the stop and that #42 comes from the known subject when the PR header is absent.",
+      "wallMs": 5383,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3222186bb7e76a4ba347af4b55b19465aa99fe346fe4a5354a29b71906a513b5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "edfd7a75fa2fcb974a84d40639b1b7d1951a0e124b5d1bfce0aac85c335df79a",
+      "baselineOutputSha": "edcbd0ff8e54fa0abffbcf8e6ba6cd4f316446cf42b35b7a463abd8ce884195e",
+      "candidateOutputSha": "bcc17f8743c96705c544142ccf2e5a0501969e6306e3607b4f5e54b9fe89a0cf",
+      "facts": {
+        "boundary": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "notice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The boundary fact did not move: in both Before and After, all three variants (PR header present, PR header absent with known subject #42, and grant all) end in a single stop line, 'spec approved for handoff only', with no announce/start ship, tracker mutation, verification, strip, seal or push narrated afterwards. Grant all gets the same stop as the others, and the absent-header variant resolves to #42. The only visible difference is that After names the explicit '/skill:gauntlet #42' entry where Before said 'run brainstorming #42'; this delivers the intended notice change without disturbing the boundary. To keep it that way, keep the wording that prints the gauntlet command as part of the stop itself, before any delivery starts, and keep stating that grant values do not exempt deferred admission and that a missing PR header falls back to the known subject number. One small risk: After's variant labels dropped the explicit 'acme/widget#42' and, in the second line, the grant value, so consider having the output state the resolved Engine: deferred header as the reason for the stop, so the boundary is explicit in the text rather than implied by the stop line alone.",
+      "wallMs": 7386,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b1a74d48426cae76097fb79512231ad76bb36fa7"
+}

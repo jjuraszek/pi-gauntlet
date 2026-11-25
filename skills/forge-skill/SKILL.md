@@ -23,10 +23,30 @@ Sources: pi - `docs/skills` in `@earendil-works/pi-coding-agent`; Claude Code - 
 | Harness-only fields | `license`, `compatibility`, `metadata`, `allowed-tools` (spec-listed, not enforced) | `when_to_use`, `argument-hint`, `arguments`, `user-invocable`, `allowed-tools` (enforced) |
 | `disable-model-invocation: true` | Command-only skill | Same; also excluded from subagent preload |
 | Invocation | `/skill:name [args]` | `/name [args]`, or `/plugin:name` for a plugin skill |
-| Supporting files | `reference/<topic>.md` (gauntlet convention; pi docs show `references/`), read at the step that names it; dispatch payloads sit beside `SKILL.md` | Any file linked by relative path; `references/`, `scripts/`, `assets/` by convention; `scripts/` files are executed, not loaded |
+| Supporting files | Use `reference/<topic>.md` (pi docs show `references/`); read it at the step that names it. Keep dispatch payloads beside `SKILL.md`. Under `skills/gauntlet/`, use [Gauntlet file placement](#gauntlet-file-placement) instead. | Any file linked by relative path; `references/`, `scripts/`, `assets/` by convention; `scripts/` files are executed, not loaded |
 | Substitutions | None; the body is read as written | Argument tokens and `CLAUDE_*` variables in the dollar form expand before the model reads the body. In prose, prefix an argument token with one backslash (backslash, dollar, ARGUMENTS) and name a variable bare (`CLAUDE_SKILL_DIR`) |
 | Locations | `.pi/skills/`, `~/.pi/agent/skills/`, `.agents/skills/`, `~/.agents/skills/`, a package's `skills/` dir | `.claude/skills/`, `~/.claude/skills/`, a plugin's `skills/` dir; `.agents/skills/` is not read |
 | Reload after edit | `/reload` | Watched for `.claude/skills/` and `~/.claude/skills/`; a plugin skill needs a new session |
+
+### Gauntlet file placement
+
+Under `skills/gauntlet/`, put each step the tracker names in its phase or engine directory. Keep the brainstorm entry, `SKILL.md`, at the tree root and count it as a reader in `brainstorm/`.
+
+Place anchored files at the directories below, relative to `skills/gauntlet/`:
+
+| File | Directory | Owner |
+|---|---|---|
+| `worktrees.md` | `.` | Run setup |
+| `receiving-review.md` | `.` | Integrated-wave and verify review |
+| `tdd.md` | `implement/` | Regression tests in `receiving-review.md` |
+| `implementer-prompt.md` | `implement/waves/` | `waves.md` |
+| `wave-reviewer-prompt.md` | `implement/waves/` | `waves.md` |
+
+For each remaining file, count the run files that reference it by path. Place it in the lowest directory containing all its phase readers, counting an anchored reader in its assigned directory. Put a file read by more than one phase beside the entry file; put a file read by both engines but no other phase in `implement/`.
+
+Ignore readers already beside the entry file, except the entry itself. When those shared files are the only run readers, place the referenced file beside them. Report any unanchored file with no run reader as unplaced; give it an anchor naming its owner to keep it.
+
+Link from skills outside the run to the file at its assigned location; external readers do not change placement. For example, those skills read [the menu layout](../gauntlet/menu-layout.md), [commit wording](../gauntlet/commit-message.md) and [return-file cleanup](../gauntlet/return-file.md) beside the entry file.
 
 ## Authoring rules
 
@@ -36,7 +56,7 @@ These rules bind the lines an edit adds or changes. Leave other lines alone.
 - Low conditionality. One path per step: branch only on a runtime fact the model can observe - a tool result, a file's presence, a settings value - never on the reader's judgment. Two branches is the ceiling; a third goes into a table, or for a skill a reference/ file.
 - Minimal diff. A rule change touches the sentence that owns the rule, not the section. Never restate a rule in a second place; link the owner.
 - No history. An instruction file states current rules only: an added or changed line carries no date, no "previously"/"formerly"/"as of" clause, and no narration of a rule's past - that goes to the commit body, the ticket, or the spec; a one-clause operational reason stays, and a date that is itself a rule (a freeze window) stays. The one exception to Minimal diff and to "Leave other lines alone": an edit that changes a rule inside a changelog, a dated-entry list, or a "previously" section moves that section's surviving rules into the section that owns their topic and deletes the history section in the same edit; a history section the edit does not touch stays. Example: `2025-03-02: builds now use the release profile because debug ran out of memory` under `## History` becomes `Build with the release profile (debug runs out of memory)` under `## Deploy`, and `## History` is deleted.
-- Skills only: Oversized file. A change touching a file over 500 lines extracts the concern it touches - or the largest self-contained `##` section - into `reference/<topic>.md` in the same change, and leaves a one-line "read X now" pointer at the step that needs it.
+- Skills only: Oversized file. A change touching a file over 500 lines extracts the concern it touches - or the largest self-contained `##` section - in the same change and leaves a one-line "read X now" pointer at the step that needs it. Use `reference/<topic>.md` for the extraction; under `skills/gauntlet/`, use [Gauntlet file placement](#gauntlet-file-placement) instead.
 - Recipe over prohibition. A shape or quality problem gets a statement of what the output is; a discipline problem gets one explicit rule. Never a list of things to avoid.
 - No nuance clauses. "Unless it matters", "when appropriate", "if needed" reopen the decision; delete them or name the observable condition.
 - Skills only: Description is a trigger. State when to load the skill (symptoms, file types, situations); never summarize its steps.
@@ -81,6 +101,6 @@ Run after adding a rule or rewording a discipline rule.
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order: `.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`, `<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read and apply `## conventions` whenever present, without a relevance judgment. Give this skill's named section precedence over conflicting `## conventions` rules. Use other relevant sections - by name match, by topic (routing, verification, worktrees, etc.), or by workflow convention - to override or extend the instructions above. Project-local `AGENTS.md` is already in context - check it for project-specific routing tables, service paths, and verification commands.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# forge-skill` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

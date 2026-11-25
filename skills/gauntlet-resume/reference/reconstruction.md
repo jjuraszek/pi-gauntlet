@@ -50,7 +50,7 @@ plan commit; treat every task as `pending`.
 
 | Candidates | Route |
 |---|---|
-| no spec | stop; offer `/skill:brainstorming` or pass the spec: `/skill:gauntlet-resume <specDir>/<name>.md`; no tracker call |
+| no spec | stop; offer `/skill:gauntlet` or pass the spec: `/skill:gauntlet-resume <specDir>/<name>.md`; no tracker call |
 | more than one spec | the human picks one, then continue below with that spec |
 | one spec, no plan | "Spec without plan" |
 | one spec with ledger | `restore-loop.md` (takes precedence over a task plan) |
@@ -60,19 +60,19 @@ For a coordinated brief, use `coordinated.md` "Coordinated admission" before tra
 
 ## Spec without plan
 
-Run SKILL.md entry check 6's deferred-header admission on the resolved spec before the approval/handoff question below; apply it to both routes, including the unapproved-draft brainstorming handoff. Keep grant decoding exempt for the unapproved route.
+Run ../SKILL.md entry check 6's deferred-header admission on the resolved spec before the approval/handoff question below; apply it to both routes, including the unapproved-draft brainstorming handoff. Keep grant decoding exempt for the unapproved route.
 
-Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../gauntlet/menu-layout.md).
 
-Ask exactly one question: is this spec approved, or do you select `/skill:brainstorming`
+Ask exactly one question: is this spec approved, or do you select `/skill:gauntlet`
 with this unapproved spec as the draft? Show the spec path (and the brief's
 `## Intent`/`## Decisions` when present).
 
-- Approved: run SKILL.md entry check 6 on `<spec path>` first (its deferred stop or a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
-  - `loop`: after check 6, call `start brainstorm`, then `skip brainstorm resume: <spec path>` to arm the flow before driver admission. Carry absolute worktree/spec paths and plan directory into `/skill:loop-implementation` Entry steps 1-5 and label Entry steps 1-5 explicitly in the response as Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start; refresh by ledger path after implement starts. Use no writing-plans body or task tracker initialization.
-  - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`; continue in writing-plans, skipping its `start plan` call.
-- Selected unapproved-draft brainstorming handoff: invoke [`/skill:brainstorming`](../../brainstorming/SKILL.md) with
-  the spec as the draft; arm nothing. using-git-worktrees Step 0 detects the existing
+- Approved: run ../SKILL.md entry check 6 on `<spec path>` first (its deferred stop or a malformed `**Amend-grant:**` line stops here, no tracker call). Read the spec's `**Engine:**` line and take the matching route:
+  - `loop`: after check 6, call `start brainstorm`, then `skip brainstorm resume: <spec path>` with `engine: "loop"` before driver admission. Carry absolute worktree/spec paths and plan directory into `../../gauntlet/implement/loop/loop.md` Entry steps 1-5 and label Entry steps 1-5 explicitly in the response as Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start; refresh by ledger path after implement starts. Use no `../../gauntlet/plan/plan.md` body or task tracker initialization.
+  - `waves` or absent: `start brainstorm`; `skip brainstorm resume: <spec path>` with `engine: "waves"`; `start plan`; continue in `../../gauntlet/plan/plan.md`, skipping its `start plan` call.
+- Selected unapproved-draft brainstorming handoff: invoke [`/skill:gauntlet`](../../gauntlet/SKILL.md) with
+  the spec as the draft; arm nothing. `../../gauntlet/worktrees.md` Step 0 detects the existing
   worktree and creates none. A bare "not approved" answer is not consent; wait for
   explicit handoff selection.
 

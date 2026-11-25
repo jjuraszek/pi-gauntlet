@@ -8,7 +8,7 @@ An eval checks change safety on fixed inputs and must-hold facts, not a quality 
 node eval/run.mjs <target> [<sample>] [--baseline-only] [--refresh-judgments] [--base <ref>] [--root <path>]
 ```
 
-The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. `--root <path>` runs a target that lives in another checkout (`<path>/eval/<target>/`, skill files and merge-base resolved there); the judge prompt is always this checkout's `eval/judge.md`. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
+The default run compares baseline skill text from `git merge-base HEAD origin/main` with the working tree, reuses fresh cells, and judges each pair against `intent.md`. `--base <ref>` selects another baseline commit. See [CI](#ci) for the model-free preparation check. `--root <path>` runs a target that lives in another checkout (`<path>/eval/<target>/`, skill files and merge-base resolved there); the judge prompt is always this checkout's `eval/judge.md`. `<sample>` selects one sample and writes a report labeled partial, not a target-wide pass. `--baseline-only` seeds or refreshes baseline records without checking intent or judging; fresh baselines require no model call. Commit the records and intent with the change. Models are constants, not CLI options.
 
 `EVAL_CONCURRENCY=<n>` (default `4`) bounds how many `pi` children run at once; any value other than a positive integer refuses with `EVAL_CONCURRENCY must be a positive integer, got <v>`. Lower it when the provider rate-limits (a limited cell lands as `status: error`; rerun and reuse picks up the finished cells). The completion line reports what the invocation actually called: `<target>: <worst> (report.md written; replay <n>, judge <n>, confirm <n>, wall <s>s)`; `--baseline-only` prints `baseline seeded (replay <n>, wall <s>s)` or `baseline fresh`. An invocation that calls nothing and changes no labels or verdicts leaves `report.md` untouched and prints `<target>: <worst> (report.md unchanged; replay <n>, judge <n>, confirm <n>, wall <s>s)`. For ordinary runs, Ctrl-C keeps the records of samples that finished, writes nothing for samples in flight, and writes no report. Judgment is noninteractive: the runner uses an LLM judge, not a human runtime approval gate.
 
@@ -63,9 +63,11 @@ Committed `gatekeep-pr` records average 48 s per replay cell (max 173 s); a seri
 
 Declaring drops: a sample keeps a reference file when any of its facts belongs to a workflow step whose skill table reads that file, or when the author is unsure; the skill's `SKILL.md` is never dropped except by a sample replaying a child persona that never reads that file. Lint refuses a `bundle-` path outside `skillFiles`, a subset that drops every file, `bundle-` on `kind: edit`, and a path listed under both `bundle+` and `bundle-`.
 
-A skill file with no version at the baseline refuses the run; use `--base <ref>` to pick a base that has it. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
+Declare skill files and `bundle+` files by their working-tree paths. Preparation runs `git diff -M25% --diff-filter=R --name-status -z <base> -- skills/` once per target with a 25% similarity threshold. It uses the rename map to read a matched file at its source path in the baseline commit. If there is no match, it reads the declared path at the baseline. The candidate always reads the declared path from the working tree.
 
-Declare a candidate-only `skillFiles` entry with `"new": true` to assemble empty baseline text while retaining its `# <path>` line in headed assembly. The working tree must contain the file, and lint refuses the declaration if the selected baseline already contains it. A `bundle+` path absent at the baseline requires a matching declared-new entry. Candidate reads and slice headings remain strict, and `for:` still binds to the bundle-free candidate assembly.
+If the declared path is absent at the baseline and Git finds no rename for a moved file, preparation refuses. Check the rename scan against the selected baseline. To keep the default comparison, keep the moved file similar enough for Git to match it. For an explicit comparison, use `--base <ref>` to select a commit that contains the file at the declared path or yields a rename match. Unreadable skill files or unresolved slice headings also refuse with the file and ref.
+
+Use `"new": true` only for a candidate-only `skillFiles` entry. With neither a direct file nor a rename match at the baseline, the flag supplies empty baseline text while retaining the `# <path>` line in headed assembly. It is not a remedy for an unmatched move: empty text discards the before version instead of comparing it. The working tree must contain the file. Lint refuses the flag if the baseline contains the file directly or through a rename match, except when the baseline is `HEAD`, in which case preparation reads the baseline file. A `bundle+` path with no baseline file requires a matching declared-new entry. Candidate reads and slice headings remain strict, and `for:` still binds to the bundle-free candidate assembly.
 
 | Exit | Meaning |
 |---|---|
@@ -96,24 +98,28 @@ eval/
   _template/
     README.md                how to add a target or a sample; restates the anonymization rule
     target.json              kind, skill files, word cap
-    replay.md                text kind only: instruction prepended to case.md as the user turn
+    replay.md                required for every target; prompt prefix for ordinary text replay
     intent.md                stub with the two required headings
     samples/<sample-name>/
       case.md                the replay input for this sample
       expected.md            must-hold facts, one per line, each tagged mechanical: or judged:
-      fixture/               kind: edit only; files the worker edits
+      fixture/               edit checkout, or read-only input to a tracker-result replay
   <target>/                  same shape as _template, plus:
     results/<sample>/baseline.json
     results/<sample>/candidate.json
     report.md                newest judge report, overwritten each run
-  brainstorming/replay/      legacy live-replay harness, outside the template and the lint
+  gauntlet/replay/      legacy live-replay harness, outside the template and the lint
 ```
 
 The CLI also accepts `--base <ref>`. A baseline-only or refused run does not write `report.md`; a comparison that made at least one model call overwrites it with the cells of that invocation; a run that reused everything leaves it untouched.
 
 ## Files per target
 
-Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, `replay.md`, and leading `bundle+` lines apply to `kind: text` only, as do leading `bundle-` lines, which drop `skillFiles` entries for one sample. An edit kind's user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list; lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
+Copy `eval/_template/` to `eval/<target>/`; fill order: [`eval/_template/README.md`](_template/README.md). Its table owns the file-by-file instructions. Sample names state the property under test. `text` targets assemble skill files as a system prompt and replay with no tools; `edit` targets materialize whole skill files, run with read/edit/write tools in a scratch fixture checkout, and capture the staged diff plus resulting tree. File order determines the assembly. Heading slices, frontmatter stripping, and leading `bundle+` lines apply to `kind: text` only, as do leading `bundle-` lines, which drop `skillFiles` entries for one sample. Lint rejects `bundle+` lines for edits. Edit skill files must all sit under the first skill file's directory.
+
+Every target requires `replay.md`. Ordinary text replay prepends it to `case.md`. The edit prompt omits it, but `inputSha` includes it for both kinds, so changing the file invalidates saved replies even for edits. The edit user turn is `/skill:<name> <request>` with the request from `case.md` plus the fixture file list.
+
+`gauntlet/handoff-follows-pointer` is the exception to tool-free text replay. Its `tracker-result.json` seeds a Pi session with the prior user turn, tracker call and tool result. Only the result names the fixture path (`{{cwd}}` expands to the scratch checkout). The system prompt includes the registered tracker description from the arm's revision. The runner sends `case.md` without `replay.md` and enables only `read`. The input hash uses `tracker-result.json` instead of `replay.md` and includes the fixture tree.
 
 `expected.md` has one stable, unique fact id per line: `- <id>: judged: <sentence>` or `- <id>: mechanical: <check>`. An optional first line is `anonymized: true`; other non-blank lines are errors. Mechanical checks are substring tests `contains "<literal>"` and `lacks "<literal>"`, or JavaScript regex tests `matches /<regex>/<flags>`. They run in code, not in the judge. Empty text or an empty edit diff fails the cell. For text only, `wordCap` limits whitespace-delimited tokens containing a letter or digit.
 
@@ -171,7 +177,7 @@ Changed labels or verdicts update the candidate record and regenerate `report.md
   "kind": "text",
   "assembly": "concat",
   "skillSha": "<sha256 of the assembled skill text>",
-  "inputSha": "<sha256 of replay.md + case.md + bundle+ paths + sorted fixture tree>",
+  "inputSha": "<sha256 of (tracker-result.json or replay.md) + case.md + bundle+ paths + sorted fixture tree>",
   "repoSha": "<git HEAD>",
   "models": { "replay": ["anthropic/claude-opus-5-5", "github-copilot/gpt-6.1-sol"], "judge": "anthropic-fable/claude-fable-5-2", "thinking": "medium" },
   "outputs": {
@@ -190,7 +196,7 @@ Changed labels or verdicts update the candidate record and regenerate `report.md
 
 The alternatives above describe a shape, not literal JSON. Shipped records also carry top-level `thinking`; edit records without an assembly setting use `"assembly": "n/a"`. `tree` exists only for edits. Confirmation includes the replay fields and, on successful judgment, facts and feedback; error judgments may contain only verdict and error. Baseline records have no paired `judge` block.
 
-Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. In ordinary comparison or baseline-only mode (not judgment refresh), a stored candidate whose `skillSha` matches the base assembly is promoted first, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
+Replay reuse requires matching `skillSha` (the sample's own assembly after `bundle+` and `bundle-`), `inputSha` (tracker result or replay instruction, stripped case, bundle paths, sorted fixture paths and contents), `kind`, `assembly`, replay model membership, and `models.thinking`, with `status: ok`. Only stale or failed cells replay. In ordinary comparison or baseline-only mode (not judgment refresh), a stored candidate whose `skillSha` matches the base assembly is promoted first, with its judge block removed only when the existing baseline is missing or stale for at least one replay model; a baseline that is fresh for every replay model is kept, and normal freshness checks follow.
 
 Judgment currency requires matching `factsSha`, `judgePromptSha`, `intentSha`, `baselineOutputSha`, and `candidateOutputSha`. `wallMs` on a judge entry sums its attempts; `confirmation.judgeWallMs` times the confirmation judgment; both are optional and never affect currency. The report carries a `wall:` line and a `judge ms` column. Changing facts, judge prompt, or intent rejudges reusable outputs without replaying. Ordinary runs write records only when changed; `repoSha` updates on that write, not on a no-op run. Explicit refresh writes audit checkpoints even when primary replies are unchanged. Scratch paths in outputs are stored as `<scratch>`. The comparison report contains the change, bundle-free `for:` SHA, per-cell outcomes and labels, feedback/errors, and final exit code.
 
@@ -202,7 +208,9 @@ Anonymize private material or rewrite it as simpler synthetic text before it lan
 
 ## CI
 
-The full suite in `scripts/ci.mjs` runs `eval/lib/*.test.mjs`, the explicitly listed deterministic sample regression tests (`eval/conformance-reviewer/*.test.mjs`, `eval/spec-council-applier/pr-description-finding.test.mjs`, and `scripts/delivery-stage-authoring.test.mjs`), structural lint over immediate target directories including `_template`, and the shared hygiene scan. The sample regression tests reuse committed replay outputs and judgments. Nested `brainstorming/replay/` is outside structural lint, not outside the tree hygiene scan. CI never calls a model. `eval/` is checkout-only, excluded from the npm tarball and from model-literal lint scope.
+`npm test` includes `eval/lib/prepare.test.mjs`, which calls `prepareTarget` for each target to prepare all its samples against `git merge-base HEAD origin/main`. Preparation checks structure, hygiene, intent binding, skill files at both revisions, and edit-target file placement. It builds both arms' prompts without calling a model or writing results. A preparation refusal fails the suite. Run `node --test eval/lib/prepare.test.mjs` for just this check; fetch `origin/main` if the merge-base cannot be resolved.
+
+The full suite in `scripts/ci.mjs` runs `eval/lib/*.test.mjs`, the explicitly listed deterministic sample regression tests (`eval/conformance-reviewer/*.test.mjs`, `eval/spec-council-applier/pr-description-finding.test.mjs`, and `scripts/delivery-stage-authoring.test.mjs`), structural lint over immediate target directories including `_template`, and the shared hygiene scan. The sample regression tests reuse committed replay outputs and judgments. Nested `gauntlet/replay/` is outside structural lint, not outside the tree hygiene scan. CI never calls a model. `eval/` is checkout-only, excluded from the npm tarball and from model-literal lint scope.
 
 ## Policy
 

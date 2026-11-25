@@ -14,15 +14,15 @@ b0000002  demo/calendar  color-week      2.5.0    shipped  13m   0
 
 skill reads: run=a0000001-1111-4111-8111-111111111111 coverage=complete total_bytes=60000
 path                                               bytes  reads  share
-pi-gauntlet:skills/brainstorming/reference/legs.md  60000  5      100.0%
+pi-gauntlet:skills/gauntlet/legs.md  60000  5      100.0%
 
 skill reads: run=a0000002-1111-4111-8111-111111111111 coverage=complete total_bytes=55000
 path                                                                                                           bytes  reads  share
-source:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:skills/brainstorming/reference/legs.md  55000  5      100.0%
+source:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:skills/gauntlet/legs.md  55000  5      100.0%
 
 skill reads: run=a0000003-1111-4111-8111-111111111111 coverage=partial total_bytes=61000
 path                                               bytes  reads  share
-pi-gauntlet:skills/brainstorming/reference/legs.md  61000  6      100.0%
+pi-gauntlet:skills/gauntlet/legs.md  61000  6      100.0%
 
 skill reads: run=b0000001-1111-4111-8111-111111111111 coverage=complete total_bytes=8
 path                                bytes  reads  share

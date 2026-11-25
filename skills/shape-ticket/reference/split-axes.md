@@ -1,13 +1,13 @@
 # Split axes: when one request becomes N artifacts
 
 Consumed by `shape-ticket` (one ticket vs N), `brainstorming` (one spec vs N), and
-`writing-plans` (scope check). One artifact is the default; a split must pass every
+`../../gauntlet/plan/plan.md` (scope check). One artifact is the default; a split must pass every
 test below.
 
 ## Scope
 
 This test governs **tickets and specs**. PR and plan decomposition is owned by
-`writing-plans`; one ticket normally ships as one PR. A ticket carrying too many
+`../../gauntlet/plan/plan.md`; one ticket normally ships as one PR. A ticket carrying too many
 concerns is split by this test - never by splitting its PRs, and never by layer.
 
 ## Identity test (a) - one concern or two
@@ -67,7 +67,7 @@ template for voluntary splits.
 ## Release-timing precondition (fail closed)
 
 `axis: separable release timing` is available **only** when the resolved gauntlet
-overrides file documents a `## Deployment` section stating independent ship
+overrides file documents a `# shared` `## deployment` section stating independent ship
 cadences, **and** the slices have a real schedule separation (A lands and is
 verified before B starts), **and** each slice is independently verifiable
 end-to-end. No inference from CI workflow files, no ask-and-assume: an undocumented
@@ -93,7 +93,7 @@ Fixture 2 - deployable boundary (must fail)
   two slices differing only in which service/repo the diff touches, axis:
   separable release timing.
   rejected by: Never-axis list plus the release-timing precondition (no documented
-  `## Deployment`, no A-before-B schedule).
+  `# shared` `## deployment`, no A-before-B schedule).
 
 Fixture 3 - legitimate split (must pass)
   slice 1: root cause: no retry surface exists for failed imports

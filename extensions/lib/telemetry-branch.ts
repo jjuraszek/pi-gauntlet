@@ -1,7 +1,8 @@
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { checkoutOfSync } from "./checkout.ts";
+import { readSharedSection } from "./overrides.ts";
 import { gitRun } from "./vcs.ts";
 
 export const TELEMETRY_REF = "refs/telemetry/records";
@@ -26,14 +27,9 @@ export function telemetryRepo(root: string): string {
   if (result.ok && path) return path;
 
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-    const path = join(top, file);
-    if (!existsSync(path)) continue;
-    const section = readFileSync(path, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : undefined;
   return `local/${basename(primary ?? top)}`;
@@ -152,7 +148,7 @@ export function syncTelemetryBranch(root: string, records: ReadonlyMap<string, s
   }
 }
 
-export function readTelemetryBranch(root: string, { remote = "origin", prefix = "" }: { remote?: string; prefix?: string } = {}): { records: { path: string; bytes: string }[]; warning?: string } {
+export function readTelemetryBranch(root: string, { remote = "origin", prefix = "" }: { remote?: string; prefix?: string | string[] } = {}): { records: { path: string; bytes: string }[]; warning?: string } {
   const records: { path: string; bytes: string }[] = [];
   let warning: string | undefined;
   try {
@@ -164,12 +160,14 @@ export function readTelemetryBranch(root: string, { remote = "origin", prefix = 
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...(prefix ? ["--", prefix] : [])], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("\t");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("\t");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some(p => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, undefined, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });

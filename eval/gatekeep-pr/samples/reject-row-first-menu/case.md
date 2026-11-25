@@ -2,7 +2,7 @@ bundle+: skills/gatekeep-pr/review-baseline.md
 bundle-: skills/gatekeep-pr/reference/sync.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Render only the recommendation sentence and first menu for each of the three independent checkpoints below. Start each checkpoint with its gate line and put its case label outside that message. The first report's problems and note preview have already been displayed. Do not repeat them or narrate note preparation. No human has picked a row. Stop at each menu's hint; simulate no pick, helper, external write, repair, cleanup or rejection steps. Use the supplied validated findings rather than reviewing them again.

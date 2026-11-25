@@ -7,7 +7,7 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const hotfix = read('skills/chase-bug/hotfix.md');
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const finish = hotfix.split('8. **Finish.**')[1].split('9. **Cleanup evidence.**')[0];
 const sample = read('eval/chase-bug/samples/hotfix-plain-landing/case.md');
 const story = sample.match(/Fault story: (.*?) Bound ticket:/)?.[1];
@@ -35,7 +35,7 @@ function scratch() {
 }
 
 test('hotfix landing and PR delegate the fault story and ticket to the shared wording contract', () => {
-  assert.match(hotfix, /Read \[commit message\]\(\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
+  assert.match(hotfix, /Read \[commit message\]\(\.\.\/gauntlet\/commit-message.md\)/);
   assert.match(hotfix, /resolve its absolute path and the ticket named in the record once/);
   assert.match(finish, /Compose the message through the shared Hotfix landing and Landed message rules, using the record's fault story and resolved ticket/);
   assert.match(finish, /Use its subject as the PR title and save its body to a temporary file/);
@@ -44,7 +44,7 @@ test('hotfix landing and PR delegate the fault story and ticket to the shared wo
   assert.match(wording, /at most 72 characters/);
   assert.match(wording, /For a hotfix, use the handoff's fault story as the paragraph and omit bullets/);
   assert.match(wording, /Hotfix landing and hotfix pull request \| The fault story in the handoff record/);
-  assert.match(wording, /place and form named by the overrides `## Issue tracker` `refs:` line/);
+  assert.match(wording, /place and form named by the overrides `# shared` `## issue-tracker` `refs:` line/);
   assert.match(wording, /Without that convention, append `\(ref <ticket-id>\)` to the subject/);
   assert.match(wording, /With no bound ticket, add no reference/);
   assert.doesNotMatch(finish, /commit -m|fix: <slug>|--body\s/);

@@ -10,7 +10,7 @@ import { parseExpected, sha256 } from '../eval/lib/checks.mjs';
 import { judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const reference = 'skills/finishing-a-development-branch/reference/commit-message.md';
+const reference = 'skills/gauntlet/commit-message.md';
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
 function historicalModels(record, candidate = record) {
   const models = [];
@@ -63,29 +63,29 @@ test('historical saved replies reject unusable cells and exclude errors from jud
 
 const sites = [
   'agents/loop-implementer.md',
-  'skills/loop-implementation/SKILL.md',
-  'skills/loop-implementation/reference/interrupted-recovery.md',
-  'skills/loop-implementation/reference/coordinated-legs.md',
-  'skills/loop-implementation/reference/unreachable-returns.md',
+  'skills/gauntlet/implement/loop/loop.md',
+  'skills/gauntlet/implement/loop/interrupted-recovery.md',
+  'skills/gauntlet/implement/loop/coordinated-legs.md',
+  'skills/gauntlet/implement/loop/unreachable-returns.md',
   'skills/gatekeep-pr/reference/fix-wave.md',
   'skills/gatekeep-pr/reference/post-selection-loop.md',
   'skills/gatekeep-pr/reference/menus.md',
   'skills/chase-bug/hotfix.md',
   'skills/housekeeping/reference/fix.md',
-  'skills/subagent-driven-development/SKILL.md',
-  'skills/writing-plans/SKILL.md',
-  'skills/writing-plans/reference/plan-contract.md',
-  'skills/brainstorming/reference/spec-finalization.md',
-  'skills/brainstorming/reference/amendment-surface.md',
-  'skills/brainstorming/reference/legs.md',
+  'skills/gauntlet/implement/waves/waves.md',
+  'skills/gauntlet/plan/plan.md',
+  'skills/gauntlet/plan/plan-contract.md',
+  'skills/gauntlet/brainstorm/spec-finalization.md',
+  'skills/gauntlet/amendment-surface.md',
+  'skills/gauntlet/legs.md',
   'skills/gauntlet-resume/reference/plan-repair.md',
-  'skills/finishing-a-development-branch/SKILL.md',
-  'skills/finishing-a-development-branch/reference/legs.md',
-  'skills/verification-before-completion/reference/conformance-check.md',
-  'skills/finishing-a-development-branch/reference/disposition-protocol.md',
-  'skills/using-git-worktrees/SKILL.md',
-  'skills/using-git-worktrees/reference/pr-head.md',
-  ['skills/using-git-worktrees/reference/pr-head.md', 'Merge the fetched base'],
+  'skills/gauntlet/ship/ship.md',
+  'skills/gauntlet/ship/legs.md',
+  'skills/gauntlet/conformance-check.md',
+  'skills/gauntlet/ship/disposition-protocol.md',
+  'skills/gauntlet/worktrees.md',
+  'skills/gauntlet/pr-head.md',
+  ['skills/gauntlet/pr-head.md', 'Merge the fetched base'],
 ];
 
 test('shared wording reference owns all five parts and ticket resolution', () => {
@@ -116,10 +116,10 @@ for (const site of sites) {
 }
 
 test('spec, consent, housekeeping and citation-repair commits delegate wording', () => {
-  const spec = read('skills/brainstorming/reference/spec-finalization.md');
+  const spec = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.match(spec.slice(spec.indexOf('Then commit the spec'), spec.indexOf('Evaluate the summary')), /commit-message\.md/);
   assert.match(spec, /same subject as the home spec commit/);
-  const consent = read('skills/brainstorming/reference/amendment-surface.md').split('## Implement-local maintenance boundaries')[0];
+  const consent = read('skills/gauntlet/amendment-surface.md').split('## Implement-local maintenance boundaries')[0];
   assert.match(consent, /commit-message\.md/);
   assert.doesNotMatch(consent, /printf 'grant:|batch's `amend:` commit/);
   const fix = read('skills/housekeeping/reference/fix.md');
@@ -132,18 +132,18 @@ test('spec, consent, housekeeping and citation-repair commits delegate wording',
 });
 
 test('amendment batches and chosen spec dispositions use the shared message recipe', () => {
-  const amendment = read('skills/brainstorming/reference/amendment-surface.md');
+  const amendment = read('skills/gauntlet/amendment-surface.md');
   const apply = amendment.split('## 5. Apply, aftermath, commit')[1].split('## Conformance entry')[0];
   assert.match(apply, /commit-message\.md/);
   assert.doesNotMatch(apply, /subject `loop:|^amend:|single `amend:`|subject marker/m);
   assert.match(apply, /<handle> \| <title> \| <what> \|/);
   assert.match(apply, /amended \| <cut row n, or N item\(s\)>/);
-  const disposition = read('skills/finishing-a-development-branch/reference/disposition-protocol.md');
+  const disposition = read('skills/gauntlet/ship/disposition-protocol.md');
   assert.match(disposition.split('2. **Commit spec edits**')[1].split('\n3.')[0], /commit-message\.md/);
 });
 
 test('finish composes landed messages and reads amendment records without subject filters', () => {
-  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  const finish = read('skills/gauntlet/ship/ship.md');
   const digest = finish.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
   assert.match(digest, /--format=%b/);
   assert.doesNotMatch(digest, /--grep|--extended-regexp/);
@@ -154,25 +154,25 @@ test('finish composes landed messages and reads amendment records without subjec
   const minors = finish.split('**Standalone extra reply')[1].split('### Step 5')[0];
   assert.match(minors, /wording:/);
   assert.match(minors, /ticket:/);
-  const legs = read('skills/finishing-a-development-branch/reference/legs.md');
+  const legs = read('skills/gauntlet/ship/legs.md');
   assert.match(legs, /commit-message\.md/);
   assert.match(legs, /Home: <repo> <shared branch>`/);
   assert.ok(finish.includes('commit -m "Remove ephemeral plan doc"'));
 });
 
 test('worktree ignore commit uses the shared bookkeeping sentence', () => {
-  const text = read('skills/using-git-worktrees/SKILL.md').split('### 2b.')[1].split('### 2c.')[0];
+  const text = read('skills/gauntlet/worktrees.md').split('### 2b.')[1].split('### 2c.')[0];
   assert.match(text, /commit-message\.md/);
   assert.match(text, /commit -m "\$IGNORE_SUBJECT"/);
   assert.doesNotMatch(text, /commit -m "Ignore \.worktrees\//);
 });
 
 for (const [targetName, sample] of [
-  ['brainstorming', 'spec-and-amendment-subjects'],
-  ['using-git-worktrees', 'ignore-subject'],
+  ['gauntlet', 'spec-and-amendment-subjects'],
+  ['worktrees', 'ignore-subject'],
   ['loop-implementer', 'home-plain-commit'],
   ['loop-implementer', 'companion-return-file'],
-  ['loop-implementation', 'returned-line-admission'],
+  ['loop', 'returned-line-admission'],
 ]) {
   test(`historical saved replies: ${targetName}/${sample} preserves completed message replies`, () => {
     const dir = `eval/${targetName}`;
@@ -210,7 +210,7 @@ for (const [targetName, sample] of [
 
 test('loop worker and dispatcher carry wording and ledger-held home attribution', () => {
   const worker = read('agents/loop-implementer.md');
-  const driver = read('skills/loop-implementation/SKILL.md');
+  const driver = read('skills/gauntlet/implement/loop/loop.md');
   assert.match(worker, /wording:.*absolute path/);
   assert.match(worker, /ticket:/);
   assert.match(worker, /return:.*absolute path/);
@@ -225,7 +225,7 @@ test('loop worker and dispatcher carry wording and ledger-held home attribution'
 });
 
 test('companion admission reads attributed return files regardless of commit wording', () => {
-  const source = read('skills/loop-implementation/reference/coordinated-legs.md');
+  const source = read('skills/gauntlet/implement/loop/coordinated-legs.md');
   const script = source.match(/<!-- companion-return-shell -->\s*```bash\n([\s\S]*?)\n```/)[1];
   assert.match(script, /"\$RETURN_FILE"/);
   assert.doesNotMatch(script, /%B|subject/);
@@ -279,8 +279,8 @@ for (const [path, required, forbidden] of [
   ['skills/gatekeep-pr/reference/post-selection-loop.md', [/--subject/, /--body-file/, /squash_merge_commit_message/, /--match-head-commit/, /rebase.*neither/], /(?:--squash|--merge) -m/],
   ['skills/chase-bug/hotfix.md', [/wording:/, /ticket:/, /return:/, /--git-dir/, /commit -F -/, /--title/, /--body-file/], /subject `loop:|commit.body|malformed subject|commit -m "fix:/],
   ['skills/gauntlet-resume/reference/restore-loop.md', [/returned:.*pending:|pending:.*returned:/], /loop: (?:row|seed|migrate|repair)|commit bod|--format=%B/],
-  ['skills/verification-before-completion/reference/conformance-check.md', [/Conformance gap fix/, /Convergence repair/, /wording:/, /ticket:/, /record.*SHA/i], /commit(?:s| name| with the message)?[^\n]*`conformance fix|oldest `conformance fix`/],
-  ['skills/using-git-worktrees/reference/pr-head.md', [/Member pull request merge commit/, /merge --no-ff -F -/, /second parent/], /%H %P %s|canonical subject|merge PR #<N> head/],
+  ['skills/gauntlet/conformance-check.md', [/Conformance gap fix/, /Convergence repair/, /wording:/, /ticket:/, /record.*SHA/i], /commit(?:s| name| with the message)?[^\n]*`conformance fix|oldest `conformance fix`/],
+  ['skills/gauntlet/pr-head.md', [/Member pull request merge commit/, /merge --no-ff -F -/, /second parent/], /%H %P %s|canonical subject|merge PR #<N> head/],
 ]) {
   test(`${path} delegates commit wording without using messages as state`, () => {
     const source = read(path);
@@ -333,8 +333,8 @@ for (const [targetName, sample, factId, historical] of [
 }
 
 for (const [targetName, sample, factIds] of [
-  ['finishing-a-development-branch', 'landed-message', ['subject', 'shape', 'delivery', 'note', 'minors']],
-  ['finishing-a-development-branch', 'digest-from-record-lines', ['source', 'digest', 'menu']],
+  ['ship', 'landed-message', ['subject', 'shape', 'delivery', 'note', 'minors']],
+  ['ship', 'digest-from-record-lines', ['source', 'digest', 'menu']],
   ['housekeeping', 'commit-subject', ['dispatch', 'wording', 'bounds']],
 ]) {
   test(`historical saved replies: ${targetName}/${sample} preserves completed message replies`, () => {
@@ -356,11 +356,11 @@ for (const [targetName, sample, factIds] of [
 }
 
 test('plan task, plan handoff and wave commit sites delegate wording without templates', () => {
-  const plan = read('skills/writing-plans/SKILL.md');
-  const contract = read('skills/writing-plans/reference/plan-contract.md');
-  const wave = read('skills/subagent-driven-development/SKILL.md');
-  const prerequisites = read('skills/subagent-driven-development/reference/prerequisites.md');
-  assert.match(wave, /Read \[wave prerequisites\]\(\.\/reference\/prerequisites\.md\) at its absolute path now; stop if unreadable/);
+  const plan = read('skills/gauntlet/plan/plan.md');
+  const contract = read('skills/gauntlet/plan/plan-contract.md');
+  const wave = read('skills/gauntlet/implement/waves/waves.md');
+  const prerequisites = read('skills/gauntlet/implement/waves/prerequisites.md');
+  assert.match(wave, /Read \[wave prerequisites\]\(\.\/prerequisites\.md\) at its absolute path now; stop if unreadable/);
   for (const text of [plan, contract, wave, prerequisites]) assert.doesNotMatch(text, /commit -m "plan:|<imperative subject> \(ref/);
   assert.match(contract.slice(contract.indexOf('**Step 6: Commit**'), contract.indexOf('## Spec anchors')), /commit-message\.md/);
   assert.match(plan.slice(plan.indexOf('## Execution Handoff')), /commit-message\.md/);

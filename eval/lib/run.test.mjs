@@ -1,14 +1,119 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, statSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, statSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
-import { runTarget } from "../run.mjs";
+import { prepareTarget, runTarget } from "../run.mjs";
+import { fileURLToPath } from "node:url";
+import { loadSkillsFromDir, parseFrontmatter } from "@earendil-works/pi-coding-agent";
+import { assemble, parseCase, readTree, treeReader } from "./replay.mjs";
 import { sha256 } from "./checks.mjs";
 import { INTENT_STUB } from "./intent.mjs";
 import { MODELS } from "./models.mjs";
 import { writeRecordAtomic } from "./records.mjs";
+
+const cleanupRecord = '`.pi/gauntlet.md` at merge-base:\n# shared\n## cleanup\n- close ticket: gh issue close <issue> --comment "Delivered in <pr>, merged <merge-sha>."\n- release: /skill:release\n';
+const quotedInput = 'The quoted input says "Run /skill:waves now."';
+const examplesByOwner = new Map([
+  ["example/quoted-input", [quotedInput]],
+  ...["cleanup-after-approve", "cleanup-merged-at-step-1", "cleanup-null-issue", "cleanup-closed-unmerged"]
+    .map(sample => [`gatekeep-pr-scope/${sample}`, [cleanupRecord]]),
+  ["gatekeep-pr/post-menu-combined", ['The merge-base overrides file has exactly two cleanup items, in this order:\n- notify: gh issue comment 91 -R sample/forge-kit --body "Health version merged."\n- release: /skill:release patch\n']],
+  ["gatekeep-pr/batch-cleanup-stop", ["Ordered cleanup items: close ticket `gh issue close <issue>`; release `/skill:release`; notify `echo <pr> <merge-sha>`."]],
+  ["gatekeep-pr/post-menu-set-reply", ["row 4 `gh issue close 45 -R sample/forge-kit`, row 5 `/skill:release`, row 6 `/work/forge-kit/scripts/notify-release.sh`, row 7 stop."]],
+  ["spec-summarizer/chase-bug-hotfix", ["- A standalone `/skill:hotfix` skill (promotion path noted, decision 4)."]],
+  ["spec-summarizer/gh-8-shape-ticket-skill", ["- Written under `/skill:writing-skills` discipline during implementation (description is a trigger phrase;"]],
+  ["skills/forge-skill/SKILL.md", [
+    "| Invocation | `/skill:name [args]` |", "Cross-reference a skill by its invocation name (pi `/skill:name`, Claude Code `/name` or `/plugin:name`)",
+  ]],
+  ["skills/gauntlet-handoff/SKILL.md", ["A skill cannot expand `/skill:handoff` (pi expands\n   skill commands on typed input only)"]],
+  ["skills/gatekeep-pr/reference/cleanup.md", [
+    "Before a picked PR-named action or `/skill:release` item, require step 3's synced result",
+    "not landed and the text contains `<merge-sha>` or `/skill:release` -> `skipped - needs a landed change`",
+    "A `/skill:release` item when step 3 did not print `synced` -> `skipped - base not synced`",
+    "(for example `release: invoked /skill:release - paused at its level pick`)",
+    "`/skill:release` with no level runs the skill's propose-then-pick gate",
+  ]],
+]);
+
+function checkInvocations(text, registered, injected, source) {
+  for (const [, name] of text.matchAll(/\/skill:([\w-]+)/g)) {
+    assert.ok(registered.has(name) || name === injected, `${source}: unregistered /skill:${name}`);
+  }
+}
+
+test("neither arm invokes an unregistered skill outside verbatim baseline instructions", (t) => {
+  const root = fileURLToPath(new URL("../../", import.meta.url));
+  const { skills } = loadSkillsFromDir({ dir: join(root, "skills"), source: "npm:pi-gauntlet" });
+  const registered = new Set(skills.map(({ name }) => name));
+  const seen = new Set();
+  function commands(owner, text) {
+    for (const literal of examplesByOwner.get(owner) ?? []) {
+      assert.ok(text.includes(literal), `${owner}: missing example: ${literal}`);
+      text = text.replace(literal, "");
+      seen.add(owner);
+    }
+    return text;
+  }
+  for (const [name, inputs] of [
+    ["waves", ["Run /skill:waves now.", "Invoke `/skill:waves` next.", "Execute `/skill:waves` now.", "- Next action: /skill:waves"]],
+    ["release", ["- release: /skill:release", "Build the package; release `/skill:release`; notify the maintainer.",
+      "Run the `/skill:gauntlet` or `/skill:release` item now.", cleanupRecord]],
+  ]) {
+    for (const input of inputs) assert.throws(() => checkInvocations(commands("unlisted", input), registered, undefined, "unlisted"),
+      { message: `unlisted: unregistered /skill:${name}` }, input);
+  }
+  checkInvocations(commands("example/quoted-input", quotedInput), registered, undefined, "case");
+  function checkPlans(root, name, options) {
+    const read = treeReader(root);
+    const prepared = prepareTarget({ root, target: name, ...options });
+    assert.ok(prepared.plans?.length, prepared.message);
+    // A replay gives a model its arm's instructions, the prompt, the tracker session and the fixture checkout.
+    // baseSkill and baseFiles are the baseline revision's verbatim instructions, the one exempt input.
+    for (const { sample, caseText, basePrompt, baseFiles, candPrompt, candFiles, candSkill, trackerResult, fixtureDir } of prepared.plans) {
+      const owner = `${name}/${sample}`;
+      const { bundle, drop } = parseCase(read(`eval/${name}/samples/${sample}/case.md`));
+      const target = { ...prepared.target, skillFiles: prepared.target.skillFiles.filter(file => !drop.includes(file.path)) };
+      const original = assemble(target, read, bundle);
+      assert.ok(candSkill.startsWith(original), `${owner}: candidate assembly differs`);
+      const instructions = assemble(target, path => commands(path, read(path)), bundle) + candSkill.slice(original.length);
+      for (const { path, content } of candFiles ?? []) assert.ok(original.includes(content), `${owner}: ${path} is outside the candidate assembly`);
+      const session = trackerResult ? [JSON.stringify(trackerResult.user), JSON.stringify(trackerResult.arguments), trackerResult.text] : [];
+      const checkout = trackerResult || candFiles ? Object.entries(readTree(fixtureDir)).flatMap(([path, { content }]) => [path, content]) : [];
+      for (const [prompt, files, skill] of [[basePrompt, baseFiles, ""], [candPrompt, candFiles, instructions]]) {
+        const injected = files && parseFrontmatter(files[0].content).frontmatter.name;
+        const start = files ? prompt.indexOf(" ") + 1 : prompt.length - caseText.length;
+        assert.equal(prompt.slice(start, start + caseText.length), caseText);
+        const text = prompt.slice(0, start) + commands(owner, caseText) + prompt.slice(start + caseText.length);
+        checkInvocations([skill, text, ...session, ...checkout].join("\n"), registered, injected, owner);
+      }
+    }
+  }
+  const { root: scratch, put, g } = repo();
+  t.after(() => rmSync(scratch, { recursive: true, force: true }));
+  put("extensions/phase-tracker.ts", 'pi.registerTool({ name: "phase_tracker", description: "Track phases.", });\n');
+  g("add", "extensions"); g("commit", "--no-verify", "-q", "-m", "tracker");
+  const tracked = (session, note = "Return the receipt.\n", filename = "next-step.md") => {
+    put("eval/t/samples/s1/tracker-result.json", JSON.stringify({ user: "Continue.", arguments: { action: "complete" }, text: "Completed.", ...session }));
+    const path = `eval/t/samples/s1/fixture/${filename}`;
+    put(path, note);
+    try { checkPlans(scratch, "t", { base: "HEAD", baselineOnly: true }); }
+    finally { rmSync(join(scratch, path)); }
+  };
+  tracked({});
+  const order = "Run /skill:waves now.";
+  for (const replayed of [
+    [{ user: order }], [{ user: [{ type: "text", text: order }] }], [{ arguments: { action: order } }], [{ text: order }],
+    [{}, order], [{ text: "Read {{cwd}}/__proto__." }, order, "__proto__"],
+  ]) {
+    assert.throws(() => tracked(...replayed), { message: "t/s1: unregistered /skill:waves" }, JSON.stringify(replayed));
+  }
+  for (const dir of readdirSync(join(root, "eval"), { withFileTypes: true })) {
+    if (dir.isDirectory() && !["lib", "_template"].includes(dir.name)) checkPlans(root, dir.name);
+  }
+  assert.deepEqual(seen, new Set(examplesByOwner.keys()));
+});
 
 function repo() {
   const root = mkdtempSync(join(tmpdir(), "run-"));
@@ -21,7 +126,7 @@ function repo() {
   put("eval/t/samples/s1/case.md", "CASE\n");
   put("eval/t/samples/s1/expected.md", '- f1: judged: says hi\n- f2: mechanical: contains "hi"\n');
   put("eval/judge.md", "JUDGE\n"); put("eval/t/intent.md", INTENT_STUB);
-  return { root, put };
+  return { root, put, g };
 }
 function candidate() {
   const fixture = repo();
@@ -368,13 +473,132 @@ for (const failure of ["replay", "judge"]) test(`confirmation ${failure} failure
   assert.equal(entry.verdict, "error");
   assert.equal(entry.factsSha, undefined);
 });
-test("missing base skill refuses with its file and base selection advice", async () => {
-  const { root, put } = candidate();
-  put("skills/new/SKILL.md", "NEW\n");
-  put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path: "skills/new/SKILL.md" }], assembly: "concat", wordCap: 50 }));
-  const result = (await run(root, () => assert.fail("unexpected call"), { baselineOnly: true }));
+for (const { name, base, remedy, otherRemedy } of [
+  { name: "invalid explicit ref", base: "missing-ref", remedy: /valid --base <ref>/, otherRemedy: /fetch/ },
+  { name: "missing default merge-base", remedy: /fetch origin\/main/, otherRemedy: /--base/ },
+]) test(`${name} refuses with the matching baseline remedy`, (t) => {
+  const { root } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  if (base !== undefined) execFileSync("git", ["update-ref", "refs/remotes/origin/main", "HEAD"], { cwd: root });
+  const result = prepareTarget({ root, target: "t", base, baselineOnly: true });
   assert.equal(result.exit, 2);
-  assert.match(result.message, /skills\/new\/SKILL.md at [\s\S]*--base/);
+  assert.match(result.message, remedy);
+  assert.doesNotMatch(result.message, otherRemedy);
+});
+
+test("detached tag checkout uses the origin/main merge-base by default", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  g("switch", "-q", "-c", "topic");
+  put("skills/x/SKILL.md", "RELEASE\n");
+  commit(root, "release instructions");
+  g("tag", "release");
+  g("switch", "-q", "main");
+  put("skills/x/SKILL.md", "UPSTREAM\n");
+  commit(root, "upstream instructions");
+  g("update-ref", "refs/remotes/origin/main", "HEAD");
+  g("switch", "-q", "--detach", "release");
+
+  const prepared = prepareTarget({ root, target: "t", baselineOnly: true });
+  assert.ok(prepared.plans, prepared.message);
+  const [{ baseSkill, candSkill }] = prepared.plans;
+  assert.equal(baseSkill, "BASE\n");
+  assert.equal(candSkill, "RELEASE\n");
+});
+
+for (const { name, declare, diagnostic } of [
+  ...[undefined, "false"].map((flag) => ({
+    name: flag === undefined ? "skill file" : "skill file with a string new flag",
+    declare: (put, path) => put("eval/t/target.json", JSON.stringify({ kind: "text", skillFiles: [{ path, new: flag }], assembly: "concat", wordCap: 50 })),
+    diagnostic: /skills\/x\/extra\.md at .*--base <ref>/s,
+  })),
+  {
+    name: "sample bundle file",
+    declare: (put, path) => put("eval/t/samples/s1/case.md", `bundle+: ${path}\nCASE\n`),
+    diagnostic: /s1: bundle\+ skills\/x\/extra\.md.*--base <ref>/,
+  },
+]) test(`missing base ${name} refuses with its file and base selection advice`, (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const path = "skills/x/extra.md";
+  put(path, "extra\n");
+  g("add", "--", path);
+  declare(put, path);
+  const result = prepareTarget({ root, target: "t", base: "HEAD", baselineOnly: true });
+  assert.equal(result.exit, 2);
+  assert.match(result.message, diagnostic);
+  assert.doesNotMatch(result.message, /new(?:\s*:\s*true| declaration)/);
+});
+
+test("rename lookup reuses one Git scan for skill and bundle declarations", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const paths = ["skills/x/guide.md", "skills/x/notes.md"];
+  const shared = ["Use the sample instructions to format the reply.\n", "Keep the response focused on the requested topic.\n"];
+  const baseline = shared.map((text) => `${text}Before.\n`);
+  const candidate = shared.map((text) => `${text}After.\n`);
+  const added = "skills/x/extra.md";
+  const addedText = "Extra instructions.\n";
+  const sources = ["skills/x/SKILL.md", "skills/x/appendix.md"];
+  for (const [i, source] of sources.entries()) put(source, baseline[i]);
+  g("add", "--", "skills/");
+  commit(root, "seed instructions");
+  const base = g("rev-parse", "HEAD").trim();
+  for (const [i, path] of paths.entries()) {
+    g("mv", "--", sources[i], path);
+    put(path, candidate[i]);
+  }
+  put(added, addedText);
+  g("add", "--", "skills/");
+  commit(root, "move instructions");
+  put("eval/t/target.json", JSON.stringify({
+    kind: "text", skillFiles: [{ path: paths[0] }, { path: added, new: true }], assembly: "concat", wordCap: 50,
+  }));
+  put("eval/t/samples/s1/case.md", `bundle+: ${paths[1]}\nCASE\n`);
+
+  const trace = join(root, "git-trace.jsonl");
+  const previousTrace = process.env.GIT_TRACE2_EVENT;
+  process.env.GIT_TRACE2_EVENT = trace;
+  let prepared;
+  try {
+    prepared = prepareTarget({ root, target: "t", base, baselineOnly: true });
+  } finally {
+    if (previousTrace === undefined) delete process.env.GIT_TRACE2_EVENT;
+    else process.env.GIT_TRACE2_EVENT = previousTrace;
+  }
+  assert.ok(prepared.plans, prepared.message);
+  const [{ baseSkill, candSkill }] = prepared.plans;
+  assert.equal(baseSkill, [baseline[0], "", baseline[1]].join("\n"));
+  assert.equal(candSkill, [candidate[0], addedText, candidate[1]].join("\n"));
+  const diffs = readFileSync(trace, "utf8").trim().split("\n").map((line) => JSON.parse(line))
+    .filter(({ event, argv }) => event === "start" && argv[1] === "diff").map(({ argv }) => argv.slice(1));
+  assert.deepEqual(diffs, [["diff", "-M25%", "--diff-filter=R", "--name-status", "-z", base, "--", "skills/"]]);
+});
+
+test("new-marked files are refused against a branch baseline but read on a self-baseline", (t) => {
+  const { root, put, g } = repo();
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const direct = "skills/x/extra.md";
+  const renamed = "skills/x/guide.md";
+  put(direct, "Extra\n");
+  g("add", "--", direct);
+  commit(root, "seed extra instructions");
+  g("update-ref", "refs/remotes/origin/main", "HEAD");
+  g("switch", "-q", "-c", "topic");
+  g("mv", "--", "skills/x/SKILL.md", renamed);
+  commit(root, "move instructions");
+  put("eval/t/target.json", JSON.stringify({
+    kind: "text", skillFiles: [direct, renamed].map((path) => ({ path, new: true })), assembly: "concat", wordCap: 50,
+  }));
+
+  const options = { root, target: "t", baselineOnly: true };
+  const refused = prepareTarget(options);
+  assert.equal(refused.exit, 2);
+  for (const path of [direct, renamed]) assert.ok(refused.message.includes(`${path}: new file exists at baseline`), refused.message);
+
+  const prepared = prepareTarget({ ...options, base: "HEAD" });
+  assert.ok(prepared.plans, prepared.message);
+  assert.equal(prepared.plans[0].baseSkill, "Extra\n\nBASE\n");
 });
 
 test("missing tree skill refuses with its file and ref", async () => {

@@ -7,6 +7,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync, realpathSy
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import registerPhaseTracker from "./phase-tracker.ts";
 import registerPlanTracker from "./plan-tracker.ts";
 import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
@@ -47,11 +48,11 @@ const PHASES = ["brainstorm", "plan", "implement", "verify", "ship"] as const;
 type Phase = (typeof PHASES)[number];
 type Status = "pending" | "in_progress" | "complete" | "skipped";
 
-const phases = (overrides: Partial<Record<Phase, Status>> = {}) =>
-  Object.fromEntries(PHASES.map((phase) => [phase, { status: overrides[phase] ?? "pending" }])) as Record<
-    Phase,
-    { status: Status; substep?: string }
-  >;
+const phases = (overrides: Partial<Record<Phase, Status>> = {}, engine: "waves" | "loop" | null = "waves") =>
+  Object.fromEntries(PHASES.map((phase) => [phase, {
+    status: overrides[phase] ?? "pending",
+    ...(phase === "brainstorm" && ["complete", "skipped"].includes(overrides[phase] ?? "") && engine ? { engine } : {}),
+  }])) as Record<Phase, { status: Status; substep?: string; engine?: "waves" | "loop" }>;
 
 const phaseResult = (action: string, state: Record<Phase, { status: Status; substep?: string }>) => ({
   type: "message",
@@ -151,7 +152,7 @@ const preparePhase = async (h: ReturnType<typeof harness>, phase = "plan") => {
   const tool = h.tools.find((t) => t.name === "phase_tracker")!;
   for (const prior of phase === "implement" ? ["brainstorm", "plan"] : ["brainstorm"]) {
     await startPhase(h, prior);
-    await tool.execute("id", { action: "complete", phase: prior }, undefined, undefined, h.ctx);
+    await tool.execute("id", { action: "complete", phase: prior, engine: prior === "brainstorm" ? "waves" : undefined }, undefined, undefined, h.ctx);
   }
 };
 
@@ -223,7 +224,7 @@ test("phaseModels: resolver warnings appear only for their phase", async () => {
   const h = harness({ cwd: tempCwd({ piGauntlet: { phaseModels: { plan: 5 } } }) });
   await settle(h);
   assert.doesNotMatch((await startPhase(h, "brainstorm")).text, /phaseModels/);
-  await h.tools.find(t => t.name === "phase_tracker")!.execute("id", { action: "complete", phase: "brainstorm" }, undefined, undefined, h.ctx);
+  await h.tools.find(t => t.name === "phase_tracker")!.execute("id", { action: "complete", phase: "brainstorm", engine: "waves" }, undefined, undefined, h.ctx);
   const r = await startPhase(h, "plan");
   assert.match(r.text, /piGauntlet\.phaseModels\.plan must be a "provider\/id" or "provider\/id:level" string/);
   assert.equal(r.status, "in_progress");
@@ -233,11 +234,12 @@ test("phaseModels: resolver warnings appear only for their phase", async () => {
 
 test("agent_settled nudges each exact edge with persisted details", async () => {
   for (const [state, edge, skill] of [
-    [phases({ brainstorm: "complete", plan: "complete" }), "plan-implement", "/skill:subagent-driven-development"],
+    [phases({ brainstorm: "complete", plan: "complete" }, "waves"), "plan-implement", "implement/waves/waves.md"],
+    [phases({ brainstorm: "complete", plan: "complete" }, "loop"), "plan-implement", "implement/loop/loop.md"],
     [
       phases({ brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" }),
       "verify-ship",
-      "/skill:finishing-a-development-branch",
+      "ship/ship.md",
     ],
   ] as const) {
     const h = harness({ branch: enteredBranch(state, [assistant()]) });
@@ -247,7 +249,7 @@ test("agent_settled nudges each exact edge with persisted details", async () => 
     assert.equal(h.sent[0].message.customType, "pi-gauntlet-transition-recovery");
     assert.equal(h.sent[0].message.display, true);
     assert.deepEqual(h.sent[0].message.details, { piGauntletRecoveryEdge: edge });
-    assert.match(h.sent[0].message.content, new RegExp(skill.replace(/[/-]/g, "\\$&")));
+    assert.ok(h.sent[0].message.content.includes(installedInstruction(skill)));
   }
 });
 
@@ -525,7 +527,7 @@ test("implement-write guard: warns once on parent write outside exempt dirs, exe
     await h.emitEvent("tool_call", writeCall("t3", "src/x.ts"));
     const warned = (await h.emitEvent("tool_result", writeResult("t3")))[0] as { content: { text: string }[] };
     assert.match(warned.content[0].text, /implement/);
-    assert.match(warned.content[0].text, /subagent-driven-development/);
+    assert.ok(warned.content[0].text.includes(installedInstruction("implement/waves/waves.md")));
     assert.match(warned.content[0].text, /merge-conflict/);
     await h.emitEvent("tool_call", writeCall("t4", "src/y.ts"));
     assert.equal((await h.emitEvent("tool_result", writeResult("t4")))[0], undefined); // warn-once
@@ -538,11 +540,11 @@ test("implement-write guard: fires in the armed post-plan gap (plan complete, im
   const priorDepth = process.env.PI_SUBAGENT_DEPTH;
   delete process.env.PI_SUBAGENT_DEPTH;
   try {
-    const h = harness({ cwd: tempCwd(), branch: resumedBranch({ plan: "complete" }) });
+    const h = harness({ cwd: tempCwd(), branch: enteredBranch(phases({ brainstorm: "complete", plan: "complete" }, "loop")) });
     await h.emit("session_start");
     await h.emitEvent("tool_call", writeCall("t1", "src/x.ts"));
     const warned = (await h.emitEvent("tool_result", writeResult("t1")))[0] as { content: { text: string }[] };
-    assert.match(warned.content[0].text, /implement/);
+    assert.ok(warned.content[0].text.includes(installedInstruction("implement/loop/loop.md")));
   } finally {
     if (priorDepth !== undefined) process.env.PI_SUBAGENT_DEPTH = priorDepth;
   }
@@ -695,6 +697,23 @@ test("resumed session: plan-implement recovery edge fires (AC 3)", async () => {
   assert.deepEqual(h.sent[0].message.details, { piGauntletRecoveryEdge: "plan-implement" });
 });
 
+test("/skill:gauntlet starts brainstorm and arms the verify closure gate", async () => {
+  const instructions = readFileSync(new URL("../skills/gauntlet/SKILL.md", import.meta.url), "utf8");
+  assert.match(instructions, /Start fresh only on `\/skill:gauntlet`/);
+  const firstStep = instructions.match(/^1\. \*\*Start brainstorm tracking[\s\S]*?(?=^2\. )/m)?.[0];
+  const start = firstStep?.match(/phase_tracker\(\{ action: "start", phase: "([^"]+)" \}\)/);
+  assert.ok(start, "the entry's first step starts a phase");
+
+  const h = harness({ cwd: tempCwd({ piGauntlet: { closureReview: { enforce: true } } }) });
+  await h.emit("session_start");
+  await startPhase(h, start[1]);
+  const tool = h.tools.find((t) => t.name === "phase_tracker")!;
+  const status = await tool.execute("status", { action: "status" }, undefined, undefined, h.ctx) as any;
+  assert.equal(status.details.phases.brainstorm.status, "in_progress");
+  assert.match(status.content[0].text, /^\s*\u2192 brainstorm$/m);
+  assert.equal((await completePhase(h, "verify")).details.error, "no conformance-reviewer dispatch observed");
+});
+
 test("resumed session: closure gate blocks complete verify without a conformance dispatch (AC 3)", async () => {
   const h = harness({
     cwd: tempCwd(),
@@ -760,6 +779,97 @@ const completePhase = async (h: ReturnType<typeof harness>, phase: "implement" |
     details: { error?: string; phases: Record<Phase, { status: string }> };
   };
 };
+
+const phaseCall = (h: ReturnType<typeof harness>, action: string, phase?: Phase, options = {}) =>
+  h.tools.find(t => t.name === "phase_tracker")!.execute("phase", { action, phase, ...options }, undefined, undefined, h.ctx) as Promise<{
+    content: { text: string }[]; details: { error?: string; phases: ReturnType<typeof phases> };
+  }>;
+
+const installedInstruction = (file: string) => {
+  const path = fileURLToPath(new URL(`../skills/gauntlet/${file}`, import.meta.url));
+  assert.ok(fs.statSync(path).isFile());
+  return path;
+};
+const instructionLine = (file: string) => `Instructions: ${installedInstruction(file)}`;
+
+for (const engine of ["waves", "loop", undefined] as const) {
+  test(`advancing completions route by recorded engine: ${engine ?? "publish for handoff"}`, async () => {
+    const h = harness({ cwd: tempCwd({ piGauntlet: { closureReview: { enforce: false } } }) });
+    const start = await phaseCall(h, "start", "brainstorm");
+    const check = (text: string, file?: string) => {
+      assert.deepEqual(text.split("\n").filter(line => line.startsWith("Instructions:")), file ? [instructionLine(file)] : []);
+      if (file) {
+        assert.equal(text.split("\n").at(-1), instructionLine(file));
+        assert.doesNotMatch(text, /\/skill:|^#/m);
+      }
+    };
+    const approval = await phaseCall(h, "complete", "brainstorm", { engine });
+    check(approval.content[0].text, engine === "waves" ? "plan/plan.md" : engine === "loop" ? "implement/loop/loop.md" : undefined);
+    h.setBranch([phaseResult("start", start.details.phases), phaseResult("complete", approval.details.phases)]);
+    await h.emit("session_switch");
+    if (!engine) {
+      for (const phase of ["plan", "implement"] as const) {
+        const denied = await phaseCall(h, "start", phase);
+        assert.match(denied.details.error ?? "", /complete or skip brainstorm with engine/);
+        assert.equal(denied.details.phases[phase].status, "pending");
+      }
+    }
+    check((await phaseCall(h, "complete", "plan")).content[0].text, engine === "waves" ? "implement/waves/waves.md" : undefined);
+    check((await phaseCall(h, "complete", "implement")).content[0].text);
+    const verify = (await phaseCall(h, "complete", "verify")).content[0].text;
+    check(verify, "ship/ship.md");
+    assert.ok(verify.split("\nInstructions:")[0].includes(installedInstruction("ship/ship.md")));
+    check((await phaseCall(h, "complete", "ship")).content[0].text);
+  });
+}
+
+test("status locates only the active or next phase of an entered parent run", async () => {
+  const done = { brainstorm: "complete", plan: "complete", implement: "complete", verify: "complete" } as const;
+  const cases: [string, ReturnType<typeof phases>, string?, ("cold" | "child")?][] = [
+    ["cold", phases({ plan: "in_progress" }), undefined, "cold"],
+    ["entry", phases({ brainstorm: "in_progress" }), "SKILL.md"],
+    ["after approval", phases({ brainstorm: "complete" }), "plan/plan.md"],
+    ["active plan", phases({ brainstorm: "complete", plan: "in_progress" }), "plan/plan.md"],
+    ["waves gap", phases({ brainstorm: "complete", plan: "complete" }), "implement/waves/waves.md"],
+    ["loop before plan skip", phases({ brainstorm: "complete" }, "loop"), "implement/loop/loop.md"],
+    ["active loop", phases({ brainstorm: "skipped", plan: "skipped", implement: "in_progress" }, "loop"), "implement/loop/loop.md"],
+    ["active before pending", phases({ brainstorm: "complete", verify: "in_progress" }), "verify/verify.md"],
+    ["ready to ship", phases(done), "ship/ship.md"],
+    ["finished", phases({ ...done, ship: "complete" })],
+    ["publish for handoff", phases({ brainstorm: "complete" }, null)],
+    ["implement without engine", phases({ brainstorm: "skipped", plan: "skipped", implement: "in_progress" }, null)],
+    ["child", phases({ brainstorm: "in_progress" }), undefined, "child"],
+  ];
+  for (const [name, state, file, session] of cases) {
+    const depth = process.env.PI_SUBAGENT_DEPTH;
+    try {
+      process.env.PI_SUBAGENT_DEPTH = session === "child" ? "1" : "0";
+      const h = harness({ branch: session === "cold" ? [phaseResult("start", state)] : enteredBranch(state) });
+      await h.emit("session_start");
+      const lines = (await phaseCall(h, "status")).content[0].text.split("\n");
+      assert.deepEqual(lines.slice(1 + PHASES.length), [...(file ? [instructionLine(file)] : []), "Context: unknown"], name);
+    } finally {
+      if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+      else process.env.PI_SUBAGENT_DEPTH = depth;
+    }
+  }
+});
+
+test("only completing or skipping brainstorm can set an engine; reset clears it", async () => {
+  const h = harness();
+  const initial = await phaseCall(h, "start", "brainstorm");
+  for (const [action, phase, engine] of [
+    ["complete", "brainstorm", "other"], ["start", "plan", "waves"], ["skip", "verify", "loop"], ["reset", undefined, "loop"],
+  ] as const) {
+    const invalid = await phaseCall(h, action, phase, { engine, reason: "restore" });
+    assert.match(invalid.details.error ?? "", /engine/);
+    assert.deepEqual(invalid.details.phases, initial.details.phases);
+  }
+  await phaseCall(h, "skip", "brainstorm", { engine: "waves", reason: "restore" });
+  assert.ok((await phaseCall(h, "complete", "plan")).content[0].text.endsWith(instructionLine("implement/waves/waves.md")));
+  await phaseCall(h, "reset");
+  assert.doesNotMatch((await phaseCall(h, "complete", "plan")).content[0].text, /Instructions:/);
+});
 
 test("tracker registration is model-only and phase_tracker requests sequential execution", () => {
   const h = harness();
@@ -1342,7 +1452,9 @@ test("Guard 2 evaluates the command's target checkout (AC 3)", async () => {
   const { primary, worktree } = gitPrimary();
   const h = harness({ cwd: join(primary, "doc"), branch: [phaseResult("start", phases({ brainstorm: "in_progress" }))] });
   await h.emit("session_start");
-  assert.ok(blocked(await h.emitEvent("tool_call", bashCall("b1", "git switch -c y"))), "bare switch from <primary>/doc blocks");
+  const fromPrimary = await h.emitEvent("tool_call", bashCall("b1", "git switch -c y"));
+  assert.ok(blocked(fromPrimary), "bare switch from <primary>/doc blocks");
+  assert.ok((fromPrimary[0] as { reason: string }).reason.includes(installedInstruction("worktrees.md")));
   assert.ok(blocked(await h.emitEvent("tool_call", bashCall("b2", `git -C ${primary} switch -c y`))), "-C <primary> blocks");
   assert.ok(!blocked(await h.emitEvent("tool_call", bashCall("b3", `git -C ${worktree} switch -c y`))), "-C <worktree> passes");
   assert.ok(!blocked(await h.emitEvent("tool_call", bashCall("b4", `cd ${worktree} && git checkout -b y`))), "cd <worktree> passes");
@@ -1655,7 +1767,7 @@ test("replay: a plan_check pass observed before any flow entry does not arm the 
   await h.emit("session_start");
   const phaseTool = h.tools.find((t) => t.name === "phase_tracker")!;
   await phaseTool.execute("t1", { action: "start", phase: "brainstorm" }, undefined, undefined, h.ctx);
-  await phaseTool.execute("t2", { action: "complete", phase: "brainstorm" }, undefined, undefined, h.ctx);
+  await phaseTool.execute("t2", { action: "complete", phase: "brainstorm", engine: "waves" }, undefined, undefined, h.ctx);
   await phaseTool.execute("t3", { action: "start", phase: "plan" }, undefined, undefined, h.ctx);
   await phaseTool.execute("t4", { action: "complete", phase: "plan" }, undefined, undefined, h.ctx);
   const res = (await phaseTool.execute("t5", { action: "start", phase: "implement" }, undefined, undefined, h.ctx)) as {
@@ -1828,7 +1940,7 @@ test("ledger handler stamps after brainstorm and skipped plan, then admits imple
   const phase = h.tools.find(t => t.name === "phase_tracker")!;
   const call = (action: string, p: string, reason?: string) => phase.execute("phase", { action, phase: p, reason }, undefined, undefined, h.ctx) as Promise<any>;
   await call("start", "brainstorm");
-  await call("complete", "brainstorm");
+  await phaseCall(h, "complete", "brainstorm", { engine: "loop" });
   await call("skip", "plan", "loop engine");
   const checked = await h.tools.find(t => t.name === "plan_check")!.execute("check", { planPath }, undefined, undefined, h.ctx) as any;
   assert.equal(checked.details.status, "pass");
@@ -2046,7 +2158,7 @@ test(`cap guard: default 5 ${agent} waves pass, the sixth is blocked with the es
   const blocked = await firstCallResult(h, "c6", implementerWave(1, agent));
   assert.equal(blocked?.block, true);
   assert.match(blocked?.reason ?? "", /^Conformance fix loop: 5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
-  assert.ok((blocked?.reason ?? "").includes("Start the escalation message with the line: gauntlet: gate=verification-before-completion/step-6"));
+  assert.ok((blocked?.reason ?? "").includes("Start the escalation message with the line: gauntlet: gate=verify/step-6"));
   assert.doesNotMatch(blocked?.reason ?? "", /^gauntlet:/);
 });
 }
@@ -2398,7 +2510,7 @@ test("grant reset: start implement and reset zero credits (live and replay); sta
   assert.match((await grant(reset, "g2", { rounds: 1, reason: "ok" })).details.error ?? "", /no fix-round cap block is active/);
   for (const [id, input] of [
     ["p1", { action: "start", phase: "brainstorm" }],
-    ["p2", { action: "complete", phase: "brainstorm" }],
+    ["p2", { action: "complete", phase: "brainstorm", engine: "waves" }],
     ["p3", { action: "start", phase: "plan" }],
     ["p4", { action: "complete", phase: "plan" }],
     ["p5", { action: "start", phase: "implement" }],
@@ -2953,7 +3065,7 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
   execFileSync("git", ["worktree", "add", "-b", branch, companionRoot], { cwd: companion, stdio: "pipe" });
   if (pattern.startsWith("..")) tempDirs.push(companionRoot);
   mkdirSync(join(primary, ".pi"), { recursive: true });
-  writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
+  writeFileSync(join(primary, ".pi/gauntlet.md"), `# shape-ticket\n## siblings\n- sibling: invalid\n# shared\n## siblings\n- sibling: ${cloneUrl}\n- sibling: git@example.test:other/${unselected.split("/").at(-1)!}.git\n`);
   const { planPath } = writePlanFixture(primary, {
     mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\nbranch: ${branch}\ncontract: home: ${pattern}\n`,
     mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo.toUpperCase()}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),
@@ -2984,10 +3096,10 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     const result = await tool.execute("legs", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
     assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
     assert.deepEqual(probes, [], "unselected sibling must receive no filesystem or Git probes");
-    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: https://user@example.test:7999/${repo}.git/\n`);
     const https = await tool.execute("https", { planPath }, undefined, undefined, h.ctx) as { details: { status: string } };
     assert.equal(https.details.status, "pass");
-    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), "## shape-ticket\n- sibling: ../viewer\n");
+    writeFileSync(join(primary, ".pi/gauntlet.md"), "# shared\n## siblings\n- sibling: ../viewer\n");
     const invalid = await tool.execute("invalid", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings: { check: string; reason: string }[] } };
     assert.equal(invalid.details.status, "fail");
     assert.ok(invalid.details.findings.some(f => f.check === "input" && f.reason.includes("- sibling: ../viewer") && f.reason.includes("invalid configuration")));
@@ -3011,7 +3123,7 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
       const rewriteKey = "url.https://rewritten.test/other/.insteadOf";
       if ("rewrite" in row) execFileSync("git", ["config", rewriteKey, "https://example.test/team/"], { cwd: companion });
       const line = `- sibling: ${row.value}`;
-      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n${line}\n`);
+      writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n${line}\n`);
       try {
         const result = await tool.execute(row.name, { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: { check: string; reason: string }[] } };
         assert.equal(result.details.status, row.reason ? "fail" : "pass", JSON.stringify(result.details.findings));
@@ -3022,11 +3134,11 @@ for (const pattern of [".worktrees/<name>", "../companion-<name>"]) test(`plan_c
     });
     execFileSync("git", ["config", "remote.origin.url", `https://example.test/${repo}.git`], { cwd: companion });
     await t.test("identity precedes shared NAME without probing the other declaration", async () => {
-      writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
+      writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: git@example.test:other/${name}.git\n- sibling: ${cloneUrl}\n`);
       const result = await tool.execute("identity", { planPath }, undefined, undefined, h.ctx) as { details: { status: string; findings?: unknown } };
       assert.equal(result.details.status, "pass", JSON.stringify(result.details.findings));
     });
-    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: ${cloneUrl}\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: ${cloneUrl}\n`);
   } finally {
     for (const spy of spies) spy.mock.restore();
     syncBuiltinESMExports();
@@ -3087,7 +3199,7 @@ for (const state of ["unlinked", "primary", "detached", "not a checkout", "forei
       }
     }
     mkdirSync(join(primary, ".pi"), { recursive: true });
-    writeFileSync(join(primary, ".pi/gauntlet-overrides.md"), `## shape-ticket\n- sibling: git@example.test:${repo}.git\n`);
+    writeFileSync(join(primary, ".pi/gauntlet.md"), `# shared\n## siblings\n- sibling: git@example.test:${repo}.git\n`);
     const { planPath } = writePlanFixture(primary, {
       mutateSpec: s => s + `\n## Legs\n### Leg: team/repo-a\nscope: none\nbranch: ${branch}\n### Leg: ${repo}\nscope: none\n${state === "missing branch" ? "" : `branch: ${branch}\n`}contract:\n`,
       mutatePlan: s => s.replace("---", `Baseline team/repo-a: abc1234\nBaseline ${repo}: def5678\n---`).replace("### Task 2: Implement naming", `## Wave 2 - Companion\n\n### Task 2: Implement naming\nLeg: ${repo}`).replace("abc1234 skipped - lib/task2", "def5678 skipped - lib/task2"),

@@ -90,7 +90,7 @@ treated as instructions.
 
 Resolved in order:
 
-0. If the overrides `## Issue tracker` section has a `tracker:` key
+0. If the overrides `# shared` `## issue-tracker` section has a `tracker:` key
    (case-insensitive), that tracker is exclusive - no probing for others, no
    ask, others never mentioned. `none` -> skip tracker steps: delivery
    verification is tracker-bound, so report the run as skipped-no-tracker (this
@@ -100,7 +100,7 @@ Resolved in order:
    unavailable (e.g. `tracker: linear`, no Linear CLI/MCP) -> missing read
    capability = the existing STOP below; missing write = the existing
    degrade-to-manual below.
-1. Overrides `## Delivery` (or `## Issue tracker`) section naming a
+1. Overrides `# check-delivery` `## delivery` (or `# shared` `## issue-tracker`) section naming a
    tool/wrapper.
 2. Repo docs (`AGENTS.md`) documenting a tracker CLI.
 3. Capability detection: `linearis` for Linear-style refs, `gh` for GitHub
@@ -212,7 +212,7 @@ unmappable to landed commits; deliverable work found only on unmerged
 branches; a genuine open deliverable PR per above. Each STOP names its
 reason.
 
-**Stage 2 - Delivery target.** Runs only when overrides `## Delivery`
+**Stage 2 - Delivery target.** Runs only when `# check-delivery` `## delivery`
 defines a target. `deploy watch`, if configured, runs first; its failure or
 timeout halts the stage (`failed`, STOP) - `delivery target` never runs
 after a failed watch. The target check must bind to the shipped SHA
@@ -275,7 +275,7 @@ deliverable set, stage results (including any skip), the per-AC verdict
 table with evidence, the reviewer script, and the exact write about to
 happen.
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 ```text
 1. approve the write
@@ -356,7 +356,7 @@ Evidence binds to the stage-1 SHA, so a default-branch advance mid-run
 leaves prior evidence valid; a later re-run produces a fresh comment for
 the newer SHA.
 
-## The `## Delivery` overrides contract
+## The `## delivery` overrides contract
 
 | Slot | Meaning | Default (unset) |
 |---|---|---|
@@ -373,7 +373,8 @@ the newer SHA.
 Worked example:
 
 ```markdown
-## Delivery
+# check-delivery
+## delivery
 - target state: Ready
 - deploy watch: gh run watch --workflow deploy.yml (run for <sha>)
 - delivery target: curl -fsS https://staging.example.com/version | grep <sha>
@@ -383,9 +384,9 @@ Worked example:
 
 Credentials are the declared command's own concern - a credential failure
 is a stage-2 failure, not a skip. This slot table is the thin-wrapper
-contract: a consumer's closeout prompt reduces to a `## Delivery` block plus
+contract: a consumer's closeout prompt reduces to `# check-delivery` `## delivery` plus
 a one-line wrapper invoking this skill. Worktree cleanup is out of scope -
-that belongs to `finishing-a-development-branch`.
+that belongs to `../gauntlet/ship/ship.md`.
 
 Malformed slot values fail safe, with one warning per invocation naming the
 bad value: `synthesized AC gaps` treats anything other than `block`/`soft`
@@ -430,17 +431,6 @@ unset (no body edits).
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
-and apply `## conventions` whenever present, without a relevance
-judgment.
-Give this skill's named section precedence over conflicting
-`## conventions` rules. Use other relevant sections - by name match,
-by topic (routing,
-verification, worktrees, etc.), or by workflow convention - to override or
-extend the instructions above. Project-local `AGENTS.md` is already in
-context - check it for project-specific routing tables, service paths, and
-verification commands.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# check-delivery` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

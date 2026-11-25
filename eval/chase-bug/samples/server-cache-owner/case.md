@@ -1,5 +1,5 @@
 bundle+: skills/chase-bug/SKILL.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Produce one step-4 gate message. This case is synthetic; all names and paths are invented. All writes and handoffs are simulated. Do not run tools.
 

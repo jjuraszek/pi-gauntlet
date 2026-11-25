@@ -10,8 +10,8 @@ The live persona (`agents/code-reviewer.md`, loaded with `systemPromptMode: repl
 
 Meanwhile every orchestrator surface already treats Critical and Moderate as blocking:
 
-- `skills/requesting-code-review/SKILL.md:55-60` - "Fix Critical and Moderate issues before proceeding"; re-review after fixes.
-- `skills/subagent-driven-development/SKILL.md:238-240` - whole-diff review: address Critical and Moderate findings before verify.
+- `skills/gauntlet/requesting-review.md:55-60` - "Fix Critical and Moderate issues before proceeding"; re-review after fixes.
+- `skills/gauntlet/implement/waves/waves.md:238-240` - whole-diff review: address Critical and Moderate findings before verify.
 - `skills/chase-bug/hotfix.md:90` - a `FIX_FIRST` round fixes every Critical and Moderate finding.
 - `README.md:347-348` and `skills/gatekeep-pr/SKILL.md:166-168,301-302` state the same mapping.
 
@@ -80,15 +80,15 @@ Verified: `scripts/ci.mjs:89` matches the first `## vX.Y.Z` heading via `/^##\s+
 
 ## What stays the same
 
-- The fenced report template (`agents/code-reviewer.md:30-45`), including the `Verdict: SHIP | FIX_FIRST | REJECT` grammar line, is byte-unchanged. That grammar is persona-local: `skills/requesting-code-review/code-reviewer.md` contains no `Verdict`/`SHIP`/`FIX_FIRST`/`REJECT` tokens (verified by rg), so there is no verdict grammar to sync.
+- The fenced report template (`agents/code-reviewer.md:30-45`), including the `Verdict: SHIP | FIX_FIRST | REJECT` grammar line, is byte-unchanged. That grammar is persona-local: `skills/gauntlet/wave-reviewer.md` contains no `Verdict`/`SHIP`/`FIX_FIRST`/`REJECT` tokens (verified by rg), so there is no verdict grammar to sync.
 - The grammar-sync comment at `agents/code-reviewer.md:60` governs the `Parallel-safe:` block, which this change does not touch; it does not fire.
-- `skills/requesting-code-review`, `skills/subagent-driven-development`, `skills/chase-bug/hotfix.md`: untouched; their policy is the target state.
+- `skills/gauntlet/requesting-review.md`, `skills/gauntlet/implement/waves`, `skills/chase-bug/hotfix.md`: untouched; their policy is the target state.
 - Fix-loop trajectory/convergence rules from #7 and the escalation loop from #29: untouched.
-- **Accepted residual:** the dispatch template's worked example (`skills/requesting-code-review/code-reviewer.md:198-200`) ends `**Ready to merge: With fixes**`, reasoning that "Moderate issues ... are easily fixed" - the framing #30 removes from the persona. Editing that template is hard-constrained out of scope by #30 ("Do not alter `skills/requesting-code-review/code-reviewer.md`"); conformance must not score this as a miss.
+- **Accepted residual:** the dispatch template's worked example (`skills/gauntlet/wave-reviewer.md:198-200`) ends `**Ready to merge: With fixes**`, reasoning that "Moderate issues ... are easily fixed" - the framing #30 removes from the persona. Editing that template is hard-constrained out of scope by #30 ("Do not alter `skills/gauntlet/wave-reviewer.md`"); conformance must not score this as a miss.
 
 ## Out of scope
 
-- Editing the dispatch template `skills/requesting-code-review/code-reviewer.md` (hard constraint from #30).
+- Editing the dispatch template `skills/gauntlet/wave-reviewer.md` (hard constraint from #30).
 - Changing severity definitions beyond the Moderate and Minor rows above.
 - Defining REJECT's trigger conditions beyond the one-line characterization in the rule.
 - Critical-only blocking (a policy change requiring its own brainstorm; explicitly rejected in #30).

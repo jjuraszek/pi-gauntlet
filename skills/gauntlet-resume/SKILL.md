@@ -1,11 +1,11 @@
 ---
 name: gauntlet-resume
-description: Use when a human wants to continue an interrupted gauntlet flow in a fresh session - from a gauntlet-handoff brief (file, pasted, or picked from the default handoff directory), from a bare worktree that already holds a spec, or from a spec tracked on main (creates or reuses its worktree via `/skill:using-git-worktrees`). Human-only; the sole resume entry point. Restores phase/plan tracker state through the legal arming sequence, never infers approval.
+description: Use when a human wants to continue an interrupted gauntlet flow in a fresh session - from a gauntlet-handoff brief (file, pasted, or picked from the default handoff directory), from a bare worktree that already holds a spec, or from a spec tracked on main (creates or reuses its worktree via `../gauntlet/worktrees.md`). Human-only; the sole resume entry point. Restores phase/plan tracker state through the legal arming sequence, never infers approval.
 disable-model-invocation: true
 argument-hint: "[<brief-file> | <spec>.md | <worktree-name-or-path>]"
 ---
 
-> **Related skills:** Continues into `/skill:writing-plans`, `/skill:subagent-driven-development`, `/skill:loop-implementation`, or `/skill:verification-before-completion` depending on the restored stage.
+> After restoration, follow the route in [Post-restore continuation](#post-restore-continuation).
 
 # Gauntlet Resume
 
@@ -26,9 +26,9 @@ or unreadable reference stops the route, naming its path.
 - Reads: anything.
 - Writes: `phase_tracker` / `plan_tracker` state after every check passes and every
   human question is answered; the plan file, only through the plan repair that
-  `reference/restore-plan.md` enters on a `plan_check` FAIL; the ledger through `reference/restore-loop.md` "Pending recovery" and the loop driver's admission/repair contract; on the seed route, what `/skill:using-git-worktrees` writes. Never a spec copy, rename, or marker commit.
+  `reference/restore-plan.md` enters on a `plan_check` FAIL; the ledger through `reference/restore-loop.md` "Pending recovery" and the loop driver's admission/repair contract; on the seed route, what `../gauntlet/worktrees.md` writes. Never a spec copy, rename, or marker commit.
 - Never: `git worktree add` directly; worktree creation by resume itself only on
-  the seed route, only through `/skill:using-git-worktrees`; infer approval from
+  the seed route, only through `../gauntlet/worktrees.md`; infer approval from
   artifact presence; restore
   gate history, closure-review evidence, or fix rounds; start a later phase directly
   (that does not arm the flow).
@@ -40,7 +40,7 @@ optional pasted text after the command line. Count tokens first; then first matc
 Spec dirs resolve per `reference/reconstruction.md` "Candidates" (`flowGuards.specDirs`
 precedence).
 
-Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.
+Read and apply [menu-layout](../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
 For the discovery menu, start the message with the marker specified below. Start the message with `gauntlet: gate=gauntlet-resume/discovery`.
 For no briefs and every stop route in the table, end without mutation. Start the message with `gauntlet: stuck` followed by the existing reason on that line.
@@ -57,7 +57,7 @@ For no briefs and every stop route in the table, end without mutation. Start the
 | one token, existing directory that is a git worktree root (`git -C <dir> rev-parse --show-toplevel` equals its `realpath`) other than `<primary>` | worktree |
 | one token, missing path (ends `.md` or contains a separator) | stop: `not found: <path>` |
 | one token, bare name | worktree at `<primary>/.worktrees/<name>`; missing or not a git worktree -> entry check 2 stop |
-| anything else | stop: "this is a new idea - run /skill:brainstorming" |
+| anything else | stop: "this is a new idea - run /skill:gauntlet" |
 
 A relative token resolves against the session cwd; a bare `name.md` absent there is
 tried at `<primary>/<specDir>/name.md` per resolved spec dir in order, first hit wins.
@@ -82,7 +82,7 @@ For a brief, `Read` `reference/brief-contract.md` in full before check 2.
 checks 3, 3b and 4, before any tracker write. Without that block, read nothing from
 that file.
 
-1. **Idle session.** `phase_tracker({ action: "status" })`. Any phase not pending ->
+1. **Idle session.** `phase_tracker({ action: "status" })`. Read no phase file from status. Any phase not pending ->
    stop: "session already carries flow state - reset is your call".
 2. **Target worktree.** Resolve from the brief's `worktree:` field, the override, or the
    bare argument. Stops: path missing or `git -C <path> rev-parse --is-inside-work-tree`
@@ -108,15 +108,17 @@ that file.
    `skills/*/SKILL.md` in this package; `Read` each match's complete file into the
    transcript; list non-matches as skipped. Loaded bodies are context only - no skill's
    entry actions run until Dispatch names one.
-6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before any tracker mutation or brainstorming invocation. Carry the resolved `<spec path>` without re-resolving it: use the restore reference's path, `reference/reconstruction.md`, or the seed's pinned `<full-path>/<rel>` (`reference/seed.md`).
-   Read the spec's header block (between the H1 and the first `##`). An exact `**Engine:** deferred` stops with `spec approved for handoff only - run brainstorming #N`; make no phase_tracker or plan_tracker mutation. After deferred-header admission, apply the grant predicate only for an approved spec in
-   [Standing grants](../brainstorming/reference/amendment-surface.md#standing-grants): no
-   `**Amend-grant:**` line -> no grant;
-   exactly one line whose trimmed value is `none` -> no grant;
-   exactly one line whose trimmed value is any other non-empty single-line text ->
-   grant active, the sentence is that value;
-   two or more lines, one line with an empty value, or a value continued onto the next physical line ->
-   malformed, stop, print the offending line(s), no tracker call. Skip only grant decoding for routes that resolve no
+6. **Grant field.** Run deferred-header admission whenever a route resolves an existing spec, including brainstorm-stage process-state restore and reconstruction's unapproved-draft handoff, before tracker writes or brainstorm entry. Reuse the restore path, `reference/reconstruction.md`'s path or `reference/seed.md`'s pinned `<full-path>/<rel>`. Read between H1 and the first `##`. On exact `**Engine:** deferred`, stop:
+
+   | Draft spec PR | Exact reply (replace #N with its PR number) |
+   |---|---|
+   | `**PR:**` or session identifies #N | `spec approved for handoff only - run /skill:gauntlet #N` |
+   | Push succeeded, [creation failed](../gauntlet/brainstorm/spec-pr.md#publish-row-4) | `spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec` |
+   | Neither | `spec approved for handoff only - which draft PR contains this spec?` |
+
+   After admission, decode `**Amend-grant:**` only for an approved spec per [Standing grants](../gauntlet/amendment-surface.md#standing-grants).
+   No line or one line whose trimmed value is `none` -> no grant; one other non-empty trimmed single-line value -> grant active, the sentence is that value.
+   Two or more lines, a blank value, or a value continued onto the next physical line -> malformed, stop, print the offending line(s), no tracker call. Skip only grant decoding for routes that resolve no
    approved spec (hotfix, `worktree: no`, a brief whose active phase is brainstorm,
    reconstruction's unapproved-draft brainstorming handoff); print no grant line.
    Resume reports the line; it never writes it.
@@ -130,7 +132,7 @@ For the `worktree: no` brainstorming offer, keep the explicit-selection wait. St
 | brief with `## Process state` and a `Ledger:` field | `reference/reconstruction.md`, then `reference/restore-loop.md`: "Ledger admission", "Spec with ledger" |
 | brief with `## Process state` and no `Ledger:` field, at any stage | `reference/reconstruction.md`, then `reference/restore-plan.md`: "Process-state restore" |
 | brief without process state, `## Skills loaded` names `chase-bug` | hotfix route below, before any artifact reconstruction, no tracker calls |
-| brief without process state, `worktree: no` | offer `/skill:brainstorming` with `## Intent` as the idea and wait for explicit selection; then invoke [`/skill:brainstorming`](../brainstorming/SKILL.md) in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
+| brief without process state, `worktree: no` | offer `/skill:gauntlet` with `## Intent` as the idea and wait for explicit selection; then invoke [`/skill:gauntlet`](../gauntlet/SKILL.md) in the current directory; resume creates no worktree - brainstorming's own Worktree First applies (a plain handoff is a new flow) |
 | brief without process state, worktree present | `reference/reconstruction.md` |
 | bare worktree | `reference/reconstruction.md` |
 | spec seed | `reference/seed.md` |
@@ -143,9 +145,9 @@ one spec with a task plan only, or seed step 8 finding a plan beside the pinned 
 `reference/restore-plan.md` "Spec with plan"; no spec, more than one spec, or one spec
 without a plan -> no restore reference, the route stays in `reference/reconstruction.md`.
 
-**Hotfix route.** `skills/chase-bug/hotfix.md` consumes only a hotfix record at
+**Hotfix route.** `../chase-bug/hotfix.md` consumes only a hotfix record at
 `$TMPDIR/hotfix-<slug>.md`. If `## Decisions` or `## Intent` names an existing record
-path, hand it to hotfix.md and skip its worktree-create step when the brief's worktree
+path, hand it to ../chase-bug/hotfix.md and skip its worktree-create step when the brief's worktree
 exists (reuse it). Otherwise invoke `/skill:chase-bug` triage with `## Intent` to
 re-derive the record.
 
@@ -188,18 +190,17 @@ else the first in-progress task, else `none` (whole-deliverable re-validation).
 
 A successful restore is an automatic handoff, not a terminal report; let the resumed skill own the next ask and its marker. Keep the brief fields unchanged and infer no approval. After plan repair of a plan that was dirty or untracked before repair, state explicitly that the repair stays in the working copy and lands with the next task commit; run no `git add` or repair commit.
 
-After a successful restore, print the closing line, then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when grant decoding was skipped), then continue in the stage's
-owning skill **without** its reset-bearing entry:
+After a successful restore, print the closing line, then on its own line exactly one of `Standing grant active: <sentence>` or `No standing grant.` from check 6 (nothing when grant decoding was skipped), then read the linked file at the stated entry point:
 
 | Active after restore | Continue in | Entry point |
 |---|---|---|
-| brainstorm | [brainstorming checklist](../brainstorming/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:brainstorming` entry (it resets both trackers) |
-| approved spec with `**Engine:** loop`, no ledger | loop-implementation | Entry steps 1-5, carried and labeled as `reference/reconstruction.md` "Spec without plan" states; a restored plan-stage brief makes no second arming call |
-| plan with task engine | writing-plans body | skip its `start plan` call (already in_progress) |
-| implement with a ledger | loop-implementation | `reference/restore-loop.md` "Spec with ledger" step 9: `Before each dispatch`; reuse the existing ledger |
-| implement with task plan | subagent-driven-development | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
-| verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | /skill:loop-implementation | `reference/restore-loop.md` "Spec with ledger" step 9: `After the loop` step 1; never start implement |
-| verify without `Ledger:` | verification-before-completion | full conformance gate; nothing carried over |
+| brainstorm | [brainstorming checklist](../gauntlet/SKILL.md#checklist) | on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8. Never `/skill:gauntlet` entry (it resets both trackers) |
+| approved spec with `**Engine:** loop`, no ledger | [Loop](../gauntlet/implement/loop/loop.md#entry) | Entry steps 1-5 per `reference/reconstruction.md` "Spec without plan"; a restored plan-stage brief makes no second arming call |
+| plan with task engine | [Plan](../gauntlet/plan/plan.md) | skip its `start plan` call (already in_progress) |
+| implement with a ledger | [Loop](../gauntlet/implement/loop/loop.md#before-each-dispatch) | `Before each dispatch`; reuse the ledger per `reference/restore-loop.md` step 9 |
+| implement with task plan | [Waves](../gauntlet/implement/waves/waves.md) | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
+| verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | [Loop gates](../gauntlet/implement/loop/loop.md#after-the-loop) | `After the loop` step 1 per `reference/restore-loop.md` step 9; never start implement |
+| verify without `Ledger:` | [Verify](../gauntlet/verify/verify.md) | full conformance gate; nothing carried over |
 
 ## Red flags — STOP
 
@@ -211,17 +212,7 @@ owning skill **without** its reset-bearing entry:
 - Accepting a free-form prompt as a brief.
 
 ## Project overrides
-If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
-and apply `## conventions` whenever present, without a relevance
-judgment.
-Give this skill's named section precedence over conflicting
-`## conventions` rules. Use other relevant sections - by name match,
-by topic (routing,
-verification, worktrees, etc.), or by workflow convention - to override or
-extend the instructions above. Project-local `AGENTS.md` is already in
-context - check it for project-specific routing tables, service paths, and
-verification commands.
+
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# gauntlet-resume` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

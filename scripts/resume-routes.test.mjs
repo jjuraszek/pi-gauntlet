@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -33,6 +35,23 @@ test('route read sets stay within their byte ceilings', () => {
   assert.ok(bytes(...shared, file['restore-plan.md']) <= 37000, `plan route ${bytes(...shared, file['restore-plan.md'])}`);
   assert.ok(bytes(handoff, file['brief-contract.md']) <= 17000, `handoff ${bytes(handoff, file['brief-contract.md'])}`);
   assert.deepEqual(Object.keys(file).sort(), ['SKILL.md', 'brief-contract.md', 'coordinated.md', 'plan-repair.md', 'reconstruction.md', 'restore-loop.md', 'restore-plan.md', 'seed.md']);
+});
+
+test('the idle-session check treats the status locator as observational', () => {
+  const idle = section(skill, '## Entry checks').split('2. **')[0];
+  ordered(idle, ['action: "status"', 'Read no phase file from status', 'Any phase not pending', 'stop: "session already carries flow state']);
+});
+
+test('deferred specs stop with the reply for the observed draft PR', () => {
+  const check = section(skill, '## Entry checks').split('6. **Grant field.**')[1];
+  for (const [evidence, reply] of [
+    ['`**PR:**` or session identifies #N', 'spec approved for handoff only - run /skill:gauntlet #N'],
+    ['Push succeeded,', 'spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec'],
+    ['Neither', 'spec approved for handoff only - which draft PR contains this spec?'],
+  ]) {
+    const row = check.split('\n').find(line => line.trimStart().startsWith(`| ${evidence}`));
+    assert.equal(row?.split('|').at(-2)?.trim(), `\`${reply}\``, evidence);
+  }
 });
 
 test('only the current formats remain', () => {
@@ -81,7 +100,57 @@ test('the engine test selects one restore reference per input', () => {
   assert.match(candidates, /For a coordinated brief, use `coordinated\.md` "Coordinated admission" before tracker writes/);
   const noPlan = section(file['reconstruction.md'], '## Spec without plan');
   ordered(noPlan, ['Ask exactly one question: is this spec approved', '- Approved:', '  - `loop`:', '  - `waves` or absent:', '- Selected unapproved-draft brainstorming handoff:']);
+  for (const [branch, engine] of [['`loop`', 'loop'], ['`waves` or absent', 'waves']]) {
+    const skip = noPlan.split('\n').find(line => line.startsWith(`  - ${branch}:`));
+    ordered(skip, ['start brainstorm', 'skip brainstorm resume: <spec path>', `engine: "${engine}"`]);
+  }
   assert.match(file['seed.md'], /8\. \*\*Continue\*\* with the spec pinned at `<full-path>\/<rel>`, skipping `reconstruction\.md`\s+"Candidates": `<full-path>\/<sibling plans dir>\/<basename of rel>` exists ->\s+`restore-plan\.md` "Spec with plan"; otherwise `reconstruction\.md` "Spec without plan"\./);
+});
+
+test('spec seed refuses remote terminal records when no local record exists', t => {
+  const seed = file['seed.md'];
+  assert.match(section(skill, '## Dispatch'), /^\| spec seed \| `reference\/seed\.md` \|$/m);
+  ordered(seed, ['every stop names the path', '3. **Not shipped.**', '5. **Reuse or create.**', '8. **Continue**']);
+  const guard = seed.match(/^3\. \*\*Not shipped\.\*\* (.+)$/m)?.[1];
+  assert.ok(guard, 'seed admission step');
+  const lookup = guard.match(/read `<git common dir>\/([^`]+)`.*When the local record is absent, fetch `([^`]+)` from `telemetry\.remote` \(default `([^`]+)`\) and read `([^`]+)` from the fetched ref.*A valued `(\w+):` or `(\w+):` stops: `([^`]+)`/);
+  assert.ok(lookup, 'local-miss lookup must read the fetched record and stop on terminal timestamps');
+  const [, localPath, ref, remote, remotePath, firstField, secondField, message] = lookup;
+  const terminalField = new RegExp(`^(?:${firstField}|${secondField}): (.+)$`, 'm');
+  const rows = [
+    ['shipped', 'shipped_at', '2026-01-05T12:00:00Z'],
+    ['abandoned', 'abandoned_at', '2026-01-06T13:00:00Z'],
+  ];
+  const dir = mkdtempSync(join(tmpdir(), 'resume-seed-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const git = (cwd, args, input) => execFileSync('git', args, {
+    cwd, input, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 5000,
+  }).trim();
+  const origin = join(dir, 'origin.git');
+  git(dir, ['init', '--bare', origin]);
+  git(dir, ['init']);
+  git(dir, ['remote', 'add', 'origin', origin]);
+  const tree = git(origin, ['mktree'], rows.map(([name, field, ts]) => {
+    const blob = git(origin, ['hash-object', '-w', '--stdin'], `${field}: ${ts}\n`);
+    return `100644 blob ${blob}\t${name}.yaml\n`;
+  }).join(''));
+  const records = ['specs', 'gauntlet', 'widget', 'acme'].reduce((child, name) =>
+    git(origin, ['mktree'], `040000 tree ${child}\t${name}\n`), tree);
+  git(origin, ['update-ref', 'refs/telemetry/records', records]);
+
+  const expand = (path, name) => path.replace('<owner>/<repo>', 'acme/widget')
+    .replace('<rel with .md -> .yaml>', `specs/${name}.yaml`);
+  const commonDir = git(dir, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  for (const [name] of rows) {
+    assert.equal(existsSync(join(commonDir, expand(localPath, name))), false, `${name}: local record`);
+  }
+  git(dir, ['fetch', remote, ref]);
+  for (const [name, field, ts] of rows) {
+    const record = git(dir, ['show', `FETCH_HEAD:${expand(remotePath, name)}`]);
+    const terminal = record.match(terminalField);
+    assert.ok(terminal, `${name}: ${field} must trigger the seed stop`);
+    assert.equal(message.replace('<ts>', terminal[1]), `spec already shipped at ${ts} - write a superseding spec`, name);
+  }
 });
 
 test('PR identity stops precede every restore reference', () => {
@@ -106,6 +175,7 @@ test('ledger admission accepts only the current ledger format', () => {
     '`recovery: doc/configuration.md "Loop engine operations"`',
   ]);
   ordered(loop, ['\n## Ledger admission\n', '\n## Spec with ledger\n', 'Ask the human to confirm the approved spec and continuation', '`start brainstorm`', '`plan_check({ planPath: <absolute ledger path> })`', '`start implement`', 'Apply `## Pending recovery` before refresh', 'plan_tracker({ action: "refresh"', '\n## Pending recovery\n']);
+  ordered(section(loop, '## Spec with ledger'), ['`start brainstorm`', '`skip brainstorm`', '`engine: "loop"`', '`start plan`']);
   assert.match(section(loop, '## Spec with ledger'), /verify or ship brief: `skip implement R`; `start verify`[^\n]*SKILL\.md "Restore rules"[^\n]*Never call `start implement` on this route/);
 });
 
@@ -115,8 +185,8 @@ test('restore rules live in SKILL.md and plan repair is read only on FAIL', () =
     assert.ok(rules.includes(token), token);
     assert.ok(!file['plan-repair.md'].includes(token), `plan-repair.md: ${token}`);
   }
-  assert.match(file['restore-plan.md'], /Apply SKILL\.md "Restore rules" at every `plan_tracker init`/);
-  assert.match(section(file['restore-plan.md'], '## Spec with plan'), /Validate the confirmed snapshot against SKILL\.md "Restore rules"/);
+  assert.match(file['restore-plan.md'], /Apply \.\.\/SKILL\.md "Restore rules" at every `plan_tracker init`/);
+  assert.match(section(file['restore-plan.md'], '## Spec with plan'), /Validate the confirmed snapshot against \.\.\/SKILL\.md "Restore rules"/);
   for (const [name, text] of [...Object.entries(file), [handoffPath, handoff]]) {
     const lines = text.split('\n').filter(line => line.includes('plan-repair.md'));
     if (name !== 'restore-plan.md') assert.deepEqual(lines, [], name);
@@ -136,8 +206,44 @@ test('task-plan restore keeps each stage call sequence', () => {
   const restore = section(file['restore-plan.md'], '## Process-state restore');
   const row = stage => restore.split('\n').find(line => line.startsWith(`| ${stage} |`));
   assert.equal(row('brainstorm'), '| brainstorm | `start brainstorm`; `substep` if the brief shows one |');
-  assert.equal(row('plan'), '| plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |');
+  assert.match(file['restore-plan.md'], /`engine` from the approved spec's `\*\*Engine:\*\*` header \(`waves` when absent\)/);
+  for (const call of file['restore-plan.md'].matchAll(/`skip brainstorm [^`]+`([^;]*);/g)) assert.match(call[1], /with `engine`/);
+  assert.equal(row('plan'), '| plan | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `substep` if shown |');
   assert.match(row('implement'), /`plan_check\(\{ planPath \}\)`; on FAIL[^|]*on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` \|$/);
   assert.match(row('verify'), /`skip implement R`; `start verify`; `substep` if shown; `plan_tracker init`\. Never call `start implement`\./);
   assert.match(row('ship'), /as verify[^|]*`legs:` block[^|]*Restoration stops at verify in_progress/);
+});
+
+test('saved runs continue at the linked step, never the reset-bearing entry', () => {
+  const table = section(skill, '## Post-restore continuation');
+  const sample = name => read(`eval/gauntlet-resume/samples/${name}/case.md`);
+  const check = (condition, stepFile, boundary) => {
+    const row = table.split('\n').find(line => line.startsWith(`| ${condition} |`));
+    assert.ok(row, condition);
+    const [, target, entry] = row.split(' | ');
+    const [, link] = target.match(/^\[[^\]]+\]\(([^)]+)\)$/) ?? [];
+    assert.ok(link, `${condition}: missing file link`);
+    const [path, anchor] = link.split('#');
+    assert.equal(path, `../gauntlet/${stepFile}`, condition);
+    const headings = read(`${resume}/${path}`).match(/^## .+$/gm);
+    if (anchor) assert.ok(headings.some(h => h.slice(3).toLowerCase().replaceAll(' ', '-') === anchor), link);
+    assert.match(entry, boundary, condition);
+  };
+  for (const [name, qualifier, path, boundary] of [
+    ['current-brainstorm-brief', '', 'SKILL.md', /^on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8\. Never `\/skill:gauntlet` entry/],
+    ['current-plan-brief', ' with task engine', 'plan/plan.md', /skip its `start plan`/],
+    ['clean-pass-unchanged', ' with task plan', 'implement/waves/waves.md', /re-run its `Tests:`/],
+    ['baseline-upgrade-preserves-statuses', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
+    ['current-ship-brief', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
+  ]) {
+    const [, active] = sample(name).match(/^  → (\w+)/m);
+    check((active === 'ship' ? 'verify' : active) + qualifier, path, boundary);
+  }
+  const ledger = read('eval/gauntlet-resume/tool-traces/results/ledger-brief.md');
+  assert.match(ledger, /^Ledger: .+$/m);
+  check(`${ledger.match(/^  → (\w+)/m)[1]} with a ledger`, 'implement/loop/loop.md', /Before each dispatch/);
+  assert.match(sample('ledger-tracker-verify'), /verify and ship briefs each save tasks/);
+  check('verify with `Ledger:` (including ship-stage ledger briefs restored at verify)', 'implement/loop/loop.md', /After the loop` step 1/);
+  const [, engine] = sample('loop-no-ledger').match(/no plan or ledger\..*?\*\*Engine:\*\* (\w+)/);
+  check(`approved spec with \`**Engine:** ${engine}\`, no ledger`, 'implement/loop/loop.md', /Entry steps 1-5/);
 });

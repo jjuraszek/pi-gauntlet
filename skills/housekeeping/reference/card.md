@@ -2,7 +2,7 @@
 
 Read `<run>/findings.md`, `<run>/checks.md` and `<run>/run.md`. Group findings by check id into issue classes, one card per class. Record the other classes sharing each class's files. Use only the run record's `picks`, `bounds` and `delivery` fields; do not resolve the input again.
 
-Read [menu-layout](../../brainstorming/reference/menu-layout.md) before rendering or accepting a numeric reply. Apply [verdict-report](../../chase-bug/reference/verdict-report.md) `## Register` and `## Caps and lists` for everyday language and section prose. Write each card section as one prose paragraph with no list. Render one card per message, no more than 180 words from its title to `Pick one:`.
+Read [menu-layout](../../gauntlet/menu-layout.md) before rendering or accepting a numeric reply. Apply [verdict-report](../../chase-bug/reference/verdict-report.md) `## Register` and `## Caps and lists` for everyday language and section prose. Write each card section as one prose paragraph with no list. Render one card per message, no more than 180 words from its title to `Pick one:`.
 
 ## Card template
 
@@ -15,7 +15,7 @@ Start the message with `gauntlet: gate=housekeeping/card recommended=<n>`, where
 <count and up to three example paths; for a change, whether items are in its changed line ranges; for pr-per-class, other cards sharing these files>
 
 ### Why it matters
-<the rule in everyday words and its source file; cite the `## housekeeping` section for an overrides rule; name the overridden repo rule and file when the check row's overrides cell is not none>
+<the rule in everyday words and its source file; cite the `# housekeeping` block for an overrides rule; name the overridden repo rule and file when the check row's overrides cell is not none>
 
 ### What happens if you accept
 <the literal change and what the human receives>

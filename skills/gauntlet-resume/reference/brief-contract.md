@@ -1,8 +1,7 @@
 # Handoff brief contract (gauntlet-resume + gauntlet-handoff supplementary)
 
-Consumed by `gauntlet-resume/SKILL.md` (consumer) and `gauntlet-handoff/SKILL.md`
-(producer). Brief grammar lives only here; both skills cite this file and inline none of it
-(`scripts/ci.mjs` drift lint). The six headings before `## Process state` and the
+Consumed by `../SKILL.md` (consumer) and `../../gauntlet-handoff/SKILL.md`
+(producer). Brief grammar lives only here; both skills cite this file and inline none of it. The six headings before `## Process state` and the
 `## Repo state` fields are pi-cohort's `handoff` skill's; cohort drift is reconciled
 here and nowhere else.
 
@@ -46,9 +45,7 @@ inline. `## Repo state` is matched by prefix: `## Repo state` or
 ## Producers
 
 `gauntlet-handoff` is the only writer of `## Process state`; it appends to the file
-cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Drop exactly the last
-line of the `phase_tracker status` output when it starts with `Context: `; copy the
-rest verbatim. Layout, byte-exact: one blank line, the heading on its own line, a
+cohort's `handoff` skill wrote, which ends at `## Skills loaded`. Drop the trailing `Context:` line and the preceding `Instructions:` line, if present. Copy the remaining phase block verbatim. Layout, byte-exact: one blank line, the heading on its own line, a
 blank line, that phase status, a blank line, the `plan_tracker status` output
 verbatim, a blank line,
 `Active task: <name|none>`, then, only for a PR subject, one or more consecutive

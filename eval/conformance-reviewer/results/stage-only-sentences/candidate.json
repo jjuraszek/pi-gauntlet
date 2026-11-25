@@ -1,7 +1,7 @@
 {
   "sample": "stage-only-sentences",
   "arm": "candidate",
-  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
+  "skillSha": "4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c",
   "inputSha": "832cfff8a13048b180d913a3ff1d17df4cafb443d628df1b74f3c909b5f07348",
   "kind": "text",
   "assembly": "headed",
@@ -17,9 +17,9 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line diff; String.prototype.trim removes leading and trailing whitespace, which is the whole requirement)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter returns input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n  - [DELIVERED]    R2: labels have surrounding whitespace trimmed — origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\" — evidence: src/label.mjs:1-2\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
-      "words": 70,
-      "wallMs": 8923,
+      "text": "**Conformance verdict: CONFORMS**\n**Confidence: high.** The single requirement is fully visible in a one-line diff and the numbered file. No checks were runnable, but none are needed to confirm the behavior.\n\n**Requirement coverage:**\n- [DELIVERED] R1: The label formatter trims surrounding whitespace from labels.\n  - origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\"\n  - evidence: src/label.mjs:2 (`return value.trim();`)\n- [DELIVERED] R2: The label formatter returns the input with surrounding whitespace removed. The prompt repeats this as \"Make the label formatter trim surrounding whitespace\", and the spec clause is quoted as origin.\n  - origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\"\n  - evidence: src/label.mjs:1-3. The function `label(value)` returns `value.trim()`, which removes leading and trailing whitespace and leaves the interior untouched.\n\n**Origin drift (spec vs prompt/ticket):**\n- none\n\nParallel-safe: none\n",
+      "words": 126,
+      "wallMs": 8150,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -27,9 +27,9 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2 returns `value.trim()`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
       "words": 39,
-      "wallMs": 5771,
+      "wallMs": 5485,
       "mechanical": {
         "f2": "holds",
         "f4": "holds"
@@ -41,55 +41,23 @@
       "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "5605ad37c4cea903af9eb344547bef3ae71d291a988305f37747c3278836405f",
-      "candidateOutputSha": "ac3bdb99d20770835b983fc9cbfce7875354086c59ba002b5a06549491a268f1",
+      "baselineOutputSha": "ac3bdb99d20770835b983fc9cbfce7875354086c59ba002b5a06549491a268f1",
+      "candidateOutputSha": "38a55d2fb83ae863969f5d1802c63a93f2e8db61fe526e4cb64d602b103a2ee6",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
-        },
-        "f4": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        }
-      },
-      "feedback": "After moved both facts in the intended direction: it drops every delivery-stage sentence (CI on PR head, PR title, PR state/approval, PR description step, merge, scan-time record, npm test run, release workflow) with no coverage row, gap block, drift line or skip note, and its confidence text speaks only about the trim behavior, while the delivered trimming stays covered with file evidence at src/label.mjs:2. Before quoted all three named sentences as origins, gave each stage sentence a MISSING row and gap block, and explained the process clauses in confidence and origin drift, so both facts failed there. Nothing that Before kept was lost. To keep this stable, keep the wording that excluded stage sentences leave no trace at all (no quote, no summary, no explanation in confidence or drift) and that behavior requirements still cite file:line evidence. One thing to watch: After splits the same behavior into two rows (Goal and Design); this does not break either fact, but if you want a single requirement per behavior, say that Goal restatements of a Design requirement merge into one row.",
-      "wallMs": 5600,
-      "verdict": "improved"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "2deb99ae85920d318ba294ed43976ad5b695145688b93179997290cdfaaa6a28",
-      "candidateOutputSha": "a135fd1fcb9fc4c01961728a7e944ea8e15b39603ad4aaf31fc8b4f059b08323",
-      "facts": {
-        "f1": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f3": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
-        },
-        "f2": {
-          "before": "fails",
-          "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f4": {
           "before": "holds",
@@ -97,10 +65,42 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "In After, the report contains a single DELIVERED row for the trimming behavior with file evidence at src/label.mjs:2, no quotes of any PR-description, ship-evidence or root-scan sentence, no rows, gap blocks, verdict or drift lines for PR title, PR state, review, merge, full-suite or workflow-run sentences, and no skip note in confidence or origin drift, so both f1 and f3 hold. Before fails both: it quotes all three named sentences as origins, gives G1-G8 coverage rows and gap blocks to every stage sentence, returns GAPS because of them, and its drift line explains that the 'delivery and verification clauses remain requirements'. The After wording delivered the Change here without losing anything Before kept (R1 with its spec origin and file evidence is intact). To keep this stable, retain the wording that makes stage-sentence exclusion silent (no skip note, no drift comment, no confidence caveat) and that keeps behavior clauses as requirements with line-level file evidence; avoid any phrasing that invites the model to justify a 'high' confidence by mentioning what was excluded.",
-      "wallMs": 5563,
-      "verdict": "improved"
+      "feedback": "Neither fact moved: both outputs report CONFORMS with only the two trimming requirements, quote none of the PR, CI, review, merge, suite or workflow sentences, give them no row, gap or drift line, and cite src/label.mjs as evidence for the delivered behavior. The one borderline spot in After is the confidence sentence \"No checks were runnable, but none are needed to confirm the behavior.\" I read it as a remark about the auditor's own verification rather than a summary or explanation of skipped spec sentences, so f3 holds, but it sits close to the excluded `npm test` and CI clauses and a stricter reader could take it as an implicit skip note. To keep f3 safe, tell the skill that confidence text should cite only the file evidence (diff size, visible lines) and should not mention checks, suites, CI or anything not run when those belong only to excluded delivery-stage sentences. R2's aside that the prompt repeats the clause and the spec clause is quoted as origin is harmless here, but it is process narration that could be trimmed from the requirement line.",
+      "wallMs": 8584,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b0f1866f13664d047ee4fb0d42caccd4589dd5b1a621fc7bc4862e7ca0ffd0fa",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
+      "baselineOutputSha": "a135fd1fcb9fc4c01961728a7e944ea8e15b39603ad4aaf31fc8b4f059b08323",
+      "candidateOutputSha": "e21a58fdab3d1c857615f710d0129817fe64a124e7d007f0b5b6dc1f36decc93",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs are effectively identical on these facts: each reports a single DELIVERED row for the trimming behavior with file evidence at src/label.mjs:2, quotes only the Design behavior sentence, and contains no coverage row, gap block, verdict text, drift line, confidence note or skip summary for any PR-title, PR-state, review, merge, CI, scan-time, full-suite or workflow sentence. Nothing in the After wording moved either fact; the only difference is the phrasing of the evidence text (\"returns `value.trim()`\" versus a parenthesized code quote). To keep this, continue to exclude standalone delivery-stage sentences silently (no skip note, no drift entry, no confidence caveat) while retaining the behavior requirement with its file:line evidence.",
+      "wallMs": 4065,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
 }

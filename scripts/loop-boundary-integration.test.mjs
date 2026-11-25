@@ -7,7 +7,7 @@ const root = new URL('../', import.meta.url);
 const read = path => readFileSync(new URL(path, root), 'utf8');
 
 test('verification repair dispatch carries blocking bounds and owned jobs into the shared implementer', () => {
-  const driver = read('skills/loop-implementation/SKILL.md');
+  const driver = read('skills/gauntlet/implement/loop/loop.md');
   const dispatch = driver.split('\n## After the loop\n')[1].split('\n2. Dispatch')[0];
   for (const token of [
     'Include this blocking-call contract in the repair task:',
@@ -41,8 +41,8 @@ test('CI includes the selective loop boundary regression files', () => {
 });
 
 test('boundary integration samples keep explicit ownership and allowance counterexamples', () => {
-  assert.deepEqual(lintTarget(new URL('eval/loop-implementation', root).pathname), []);
-  const recovery = read('skills/loop-implementation/reference/interrupted-recovery.md');
+  assert.deepEqual(lintTarget(new URL('eval/loop', root).pathname), []);
+  const recovery = read('skills/gauntlet/implement/loop/interrupted-recovery.md');
   for (const [sample, tokens, decision] of [
     ['seed-interrupted-count', ['seed: 1 of 1', 'rows +N', 'attempts 0'], 'repair seed | seed interrupted: <reason> | iteration <consumed>'],
     ['companion-interrupted-recovery', ['repo-b', 'pending:', 'Missing provenance'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
@@ -59,7 +59,7 @@ test('boundary integration samples keep explicit ownership and allowance counter
     ['multi-row-return', ['demanding proof or taking a human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
     ['tracker-boundary', ['no proof demand or human turn'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
   ]) {
-    const text = read(`eval/loop-implementation/samples/${sample}/expected.md`);
+    const text = read(`eval/loop/samples/${sample}/expected.md`);
     for (const token of tokens) assert.ok(text.includes(token), `${sample}: ${token}`);
     if (decision) assert.ok(recovery.includes(decision), `${sample}: ledger repair decision`);
   }

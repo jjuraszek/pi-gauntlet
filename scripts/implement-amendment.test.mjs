@@ -5,8 +5,8 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 
 test('Amend-prepare contracts require the completion guard no-edit sentence', () => {
   for (const path of [
-    'skills/subagent-driven-development/reference/implement-amendments.md',
-    'skills/brainstorming/reference/amendment-surface.md',
+    'skills/gauntlet/implement/waves/implement-amendments.md',
+    'skills/gauntlet/amendment-surface.md',
     'agents/plan-writer.md',
   ]) assert.ok(read(path).includes('Do not edit any file.'), path);
 });
@@ -15,7 +15,7 @@ test('implement amendment modes bound preparation and granted apply without chan
   const text = read('agents/plan-writer.md');
   assert.equal(text.match(/^---\n[\s\S]*?\n---/)[0], `---
 name: plan-writer
-description: Writes, checks, and repairs the gauntlet implementation plan for one approved spec in a fresh context; the plan file is its only output. Dispatched only by the writing-plans skill; not for direct dispatch.
+description: Writes, checks, and repairs the gauntlet implementation plan for one approved spec in a fresh context; the plan file is its only output. Dispatched only by the gauntlet plan step; not for direct dispatch.
 tools: read, grep, find, ls, bash, write, plan_check
 inheritProjectContext: false
 inheritSkills: false
@@ -30,13 +30,13 @@ systemPromptMode: replace
 });
 
 test('implement surface delegates through the gate and reconciles only after parent checking', () => {
-  const text = read('skills/brainstorming/reference/amendment-surface.md');
+  const text = read('skills/gauntlet/amendment-surface.md');
   assert.match(text, /## 1\. Prepare - never apply yet\n\n\*\*Implement callers only, with a task plan:\*\*/);
   for (const marker of ['Implement callers only', 'Amend-prepare:', 'Amend-apply:', 'one-step chain', 'granted items verbatim', 'fresh manifest', 'pre-apply task numbers', 'passed: false', 'failLines', 'second failure', 'without reading the plan or spec', 'Planning callers keep', 'structured `concerns`/`question`']) assert.ok(text.includes(marker), marker);
   for (const marker of ['**Value decoding**', 'malformed -> stop', '## 4. Human batch', 'In-flight:', 'compose one commit per batch from its Amendment commit row', 'never the plan-writer or implementer']) assert.ok(text.includes(marker), marker);
 });
 
-for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md']) {
+for (const path of ['agents/plan-writer.md', 'skills/gauntlet/amendment-surface.md']) {
   test(`${path} carries redraw-only and mixed batches across the structured boundary`, () => {
     const text = read(path);
     assert.match(text, /items: \[\{ evidence,[^\n]*redraws: \[\{ location: "<spec section>", reason: string \(max 300 characters\) \}\]/);
@@ -51,12 +51,12 @@ for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/ame
 test('implement apply patches locally and compares semantic obligations against original inventory', () => {
   const writer = read('agents/plan-writer.md');
   for (const marker of ['anchored obligation text', 'task bodies and Tests', 'patch only affected task entries', 'meaning-preserving rewording', 'line offsets', '**Baseline policy:** implement-local', 'no endpoint-tree equivalence', 'nonzero executed-test count']) assert.ok(writer.includes(marker), marker);
-  const contract = read('skills/subagent-driven-development/reference/dispatch-contract.md');
+  const contract = read('skills/gauntlet/implement/waves/dispatch-contract.md');
   assert.match(contract, /tasksAnchorChanged[^\n]*semantic obligation or work changes/);
 });
 
 test('apply uses committed home originals at every binding site and fails before writes', () => {
-  for (const path of ['agents/plan-writer.md', 'skills/brainstorming/reference/amendment-surface.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/subagent-driven-development/reference/dispatch-contract.md', 'skills/subagent-driven-development/reference/implement-amendments.md']) {
+  for (const path of ['agents/plan-writer.md', 'skills/gauntlet/amendment-surface.md', 'skills/gauntlet/plan/plan-contract.md', 'skills/gauntlet/implement/waves/dispatch-contract.md', 'skills/gauntlet/implement/waves/implement-amendments.md']) {
     const text = read(path);
     assert.match(text, /committed (?:home )?plan\/spec originals/, path);
     assert.doesNotMatch(text, /Missing original inventory fails the retry|capture the original task numbers[^.]*saved apply report/i, path);
@@ -66,14 +66,14 @@ test('apply uses committed home originals at every binding site and fails before
 });
 
 test('suppressed apply capture is schema-checked and only the exact baseline marker skips retry', () => {
-  for (const path of ['skills/subagent-driven-development/reference/implement-amendments.md', 'skills/brainstorming/reference/amendment-surface.md']) {
+  for (const path of ['skills/gauntlet/implement/waves/implement-amendments.md', 'skills/gauntlet/amendment-surface.md']) {
     const text = read(path);
     for (const marker of ['APPLY_SCHEMA', 'success envelope', 'zero or two', 'baseline read failed: git -C ', 'retry once', 'previousApplyReport', 'parent PASS']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
 });
 
 test('handoff and implement entry establish originals with path-scoped staging', () => {
-  const plans = read('skills/writing-plans/SKILL.md');
+  const plans = read('skills/gauntlet/plan/plan.md');
   const handoff = plans.slice(plans.indexOf('\n## Execution Handoff\n'));
   assert.ok(handoff.indexOf('git -C') < handoff.indexOf('action: "init"'));
   assert.match(handoff, /status --porcelain -- "<home-relative plan path>"/);
@@ -83,9 +83,9 @@ test('handoff and implement entry establish originals with path-scoped staging',
   assert.match(handoff, /add -- "<home-relative plan path>"/);
   assert.match(handoff, /commit -F - -- "<home-relative plan path>"/);
   assert.ok(handoff.includes('compose the plan message from the spec H1 and bound ticket'));
-  assert.ok(handoff.includes('reference/commit-message.md'));
+  assert.ok(handoff.includes('[Subject, Body and Word sources](../commit-message.md)'));
   assert.ok(handoff.includes('supplying the composed message on stdin'));
-  const sdd = read('skills/subagent-driven-development/reference/prerequisites.md');
-  assert.match(sdd, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
-  assert.match(sdd, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
+  const prerequisites = read('skills/gauntlet/implement/waves/prerequisites.md');
+  assert.match(prerequisites, /status --porcelain -- "<home-relative plan path>" "<home-relative spec path>"/);
+  assert.match(prerequisites, /add -- "<home-relative plan path>" "<home-relative spec path>"/);
 });

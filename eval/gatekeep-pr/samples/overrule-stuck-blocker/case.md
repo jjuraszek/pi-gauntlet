@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise overrule disposition and its next boundary only. Use no tools. Show a compact table for A-F with refusal/effect, next menu state and whether work runs. Render D's full report and obstacle menu, not every other menu. For E supply the pre-push reviewer input scope and required closure IDs plus two coverage lines; do not perform review or push. Keep below 1800 words.

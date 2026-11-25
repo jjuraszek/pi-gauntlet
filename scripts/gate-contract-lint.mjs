@@ -3,7 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const CONTRACT = "doc/gate-contract.md";
-const MENU = "skills/brainstorming/reference/menu-layout.md";
+const MENU = "skills/gauntlet/menu-layout.md";
 const TOKEN = /^[A-Za-z0-9.-]+$/;
 
 function markdown(text) {
@@ -88,6 +88,7 @@ export function lintGateContract(root) {
   for (const file of new Set(rows.filter((r) => r.kind).map((r) => r.file))) {
     if (!linked(read(file), file, MENU, root)) diagnostics.push(`${file}: no resolving menu-layout citation`);
   }
+  const gateMarkers = new Set(rows.filter((r) => r.kind === "gate").map((r) => `gate=${r.id}`));
   function scan(dir) {
     if (!existsSync(join(root, dir))) return;
     for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
@@ -95,8 +96,10 @@ export function lintGateContract(root) {
       if (entry.isDirectory()) scan(file);
       else if (file.endsWith(".md") && file !== MENU) {
         read(file).split("\n").forEach((line, index) => {
-          if (rows.some((r) => r.file === file && index >= r.start && index < r.end)) return;
-          for (const match of line.matchAll(/gauntlet: (gate=[A-Za-z0-9.-]+\/[A-Za-z0-9.-]+|done\b|stuck\b)/g)) diagnostics.push(`${file}:${index + 1} gauntlet: ${match[1].split("=")[0]} not in ${CONTRACT}`);
+          for (const [, marker] of line.matchAll(/gauntlet: (gate=[A-Za-z0-9.-]+\/[A-Za-z0-9.-]+|done\b|stuck\b)/g)) {
+            const inSite = rows.some((r) => r.file === file && index >= r.start && index < r.end);
+            if (!inSite || (marker.startsWith("gate=") && !gateMarkers.has(marker))) diagnostics.push(`${file}:${index + 1} gauntlet: ${marker} not in ${CONTRACT}`);
+          }
         });
       }
     }

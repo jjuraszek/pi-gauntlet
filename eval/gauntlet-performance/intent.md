@@ -1,4 +1,4 @@
-for: df5bf4ada2ccfb4358937ca99becdfa067f17cd352e28b8ee6337f3d750bbf20
+for: 9dfaf59bb51219dd43b6295c56ff7808814c70ea3a52173270955fdd2ba0eadc
 
 ## Change
 Show every measured run's ranked files after cornerstones, including data recovered from earlier pages of a truncated digest. Lead the one recommendation with a supported file action only when the same trusted key accounts for both material volume and unusually large shares in comparable complete runs. Preserve the legacy reply and write gate.

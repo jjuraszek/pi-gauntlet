@@ -57,7 +57,7 @@ with one partition line over the `Fn` IDs assigned above; when a task requires
 a trailing `TRAJECTORY:` verdict (re-review), that verdict comes after `Behaviour-change:` as the
 true final line:
 
-<!-- grammar identical to skills/requesting-code-review/code-reviewer.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+<!-- grammar identical to skills/gauntlet/wave-reviewer.md — change them together or not at all; the plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
 
 ```
 Parallel-safe: <group>[; <group>]*

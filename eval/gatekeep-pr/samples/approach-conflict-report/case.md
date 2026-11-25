@@ -3,7 +3,7 @@ bundle+: skills/chase-bug/reference/verdict-report.md
 bundle-: skills/gatekeep-pr/reference/sync.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Start at step 5 with the supplied review already returned. Integrate it, prepare any rejection note the skill requires, and render the first report through its note preview, stopping before the recommendation or menu. Narrate any note preparation before the report; finish the response at the note's last word. No helper, repair, post, cleanup or other external action runs. This isolates approach evidence and note composition, not later choices. Treat the note save and SHA-256 calculation as successful; read back the exact text you saved for the preview.

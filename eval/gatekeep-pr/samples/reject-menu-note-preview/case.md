@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise only reject menu rendering and selected-step interpretation. These are synthetic supplied outcomes; use no tools. Show the menu, then a compact execution transcript for the later human reply below, ending at settlement. Do not provision, assess or compose a new note. Explain briefly how the note request obtains its body.

@@ -6,25 +6,25 @@ Read for a brief with `## Process state` and no `Ledger:` field at any stage, fo
 
 Use `R = resume: <brief file or "pasted brief">` for plan/implement/verify skips and `S = resume: <spec path>` for brainstorm skips. Resolve `<spec path>` as `reconstruction.md` "Candidates" does, to an absolute path under the worktree: the single `*.md` spec added after the candidate base under `flowGuards.specDirs`, or a spec tracked from that base when a plan added after base pairs with it by basename. Zero specs -> stop; more than one -> human picks. Carry this path to entry check 6 and the post-restore announcement without re-resolving it.
 
-Honor SKILL.md entry check 6's deferred stop before any arming call below. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after row 4's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
+Honor ../SKILL.md entry check 6's deferred stop before any arming call below. For brainstorm-stage briefs, resolve any existing spec through these candidate rules and run entry check 6's deferred-header admission before `start brainstorm`; with zero specs, restore brainstorm without a spec. Keep grant decoding exempt for this stage. A handoff after row 4's push succeeded but PR creation failed still has brainstorm in_progress; its deferred header stops restoration, not the ordinary gate.
 
-Calls in order, keyed by the brief's active phase (`→`):
+For every brainstorm skip, pass `engine` from the approved spec's `**Engine:**` header (`waves` when absent). Restore the brief's active phase (`→`) in this order:
 
 | Active | Calls, in order |
 |---|---|
 | brainstorm | `start brainstorm`; `substep` if the brief shows one |
-| plan | `start brainstorm`; `skip brainstorm S`; `start plan`; `substep` if shown |
-| implement | `start brainstorm`; `skip brainstorm S`; `start plan`; `plan_check({ planPath })`; on FAIL `Read` `plan-repair.md` in full and run its `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
+| plan | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `substep` if shown |
+| implement | `start brainstorm`; `skip brainstorm S` with `engine`; `start plan`; `plan_check({ planPath })`; on FAIL `Read` `plan-repair.md` in full and run its `## Plan repair`; on PASS `skip plan R`; `start implement`; `substep` if shown; `plan_tracker init` |
 | verify | as implement through `skip plan R`, then `skip implement R`; `start verify`; `substep` if shown; `plan_tracker init`. Never call `start implement`. |
 | ship | as verify, except that a brief with a `legs:` block and a correctly stripped plan takes `coordinated.md` "Coordinated admission"'s fully receipt-validated retry instead of plan repair. Restoration stops at verify in_progress: `complete verify` needs a fresh conformance dispatch and `skip verify` would bypass a real gate. Announce that the closure review re-runs before ship |
 
-Apply SKILL.md "Restore rules" at every `plan_tracker init`, restoring the brief's task names, order and statuses verbatim.
+Apply ../SKILL.md "Restore rules" at every `plan_tracker init`, restoring the brief's task names, order and statuses verbatim.
 
 `planPath`: the brief carries none. Resolve as "Candidates" does: the single plan added after the candidate base, paired with `<specDir>/<same basename>` whether that spec was added after base or tracked from base; resolve it to an absolute path under the worktree before `plan_check`. Zero pairs -> stop; more than one -> human picks.
 
 ## Spec with plan
 
-Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../brainstorming/reference/menu-layout.md).
+Start the message with exactly `gauntlet: question` on its own line, with no suffix. Apply [menu-layout](../../gauntlet/menu-layout.md).
 
 Show, and ask the human to confirm or edit both in one reply:
 
@@ -45,12 +45,12 @@ Show, and ask the human to confirm or edit both in one reply:
 3. Proposed task statuses: `complete` iff at least one matching commit, else `pending`.
 4. Proposed stage: `implement` if any task is `pending`, else `verify`.
 
-Validate the confirmed snapshot against SKILL.md "Restore rules" (pending-suffix order; the implement auto-complete edge) before any tracker call. Reject an infeasible edit by citing the offending rows and re-asking. Confirmation
+Validate the confirmed snapshot against ../SKILL.md "Restore rules" (pending-suffix order; the implement auto-complete edge) before any tracker call. Reject an infeasible edit by citing the offending rows and re-asking. Confirmation
 edits override proposals; never rewrite confirmed state silently.
 
 After confirmation:
 
-1. Run SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>`; `start plan`.
+1. Run ../SKILL.md entry check 6 on `<spec path>` (a malformed `**Amend-grant:**` line stops here, no tracker call); then `start brainstorm`; `skip brainstorm resume: <spec path>` with `engine`; `start plan`.
 2. `plan_check` with `planPath` = the plan's absolute path. FAIL -> `Read` `plan-repair.md` in full and
    run its `## Plan repair`; its PASS continues at step 3, its stop ends the restore with plan
    in_progress, no `init`.
@@ -60,5 +60,5 @@ After confirmation:
 5. `phase_tracker status` and `plan_tracker status` must match the confirmed active
    stage and task list exactly; a mismatch is reported verbatim, not patched.
 
-End with SKILL.md's closing line. There is no brief `Active task` on this route, so `<task>` is the first confirmed
+End with ../SKILL.md's closing line. There is no brief `Active task` on this route, so `<task>` is the first confirmed
 `in_progress` task, else `none`.

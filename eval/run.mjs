@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync, rmSync, realpathSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync, rmSync, realpathSync } from "node:fs";
 import { join, resolve, dirname, basename, relative } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -13,6 +13,7 @@ import { assemble, parseCase, textArgs, editArgs, prepareFixture, captureEdit, r
 import { parseJudgeReply, deriveLabels, cellVerdict, worseVerdict, buildJudgePrompt } from "./lib/judge.mjs";
 import { baselineFresh, judgmentCurrent, promote, readRecord, writeRecord, writeRecordAtomic, payloadSha, cellReusable } from "./lib/records.mjs";
 import { renderReport } from "./lib/report.mjs";
+import { trackerDescription, trackerReplayArgs } from "./lib/tracker-replay.mjs";
 import { spawnCommand, limiter } from "./lib/spawn.mjs";
 import { lintTarget } from "./lib/lint.mjs";
 
@@ -25,11 +26,11 @@ function safeOutput(text, denylist) {
   return { text: hits.length ? redact(text, denylist) : text, ...(hits.length ? { error: `hygiene: ${[...new Set(hits.map((h) => h.rule))].join(",")}` } : {}) };
 }
 
-function editInput(skillFiles, caseText, fixtureDir) {
+function editInput(skillFiles, caseText, beforeTree) {
   const first = skillFiles[0];
   const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(first.content)?.[1];
   const name = /^name:\s*(.+?)\s*$/m.exec(frontmatter ?? "")?.[1].replace(/^["']|["']$/g, "") ?? basename(dirname(first.path));
-  return `/skill:${name} ${caseText}\n\nFiles in this checkout: ${Object.keys(readTree(fixtureDir)).sort().join(", ")}`;
+  return `/skill:${name} ${caseText}\n\nFiles in this checkout: ${Object.keys(beforeTree).sort().join(", ")}`;
 }
 
 function writeChanged(results, sample, arm, record, repoSha, recordWriter) {
@@ -90,7 +91,7 @@ async function judgeEntry({ current, previous, judgeCell, candidate, labels, rep
   if (entry.verdict === "error") for (const key of Object.keys(current)) delete entry[key];
   return entry;
 }
-async function replay({ target, skill, skillFiles, replayText, caseText, fixtureDir, facts, model, spawn }) {
+async function replay({ target, skill, skillFiles, prompt, fixtureDir, trackerResult, facts, model, spawn }) {
   const dir = mkdtempSync(join(tmpdir(), "eval-skill-"));
   const path = join(dir, "SKILL.md");
   let cwd = dir;
@@ -103,11 +104,15 @@ async function replay({ target, skill, skillFiles, replayText, caseText, fixture
       }
       cwd = prepareFixture(fixtureDir);
     } else writeFileSync(path, skill);
-    const args = target.kind === "edit" ? editArgs(model, dir) : textArgs(model, path);
-    const input = target.kind === "edit" ? editInput(skillFiles, caseText, fixtureDir) : `${replayText}\n\n${caseText}`;
+    let args;
+    if (trackerResult) {
+      cwd = join(dir, "checkout");
+      cpSync(fixtureDir, cwd, { recursive: true });
+      args = await trackerReplayArgs(model, path, dir, cwd, trackerResult);
+    } else args = target.kind === "edit" ? editArgs(model, dir) : textArgs(model, path);
     const scratchPaths = [...new Set([dir, cwd].flatMap((scratch) => [scratch, realpathSync(scratch)]))].sort((a, b) => b.length - a.length);
     const scrub = (text) => scratchPaths.reduce((output, scratch) => output.replaceAll(scratch, "<scratch>"), text);
-    const out = await spawn(args, { cwd, input });
+    const out = await spawn(args, { cwd, input: prompt });
     if (out.status !== "ok") {
       const safe = safeOutput(scrub(out.stderr || "replay failed"), target.denylist);
       return { status: "error", error: safe.error || safe.text, ...(safe.error ? { text: safe.text } : {}), wallMs: out.wallMs };
@@ -158,31 +163,44 @@ function labeled(sample, judged, facts, before, after, moves) {
 
 const RUNNER_DIR = dirname(fileURLToPath(import.meta.url));
 
-export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, judgePath = join(RUNNER_DIR, "judge.md"), spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic, recordWriter = writeRecord }) {
-  const started = Date.now();
-  if (refreshJudgments && (!only || baselineOnly)) return { exit: 2, message: "refresh judgments requires one sample and cannot use --baseline-only" };
+const refuse = (message) => ({ exit: 2, message });
+
+export function prepareTarget({ root, target: name, sample: only, baselineOnly = false, base, judgePath = join(RUNNER_DIR, "judge.md") }) {
   const dir = join(root, "eval", name);
-  const refuse = (message) => ({ exit: 2, message });
-  const pool = Number(concurrency);
-  if (!Number.isInteger(pool) || pool < 1) return refuse(`EVAL_CONCURRENCY must be a positive integer, got ${concurrency}`);
   if (!existsSync(dir) || !statSync(dir).isDirectory()) return refuse(`unknown target: ${name}`);
   const errors = lintTarget(dir);
   if (errors.length) return refuse(`lint: ${name}:\n  ${errors.join("\n  ")}`);
   const target = JSON.parse(read(join(dir, "target.json")));
-  const hygiene = scanTree(join(root, "eval"), { denylists: { [name]: target.denylist ?? [] } }).filter((hit) => hit.where.startsWith(`${name}/`));
+  const hygiene = scanTree(join(root, "eval"), { denylists: { [name]: target.denylist ?? [] }, target: name });
   if (hygiene.length) return refuse(`hygiene:\n  ${hygiene.map((h) => `${h.where}: ${h.rule}`).join("\n  ")}`);
+  const explicitBase = base !== undefined;
   let baseRef;
-  try { baseRef = base ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
-  catch { return refuse("no valid --base and no origin/main: cannot resolve the baseline ref"); }
+  try { baseRef = explicitBase ? git(root, "rev-parse", "--verify", `${base}^{commit}`) : git(root, "merge-base", "HEAD", "origin/main"); }
+  catch {
+    return refuse(explicitBase
+      ? `cannot resolve baseline ref ${JSON.stringify(base)}; pass a valid --base <ref>`
+      : "cannot resolve the baseline merge-base; fetch origin/main");
+  }
+  const renamed = new Map();
+  const baselinePath = (path) => renamed.get(path) ?? path;
+  const repoSha = git(root, "rev-parse", "HEAD");
+  const newPaths = [];
   try {
+    const changes = git(root, "diff", "-M25%", "--diff-filter=R", "--name-status", "-z", baseRef, "--", "skills/").split("\0");
+    for (let i = 0; i + 2 < changes.length; i += 3) renamed.set(changes[i + 2], changes[i + 1]);
+    const presence = new Map();
+    const baselineHas = (path) => {
+      const p = baselinePath(path);
+      if (!presence.has(p)) presence.set(p, git(root, "--literal-pathspecs", "ls-tree", "-r", "-z", "--name-only", baseRef, "--", p).split("\0").includes(p));
+      return presence.get(p);
+    };
+    for (const file of target.skillFiles) if (file.new === true && !baselineHas(file.path)) newPaths.push(file.path);
     const baselineErrors = lintTarget(dir, {
-      baselineHas: (path) => git(root, "ls-tree", "-r", "--name-only", baseRef, "--", `:(literal)${path}`).split("\n").includes(path),
+      baselineHas, selfBaseline: baseRef === repoSha,
       treeHas: (path) => { treeReader(root)(path); return true; },
     });
     if (baselineErrors.length) return refuse(`lint: ${name}:\n  ${baselineErrors.join("\n  ")}`);
   } catch (e) { return refuse(e.message); }
-  const newPaths = target.skillFiles.filter((file) => file.new === true).map((file) => file.path);
-  const repoSha = git(root, "rev-parse", "HEAD");
   const replayText = read(join(dir, "replay.md"));
   const judgeText = read(judgePath);
   const intentText = read(join(dir, "intent.md"));
@@ -196,7 +214,12 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
     try { return reader(path); }
     catch (e) { throw new Error(`${path} at ${ref}: ${e.message}${ref === baseRef ? "; use --base <ref> to pick a base that has this file" : ""}`); }
   };
-  const baseRead = checkedReader(baseRef, baseReader(root, baseRef));
+  const readBaseFile = baseReader(root, baseRef);
+  const baseCache = new Map();
+  const baseRead = checkedReader(baseRef, (path) => {
+    if (!baseCache.has(path)) baseCache.set(path, readBaseFile(baselinePath(path)));
+    return baseCache.get(path);
+  });
   const treeRead = checkedReader("working tree", treeReader(root));
   const checkedAssembly = (reader, ref, skillFiles, bundle = []) => {
     const arm = reader === baseRead ? "baseline" : "candidate";
@@ -217,6 +240,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
   intentParsed = baselineOnly ? undefined : parseIntent(intentText, forSha, knownFacts);
   if (intentParsed && intentParsed.status !== "ok") return refuse(`intent: ${intentParsed.reason}`);
   const rawFiles = (reader) => target.skillFiles.map((file) => ({ path: file.path, content: reader === baseRead && newPaths.includes(file.path) ? "" : reader(file.path) }));
+  checkedAssembly(baseRead, baseRef, target.skillFiles);
   const baseFiles = target.kind === "edit" ? rawFiles(baseRead) : undefined;
   const candFiles = target.kind === "edit" ? rawFiles(treeRead) : undefined;
   for (const sample of names.filter((n) => !only || n === only)) {
@@ -225,16 +249,33 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
     const skillFiles = target.skillFiles.filter((file) => !drop.includes(file.path));
     const expectedText = read(join(sdir, "expected.md"));
     const { facts } = parseExpected(expectedText);
-    const baseSkill = checkedAssembly(baseRead, baseRef, skillFiles, bundle);
-    const candSkill = checkedAssembly(treeRead, "working tree", skillFiles, bundle);
+    const trackerPath = join(sdir, "tracker-result.json");
+    const trackerText = existsSync(trackerPath) ? read(trackerPath) : undefined;
+    const trackerResult = trackerText && JSON.parse(trackerText);
+    const armSkill = (reader, ref) => checkedAssembly(reader, ref, skillFiles, bundle) + (trackerResult ? `\nphase_tracker: ${trackerDescription(reader("extensions/phase-tracker.ts"))}` : "");
+    const baseSkill = armSkill(baseRead, baseRef);
+    const candSkill = armSkill(treeRead, "working tree");
     const skillHygiene = scanText(baseSkill + "\n" + candSkill, target.denylist);
     if (skillHygiene.length) return refuse(`hygiene: skill assembly: ${skillHygiene.map((h) => h.rule).join(",")}`);
     const fixtureDir = join(sdir, "fixture");
-    const input = inputSha(replayText, caseText, bundle, target.kind === "edit" ? fixtureDir : null);
+    const input = inputSha(trackerText ?? replayText, caseText, bundle, target.kind === "edit" || trackerResult ? fixtureDir : null);
     const beforeTree = target.kind === "edit" ? readTree(fixtureDir) : undefined;
-    plans.push({ baseFiles, candFiles, beforeTree, sample, caseText, expectedText, facts, baseSkill, candSkill, fixtureDir, input });
+    const prompt = (files) => files ? editInput(files, caseText, beforeTree) : trackerResult ? caseText : `${replayText}\n\n${caseText}`;
+    plans.push({ trackerResult, baseFiles, candFiles, beforeTree, sample, caseText, expectedText, facts, baseSkill, candSkill, fixtureDir, input,
+      basePrompt: prompt(baseFiles), candPrompt: prompt(candFiles) });
   }
   } catch (e) { return refuse(e.message); }
+  return { plans, dir, repoSha, target, forSha, judgeText, intentText, intentParsed };
+}
+
+export async function runTarget({ root, target: name, sample: only, baselineOnly = false, refreshJudgments = false, base, judgePath, spawn = defaultSpawn, concurrency = process.env.EVAL_CONCURRENCY ?? 4, signal, refreshWriter = writeRecordAtomic, recordWriter = writeRecord }) {
+  const started = Date.now();
+  if (refreshJudgments && (!only || baselineOnly)) return refuse("refresh judgments requires one sample and cannot use --baseline-only");
+  const pool = Number(concurrency);
+  if (!Number.isInteger(pool) || pool < 1) return refuse(`EVAL_CONCURRENCY must be a positive integer, got ${concurrency}`);
+  const prepared = prepareTarget({ root, target: name, sample: only, baselineOnly, base, judgePath });
+  if (!prepared.plans) return prepared;
+  const { plans, dir, repoSha, target, forSha, judgeText, intentText, intentParsed } = prepared;
   const results = join(dir, "results");
   const counts = { replay: 0, judge: 0, confirm: 0 };
   const limited = limiter(pool);
@@ -278,7 +319,7 @@ export async function runTarget({ root, target: name, sample: only, baselineOnly
     const { sample, facts, baseSkill, candSkill, input, expectedText } = plan;
     const identity = (skill) => identityFor(skill, input);
     const freshRecord = (arm, skill) => ({ sample, arm, ...identity(skill), models: { replay: [...MODELS.replay], judge: MODELS.judge, thinking: MODELS.thinking }, outputs: {} });
-    const replayCell = (skill, model, skillFiles, kind = "replay") => { counts[kind]++; return replay({ ...plan, target, skill, skillFiles, replayText, model, spawn: call }); };
+    const replayCell = (skill, model, skillFiles, kind = "replay") => { counts[kind]++; return replay({ ...plan, target, skill, skillFiles, prompt: skillFiles === plan.baseFiles ? plan.basePrompt : plan.candPrompt, model, spawn: call }); };
     const judgeSpawn = (args, options) => { counts.judge++; return call(args, options); };
     if (refreshJudgments) {
       const { baseline, candidate: cand } = admitted;

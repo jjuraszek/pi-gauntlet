@@ -60,7 +60,8 @@ function branchCorpus(root) {
     process.stderr.write("telemetry disabled\n");
     return { label, records: [] };
   }
-  const result = readTelemetryBranch(root, { remote: t.remote, prefix: `${label}/` });
+  const prefix = ["gauntlet", ...LEG_SKILLS].map(key => `${label}/${key}/`);
+  const result = readTelemetryBranch(root, { remote: t.remote, prefix });
   if (result.warning) process.stderr.write(`warning: ${result.warning}\n`);
   return { label, records: result.records };
 }
@@ -87,7 +88,7 @@ function* yamlFiles(dir) {
   }
 }
 
-function loadRecord(file, bytes) {
+function loadRecord(file, bytes, key) {
   let doc;
   try {
     doc = parseYaml(bytes);
@@ -96,7 +97,9 @@ function loadRecord(file, bytes) {
   }
   const d = obj(doc);
   if (!d) return { skip: "unparseable" };
-  if (LEG_SKILLS.includes(d.skill)) return loadLeg(d);
+  const leg = LEG_SKILLS.includes(d.skill);
+  if (key !== undefined && key !== (leg ? d.skill : "gauntlet")) return { skip: "wrong record key" };
+  if (leg) return loadLeg(d);
   if (d.schema !== 1) return { skip: `schema ${d.schema === undefined ? "missing" : String(d.schema)}` };
   if (typeof d.spec !== "string" || typeof d.run_id !== "string") return { skip: "not a record" };
   const derived = obj(d.derived) ?? {};
@@ -216,7 +219,8 @@ function main() {
     corpus[c.label] = corpus[c.label] ?? 0;
     const records = c.records ?? [...yamlFiles(c.dir)].map(path => ({ path, bytes: readFileSync(path, "utf8") }));
     for (const { path: file, bytes } of records) {
-      const res = loadRecord(file, bytes);
+      const key = c.records ? file.slice(c.label.length + 1).split("/", 1)[0] : undefined;
+      const res = loadRecord(file, bytes, key);
       if (res.skip) { skipped.push({ file, reason: res.skip }); continue; }
       if (res.leg) {
         const id = legId(res.leg);

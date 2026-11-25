@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const driver = read('skills/loop-implementation/SKILL.md');
+const driver = read('skills/gauntlet/implement/loop/loop.md');
 const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
 const stop = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
 
@@ -43,8 +43,8 @@ for (const [sample, inputPattern, facts] of [
   ['row-budget-actions', /Independently type `discard`/, ['boundaries', 'discard-continuation']],
 ]) {
   test(`${sample} distinguishes unrelated dirt from automatic pending recovery`, () => {
-    const input = read(`eval/loop-implementation/samples/${sample}/case.md`);
-    const expected = read(`eval/loop-implementation/samples/${sample}/expected.md`);
+    const input = read(`eval/loop/samples/${sample}/case.md`);
+    const expected = read(`eval/loop/samples/${sample}/expected.md`);
     assert.match(input, inputPattern);
     assert.match(input, /src\/parser\.ts/);
     if (sample === 'gate-line-first') {

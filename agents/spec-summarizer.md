@@ -1,6 +1,6 @@
 ---
 name: spec-summarizer
-description: Produces a plain-language briefing (at most 300 words) of a single spec for the brainstorming user review gate. Fresh context, read-only, reads only the spec file it is given. Dispatched only by the brainstorming skill's gate step; not for direct dispatch.
+description: Produces a plain-language briefing (at most 300 words) of a single spec for the gauntlet run's brainstorm user-review gate. Fresh context, read-only, reads only the spec file it is given. Dispatched only by the gauntlet run's brainstorm user-review gate; not for direct dispatch.
 tools: read
 defaultContext: fresh
 inheritProjectContext: false

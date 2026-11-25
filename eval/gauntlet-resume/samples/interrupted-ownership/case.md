@@ -1,6 +1,6 @@
-bundle+: skills/loop-implementation/SKILL.md
-bundle+: skills/loop-implementation/reference/coordinated-legs.md
-bundle+: skills/loop-implementation/reference/interrupted-recovery.md
+bundle+: skills/gauntlet/implement/loop/loop.md
+bundle+: skills/gauntlet/implement/loop/coordinated-legs.md
+bundle+: skills/gauntlet/implement/loop/interrupted-recovery.md
 
 Narrate only pending recovery and its next action for each independent snapshot. Entry checks, legal phase restoration and tuple/before-image recovery already passed. Do not use tools. Give concrete commands, counter changes and stop headers rather than generic references to the driver.
 

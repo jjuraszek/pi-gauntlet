@@ -1,7 +1,7 @@
 {
   "sample": "legs-verification-line",
   "arm": "candidate",
-  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
+  "skillSha": "4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c",
   "inputSha": "93f9797b89afd869f6bb0fcb6686dc913a65b828d76344843594ae4c6d1f1566",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small, fully visible diff; both Design clauses and the bundle clause map to concrete lines; no tests were run because no tools were available)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Labels are normalized before the CLI prints them — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:1-3 (the CLI bundle's `label` now returns `value.trim().toLowerCase()`). The inputs state that the unchanged CLI entry point already calls `label` before printing.\n  - [DELIVERED]    R4: Regenerated CLI bundle committed with the change — origin: spec \"Legs / Leg: acme/widgets\" - \"[...] regenerated bundles committed [...]\" — evidence: bin/widget.mjs:2 matches src/label.mjs:2. The inputs state the bundle is regenerated from src/label.mjs and committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n\nThere are no structured gap blocks because every row is DELIVERED.\n\n```\nParallel-safe: none\n```\n",
-      "words": 168,
-      "wallMs": 15013,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small diff fully inlined; every requirement maps to a cited line. No checks could be run because no tools were available.)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Regenerated CLI bundle committed with the change — origin: spec \"Legs / acme/widgets contract\" - \"[...] regenerated bundles committed [...]\" — evidence: bin/widget.mjs:2 (`return value.trim().toLowerCase();`), which matches src/label.mjs:2. The bundle is tracked and committed in the audited change.\n  - [DELIVERED]    R4: Labels are normalized before the CLI prints them — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:1-3. The bundled `label` now normalizes, and the stated, unchanged CLI entry point already calls `label` before printing.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 148,
+      "wallMs": 12173,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Normalize labels before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2; supplied delivery evidence confirms the unchanged CLI entry point calls `label` before printing.\n  - [DELIVERED] R2: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R3: Lowercase labels — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R4: Include the regenerated CLI bundle in the committed change — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:1-3; supplied delivery evidence confirms this bundle was regenerated from the source and is tracked and committed.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
-      "words": 119,
-      "wallMs": 9865,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace before CLI output — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2; bin/widget.mjs:2. The supplied file context confirms the CLI calls `label` before printing.\n  - [DELIVERED] R2: Lowercase the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2; bin/widget.mjs:2.\n  - [DELIVERED] R3: Include the regenerated CLI bundle — origin: spec \"Legs / Leg: acme/widgets\" - \"[...] regenerated bundles committed; [...]\" — evidence: bin/widget.mjs:1-3. The supplied delivery context confirms this is the regenerated bundle and is committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
+      "words": 97,
+      "wallMs": 8221,
       "mechanical": {
         "f1": "holds"
       }
@@ -39,13 +39,13 @@
       "factsSha": "3a70307f489ba91bc24f9766912261a0b8868851fae1e0ccf3e701887e7f69f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "012184ac16b923dcab6ef6f23ec8f74c90bff1e06f17ba90bbcef0c8977c631c",
-      "candidateOutputSha": "0c57b0e0d2d780b438871c129e92ecfa7e6cf6e82301aa52942011b751d4299b",
+      "baselineOutputSha": "0c57b0e0d2d780b438871c129e92ecfa7e6cf6e82301aa52942011b751d4299b",
+      "candidateOutputSha": "ccfd5c5685faf9534ec4cf836f5d5227eca7234b1f7656948a1941dd2ca15dee",
       "facts": {
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
           "before": "holds",
@@ -58,26 +58,26 @@
           "label": "intended but unchanged"
         },
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Only f2 moved. Before turned `npm test`, the PR gate and exact-head CI into MISSING rows G1-G3 with gap blocks, while After drops them entirely: no row, gap block or drift line quotes the PR gate or ship evidence, and the verdict is CONFORMS. f3 and f4 did not move as you expected, because Before already had DELIVERED rows for trimming and lowercasing citing src/label.mjs:2, and a DELIVERED bundle row quoting \"regenerated bundles committed\" with evidence in bin/widget.mjs:2. After keeps both, and its R4 origin elides the rest of the verification line with \"[...]\" rather than excluding the whole line, which is the behaviour to preserve. Two residues are worth tightening. The Confidence line in After says \"no tests were run because no tools were available\", which stops short of listing a skipped stage clause but edges toward it; the wording should say that confidence rationale must rest on the file evidence and not mention unrun suites, gates or CI. R4 also now cites only the spec origin, which matches your intent to keep the spec's file clause as origin when the prompt repeats it; state that rule explicitly so it stays stable.",
-      "wallMs": 9542,
-      "verdict": "improved"
+      "feedback": "No fact moved on this sample: f2, f3 and f4 hold in both Before and After, so the expected fails -> holds movement is not visible here because Before already satisfied them. Both outputs give DELIVERED rows for trimming and lowercasing citing src/label.mjs:2, and both give the bundle clause its own DELIVERED row whose origin quotes only \"regenerated bundles committed\" from the leg verification line with evidence in bin/widget.mjs. Neither output quotes, treats as a requirement, or comments on the PR gate command or the exact-head CI ship evidence, and neither lists skipped stage clauses. The only nearby text is the confidence note that no tests or checks could be run because no tools were available, which is a statement about the audit's limits rather than a skip note; to keep f2 safe, the wording should keep that note generic and never name npm run pr-check, CI or the ship evidence. The After wording delivers the Change on this sample without losing anything Before kept, but this sample cannot show that the wording caused the result; if the expected movement matters, the Before arm may need a sample or run where the old wording actually fails.",
+      "wallMs": 7641,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3a70307f489ba91bc24f9766912261a0b8868851fae1e0ccf3e701887e7f69f4",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "bfabc9707f755aaef2ca853a619cc3d9401ae9164c26e38c3193cca079b567e3",
-      "candidateOutputSha": "417a302e6c50f939623b38506d0fbfef2b5fde6584e11bf2296d8a098ff33cf1",
+      "baselineOutputSha": "417a302e6c50f939623b38506d0fbfef2b5fde6584e11bf2296d8a098ff33cf1",
+      "candidateOutputSha": "c8dc460de07dc3bc5f6b67eb00ea4e3a0067febe4af293978cc64498e67a1ecc",
       "facts": {
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "f3": {
           "before": "holds",
@@ -90,14 +90,14 @@
           "label": "intended but unchanged"
         },
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "The After wording moved f2 as intended: Before had G2 and G3 coverage rows and gap blocks quoting \"PR gate npm run pr-check\" and \"ship evidence is green CI on the exact PR head\" as requirements, while After has no row, gap, drift line or skip note for either and reports CONFORMS. f3 and f4 did not move in the text, contrary to the expected fails -> holds: Before already had DELIVERED rows for trimming and lowercasing citing src/label.mjs:2 and bin/widget.mjs:2, and already had its own DELIVERED R4 row quoting \"regenerated bundles committed\" with bin/widget.mjs evidence, without excluding the whole verification line. After keeps all of that. Note that After also silently drops the \"npm test\" clause that Before reported as G1; this is consistent with the Change, but if you want the suite-run exclusion to be deliberate rather than incidental, state explicitly that run/suite commands on a verification line are stage clauses while file-deliverable clauses on the same line (such as committed regenerated bundles) remain requirements with their own origin quote. Keeping that clause-level split explicit, rather than classifying the line as a whole, is what preserves f3 and f4 while delivering f2.",
-      "wallMs": 5250,
-      "verdict": "improved"
+      "feedback": "On this sample none of the three facts moved: both Before and After report CONFORMS with DELIVERED rows for trimming and lowercasing citing src/label.mjs:2 and bin/widget.mjs:2, a separate DELIVERED row for the bundle clause whose origin quotes \"regenerated bundles committed\" with evidence in bin/widget.mjs, and no row, gap, drift entry or skip note mentioning npm run pr-check or green exact-head CI. So the expected fails -> holds movement is not visible here because Before already satisfied these facts. Two small things to watch in After: the bundle row's origin is rendered as \"[...] regenerated bundles committed; [...]\", and those ellipsis markers hint at omitted neighbouring clauses - they do not quote or explain the stage clauses, so f2 still holds, but wording that tells the model to quote just the file clause verbatim with no elision markers would make this more robust. After also dropped the Goal row that Before had; that does not affect any fact here, but if you want Goal-level coverage preserved, state that excluding stage clauses does not remove non-stage Goal/Design requirements. Keep the instruction that a file deliverable on a leg verification line gets its own row with the spec file clause as origin, while stage clauses on the same line are omitted silently.",
+      "wallMs": 6213,
+      "verdict": "unchanged"
     }
   },
   "refresh": {
@@ -284,5 +284,5 @@
       }
     }
   },
-  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
 }

@@ -1,6 +1,6 @@
 # Spec seed (gauntlet-resume supplementary)
 
-Consumed only by `SKILL.md` in this directory, for a one-token `.md` argument classified
+Consumed only by `../SKILL.md`, for a one-token `.md` argument classified
 as a spec seed. `<seed>` is its `realpath`; `<rel>` is `<seed>` relative to `<primary>`.
 Entry check 1 (idle session) runs first. Then, in order; every stop names the path.
 
@@ -13,7 +13,7 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    stop: `not tracked: <seed> - commit it first`. Line 1 of `<seed>` equal to
    `# CONTEXT DRAFT - NOT A SPEC - fully replaced at spec-writing` -> stop:
    `context draft, not a spec: <seed> - finish brainstorming`.
-3. **Not shipped.** Resolve `piGauntlet.telemetry` from preset and primary project settings; `enabled: false` skips this check. Run `git -C <primary> rev-parse --git-common-dir`; resolve a relative result against `<primary>` and read `<git common dir>/gauntlet/telemetry/<rel with .md -> .yaml>`. When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>/.jj/gauntlet/telemetry/<rel with .md -> .yaml>` instead. When the local record is absent, fetch `refs/telemetry/records` from `telemetry.remote` (default `origin`) and read `<owner>/<repo>/brainstorming/<rel with .md -> .yaml>` from the fetched ref, using the last fetched ref on fetch failure. Degrade to the local-only check when no fetched ref is available, including jj-only workspaces. A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`. No record or `in_progress`: continue; let the extension bind on `plan_check` pass.
+3. **Not shipped.** Resolve `piGauntlet.telemetry` from preset and primary project settings; `enabled: false` skips this check. Run `git -C <primary> rev-parse --git-common-dir`; resolve a relative result against `<primary>` and read `<git common dir>/gauntlet/telemetry/<rel with .md -> .yaml>`. When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>/.jj/gauntlet/telemetry/<rel with .md -> .yaml>` instead. When the local record is absent, fetch `refs/telemetry/records` from `telemetry.remote` (default `origin`) and read `<owner>/<repo>/gauntlet/<rel with .md -> .yaml>` from the fetched ref, using the last fetched ref on fetch failure. Degrade to the local-only check when no fetched ref is available, including jj-only workspaces. A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`. No record or `in_progress`: continue; let the extension bind on `plan_check` pass.
 4. **Name.** `<name>` = basename of `<rel>` minus `.md`, minus a leading `YYYY-MM-DD-`:
    `2026-09-17-gh-31-gauntlet-resume.md` -> `gh-31-gauntlet-resume`. Same shape as
    brainstorming's Filename Convention slug; wrappers receive it as `<name>`.
@@ -21,8 +21,8 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    `branch` line is `refs/heads/<name>` or ends in `/<name>` -> `<full-path>` is that
    block's `worktree` line; skip creation (layout-agnostic: wrapper sibling dirs,
    wrapper branch prefixes such as `<user>/<name>`, and `.worktrees/` alike); more than
-   one match -> the human picks. No block -> invoke `/skill:using-git-worktrees` with branch `<name>` and carry its
-   `Worktree ready at <full-path>`; its Step 1a applies project `## using-git-worktrees`
+   one match -> the human picks. No block -> follow `../../gauntlet/worktrees.md` with branch `<name>` and carry its
+   `Worktree ready at <full-path>`; its Step 1a applies project `## worktrees`
    overrides, its Step 3 runs the clean-base check and dirty ask. Wrapper arguments
    beyond `<name>` are that skill's ask, never inferred here. Any stop it raises is this
    route's stop, verbatim. Never invent a second name.
@@ -35,7 +35,7 @@ Before starting the seed sequence, read the seed's header. A `**Home:**` header 
    available".
 
 The seed route writes no spec copy, rename, or marker commit: the spec stays where main
-tracks it, amends ride the squash as ordinary diffs, and `finishing-a-development-branch`
+tracks it, amends ride the squash as ordinary diffs, and `../../gauntlet/ship/ship.md`
 strips only the plan. `gauntlet-telemetry-salvage` prints `no spec on branch` for an
 unamended seed throughout the flow (it selects specs from `git diff --name-only
 <base>...HEAD`, which never lists a file tracked at base), so the extension's live ship

@@ -9,7 +9,7 @@ const branch = new URL("../../extensions/lib/telemetry-branch.ts", import.meta.u
 const extension = new URL("../../extensions/telemetry.ts", import.meta.url).href;
 const settings = new URL("../../extensions/lib/gauntlet-settings.ts", import.meta.url).href;
 const ref = "refs/telemetry/records";
-const prefix = "team/product/brainstorming/";
+const prefix = "team/product/gauntlet/";
 const record = (name) => `schema: 1\nspec: doc/specs/${name}.md\nrun_id: ${name}\nstatus: shipped\ncreated_at: 2026-01-01\nshipped_at: 2026-01-02\nderived:\n  modified_files: [code.txt]\n`;
 
 function fixture(central = false) {

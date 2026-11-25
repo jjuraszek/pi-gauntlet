@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
@@ -6,7 +7,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('rejected gate replies stop before approval or change-request persistence', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rejectAt = gate.indexOf('**Rejected replies.**');
   const acceptAt = gate.indexOf('| bare `1` |');
   assert.ok(rejectAt >= 0 && rejectAt < acceptAt, 'validate before accepted reply mapping');
@@ -34,20 +35,20 @@ test('rejected gate replies stop before approval or change-request persistence',
 test('saved rejected-reply cases ask once and leave files and commits unchanged on both models', () => {
   for (const [target, sample, ids] of [
     ['spec-gate', 'flag-replies', ['worded-stop', 'worded-funding']],
-    ['brainstorming', 'loop-funded-reply', ['five', 'four', 'malformed', 'words', 'suffixes', 'flags', 'selection']],
+    ['gauntlet', 'loop-funded-reply', ['five', 'four', 'malformed', 'words', 'suffixes', 'flags', 'selection']],
   ]) {
     const root = `eval/${target}`;
     const candidate = JSON.parse(read(`${root}/results/${sample}/candidate.json`));
-    const factsSha = sha256(read(`${root}/samples/${sample}/expected.md`));
+    const factsSha = replayFactsSha(candidate, read(`${root}/samples/${sample}/expected.md`));
     assert.equal(Object.keys(candidate.outputs).length, 2);
     for (const [model, output] of Object.entries(candidate.outputs)) {
       assert.equal(output.status, 'ok', `${sample}/${model}`);
       const judged = candidate.judge[model];
-      assert.equal(judged.factsSha, factsSha, `${sample}/${model}: current facts`);
+      assert.equal(judged.factsSha, factsSha, `${sample}/${model}: recorded facts`);
       assert.equal(judged.candidateOutputSha, sha256(output.text), `${sample}/${model}: judged output`);
       for (const id of ids) assert.equal(judged.facts[id]?.after, 'holds', `${sample}/${model}/${id}`);
       if (sample === 'flag-replies') {
-        assert.match(output.text, /^run allowance: 6\r?\n\/skill:loop-implementation\r?$/m, `${model}: accepted control retains its carrier ordering`);
+        assert.match(output.text, /^run allowance: 6\r?$/m, `${model}: accepted control retains its standalone carrier`);
       }
     }
   }

@@ -5,14 +5,14 @@ import { parse } from 'yaml';
 import { fileURLToPath } from 'node:url';
 import { lintTarget } from '../eval/lib/lint.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const main = () => read('skills/brainstorming/SKILL.md');
+const main = () => read('skills/gauntlet/SKILL.md');
 
 test('council applier is unpinned and carries the complete spec-only audit contract', () => {
   const text = read('agents/spec-council-applier.md');
   const [, yaml, body] = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   assert.deepEqual(parse(yaml), {
     name: 'spec-council-applier',
-    description: 'Applies a spec-council chair report to the spec under review and returns the audit. Dispatched by the roasting-the-spec skill; not for direct dispatch.',
+    description: 'Applies a spec-council chair report to the spec under review and returns the audit. Dispatched by the gauntlet spec council; not for direct dispatch.',
     tools: 'read, grep, find, ls, bash, edit, write',
     defaultContext: 'fresh',
     inheritProjectContext: true,
@@ -58,8 +58,8 @@ test('consent precedes reset and the 13 checkpoints retain their order', () => {
   assert.deepEqual(checkpoints, Array.from({ length: 13 }, (_, i) => i + 1));
   assert.match(text, /resume at checklist step 4 with the approved spec as the draft \(steps 2-3 skipped\)/);
   const gather = text.match(/^3\. .*/m)[0];
-  assert.match(gather, /read \[Ticket Handling\]\(#ticket-handling\), then follow \[`gatherer.md`\]/);
-  assert.match(text, /Read \[Ticket Handling\]\(reference\/ticket-acceptance.md\) at first use - before gathering context, even with no ticket/);
+  assert.match(gather, /read \[Ticket Handling\]\(#ticket-handling\), then follow \[`brainstorm\/gatherer\.md`\]\(brainstorm\/gatherer\.md\)/);
+  assert.match(text, /Read \[Ticket Handling\]\(brainstorm\/ticket-acceptance\.md\) at first use - before gathering context, even with no ticket/);
   assert.match(text, /a restored session \(`gauntlet-resume` routes there\) loads it once; a same-session redraw or a second brainstorm in one session reuses the content already in context/);
   assert.match(text, /Read \[Spec Self-Review\].*before spec-writing or restored step 8/);
   assert.match(text, /unreadable -> stop with a blocking error, never reconstruct from memory/);
@@ -69,13 +69,13 @@ test('restored and redraw entry load the ticket contract before questionary or l
   const text = main();
   for (const [step, action] of [[4, 'Understand the idea'], [8, 'Spec self-review']]) {
     const checkpoint = text.match(new RegExp(`^${step}\\. .*`, 'm'))[0];
-    assert.match(checkpoint, /if `reference\/ticket-acceptance.md` is not already in context this session \(restored entry, or a redraw after a fresh start\), read \[Ticket Handling\]\(#ticket-handling\) before the rest of this step/);
+    assert.match(checkpoint, /if `brainstorm\/ticket-acceptance\.md` is not already in context this session \(restored entry, or a redraw after a fresh start\), read \[Ticket Handling\]\(#ticket-handling\) before the rest of this step/);
     assert.ok(checkpoint.indexOf('read [Ticket Handling]') < checkpoint.indexOf(step === 4 ? 'see [Understand' : 'run the inline'), action);
   }
 });
 
 test('moved ticket contract retains verbatim schema and all no-ticket cases', () => {
-  const text = read('skills/brainstorming/reference/ticket-acceptance.md');
+  const text = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
   for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria', 'Drafted from the design']) assert.ok(text.includes(marker), marker);
   assert.ok(text.includes('Replace `<name>` with the supplied unmatched group heading verbatim'));
   assert.doesNotMatch(text, /only when it changes what the user observes/);
@@ -85,11 +85,11 @@ test('moved ticket contract retains verbatim schema and all no-ticket cases', ()
 });
 
 test('drafted contract preserves outcomes, legal bodies, and post-council recovery', () => {
-  const ticket = read('skills/brainstorming/reference/ticket-acceptance.md');
+  const ticket = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
   for (const marker of ['Drafted from the design, no ticket rows:', 'Drafted from the design, ticket <ref> has no acceptance criteria:', 'Pasted rows are ticket rows', 'Never append `## Spec contract`', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input', 'Post-deployment', 'never invent', 'binary', 'before writing', 'no valid row', 'explicit scope decision', '## Out of scope']) assert.ok(ticket.includes(marker), marker);
   const draftedCut = ticket.slice(ticket.indexOf('**Drafted cut question.**'));
   for (const marker of ['A) in-scope - <reading>', 'B) deviates: <why>', 'C) deferred: <where>', 'omit D', 'Recommend A', 'full question']) assert.ok(draftedCut.includes(marker), marker);
-  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const predicate = finalization.slice(finalization.indexOf('- **Ticket contract present.**'), finalization.indexOf('- **Scope check.**'));
   for (const marker of ['exactly three forms', 'Ticket <ref>', 'drafted provenance', 'at least one `- [ ]` row', 'disposition on every row', 'none - ticket not fetched (<reason>)', 'Reject `none - no ticket` and `none - ticket has no acceptance criteria`']) assert.ok(predicate.includes(marker), marker);
   const recovery = finalization.slice(finalization.indexOf('After it returns'), finalization.indexOf('## Spec Council'));
@@ -98,7 +98,7 @@ test('drafted contract preserves outcomes, legal bodies, and post-council recove
 });
 
 test('tree-wide integrity splits only drafted rows using complete Design families', () => {
-  const text = read('skills/brainstorming/reference/ticket-acceptance.md');
+  const text = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
   const row = text.split('\n').find((line) => line.startsWith('| Tree-wide |'));
   assert.ok(row, 'Tree-wide integrity class exists');
   for (const marker of ['drafted', 'zero/no findings', 'one or several kinds', 'tree or set', 'explicit complete enumeration in Design', 'one row per family', "family's own observable", 'every outcome', 'absent, partial, or unrelated', 'stop before writing', 'quote the row', 'request the complete enumeration in Design']) assert.ok(row.includes(marker), marker);
@@ -109,10 +109,10 @@ test('tree-wide integrity splits only drafted rows using complete Design familie
 
 test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, and example', () => {
   const ticket = read('skills/shape-ticket/SKILL.md');
-  const brainstorming = read('skills/brainstorming/reference/ticket-acceptance.md');
+  const brainstorming = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
   for (const [path, text] of [
     ['skills/shape-ticket/SKILL.md', ticket],
-    ['skills/brainstorming/reference/ticket-acceptance.md', brainstorming],
+    ['skills/gauntlet/brainstorm/ticket-acceptance.md', brainstorming],
   ]) {
     assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
     assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
@@ -145,7 +145,7 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
 });
 
 test('drafted requirements are protected in each actual critique task and the applier body', () => {
-  const council = read('skills/roasting-the-spec/SKILL.md');
+  const council = read('skills/gauntlet/brainstorm/council.md');
   const starts = ['task: "Problem statement: <the problem', 'task: "Problem statement: <paste>', 'task: "Problem statement: <same problem'];
   const tasks = starts.map((start) => {
     const at = council.indexOf(start);
@@ -153,7 +153,7 @@ test('drafted requirements are protected in each actual critique task and the ap
     return council.slice(at, council.indexOf('\n```', at));
   });
   tasks.push(read('agents/spec-council-applier.md').split('\n---\n')[1]);
-  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const worker = finalization.match(/subagent\(\{ agent: "worker",[\s\S]*?task:\n([\s\S]*?)\n```/);
   assert.ok(worker, 'actual worker dispatch task');
   tasks.push(worker[1]);
@@ -164,24 +164,24 @@ test('drafted requirements are protected in each actual critique task and the ap
 });
 
 test('evidenced drafted corrections are amend items while redraws retain the gate', () => {
-  for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/reference/amendment-surface.md']) {
+  for (const path of ['skills/gauntlet/SKILL.md', 'skills/gauntlet/amendment-surface.md']) {
     const text = read(path);
     for (const marker of ['approved drafted acceptance-criteria row', 'quoted test, assertion, or code line', '`BLOCKED`/`NEEDS_CONTEXT`', 'reviewer-only or taste', 'ticket rows', 'row add/remove', 'problem statement', 'component boundary', 'full gate', 'disposition-only change', 'keeps the cut question']) assert.ok(text.includes(marker), `${path}: ${marker}`);
   }
-  const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
+  const aftermath = read('skills/gauntlet/amendment-surface.md');
   for (const marker of ['row identity', 'iterations and allowance', 'including each `granted` record', 'reopened by amendment', 'at most two aftermath items', 'evidence repeating an already-applied', 'without restoration']) assert.ok(aftermath.includes(marker), marker);
   assert.ok(!aftermath.includes('Never auto-edit ticket or approved drafted AC row texts'));
 });
 
 test('baseline implement-only maintenance preserves staged repairs and truthful execution identity', () => {
-  const surface = read('skills/brainstorming/reference/amendment-surface.md');
+  const surface = read('skills/gauntlet/amendment-surface.md');
   for (const marker of ['preserve staged repairs', 'no test execution', 'failing command, assertion or path', 'corresponding repair evidence', 'unrelated regressions', 'budget-only', 'malformed', 'redraw', 'existing task gate loop', 'Repeated authorized intermediate evidence']) assert.ok(surface.includes(marker), marker);
-  const skill = read('skills/writing-plans/reference/plan-contract.md');
+  const skill = read('skills/gauntlet/plan/plan-contract.md');
   for (const marker of ['identified execution tree', 'nonzero executed-test count', 'zero tests', 'original per-leg declarations', 'no endpoint-tree equivalence']) assert.ok(skill.includes(marker), marker);
 });
 
-test('writing-plans keeps flow in the skill and child rules in the plan contract', () => {
-  const text = read('skills/writing-plans/SKILL.md');
+test('Planning keeps flow in the skill and child rules in the plan contract', () => {
+  const text = read('skills/gauntlet/plan/plan.md');
   const removedHeadings = new Set([
     '## File Structure',
     '## Leg routing',
@@ -200,14 +200,14 @@ test('writing-plans keeps flow in the skill and child rules in the plan contract
   const templates = [...text.matchAll(/^\s*> (Write the implementation plan[^\n]*)$/gm)];
   assert.equal(templates.length, 1, 'one fixed child dispatch template');
   assert.equal(templates[0][1],
-    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to reference/plan-contract.md>`.',
+    'Write the implementation plan for the approved spec. Worktree: `<abs worktree path>`. Spec: `<abs spec path>`. Plan path: `<abs plan path>`. Plan contract: `<abs path to plan-contract.md>`.',
     'the child prompt carries only the four paths, never authoring rules');
   for (const [sample, facts] of [
     ['fresh-child-authors-plan', ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'four-paths', 'no-reference-read']],
     ['parent-offers-fix-first-narrow-amend', ['failure', 'menu', 'pause', 'reads-open-questions']],
     ['gate-line-first', ['first-line', 'failure', 'menu', 'pause']],
   ]) {
-    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    const record = JSON.parse(read(`eval/plan/results/${sample}/candidate.json`));
     assert.equal(Object.keys(record.outputs).length, 2, `${sample}: two replay models`);
     for (const [model, output] of Object.entries(record.outputs)) {
       assert.equal(output.status, 'ok', `${sample}/${model}`);
@@ -223,11 +223,11 @@ test('plan-writer reads one complete contract before writing on four paths', () 
   assert.match(writer, /Keep the four-path inputs/);
   assert.doesNotMatch(writer, /SKILL\.md|plan skill|skill's (?:Self-Review|Baseline)/);
   const procedure = writer.slice(writer.indexOf('## Procedure'), writer.indexOf('## Rules'));
-  assert.match(procedure, /2\. Read the whole plan contract file \(`plan-contract\.md`\)/);
+  assert.match(procedure, /2\. Read the whole plan contract file at the supplied path\. Follow it as written\./);
   assert.match(procedure, /5\. Run Baseline from the plan contract's `## Self-review \(before handoff\)`/);
   assert.match(procedure, /6\. Run the deterministic checker and judgment checks in the plan contract's `## Self-review \(before handoff\)`/);
   for (const sample of ['child-reads-one-contract', 'removal-lists-delete', 'maintenance-after-delete', 'baseline-fails-on-base']) {
-    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    const record = JSON.parse(read(`eval/plan/results/${sample}/candidate.json`));
     assert.equal(Object.keys(record.outputs).length, 2, sample);
     for (const [model, output] of Object.entries(record.outputs)) {
       assert.equal(output.status, 'ok', `${sample}/${model}`);
@@ -239,7 +239,7 @@ test('plan-writer reads one complete contract before writing on four paths', () 
   }
 });
 
-test('writing-plans callers and anchors resolve to the partitioned contract', () => {
+test('Plan callers and anchors resolve to the partitioned contract', () => {
   const failures = [];
   const prose = text => text.replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1\s*$/gm, '');
   const headingIds = text => {
@@ -264,7 +264,7 @@ test('writing-plans callers and anchors resolve to the partitioned contract', ()
       failures.push(`${path}: unreadable link ${href}`);
     }
   };
-  for (const path of ['skills/writing-plans/SKILL.md', 'skills/writing-plans/reference/plan-contract.md', 'skills/writing-plans/reference/open-questions.md']) {
+  for (const path of ['skills/gauntlet/plan/plan.md', 'skills/gauntlet/plan/plan-contract.md', 'skills/gauntlet/plan/open-questions.md']) {
     for (const [, href] of prose(read(path)).matchAll(/\]\(([^\s)]+)\)/g)) checkLink(path, href);
   }
   for (const dir of ['skills', 'agents', 'doc']) {
@@ -275,36 +275,36 @@ test('writing-plans callers and anchors resolve to the partitioned contract', ()
       if (dir === 'doc') continue;
       for (const line of text.split('\n')) {
         if (/five absolute paths|five-path|plan skill/i.test(line)) failures.push(`${path}: retired five-path input`);
-        if (/writing-plans[^\n]*SKILL\.md/.test(line) && /## (?:File Structure|Leg routing|Wave Grouping|Bite-Sized Task Granularity|Plan Document Header|Task Structure|Spec Coverage Table|No Placeholders|Self-Review|Remember)/.test(line)) failures.push(`${path}: retired skill heading`);
-        for (const [, href] of line.matchAll(/\]\(([^\s)]*writing-plans\/SKILL\.md#[^\s)]+)\)/g)) checkLink(path, href);
+        if (/plan\/plan\.md/.test(line) && /## (?:File Structure|Leg routing|Wave Grouping|Bite-Sized Task Granularity|Plan Document Header|Task Structure|Spec Coverage Table|No Placeholders|Self-Review|Remember)/.test(line)) failures.push(`${path}: retired skill heading`);
+        for (const [, href] of line.matchAll(/\]\(([^\s)]*plan\/plan\.md#[^\s)]+)\)/g)) checkLink(path, href);
       }
     }
   }
   assert.deepEqual(failures, []);
-  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file \(`plan-contract\.md`\) at the supplied path/);
+  assert.match(read('agents/plan-writer.md'), /Read the whole plan contract file at the supplied path/);
   for (const [path, count] of [
-    ['skills/brainstorming/reference/amendment-surface.md', 2],
-    ['skills/subagent-driven-development/reference/implement-amendments.md', 1],
+    ['skills/gauntlet/amendment-surface.md', 2],
+    ['skills/gauntlet/implement/waves/implement-amendments.md', 1],
     ['skills/gauntlet-resume/reference/plan-repair.md', 1],
   ]) assert.equal((read(path).match(/four absolute paths \(worktree, approved spec, plan, plan contract\)/g) ?? []).length, count, path);
   const resume = read('skills/gauntlet-resume/reference/plan-repair.md');
   const baselineRows = resume.split('\n').filter(line => line.startsWith('| `- Task N:') || line.startsWith('| Global or contamination rows'));
   assert.equal(baselineRows.length, 2, 'both baseline failure continuations exist');
   for (const row of baselineRows) {
-    assert.match(row, /writing-plans\/reference\/open-questions\.md/);
+    assert.match(row, /gauntlet\/plan\/open-questions\.md/);
   }
   const ci = read('scripts/ci.mjs');
-  for (const [, file, token] of ci.matchAll(/\["(skills\/writing-plans\/[^"\n]+)", "([^"\n]+)", true\]/g)) {
+  for (const [, file, token] of ci.matchAll(/\["(skills\/gauntlet\/plan\/[^"\n]+)", "([^"\n]+)", true\]/g)) {
     if (!read(file).includes(token)) failures.push(`CI token ${token} is absent from ${file}`);
   }
   assert.deepEqual(failures, []);
-  const legCase = read('eval/writing-plans/samples/leg-checkout-by-branch/case.md');
-  assert.match(legCase, /^bundle-: skills\/writing-plans\/SKILL\.md$/m,
+  const legCase = read('eval/plan/samples/leg-checkout-by-branch/case.md');
+  assert.match(legCase, /^bundle-: skills\/gauntlet\/plan\/plan\.md$/m,
     'the child replay must not receive parent dispatch instructions');
   assert.match(legCase.replace(/^(bundle[+-]:[^\n]*\n)+\s*/, ''), /^Role: plan-writer\n/,
     'select the replay child branch instead of the parent no-write branch');
   for (const sample of ['leg-checkout-by-branch', 'pr-subject-threads', 'pr-subject-sync-repair']) {
-    const record = JSON.parse(read(`eval/writing-plans/results/${sample}/candidate.json`));
+    const record = JSON.parse(read(`eval/plan/results/${sample}/candidate.json`));
     assert.equal(Object.keys(record.outputs).length, 2, sample);
     for (const [model, output] of Object.entries(record.outputs)) {
       assert.equal(output.status, 'ok', `${sample}/${model}`);
@@ -314,35 +314,35 @@ test('writing-plans callers and anchors resolve to the partitioned contract', ()
 });
 
 test('baseline recommendations use decoded amend permission and preserve writer boundaries', () => {
-  const text = read('skills/writing-plans/SKILL.md');
+  const text = read('skills/gauntlet/plan/plan.md');
   const branch = text.slice(text.indexOf('6. Branch'), text.indexOf('7. Clear'));
   const questions = branch.split('\n').find((line) => line.includes('`OPEN QUESTIONS` + any result'));
   const repeatedFail = branch.split('\n').find((line) => line.includes('`PLAN WRITTEN` + `FAIL`'));
   for (const line of [questions, repeatedFail]) {
-    assert.match(line, /read `reference\/open-questions\.md` now, before asking; unreadable -> stop with a blocking error, never reconstruct from memory/);
+    assert.match(line, /read `open-questions\.md` now, before asking; unreadable -> stop with a blocking error, never reconstruct from memory/);
   }
   assert.match(repeatedFail, /the same FAIL a second time goes to the user as an open question; read/);
   assert.match(branch, /No child reply.*`OPEN QUESTIONS` when the plan carries substantive Open Questions rows.*take that reply's branch above/);
-  const menu = read('skills/writing-plans/reference/open-questions.md');
+  const menu = read('skills/gauntlet/plan/open-questions.md');
   assert.match(menu, /^## Ask the human$/m);
   assert.match(menu, /Start the message with `gauntlet: question` alone at column zero on the first physical line/);
   assert.match(menu, /Never append a colon to the marker/);
   assert.match(menu, /For a second identical FAIL, present the FAIL lines, verbatim, as an exhausted finding does/);
   for (const marker of ['Value decoding', 'before waiting', 'budget-only', 'Recommendation: <option>[ <filter>]', 'took recommendation: <option>', 'narrow hook-config', 'Task N Tests: narrow to hook-config', 'none', 'without a concrete filter', 'no amend permission', 'never clean automatically']) assert.ok(menu.includes(marker), marker);
-  const aftermath = read('skills/brainstorming/reference/amendment-surface.md');
+  const aftermath = read('skills/gauntlet/amendment-surface.md');
   assert.ok(aftermath.includes('same grant-aware step-6 path'));
-  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/writing-plans', import.meta.url))), []);
+  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/plan', import.meta.url))), []);
 });
 
 test('gate template renders four fixed one-sentence rows after the unchanged briefing', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.match(text, /Scope cuts: <row text, first 60 chars> - <disposition>; \.\.\. \| none/);
   const commitAt = text.indexOf('Spec written and committed to');
   const cutsAt = text.indexOf('Scope cuts: <row text');
   const draftedAt = text.indexOf('Drafted acceptance criteria (approval ratifies):');
   const councilAt = text.indexOf('Council: <A>');
   assert.ok(commitAt >= 0 && commitAt < cutsAt && cutsAt < draftedAt && draftedAt < councilAt);
-  const template = text.match(/```\ngauntlet: gate=brainstorming\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
+  const template = text.match(/```\ngauntlet: gate=brainstorm\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
   const rows = [...template.matchAll(/^(\d+) - ([^:]+): (.+)$/gm)];
   assert.deepEqual(rows.map(([, number, label]) => [number, label]), [
     ['1', 'plan engine'], ['2', 'loop engine'], ['3', 'council explanation'], ['4', 'draft PR'],
@@ -355,8 +355,8 @@ test('gate template renders four fixed one-sentence rows after the unchanged bri
 });
 
 test('gate flags stay under their engine with one sentence ending in the resolved default', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
-  const template = text.match(/```\ngauntlet: gate=brainstorming\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
+  const template = text.match(/```\ngauntlet: gate=brainstorm\/user-review-gate[^\n]*\n([\s\S]*?)\n```/)[1];
   const rows = [...template.matchAll(/^(\d+) - [^\n]+\n((?:- `--[^\n]+\n)*)\n/gm)];
   assert.equal(rows.length, 4, 'each row group ends with a blank line');
   const amendDefault = 'apply it and list it at the finish gate; a redraw always stops';
@@ -377,9 +377,9 @@ test('gate flags stay under their engine with one sentence ending in the resolve
 });
 
 test('gate recommendation ties one rendered row to the first-line marker and trailing reason', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
-  const template = text.match(/```\n(gauntlet: gate=brainstorming\/user-review-gate[^\n]*\n[\s\S]*?)\n```/)[1];
-  assert.equal(template.split('\n')[0], 'gauntlet: gate=brainstorming/user-review-gate recommended=<recommended-row>');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
+  const template = text.match(/```\n(gauntlet: gate=brainstorm\/user-review-gate[^\n]*\n[\s\S]*?)\n```/)[1];
+  assert.equal(template.split('\n')[0], 'gauntlet: gate=brainstorm/user-review-gate recommended=<recommended-row>');
   assert.match(text, /Choose exactly one rendered row from 1, 2, or 4 as the recommendation/);
   assert.match(text, /Append `\[recommended\]` at the end of that row's sentence, never to a flag line or row 3/);
   assert.match(text, /Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number/);
@@ -389,7 +389,7 @@ test('gate recommendation ties one rendered row to the first-line marker and tra
 });
 
 test('high context recommends a rendered draft PR with a fresh-session reason', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const gate = text.slice(text.indexOf('## User Review Gate'));
   const settingsAt = gate.indexOf('resolve `gauntlet_setting({ key: "loopEngine" })`');
   const status = 'phase_tracker({ action: "status" })';
@@ -403,14 +403,14 @@ test('high context recommends a rendered draft PR with a fresh-session reason', 
     '25.0 does not trigger this rule; 25.1 and 26.0 do',
     'a missing `Context:` line, `Context: unknown`, or a failed call as unknown',
     'never stop for a missing reading',
-    'Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:brainstorming #<N>` on the draft PR there, which is less prone to hallucination.',
+    'Recommended: 4 - context is at <P>% of the window; start a fresh session and run `/skill:gauntlet #<N>` on the draft PR there, which is less prone to hallucination.',
   ]) assert.ok(gate.includes(rule), rule);
   assert.match(read('eval/spec-gate/samples/recommended-row/case.md'), /Context: 25\.1% of window/);
   assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- context: judged:.*25\.1.*fresh session.*hallucination/m);
 });
 
 test('low, unknown or withheld draft context restricts the recommendation to engines', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.match(text, /Outside the create-only retry view, restrict the recommendation to rendered row 1 or 2 for `Context: unknown`, a numeric reading of 25 or lower, or a withheld row 4/);
   const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
   for (const observation of ['Context: unknown', 'Context: 25.0% of window', 'Context: 12.0% of window', 'Context: 31.0% of window']) {
@@ -421,7 +421,7 @@ test('low, unknown or withheld draft context restricts the recommendation to eng
 });
 
 test('zero acceptance rows recommend the plan engine only after the draft-PR rule', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rule = 'When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1';
   assert.ok(text.includes(rule), 'zero rows select the plan engine');
   assert.ok(text.indexOf(rule) > text.indexOf('For a numeric context reading strictly above 25'), 'context priority precedes the zero-row fallback');
@@ -435,7 +435,7 @@ test('zero acceptance rows recommend the plan engine only after the draft-PR rul
 });
 
 test('bundled acceptance rows recommend a plan with the first qualifying row and its outcomes', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const rule of [
     'When row 4 is not recommended and acceptance rows exist',
     "assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent",
@@ -454,7 +454,7 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
 });
 
 test('unbundled acceptance rows recommend loop with the exact fallback reason', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rule = 'When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`';
   assert.ok(text.includes(rule), 'unbundled rows select loop with the prescribed reason');
   assert.ok(text.indexOf(rule) > text.indexOf('When row 4 is not recommended and acceptance rows exist'), 'fallback follows context, zero-row and bundled-row assessment');
@@ -465,7 +465,7 @@ test('unbundled acceptance rows recommend loop with the exact fallback reason', 
 });
 
 test('finalization retains ordered write checks, verdict routing and dispatches', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const ordered = ['1. `Read` the draft in full', '2. Write the spec', '3. **Immediately after the write**', '4. **After the line-1 check**', '5. **After the second predecessor pass'];
   let previous = -1;
   for (const marker of ordered) { const position = text.indexOf(marker); assert.ok(position > previous, marker); previous = position; }
@@ -474,12 +474,12 @@ test('finalization retains ordered write checks, verdict routing and dispatches'
   assert.match(text, /last three are the \*\*critique pass\*\*, dispatched/);
   for (const marker of ['branch strictly on `verdict`', 'never infer the worker path from `malformed` alone', 'If `gauntlet_setting` is unavailable, stop and report', 'agent: "worker", context: "fresh", async: false', 'agent: "spec-summarizer", context: "fresh", async: false', 'outputMode: "file-only"', 'Human input (verbatim; off-limits for over-spec)', 'ticket AC snapshot', 'passes no `model:`']) assert.ok(text.includes(marker), marker);
   assert.match(text, /relative to this loaded reference as one absolute/);
-  assert.match(text, /portable citation `reference\/documentation-impact.md`/);
+  assert.match(text, /portable citation `documentation-impact\.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>/);
 });
 
 test('summary faults, partial coverage, commit and revisions retain their routes', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
-  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
+  for (const marker of ['This commit is **unconditional**', 'Coverage:', 'Applied:', 'Deferred:', 'Rejected:', 'under ~500 bytes', 'over ~45 KB', 'last content-producing tool call', 'returns 0 bytes', 'reports truncation', 'never paraphrase', 'rm "$SUMMARY_PATH"', 'fresh** temp path', 'Continue without another prompt.', 're-dispatch the summarizer or note the discrepancy']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('Then commit the spec') < text.indexOf('1. **From the dispatch tool result'));
   assert.ok(text.indexOf('1. **From the dispatch tool result') < text.indexOf('2. **The `Read` itself'));
   for (const marker of ['Council: <A> applied, <D> deferred, <R> rejected', '3 - council explanation:', 'add -- <spec path>', "commit -q -F - -- <spec path>", "<<'EOF'", 'git -C <abs worktree path> show -s --format=%b HEAD', 'a reply carrying `3` never grants', '-> reverted at gate', '`-m`, `-F <file>`']) assert.ok(text.includes(marker), marker);
@@ -489,13 +489,13 @@ test('summary faults, partial coverage, commit and revisions retain their routes
 });
 
 test('spec publication and re-entry share shape proof and published persistence', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const marker of ['4 - draft PR:', 'Withheld: draft PR - #N already exists', '1, 3, 4', 'spec-pr.md']) assert.ok(gate.includes(marker), marker);
   assert.match(gate, /On every PR subject omit row 4 and print `Withheld: draft PR - #N already exists` under the list, reusing finishing's withheld-row layout/);
-  assert.match(main().match(/^13\. .*$/m)[0], /loop-implementation.*4 ends the flow after publishing/);
-  const ref = read('skills/brainstorming/reference/spec-pr.md');
+  assert.match(main().match(/^13\. .*$/m)[0], /engine.*4 ends the flow after publishing/);
+  const ref = read('skills/gauntlet/brainstorm/spec-pr.md');
   for (const marker of ['flowGuards', 'specDirs', 'origin/$DEFAULT', 'defaultBranchRef', 'retry opening the draft PR', 'AUDIT_SHA=', 'diff-filter=A', '**PR:**', 'spec: select engine and grant for PR #N', 'never amend', 'Superseded by:', 'removes nothing']) assert.ok(ref.includes(marker), marker);
-  const classifier = read('skills/brainstorming/reference/pr-subject.md');
+  const classifier = read('skills/gauntlet/brainstorm/pr-subject.md');
   assert.ok(classifier.indexOf('## Spec-PR classifier') < classifier.indexOf('## Bind and pass'));
   for (const marker of ['spec-pr.md', 'spec-only PR without the gate marker - running lint and council', 'git show', 'N>1', 'Derive ROOT']) assert.ok(classifier.includes(marker), marker);
   const unmarked = classifier.match(/^\| Shape passes, marker absent \|.*$/m)[0];
@@ -506,28 +506,40 @@ test('spec publication and re-entry share shape proof and published persistence'
   assert.match(main(), /the unmarked spec-only route keeps the carried spec path/);
   assert.match(ref, /Apply this same new-commit persistence to the unmarked route's gate approval \(1\/2 with their accepted flags\), never `--amend`/);
   assert.ok(gate.includes('its published-branch persistence replaces the local amend recipe below on the marked re-gate and the unmarked spec-only route only; a rework PR subject keeps the amend recipe'));
-  const gather = read('skills/brainstorming/gatherer.md');
+  const gather = read('skills/gauntlet/brainstorm/gatherer.md');
   assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
   assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
   for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
+  for (const path of ['skills/gauntlet/brainstorm/spec-pr.md', 'skills/gauntlet/pr-head.md']) {
+    assert.match(read(path), /rerun `?\/skill:gauntlet #N/, path);
+    assert.doesNotMatch(read(path), /\bbrainstorming #N\b/i, path);
+  }
   assert.ok(gate.indexOf('2 - loop engine:') < gate.indexOf('4 - draft PR:'));
   assert.ok(gate.indexOf('1 - plan engine:') < gate.indexOf('--fund-rounds=N'));
   assert.ok(gate.indexOf('--fund-rounds=N') < gate.indexOf('2 - loop engine:'));
 });
 
 test('deferred boundaries precede ship and restore arming; header PR finish owns non-force delivery', () => {
-  const finish = read('skills/finishing-a-development-branch/SKILL.md');
-  const stop = 'spec approved for handoff only - run brainstorming #N';
-  assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'));
-  assert.ok(finish.indexOf('reference/spec-pr.md') < finish.indexOf('**Announce at start:**'));
-  const ref = read('skills/finishing-a-development-branch/reference/spec-pr.md');
-  for (const marker of ['record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
+  const finish = read('skills/gauntlet/ship/ship.md');
+  const stop = 'spec approved for handoff only - run /skill:gauntlet #N';
+  assert.ok(finish.indexOf(stop) > 0 && finish.indexOf(stop) < finish.indexOf('**Announce at start:**'), stop);
+  const specPrAt = finish.indexOf('[header-linked PR finishing](spec-pr.md)');
+  assert.ok(specPrAt > 0 && specPrAt < finish.indexOf('**Announce at start:**'));
+  const ref = read('skills/gauntlet/ship/spec-pr.md');
+  for (const marker of [stop, 'record wins', 'number,url,state,isDraft,headRefName,baseRefName', 'merge-base --is-ancestor', 'Withheld: push', 'push --no-follow-tags origin HEAD:refs/heads/<headRefName>', 'gh pr ready', 'already ready for review']) assert.ok(ref.includes(marker), marker);
   assert.ok(ref.indexOf('push --no-follow-tags') < ref.indexOf('gh pr ready <N> -R <owner/repo>'));
   assert.match(ref, /At Step 4, the header-linked route bypasses both menus below/);
-  assert.match(read('skills/finishing-a-development-branch/reference/verification-set.md'), /Rework PR subject with a task plan/);
+  assert.match(read('skills/gauntlet/ship/verification-set.md'), /Rework PR subject with a task plan/);
   assert.match(ref, /Option 3 squash seal uses `--option squash --base origin\/<baseRefName>`/);
   const resume = read('skills/gauntlet-resume/SKILL.md');
   assert.ok(resume.indexOf(stop) > resume.indexOf('6. **Grant field.**') && resume.indexOf(stop) < resume.indexOf('## Dispatch'));
+  for (const target of ['ship', 'gauntlet-resume']) {
+    const candidate = JSON.parse(read(`eval/${target}/results/deferred-spec-stop/candidate.json`));
+    for (const model of candidate.models.replay) {
+      const output = candidate.outputs[model];
+      assert.ok(output.text.includes(stop.replace('#N', '#42')), `${target}/${model}: resolved PR number`);
+    }
+  }
   for (const path of ['reconstruction.md', 'restore-plan.md']) {
     const text = read(`skills/gauntlet-resume/reference/${path}`);
     assert.match(text, /entry check 6[^\n]*deferred/);
@@ -538,7 +550,7 @@ const walk = (dir) => readdirSync(new URL(`../${dir}/`, import.meta.url), { with
   e.isDirectory() ? walk(`${dir}/${e.name}`) : e.name.endsWith('.md') ? [`${dir}/${e.name}`] : []);
 
 test('standing grants own boundaries while amendment aftermath and finish recipe survive', () => {
-  const text = read('skills/brainstorming/reference/amendment-surface.md');
+  const text = read('skills/gauntlet/amendment-surface.md');
   for (const marker of ['continued onto the next physical line', 'nor a `> **Superseded by:**` banner line', 'redraws always stop', 'grant never satisfies the spec gate', 'a resume honors the line as written', '**Amend-grant:**', 'skip steps 2-4', 'scope changes included', 'plan_check', 'recommended: accept', 'rescope-into-spec', 'compose its Consent change bookkeeping message with one body sentence naming the new consent value', 'commit -q -F - --', 'Never take a grant from commit history, a handoff brief, or the transcript']) assert.ok(text.includes(marker), marker);
   for (const marker of ['**Value decoding**', 'fund N fix rounds', 'N more fix rounds', '[1-9][0-9]*', 'budget-only', 'The waves budget is non-retroactive: rounds spent before the line was written do not count against or toward it.', 'never `accept` by default']) assert.ok(text.includes(marker), marker);
   assert.ok(!text.includes('fresh-session resume with no grant'), 'old boundary sentence removed');
@@ -552,7 +564,7 @@ test('no skill records the grant as a commit trailer', () => {
 });
 
 test('spec-finalization writes the grant line and persists approval-time grants in the spec commit', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On every implementation approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On every implementation approval');
   for (const marker of ['1 --fund-rounds=N', '1 --amends-stop --fund-rounds=N', 'G; fund N fix rounds', 'fund N fix rounds', '; fund N fix rounds', ', fund N fix rounds', 'Decode before', 'budget token alone', 'missing `=N`']) assert.ok(text.includes(marker), marker);
@@ -565,25 +577,23 @@ test('spec-finalization writes the grant line and persists approval-time grants 
 });
 
 test('loop approval allowance suffix seeds only this run ledger', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const gate = text.slice(text.indexOf('## User Review Gate'));
   for (const token of ['2 --allowance=N', '; allowance N', ', allowance N', '[1-9][0-9]*', 'positive safe integer', 'run allowance: N', 'only in the ledger', 'not in the spec or settings', 'exactly one clarifying question', 'make no file or commit changes', '`--fund-rounds=N` on row 2', 'Quote the offending token.', 'Ask for a rendered row.', 'run allowance: <n>']) assert.ok(gate.includes(token), token);
   assert.doesNotMatch(gate, /persist the option-2 description plus `; fund 3 fix rounds`; engine loop|budget-only\); engine loop/);
   assert.match(read('doc/gate-contract.md'), /`--amends-stop` on 1\/2.*`--fund-rounds=N` on 1.*`--allowance=N` on 2/);
 });
 
-test('roasting-the-spec members, chair and applier preserve the grant line', () => {
-  const text = read('skills/roasting-the-spec/SKILL.md');
+test('Council members, chair and applier preserve the grant line', () => {
+  const text = read('skills/gauntlet/brainstorm/council.md');
   const sentence = 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.';
   assert.equal(text.split(sentence).length - 1, 3, 'preserve sentence in member, chair and applier tasks');
 });
 
 test('council file boundaries, applier rollback and ordered handoff are explicit', () => {
-  const text = read('skills/roasting-the-spec/SKILL.md');
-  const description = parse(text.match(/^---\n([\s\S]*?)\n---/)[1]).description;
-  assert.match(description, /fresh-context applier executor/);
+  const text = read('skills/gauntlet/brainstorm/council.md');
   const overview = text.slice(text.indexOf('## Overview'), text.indexOf('## Hard constraint'));
-  assert.match(overview, /Dispatch a fresh-context \*\*applier\*\* inheriting the main loop's model and thinking/);
+  assert.match(overview, /Dispatch a fresh-context \*\*applier\*\* inheriting the main loop's model and thinking to decide dispositions and edit the spec, returning only the audit/);
   const member = text.slice(text.indexOf('tasks: members.map'), text.indexOf('The `Human input'));
   assert.match(member, /output: [^\n]+,\n    outputMode: "file-only"/);
   const chair = text.slice(text.indexOf('agent: "spec-council-synthesizer"'), text.indexOf('### 3'));
@@ -608,7 +618,7 @@ test('council file boundaries, applier rollback and ordered handoff are explicit
 
 test('chair input paths and output destination are factual corrections and ticket chair stays inline', () => {
   const chair = read('agents/spec-council-synthesizer.md');
-  assert.deepEqual(parse(chair.match(/^---\n([\s\S]*?)\n---/)[1]), { name: 'spec-council-synthesizer', description: 'Neutral chair that consolidates and adjudicates spec-council member critiques into a single ranked, conflict-resolved report. Dispatched by the roasting-the-spec or shape-ticket skills; not for direct dispatch.', tools: 'read, grep, find, ls, bash', thinking: 'xhigh', defaultContext: 'fresh', inheritProjectContext: true, inheritSkills: false, completionGuard: false, systemPromptMode: 'replace' });
+  assert.deepEqual(parse(chair.match(/^---\n([\s\S]*?)\n---/)[1]), { name: 'spec-council-synthesizer', description: 'Neutral chair that consolidates and adjudicates spec-council member critiques into a single ranked, conflict-resolved report. Dispatched by the gauntlet spec council or shape-ticket; not for direct dispatch.', tools: 'read, grep, find, ls, bash', thinking: 'xhigh', defaultContext: 'fresh', inheritProjectContext: true, inheritSkills: false, completionGuard: false, systemPromptMode: 'replace' });
   for (const marker of ['**Output:**', 'entire identical report', 'acknowledgment or partial', 'grounded|hypothesis:', 'lean:', 'consensus:', 'clusters:', 'resolved:']) assert.ok(chair.includes(marker), marker);
   assert.ok(chair.includes('Read the member critique files directly from the explicit paths supplied in your task.'));
   assert.doesNotMatch(chair, /already injected into your context via|(?:injected|injection)[^.\n]*`reads`|`reads`[^.\n]*(?:injected|injection)/i);
@@ -647,14 +657,14 @@ test('gauntlet-resume checks the grant field before dispatch and announces it af
   for (const file of ['skills/gauntlet-resume/reference/brief-contract.md', 'skills/gauntlet-handoff/SKILL.md']) assert.ok(!read(file).includes('Amend-grant'), `${file} stays grant-free`);
 });
 
-test('executed brainstorming routes link their hidden skill at the owning action', () => {
+test('executed brainstorming routes link the gauntlet entry at the owning action', () => {
   const routes = [
-    ['skills/gauntlet-resume/SKILL.md', /worktree: no` \|[^\n]*then invoke \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/gauntlet-resume/SKILL.md', /\| brainstorm \| \[brainstorming checklist\]\((\.\.\/brainstorming\/SKILL\.md#checklist)\)/],
-    ['skills/gauntlet-resume/reference/reconstruction.md', /Selected unapproved-draft brainstorming handoff:[\s\S]*?invoke \[.*?\]\((\.\.\/\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> draft[\s\S]*?hand off to \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> render the summary[\s\S]*?hand off to\s+\[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
-    ['skills/writing-plans/SKILL.md', /If no spec exists,[^\n]*before invoking \[.*?\]\((\.\.\/brainstorming\/SKILL\.md)\)/],
+    ['skills/gauntlet-resume/SKILL.md', /worktree: no` \|[^\n]*then invoke \[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/gauntlet-resume/SKILL.md', /\| brainstorm \| \[brainstorming checklist\]\((\.\.\/gauntlet\/SKILL\.md#checklist)\)/],
+    ['skills/gauntlet-resume/reference/reconstruction.md', /Selected unapproved-draft brainstorming handoff:[\s\S]*?invoke \[.*?\]\((\.\.\/\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> draft[\s\S]*?hand off to \[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/chase-bug/SKILL.md', /Brainstorm now chosen -> render the summary[\s\S]*?hand off to\s+\[.*?\]\((\.\.\/gauntlet\/SKILL\.md)\)/],
+    ['skills/gauntlet/plan/plan.md', /If no spec exists,[^\n]*before invoking \[.*?\]\((\.\.\/SKILL\.md)\)/],
   ];
   for (const [owner, pattern] of routes) {
     const match = read(owner).match(pattern);
@@ -669,35 +679,32 @@ test('executed brainstorming routes link their hidden skill at the owning action
 test('incoming routes wait for fresh consent but retain stateful continuation and stops', () => {
   const resume = read('skills/gauntlet-resume/SKILL.md');
   const reconstruction = read('skills/gauntlet-resume/reference/reconstruction.md');
-  const planning = read('skills/writing-plans/SKILL.md');
+  const planning = read('skills/gauntlet/plan/plan.md');
   assert.match(resume, /brief without process state, `worktree: no`.*offer.*`## Intent`.*wait for explicit selection/);
   assert.match(resume, /brainstorm.*step 4/);
   assert.match(resume, /spec title -> step 8/);
   assert.match(reconstruction, /Ask exactly one question: is this spec approved, or do you select/);
   assert.match(reconstruction, /bare "not approved" answer is not consent/);
-  assert.match(reconstruction, /Approved:[\s\S]*?continue in writing-plans/);
-  assert.match(reconstruction, /using-git-worktrees Step 0 detects the existing/);
-  assert.match(reconstruction, /no spec \| stop; offer.*brainstorming.*no tracker call/);
-  assert.match(resume, /anything else \| stop: "this is a new idea - run \/skill:brainstorming"/);
-  assert.match(planning, /recommend `\/skill:brainstorming` and await the user's explicit choice/);
+  assert.match(reconstruction, /Approved:[\s\S]*?continue in `\.\.\/\.\.\/gauntlet\/plan\/plan\.md`/);
+  assert.match(reconstruction, /worktrees\.md` Step 0 detects the existing/);
+  assert.match(reconstruction, /no spec \| stop; offer `\/skill:gauntlet`[^\n]*no tracker call/);
+  assert.match(resume, /anything else \| stop: "this is a new idea - run \/skill:gauntlet"/);
+  assert.match(planning, /recommend `\/skill:gauntlet` and await the user's explicit choice/);
   assert.match(planning, /Do not invent a plan without a spec/);
 });
 
 test('locator and the specifically moved relative resources resolve from their owners', () => {
-  const gatherer = read('skills/brainstorming/gatherer.md');
-  assert.match(gatherer, /loaded brainstorming `SKILL.md` path/);
-  assert.match(gatherer, /command's skill envelope or the absolute path used to read it/);
-  assert.match(gatherer, /never `reference\/` as the base/);
-  assert.match(gatherer, /\.\.\/\.\.\/bin\/gauntlet-spec-index.mjs/);
+  const gatherer = read('skills/gauntlet/brainstorm/gatherer.md');
+  assert.match(gatherer, /`\.\.\/\.\.\/\.\.\/bin\/gauntlet-spec-index\.mjs` from the directory of this installed file and pass the absolute path as `<SPEC_INDEX>`/);
   assert.match(gatherer, /Spec index unavailable - predecessor check used directory listing/);
   const links = [
-    ['skills/brainstorming/SKILL.md', 'reference/ticket-acceptance.md', null],
-    ['skills/brainstorming/SKILL.md', 'reference/spec-finalization.md', 'Spec Self-Review (Before User Review Gate)'],
-    ['skills/brainstorming/reference/ticket-acceptance.md', '../SKILL.md', 'Amending an approved spec'],
-    ['skills/brainstorming/reference/spec-finalization.md', '../SKILL.md', 'Filename Convention'],
-    ['skills/brainstorming/reference/spec-finalization.md', 'superseding.md', null],
-    ['skills/brainstorming/reference/spec-finalization.md', '../../verification-before-completion/reference/settings-precedence.md', null],
-    ['skills/brainstorming/reference/spec-finalization.md', '../gatherer.md', null],
+    ['skills/gauntlet/SKILL.md', 'brainstorm/ticket-acceptance.md', null],
+    ['skills/gauntlet/SKILL.md', 'brainstorm/spec-finalization.md', 'Spec Self-Review (Before User Review Gate)'],
+    ['skills/gauntlet/brainstorm/ticket-acceptance.md', '../SKILL.md', 'Amending an approved spec'],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', '../SKILL.md', 'Filename Convention'],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', 'superseding.md', null],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', 'settings-precedence.md', null],
+    ['skills/gauntlet/brainstorm/spec-finalization.md', 'gatherer.md', null],
   ];
   for (const [owner, target, heading] of links) {
     const targetUrl = new URL(target, new URL(`../${owner}`, import.meta.url));
@@ -715,7 +722,7 @@ test('spec-summarizer emits a capped briefing and never writes a file', () => {
 });
 
 test('gatherer scout template carries the framing finding as evidence, not verdict', () => {
-  const text = read('skills/brainstorming/gatherer.md');
+  const text = read('skills/gauntlet/brainstorm/gatherer.md');
   const scout = text.slice(text.indexOf('Scout (always dispatched):'), text.indexOf('Context-builder (conditional):'));
   let left = scout.indexOf('already solves any of this');
   let right = scout.indexOf('Framing: <the strongest cited case');
@@ -733,7 +740,7 @@ test('section 3 asks the framing question once, with a named alternative, after 
   const right = section.indexOf('verify the draft\'s `Framing:` line');
   assert.ok(left > -1 && right > -1 && left < right, 'framing paragraph follows the premise note');
   assert.ok(section.includes('every checked claim'), 'evidence write includes held claims as well as corrections');
-  for (const marker of ['reference/opening-message.md', 'never write it from memory', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
+  for (const marker of ['brainstorm/opening-message.md', 'never write it from memory', 'After any premise correction in the same message, ask the framing question or give the holds-statement', 'at most once per brainstorm', 'Framing: kept', 'Framing: pivoted to <x> - <why>', '## Appended during questionary', 'the count restarts', 'adds to the premise verification above', 'trace every consumer, caller, and data path']) assert.ok(section.includes(marker), marker);
   for (const removed of ['with sources and attempted lookups, in full sentences - no status-keyword lists, no template', 'name the traces and dependencies in the holds-statement, not only the files read']) assert.ok(!section.includes(removed), removed);
   const good = [...section.matchAll(/^Good:\n```text\n([\s\S]*?)\n```$/gm)].map((match) => match[1]);
   assert.equal(good.length, 1, 'ordinary-question Good example stays in the flow');
@@ -754,9 +761,10 @@ test('section 3 asks the framing question once, with a named alternative, after 
 });
 
 test('opening-message reference owns the shape, register, cap and framing renderings', () => {
-  const text = read('skills/brainstorming/reference/opening-message.md');
+  const text = read('skills/gauntlet/brainstorm/opening-message.md');
   assert.match(text, /^# Opening message\n/);
-  assert.ok(text.includes('(menu-layout.md)'), 'first-line owner resolves beside this reference');
+  assert.match(text, /\[Menu layout\]\(\.\.\/menu-layout\.md\)/);
+  assert.ok(existsSync(new URL('../skills/gauntlet/menu-layout.md', import.meta.url)), 'first-line owner resolves from this reference');
   assert.ok(text.split('\n').length <= 120, 'reference stays within its design limit');
   for (const marker of ['Held:', 'Corrected:', 'Not checked:', 'The framing holds: checked', 'A) as framed', 'B) pivot:', 'C) smaller or none:', '220', 'one sentence each', 'none of them is dropped', 'The design rests on no claims.', 'with no section titles', 'the recon at hand', 'on a redraw, the approved spec']) assert.ok(text.includes(marker), marker);
   const blocks = [...text.matchAll(/^```text\n(gauntlet: question[\s\S]*?)\n```$/gm)].map((match) => match[1]);
@@ -794,15 +802,15 @@ test('round-two design names actions without proposing a flow-wide count', () =>
     'never write a hold that makes a named action wait for a later approval',
   ]) assert.ok(roundTwo.includes(clause), clause);
   assert.doesNotMatch(roundTwo, /inputs and count|within those bounds|runner\/input\/count/);
-  const sample = 'eval/brainstorming/samples/design-names-paid-actions/';
+  const sample = 'eval/gauntlet/samples/design-names-paid-actions/';
   const fixture = read(`${sample}case.md`);
   const expected = read(`${sample}expected.md`);
   assert.match(fixture, /No flow-wide execution count is supplied/);
   assert.doesNotMatch(fixture, /Propose the smallest flow-wide execution count|proposed count covering|pending round-two action bounds/);
   assert.match(fixture, /Propose no flow-wide count/);
   assert.match(expected, /^- flow-bound: judged:.*round two.*runner and inputs.*proposes no flow-wide count.*approval authorizes each named action for the whole flow/m);
-  assert.match(read('eval/brainstorming/intent.md'), /^- design-names-paid-actions\/flow-bound:.*Propose no flow-wide count/m);
-  assert.match(read('eval/brainstorming/README.md'), /^\| `design-names-paid-actions` \|.*propose no flow-wide count/m);
+  assert.match(read('eval/gauntlet/intent.md'), /^- design-names-paid-actions\/flow-bound:.*Propose no flow-wide count/m);
+  assert.match(read('eval/gauntlet/README.md'), /^\| `design-names-paid-actions` \|.*propose no flow-wide count/m);
   assert.match(expected, /^- named-runs: judged:.*count is absent.*advisory/m);
   assert.match(expected, /^- unnamed-unreachable: judged:.*action the spec does not name/m);
   assert.match(expected, /^- no-deferral: judged:/m);
@@ -817,8 +825,8 @@ test('red flags stop approaches that skip the framing question or the holds-stat
 test('spec-only PR lifecycle has local replay coverage in all four targets', () => {
   const samples = {
     'spec-gate': ['option-6-handoff'],
-    brainstorming: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
-    'finishing-a-development-branch': ['spec-pr-menu', 'deferred-spec-stop'],
+    gauntlet: ['spec-pr-regate', 'spec-pr-unmarked', 'pr-subject-gate'],
+    'ship': ['spec-pr-menu', 'deferred-spec-stop'],
     'gauntlet-resume': ['deferred-spec-stop'],
   };
   for (const [target, names] of Object.entries(samples)) {
@@ -831,7 +839,7 @@ test('spec-only PR lifecycle has local replay coverage in all four targets', () 
     }
     assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
   }
-  for (const path of ['skills/brainstorming/reference/spec-pr.md', 'skills/finishing-a-development-branch/reference/spec-pr.md']) {
+  for (const path of ['skills/gauntlet/brainstorm/spec-pr.md', 'skills/gauntlet/ship/spec-pr.md']) {
     const text = read(path);
     assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
     assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
@@ -843,14 +851,14 @@ test('spec-only PR lifecycle has local replay coverage in all four targets', () 
     'pr-subject-repair-over-rewrite': ['minimal', 'contract', 'record'],
   };
   for (const [name, ids] of Object.entries(preserved)) {
-    const facts = read(`eval/brainstorming/samples/${name}/expected.md`);
+    const facts = read(`eval/gauntlet/samples/${name}/expected.md`);
     assert.deepEqual([...facts.matchAll(/^- ([\w-]+):/gm)].map((match) => match[1]), ids);
   }
 });
 
 test('brainstorming eval structure and edited instruction sizes stay valid', () => {
-  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/brainstorming', import.meta.url))), []);
-  for (const path of ['skills/brainstorming/SKILL.md', 'skills/brainstorming/gatherer.md', 'skills/brainstorming/reference/spec-finalization.md']) {
+  assert.deepEqual(lintTarget(fileURLToPath(new URL('../eval/gauntlet', import.meta.url))), []);
+  for (const path of ['skills/gauntlet/SKILL.md', 'skills/gauntlet/brainstorm/gatherer.md', 'skills/gauntlet/brainstorm/spec-finalization.md']) {
     const text = read(path);
     assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
     assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
@@ -860,39 +868,39 @@ test('brainstorming eval structure and edited instruction sizes stay valid', () 
 test('PR routing follows reset and preserves the named pre-approval sync exception', () => {
   const text = main();
   const step = text.match(/^2\. .*/m)[0];
-  assert.match(step, /reference\/pr-subject.md/);
+  assert.match(step, /brainstorm\/pr-subject\.md/);
   assert.ok(text.indexOf('phase_tracker({ action: "reset" })') < text.indexOf(step));
   for (const marker of ['scoped conflict tests', 'PR-head path', "PR's diff as the ask", 'spec commit is appended', 'YYYY-MM-DD-pr-<N>-<topic>.md']) assert.ok(text.includes(marker), marker);
 });
 
 test('PR scout receives authoritative base values and emits repair evidence', () => {
-  const text = read('skills/brainstorming/gatherer.md');
+  const text = read('skills/gauntlet/brainstorm/gatherer.md');
   for (const marker of ['git show <BASE_SHA>:<path>', 'git diff --name-only <BASE_SHA>...HEAD', 'PR title and body verbatim', 'PR-carried specs', 'full comment threads', 'threads for #<N> not fetched (<gh error>)', 'smallest repair', 'keeps:', 'changes:', 'dropped claims:', 'constraints added since fork:', 'fix | keep open | decline: <reason>', 'context-builder only for the bound ticket']) assert.ok(text.includes(marker), marker);
   assert.match(text, /## Codebase recon[\s\S]*?## PR under rework[\s\S]*?## External context/);
 });
 
 test('PR spec replacement and lint preserve the record and raw council input', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const marker of ['## PR under rework', '## Rework record', 'after `## Acceptance criteria`', '40-character pre-rework SHA', 'sync result, rework base, and member replay lines', 'thread dispositions', 'contract exceptions', 'scoped test results', 'absence fails inline lint', 'PR title and body verbatim', 'ticket or free-text spec']) assert.ok(text.includes(marker), marker);
 });
 
 test('engine gate persists both fields before completing and dispatching the selected engine', () => {
-  const text = read('skills/brainstorming/reference/spec-finalization.md');
+  const text = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.ok(text.includes('2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.'));
   for (const marker of ['Ask for a rendered row.', '`3` plus `1`/`2`/`4`', 'a reply carrying `3` never grants', 'missing `=N`', 'make no file or commit changes', 'zero `- [ ]` rows', 'Loop engine unavailable', 'render rows 1, 3, 4 (PR subject: 1, 3)', 'directly below `**Amend-grant:**`', 'absent -> `waves`', 'both fields', '| `2 --amends-stop` | approve; persist `none`; engine `loop`; use the settings allowance |', '| bare `2` | approve; persist `G`; engine `loop`; use the settings allowance |', '`--fund-rounds=N` on row 2', 'state that the gate is waiting', 'mixes approval with a change request']) assert.ok(text.includes(marker), marker);
   const persistence = text.indexOf('On every implementation approval');
   const amend = text.indexOf('commit --amend --no-edit -q', persistence);
   const check = text.indexOf('both fields', amend);
-  const complete = text.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', check);
-  const dispatch = text.indexOf('invoke `/skill:writing-plans` on 1 or `/skill:loop-implementation` on 2', complete);
+  const complete = text.indexOf('phase_tracker({ action: "complete", phase: "brainstorm", engine })', check);
+  const dispatch = text.indexOf('Continue without another prompt.', complete);
   assert.ok(persistence > 0 && amend > persistence && check > amend && complete > check && dispatch > complete);
   assert.doesNotMatch(text, /commit is untouched/);
-  assert.match(main(), /13\. .*loop-implementation/);
-  assert.doesNotMatch(main(), /only\*\* next skill is `\/skill:writing-plans`/);
+  assert.match(main(), /13\. .*phase_tracker.*engine/);
+  assert.doesNotMatch(main(), /13\. .*\/skill:/);
 });
 
 test('ledger amendments precede task-plan aftermath and preserve durable counts and audit', () => {
-  const text = read('skills/brainstorming/reference/amendment-surface.md');
+  const text = read('skills/gauntlet/amendment-surface.md');
   const ledger = text.indexOf('Ledger exists');
   assert.ok(ledger > 0 && ledger < text.indexOf('Plan exists ->'));
   for (const marker of ['# Ledger - loop engine', 'skip `plan-writer` and `plan_check`', 'Keep task-plan `add`/`update`/`init` out of this route', "after the commit, use the driver's next ledger-path refresh to project the new statuses and continue without task-plan aftermath", '`deviates:`, `deferred:`, or `elsewhere:`', '`cut`', 'evidence = the disposition', 'requirement-preserving', '`done`', '`open`', 'reopened by amendment', "Preserve every row's attempts and the ledger's iterations", 'amended | <cut row n, or N item(s)> | <first item title>', 'Commit spec + ledger together using the shared amendment message below', 'amendment audit', 'a `1` or `2` approval without `--amends-stop`', 'a prose grant after an `--amends-stop` approval still counts']) assert.ok(text.includes(marker), marker);
@@ -902,7 +910,7 @@ test('ledger amendments precede task-plan aftermath and preserve durable counts 
 
 
 test('member-merge recovery rejects duplicate admitted members without reading messages', () => {
-  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const text = read('skills/gauntlet/pr-head.md');
   const recovery = text.split('Without a rework-base ref,')[1].split('\n\n')[0];
   assert.ok(recovery.includes("--first-parent --format='%H %P'"));
   assert.ok(recovery.includes("second parent equals an admitted member's full original `headRefOid`"));
@@ -912,7 +920,7 @@ test('member-merge recovery rejects duplicate admitted members without reading m
 });
 
 test('PR-head provisioning validates and recovers admitted member heads before base', () => {
-  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const text = read('skills/gauntlet/pr-head.md');
   for (const marker of [
     'ordered array', 'every admitted PR', 'before any worktree write',
     "--first-parent --format='%H %P'", 'second parent', 'actual local home branch tip',
@@ -949,7 +957,7 @@ test('PR-head provisioning validates and recovers admitted member heads before b
 });
 
 test('PR conflict helpers and completion explicitly target the selected tree without changing process cwd', () => {
-  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const text = read('skills/gauntlet/pr-head.md');
   const base = text.slice(text.indexOf('## Sync onto the fetched base'), text.indexOf('## Fetch unresolved review threads'));
   assert.ok(base.includes('Keep the process cwd unchanged; explicitly target the selected worktree in every helper discovery, status, staging, completion, commit, and abort command.'));
   for (const command of [
@@ -958,14 +966,14 @@ test('PR conflict helpers and completion explicitly target the selected tree wit
   ]) assert.ok(base.includes('`git -C "$WORKTREE" ' + command + '`'), command);
   assert.doesNotMatch(base, /`git (?:diff|status|add|commit|merge)\b/);
   const fetchedBase = text.split('### Merge the fetched base\n')[1].split('## Validate the sync outcome')[0];
-  assert.match(fetchedBase, /Read \[commit-message\.md\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message\.md\) and use its Base-sync merge commit row/);
+  assert.match(fetchedBase, /Read \[commit-message\.md\]\(commit-message\.md\) and use its Base-sync merge commit row/);
   assert.ok(fetchedBase.includes('git -C "$WORKTREE" merge --no-ff -F - origin/<baseRefName>'));
   assert.match(fetchedBase, /composed message on stdin/);
   assert.doesNotMatch(fetchedBase, /merge --no-ff --no-edit/);
 });
 
 test('leading PR lists admit in order and keep every retained contract', () => {
-  const subject = read('skills/brainstorming/reference/pr-subject.md');
+  const subject = read('skills/gauntlet/brainstorm/pr-subject.md');
   for (const marker of ['leading run', 'whitespace or commas', 'first token that is not a ref',
     '#12 #13 #14', '#12, #13 tighten the retry path', '#12 fix the retry path, see #13 for context',
     '#13 is MERGED; only an open PR can be reworked.',
@@ -983,8 +991,8 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   assert.match(subject, /extract no member AC rows/);
   assert.ok(subject.includes("git show <that PR's headRefOid>:<path>"), 'carried-spec contents use their owning original head');
   assert.ok(subject.includes('attributed original-head text separately from the combined worktree code input'), 'scout receives distinct claim and code inputs');
-  const attributionCase = read('eval/brainstorming/samples/pr-list-per-pr-attribution/case.md');
-  const attributionExpected = read('eval/brainstorming/samples/pr-list-per-pr-attribution/expected.md');
+  const attributionCase = read('eval/gauntlet/samples/pr-list-per-pr-attribution/case.md');
+  const attributionExpected = read('eval/gauntlet/samples/pr-list-per-pr-attribution/expected.md');
   assert.ok(attributionCase.includes('Use compact checkpoint output, retaining every fixed observation and required fact within the existing word cap.'));
   for (const marker of ['doc/specs/retry-cap.md', 'at most five attempts', 'at most three attempts']) {
     assert.ok(attributionCase.includes(marker), `attribution setup: ${marker}`);
@@ -993,9 +1001,9 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   assert.match(main(), /one open PR or a leading list of related open PRs reworked on the home PR's branch/);
   assert.match(main(), /ordered per-PR array \(home first\)/);
   const exception = "the base sync (rebase or merge) and each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests";
-  for (const path of ['skills/brainstorming/SKILL.md', 'skills/using-git-worktrees/reference/pr-head.md']) assert.ok(read(path).includes(exception), path);
+  for (const path of ['skills/gauntlet/SKILL.md', 'skills/gauntlet/pr-head.md']) assert.ok(read(path).includes(exception), path);
   assert.ok(read('README.md').includes("the base sync (rebase or merge), each member replay or merge, their conflict helpers' edits to the conflicted files, and their scoped conflict tests"), 'README.md');
-  const gather = read('skills/brainstorming/gatherer.md');
+  const gather = read('skills/gauntlet/brainstorm/gatherer.md');
   for (const marker of ['### PR #<N>', 'Member replay:', 'own changed paths', 'home']) assert.ok(gather.includes(marker), marker);
   assert.ok(!gather.includes('or threads: not fetched'));
   assert.match(gather, /> Supply `Member replay:` lines in rebase mode or `Member merge:` lines in merge mode as scout inputs only/);
@@ -1006,12 +1014,12 @@ test('leading PR lists admit in order and keep every retained contract', () => {
   assert.doesNotMatch(record, /retain member merge outcomes for merge mode/);
   assert.match(gather, /> contract exceptions, scoped test results[^\n]*Rework base after a complete rebase/);
   assert.ok(!gather.includes('> Preserve merge outcomes in merge mode; carry optional Rework base after a complete rebase.'));
-  const lint = read('skills/brainstorming/reference/spec-finalization.md');
+  const lint = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const marker of ['Step 4 report', 'MEMBER_HEADS', 'not from the record', 'missing PR', '### PR #<N>']) assert.ok(lint.includes(marker), marker);
 });
 
 test('mid-sentence mentions explicitly use context-builder without classifying trailing PR intent', () => {
-  const text = read('skills/brainstorming/reference/pr-subject.md');
+  const text = read('skills/gauntlet/brainstorm/pr-subject.md');
   const parser = text.slice(text.indexOf('Parse only'), text.indexOf('\n\nResolve and admit'));
   assert.match(parser, /Route mid-sentence mentions through the free-text path with context-builder/);
   assert.match(parser, /make the retry logic work like #55 did/);
@@ -1021,7 +1029,7 @@ test('mid-sentence mentions explicitly use context-builder without classifying t
 });
 
 test('sync proofs depend on the outcome rather than rewritten original ancestry', () => {
-  const text = read('skills/using-git-worktrees/reference/pr-head.md');
+  const text = read('skills/gauntlet/pr-head.md');
   const validation = text.slice(text.indexOf('## Validate the sync outcome'), text.indexOf('## Fetch unresolved review threads'));
   assert.ok(text.indexOf('## Validate the sync outcome') > text.indexOf('### Merge the fetched base'));
   for (const marker of ['rebase success', 'home rebase aborted', 'member replay aborted', 'merge (any outcome)', 'Original-head ancestry is never asserted against a rebased tip', 'sole preapproval write/run exception']) assert.ok(validation.includes(marker), marker);
@@ -1029,7 +1037,7 @@ test('sync proofs depend on the outcome rather than rewritten original ancestry'
   const homeAbort = text.slice(text.indexOf('After clean home abort'), text.indexOf('After clean member abort'));
   assert.match(homeAbort, /continue on the saved pre-attempt home tip/);
   assert.doesNotMatch(homeAbort, /continue on original HEAD/);
-  const subject = read('skills/brainstorming/reference/pr-subject.md');
+  const subject = read('skills/gauntlet/brainstorm/pr-subject.md');
   for (const row of ['Shape passes, marker absent', 'Shape and marker pass']) assert.match(subject.split('\n').find(line => line.startsWith('| ' + row)), /SYNC=merge/);
   assert.match(subject, /first intent token is `merge-forward`/);
   assert.match(subject, /Carry `SYNC` nowhere else/);
@@ -1051,7 +1059,7 @@ test('record completeness is checked against provisioning inputs, not its own gr
 });
 
 test('receivers retain plural closure and brief contracts', () => {
-  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  const finish = read('skills/gauntlet/ship/ship.md');
   for (const marker of ['successful push and successful home body edit', 'close no PR other than the absorbed members through the question above', '--json state,headRefOid', '<current headRefOid> <pushed home head>', '#13: "Reworked into #12', '#14: "Reworked into #12']) assert.ok(finish.includes(marker), marker);
   const brief = read('skills/gauntlet-resume/reference/brief-contract.md');
   assert.ok(brief.includes('optional one or more consecutive'));
@@ -1060,19 +1068,19 @@ test('receivers retain plural closure and brief contracts', () => {
 });
 
 test('rework finish selects recorded mode and guards first and later pushes', () => {
-  const finish = read('skills/finishing-a-development-branch/SKILL.md');
+  const finish = read('skills/gauntlet/ship/ship.md');
   for (const marker of ['Rework base:` selects rebase mode', 'Only `Base:` in `merge:` form selects merge mode', 'rework sync incomplete for PR #<home>: no Rework base recorded; finish Task 1 first.', 'the rework must restart from the recorded rework base.', 'origin equals `PRE_REWORK_HEAD`', 'origin descends from `Rework base` and is an ancestor of HEAD', 'push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>', 'rev-parse -q --verify refs/gauntlet/pre-rework/pr-<N>', '--force-with-lease=<home headRefName>:<PRE_REWORK_HEAD>', 'stale info', 'no retry, no reset', 'Use the accepted-complete fallback when no SHA is recorded; do not search commit messages', 'cherry <pushed home head> <pre-rework head>', 'this PR\'s commits are replayed there as <first7>..<last7>.', 'this PR\'s commits are already contained there.']) assert.ok(finish.includes(marker), marker);
   const menuStart = finish.indexOf('Read and apply [menu-layout]', finish.indexOf('**Rework PR subject'));
-  assert.equal(finish.slice(menuStart, finish.indexOf('Rows 1-2 run', menuStart)), "Read and apply [menu-layout](../brainstorming/reference/menu-layout.md) for rendering and numeric replies. Present:\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)\n2. Push and create a Pull Request (PR #N already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #N already exists)\n4. Squash-merge to <base-branch> (no PR, no surviving branch; orphans PR #N - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\nWithhold row 1 by omitting it and placing `Withheld: push - <reason>` under the list; retain numbers 2-6. On that withheld menu read a bare reply by its displayed label: `2`-`6` select those rows; `1` or any other number gets the clarifying question naming `2`-`6` (this one menu overrides menu-layout's count-based `1`-`N` range). Recompute preflight on return to the menu. Add no approval gate. Map rows 2-6 to the existing Options 1-5 below, including their confirmation and cleanup rules; row 6 never deletes origin's branch.\n**Normal repo and named-branch worktree \u2014 present exactly these 5 options:**\n\nRead and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**Detached HEAD \u2014 present exactly these 4 options:**\n\nRead and apply [menu-layout](../brainstorming/reference/menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=finishing-a-development-branch/step-4\nImplementation complete. You're on a detached HEAD (externally managed workspace).\n\n1. Push as new branch and create a Pull Request\n2. Push as new branch and create a draft Pull Request\n3. Keep as-is (I'll handle it later)\n4. Discard this work\n\nWhich option?\n```\n\n");
+  assert.equal(finish.slice(menuStart, finish.indexOf('Rows 1-2 run', menuStart)), "Read and apply [menu-layout](../menu-layout.md) for rendering and numeric replies. Present:\n```\ngauntlet: gate=ship/step-4\nImplementation complete. What would you like to do?\n\n1. Push to the PR branch (PR #N, <headRefName>; appends the rework block to its description)\n2. Push and create a Pull Request (PR #N already exists on this branch; gh refuses a second one)\n3. Push and create a draft Pull Request (same: PR #N already exists)\n4. Squash-merge to <base-branch> (no PR, no surviving branch; orphans PR #N - close it by hand)\n5. Keep the branch as-is (I'll handle it later; nothing is pushed)\n6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?\n```\nWithhold row 1 by omitting it and placing `Withheld: push - <reason>` under the list; retain numbers 2-6. On that withheld menu read a bare reply by its displayed label: `2`-`6` select those rows; `1` or any other number gets the clarifying question naming `2`-`6` (this one menu overrides menu-layout's count-based `1`-`N` range). Recompute preflight on return to the menu. Add no approval gate. Map rows 2-6 to the existing Options 1-5 below, including their confirmation and cleanup rules; row 6 never deletes origin's branch.\n**Normal repo and named-branch worktree \u2014 present exactly these 5 options:**\n\nRead and apply [menu-layout](../menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=ship/step-4\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**Detached HEAD \u2014 present exactly these 4 options:**\n\nRead and apply [menu-layout](../menu-layout.md) before presenting these options and before acting on a numeric reply.\n\n```\ngauntlet: gate=ship/step-4\nImplementation complete. You're on a detached HEAD (externally managed workspace).\n\n1. Push as new branch and create a Pull Request\n2. Push as new branch and create a draft Pull Request\n3. Keep as-is (I'll handle it later)\n4. Discard this work\n\nWhich option?\n```\n\n");
   assert.ok(!finish.includes('stays on origin because the push was not forced'));
   assert.ok(finish.split('\n').length - 1 <= 500);
   assert.ok(Buffer.byteLength(finish) < 50000);
 });
 
 test('planning completes interrupted sync and persists pending outcomes before finish', () => {
-  const plan = read('skills/writing-plans/reference/plan-contract.md');
+  const plan = read('skills/gauntlet/plan/plan-contract.md');
   assert.match(plan, /Place a rebase-form Task 1 alone in Wave 1 marked `in-place`; keep the merge-form Task 1 as an ordinary wave task\./);
-  const sdd = read('skills/subagent-driven-development/SKILL.md');
+  const sdd = read('skills/gauntlet/implement/waves/waves.md');
   for (const clause of [
     'For manifest `"mode":"in-place"`: `cwd` the branch checkout, no `worktree:`, the wave union as `SCOPED_TEST_COMMANDS`.',
     'In-place waves: nothing to apply; the checkout already carries the work.',
@@ -1081,12 +1089,12 @@ test('planning completes interrupted sync and persists pending outcomes before f
     'Only when the gate is green and the latest `wave-reviewer` verdict is `SHIP`:',
     'in-place waves commit a descendant commit without amending or `reset --soft`. Then mark every index of the original wave `complete` together;',
   ]) assert.ok(sdd.includes(clause), clause);
-  for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../../using-git-worktrees/reference/pr-head.md']) assert.ok(plan.includes(marker), marker);
+  for (const marker of ['merge: unresolved', 'preserve the original commits', 'sync: unresolved', 'rebase --no-rebase-merges origin/<base>', 'Member replay: #<N> unresolved', 'every `pending` member in listed order', 'update-ref refs/gauntlet/rework-base/pr-<home> HEAD', 'Rework base: <sha>', 'final `Member replay:` outcomes', 'amendment path', 'before finishing', '../pr-head.md']) assert.ok(plan.includes(marker), marker);
 });
 
 test('both critique routes reject PR-sourced commitments without cutting design or provenance', () => {
   const member = read('agents/spec-council-member.md');
-  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
+  const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const worker = finalization.slice(finalization.indexOf('When `verdict` is `"worker"`, dispatch one'), finalization.indexOf('`worker`\'s model resolves'));
   for (const [route, text] of [['member', member], ['worker', worker]]) {
     for (const marker of ['pr-source', 'PR title or body', 'requirement, acceptance-criteria row, or Design clause', 'major', 'gap', 'approved human input or the agreed design', "user's Design scope decision", 'supersedes', '## Rework record', '## Problem', '## PR under rework', 'provenance mention', 'rework', 'never draft']) assert.ok(text.includes(marker), `${route}: ${marker}`);
@@ -1095,13 +1103,13 @@ test('both critique routes reject PR-sourced commitments without cutting design 
   assert.ok(finalization.includes('The last three are the **critique pass**'));
   assert.ok(worker.includes('Apply three checks'));
   assert.match(member, /`<kind>` is one of: gap, oversimplification, ambiguity, scope, not-actionable, external-ref, other, over-spec\./);
-  for (const [target, names] of Object.entries({ 'spec-council-member': ['pr-sourced-clause', 'pr-rework-design-sourced'], brainstorming: ['worker-critique-pr-source'] })) {
+  for (const [target, names] of Object.entries({ 'spec-council-member': ['pr-sourced-clause', 'pr-rework-design-sourced'], gauntlet: ['worker-critique-pr-source'] })) {
     for (const name of names) for (const file of ['case.md', 'expected.md']) assert.ok(existsSync(new URL(`../eval/${target}/samples/${name}/${file}`, import.meta.url)));
     assert.deepEqual(lintTarget(fileURLToPath(new URL(`../eval/${target}`, import.meta.url))), []);
   }
 });
 
-const legsPath = 'skills/brainstorming/reference/legs.md';
+const legsPath = 'skills/gauntlet/legs.md';
 const legContract = () => readFileSync(new URL(`../${legsPath}`, import.meta.url), 'utf8');
 
 test('membership selects declared siblings before resolving paths or creating trees', () => {
@@ -1119,13 +1127,13 @@ test('membership selects declared siblings before resolving paths or creating tr
 test('portable identifiers prefer origin, then own tracker overrides, then primary basename', () => {
   const text = legContract().replace(/\s+/g, ' ');
   assert.match(text, /Derive each companion's portable identifier from the shared parser's trailing `owner\/name` of `IDENTITY` for the validated stored origin read with `git -C <primary> config --get remote\.origin\.url`\./);
-  assert.match(text, /Derive the home's identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `## Issue tracker` section; without that value use the member's primary directory basename\./);
+  assert.match(text, /Derive the home's identifier from `git -C <primary> remote get-url origin`'s `owner\/name`, stripping `\.git`; without origin use `repo:` from that member's own first-found overrides `# shared` `## issue-tracker` section; without that value use the member's primary directory basename\./);
   assert.match(text, /Compare case-insensitively, trailing `owner\/name` of `IDENTITY` before `NAME`/);
   assert.match(text, /Use the same identifier in `### Leg:`, task `Leg:`, and brief `repo:` fields/);
 });
 
 test('rooted creation preserves failed runs without renaming or session fallback', () => {
-  const text = readFileSync(new URL('../skills/using-git-worktrees/SKILL.md', import.meta.url), 'utf8');
+  const text = readFileSync(new URL('../skills/gauntlet/worktrees.md', import.meta.url), 'utf8');
   for (const clause of [
     'caller-supplied `$ROOT` and `$BRANCH`',
     'git -C "$ROOT" worktree list --porcelain',
@@ -1144,13 +1152,13 @@ test('portable leg grammar owns rules, recorded authority and companion artifact
     'realpath', 'root only - paths unresolved', 'Rules: missing:',
     'legacy specs without `## Legs`', 'no companion artifact',
   ]) assert.ok(text.includes(clause), clause);
-  for (const path of ['SKILL.md', 'gatherer.md', 'reference/spec-finalization.md', 'reference/amendment-surface.md', 'reference/ticket-acceptance.md']) {
-    assert.match(readFileSync(new URL(`../skills/brainstorming/${path}`, import.meta.url), 'utf8'), /legs\.md/);
+  for (const path of ['SKILL.md', 'brainstorm/gatherer.md', 'brainstorm/spec-finalization.md', 'amendment-surface.md', 'brainstorm/ticket-acceptance.md']) {
+    assert.match(readFileSync(new URL(`../skills/gauntlet/${path}`, import.meta.url), 'utf8'), /legs\.md/);
   }
 });
 
 test('built-in homes use branch-derived names and sandbox fallback stays caller-scoped', () => {
-  const text = read('skills/using-git-worktrees/SKILL.md');
+  const text = read('skills/gauntlet/worktrees.md');
   assert.doesNotMatch(text, /\.worktrees\/<branch>/);
   assert.match(text, /With an explicit caller root, stop/);
   assert.match(text, /Without a caller root, announce the failure and continue in the current directory on a feature branch/);
@@ -1173,9 +1181,9 @@ test('scope grammar pins original AC ownership independently of design and dispo
     'scope: AC 1,', 'scope: none, AC 1', 'scope: AC 1, AC 1',
     'design: implements AC 2',
   ]) assert.ok(text.includes(clause), clause);
-  const finalization = read('skills/brainstorming/reference/spec-finalization.md');
-  assert.match(finalization, /Validate every block using \[legs.md\]\(legs.md\)'s scope grammar before committing/);
-  const amendment = read('skills/brainstorming/reference/amendment-surface.md');
+  const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
+  assert.match(finalization, /Validate every block using \[\.\.\/legs\.md\]\(\.\.\/legs\.md\)'s scope grammar before committing/);
+  const amendment = read('skills/gauntlet/amendment-surface.md');
   assert.match(amendment, /Preserve scope indices on disposition-only amendments/);
   assert.match(amendment, /validate\s+all blocks using \[legs.md\]\(legs.md\)'s scope grammar before committing/);
   assert.match(text, /entire block verbatim/);

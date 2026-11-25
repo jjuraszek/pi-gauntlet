@@ -177,7 +177,7 @@ export function resolveFlowGuards(g: PiGauntlet): FlowGuardsResolved {
   return { enforce, specDirs };
 }
 
-// Each spec dir's sibling `plans` dir (doc/specs -> doc/plans); plans live there per writing-plans.
+// Each spec dir's sibling `plans` dir (doc/specs -> doc/plans); plans live there per the plan instructions.
 export function planDirsFor(specDirs: readonly string[]): string[] {
   const out = new Set<string>();
   for (const dir of specDirs) {

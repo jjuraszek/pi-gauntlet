@@ -1,18 +1,16 @@
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-// Keeps the five stage skills on the "process in primary, work by path" contract (#37):
-// no `cd` that changes the process cwd, no `git rev-parse --show-toplevel` derivation,
-// no "switch into / from inside the worktree" prose.
+const runFiles = (...paths) => paths.map(path => `skills/gauntlet/${path}.md`);
 
-export const STAGE_SKILL_DIRS = [
-  "skills/brainstorming",
-  "skills/writing-plans",
-  "skills/subagent-driven-development",
-  "skills/loop-implementation",
-  "skills/finishing-a-development-branch",
-  "skills/using-git-worktrees",
-];
+export const STAGE_FILES = runFiles(
+  "SKILL", "amendment-surface", "commit-message", "documentation-impact", "legs", "menu-layout", "pr-head", "return-file", "worktrees",
+  "brainstorm/gatherer", "brainstorm/opening-message", "brainstorm/pr-subject", "brainstorm/spec-finalization", "brainstorm/spec-pr", "brainstorm/superseding", "brainstorm/ticket-acceptance",
+  "plan/open-questions", "plan/plan-contract", "plan/plan",
+  "implement/happy-path-run", "implement/loop/coordinated-legs", "implement/loop/driver-holds", "implement/loop/empty-child-stagnation", "implement/loop/interrupted-recovery", "implement/loop/loop", "implement/loop/unreachable-returns",
+  "implement/waves/dispatch-contract", "implement/waves/implement-amendments", "implement/waves/implementer-prompt", "implement/waves/prerequisites", "implement/waves/stop-note", "implement/waves/wave-reviewer-prompt", "implement/waves/waves",
+  "ship/disposition-protocol", "ship/legs", "ship/ship", "ship/spec-pr", "ship/verification-set",
+);
 
 const FENCE_OPEN = /^\s*(`{3,}|~{3,})/;
 const FENCE_CLOSE = /^\s*(`+|~+)\s*$/;
@@ -62,15 +60,14 @@ export function lintStageSkill(text) {
 }
 
 export const TEMP_PATH_SCOPE = [
-  ...STAGE_SKILL_DIRS,
+  ...STAGE_FILES,
+  ...runFiles("brainstorm/council", "verify/verify", "conformance-check", "whole-diff-minors", "brainstorm/settings-precedence"),
   "skills/gatekeep-pr",
-  "skills/roasting-the-spec",
-  "skills/verification-before-completion",
   "agents/loop-implementer.md",
 ];
 
 const TEMP_EXCEPTIONS = new Map([
-  ["skills/loop-implementation/reference/return-file.md", "${TMPDIR:-/tmp}/gauntlet.XXXXXX"],
+  ["skills/gauntlet/return-file.md", "${TMPDIR:-/tmp}/gauntlet.XXXXXX"],
   ["skills/gatekeep-pr/reference/post-selection-loop.md", "${TMPDIR:-/tmp}/gate-kept.XXXXXX"],
 ]);
 
@@ -96,7 +93,7 @@ export function lintTempPaths(text, file) {
   return findings;
 }
 
-export function lintTempPathScope(root, scope = TEMP_PATH_SCOPE) {
+function lintScope(root, scope, lint) {
   const findings = [];
   function scan(path) {
     if (!existsSync(path)) return;
@@ -104,7 +101,7 @@ export function lintTempPathScope(root, scope = TEMP_PATH_SCOPE) {
       for (const entry of readdirSync(path)) scan(join(path, entry));
     } else if (path.endsWith(".md")) {
       const file = relative(root, path);
-      for (const finding of lintTempPaths(readFileSync(path, "utf8"), file)) {
+      for (const finding of lint(readFileSync(path, "utf8"), file)) {
         findings.push({ file, ...finding });
       }
     }
@@ -113,24 +110,10 @@ export function lintTempPathScope(root, scope = TEMP_PATH_SCOPE) {
   return findings;
 }
 
-export function lintStageSkillDirs(root, dirs = STAGE_SKILL_DIRS) {
-  const findings = [];
+export function lintTempPathScope(root, scope = TEMP_PATH_SCOPE) {
+  return lintScope(root, scope, lintTempPaths);
+}
 
-  function scan(dir) {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const file = join(dir, entry.name);
-      if (entry.isDirectory()) scan(file);
-      else if (entry.isFile() && file.endsWith(".md")) {
-        for (const finding of lintStageSkill(readFileSync(file, "utf8"))) {
-          findings.push({ file: relative(root, file), ...finding });
-        }
-      }
-    }
-  }
-
-  for (const dir of dirs) {
-    const path = join(root, dir);
-    if (existsSync(path)) scan(path);
-  }
-  return findings;
+export function lintStageFiles(root, scope = STAGE_FILES) {
+  return lintScope(root, scope, lintStageSkill);
 }

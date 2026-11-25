@@ -60,7 +60,7 @@ test("failed telemetry ref commit reports committed: false and preserves the fea
   writeFileSync(hook, '#!/bin/sh\nif [ "$1" = prepared ]; then echo rejected >&2; exit 1; fi\n');
   chmodSync(hook, 0o755);
   const result = JSON.parse(f.run(process.execPath, ["--input-type=module", "--eval",
-    `import { syncTelemetryBranch } from ${JSON.stringify(library)}; console.log(JSON.stringify(syncTelemetryBranch(process.cwd(), new Map([["team/product/brainstorming/x.yaml", "schema: 1\\n"]]))));`,
+    `import { syncTelemetryBranch } from ${JSON.stringify(library)}; console.log(JSON.stringify(syncTelemetryBranch(process.cwd(), new Map([["team/product/gauntlet/x.yaml", "schema: 1\\n"]]))));`,
   ]));
   assert.equal(result.ok, false);
   assert.equal(result.committed, false);
@@ -102,11 +102,11 @@ test("origin-less identity uses repo from the first-found overrides Issue tracke
   const f = fixture();
   mkdirSync(join(f.root, ".pi"));
   mkdirSync(join(f.root, "doc"));
-  writeFileSync(join(f.root, "doc/gauntlet-overrides.md"), "## Issue tracker\n- repo: doc/product\n");
+  writeFileSync(join(f.root, "doc/gauntlet.md"), "# shared\n## issue-tracker\n- repo: doc/product\n");
   assert.equal(f.identity(), "doc/product");
-  writeFileSync(join(f.root, "gauntlet-overrides.md"), "## Issue tracker\n- repo: root/product\n");
+  writeFileSync(join(f.root, "gauntlet.md"), "# shared\n## issue-tracker\n- repo: root/product\n");
   assert.equal(f.identity(), "root/product");
-  writeFileSync(join(f.root, ".pi/gauntlet-overrides.md"), "## Other\n- repo: wrong/product\n## Issue tracker\n- tracker: none\n- repo: group/sub/product\n## Later\n- repo: also/wrong\n");
+  writeFileSync(join(f.root, ".pi/gauntlet.md"), "# other\n## issue-tracker\n- repo: wrong/product\n# shared\n## issue-tracker\n- tracker: none\n- repo: group/sub/product\n## Later\n- repo: also/wrong\n");
   assert.equal(f.identity(), "group/sub/product");
   f.git("config", "remote.origin.url", "git@host.test:origin/product.git");
   assert.equal(f.identity(), "origin/product", "origin takes precedence over overrides");
@@ -116,8 +116,8 @@ test("local fallback uses the primary directory from linked worktrees and ignore
   const f = fixture();
   assert.equal(f.identity(), "local/primary product");
   mkdirSync(join(f.root, ".pi"));
-  writeFileSync(join(f.root, ".pi/gauntlet-overrides.md"), "## Issue tracker\n- repo:\n- tracker: none\n## Other\n- repo: wrong/product\n");
-  writeFileSync(join(f.root, "gauntlet-overrides.md"), "## Issue tracker\n- repo: ignored/product\n");
+  writeFileSync(join(f.root, ".pi/gauntlet.md"), "# shared\n## issue-tracker\n- repo:\n- tracker: none\n## Other\n- repo: wrong/product\n");
+  writeFileSync(join(f.root, "gauntlet.md"), "# shared\n## issue-tracker\n- repo: ignored/product\n");
   assert.equal(f.identity(), "local/primary product");
   f.git("commit", "--allow-empty", "-m", "initial");
   const linked = join(f.scratch, "different worktree");

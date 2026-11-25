@@ -223,7 +223,7 @@ export function implementWriteGuardApplies(
 
 // Exempt dirs for the implement-write guard: the configured spec dirs plus each
 // one's sibling `plans` dir (doc/specs -> doc/plans; plans live there per
-// writing-plans) - a routine parent plan-doc update must not burn the one-shot warning.
+// planning) - a routine parent plan-doc update must not burn the one-shot warning.
 export function implementExemptDirs(specDirs: string[]): string[] {
   const dirs = new Set<string>();
   for (const dir of specDirs) {

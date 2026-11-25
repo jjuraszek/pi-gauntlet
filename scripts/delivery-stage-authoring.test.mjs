@@ -15,7 +15,7 @@ const read = (path) => readFileSync(resolve(root, path), 'utf8');
 
 const [targetName, ...samples] = process.argv.slice(2);
 assert.ok(!targetName || samples.length, 'name at least one sample for the selected target');
-for (const name of targetName ? [targetName] : ['brainstorming', 'gatekeep-pr', 'loop-implementation']) {
+for (const name of targetName ? [targetName] : ['gauntlet', 'gatekeep-pr', 'loop']) {
   test(`${name}: intent binds to the current bundle-free assembly`, () => {
     const target = JSON.parse(read(`eval/${name}/target.json`));
     const binding = read(`eval/${name}/intent.md`).trimStart().split('\n')[0];
@@ -25,8 +25,8 @@ for (const name of targetName ? [targetName] : ['brainstorming', 'gatekeep-pr', 
 
 for (const [name, sample] of targetName ? samples.map((sample) => [targetName, sample]) : [
   ['shape-ticket', 'pr-body-proof'],
-  ['brainstorming', 'pr-body-drafted-row'],
-  ['brainstorming', 'post-action-sorted'],
+  ['gauntlet', 'pr-body-drafted-row'],
+  ['gauntlet', 'post-action-sorted'],
 ]) {
   test(`${name}/${sample}: cached authoring facts hold on both models`, () => {
     const dir = `eval/${name}`;

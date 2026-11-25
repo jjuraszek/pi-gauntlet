@@ -1,0 +1,25 @@
+# eval report: conformance-reviewer (partial run: legs-verification-line)
+
+for: 4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c
+
+wall: 20s
+
+## Change
+
+Exclude delivery-stage clauses from conformance requirements without excluding file deliverables on the same leg verification line. The leg sample keeps two delivered behaviors and a delivered bundle clause in coverage, and reports CONFORMS without quoting or commenting on the PR gate or ship evidence.
+
+Exclude standalone stage sentences from Design, Errors and edge cases, and Tests whether a pull request exists or not. Keep one delivered requirement for the behavior half of each mixed acceptance row, with only the behavior in its origin quote. The stage-only-sentences and mixed-row samples exercise semantic classification and report omission, which token checks alone cannot prove. The prompt-stage-sentence sample omits a prompt-only CI sentence from the spec and requires no requirement, drift entry or skip note for that sentence, while a dropped prompt-only lowercase behavior and a missing Tests-file clause remain gaps with prompt and spec origins respectively; only the Tests line's suite-run clause is excluded from coverage, origin, remediation and touched files. The ci-step-is-the-change regression sample keeps the unchanged audit behavior for an undeleted browser-install step and a missing regenerated bundle on a leg verification line. Its four facts must hold on both arms; no movement is intended for them. Keep the spec's file clause as the origin when the prompt repeats it, so a leg verification line's missing file deliverable stays visible as spec coverage. The post-merge-action sample leaves out the after-merge admin secret-creation step and commit-message text without a row, drift or skip note, while delivered trimming still yields CONFORMS. Coverage is limited to these six samples.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| legs-verification-line | anthropic/claude-opus-5-5 | unchanged | 7641 | f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f1: holds -> holds (intended but unchanged) |
+| legs-verification-line | github-copilot/gpt-6.1-sol | unchanged | 6213 | f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); f1: holds -> holds (intended but unchanged) |
+
+## Feedback
+
+- legs-verification-line / anthropic/claude-opus-5-5: No fact moved on this sample: f2, f3 and f4 hold in both Before and After, so the expected fails -> holds movement is not visible here because Before already satisfied them. Both outputs give DELIVERED rows for trimming and lowercasing citing src/label.mjs:2, and both give the bundle clause its own DELIVERED row whose origin quotes only "regenerated bundles committed" from the leg verification line with evidence in bin/widget.mjs. Neither output quotes, treats as a requirement, or comments on the PR gate command or the exact-head CI ship evidence, and neither lists skipped stage clauses. The only nearby text is the confidence note that no tests or checks could be run because no tools were available, which is a statement about the audit's limits rather than a skip note; to keep f2 safe, the wording should keep that note generic and never name npm run pr-check, CI or the ship evidence. The After wording delivers the Change on this sample without losing anything Before kept, but this sample cannot show that the wording caused the result; if the expected movement matters, the Before arm may need a sample or run where the old wording actually fails.
+- legs-verification-line / github-copilot/gpt-6.1-sol: On this sample none of the three facts moved: both Before and After report CONFORMS with DELIVERED rows for trimming and lowercasing citing src/label.mjs:2 and bin/widget.mjs:2, a separate DELIVERED row for the bundle clause whose origin quotes "regenerated bundles committed" with evidence in bin/widget.mjs, and no row, gap, drift entry or skip note mentioning npm run pr-check or green exact-head CI. So the expected fails -> holds movement is not visible here because Before already satisfied these facts. Two small things to watch in After: the bundle row's origin is rendered as "[...] regenerated bundles committed; [...]", and those ellipsis markers hint at omitted neighbouring clauses - they do not quote or explain the stage clauses, so f2 still holds, but wording that tells the model to quote just the file clause verbatim with no elision markers would make this more robust. After also dropped the Goal row that Before had; that does not affect any fact here, but if you want Goal-level coverage preserved, state that excluding stage clauses does not remove non-stage Goal/Design requirements. Keep the instruction that a file deliverable on a leg verification line gets its own row with the spec file clause as origin, while stage clauses on the same line are omitted silently.
+
+exit: 0

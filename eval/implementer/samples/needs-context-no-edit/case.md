@@ -1,4 +1,4 @@
-bundle-: skills/subagent-driven-development/implementer-prompt.md
+bundle-: skills/gauntlet/implement/waves/implementer-prompt.md
 bundle+: skills/forge-skill/SKILL.md
 
 Sample: anchored-task

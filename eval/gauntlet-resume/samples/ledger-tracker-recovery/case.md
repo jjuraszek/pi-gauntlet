@@ -1,6 +1,6 @@
-bundle+: skills/loop-implementation/SKILL.md
-bundle+: skills/loop-implementation/reference/interrupted-recovery.md
-bundle+: skills/brainstorming/reference/amendment-surface.md
+bundle+: skills/gauntlet/implement/loop/loop.md
+bundle+: skills/gauntlet/implement/loop/interrupted-recovery.md
+bundle+: skills/gauntlet/amendment-surface.md
 
 # Input
 

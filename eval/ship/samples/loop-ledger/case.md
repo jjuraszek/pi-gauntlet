@@ -1,0 +1,6 @@
+bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet-resume/reference/coordinated.md
+bundle+: skills/gauntlet/ship/ship.md
+bundle+: skills/gauntlet/implement/loop/loop.md
+# Input
+Finish /work/app/.worktrees/loop. Ledger doc/plans/run-ledger.md line 1 is # Ledger - loop engine; **Spec:** is `doc/specs/run.md`; verification: npm test; checks: commands. Rows 1 and 2 are done with evidence `node --test check.mjs; passed`; row 3 is cut with evidence `npm test; deferred`. No mapping and no verified commit are known. Both doc/plans/run.md and doc/plans/run-ledger.md are tracked. Conformance is fresh CONFORMS. History includes an ordinary amend: commit and loop: cut row 3 and loop: amend commits whose bodies carry granted records, plus a loop: row 1 done commit with no amendment record. The session has no LOG_DIR. Human selects squash merge after the normal gates. Explain verification, amendment digest, strip and seal order, what survives landing, and the plain-jj counterpart. Independently show the SCOPED_TEST_COMMANDS for a fix-minors reply and the verification bullet if they choose a PR instead. verify-before-ship warns because node --test does not match configured commands. Do not execute tools. Use at most 1200 words.

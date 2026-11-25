@@ -1,6 +1,6 @@
 # gatekeep-pr: menus
 
-Read at step 6; execute picks through `post-selection-loop.md` `### Next action`. Apply SKILL.md's wording rules and [menu-layout](../../brainstorming/reference/menu-layout.md)'s numeric mapping. Derive availability from the digest's permissions; `unreadable` fails closed.
+Read at step 6; execute picks through `post-selection-loop.md` `### Next action`. Apply ../SKILL.md's wording rules and [menu-layout](../../gauntlet/menu-layout.md)'s numeric mapping. Derive availability from the digest's permissions; `unreadable` fails closed.
 
 Render every menu in full: the standing sentence, every available row as `<n>. <verb> - <consequence>`, then the hint. Never narrate or summarize a menu. Quote a numeric pick only after the rendered menu. Move the recommended action to row 1 before numbering every menu, including child and batch menus; tag only it `[recommended]`. Keep non-recommended stop last; other rows follow table order. Append ` recommended=1` to each gate line. Emit one first line per turn: the parent batch-summary marker for combined nonterminal child menus, each terminal post menu's marker in its own message. Keep runtime guard text inside the obstacle body, not a second marker.
 
@@ -74,7 +74,7 @@ Choose the recommendation through `## Recommendation`; print its `[recommended]`
 
 | Row | Availability | Pick |
 |---|---|---|
-| `merge` | Non-draft; viewer_permission WRITE, MAINTAIN or ADMIN; all `### Merge preconditions` hold | Read [commit message](../../finishing-a-development-branch/reference/commit-message.md) and execute `post-selection-loop.md` `### Merge course` with its composed message and policy flags; retain its assessed-head match and append `--admin` only on the bypass path, with every merge precondition satisfied. |
+| `merge` | Non-draft; viewer_permission WRITE, MAINTAIN or ADMIN; all `### Merge preconditions` hold | Read [commit message](../../gauntlet/commit-message.md) and execute `post-selection-loop.md` `### Merge course` with its composed message and policy flags; retain its assessed-head match and append `--admin` only on the bypass path, with every merge precondition satisfied. |
 | `approve` | viewer.is_author false, zero blockers, non-draft | Approve; persist approved_head only after success. |
 | `fix nits` | Nits outside the course; helpers and head_pushable true; accounting permits one iteration | Run exactly one delivery iteration, course unchanged; initialize missing accounting through `fix-wave.md` `## Wave`. |
 | `reply` | Unposted drafted reply, source review complete | Post drafted replyable C# replies; exact `reply <n>` selects one. |

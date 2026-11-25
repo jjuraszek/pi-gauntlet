@@ -6,19 +6,19 @@ Read only after `plan_check` returns FAIL on a task plan. A ledger never enters 
 
 Entered from `restore-plan.md` when `plan_check` returns FAIL: its call table's implement, verify and ship rows, and `## Spec with plan` step 2. Inputs: the findings, and the task list with statuses (the brief's, or the confirmed reconstruction snapshot) - read it for evidence, never rewrite it.
 
-Before citation-table classification, route `baseline-line` and substantive `open-questions` findings through the continuation below. Keep the brief's or confirmed reconstruction's task snapshot (names, order, statuses) verbatim throughout; never take writing-plans step 7's fresh-plan initialization.
+Before citation-table classification, route `baseline-line` and substantive `open-questions` findings through the continuation below. Keep the brief's or confirmed reconstruction's task snapshot (names, order, statuses) verbatim throughout; skip the fresh-plan initialization in [Execution Handoff](../../gauntlet/plan/plan.md#execution-handoff).
 
 ### Baseline continuation
 
-On `baseline-line` or a substantive baseline-form `open-questions` finding, bring a landed fix named by the brief or human into the worktree through `/skill:using-git-worktrees` "the base branch advances" (rebase, or merge for a shared branch). Without a named fix, proceed directly to the rerun. Dispatch `plan-writer` per `/skill:writing-plans` "Author the plan" step 3: `agent: "plan-writer"`, `context: "fresh"`, `async: false`, `cwd: <absolute worktree>`, `phase: "plan-write"`, `acceptance: { level: "none", reason: "the parent plan_check owns acceptance" }`. Fill its fixed task template with the four absolute paths (worktree, approved spec, plan, plan contract), then append `Findings: rerun baseline`. Let the writer run Baseline and regenerate its rows; never synthesize evidence or SHAs. On dispatch error, async handle, or missing/empty plan, stop and report without a parent-authored fallback.
+On `baseline-line` or a substantive baseline-form `open-questions` finding, bring a landed fix named by the brief or human into the worktree through `../../gauntlet/worktrees.md` "the base branch advances" (rebase, or merge for a shared branch). Without a named fix, proceed directly to the rerun. Dispatch `plan-writer` per `../../gauntlet/plan/plan.md` "Author the plan" step 3: `agent: "plan-writer"`, `context: "fresh"`, `async: false`, `cwd: <absolute worktree>`, `phase: "plan-write"`, `acceptance: { level: "none", reason: "the parent plan_check owns acceptance" }`. Fill its fixed task template with the four absolute paths (worktree, approved spec, plan, plan contract), then append `Findings: rerun baseline`. Let the writer run Baseline and regenerate its rows; never synthesize evidence or SHAs. On dispatch error, async handle, or missing/empty plan, stop and report without a parent-authored fallback.
 
 Run `plan_check({ planPath })` in the parent after either child reply. Route the result:
 
 | Result / substantive row | Continuation |
 |---|---|
 | `PLAN WRITTEN` + `PASS`, section absent or exactly `- none` | Return to the originating restore's remaining steps: the call table from `skip plan R` through the appropriate implement/verify continuation (ship restores at verify), or `## Spec with plan` step 3. Initialize `plan_tracker` only from the saved task snapshot, never the generated fresh-plan list. |
-| `- Task N: ... fails on <sha>` | Present the task, command, base SHA and exit code, then `writing-plans/reference/open-questions.md`'s three options, one per line: **fix-first** - `/skill:shape-ticket` for the base failure (its gate applies), then pause; **narrow** - human supplies filter or path text, re-dispatch with `Findings: Task N Tests: narrow to <text>`; **amend** - brainstorming's `reference/amendment-surface.md` section 5. Print a `Recommendation:` line and wait for selection. |
-| Global or contamination rows (`Baseline: worktree dirty`, `Baseline: in-flight source edits`, `dirtied tracked source`, `moved HEAD`) | Take `writing-plans/reference/open-questions.md`'s restore-and-rerun path, not the menu. Name paths and causes; the parent's own in-flight work uses its own commit step (doc-only paths can be listed under `In-flight:`); ask the human to commit, discard, or move other paths and test-produced dirt. Never clean automatically. After restoration re-dispatch with `Findings: rerun baseline`, then parent check. |
+| `- Task N: ... fails on <sha>` | Present the task, command, base SHA and exit code, then `../../gauntlet/plan/open-questions.md`'s three options, one per line: **fix-first** - `/skill:shape-ticket` for the base failure (its gate applies), then pause; **narrow** - human supplies filter or path text, re-dispatch with `Findings: Task N Tests: narrow to <text>`; **amend** - brainstorming's `../../gauntlet/amendment-surface.md` section 5. Print a `Recommendation:` line and wait for selection. |
+| Global or contamination rows (`Baseline: worktree dirty`, `Baseline: in-flight source edits`, `dirtied tracked source`, `moved HEAD`) | Take `../../gauntlet/plan/open-questions.md`'s restore-and-rerun path, not the menu. Name paths and causes; the parent's own in-flight work uses its own commit step (doc-only paths can be listed under `In-flight:`); ask the human to commit, discard, or move other paths and test-produced dirt. Never clean automatically. After restoration re-dispatch with `Findings: rerun baseline`, then parent check. |
 | Other substantive `open-questions` rows (contract questions) | Present the rows, wait for answers, re-dispatch per step 3 with answers in `Findings:`, then parent check and this same return route. |
 | Other checks | Use the citation table and its three-round rollback below. |
 
@@ -43,7 +43,7 @@ Every other `check` (`input`, `placeholder-scan`, `header-entrypoint`, `header-h
 
 Loop: write every classified edit, re-run `plan_check({ planPath })`, classify any new finding the same way; at most 3 rounds.
 
-PASS with the plan tracked and clean before the loop -> read [commit-message.md](../../finishing-a-development-branch/reference/commit-message.md), take the entire subject verbatim from its Plan citation repair row, and commit the plan alone with that message on stdin:
+PASS with the plan tracked and clean before the loop -> read [commit-message.md](../../gauntlet/commit-message.md), take the entire subject verbatim from its Plan citation repair row, and commit the plan alone with that message on stdin:
 
 ```bash
 git -C <worktree> add -- <plan path> && git -C <worktree> commit -q -F - -- <plan path>
@@ -58,4 +58,4 @@ Stop (a finding with no row, or a finding surviving the third round): when a rou
 
 Resume never edits the spec or writes an Open Question itself; the dispatched plan-writer owns generated baseline rows.
 
-A restore that ran `## Plan repair` prints `Repaired plan: <n> findings (<comma-separated check names, deduplicated>)` on its own line directly before the closing line; the `Standing grant` line (SKILL.md "Post-restore continuation") keeps its place after the closing line. A first-check PASS prints no receipt and makes no commit.
+A restore that ran `## Plan repair` prints `Repaired plan: <n> findings (<comma-separated check names, deduplicated>)` on its own line directly before the closing line; the `Standing grant` line (../SKILL.md "Post-restore continuation") keeps its place after the closing line. A first-check PASS prints no receipt and makes no commit.

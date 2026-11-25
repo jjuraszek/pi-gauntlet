@@ -1,0 +1,90 @@
+{
+  "sample": "pr-body-drafted-row",
+  "arm": "candidate",
+  "skillSha": "eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97",
+  "inputSha": "5b660b24987e0b53cd8b6faa1a1b34aa8ff256dba535c87969c0277ab837c316",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "1. **Resume at spec-writing (checklist step 7).** The Spec Self-Review instructions are already in context from an earlier successful read. No prerequisite read is outstanding, so nothing blocks.\n\n2. **Reuse Ticket Handling from context.** `brainstorm/ticket-acceptance.md` is already in context this session, so I do not re-read it. I branch on the gathered result `none - no ticket`. That row of the Row production table says to draft under `Drafted from the design, no ticket rows:`.\n\n3. **Sort the commitments into changes and post actions.** Both approved behaviors are changes that files can deliver: removing test files, and release-script code that writes text. Neither is an operator step. So both go in Design, Tests and drafted rows, and no `Post-deployment housekeeping` paragraph is needed.\n\n4. **Reuse the class table from context.** The fixed observations say the class table is already available, so the Workflow-stage proof class's \"read at first use\" is satisfied without a new read.\n\n5. **Run the integrity check on behavior 1.**\n   - Its proof sketch, \"the PR description lists every deleted test file\", is pull-request body text. That text is not a behavior of this change, so it is workflow-stage proof.\n   - The proof is not a separate Design commitment. It is attached to removing the tests.\n   - So I keep the committed outcome and rewrite the proof to the Design behavior: the retired parser's test directory is empty. No row is deleted and no scope decision is involved.\n   - The row names one concrete directory and one observable (empty). It is not a zero-findings sweep across a tree, so the Tree-wide split does not apply.\n\n6. **Run the integrity check on behavior 2.**\n   - The pull-request body text here is the behavior under change, because the release script writes it. This is the stated exception, so it is not stage proof.\n   - The proof is behavioral: setup, action and expected result.\n   - Design supplies everything needed, with no missing baseline, target or external yardstick. The Wishful, Unspecified-but-binding and External-input classes do not fire.\n\n7. **Check whether a question must come first.** No outcome is cut, no row is bundled ambiguously, and no value is missing. So no drafted cut question or clarification is required before writing.\n\n8. **Write the section after `## Problem`.** Both rows are `in-scope`:\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] After the change, the retired parser's test directory contains no files: every obsolete parser test file has been removed.\n  in-scope\n- [ ] Running the release script with a sample changelog produces a pull request body that contains that changelog's section text.\n  in-scope\n```\n\n9. **Carry the rows forward.** `## Tests` gets one `<observable> - <test name or file>` line for each row. This section is not yet written and no tests have run. At the user review gate, both rows render verbatim under `Drafted acceptance criteria (approval ratifies):`, and `Scope cuts:` reads `none`.\n",
+      "words": 469,
+      "wallMs": 14752,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "1. **Read prerequisites — already satisfied in the supplied observations.** The draft, ticket-acceptance rules, acceptance-class table, and successful earlier Spec Self-Review read are in context. No outstanding read blocks writing.\n\n2. **Separate outcomes from proof.** Keep removal of the obsolete tests as an outcome; omit “the PR description lists every deleted test file,” which is only workflow-stage proof. Keep the release script’s generated pull-request body as an outcome because that text is itself the behavior being changed. The sample-changelog check belongs in Tests. No clarification or scope-cut question is required.\n\n3. **Draft the section below.** This is proposed text, not a live file write or a claim that tests ran.\n\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The retired parser's test directory is empty after the obsolete parser test files are removed.\n  in-scope\n- [ ] Given a changelog section, running the release script includes that section in the generated pull request body.\n  in-scope\n",
+      "words": 152,
+      "wallMs": 11329,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dad6602447c3a60828cdd2d0bd6e088cbecdb2d8155c30601880c247964b2a37",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+      "baselineOutputSha": "faaa58dc4606f904238649e44ceca4039070e7f6490c1132a0bb2c7a393c79e5",
+      "candidateOutputSha": "cc193853cca8b1483666f2e05b7f4c001f3c14d9b9389e7a8d59a5fe12c833c9",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs satisfy all three facts: each rewrites the PR-description proof sketch for behavior 1 into the directory-is-empty observable, keeps the release-script PR-body row as a genuine behavior rather than stage proof, renders exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:`, and asks no cut or scope question with no `none` fallback. The expected f1 move (fails -> holds) does not appear in this sample because Before already drops the PR-description observable; After shows the same behavior with only minor wording differences (e.g. 'every obsolete parser test file has been removed', 'section text'). To keep these facts stable, retain the explicit wording that a workflow-stage proof attached to a committed outcome is rewritten to the Design behavior rather than cut, the stated exception that PR text produced by the script under change is behavior, and the instruction that rewriting a proof triggers no scope question.",
+      "wallMs": 4653,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dad6602447c3a60828cdd2d0bd6e088cbecdb2d8155c30601880c247964b2a37",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+      "baselineOutputSha": "3f2e0a64992143a413a2b2ad873caf1e302091936de1c3ecd0f2c4225ff58732",
+      "candidateOutputSha": "913ec03a6301c042474619f9cf91894fd3249be9b6d2883d9f5caee3c42c7538",
+      "facts": {
+        "f1": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Nothing in After moved a fact relative to Before: both outputs omit the PR-description file list as an acceptance observable while keeping the release script's pull-request-body behavior as a real row (f1), both render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` naming the empty retired-parser test directory and the changelog section in the pull request body (f2), and both ask no cut or scope question and use no `none` fallback (f3). Note that f1 was expected to go fails -> holds, but Before's text already satisfies it, so the observed result is holds -> holds. After's second row rephrases 'writes its changelog section into the pull request body' as 'includes that section in the generated pull request body'; this still names the committed behavior, but to stay safely within f2 keep wording close to the Design commitment (the release script writes the changelog section into the pull request body), keep the exact provenance line, and continue to state explicitly that the PR-description list is stage proof dropped from the row while the outcome itself is retained.",
+      "wallMs": 5069,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
+}

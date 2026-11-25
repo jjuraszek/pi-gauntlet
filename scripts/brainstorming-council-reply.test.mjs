@@ -7,7 +7,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 const sample = 'eval/spec-gate/samples/row-3-reply';
 
 test('council explanation reuses the gate snapshot without new settings or context reads', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const reply = gate.slice(gate.indexOf('On `3` or its label alone:'), gate.indexOf('A gate-round recommit'));
   for (const token of [
     'git -C <abs worktree path> show -s --format=%b HEAD',
@@ -31,7 +31,7 @@ test('saved council explanation preserves the audit and four-row recommendation 
     for (const id of ['f1', 'f2', 'f3', 'f4', 'f5', 'reuse']) {
       assert.equal(judged.facts[id]?.after, 'holds', `${model}/${id}`);
     }
-    const markers = [...output.text.matchAll(/^gauntlet: gate=brainstorming\/user-review-gate recommended=(\d+)$/gm)];
+    const markers = [...output.text.matchAll(/^gauntlet: gate=brainstorm\/user-review-gate recommended=(\d+)$/gm)];
     assert.equal(markers.length, 2, `${model}: initial and re-presented gate`);
     assert.equal(markers[0][0], markers[1][0], `${model}: identical marker`);
     const menus = markers.map(({ index }) => {

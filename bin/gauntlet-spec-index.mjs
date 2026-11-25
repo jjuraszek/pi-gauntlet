@@ -2,7 +2,7 @@
 
 // src/bins/gauntlet-spec-index.mjs
 import { readFileSync as readFileSync2, appendFileSync, existsSync as existsSync3, statSync as statSync2, lstatSync, readdirSync, mkdirSync, rmSync as rmSync2, realpathSync, openSync, readSync, closeSync } from "node:fs";
-import { join as join3, dirname as dirname2, basename as basename2, isAbsolute, matchesGlob } from "node:path";
+import { join as join4, dirname as dirname2, basename as basename2, isAbsolute, matchesGlob } from "node:path";
 import { homedir } from "node:os";
 import { execFileSync as execFileSync2 } from "node:child_process";
 import process2 from "node:process";
@@ -56,15 +56,44 @@ function resolveTelemetry(g) {
   return { enabled, ...remote ? { remote } : {}, buckets, warning: joinWarn(warnings) };
 }
 
+// extensions/lib/overrides.ts
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+var locations = [".pi/gauntlet.md", "gauntlet.md", "doc/gauntlet.md"];
+var disk = { exists: existsSync, readFile: (path) => readFileSync(path, "utf8") };
+function readSharedSection(root, section, fs = disk) {
+  const path = locations.map((file) => join(root, file)).find((file) => fs.exists(file));
+  if (!path) return "";
+  const lines = [];
+  let shared = false, selected = false, fence = "";
+  for (const line of (fs.readFile(path) ?? "").split(/\r?\n/)) {
+    if (fence) {
+      if (line.match(/^ {0,3}(`+|~+)[\t ]*$/)?.[1].startsWith(fence)) fence = "";
+    } else {
+      fence = line.match(/^ {0,3}(`{3,}|~{3,})/)?.[1] ?? "";
+      const heading = /^(#{1,2})[\t ]+(.*)$/.exec(line);
+      if (heading) {
+        const [, level, name] = heading;
+        if (selected || shared && level === "#") break;
+        if (level === "#") shared = name.trim() === "shared";
+        else selected = shared && name.trim() === section;
+        continue;
+      }
+    }
+    if (selected) lines.push(line);
+  }
+  return lines.join("\n");
+}
+
 // extensions/lib/telemetry-branch.ts
-import { existsSync as existsSync2, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, join as join2 } from "node:path";
+import { basename, join as join3 } from "node:path";
 
 // extensions/lib/checkout.ts
 import { execFileSync } from "node:child_process";
-import { existsSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { existsSync as existsSync2, statSync } from "node:fs";
+import { dirname, join as join2 } from "node:path";
 var CHECKOUT_ARGS = ["rev-parse", "--path-format=absolute", "--show-toplevel", "--git-dir", "--git-common-dir"];
 function parseCheckout(r) {
   if (r.code !== 0) return void 0;
@@ -81,7 +110,7 @@ var isDir = (p) => {
 };
 function nearestExistingDir(absPath) {
   let p = absPath;
-  while (!(existsSync(p) && isDir(p))) {
+  while (!(existsSync2(p) && isDir(p))) {
     const parent = dirname(p);
     if (parent === p) return p;
     p = parent;
@@ -93,7 +122,7 @@ function parseJjRoot(r) {
   if (r.code !== 0) return void 0;
   const toplevel = r.stdout.trim();
   if (!toplevel) return void 0;
-  return { toplevel, isPrimary: isDir(join(toplevel, ".jj", "repo")) };
+  return { toplevel, isPrimary: isDir(join2(toplevel, ".jj", "repo")) };
 }
 function checkoutOfSync(absPath, git2 = gitSync, jj = jjSync) {
   const cwd = nearestExistingDir(absPath);
@@ -148,14 +177,9 @@ function telemetryRepo(root) {
   const path = match?.[1].replace(/^\/+|\/+$/g, "").replace(/\.git$/, "");
   if (result.ok && path) return path;
   const top = checkoutOfSync(root)?.toplevel ?? root;
-  for (const file of [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"]) {
-    const path2 = join2(top, file);
-    if (!existsSync2(path2)) continue;
-    const section = readFileSync(path2, "utf8").split(/^##\s+Issue tracker\s*$/m)[1]?.split(/^##\s/m)[0] ?? "";
-    const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
-    if (repo) return repo;
-    break;
-  }
+  const section = readSharedSection(top, "issue-tracker");
+  const repo = /^-[\t ]*repo:[\t ]*(\S[^\r\n]*)$/m.exec(section)?.[1].trim();
+  if (repo) return repo;
   const worktrees = gitRun(["worktree", "list", "--porcelain", "-z"], root);
   const primary = worktrees.ok ? /^worktree ([^\0]+)/.exec(worktrees.stdout)?.[1] : void 0;
   return `local/${basename(primary ?? top)}`;
@@ -163,8 +187,8 @@ function telemetryRepo(root) {
 var trackingRef = (remote) => `refs/telemetry/fetched/${remote === "origin" ? "origin" : "telemetry"}`;
 var fetchBranch = (root, remote) => gitRun(["fetch", "--no-tags", remote, `+${TELEMETRY_REF}:${trackingRef(remote)}`], root);
 function syncTelemetryBranch(root, records, remote = "origin") {
-  const scratch = mkdtempSync(join2(tmpdir(), "gauntlet-telemetry-index-"));
-  const env = { GIT_INDEX_FILE: join2(scratch, "index") };
+  const scratch = mkdtempSync(join3(tmpdir(), "gauntlet-telemetry-index-"));
+  const env = { GIT_INDEX_FILE: join3(scratch, "index") };
   const git2 = (args, input) => {
     const result = gitRun(args, root, void 0, { env, input });
     if (!result.ok) throw new Error(result.stderr);
@@ -243,12 +267,14 @@ function readTelemetryBranch(root, { remote = "origin", prefix = "" } = {}) {
     }
     const tip = gitRun(["rev-parse", "--verify", trackingRef(remote)], root);
     if (!tip.ok) return { records, warning: [warning, "no telemetry ref fetched yet"].filter(Boolean).join("; ") };
-    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, ...prefix ? ["--", prefix] : []], root);
+    const prefixes = Array.isArray(prefix) ? prefix : [prefix];
+    const tree = gitRun(["ls-tree", "-r", "-z", tip.stdout, "--", ...prefixes.filter(Boolean)], root);
     if (!tree.ok) throw new Error(tree.stderr);
     for (const entry of tree.stdout.split("\0").filter(Boolean)) {
-      const [meta, path] = entry.split("	");
-      const [, type, sha] = meta.split(" ");
-      if (type !== "blob" || !path.startsWith(prefix) || !path.endsWith(".yaml")) continue;
+      const tab = entry.indexOf("	");
+      const path = entry.slice(tab + 1);
+      const [, type, sha] = entry.slice(0, tab).split(" ");
+      if (type !== "blob" || !prefixes.some((p) => path.startsWith(p)) || !path.endsWith(".yaml")) continue;
       const blob = gitRun(["cat-file", "blob", sha], root, void 0, { raw: true });
       if (!blob.ok) throw new Error(blob.stderr);
       records.push({ path, bytes: blob.stdout });
@@ -273,7 +299,6 @@ var SKIP_DIRS = /* @__PURE__ */ new Set([".worktrees", "node_modules", "build"])
 var FENCE = /^\s*(`{3,}|~{3,})/;
 var DOC_INCLUDES = ["**/doc/**/*.md", "**/docs/**/*.md", "README.md", "AGENTS.md"];
 var DOC_EXCLUDE_GLOBS = ["**/node_modules/**", ".pi/gauntlet/**", ".worktrees/**"];
-var OVERRIDES_FILES = [".pi/gauntlet-overrides.md", "gauntlet-overrides.md", "doc/gauntlet-overrides.md"];
 var SCHEMA = `
   CREATE TABLE IF NOT EXISTS meta  (key TEXT PRIMARY KEY, value TEXT);
   CREATE TABLE IF NOT EXISTS files (corpus TEXT NOT NULL, path TEXT NOT NULL, mtime_ms INTEGER, size INTEGER, PRIMARY KEY (corpus, path));
@@ -332,8 +357,8 @@ function readLayer(file) {
   }
 }
 function settingsFor(root) {
-  const agentDir = process2.env.PI_CODING_AGENT_DIR || join3(homedir(), ".pi", "agent");
-  return mergeGauntlet(readLayer(join3(agentDir, "settings.json"))?.piGauntlet, readLayer(join3(root, ".pi", "settings.json"))?.piGauntlet);
+  const agentDir = process2.env.PI_CODING_AGENT_DIR || join4(homedir(), ".pi", "agent");
+  return mergeGauntlet(readLayer(join4(agentDir, "settings.json"))?.piGauntlet, readLayer(join4(root, ".pi", "settings.json"))?.piGauntlet);
 }
 function specDirsFor(root) {
   const specDirs = resolveFlowGuards(settingsFor(root)).specDirs;
@@ -343,7 +368,7 @@ function discover(root) {
   const out = [];
   const seen = /* @__PURE__ */ new Set();
   const collect = (relDir, service) => {
-    const abs = join3(root, relDir);
+    const abs = join4(root, relDir);
     let real;
     try {
       real = realpathSync(abs);
@@ -356,7 +381,7 @@ function discover(root) {
     for (const name of readdirSync(abs).sort()) {
       if (!name.endsWith(".md")) continue;
       const rel = `${relDir}/${name}`;
-      const st = statSync2(join3(root, rel));
+      const st = statSync2(join4(root, rel));
       if (st.isFile()) out.push({ path: rel, service, mtime_ms: Math.trunc(st.mtimeMs), size: st.size });
     }
   };
@@ -372,22 +397,14 @@ function services(root) {
   return readdirSync(root, { withFileTypes: true }).filter((e) => (e.isDirectory() || e.isSymbolicLink()) && !e.name.startsWith(".") && !SKIP_DIRS.has(e.name)).map((e) => e.name);
 }
 function includes(root) {
-  const file = OVERRIDES_FILES.map((rel) => join3(root, rel)).find((abs) => existsSync3(abs));
-  if (!file) return DOC_INCLUDES;
   const globs = [];
-  let inSection = false;
-  let text;
+  let section;
   try {
-    text = readFileSync2(file, "utf8");
+    section = readSharedSection(root, "spec-index");
   } catch (e) {
-    die(`gauntlet-spec-index: unreadable overrides file ${file}: ${e.message}`);
+    die(`gauntlet-spec-index: unreadable overrides file: ${e.message}`);
   }
-  for (const line of text.split(/\r?\n/)) {
-    if (/^## /.test(line)) {
-      inSection = line.trim() === "## Spec index";
-      continue;
-    }
-    if (!inSection) continue;
+  for (const line of section.split("\n")) {
     const m = /^-\s+docs:\s*(.+?)\s*$/.exec(line);
     if (m) globs.push(m[1].replace(/^[`"']+|[`"']+$/g, ""));
   }
@@ -423,8 +440,8 @@ function discoverDocs(root, globs) {
     if (DOC_EXCLUDE_GLOBS.some((p) => matchesGlob(rel, p)) || underDirs(rel, skip)) continue;
     let st;
     try {
-      st = lstatSync(join3(root, rel));
-      if (!st.isFile() || firstLine(join3(root, rel)) === DRAFT_MARKER) continue;
+      st = lstatSync(join4(root, rel));
+      if (!st.isFile() || firstLine(join4(root, rel)) === DRAFT_MARKER) continue;
     } catch {
       continue;
     }
@@ -434,7 +451,7 @@ function discoverDocs(root, globs) {
 }
 function ensureExclude(root) {
   const rel = git(root, ["rev-parse", "--git-path", "info/exclude"]);
-  const abs = isAbsolute(rel) ? rel : join3(root, rel);
+  const abs = isAbsolute(rel) ? rel : join4(root, rel);
   const cur = existsSync3(abs) ? readFileSync2(abs, "utf8") : "";
   if (cur.split("\n").includes(EXCLUDE_LINE)) return;
   mkdirSync(dirname2(abs), { recursive: true });
@@ -443,7 +460,7 @@ function ensureExclude(root) {
 }
 async function openDb(root) {
   const { DatabaseSync } = await import("node:sqlite");
-  const dbPath = join3(root, ".pi/gauntlet/index.sqlite");
+  const dbPath = join4(root, ".pi/gauntlet/index.sqlite");
   mkdirSync(dirname2(dbPath), { recursive: true });
   const fresh = !existsSync3(dbPath);
   const create = () => {
@@ -537,7 +554,7 @@ function refresh(db, root, corpus) {
     for (const f of found) {
       const k = known.get(f.path);
       if (k && k.mtime_ms === f.mtime_ms && k.size === f.size) continue;
-      const text = readFileSync2(join3(root, f.path), "utf8");
+      const text = readFileSync2(join4(root, f.path), "utf8");
       delRow.run(f.path);
       if (text.split(/\r?\n/, 1)[0] === DRAFT_MARKER) {
         delFile.run(table, f.path);
@@ -605,7 +622,7 @@ function telemetryCorpus(root) {
 `);
   if (!settings.enabled) return /* @__PURE__ */ new Map();
   const repo = telemetryRepo(root);
-  const prefix = `${repo}/brainstorming/`;
+  const prefix = `${repo}/gauntlet/`;
   const result = readTelemetryBranch(root, { remote: settings.remote, prefix });
   if (result.warning) process2.stderr.write(`warning: ${result.warning}
 `);
@@ -626,7 +643,7 @@ function telemetry(root, specPath, records) {
   }
   if (!rec || typeof rec !== "object" || Array.isArray(rec)) return blank;
   const mf = rec.derived?.modified_files;
-  const files = Array.isArray(mf) ? mf.filter((f) => typeof f === "string" && existsSync3(join3(root, f))).join(";") : "missing";
+  const files = Array.isArray(mf) ? mf.filter((f) => typeof f === "string" && existsSync3(join4(root, f))).join(";") : "missing";
   return { status: rec.status ?? null, shipped_at: rec.shipped_at ?? null, files };
 }
 var cell = (v) => v === null || v === void 0 ? "" : String(v).replace(/\s+/g, " ").trim();

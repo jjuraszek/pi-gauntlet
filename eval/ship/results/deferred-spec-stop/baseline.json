@@ -1,0 +1,38 @@
+{
+  "sample": "deferred-spec-stop",
+  "arm": "baseline",
+  "skillSha": "0fefe33246a211cc65c0e916af5343d77a3acccda8b57a1050ecc0820f2e4a00",
+  "inputSha": "8c495dcbdcf58b7276e0694315e2a117c93d739d134a4b824654d0a0c3fbe0bc",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Variant 1: `**PR:** acme/widget#42` present\n\n1. Input check: the `<worktree-path>` is present (`/work/widget/.worktrees/spec-export`). I derive these values:\n   ```bash\n   WORKTREE=/work/widget/.worktrees/spec-export\n   PRIMARY=$(dirname \"$(git -C \"$WORKTREE\" rev-parse --path-format=absolute --git-common-dir)\")\n   FEATURE=$(git -C \"$WORKTREE\" branch --show-current)\n   ```\n2. I resolve the selected run spec once as `doc/specs/export.md` and read its header before announcing.\n   - `# Export receipts`\n   - `**Amend-grant:** none`\n   - `**Engine:** deferred`\n   - `**PR:** acme/widget#42`\n   - The spec has no `## Rework record`.\n3. An exact `**Engine:** deferred` sits before the first `##`, so this is a handoff-only stop. It wins before any `**PR:**` routing, so I make no `gh pr view` identity call.\n4. I print:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. Nothing else runs:\n   - no announcement\n   - no `phase_tracker({ action: \"start\", phase: \"ship\" })`\n   - no test-all verification\n   - no plan strip or telemetry seal\n   - no push\n\n**Outcome:** stopped at Input with `spec approved for handoff only - run brainstorming #42`. Nothing changed.\n\n## Variant 2: `**PR:**` header absent, known subject #42\n\n1. I derive the same `WORKTREE`, `PRIMARY` and `FEATURE`, and resolve the same spec.\n2. The header reads `# Export receipts`, `**Amend-grant:** none` and `**Engine:** deferred`, with no `**PR:**` and no Rework record.\n3. The deferred stop applies before any route selection.\n4. I print:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. There is no announcement, ship phase start, verification, strip, seal or push.\n\n**Outcome:** the same handoff-only stop at Input, naming the known subject #42. Nothing changed.\n\n## Variant 3: `**Amend-grant:** all`\n\n1. I derive the same values and resolve the same spec.\n2. The header reads `# Export receipts`, `**Amend-grant:** all`, `**Engine:** deferred` and `**PR:** acme/widget#42`, with no Rework record.\n3. The amendment grant has no effect on finish entry. The exact `**Engine:** deferred` before the first `##` still stops here.\n4. I print:\n   ```\n   spec approved for handoff only - run brainstorming #42\n   ```\n5. There is no announcement, ship phase start, verification, strip, seal or push. The available clean checkout and test-all run are never reached.\n\n**Outcome:** the same handoff-only stop. `Amend-grant: all` does not lift the deferred-engine stop, and nothing changed.\n",
+      "words": 329,
+      "wallMs": 11172,
+      "mechanical": {
+        "notice": "fails"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "PR `acme/widget#42`, grant `none`: spec approved for handoff only - run brainstorming #42\nPR header absent, known subject #42, grant `none`: spec approved for handoff only - run brainstorming #42\nGrant `all`: spec approved for handoff only - run brainstorming #42\n",
+      "words": 38,
+      "wallMs": 5013,
+      "mechanical": {
+        "notice": "fails"
+      }
+    }
+  },
+  "repoSha": "b1a74d48426cae76097fb79512231ad76bb36fa7"
+}

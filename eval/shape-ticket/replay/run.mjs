@@ -235,7 +235,7 @@ export async function cli(argv, { factories = sdkFactories, run = runCase, expec
       const pair = {};
       for (const [arm, instructions] of Object.entries(arms)) {
         console.log(`start cell ${rows.length + 1} ${arm} rep ${rep}`);
-        const scoped = { ...instructions, '.pi/gauntlet-overrides.md': `## Issue tracker\n- tracker: ${scenario.tracker}\n- mapped operations: tracker tool search/read/read-document\n- workflow: github workflow, linear state, custom phase; use returned fixture-defined meaning; absence means unknown\n- metadata/current-schema: fixture-defined returned object, not native schema inference\n- body: github body, linear description, custom content\n- reference: github/linear url, custom reference\n` };
+        const scoped = { ...instructions, '.pi/gauntlet.md': `## Issue tracker\n- tracker: ${scenario.tracker}\n- mapped operations: tracker tool search/read/read-document\n- workflow: github workflow, linear state, custom phase; use returned fixture-defined meaning; absence means unknown\n- metadata/current-schema: fixture-defined returned object, not native schema inference\n- body: github body, linear description, custom content\n- reference: github/linear url, custom reference\n` };
         const cell = await run(structuredClone(scenario), { ...sdk, instructions: scoped, model });
         if (!cell || !Array.isArray(cell.failures) || !['ok', 'failed'].includes(cell.status)) throw new Error('invalid-cell');
         if (![...outcomes, 'unknown'].includes(cell.recommendation) || scenario.expected.facts.some(f => !['holds', 'fails'].includes(cell.factJudgments?.[f.id]))) cell.failures.push('invalid-cell');

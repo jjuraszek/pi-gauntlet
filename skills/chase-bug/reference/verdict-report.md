@@ -118,7 +118,7 @@ unsaid; do not lead or trail the report with operational evidence from steps 8-9
 
 Use these envelopes only at step 4. Drafts and summaries reuse the section
 shape, never these markers or menus; use step 5's marker and ending instead.
-Read and apply [menu-layout](../../brainstorming/reference/menu-layout.md) before presenting these menus and before acting on a numeric reply.
+Read and apply [menu-layout](../../gauntlet/menu-layout.md) before presenting these menus and before acting on a numeric reply.
 
 ### Real-bug gate example (addressable free text)
 
@@ -145,7 +145,7 @@ Pick one:
 
 ```text
 1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
-2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+2. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed.
 3. [x] Implement hotfix now - follow ../hotfix.md; add "as a PR" for a PR. [recommended]
 4. [ ] Respond to reporter only.
 

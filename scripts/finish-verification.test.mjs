@@ -6,8 +6,8 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 
-const skill = readFileSync(new URL("../skills/finishing-a-development-branch/SKILL.md", import.meta.url), "utf8");
-const verificationPath = new URL("../skills/finishing-a-development-branch/reference/verification-set.md", import.meta.url);
+const skill = readFileSync(new URL("../skills/gauntlet/ship/ship.md", import.meta.url), "utf8");
+const verificationPath = new URL("../skills/gauntlet/ship/verification-set.md", import.meta.url);
 const verification = readFileSync(verificationPath, "utf8");
 const rule = verification.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
 const commands = [...rule.matchAll(/`(git -C "\$WORKTREE"[^`]+)`/g)].map((m) => m[1]);
@@ -15,7 +15,7 @@ assert.ok(commands.length, "skip rule must contain executable Git checks");
 
 test("ledger finish preserves gate set, strip and amendment contracts", () => {
   assert.ok(verification.includes("# Ledger - loop engine"));
-  assert.match(skill, /read.*absolute path.*reference\/verification-set\.md/);
+  assert.match(skill, /read.*absolute path.*\[verification-set\.md\]\(verification-set\.md\)/);
   assert.doesNotMatch(skill, /For a ledger, (?:use|supply) its `verification:` command/);
   for (const token of ['## Gate set', '## Leg mapping', 'checks:', 'ordered list of (leg, command) pairs', 'LOG_DIR=$(mktemp -d "$SCRATCH/gates.XXXXXX")', 'SCOPED_TEST_COMMANDS', 'verify-before-ship may warn', 'do not run the full suite to clear the warning', 'Commit verification-produced tracked changes, or stop']) assert.ok(verification.includes(token), token);
   assert.match(skill, /For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`/);
@@ -80,7 +80,7 @@ test("stripped ledger recovery keeps owning-checkout routing instead of spec ful
   assert.match(verification, /authorized ledger restore[\s\S]*\[pending recovery\]\(\.\.\/\.\.\/gauntlet-resume\/reference\/restore-loop\.md#pending-recovery\)[\s\S]*missing parent record alone is not an absent pre-strip source[\s\S]*git -C <home> show <strip commit>\^:<ledger path>/);
   assert.match(verification, /never from the spec's `contract:` `- verification:` lines/);
   assert.match(verification, /missing.*stop/i);
-  for (const path of ['skills/finishing-a-development-branch/reference/legs.md', 'skills/gauntlet-resume/reference/coordinated.md']) {
+  for (const path of ['skills/gauntlet/ship/legs.md', 'skills/gauntlet-resume/reference/coordinated.md']) {
     const text = readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
     assert.match(text, /pre-strip ledger/);
     assert.match(text, /gate pairs/);
@@ -101,7 +101,7 @@ test("non-ledger set resolution retains task and ad-hoc behavior", () => {
 
 test("telemetry docs and lifecycle skills describe ref records rather than checkout deliverables", () => {
   const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-  const brainstorm = read("skills/brainstorming/SKILL.md");
+  const brainstorm = read("skills/gauntlet/SKILL.md");
   const seed = read("skills/gauntlet-resume/reference/seed.md");
   const config = read("doc/configuration.md");
   const readme = read("README.md");
@@ -112,7 +112,7 @@ test("telemetry docs and lifecycle skills describe ref records rather than check
   assert.doesNotMatch(verification, /telemetry\.dir|:\!|telemetry flush/);
   assert.match(seed, /git -C <primary> rev-parse --git-common-dir.*resolve a relative result against `<primary>` and read `<git common dir>\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>`/);
   assert.match(seed, /When git resolution fails and `jj root` in `<primary>` succeeds, read `<jj root>\/\.jj\/gauntlet\/telemetry\/<rel with \.md -> \.yaml>` instead/);
-  assert.match(seed, /When the local record is absent, fetch `refs\/telemetry\/records` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/brainstorming\/<rel with \.md -> \.yaml>` from the fetched ref/);
+  assert.match(seed, /When the local record is absent, fetch `refs\/telemetry\/records` from `telemetry\.remote` \(default `origin`\) and read `<owner>\/<repo>\/gauntlet\/<rel with \.md -> \.yaml>` from the fetched ref/);
   assert.match(seed, /using the last fetched ref on fetch failure/);
   assert.match(seed, /Degrade to the local-only check when no fetched ref is available, including jj-only workspaces/);
   assert.match(seed, /A valued `shipped_at:` or `abandoned_at:` stops: `spec already shipped at <ts> - write a superseding spec`/);
@@ -173,13 +173,13 @@ test("retired telemetry ref lint scans current files and confines historical exc
   assert.deepEqual(hits, [], hits.join("\n"));
   assert.match(read("extensions/lib/gauntlet-settings.ts"), /records live on the refs\/telemetry\/records ref/);
   assert.match(read("extensions/telemetry.ts"), /guardReason\(loc\.rel, shippedAt, "refs\/telemetry\/records"\)/);
-  for (const path of ["eval/brainstorming/samples/telemetry-branch-deliverable/expected.md", "eval/finishing-a-development-branch/samples/telemetry-branch-seal/expected.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/case.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/expected.md"]) {
+  for (const path of ["eval/gauntlet/samples/telemetry-branch-deliverable/expected.md", "eval/ship/samples/telemetry-branch-seal/expected.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/case.md", "eval/gauntlet-resume/samples/telemetry-branch-seed/expected.md"]) {
     assert.ok(read(path).includes("refs/telemetry/records"), path);
   }
 });
 
 // Wording checks pin the finish-owned contract, not a live GitHub boundary.
-const legsPath = new URL("../skills/finishing-a-development-branch/reference/legs.md", import.meta.url);
+const legsPath = new URL("../skills/gauntlet/ship/legs.md", import.meta.url);
 const legs = () => readFileSync(legsPath, "utf8");
 
 for (const [name, pattern] of [
@@ -224,7 +224,7 @@ test("coordinated retry verifies and delivers unlanded home without the removed 
 });
 
 test("finish routes coordinated mechanics once and retains legacy cleanup", () => {
-  assert.equal((skill.match(/\]\(reference\/legs\.md\)/g) ?? []).length, 1);
+  assert.equal((skill.match(/\]\(legs\.md\)/g) ?? []).length, 1);
   assert.match(skill, /recorded `contract:` lines[\s\S]*legacy spec without `## Legs`/);
 });
 for (const [name, pattern] of [

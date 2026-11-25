@@ -4,9 +4,9 @@ import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const wording = read('skills/finishing-a-development-branch/reference/commit-message.md');
+const wording = read('skills/gauntlet/commit-message.md');
 const note = wording.split('## Squash-default note\n')[1];
-const finish = read('skills/finishing-a-development-branch/SKILL.md');
+const finish = read('skills/gauntlet/ship/ship.md');
 const pr = finish.split('#### Option 1: Push and Create PR\n')[1].split('#### Option 3:')[0];
 const gatekeep = read('skills/gatekeep-pr/reference/post-selection-loop.md');
 const preconditions = gatekeep.split('### Merge preconditions\n')[1].split('### Plan-free head\n')[0];
@@ -48,12 +48,12 @@ test('the shared note has one exact positive branch and silent other-value and r
 });
 
 test('normal and draft PR options and gatekeep reuse the same read-only note rule', () => {
-  assert.match(pr, /Read \[commit-message.md\]\(reference\/commit-message.md\)/);
+  assert.match(pr, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\)/);
   assert.match(pr, /Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome/);
   assert.match(pr, /Option 1's push and `gh pr create` commands with `--draft` added/);
   const reads = preconditions.match(/`gh api repos\/<owner>\/<repo> --jq '[^']+'`/g);
   assert.deepEqual(reads, ["`gh api repos/<owner>/<repo> --jq '{allow_squash_merge,allow_merge_commit,allow_rebase_merge,squash_merge_commit_message}'`"]);
-  assert.match(merge, /Read \[commit message\]\(\.\.\/\.\.\/finishing-a-development-branch\/reference\/commit-message.md\)/);
+  assert.match(merge, /Read \[commit message\]\(\.\.\/\.\.\/gauntlet\/commit-message.md\)/);
   assert.match(merge, /Apply the reference's Squash-default note using `squash_merge_commit_message` from the Merge preconditions repository-settings read; print nothing for a failed read and never write settings/);
   assert.doesNotMatch(merge, /gh api repos\//);
   assert.deepEqual(printedNotes(pr + merge), [], 'callers cite the note instead of duplicating its text');
@@ -61,7 +61,7 @@ test('normal and draft PR options and gatekeep reuse the same read-only note rul
 
 // Inspect only historical note excerpts, not workflow claims, commands or judge verdicts.
 test('saved finish note excerpts preserve the exact text and silent PR_BODY and permission-denied outcomes', async t => {
-  for (const [model, output] of savedOutputs('eval/finishing-a-development-branch/results/landed-message/candidate.json')) {
+  for (const [model, output] of savedOutputs('eval/ship/results/landed-message/candidate.json')) {
     await t.test(model, () => {
       const section = output.text.split(/^## Trace B[^\n]*\n/m)[1]?.split(/^## Trace C/m)[0];
       assert.ok(section, 'saved PR note section is present');

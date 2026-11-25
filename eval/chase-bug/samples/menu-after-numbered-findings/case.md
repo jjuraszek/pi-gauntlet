@@ -1,4 +1,4 @@
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 bundle+: skills/chase-bug/SKILL.md
 
 Produce one response with two independent checkpoints. All writes and handoffs are simulated; do not run tools.
@@ -22,7 +22,7 @@ Proof: local repro /widgets/ -> 404 | src/router.ts:88 | expected 200
 3. The local falsification test supports the root cause.
 
 1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
-2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed. [recommended]
+2. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed. [recommended]
 3. [ ] Implement hotfix now - unavailable: bounded-fix judgment fails.
 4. [ ] Finish with rendered summary.
 ```

@@ -32,7 +32,7 @@ function historicalModels(candidate, baseline) {
   return models;
 }
 
-const driver = read('skills/loop-implementation/SKILL.md');
+const driver = read('skills/gauntlet/implement/loop/loop.md');
 
 test('repair counts are ledger instructions, not commit-message counters', () => {
   const seed = driver.split('\nCount seed attempts as ')[1].split('\n\n')[0];
@@ -54,7 +54,7 @@ test('repair counts are ledger instructions, not commit-message counters', () =>
 });
 
 test('historical saved replies: decisions count three seed repairs and two verification repairs plus pending', async t => {
-  const dir = 'eval/loop-implementation';
+  const dir = 'eval/loop';
   const sample = 'ledger-repair-counts';
   const target = JSON.parse(read(`${dir}/target.json`));
   const candidate = JSON.parse(read(`${dir}/results/${sample}/candidate.json`));

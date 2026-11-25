@@ -1,3 +1,0 @@
-- reads-contract: judged: Before the plan fragment, the narration reads /workspace/tools/skills/writing-plans/reference/plan-contract.md in full, not a heading slice or selected sections, and treats it as the authoring contract.
-- no-skill-read: judged: The narration makes no read of any SKILL.md file. Mentioning that no skill read occurs is not itself a read.
-- four-paths: judged: Proceeds using the four dispatched paths (worktree, spec, plan and plan contract), writes the plan fragment, and asks for no fifth path or plan skill path.

@@ -7,7 +7,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 const sample = 'eval/spec-gate/samples/worker-path';
 
 test('gate withholding composes without restoring the council row when no audit exists', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   const rule = gate.split('\n').find((line) => line.startsWith('Apply the withholding rules independently'));
   assert.ok(rule, 'independent withholding rule');
   for (const token of ['worker path', 'council aborted before an audit existed', 'omit row 3', 'Council:', 'zero-row', 'PR-subject', 'never renumber']) {

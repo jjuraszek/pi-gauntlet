@@ -1,4 +1,4 @@
-for: 918654767620334760c8323c15d63ef51c7c52612eab0b6edec1370d388b686f
+for: fc23ae17a98585db1aac9c972e768010ed5269dfb9988629013b8edbe1390f9f
 
 ## Change
 Require one plain per-ref outcome row below the terminal marker on singleton success and early stops, after selected writes or follow-ons finish. Preserve set settlement and tracker payload boundaries. Run only per-ref-settlement for this edit and preserve historical results; coverage is sample-scoped, not a target-wide pass.

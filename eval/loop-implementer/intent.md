@@ -1,4 +1,4 @@
-for: f9c38358b0feaa2b327f741e8a81374a46f789b5c2b2d94bb37c3a15c6c56b21
+for: 2236cecf20ced69615e04e9b8c267fd150782aacfcb6d4de658612c3233ac50d
 
 ## Change
 Read dispatched wording and ticket inputs for loop worker messages. Keep home attribution in the committed ledger's returned field and outside-ledger rows in the supplied checkout-local return file, written before the single code commit. Remove all dispatch state from messages. Select only home-plain-commit and companion-return-file for this edit.

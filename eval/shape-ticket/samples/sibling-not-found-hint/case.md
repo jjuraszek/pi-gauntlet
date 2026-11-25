@@ -14,7 +14,7 @@ reporter proposes preserving report rows on download.
 ## Acceptance Criteria
 - [ ] Given a 12-row report, downloading produces 12 rows.
 
-Resolved overrides ## shape-ticket:
+In `.pi/gauntlet.md`, `# shared` `## siblings` contains:
 - sibling: git@github.com:acme/viewer.git
 - sibling: git@github.com:acme/billing.git
 - sibling: git@github.com:acme/docs.git

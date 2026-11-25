@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
-const driver = readFileSync(new URL('skills/loop-implementation/SKILL.md', root), 'utf8');
+const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
 const gate = driver.split('\n## After the loop\n')[1].split('\n2. Dispatch')[0];
-const wording = readFileSync(new URL('skills/finishing-a-development-branch/reference/commit-message.md', root), 'utf8');
-const companion = readFileSync(new URL('skills/loop-implementation/reference/coordinated-legs.md', root), 'utf8');
-const recovery = readFileSync(new URL('skills/loop-implementation/reference/interrupted-recovery.md', root), 'utf8');
+const wording = readFileSync(new URL('skills/gauntlet/commit-message.md', root), 'utf8');
+const companion = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
+const recovery = readFileSync(new URL('skills/gauntlet/implement/loop/interrupted-recovery.md', root), 'utf8');
 const restoreLoop = readFileSync(new URL('skills/gauntlet-resume/reference/restore-loop.md', root), 'utf8');
-const amendment = readFileSync(new URL('skills/brainstorming/reference/amendment-surface.md', root), 'utf8');
+const amendment = readFileSync(new URL('skills/gauntlet/amendment-surface.md', root), 'utf8');
 
 const bookkeeping = [
   ['Ledger skeleton', 'Start the acceptance ledger', driver, 'shared Ledger skeleton sentence'],
@@ -37,11 +37,11 @@ for (const [event, subject, instructions, citation] of bookkeeping) {
 
 test('bookkeeping writers resolve the shared wording file instead of a local template', () => {
   for (const path of [
-    'skills/loop-implementation/SKILL.md',
-    'skills/loop-implementation/reference/coordinated-legs.md',
-    'skills/loop-implementation/reference/interrupted-recovery.md',
+    'skills/gauntlet/implement/loop/loop.md',
+    'skills/gauntlet/implement/loop/coordinated-legs.md',
+    'skills/gauntlet/implement/loop/interrupted-recovery.md',
     'skills/gauntlet-resume/reference/plan-repair.md',
-    'skills/brainstorming/reference/amendment-surface.md',
+    'skills/gauntlet/amendment-surface.md',
   ]) {
     const file = new URL(path, root);
     const text = readFileSync(file, 'utf8');

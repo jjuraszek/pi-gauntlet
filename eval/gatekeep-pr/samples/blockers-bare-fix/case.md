@@ -12,10 +12,15 @@ bundle-: skills/gatekeep-pr/reference/sync.md
 - scope: source pr; the PR body states the intent "cap sync retries at a configurable budget"
 - worktree: .worktrees/pr-523 provisioned, HEAD == headRefOid, clean
 - harness: pi with the subagent facility; closureReview.maxFixRounds 3; timeout minutes 15
-- merge-base overrides file (`.pi/gauntlet-overrides.md` at `$MB`), relevant excerpt:
-  `## PR gate` - `verification command: sh scripts/run-all-tests.sh`
-  `## Project` - `Scoped Python tests: uv run --group test python -m pytest <paths> -q`
-  `## routing` - `dashboard: cd dashboard && mise x -- bin/rspec <paths>`
+- merge-base overrides file (`.pi/gauntlet.md` at `$MB`), relevant excerpt:
+```markdown
+# shared
+## verification
+- verification command: sh scripts/run-all-tests.sh
+# gatekeep-pr
+- Scoped Python tests: uv run --group test python -m pytest <paths> -q
+- dashboard: cd dashboard && mise x -- bin/rspec <paths>
+```
 - merge-base AGENTS.md documents no other test command
 - findings: P1 blocker - the retry loop never decrements the budget, so a failing sync retries forever (projects/x/sync.py:58), payload drafted, test file projects/x/tests/test_y.py; P2 blocker - the widget model skips the budget column on save (dashboard/app/models/widget.rb:21), payload drafted, test file dashboard/spec/models/widget_spec.rb; N1 nit - helper name `_do` (projects/x/sync.py:12); N2 nit - a trailing-whitespace line (dashboard/app/models/widget.rb:30)
 

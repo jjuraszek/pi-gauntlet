@@ -21,7 +21,7 @@ that could land in minutes. The gap is a ceremony tier, not new capability.
 
 1. **Branch destination: worktree.** Direct commits on `main` are rejected -
    they kill rollback, bypass review, and contradict
-   `subagent-driven-development`'s "implementation never lands directly on
+   `wave execution`'s "implementation never lands directly on
    `main`". The hotfix runs in a dedicated worktree, branch `hotfix/<slug>`.
 2. **Eligibility: split.** The menu row is always rendered for real-bug
    verdicts. Six predicates are evaluated once, at menu-render time, from the
@@ -36,10 +36,10 @@ that could land in minutes. The gap is a ceremony tier, not new capability.
    so in prose at the menu (the row label advertises it). No finish menu, no
    push without an explicit request.
 4. **Placement: companion file** `skills/chase-bug/hotfix.md` (the
-   `brainstorming/gatherer.md` precedent), not a new skill. Promotion to a
+   `gauntlet/brainstorm/gatherer.md` precedent), not a new skill. Promotion to a
    standalone skill is a cheap later move if direct invocation proves wanted.
-5. **Self-containment.** Zero changes to `finishing-a-development-branch`,
-   `subagent-driven-development`, `verification-before-completion`, the tracker
+5. **Self-containment.** Zero changes to `ship`,
+   `wave execution`, `verification`, the tracker
    extensions, `ci.mjs`, or `marketplace.json`. Reuse is dispatch targets only
    (`implementer`, `code-reviewer`, `conformance-reviewer` personas), the
    `.worktrees/<branch>` path convention, and an intra-skill reference to
@@ -96,7 +96,7 @@ channel ladder are unchanged. The edits:
 
   ```
   1. [ ] File a ticket - /skill:shape-ticket, seeded with this evidence.
-  2. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+  2. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed.
   3. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
   4. [ ] Respond to reporter only.
   ```
@@ -104,7 +104,7 @@ channel ladder are unchanged. The edits:
   Tracker/GitHub origin (ticket row omitted as today, renumbered):
 
   ```
-  1. [ ] Brainstorm now - /skill:brainstorming with this evidence as the seed.
+  1. [ ] Brainstorm now - /skill:gauntlet with this evidence as the seed.
   2. [ ] Implement hotfix now - follow hotfix.md; add "as a PR" for a PR.
   3. [ ] Respond to reporter only.
   ```
@@ -182,7 +182,7 @@ successful creation. Every destructive cleanup command is gated on its flag.
    re-derive, never block.
 2. **Resolve before mutating.** Resolve `SCOPED_TEST_COMMANDS` through the
    existing ladder: gauntlet overrides file, sections matching the
-   verification topic (`## verification-before-completion` or topic match),
+   verification topic (`## verification` or topic match),
    then `AGENTS.md` / the project's documented test command. The result may be
    the full project test target. Unresolvable = no ladder entry yields an exact
    command -> abort (pre-mutation). The evidence pack's repro command joins the
@@ -373,7 +373,7 @@ Per writing-skills' Iron Law (skill edits are TDD for process docs):
 
 ## Documentation impact
 
-Materiality bar: `skills/brainstorming/reference/documentation-impact.md`.
+Materiality bar: `skills/gauntlet/documentation-impact.md`.
 
 ```markdown
 ## Documentation impact
@@ -408,7 +408,7 @@ the two pre-existing gates.
 - Rebasing the hotfix onto a moved default branch (land-abort preserves the
   work instead).
 - Project worktree wrappers (decision 5).
-- Changes to finishing, SDD, verification-before-completion, extensions, ci.mjs,
+- Changes to finishing, SDD, verification, extensions, ci.mjs,
   marketplace.json (decision 5).
 - Push automation. Push happens only on explicit human request.
 

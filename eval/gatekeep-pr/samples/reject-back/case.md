@@ -1,5 +1,5 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise three independent reject-menu continuations only. Use no tools; all outcomes are supplied. For each, state the record changes and next rendering or terminal output. Render full menus for A and B. Stop at their hints; do not execute another pick, helper, review or write.

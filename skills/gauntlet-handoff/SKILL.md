@@ -14,7 +14,7 @@ argument-hint: "[--out <path> | --key <name>]"
 pi-cohort's `handoff` skill writes the flow-agnostic core of a brief (six headings,
 ending at `## Skills loaded`). Only this package knows what `phase_tracker` and
 `plan_tracker` state mean, so this skill appends that state as one more section, in
-the layout fixed by `reference/brief-contract.md` (`## Producers`). Runs in the main
+the layout fixed by `../gauntlet-resume/reference/brief-contract.md` (`## Producers`). Runs in the main
 loop: tracker state is extension state no subagent can read.
 
 **Announce at start (after the marker on marked messages):** "I'm using the gauntlet-handoff skill to write a resumable handoff brief."
@@ -23,7 +23,7 @@ loop: tracker state is extension state no subagent can read.
 
 - Reads: `../gauntlet-resume/reference/brief-contract.md` in full (resolve against this
   skill's directory) before any other action; the transcript; git metadata by path;
-  `pi list` output; cohort's `skills/handoff/SKILL.md`.
+  `pi list` output; the handoff skill under the resolved pi-cohort package root.
 - Writes: only an append to the brief cohort wrote, wherever the resolved path puts it
   (a repository-local `--out` included). Never a second file, never the trackers, never
   any other repository file.
@@ -31,7 +31,7 @@ loop: tracker state is extension state no subagent can read.
 
 ## Sequence
 
-Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-layout.md).
+Apply the first-line grammar in [menu-layout](../gauntlet/menu-layout.md).
 
 1. **Resolve the target.**
    - `--out` and `--key` both given -> STOP: they are exclusive in cohort's grammar. Start the message with `gauntlet: stuck` followed by the exclusivity reason on that line.
@@ -73,7 +73,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
 3. **Take the path from the report.** Cohort's procedure ends with `Handoff written: <abs
    path>` or `Handoff not written: <reason>`. `Handoff not written` -> STOP with that reason.
    Otherwise that path is the brief; line 1 not starting `# Handoff:` -> STOP with the path.
-4. **Hotfix exclusion.** `skills/chase-bug/hotfix.md` is in this session's context ->
+4. **Hotfix exclusion.** `../chase-bug/hotfix.md` is in this session's context ->
    append nothing; report a plain hotfix handoff and go to step 6. Checked before the
    trackers: chase-bug never touches tracker state, and a stale armed flow appended here
    would steer resume away from its hotfix route.
@@ -81,7 +81,7 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
    - No phase `in_progress` -> append nothing; say the brief is a plain handoff.
    - A phase `in_progress` (verify or ship included - resume stops at verify on its own)
      -> append the process-state section exactly as `## Producers` in
-     `reference/brief-contract.md` lays it out: drop exactly the last line of the phase status when it starts with `Context: `, then copy the rest and the full plan status verbatim
+     `../gauntlet-resume/reference/brief-contract.md` lays it out. Read no phase file from status. Drop the trailing `Context:` line and the preceding `Instructions:` line, if present. Copy the remaining phase block and the full plan status verbatim
      (`No plan active.` verbatim when there is no plan), the contract's artifact-specific fields, and the gate-history line. Recognize the loop alternative by ledger line 1; read the ledger from the run worktree for its durable last decision. Read the run worktree's spec; when it carries `## Rework record`, copy every top-level PR identity (without the title) and its full pre-rework head, home first in record order, into the optional fields in the contract's producer layout; copy the optional top-level rework base after the pairs as the contract specifies. Without that record, use the ordinary layout. For more than one member, `Read` `../gauntlet-resume/reference/coordinated.md` in full and append its "Coordinated brief grammar" ordered member snapshot, including missing trees and existing receipt paths, in that layout. Keep the core snapshot home-bound. Use only the contract's grammar; write no second state file. Append with a single
      `cat >> "<brief path>" <<'EOF' ... EOF` whose body is that block.
    - Re-read the file tail and confirm it ends with the gate-history line from the
@@ -101,23 +101,12 @@ Apply the first-line grammar in [menu-layout](../brainstorming/reference/menu-la
 - Writing the brief's core yourself instead of following cohort's `handoff` procedure (the
   six core headings are cohort's; this skill appends one section).
 - Recomputing the brief path instead of taking it from `Handoff written:`.
-- Restating the section layout here instead of reading `reference/brief-contract.md`.
+- Restating the section layout here instead of reading `../gauntlet-resume/reference/brief-contract.md`.
 - Appending when step 4 fired.
 - Deriving the key from the primary checkout's branch while a run worktree exists.
 
 ## Project overrides
 
-If a gauntlet overrides file exists - checked in order:
-`.pi/gauntlet-overrides.md`, `<repo root>/gauntlet-overrides.md`,
-`<repo root>/doc/gauntlet-overrides.md`; first found wins - read it once per session - a skill that already has the file's content in context from an earlier skill's read skips the read; a restored session has nothing in context and reads it. Read
-and apply `## conventions` whenever present, without a relevance
-judgment.
-Give this skill's named section precedence over conflicting
-`## conventions` rules. Use other relevant sections - by name match,
-by topic (routing,
-verification, worktrees, etc.), or by workflow convention - to override or
-extend the instructions above. Project-local `AGENTS.md` is already in
-context - check it for project-specific routing tables, service paths, and
-verification commands.
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply the whole `# gauntlet-handoff` block. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
 
 The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

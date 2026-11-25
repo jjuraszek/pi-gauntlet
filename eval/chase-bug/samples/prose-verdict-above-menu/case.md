@@ -1,4 +1,4 @@
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 bundle+: skills/chase-bug/SKILL.md
 
 Produce one response with two independent checkpoints. All writes and handoffs are simulated; do not run tools.

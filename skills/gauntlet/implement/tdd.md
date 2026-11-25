@@ -1,0 +1,236 @@
+> **Related skills:** Before claiming done, use `../verify/verify.md` to verify tests actually pass.
+
+# Test-Driven Development (TDD)
+
+## Overview
+
+Write the test first. Watch it fail. Write minimal code to pass.
+
+**Core principle:** If you didn't watch the test fail, you don't know if it tests the right thing.
+
+**Violating the letter of the rules is violating the spirit of the rules.**
+
+## Prerequisites
+- Active worktree (not the primary checkout on `main`) — see `../worktrees.md`
+- Approved plan or clear task scope
+
+Before starting implementation, call `phase_tracker({ action: "start", phase: "implement" })`.
+
+## When to Use
+
+**Always:**
+- New features
+- Bug fixes
+- Refactoring
+- Behavior changes
+
+**Exceptions (ask your human partner):**
+- Throwaway prototypes
+- Generated code
+- Configuration files
+
+Thinking "skip TDD just this once"? Stop. That's rationalization.
+
+If a tool result contains a ⚠️ workflow warning about TDD, stop immediately and write the failing test before continuing. The warning is not a checkbox to dismiss — it's the gate.
+
+## The Iron Law
+
+```
+NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+```
+
+Write code before the test? Delete it. Start over.
+
+**No exceptions:**
+- Don't keep it as "reference"
+- Don't "adapt" it while writing tests
+- Don't look at it
+- Delete means delete
+
+Implement fresh from tests. Period.
+
+## Red-Green-Refactor
+
+### RED — Write Failing Test
+
+Write one minimal test showing what should happen.
+
+Test economy - defaults a competent engineer follows and may decline with a stated reason:
+
+1. **Extend before add.** Read the existing test file for the behavior first. Prefer a new parameter row or a stronger assertion in an existing test; add a new test function for a distinct scenario, not for every function or statement.
+2. **One scenario per test.** Several assertions on one operation's result are one scenario. A name containing "and" is not by itself a split signal; different setup or a different operation is.
+3. **Parametrize equivalent cases.** Near-identical cases with the same setup and assertion shape are one table with named rows; rows that need different setup or a different assertion are separate tests. Prefer the few rows that cover the distinct outcomes over the full product of inputs. Parametrization removes duplication, not run time.
+4. **Minimal synthetic input.** Test input is the smallest hand-built value the tested behavior and its contract need - never a copied production sample, never a fixture the test does not read. A mock standing in for an external API response mirrors that response's shape (anti-pattern 4); a field the contract requires is never oversized.
+5. **Setup is measured in work, not lines.** Look for an existing helper, fixture, or factory and extend it before creating another. Share an expensive immutable artifact (a parsed file, a built document, a loaded corpus) at the narrowest scope the harness offers instead of rebuilding it per example; a test that mutates the artifact keeps its own copy. Readability or isolation may justify a rebuild - say so.
+6. **Right tier, honestly.** Test at the cheapest layer that proves the behavior: a behavior a unit or request-level test proves does not get a browser or end-to-end test, and a higher-layer test asserts what only that layer owns (rendering, navigation, a real boundary). Cost and dependency are separate axes: unavoidably expensive work goes in the repo's slow tier, a real external boundary in its integration tier, each by the convention `AGENTS.md`, the overrides file, or the task text names. Never relabel a slow pure-logic test as integration to hide its cost. When no convention is named or discoverable, place the test beside its siblings and report that.
+
+**Requirements:**
+- One scenario per test
+- Clear name describing the scenario
+- Real code (no mocks unless unavoidable)
+- Shows desired API — demonstrates how code should be called
+
+**Good:**
+```typescript
+test('retries failed operations 3 times', async () => {
+  let attempts = 0;
+  const operation = () => {
+    attempts++;
+    if (attempts < 3) throw new Error('fail');
+    return 'success';
+  };
+  const result = await retryOperation(operation);
+  expect(result).toBe('success');
+  expect(attempts).toBe(3);
+});
+```
+
+**Bad:**
+```typescript
+test('retry works', async () => {
+  const mock = jest.fn().mockRejectedValueOnce(new Error()).mockResolvedValueOnce('ok');
+  await retryOperation(mock);
+  expect(mock).toHaveBeenCalledTimes(2);
+});
+```
+
+### Verify RED — Watch It Fail
+
+**MANDATORY. Never skip.**
+
+Run the test. Confirm:
+- Test **fails** (not errors from syntax/import issues)
+- Failure message matches expectation
+- Fails because the feature is missing (not because of typos)
+
+**Test passes immediately?** You're testing existing behavior. Fix the test.
+**Test errors instead of failing?** Fix the error, re-run until it fails correctly.
+
+### GREEN — Minimal Code
+
+Write the simplest code to pass the test. Nothing more.
+
+Don't add features, refactor other code, or "improve" beyond what the test requires. If you're writing code that no test exercises, stop.
+
+**Good:** Just enough to pass the test.
+**Bad:** Adding options, config, generalization that no test asks for (YAGNI).
+
+### Verify GREEN — Watch It Pass
+
+**MANDATORY.**
+
+Run the test. Confirm:
+- New test passes
+- The task's `Tests:` commands pass (full-suite verification belongs to the verify phase)
+- Output is pristine (no errors, no warnings)
+
+**Test fails?** Fix code, not test.
+**`Tests:` commands fail?** Fix now — don't move on with broken tests.
+
+### REFACTOR — Clean Up
+
+Only after green:
+- Remove duplication
+- Improve names
+- Extract helpers
+
+Keep tests green throughout. Don't add new behavior during refactor.
+
+### Repeat
+
+Next failing test for next behavior.
+
+## Common Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
+| "I'll test after" | Tests passing immediately prove nothing. |
+| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
+| "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
+| "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
+| "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
+| "Need to explore first" | Fine. Throw away exploration, start with TDD. |
+| "Test hard = design unclear" | Listen to test. Hard to test = hard to use. |
+| "TDD will slow me down" | TDD faster than debugging. Pragmatic = test-first. |
+| "Existing code has no tests" | You're improving it. Add tests for the code you're changing. |
+| "This is different because..." | It's not. Follow the process. |
+
+## Red Flags — STOP and Start Over
+
+If you catch yourself doing any of these, stop immediately:
+
+- Writing production code before the test
+- Writing tests after implementation
+- Test passes immediately (didn't catch the bug)
+- Can't explain why test failed
+- Rationalizing "just this once"
+- "I already manually tested it"
+- "Keep as reference" or "adapt existing code"
+- "Already spent X hours, deleting is wasteful"
+- "TDD is dogmatic, I'm being pragmatic"
+
+**All of these mean: Delete code. Start over with TDD.**
+
+## Verification Checklist
+
+Before marking work complete:
+
+- [ ] Every new behavior is covered - by an extended existing test or a new one
+- [ ] Watched each test fail before implementing
+- [ ] Each test failed for expected reason (feature missing, not typo)
+- [ ] Wrote minimal code to pass each test
+- [ ] The task's `Tests:` commands pass (full suite belongs to the verify phase)
+- [ ] Output pristine (no errors, warnings)
+- [ ] Tests use real code (mocks only if unavoidable)
+- [ ] Edge cases and errors covered - as rows or assertions where they share setup
+
+Can't check all boxes? You skipped TDD. Start over.
+
+## When Stuck
+
+| Problem | Solution |
+|---------|----------|
+| Don't know how to test | Write wished-for API. Write assertion first. Ask your human partner. |
+| Test too complicated | Design too complicated. Simplify interface. |
+| Must mock everything | Code too coupled. Use dependency injection. |
+| Test setup huge | Extract helpers. Still complex? Simplify design. |
+
+## Debugging Integration
+
+Bug found? Write failing test reproducing it. Follow TDD cycle. Test proves fix and prevents regression. Never fix bugs without a test.
+
+## Testing Anti-Patterns
+
+When adding mocks or test utilities, read `testing-anti-patterns.md` in the directory containing this file to avoid common pitfalls:
+- Testing mock behavior instead of real behavior
+- Adding test-only methods to production classes
+- Mocking without understanding dependencies
+
+## Reference
+
+Read these directly when you need them:
+- `tdd-rationalizations.md` — Extended rationalization discussion
+- `tdd-examples.md` — More good/bad code examples, bug fix walkthrough
+- `tdd-when-stuck.md` — Extended solutions for common blockers
+
+## Final Rule
+
+```
+Production code → test exists and failed first
+Otherwise → not TDD
+```
+
+No exceptions without your human partner's permission.
+
+When the TDD implementation cycle is complete (all tests green, code committed), mark the implement phase complete only for a direct, standalone task. In an orchestrated gauntlet task or review loop, green tests and a commit do not accept the parent task or complete its phase: the parent retains tracker and phase ownership through its required reviews.
+
+```
+phase_tracker({ action: "complete", phase: "implement" })
+```
+
+## Project overrides
+
+If `gauntlet.md` exists - checked in order: `.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`; first found wins - read it. Skip the read only when the file from the same repository at the same trusted revision is already in context. Apply, without a relevance judgment, these sections of `# shared`: `## issue-tracker`, `## worktrees`, `## verification`, `## cleanup`, `## siblings`, `## deployment`, `## spec-index`. Apply `# gauntlet`: its text above the first section, and `## implement`. Apply no other phase's section. Apply nothing else from the file: no other block, no text directly under `# shared`, no other section of `# shared`.
+
+The recognized headings, their readers, and the rules an override cannot change are listed in the [configuration front door](../../../README.md#project-specific-overrides); an override extends or replaces the step it names and never lifts this skill's HARD CONSTRAINT or MUST text.

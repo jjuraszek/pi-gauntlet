@@ -8,8 +8,8 @@ pi-gauntlet requires Node >=24.15.0. This floor provides the release-candidate `
 
 Pin an exact release with `npm:pi-gauntlet@X.Y.Z`. Pi clones the package, runs `npm install --omit=dev`, which triggers the `postinstall` script. Where personas land depends on the install location:
 
-- **User install** (package under `<home>/.pi/<profile>/...`): symlinks the eight agent files into `getAgentDir()/agents` - i.e. `$PI_CODING_AGENT_DIR/agents`, defaulting to `~/.pi/agent/agents`. This is pi-cohort's profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, ...) gets its own personas instead of sharing the machine-global `~/.agents/`. Earlier releases installed into the machine-global `~/.agents/`; on upgrade the postinstall removes stale `~/.agents/<name>.md` symlinks that point into a pi-gauntlet package (which would otherwise shadow the profile-scoped copy) and leaves your own files there alone.
-- **Project install** (package under `<repo>/.pi/...`): copies the eight agent files into `<repo>/.pi/agents/` (the project-scope discovery path). Copy, not symlink, so the files stay valid if you commit them; gitignore `.pi/agents/` if you'd rather keep them install-managed. Project scope wins over user scope on name collisions, so each repo's personas are independent of the user dir and of other repos.
+- **User install** (package under `<home>/.pi/<profile>/...`): symlinks [all shipped personas](personas.md) into `getAgentDir()/agents` - i.e. `$PI_CODING_AGENT_DIR/agents`, defaulting to `~/.pi/agent/agents`. This is pi-cohort's profile-scoped user dir, so each pi profile (`agent`, `agent.anthropic`, ...) gets its own personas instead of sharing the machine-global `~/.agents/`. Earlier releases installed into the machine-global `~/.agents/`; on upgrade the postinstall removes stale `~/.agents/<name>.md` symlinks that point into a pi-gauntlet package (which would otherwise shadow the profile-scoped copy) and leaves your own files there alone.
+- **Project install** (package under `<repo>/.pi/...`): copies all shipped personas into `<repo>/.pi/agents/` (the project-scope discovery path). Copy, not symlink, so the files stay valid if you commit them; gitignore `.pi/agents/` if you'd rather keep them install-managed. Project scope wins over user scope on name collisions, so each repo's personas are independent of the user dir and of other repos.
 
 ## Local development install
 
@@ -34,10 +34,8 @@ v4.0.0 was the first public release and was a **breaking rename** (no behavior c
 
 - Reinstall under the new name: `pi install -l npm:pi-gauntlet` (was `@jjuraszek/pi-superpowers`).
 - Rename settings namespace `piSuperpowers.*` -> `piGauntlet.*` in every preset's `settings.json` (a preset still on the old key silently gets defaults).
-- Rename your override file `.pi/superpowers-overrides.md` -> `.pi/gauntlet-overrides.md`.
+- For v4, follow the [overrides file rename in the v4.0.0 release notes](../CHANGELOG.md#v400---2026-07-02). For a direct upgrade to v9, rename `.pi/superpowers-overrides.md` to `.pi/gauntlet.md` and move its sections as shown in [Upgrade from 8.x](../CHANGELOG.md#upgrade-from-8x).
 - Rename the env override `PI_SUPERPOWERS_AGENT_DIR` -> `PI_GAUNTLET_AGENT_DIR` if you set it.
-
-See [CHANGELOG.md](../CHANGELOG.md) for the full v4.0.0 entry.
 
 ## Versioning
 

@@ -2,7 +2,7 @@ bundle+: skills/shape-ticket/SKILL.md
 
 Use only the inline snapshots, documents and audit files below. Tools are disabled; describe prescribed calls and writes, never claim live execution. Treat each independent checkpoint separately. Keep the entire reply at most 1200 words. Emit selected paths only, not rejected candidate paths.
 
-Prepare the run for repair ABC-801. Resolved overrides ## shape-ticket contains `- sibling: git@github.com:acme/viewer.git`. Supply the home cwd and sibling read paths in the scout brief and any parent-retained report lines. No other siblings are configured.
+Prepare the run for repair ABC-801. In `.pi/gauntlet.md`, `# shared` `## siblings` contains `- sibling: git@github.com:acme/viewer.git`. Supply the home cwd and sibling read paths in the scout brief and any parent-retained report lines. No other siblings are configured.
 
 First checkpoint: cwd and `git rev-parse --show-toplevel` are /repos/pi-gauntlet/.worktrees/x. `git worktree list --porcelain` begins `worktree /repos/pi-gauntlet`. /repos/viewer is a checkout with stored origin https://github.com/acme/viewer.git.
 

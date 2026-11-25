@@ -1,6 +1,6 @@
 bundle+: skills/shape-ticket/SKILL.md
 bundle+: skills/shape-ticket/reference/repo-audit.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Simulate the ended repair batch report only; no tools, pending questions, gates, retries or writes remain. Preserve these per-ref lines verbatim:
 ABC-1: written

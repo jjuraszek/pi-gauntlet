@@ -20,7 +20,7 @@ export function lintTarget(dir, context) {
     else for (const f of target.skillFiles) {
       if (!f.path) errs.push("skillFiles entry without path");
       if (context && f.new === true && f.path) {
-        if (context.baselineHas(f.path)) errs.push(`${f.path}: new file exists at baseline`);
+        if (context.baselineHas(f.path) && !context.selfBaseline) errs.push(`${f.path}: new file exists at baseline`);
         if (!context.treeHas(f.path)) errs.push(`${f.path}: new file missing from working tree`);
       }
       if (target.kind === "edit" && f.path && target.skillFiles[0].path) {
@@ -48,14 +48,16 @@ export function lintTarget(dir, context) {
       if (target?.kind === "edit" && drop.length) errs.push(`${n}: bundle- not allowed for kind edit`);
       const paths = Array.isArray(target?.skillFiles) ? target.skillFiles.map((f) => f.path) : [];
       if (context) for (const p of bundle) {
-        if (!context.baselineHas(p) && !target?.skillFiles?.some((f) => f.path === p && f.new === true)) errs.push(`${n}: bundle+ ${p} absent at baseline without new declaration`);
+        if (!context.baselineHas(p) && !target?.skillFiles?.some((f) => f.path === p && f.new === true)) errs.push(`${n}: bundle+ ${p} absent at baseline; use --base <ref> to pick a base that has this file`);
       }
       for (const p of drop) if (!paths.includes(p)) errs.push(`${n}: bundle- ${p} not in skillFiles`);
       if (drop.length && paths.length && paths.every((p) => drop.includes(p))) errs.push(`${n}: bundle- leaves an empty assembly`);
       for (const p of drop) if (bundle.includes(p)) errs.push(`${n}: ${p} in both bundle+ and bundle-`);
     }
     if (target?.kind === "edit" && !existsSync(join(s, "fixture"))) errs.push(`${n}: kind edit needs fixture/`);
-    if (target?.kind === "text" && existsSync(join(s, "fixture"))) errs.push(`${n}: kind text must not have fixture/`);
+    if (existsSync(join(s, "tracker-result.json"))) {
+      if (target?.kind !== "text" || !existsSync(join(s, "fixture"))) errs.push(`${n}: tracker result needs text replay with fixture/`);
+    } else if (target?.kind === "text" && existsSync(join(s, "fixture"))) errs.push(`${n}: kind text must not have fixture/`);
   }
   return errs;
 }

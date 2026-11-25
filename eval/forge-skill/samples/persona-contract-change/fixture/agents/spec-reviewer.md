@@ -13,7 +13,7 @@ You are a spec compliance reviewer. Your job is to verify that an implementation
 
 ## Process
 
-<!-- clause decomposition / snippet non-authority / whole-file reads / task-contract supplement: keep in lockstep with skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all -->
+<!-- clause decomposition / snippet non-authority / whole-file reads / task-contract supplement: keep in lockstep with skills/gauntlet/implement/waves/spec-reviewer-prompt.md — change them together or not at all -->
 
 1. Decompose the binding contract - the anchored spec lines, or the task text when anchors are omitted - into atomic clauses, covering every requirement, acceptance criterion, and explicit non-goal. Each independently checkable statement is one clause; a sentence listing three requirements yields three clauses. Every clause gets a verdict row.
 2. The task's `**Tests:**` block, `via:`, and its `Files:` paths supplement the anchored spec where it is silent; the anchored spec wins a conflict - report the divergence once, against the plan, never against code corrected to the spec. Findings: a `Create:` path absent from the diff or created elsewhere; a test that does not call the `via:` entry point; a `Tests:` block the diff contradicts. Existing files need no diff touch.
@@ -77,7 +77,7 @@ end the findings with one partition line over the `Fn` IDs assigned above; when
 a task requires a trailing `TRAJECTORY:` verdict (re-review), that verdict
 follows it as the true final line:
 
-<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md — change them together or not at all; writing-plans' plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
+<!-- grammar identical to skills/gauntlet/implement/waves/spec-reviewer-prompt.md — change them together or not at all; the plan-time Parallel-safe: line is a deliberately different free-text form, do NOT unify -->
 
 ```
 Parallel-safe: <group>[; <group>]*

@@ -1,0 +1,109 @@
+Read this reference with the loop driver when its held membership has more than one leg. Read [commit-message.md](../../commit-message.md) for all worker and parent commit wording; take the companion record or repair sentence from its event table.
+
+## Entry
+
+At seed, read `## Legs` with [the scope grammar](../../legs.md#scope-grammar-and-validation) before skeleton commit. Require exactly one `scope:` per block: `scope: AC 1, AC 3` or `scope: none`. Reject missing/duplicate scope lines, duplicate indices within a list, malformed tokens and out-of-range original indices through the amendment stop. Include cut original AC indices; never infer ownership from a `design:` mention or path. Default only indices absent from every valid list to home; repeat shared indices in every owner's list.
+
+Retain the home skeleton's `**Spec:**`, `verification:`, `checks: commands`, `iterations:`, `allowance:`, `returned: none` directly after allowance, and `## Decisions` fields and its `plan_check`/commit admission. Use the driver's gate set grouped by `## Leg mapping` for verification; keep the home verification header as the CI command.
+
+For coordinated exit, apply the driver's `## Gate set` and `## After the loop` step 1 in verify, routing each pair through its mapped checkout. Count home `repair verification` decision lines against the driver's shared allowance across failing legs. Success only after every leg passes; retain each verified HEAD and clean status.
+
+Assign numeric entries in original AC order, then membership order for shared ACs, independent of scope-list order. Leave spec rows untouched and copy each cut disposition to every expanded entry. Keep the four-column table and add `## Leg mapping` with `row | ac | leg`, one mapping per entry exactly once. Reject duplicate/missing mappings. Keep `base:` as home base; record one actual `base repo-a: <sha>` / `seeded repo-a: no` pair per member, including home. Resolve bases with each member's `git -C`, not home HEAD.
+
+Use the same allowance seed value and source echo as the home driver's Entry step 4; never multiply by entry or leg count or add seed dispatches. One shared home/companion AC and one home-only AC produce three entries, two seeds and allowance 4 at default 4; a wholly cut third leg adds no seed. All-cut ledgers exit without seed and retain that allowance. Preserve allowance after cuts, reopens, requirement-preserving amendments and recovery.
+
+## Resume
+
+Use the held membership and checkout paths captured by the driver's Entry at seed or authorized restore. Route `pending: verify` through the driver's After the loop step 1 before the row/seed admission below. Recover pending companion work before generic dirty checks and before any new dispatch. Read the durable home ledger's `pending:` tuple and consumed iteration, selected companion HEAD and saved pre-dispatch state. Reconstruct the pre-dispatch ledger from home `HEAD:<ledger path>` on resume. Classify interrupted boundaries before applying clean-return admission checks. For a clean return admit only the known iterations bump and exact pending tuple as home dirt. Route unexpected home dirt and home movement through common interrupted recovery when the tuple and before-image are recoverable. With a clean single commit after the recorded HEAD, read its return file through companion return validation below; missing, unreadable or mismatched files are result-validation misses, not interrupted boundaries. Apply the home-ledger commit without another attempt or iteration bump, clear pending and retain prior decisions. Route interrupted boundaries (dirty, zero/multiple commits, dispatch error or non-DONE) through ## Companion return validation's common interrupted recovery; include unrelated movement among interrupted boundaries; route post-boundary result-validation misses through ordinary or seed repair below, clear `pending:` and preserve the consumed iteration. After a successful parent commit no pending tuple remains, so a subsequent resume cannot duplicate the update.
+
+## Targeting and dispatch
+
+For coordinated targeting, select the next unseeded leg with non-cut entries in membership order before ordinary targeting. Use the existing retry/failed/open priority only after those seeds validate. Skip wholly cut legs; never mark foreign legs seeded. Map each numeric target to its original AC and leg via `## Leg mapping`.
+
+For coordinated dispatch, capture home and selected leg heads and save a pre-dispatch ledger snapshot before the iterations bump and tuple write for the expected-dirt comparison. Select the leg worktree as `cwd` and git root, its own base, mapped original AC, `Leg:` and combined spec/task `Rules:` as additive task inputs. Pass absolute home spec and ledger paths for the child to read; the driver reads only the ledger. Read the current `iterations:` count as i. Before every dispatch, home or companion including seed, persist the exact tuple such as `pending: 2 | repo-b | abc1234` (or `pending: seed | repo-b | abc1234`) with actual target, member repo and pre-dispatch HEAD in the home ledger. Keep that expected bump/tuple durable on disk before generic dirty checks; admit no other dirt. After persisting the bump and pending tuple, bind `SAVED_LEDGER` to the durable home ledger for companion admission, not the pre-dispatch snapshot. Send `iteration: i` as the saved pre-bump dispatch index (for i = 2, send `iteration: 2`), not the consumed count; write `iterations: i + 1` before dispatch; admission requires the return file's `iteration:` to carry `i + 1`, read from the bumped ledger header. State that the task count is pre-bump while `ITERATION` and the return file carry the consumed count; never compare them to each other. Pass the exact `pending:` as attribution and the driver's held `wording:` and `ticket:`. Prepare and pass `return:` below for companions only. Keep home on the single child commit path, validating only home entries and home seeded state, with tuple removal and `returned:` replacement in the admitted home commit. Apply the driver's pre-dispatch refresh after the durable write.
+
+## Return file
+
+Resolve `<git dir>` with `git -C <worker checkout> rev-parse --path-format=absolute --git-dir`, never `--git-common-dir`. Set the path to `<git dir>/gauntlet/returns/<pre-dispatch HEAD sha>-<consumed iteration>.md`. Before dispatch create its directory, delete a stale file at that exact path, and pass `return: <absolute path>`; stop before dispatch on a failed read, directory creation or deletion. Resume recomputes the path from the same checkout, tuple SHA and consumed iteration without deleting it before admission. Require the worker to write the tuple, consumed iteration, blank line, rows, blank line and decisions there before its commit. Keep all of this out of commit messages.
+
+Delete this file after admission, after a validation-miss repair and in interrupted recovery. Use the checkout's own git dir so linked worktrees cannot share a return path even with the same HEAD and iteration.
+
+## Companion return validation
+
+For a companion, validate from the return file, not the reply or commit message. Require a clean companion and exactly one commit after pending HEAD; require unchanged home HEAD and no home edits except the expected persisted bump/tuple. Match the exact pending tuple and consumed `iteration:` on the file's first two lines. Parse four-column row lines followed by decision lines. For ordinary returns require the target (`done` or `failed`, attempts +1) plus zero or more same-leg `open` -> `done` extras with attempts unchanged. Require nonempty bounded evidence and exactly one matching bounded decision for each changed row, target decision first, under the driver's `## Validate the return` table; admit extras beside a failed target without policing worker order or adding a command-format check. For seed require all and only that leg's non-cut rows, at least one with evidence, and one bounded seed decision; admit unchanged open rows with empty evidence. Reject a wrong target, foreign entry, changed cut/done extra, header changes, fabricated counts, malformed evidence or unmatched/duplicate rows or decisions. Validate seed counts against nonempty evidence cells and baseline closures; require zero attempts and set only this leg's seeded value to `yes` after the complete row set validates. Route seed validation misses after boundary admission through the driver's seed repair count: append `repair seed | seed miss: <concrete miss> | iteration <consumed>` in home and commit with the shared Seed repair sentence. Write no worker rows or decisions, set `returned:` to the dispatched tuple and clear `pending:`, leave this leg's seeded value `no` and preserve foreign state. Retain consumed iterations and saved allowance; apply the driver's seed count and hint rule to retry this leg below allowance or stop at allowance. A validated seed resets the validation-miss window. Route ordinary validation misses after boundary admission through the driver's ordinary repair: set only the target `failed` with attempts +1 and `iteration <i>: <miss>` evidence, append `repair row <n> | <miss> | iteration <consumed>`, set `returned:` to the dispatched tuple, clear `pending:` and commit with the shared Row repair sentence in home. Preserve every non-target row and prior decision from the saved copy, consumed iterations and saved allowance; count the miss in the existing two-miss window.
+
+After validation write every admitted row and append every validated decision to the home ledger, record companion SHA in evidence, set `returned:` to the dispatched tuple and remove `pending:` in one home-ledger commit. Delete the return file after that commit or a validation-miss repair. Use the target's decision as the next dispatch's `previous decision:`, never an extra's. Preserve every other row, header and prior decision. Use the shared Companion row record or Companion seed record sentence for that parent commit. For stagnation identify the worker from the changed `returned:` tuple and read its paths in the companion checkout, never through a subject or a home object lookup. For rejected results apply the post-boundary repair above. For interrupted boundaries, apply the [common interrupted recovery](interrupted-recovery.md) three-step rule and failure pass immediately and on resume, using the selected companion's base and pre-bump iteration jobs file. Reset and clean the selected companion to its `HEAD_BEFORE` and home to the saved home HEAD; write the repair commit only in home. For the failure pass use the companion HEAD for the reset check and the saved home HEAD for the ledger-only commit boundary. Restore the saved home ledger with consumed iterations and saved `returned:`, preserve foreign rows, mappings, bases and seeded flags, clear pending and append the matching `repair row` or `repair seed` decision from common recovery. Commit with the shared repair sentence and delete the return file. Increment only the numbered target's attempts once; seed leaves rows unchanged. Refresh and return to the driver's ordered table or seed count without double counting. Recover from boundary evidence, never trusted reply text.
+
+For coordinated home returns apply it only to home entries/seeded state, preserving foreign entries, mappings and bases.
+
+### Companion commit admission
+
+For clean returns require the unchanged home HEAD and expected-only home dirt boundary above, then run this read-only admission recipe on both immediate returns and pending recovery. Set `CHECKOUT` to the companion root, `PENDING` to the exact persisted tuple including `pending:`, `ITERATION` to the consumed count, `RETURN_FILE` to the recomputed return path and `SAVED_LEDGER` to the durable home ledger after the iterations bump and pending write, including on recovery. Use the pre-dispatch snapshot only for the expected-dirt comparison. Classify boundary failures before running this recipe: route dirty/zero/multiple-commit returns, unrelated home movement, unexpected home dirt through the common interrupted recovery above. Missing, unreadable or mismatched return files are post-boundary validation misses. Preserve a stop only for an unrecoverable tuple or before-image. On a seed validation miss after the boundary passes apply the seed repair above. On an ordinary validation miss after the boundary passes apply ordinary repair above, not the boundary stop. On success use the emitted object for the single parent ledger commit described above; never treat it as permission for another dispatch.
+
+<!-- companion-return-shell -->
+```bash
+node - "$CHECKOUT" "$PENDING" "$ITERATION" "$SAVED_LEDGER" "$RETURN_FILE" <<'NODE'
+const fs = require('node:fs');
+const { execFileSync } = require('node:child_process');
+const [root, pending, iteration, savedPath, returnPath] = process.argv.slice(2);
+const requireThat = (ok, why) => { if (!ok) throw new Error(why); };
+const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+const tuple = /^pending: (seed|\d+) \| (\S+) \| ([a-f0-9]{7,40})$/.exec(pending);
+requireThat(tuple, 'invalid pending');
+const saved = fs.readFileSync(savedPath, 'utf8');
+requireThat(saved.split('\n').filter(line => line.startsWith('pending:')).length === 1 && saved.split('\n').includes(pending) && saved.split('\n').includes(`iterations: ${iteration}`), 'pending already applied or iteration mismatch');
+const [, target, leg, before] = tuple;
+requireThat(git('status', '--porcelain') === '', 'dirty companion');
+requireThat(git('merge-base', '--is-ancestor', before, 'HEAD') === '', 'unrelated HEAD');
+requireThat(git('rev-list', '--count', `${before}..HEAD`) === '1', 'expected one companion commit');
+const commit = git('rev-parse', 'HEAD');
+const message = fs.readFileSync(returnPath, 'utf8').split('\n');
+requireThat(message.shift() === pending, 'pending mismatch');
+requireThat(message.shift() === `iteration: ${iteration}`, 'iteration mismatch');
+requireThat(message.shift() === '', 'missing result separator');
+const resultLines = message.filter(line => line.trim() !== '');
+const cells = line => line.split(/(?<!\\)\|/).slice(1, -1).map(s => s.trim());
+const table = text => text.split('\n').filter(line => /^\|\s*\d+\s*\|/.test(line)).map(cells);
+const [ledger, mapping] = saved.split('## Leg mapping\n');
+requireThat(mapping, 'missing mapping');
+const map = table(mapping.split('## Decisions')[0]);
+const oldRows = table(ledger);
+requireThat(new Set(map.map(r => r[0])).size === map.length && map.length === oldRows.length && oldRows.every(r => map.some(m => m[0] === r[0])), 'invalid mapping');
+const expected = oldRows.filter(r => map.some(m => m[0] === r[0] && m[2] === leg) && (target === 'seed' ? r[1] !== 'cut' : r[0] === target));
+requireThat(expected.length && expected.every(r => r[1] !== 'cut'), 'foreign or cut target');
+const decisionStart = resultLines.findIndex(line => /^row \d+ /.test(line));
+requireThat(decisionStart > 0, 'missing rows or decisions');
+const rowLines = resultLines.slice(0, decisionStart);
+const decisions = resultLines.slice(decisionStart);
+const decision = decisions[0];
+const rows = rowLines.map(cells);
+requireThat(rowLines.every(l => l.startsWith('|') && l.endsWith('|')) && rows.every(r => r.length === 4), 'malformed row');
+requireThat(new Set(rows.map(r => r[0])).size === rows.length, 'duplicate row');
+requireThat(target === 'seed' ? rows.length === expected.length : rows.some(r => r[0] === target), 'missing target or seed row');
+for (const row of rows) {
+  const old = (target === 'seed' ? expected : oldRows).find(r => r[0] === row[0]);
+  requireThat(old && row[0] === old[0] && map.some(m => m[0] === row[0] && m[2] === leg), 'foreign row');
+  const isTarget = row[0] === target;
+  requireThat((target === 'seed' ? /^(open|done)$/ : isTarget ? /^(done|failed)$/ : /^done$/).test(row[1]), 'invalid status');
+  requireThat(target === 'seed' ? /^(open|done)$/.test(old[1]) : (isTarget ? /^(open|failed)$/.test(old[1]) : old[1] === 'open'), 'changed cut or closed row');
+  requireThat(/^\d+$/.test(row[2]) && Number(row[2]) === Number(old[2]) + (isTarget ? 1 : 0) && (target !== 'seed' || Number(row[2]) === 0), 'attempt mismatch');
+  requireThat((row[3].length > 0 || (target === 'seed' && row[1] === 'open' && row[3] === old[3])) && row[3].split(';').length <= 4 && !/[<>]/.test(row[3]), 'unbounded evidence');
+  requireThat(target !== 'seed' || old[1] !== 'done' || row[1] === 'done', 'lost baseline closure');
+}
+if (target === 'seed') {
+  requireThat(decisions.length === 1, 'seed decision mismatch');
+  const d = /^row 0 done \| seeded (\d+) rows, closed (\d+) on baseline \| .{1,200}$/.exec(decision);
+  requireThat(d && Number(d[1]) >= 1 && Number(d[1]) === rows.filter(r => r[3].length > 0).length && Number(d[2]) === rows.filter(r => r[1] === 'done').length, 'seed counts mismatch');
+} else {
+  const parsed = decisions.map(line => /^row (\d+) (done|failed) \| .{1,200} \| .{1,200}$/.exec(line));
+  requireThat(parsed.length === rows.length && parsed.every(Boolean), 'invalid decision set');
+  requireThat(parsed[0][1] === target && new Set(parsed.map(d => d[1])).size === rows.length, 'decision order or duplicate');
+  requireThat(parsed.every(d => rows.some(r => r[0] === d[1] && r[1] === d[2])), 'unmatched decision');
+}
+console.log(JSON.stringify({ sha: commit, rows: rowLines, decisions, decision }));
+NODE
+```
+
+## Amendments
+
+For coordinated amendments, reconcile by original AC/leg mapping without resetting attempts, iterations or allowance. Re-read explicit scope lists after approved ownership amendments and reconcile expanded entries; a disposition-only cut changes neither original indices nor ownership. Preserve unchanged mapped entries and their histories.

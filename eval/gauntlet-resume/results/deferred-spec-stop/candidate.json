@@ -1,8 +1,8 @@
 {
   "sample": "deferred-spec-stop",
   "arm": "candidate",
-  "skillSha": "459f4e34ceadcc30403491de8ce5deef8b03d10e83b54423969c473eb94c3b35",
-  "inputSha": "9ad579787ef73f78a48a0a235645478fb66e3d6a136437d5e9f74e1338cc24c4",
+  "skillSha": "66fa93d59fc2d29d74bec73443f03870818e6dd2911bee3fb9ac61f1a5205118",
+  "inputSha": "e42ced201dfb5aa968d96f8368312bb84dd8cc65e6fe5e94cc2d4b4e7a16e9f8",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -11,24 +11,24 @@
       "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "anthropic-fable/claude-fable-5-1",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "# Narrated deferred resume: entry check 6 onward\n\nAll six routes resolve the same spec, `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Its header block (between the H1 and the first `##`) was supplied as:\n\n```\n# Export receipts\n**Amend-grant:** none\n**Engine:** deferred\n**PR:** acme/widget#42\n```\n\nEntry check 6 runs deferred-header admission on that path. It does this before any `phase_tracker` or `plan_tracker` mutation, any approval question, and any brainstorming invocation. An exact `**Engine:** deferred` stops the route with `spec approved for handoff only - run brainstorming #N`, with no tracker mutation. That stop runs before grant decoding, and every route below hits it.\n\n---\n\n## Route 1: Bare tree\n\n1. **Path in:** Reconstruction places the bare worktree `/work/widget/.worktrees/spec-export` on \"Spec without plan\". That section requires check 6's deferred-header admission on the resolved spec before the approval/handoff question.\n2. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns the header block. It contains `**Engine:** deferred`.\n3. **Deferred stop:**\n   - The skill never asks the approval/handoff question.\n   - It makes no `start brainstorm`, `skip brainstorm` or loop/writing-plans entry.\n   - It does not decode the grant.\n4. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6 (deferred header). No tracker call and no question asked.\n\n---\n\n## Route 2: Brief (Phase implement, no plan active)\n\n1. **Path in:** The brief has `## Process state`, so it takes process-state restore. The brief has no PR pairs, so the PR identity fetch and Rework-record comparison do not apply. The spec path comes from candidate resolution and is carried forward without re-resolving.\n2. **Rule applied:** \"Honor SKILL.md entry check 6's deferred stop before any process-state arming call.\"\n3. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns `**Engine:** deferred`.\n4. **Deferred stop:** The skill reaches no call-table row. That means:\n   - no `start brainstorm`\n   - no `plan_check`\n   - no `start implement`\n   - no `plan_tracker`\n5. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6 before any arming call. No tracker mutation.\n\n---\n\n## Route 3: Process-state (Phase verify, before closure review, all tasks complete)\n\n1. **Path in:** Process-state restore at the verify row.\n2. **Rule applied:** The deferred stop comes before any arming call.\n3. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns `**Engine:** deferred`.\n4. **Deferred stop:** None of the verify sequence runs:\n   - no `start brainstorm` or `skip`\n   - no `plan_check`\n   - no `skip implement` or `start verify`\n   - no `plan_tracker init` of the all-complete snapshot\n   - no closure-review continuation\n5. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6. Verify was not restored and no conformance step was reached.\n\n---\n\n## Route 4: Seed (`doc/specs/export.md`)\n\n1. **Path in:** The token takes the spec-seed route. Check 6 runs on the seed's pinned path, carried from `reference/seed.md` and not re-resolved: `/work/widget/.worktrees/spec-export/doc/specs/export.md`.\n2. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns `**Engine:** deferred`.\n3. **Deferred stop:**\n   - no tracker mutation\n   - no Engine routing into loop-implementation or writing-plans\n   - no grant decoding\n4. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6 on the pinned seed spec. No tracker call.\n\n---\n\n## Route 5: Published brainstorm (push ok, `gh pr create` failed \"GraphQL: unavailable\")\n\n1. **Path in:** Process-state restore at the brainstorm row.\n2. **Rules applied:**\n   - For brainstorm-stage briefs, the skill resolves any existing spec through the candidate rules. It runs check 6's deferred-header admission before `start brainstorm`.\n   - Grant decoding is exempt at this stage.\n   - The brief contract says a handoff after option 6's push succeeded but PR creation failed still has brainstorm in_progress. \"Its deferred header stops restoration, not the ordinary gate.\"\n3. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns `**Engine:** deferred`.\n4. **Deferred stop:**\n   - no `start brainstorm` and no `substep` (User Review Gate)\n   - no brainstorming checklist continuation\n   - no PR creation retry by resume\n5. **N for the message:** The brief carries no PR header, so N comes from the supplied session context: #42.\n6. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6 before `start brainstorm`. Brainstorm was not restored and no tracker mutation was made.\n\n---\n\n## Route 6: Grant exemption (Published brainstorm with `**Amend-grant:** all`)\n\n1. **Path in:** Identical to Route 5, at the brainstorm-stage process-state restore.\n2. **Read:** `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })` returns `**Engine:** deferred` and `**Amend-grant:** all`.\n3. **Deferred stop:** Deferred-header admission runs first and stops.\n   - The grant is not decoded: brainstorm-stage grant decoding is exempt, and the stop comes first anyway.\n   - Neither `Standing grant active: …` nor `No standing grant.` is printed.\n   - No tracker mutation is made.\n4. **Printed:**\n```\ngauntlet: stuck spec approved for handoff only - run brainstorming #42\nI'm using the gauntlet-resume skill to continue an interrupted flow.\n```\n\n**Outcome:** Stopped at check 6 exactly as in Route 5. The Amend-grant value is irrelevant, and no grant line or tracker call occurs.\n",
-      "words": 811,
-      "wallMs": 33146,
+      "text": "# Narrated deferred resume entry\n\nAll six routes resolve the same spec, `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Its pre-`##` header holds exact `**Engine:** deferred`. Entry check 6 runs its deferred-header admission before any tracker write or brainstorm entry. Every route therefore stops at check 6, with no tracker call, no dispatch and no grant line. Each route has one message.\n\n---\n\n## Bare tree\n\n1. **Route.** The argument `/work/widget/.worktrees/spec-export` is a bare worktree, which goes to `reference/reconstruction.md`. \"Candidates\" finds one spec and no plan, so the route is \"Spec without plan\".\n2. **Check 6.** \"Spec without plan\" runs check 6's deferred-header admission before the approval/handoff question.\n   - Read `/work/widget/.worktrees/spec-export/doc/specs/export.md` from the H1 to the first `##`.\n   - Observed: `**Engine:** deferred`.\n   - PR evidence: there is no `**PR:**` line, no session PR and no publication history. This matches the \"Neither\" row.\n3. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - which draft PR contains this spec?\n   ```\n4. The approval question is never asked. The \"approved\" classification is never acted on.\n\n**Outcome:** stopped at check 6 asking which draft PR holds the spec; no tracker mutation.\n\n---\n\n## Brief\n\n1. **Route.** The brief has the six core headings and no `## Process state` section. Its worktree is present, so it goes to `reference/reconstruction.md`. \"Candidates\" finds one spec and no plan, so the route is \"Spec without plan\".\n2. **Check 6.**\n   - Read the spec header, H1 to first `##`.\n   - Observed: `**Engine:** deferred`.\n   - PR evidence: publication returned draft spec PR `acme/widget#42`, so the session identifies #42.\n3. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   ```\n\n**Outcome:** stopped at check 6, directing the human to `/skill:gauntlet #42`; no tracker mutation.\n\n---\n\n## Process-state\n\n1. **Route.** The brief has `## Process state` and no `Ledger:` field. It goes to `reference/reconstruction.md`, then `reference/restore-plan.md` \"Process-state restore\" (active phase: verify).\n2. **Spec path.** `<spec path>` resolves per \"Candidates\" to `/work/widget/.worktrees/spec-export/doc/specs/export.md`.\n3. **Check 6.** Its deferred stop is honored before any arming call.\n   - Read the spec header.\n   - Observed: `**Engine:** deferred` and `**PR:** acme/widget#42`.\n4. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   ```\n5. The following calls are never made:\n   - `start brainstorm`, `skip`, `plan_check` and `start verify`;\n   - `plan_tracker init`.\n\n**Outcome:** stopped at check 6, before the verify restore, directing the human to `/skill:gauntlet #42`; no tracker mutation.\n\n---\n\n## Seed\n\n1. **Route.** The token `doc/specs/export.md` is a spec seed, which goes to `reference/seed.md`.\n   - Check 1 has already passed.\n   - Checks 2, 4 and 5 do not apply.\n   - Check 6 runs on seed.md's pinned `<full-path>/<rel>`, which resolves to `/work/widget/.worktrees/spec-export/doc/specs/export.md`.\n2. **Check 6.**\n   - Read the spec header.\n   - Observed: `**Engine:** deferred` and `**PR:** acme/widget#42`.\n3. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   ```\n4. seed.md's later steps do not run. That includes step 8's plan lookup and any further worktree action.\n\n**Outcome:** stopped at check 6, directing the human to `/skill:gauntlet #42`; no tracker mutation.\n\n---\n\n## Published brainstorm\n\n1. **Route.** The brief records brainstorm in progress, with last checkpoint User Review Gate. It goes to `reference/reconstruction.md`, which resolves the spec. \"Spec without plan\" requires check 6's deferred-header admission for both outcomes, including the unapproved-draft handoff. `restore-plan.md` says the same for a brainstorm-stage process-state brief: the deferred header stops restoration.\n2. **Check 6.**\n   - Read the spec header.\n   - Observed: `**Engine:** deferred`. There is no `**PR:**` field and no PR was created.\n   - The brief records a successful push of the deferred spec, followed by `gh pr create` failing with \"GraphQL: unavailable\". This matches the \"Push succeeded, creation failed\" row.\n3. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec\n   ```\n4. **Grant decoding** is exempt on this route, so no grant line is printed. None of the following happens:\n   - no `start brainstorm`;\n   - no brainstorming checklist entry;\n   - no `/skill:gauntlet` handoff.\n\n**Outcome:** stopped at check 6, directing a retry of draft-PR creation at the spec approval step; no tracker mutation.\n\n---\n\n## Grant exemption\n\n1. **Route.** Identical to Published brainstorm, except the spec carries `**Amend-grant:** all`.\n2. **Check 6.**\n   - Read the spec header.\n   - Observed: `**Engine:** deferred`, with the same push-succeeded/create-failed evidence and no PR field.\n   - The deferred stop fires during admission, before any grant decoding.\n   - Grant decoding is also exempt on this brainstorm and unapproved route. So `all` is neither validated nor reported, there is no malformed-grant check, and no `Standing grant active:` line is printed.\n3. **Printed:**\n   ```\n   gauntlet: stuck spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec\n   ```\n\n**Outcome:** stopped at check 6 with the same retry message; the `all` grant is never decoded; no tracker mutation.\n",
+      "words": 746,
+      "wallMs": 40095,
       "mechanical": {
         "notice": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "I'm using the gauntlet-resume skill to continue an interrupted flow.\n\nThe following are narrated reads and outputs, not live tool operations. Each route is independent and begins at entry check 6.\n\n### Bare tree\n\n1. **Entry check 6 — Grant field / deferred-header admission.**\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header between the H1 and the first `##`.\n   Supplied observation: `# Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. The deferred engine stops reconstruction **before** the approval/handoff question. The supplied “approved” classification does not bypass this admission check.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no grant decoding, approval question, tracker call, dispatch, or continuation.\n\n### Brief — implement, no plan active\n\n1. **Entry check 6 — Grant field / deferred-header admission.**\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header block.\n   Supplied observation: `# Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. The deferred engine stops restoration before any process-state arming call. Neither the implement phase nor `No plan active.` overrides that stop.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no grant decoding, `plan_check`, tracker call, dispatch, or continuation.\n\n### Process-state — verify, tasks complete, no active plan\n\n1. **Entry check 6 — Grant field / deferred-header admission.**\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header block.\n   Supplied observation: `# Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. The deferred engine stops restoration before any process-state arming call. The verify checkpoint and completed task snapshot supply neither permission to bypass admission nor closure-review evidence.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no grant decoding, tracker restoration, verification dispatch, closure review, or continuation.\n\n### Seed\n\n1. **Entry check 6 — Grant field / deferred-header admission**, using the supplied pinned spec path.\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header block.\n   Supplied observation: `# Export receipts`, `Amend-grant: none`, `Engine: deferred`, `PR: acme/widget#42`.\n2. The deferred engine stops the seed route before any tracker mutation or further continuation.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no grant decoding, worktree operation, tracker call, dispatch, or continuation.\n\n### Published brainstorm\n\n1. **Entry check 6 — deferred-header admission.** Grant decoding is exempt because the brief’s active phase is brainstorm; deferred-header admission is **not** exempt.\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header block.\n   Supplied observation: `# Export receipts`, `Amend-grant: none`, `Engine: deferred`; no PR header in this variant. Subject #42 is supplied by session context.\n2. The deferred engine stops restoration. The successful push followed by `gh pr create` failure does not permit restoring brainstorm or returning to its ordinary User Review Gate.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no grant line, `start brainstorm`, substep restoration, PR-creation retry, or brainstorming continuation.\n\n### Grant exemption — published brainstorm with `Amend-grant: all`\n\n1. **Entry check 6 — deferred-header admission.** Grant decoding remains exempt because the active phase is brainstorm.\n   Narrated read: `Read({ path: \"/work/widget/.worktrees/spec-export/doc/specs/export.md\" })`, inspecting the header block.\n   Supplied observation: `# Export receipts`, `Amend-grant: all`, `Engine: deferred`; no PR header. Subject #42 is supplied by session context.\n2. The deferred engine stops restoration before grant decoding or tracker mutation. `Amend-grant: all` does not bypass deferred-header admission.\n3. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run brainstorming #42\n   ```\n\n**Outcome:** Stopped; no standing-grant announcement, tracker call, dispatch, PR-creation retry, or continuation.\n",
-      "words": 552,
-      "wallMs": 28679,
+      "text": "### Bare tree\n\n1. Entry check 6 — **Grant field**: read the header of `/work/widget/.worktrees/spec-export/doc/specs/export.md`, between H1 and the first `##`. Observe `**Engine:** deferred`. No PR identity or publication history is available.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - which draft PR contains this spec?\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission; no grant decoding, approval question, tracker call, `plan_check`, dispatch, or continuation.\n\n### Brief\n\n1. Entry check 6 — **Grant field**: read the header of `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Observe `**Engine:** deferred`. The supplied publication evidence identifies draft spec PR `acme/widget#42`.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission; no grant decoding, tracker call, `plan_check`, dispatch, or continuation.\n\n### Process-state\n\n1. Entry check 6 — **Grant field**: read the header of `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Observe `**Engine:** deferred` and `**PR:** acme/widget#42`.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission; the verify checkpoint and completed-task snapshot are not restored, and no grant decoding, tracker call, `plan_check`, dispatch, or continuation occurs.\n\n### Seed\n\n1. Entry check 6 — **Grant field**: read the pinned spec header at `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Observe `**Engine:** deferred` and `**PR:** acme/widget#42`.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - run /skill:gauntlet #42\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission; no grant decoding, tracker call, `plan_check`, dispatch, or continuation.\n\n### Published brainstorm\n\n1. Entry check 6 — **Grant field**: read the header of `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Observe `**Engine:** deferred` and no PR field. The supplied publication history records a successful push followed by PR-creation failure, `GraphQL: unavailable`; no spec PR was created.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission, before `start brainstorm`; no grant decoding, tracker call, PR-creation retry, dispatch, or continuation occurs.\n\n### Grant exemption\n\n1. Entry check 6 — **Grant field**: read the header of `/work/widget/.worktrees/spec-export/doc/specs/export.md`. Observe `**Engine:** deferred`, `**Amend-grant:** all`, and no PR field. The supplied publication history is the same successful push followed by `GraphQL: unavailable`, with no spec PR created.\n2. Print:\n   ```text\n   gauntlet: stuck spec approved for handoff only - retry opening the draft PR at the spec approval step that published this spec\n   I'm using the gauntlet-resume skill to continue an interrupted flow.\n   ```\n\nOutcome: stopped at deferred-header admission; brainstorm’s grant-decoding exemption does not exempt deferred-header admission, and no grant announcement, tracker call, dispatch, or continuation occurs.\n",
+      "words": 444,
+      "wallMs": 23163,
       "mechanical": {
         "notice": "holds"
       }
@@ -36,30 +36,31 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "verdict": "error",
-      "error": "baseline: This request was blocked as it seems to violate Anthropic's Terms of Service restrictions on reverse engineering or duplicating model outputs. To learn more, visit https://www.anthropic.com/legal/commercial-terms. API integrators: you can reduce refusals for your users by configuring a fallback model — see https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "5f7709cb42a80a80ae473e9c4a2676aa3ee9998139b169a9a53ea0eb2bb05f33",
+      "factsSha": "20d902926a36ec834ddf5f9d288502857ca03da4cb043c240eee8afb63294ffc",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "ce2ffee5bba78c8d20f48a00567700fbecb423c72a2611a0db11f3ba7ba4389b",
-      "baselineOutputSha": "f225dd6516eb1fbc5cdfb11d84ad9410c4285d78c64fceb871b557fd94c61b68",
-      "candidateOutputSha": "567542f8915f552624ee3ba11989af5bdc0bb3101f4b0ecc522117df9fbbdcff",
+      "intentSha": "3d98511c4cf538bc34239c6501b2dd52751ba12c13629f8581c2f8b4eecffa26",
+      "baselineOutputSha": "ef13ca27e24a9cb9c4da9ed9ab4469df72ef50b447aa56ee0b2cb4bfa3998b5f",
+      "candidateOutputSha": "4c6adcbe5ea57ab7c500b78b68fe58aafd27e9098a45275287b8bb800e034149",
       "facts": {
         "routes": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
+        },
+        "unknown": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         },
         "published": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "exemption": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "ordered": {
           "before": "holds",
@@ -67,15 +68,57 @@
           "label": "held"
         },
         "notice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved four facts by replacing the single `run brainstorming #N` stop with three evidence-keyed messages, and it kept the one fact Before held: both outputs stop every route at check 6 with no tracker call, dispatch or continuation. The identified-PR routes (Brief, Process-state, Seed) now print `run /skill:gauntlet #42`, where Before printed `run brainstorming #42`, or an unfilled `#N` on the routes with no PR. Bare tree now asks which draft PR contains the spec, without a numbered command and without assuming creation failed. Published brainstorm and Grant exemption now print the same retry pointer, and the `all` grant is never decoded. The weak point is the retry pointer's wording: \"retry opening the draft PR at the spec approval step that published this spec\" never says \"option 4\" or \"create-only\". I counted it as holding because it directs only PR creation, with no push, restart or numbered command, but a stricter reader could fail it. To make it unambiguous, have the recorded-create-failure row name the retry explicitly, for example \"retry option 4 (open the draft PR only; the push already succeeded)\". Keep the rest as it is: the three-row evidence split (identified PR, recorded create failure, neither), the admission-before-arming order, and the explicit statements that no tracker call, dispatch or grant line occurs.",
+      "wallMs": 14082,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "20d902926a36ec834ddf5f9d288502857ca03da4cb043c240eee8afb63294ffc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "3d98511c4cf538bc34239c6501b2dd52751ba12c13629f8581c2f8b4eecffa26",
+      "baselineOutputSha": "da0ad36af850168e7c09b50771f3954db9d9d6df6bbb08841bc6faf6ff61546b",
+      "candidateOutputSha": "2eb6b51a8c35fe925f95675df4bcf77c8b834badd77ef76b53305644eda3d5ea",
+      "facts": {
+        "routes": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "unknown": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "published": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "exemption": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "ordered": {
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "notice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "No fact moved: in both arms every route reads the deferred header at entry check 6, prints the handoff-only stop line, and ends with no tracker mutation, dispatch, PR repair, brainstorm restart or continuation, and the Amend-grant: all variant is stopped identically. Two drifts in After are worth noting even though they do not cross a fact boundary: (1) After renders the read as a tool-call expression `Read({ path: ... })` while the case states that no tools exist — Before's prose 'Read the header block of <path>' is the safer wording and still delivers the narrated-read requirement; keep reads as prose or label them explicitly as 'observed file content' rather than call syntax. (2) After hoists the skill preamble ('I'm using the gauntlet-resume skill...') to a single top-of-output line and drops it from each route's printed block, whereas Before prints it after the handoff line per route; since the task asked for printed lines in order per route, prefer keeping the per-route print order as Before did (or state once that the preamble override suppresses it) so the ordering of printed lines remains auditable per route.",
-      "wallMs": 13247,
-      "verdict": "unchanged"
+      "feedback": "Before printed the same placeholder line on every route (\"run brainstorming #N\"), so it never named /skill:gauntlet #42, never asked for the draft PR, and never pointed to the create retry; only the no-mutation fact held. After's three-way split at entry check 6 moved the other four facts: Brief, Process-state and Seed print \"run /skill:gauntlet #42\", Bare tree asks \"which draft PR contains this spec?\" with no numbered command and no assumption of a create failure, and both Published brainstorm and Grant exemption (Amend-grant all) print the same retry pointer with no numbered command, PR creation, tracker restoration or brainstorm restart. Every route still stops before any tracker call, dispatch or continuation, so nothing Before kept was lost. The one soft spot is the retry line: \"retry opening the draft PR at the spec approval step that published this spec\" reads as the create-only retry, but it does not name option 4 or say that the push is not repeated, so I counted it as holding on a lenient reading. To make it unambiguous, have the wording name the option explicitly, for example \"choose option 4 (retry opening the draft PR only; the branch is already pushed) at the spec approval step\", and keep the three branches, the single check-6 stop and the statement that the grant exemption does not bypass deferred admission exactly as they are.",
+      "wallMs": 10949,
+      "verdict": "improved"
     }
   },
-  "repoSha": "545053ebd36a4408e718c9af4cfb918cebb69227"
+  "repoSha": "4c1cc38e39d6b4e11e5407a1d34db93091315770"
 }

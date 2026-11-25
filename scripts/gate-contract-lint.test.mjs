@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
@@ -7,13 +7,13 @@ import { test } from "node:test";
 import { lintGateContract } from "./gate-contract-lint.mjs";
 
 const file = "skills/demo/SKILL.md";
-const menu = "skills/brainstorming/reference/menu-layout.md";
+const menu = "skills/gauntlet/menu-layout.md";
 const fence = (text) => `\`\`\`text\n${text}\n\`\`\``;
 const gate = "gauntlet: gate=demo/review";
 const row = `| demo/review | gate | ${file} | ## Review | N. rows |`;
 const question = `| demo/ask | question | ${file} | ## Ask | free |`;
 const contract = (rows = row + "\n" + question) => `# Contract\n## Gates\n| gate id | kind (gate/question) | rendering file | site | layout |\n|---|---|---|---|---|\n${rows}\n## Terminals\n| skill | ending | report site | line |\n|---|---|---|---|\n| demo | done ok | ${file} § ## End | gauntlet: done ok |\n## Reading a reply\n`;
-const body = `# Demo\n[menu](../brainstorming/reference/menu-layout.md)\n## Review - choices\n${fence(gate + "\nChoose.")}\n## Ask\nStart the message with \`gauntlet: question\`.\n## End\n${fence("gauntlet: done ok")}`;
+const body = `# Demo\n[menu](../gauntlet/menu-layout.md)\n## Review - choices\n${fence(gate + "\nChoose.")}\n## Ask\nStart the message with \`gauntlet: question\`.\n## End\n${fence("gauntlet: done ok")}`;
 function fixture(overrides = {}) {
   const root = mkdtempSync(join(tmpdir(), "gate-contract-"));
   const files = { "doc/gate-contract.md": contract(), [file]: body, [menu]: "gauntlet: gate=demo/review\ngauntlet: question\ngauntlet: done ok\ngauntlet: stuck reason\n[A-Za-z0-9.-]+", "README.md": "[contract](doc/gate-contract.md)", "AGENTS.md": "[contract](doc/gate-contract.md)", ...overrides };
@@ -28,6 +28,25 @@ test("valid inventory and direct CLI", () => {
   const root = fixture();
   assert.deepEqual(lintGateContract(root), []);
   assert.equal(execFileSync(process.execPath, ["scripts/gate-contract-lint.mjs", root], { encoding: "utf8" }), "");
+});
+test("run gate, question and ending inventory matches the renderers and their callers", () => {
+  const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+  const rows = read("doc/gate-contract.md").split("\n").filter((line) => line.includes("| skills/gauntlet/"));
+  const cells = rows.map((line) => line.split("|").slice(1, -1).map((cell) => cell.trim()));
+  const ids = cells.filter(([, kind]) => ["gate", "question"].includes(kind)).map(([id]) => id);
+  assert.deepEqual(ids, Object.entries({
+    brainstorm: "understand-the-idea understand-the-idea present-the-design cut-question relatedness-before-provisioning user-review-gate user-review-gate human-batch human-batch",
+    plan: "step-6-baseline-failure step-6-baseline-dirty step-6-contract-questions",
+    implement: "stop-note human-stop discard-authorization",
+    verify: "step-6",
+    ship: "step-4 carried-open carried-open pr-subject-row-1 option-5",
+    gauntlet: "step-3 detached-head",
+  }).flatMap(([owner, labels]) => labels.split(" ").map((label) => `${owner}/${label}`)));
+  assert.deepEqual(cells.filter(([owner]) => owner === "ship").map((row) => row.at(-1)),
+    ["done pr-created", "done merged", "done kept", "done discarded", "done pushed", "stuck"].map((ending) => `gauntlet: ${ending}`));
+  assert.match(read(menu), /`gauntlet: gate=ship\/step-4`/);
+  assert.match(read("extensions/phase-tracker.ts"), /gauntlet: gate=verify\/step-6"/);
+  assert.deepEqual(lintGateContract("."), []);
 });
 test("table and site parse failures name the row", () => {
   for (const rows of [row.replace("| N. rows |", "|"), row.replace("demo/review", "demo/bad_id"), row.replace(file, "skills/missing.md"), row.replace("## Review", "## Missing"), row + "\n" + row]) {
@@ -73,13 +92,15 @@ test("literal position and template counts", () => {
 test("reverse scan covers only skills and exempts questions and menu-layout", () => {
   for (const kind of ["gate=demo/unknown", "done other", "stuck reason"]) {
     const diagnostics = lintGateContract(fixture({ "skills/demo/example.md": `Example \`gauntlet: ${kind}\`` }));
-    assert.deepEqual(diagnostics, [`skills/demo/example.md:1 gauntlet: ${kind.split(/[= ]/)[0]} not in doc/gate-contract.md`]);
+    assert.deepEqual(diagnostics, [`skills/demo/example.md:1 gauntlet: ${kind.split(" ")[0]} not in doc/gate-contract.md`]);
   }
+  const extraGate = body.replace("## Ask", `${fence("gauntlet: gate=other/review")}\n## Ask`);
+  assert.match(lintGateContract(fixture({ [file]: extraGate })).join("\n"), /gate=other\/review not in doc\/gate-contract.md/);
   assert.deepEqual(lintGateContract(fixture({ "skills/demo/example.md": "gauntlet: question", "doc/example.md": gate, "eval/example.md": gate, "extensions/example.md": gate, "CHANGELOG.md": gate, [file]: body + "\n" /* examples inside inventoried slice are allowed */ + `Explanation \`${gate}\`` })), []);
 });
 test("resolving citations, public links and all rule kinds and charset", () => {
   for (const [path, content, message] of [
-    [file, body.replace("../brainstorming/", "../../brainstorming/"), `${file}: no resolving menu-layout citation`],
+    [file, body.replace("../gauntlet/", "../../gauntlet/"), `${file}: no resolving menu-layout citation`],
     ["README.md", "contract", "doc/gate-contract.md not linked from README.md"],
     ["AGENTS.md", "[contract](missing.md)", "doc/gate-contract.md not linked from AGENTS.md"],
     ...["gate", "question", "done", "stuck"].map((kind) => [menu, ["gate", "question", "done", "stuck"].filter((k) => k !== kind).map((k) => `gauntlet: ${k}`).join("\n") + "\n[A-Za-z0-9.-]+", `menu-layout.md: missing line kind ${kind}`]),

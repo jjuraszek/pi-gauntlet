@@ -4,7 +4,7 @@ This target tests the user review gate's verbatim briefing, council counts, appr
 
 | Skill file | Slice |
 |---|---|
-| `skills/brainstorming/reference/spec-finalization.md` | `## User Review Gate` |
+| `skills/gauntlet/brainstorm/spec-finalization.md` | `## User Review Gate` |
 
 | Sample | Must hold |
 |---|---|

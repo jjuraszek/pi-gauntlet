@@ -2,7 +2,7 @@ bundle+: skills/gatekeep-pr/review-baseline.md
 bundle-: skills/gatekeep-pr/reference/sync.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Start immediately after step 4 returns. Inspect only admission of its supplied approach output. State the path checks, retained approach entries and their classification, dropped-entry evidence lines, and any helper-contract failure. Stop before drafting payloads or rendering a report or menu. Use the independent variants below as a table, not as successive operations in one run. Execute nothing. This tests instruction-based validation, not Git execution or a repair workflow.

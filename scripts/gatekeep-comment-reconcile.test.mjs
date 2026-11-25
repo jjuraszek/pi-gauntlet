@@ -178,7 +178,7 @@ for (const [name, text, patterns] of [
     /skip the fetch, run no worktree add, verify HEAD/,
     /selected skill's absolute `filePath` metadata/,
     /procedure root: <absolute installed skill directory>/,
-    /Resolve all named procedure dependencies relative to this root, never the PR worktree or cwd/,
+    /Use this root to locate the installed procedure\. Follow each relative link from the file that contains it, never the PR worktree or cwd/,
     /never overwrite course, counters, caps, deadline, ledger, or helper paths/,
     /REPORT <report path>/, /CONFLICTING <report path> - <sync record>/,
     /FAILED - <reason>/, /STOPPED - <ask> - <what the user must supply>/,
@@ -500,7 +500,7 @@ test('post-selection-loop.md reads the merge state before offering coverage post
 });
 
 test('conformance-check.md sentinel names the deferred/deviates line', () => {
-  const cc = read('../skills/verification-before-completion/reference/conformance-check.md');
+  const cc = read('../skills/gauntlet/conformance-check.md');
   assert.ok(cc.includes('Deferred/deviates per spec:'));
 });
 
@@ -537,7 +537,7 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
-  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through SKILL\.md `## Wording rules`/);
+  assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through \.\.\/SKILL\.md `## Wording rules`/);
   assert.match(brief, /Render a `pending` row through `reference\/report\.md`'s waits rule/);
   assert.match(brief, /Render a run with `status != completed` through `reference\/report\.md`'s waits rule;\nwithhold pre-composed merge exactly like a `pending` row/);
   assert.match(loop, /render the queued-merge wait through `report\.md`/);
@@ -1070,12 +1070,26 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
           assert.deepEqual(commands[1].split('\n'), [
             ...preamble,
             'git symbolic-ref --short refs/remotes/origin/HEAD',
-            'git show origin/main:.pi/gauntlet-overrides.md',
-            'git show origin/main:gauntlet-overrides.md',
-            'git show origin/main:doc/gauntlet-overrides.md',
+            'git show origin/main:.pi/gauntlet.md',
+            'git show origin/main:gauntlet.md',
+            'git show origin/main:doc/gauntlet.md',
           ], `${model}: Run B uses only the fixed preamble and applicable Ticket display reads`);
           assert.match(output.text, /^---\n\*\*PRs to gate:\*\*\n/m, `${model}: set reply starts with the visible heading`);
-          assert.match(output.text, /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list -R acme\/gadgets -c \S+ --json databaseId,status,conclusion,workflowName,url`?$/m, `${model}: single reply starts with the visible heading and carries the Gather call for the PR-view repository`);
+          const paired = /^---\n\*\*PR to gate:\*\*\n- [^\n]+\n---\n(?:\*\*)?Paired call:(?:\*\*)? +`?gh run list -R acme\/gadgets -c \S+ --json databaseId,status,conclusion,workflowName,url`?$/m;
+          const runB = section(output.text, 'Run B:');
+          const list = runB.match(paired);
+          assert.ok(list, `${model}: single reply starts with the visible heading and carries the Gather call for the PR-view repository`);
+          let remaining = runB.slice(list.index + list[0].length);
+          for (const read of [
+            /\bgh pr diff\b[^`\n]*\b97\b/,
+            ...['pulls/97/reviews', 'pulls/97/comments', 'issues/97/comments'].map((path) =>
+              new RegExp(`\\bgh api (?=[^\`\\n]*--paginate\\b)[^\`\\n]*repos/acme/gadgets/${path}\\b`)),
+          ]) {
+            const call = remaining.match(read);
+            assert.ok(call, `${model}: missing post-list Gather read: ${read}`);
+            remaining = remaining.slice(call.index + call[0].length);
+          }
+          assert.match(remaining, /\b(?:next|proceed|continue|move|advance|begin)\b[^\n.!?]*\bprovision(?:ing)?\b/i, `${model}: Provision follows the Gather reads`);
         }
         assert.equal(saved.judge[model].factsSha, sha256(read(`${root}/expected.md`)));
         for (const id of replayFacts) assert.equal(saved.judge[model].facts[id].after, 'holds', `${model}/${id}`);
@@ -1116,7 +1130,7 @@ for (const sample of [...discoverySamples, ...Object.keys(roleFacts), 'typed-lis
     if (['no-arg-discovery-over-cap', 'no-arg-discovery-cc-multi'].includes(sample)) {
       const cap = sample.endsWith('over-cap');
       const rule = cap ? section(batch, 'For `source: discovered`,', 'After successful admission') : section(brief, '| 2+ Claude Code |', ' |\n');
-      const link = `(${cap ? '../../' : '../'}brainstorming/reference/menu-layout.md#first-line-rule)`;
+      const link = `(${cap ? '../../' : '../'}gauntlet/menu-layout.md#first-line-rule)`;
       assert.ok(rule.includes(`${link} for \`stuck\``));
       if (!cap) assert.match(rule, /stop-format instructions read as the first tool call after the sort and put the list in that reply\. Skip the `reference\/batch\.md` read\./);
       assert.ok(rule.includes(cap ? 'cap or harness rejection text' : "multi-PR mode requires pi's nested dispatch"));

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const reference = readFileSync(new URL('../skills/subagent-driven-development/reference/happy-path-run.md', import.meta.url), 'utf8');
+const reference = readFileSync(new URL('../skills/gauntlet/implement/happy-path-run.md', import.meta.url), 'utf8');
 const block = reference.match(/<!-- happy-path-shell -->\s*```bash\n([\s\S]*?)\n\s*```/);
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const bashPath = spawnSync('bash', ['-c', 'command -v bash'], { encoding: 'utf8' }).stdout.trim();

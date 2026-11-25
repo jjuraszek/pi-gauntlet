@@ -33,8 +33,8 @@ test('C2 scratch brief admits a home plan and the declared companion checkout', 
   assert.match(brief, /^Active task: W1: widget$/m);
   assert.doesNotMatch(brief, /^Ledger:|^PR:|receipt:|worktree: missing/m);
   assert.match(brief, /Gate history not restored - re-validate before advancing\.\n$/);
-  assert.equal(read(join(home.primary, '.pi/gauntlet-overrides.md')), read(join(home.worktree, '.pi/gauntlet-overrides.md')));
-  assert.match(read(join(home.primary, '.pi/gauntlet-overrides.md')), /## shape-ticket\n- sibling: https:\/\/example\.test\/acme\/repo-b\.git/);
+  assert.equal(read(join(home.primary, '.pi/gauntlet.md')), read(join(home.worktree, '.pi/gauntlet.md')));
+  assert.match(read(join(home.primary, '.pi/gauntlet.md')), /## siblings\n- sibling: https:\/\/example\.test\/acme\/repo-b\.git/);
   assert.deepEqual([...spec.matchAll(/^### Leg: (.+)$/gm)].map(match => match[1]), [home.repo, companion.repo]);
   assert.match(read(join(companion.worktree, 'doc/specs/widget.md')), /^\*\*Home:\*\* acme\/repo-a fixture-resume doc\/specs\/widget\.md$/m);
   for (const leg of [home, companion]) {

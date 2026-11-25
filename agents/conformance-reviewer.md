@@ -81,7 +81,7 @@ DELIVERED rows keep an `Rn` id; every non-DELIVERED row gets a durable `Gn` id r
 
 After the coverage table, emit one fenced block per non-DELIVERED row so the
 orchestrator can partition and dispose of them mechanically. In a re-audit round
-(see conformance-check.md "When the check finds gaps"), also emit a `DELIVERED`
+(see skills/gauntlet/conformance-check.md "When the check finds gaps"), also emit a `DELIVERED`
 block for any gap that closed, reusing its original `Gn` id.
 
 ```
@@ -90,7 +90,7 @@ G1:
   origin: spec "Section 3 / Fix dispatch" - "implementer task not dispatched for gaps marked fix"
   evidence: absent
   remediation: implementer task not dispatched for gaps marked fix
-  touched-files: skills/verification-before-completion/reference/conformance-check.md
+  touched-files: skills/gauntlet/conformance-check.md
   touched-resources: none
   recommended: fix
 ```

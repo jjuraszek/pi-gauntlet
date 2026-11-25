@@ -6,7 +6,7 @@ import { dirname, isAbsolute, join, relative } from 'node:path';
 import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const transport = read('skills/loop-implementation/reference/return-file.md');
+const transport = read('skills/gauntlet/return-file.md');
 const recipe = marker => {
   const match = transport.match(new RegExp(`<!-- ${marker} -->\\s*\x60\x60\x60bash\\n([\\s\\S]*?)\\n\x60\x60\x60`));
   assert.ok(match, `production recipe: ${marker}`);

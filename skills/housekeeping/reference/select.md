@@ -58,15 +58,15 @@ Use one filter for every input's candidate set. Drop every path matching an igno
 
 Resolve dirs once from the session checkout with `gauntlet_setting({ key: "flowGuards" })`: use its `specDirs` and `planDirs`; on a harness without that tool, use spec dirs `doc/specs`, `docs/specs` and plan dirs `doc/plans`, `docs/plans`. Record the dirs in `<run>/run.md` and carry every returned `errors` entry into Report's rule-sources list. For a PR, use the same session value, not a settings file at the merge-base. Match a dir's components as a contiguous run in the path's components, so `<root>/services/x/doc/specs/a.md` is in `doc/specs`.
 
-Skip each candidate in a plan dir before populating either list. Put each surviving candidate in a spec dir in `specs`, sorted, outside `budget`; keep it out of `files`. Sort the remaining paths and take at most `budget` into `files`. Set `budget` to the argument's number, else the overrides `## housekeeping` value, else 200; read no other selection setting from the overrides file. Apply rule-source path skips at Check, not here. List files past the budget, symlinks, binary files, and directory candidates with uncommitted changes in `not-checked`, each with its reason. Skip ignored, deleted and plan-dir paths without checking them.
+Skip each candidate in a plan dir before populating either list. Put each surviving candidate in a spec dir in `specs`, sorted, outside `budget`; keep it out of `files`. Sort the remaining paths and take at most `budget` into `files`. Set `budget` to the argument's number, else the budget under `# housekeeping`, else 200; read no other selection setting from the overrides file. Apply rule-source path skips at Check, not here. List files past the budget, symlinks, binary files, and directory candidates with uncommitted changes in `not-checked`, each with its reason. Skip ignored, deleted and plan-dir paths without checking them.
 
 Record `commit` as HEAD of `root` at Select. Record changed line ranges per selected file for a change-based selection. For an unpushed run, record changed line ranges against `origin/<default>`. Keep `commit` as the last unpushed commit; add no remote-head field. Keep `files`, `specs`, `not-checked`, the worktree home and the push target in `<run>/run.md`. With both `files` and `specs` empty, skip Check, Decide and Fix and go to Report. With non-empty `specs` and empty `files`, go to Check.
 
 ## Worktree sequence
 
-Use this sequence for every PR or fix worktree. Do not invoke `/skill:using-git-worktrees`: its creator can edit the primary and cannot be pinned through the override's `create:` command to the required commit.
+Use this sequence for every PR or fix worktree. Do not follow `../../gauntlet/worktrees.md`: its creator can edit the primary and cannot be pinned through the override's `create:` command to the required commit.
 
-1. Read only `home:` from the overrides `## using-git-worktrees`, defaulting to `<primary>/.worktrees/<name>`.
+1. Read only `home:` from the overrides `## worktrees`, defaulting to `<primary>/.worktrees/<name>`.
 2. At Select, require a home inside the primary to be ignored by Git. On failure, stop per Report naming the ignore line the human must add; add nothing yourself.
 3. Run `git -C <primary> worktree add` at that home from the explicit commit or branch, one creation at a time. Use the PR head branch for PR admission; take a fix branch's starting commit from the Fix step.
 4. Confirm the created path in `git -C <primary> worktree list --porcelain`.

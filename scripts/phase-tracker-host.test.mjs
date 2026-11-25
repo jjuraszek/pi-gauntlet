@@ -25,7 +25,7 @@ const mark = "gauntlet: question";
 const tasks = [{ name: "next task", status: "in_progress" }];
 const latestAssistant = branch => branch.findLast(e => e.type === "message" && e.message.role === "assistant").message;
 
-async function runWave(extensionFactories, { trackerOrder = "first", phase = "implement", status = "in_progress" } = {}) {
+async function runWave(extensionFactories, { trackerOrder = "first", phase = "implement", status = "in_progress", engine } = {}) {
   const requests = [], errors = [];
   const faux = fauxProvider();
   const reply = ({ messages }) => {
@@ -56,6 +56,7 @@ async function runWave(extensionFactories, { trackerOrder = "first", phase = "im
     const phases = Object.fromEntries(phaseNames.map((name, index) => [name, {
       status: name === current ? currentStatus : index < phaseNames.indexOf(current) ? "complete" : "pending",
     }]));
+    if (engine && phases.brainstorm.status === "complete") phases.brainstorm.engine = engine;
     sessionManager.appendMessage({ role: "toolResult", toolName: "phase_tracker", toolCallId: current, timestamp: Date.now(),
       content: [{ type: "text", text: `${current}: ${currentStatus}.` }], isError: false,
       details: { action: currentStatus === "complete" ? "complete" : "start", phases } });
@@ -119,12 +120,14 @@ test("an unsuccessful boundary delivery never queues a fallback", async () => {
   assert.deepEqual(requests, [work, "plan_tracker"]);
 });
 
-for (const [phase, message] of [
-  ["plan", "Continue the approved workflow now. Invoke /skill:subagent-driven-development."],
-  ["verify", "Continue the approved workflow now. Invoke /skill:finishing-a-development-branch."],
+for (const [phase, stepFile] of [
+  ["plan", "implement/waves/waves.md"],
+  ["verify", "ship/ship.md"],
 ]) {
+  const path = fileURLToPath(new URL(`../skills/gauntlet/${stepFile}`, import.meta.url));
+  const message = `Continue the approved workflow now. Read ${path}.`;
   test(`${phase} completion delivers its original handoff once without an implement restart`, async () => {
-    const { branch, requests } = await runWave([], { phase, status: "complete" });
+    const { branch, requests } = await runWave([], { phase, status: "complete", engine: "waves" });
     assert.deepEqual(requests, [work, "plan_tracker", message]);
     assert.ok(!branch.some(e => e.details?.piGauntletRecoveryEdge === restart));
   });

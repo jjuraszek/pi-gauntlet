@@ -1,4 +1,4 @@
-for: 84c473acaabe97403eb60ee62b9c23b7496765acd8a7c0981d738e5078535363
+for: 5dd9cc44da2428dc4c241fe7eae76ce33f1262ea8f69a7e3733aa79b207beab2
 
 ## Change
 
@@ -9,6 +9,6 @@ Pass the shared wording reference and the card's ticket to each committing fix h
 Separate specs from content checks and skip plan folders. Offer fully superseded specs in one Delete-or-Keep card in every run, with no Ticket choice or hotfix eligibility test. Recommend Keep when a tracked file outside the spec and plan dirs names a spec, otherwise Delete. State the deletion and the run's delivery, disclose outside readers and retain the text in git history. Write card sections as prose without lists; keep ordinary directory and PR cards otherwise unchanged. Restrict Delete to accepted spec paths, verify their absence and preserve unrelated files and the in-place index. Review deletions against the spec rule without hotfix eligibility. Split no-argument runs after one status observation: dirt retains uncommitted selection and discloses commits ahead of the unfetched local ref; a clean checkout selects unpushed commits with amend delivery. Refuse unpushed selection after fetch failure, divergent ancestry, remote containment or a matching squash receipt. Fold kept unpushed classes into the last unpushed commit, preserving its parents and message and the pre-fold tree, without pushing. Refuse the fold when publication, receipts or unexpected primary state make it unsafe; restore class commits on a failed fold and report those classes open. Report folded classes under amended and name the before/after commit. Selected replays cover card checkpoints, a divergent unpushed stop and an amended report; scratch Git tests execute the fold and hook-failure restoration, while live selection, banner searches and deletion remain conformance reads.
 
 ## Expected to move
-- fold-verbatim-message/preservation: deterministic failure -> pass - Preserve trailing spaces and blank lines with --cleanup=verbatim; no model result is claimed.
+- fold-verbatim-message/preservation: fails -> holds - Preserve trailing spaces and blank lines with --cleanup=verbatim; the Git fixture checks this without a model call.
 - commit-subject/dispatch: fails -> holds - Supply the absolute shared reference and card ticket rather than letting the helper guess.
 - commit-subject/wording: fails -> holds - Apply the shared sentence and ticket-placement rules with the unreadable-file fallback.

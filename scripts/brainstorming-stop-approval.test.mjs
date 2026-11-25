@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
@@ -10,7 +11,7 @@ const cases = [
 ];
 
 test('amends-stop persists none with the selected engine through verified approval', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   for (const { row, engine } of cases) {
     assert.ok(gate.includes(`| \`${row} --amends-stop\` | approve; persist \`none\`; engine \`${engine}\``), `row ${row} opts out without changing engine`);
   }
@@ -19,18 +20,18 @@ test('amends-stop persists none with the selected engine through verified approv
   assert.ok(gate.includes('quote the exact resulting `**Amend-grant:**` value in full'));
   const amendAt = gate.indexOf('commit --amend --no-edit -q', gate.indexOf('On every implementation approval'));
   const checkAt = gate.indexOf('contains both fields with the selected values', amendAt);
-  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', checkAt);
+  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm", engine })', checkAt);
   assert.ok(amendAt >= 0 && amendAt < checkAt && checkAt < completeAt);
 });
 
-test('saved amends-stop replies hold on both replay models for the current facts', () => {
+test('saved amends-stop replies hold on both replay models for the recorded facts', () => {
   const candidate = JSON.parse(read('eval/spec-gate/results/flag-replies/candidate.json'));
-  const factsSha = sha256(read('eval/spec-gate/samples/flag-replies/expected.md'));
+  const factsSha = replayFactsSha(candidate, read('eval/spec-gate/samples/flag-replies/expected.md'));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, 'ok', model);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
+    assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
     for (const { fact } of cases) assert.equal(judged.facts[fact]?.after, 'holds', `${model}: ${fact}`);
   }

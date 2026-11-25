@@ -19,11 +19,11 @@ const git = (root, args, options = {}) => {
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 };
-const telemetry = (root, path, text) => {
+const telemetry = (root, path, text, key = "gauntlet") => {
   const env = { GIT_INDEX_FILE: join(root, ".git/telemetry-index") };
   git(root, ["read-tree", "refs/telemetry/records"], { env });
   const blob = git(root, ["hash-object", "-w", "--stdin"], { input: text });
-  git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/brainstorming/${path}`], { env });
+  git(root, ["update-index", "--add", "--cacheinfo", "100644", blob, `team/product/${key}/${path}`], { env });
   const tree = git(root, ["write-tree"], { env });
   const commit = git(root, ["commit-tree", tree, "-p", "refs/telemetry/records", "-m", "telemetry fixture"]);
   git(root, ["update-ref", "refs/telemetry/records", commit]);
@@ -45,7 +45,7 @@ const docsRepo = () => {
   return root;
 };
 const docsPaths = (root) => withDb(root, (db) => db.prepare("SELECT path FROM docs ORDER BY path").all().map((r) => r.path));
-const overrides = (root, globs) => write(root, ".pi/gauntlet-overrides.md", `## Issue tracker\ntracker: none\n\n## Spec index\n${globs.map((g) => `- docs: \`${g}\``).join("\n")}\n\n## release\nnothing\n`);
+const overrides = (root, globs) => write(root, ".pi/gauntlet.md", `# shared\n## issue-tracker\n- tracker: none\n\n## spec-index\n${globs.map((g) => `- docs: \`${g}\``).join("\n")}\n\n## release\nnothing\n`);
 
 const write = (root, rel, text) => {
   mkdirSync(join(root, dirname(rel)), { recursive: true });
@@ -214,6 +214,8 @@ test("6: telemetry join is output-only and tolerant", (t) => {
   const filesBefore = withDb(root, (database) => JSON.stringify(database.prepare("SELECT * FROM files ORDER BY path").all()));
   write(root, "x", "x\n");
   write(root, "y", "y\n");
+  telemetry(root, "doc/specs/a.yaml", "status: abandoned\n", "brainstorming");
+  assert.equal(run(root, ["--query", "zephyr widget"]).rows[0][4], "");
   telemetry(root, "doc/specs/a.yaml", "status: shipped\nshipped_at: 2026-09-17T10:00:00Z\nderived:\n  modified_files:\n    - x\n    - y\n");
   let r = run(root, ["--query", "zephyr widget"]);
   assert.deepEqual(r.rows[0].slice(4, 8), ["shipped", "2026-09-17T10:00:00Z", "live", "x;y"]);
@@ -528,7 +530,7 @@ test("D2: docs include defaults and fixed exclusions", (t) => {
   assert.deepEqual(docsPaths(root), ["README.md", ...[1, 2, 3, 4].map((n) => `doc/filler-${n}.md`), "doc/guide.md"]);
   overrides(root, [".pi/**/*.md", ".worktrees/**/*.md", "doc/**/*.md"]);
   assert.equal(run(root, ["--corpus", "docs", "--query", "ptarmigan gannet"]).status, 0);
-  assert.deepEqual(docsPaths(root), [".pi/gauntlet-overrides.md", ...[1, 2, 3, 4].map((n) => `doc/filler-${n}.md`), "doc/guide.md"]);
+  assert.deepEqual(docsPaths(root), [".pi/gauntlet.md", ...[1, 2, 3, 4].map((n) => `doc/filler-${n}.md`), "doc/guide.md"]);
   const two = gitRepo();
   t.after(() => rmSync(two, { recursive: true, force: true }));
   write(two, "doc/x.md", decoy);
@@ -600,7 +602,7 @@ test("D6: overrides replace defaults but cannot bypass exclusions", (t) => {
   overrides(root, ["CONTRIBUTING.md"]);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["CONTRIBUTING.md", "svc/CONTRIBUTING.md"]);
-  write(root, ".pi/gauntlet-overrides.md", "## Spec index\n\nno bullets here\n");
+  write(root, ".pi/gauntlet.md", "# other\n## spec-index\n- docs: `notes/**/*.md`\n# shared\n## spec-index\n\nno bullets here\n");
   assert.equal(search().status, 0);
   assert.ok(docsPaths(root).includes("doc/guide.md"));
   assert.ok(docsPaths(root).includes("svc/doc/inner.md"));
@@ -609,18 +611,18 @@ test("D6: overrides replace defaults but cannot bypass exclusions", (t) => {
 test("D6b: overrides file resolution order", (t) => {
   const root = docsRepo();
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  write(root, "doc/gauntlet-overrides.md", "## Spec index\n- docs: `notes/**/*.md`\n");
+  write(root, "doc/gauntlet.md", "# shared\n## spec-index\n- docs: `notes/**/*.md`\n");
   write(root, "notes/a.md", decoy);
   const search = () => run(root, ["--corpus", "docs", "--query", "ptarmigan gannet"]);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["notes/a.md"]);
-  write(root, "gauntlet-overrides.md", "## Spec index\n- docs: `other/**/*.md`\n");
+  write(root, "gauntlet.md", "# shared\n## spec-index\n- docs: `other/**/*.md`\n");
   write(root, "other/b.md", decoy);
   assert.equal(search().status, 0);
   assert.deepEqual(docsPaths(root), ["other/b.md"]);
   overrides(root, ["doc/**/*.md"]);
   assert.equal(search().status, 0);
-  assert.deepEqual(docsPaths(root), ["doc/filler-1.md", "doc/filler-2.md", "doc/filler-3.md", "doc/filler-4.md", "doc/gauntlet-overrides.md", "doc/guide.md"]);
+  assert.deepEqual(docsPaths(root), ["doc/filler-1.md", "doc/filler-2.md", "doc/filler-3.md", "doc/filler-4.md", "doc/gauntlet.md", "doc/guide.md"]);
 });
 
 test("D7: heading hits are strong, body-only hits are not", (t) => {

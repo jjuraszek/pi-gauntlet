@@ -1,4 +1,4 @@
-for: 1b18dfc61d0a4241388c5bde4e5bfff5a90e0546e3d7e6a67ef0cd46481e0ead
+for: cb8995629cb7d872d67730a17f301f67b622b48fcb1e3354dba52065ce926eff
 
 ## Change
 Check the shared class table at step 4 in create and repair mode. Preserve surviving behavior wording and retain dropped stage proof in the Reporter note in workflow-stage-proof-create, workflow-stage-proof and pr-body-proof. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.

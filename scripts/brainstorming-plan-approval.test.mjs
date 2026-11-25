@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { replayFactsSha } from './replay-facts.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
@@ -6,7 +7,7 @@ import { sha256 } from '../eval/lib/checks.mjs';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('plain plan approval persists the default grant and waves before completing brainstorm', () => {
-  const gate = read('skills/brainstorming/reference/spec-finalization.md');
+  const gate = read('skills/gauntlet/brainstorm/spec-finalization.md');
   assert.match(gate, /\| bare `1` \| approve; persist `G`; engine `waves` \|/, 'plain 1 grants and selects waves');
   const grant = gate.match(/^Default grant \(`G`\): `([^`]+)`$/m)?.[1];
   assert.ok(grant, 'label the canonical grant independently of a menu digit');
@@ -16,25 +17,25 @@ test('plain plan approval persists the default grant and waves before completing
   const persistAt = gate.indexOf('On every implementation approval');
   const amendAt = gate.indexOf('commit --amend --no-edit -q', persistAt);
   const checkAt = gate.indexOf('contains both fields with the selected values', amendAt);
-  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm" })', checkAt);
-  const routeAt = gate.indexOf('Then invoke `/skill:writing-plans` on 1', completeAt);
+  const completeAt = gate.indexOf('phase_tracker({ action: "complete", phase: "brainstorm", engine })', checkAt);
+  const routeAt = gate.indexOf('Continue without another prompt.', completeAt);
   assert.ok(persistAt < amendAt && amendAt < checkAt && checkAt < completeAt && completeAt < routeAt);
   assert.ok(gate.includes('directly below `**Amend-grant:**` in the header block'));
   assert.ok(gate.includes('quote the exact resulting `**Amend-grant:**` value in full'));
-  const grants = read('skills/brainstorming/reference/amendment-surface.md');
+  const grants = read('skills/gauntlet/amendment-surface.md');
   assert.ok(grants.includes('a `1` or `2` approval without `--amends-stop` at the spec gate'));
   assert.ok(grants.includes("the gate's default grant line"));
-  assert.match(read('eval/brainstorming/samples/engine-waves/expected.md'), /^- plan-default: judged:.*A.*default grant.*waves.*HEAD.*completing brainstorm.*writing-plans/m);
+  assert.match(read('eval/gauntlet/samples/engine-waves/expected.md'), /^- plan-default: judged:.*A.*default grant.*waves.*HEAD.*completing brainstorm.*returned plan instructions/m);
 });
 
-test('saved plan-default replays hold on both models for the current facts', () => {
-  const candidate = JSON.parse(read('eval/brainstorming/results/engine-waves/candidate.json'));
-  const factsSha = sha256(read('eval/brainstorming/samples/engine-waves/expected.md'));
+test('saved plan-default replays hold on both models for the recorded facts', () => {
+  const candidate = JSON.parse(read('eval/gauntlet/results/engine-waves/candidate.json'));
+  const factsSha = replayFactsSha(candidate, read('eval/gauntlet/samples/engine-waves/expected.md'));
   assert.equal(Object.keys(candidate.outputs).length, 2);
   for (const [model, output] of Object.entries(candidate.outputs)) {
     assert.equal(output.status, 'ok', model);
     const judged = candidate.judge[model];
-    assert.equal(judged.factsSha, factsSha, `${model}: current facts`);
+    assert.equal(judged.factsSha, factsSha, `${model}: recorded facts`);
     assert.equal(judged.candidateOutputSha, sha256(output.text), `${model}: judged reply`);
     assert.equal(judged.facts['plan-default']?.after, 'holds', `${model}: default grant, waves and ordered continuation`);
   }

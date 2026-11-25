@@ -7,8 +7,8 @@ bundle-: skills/gatekeep-pr/reference/fix-wave.md
 bundle-: skills/gatekeep-pr/reference/report.md
 bundle-: skills/gatekeep-pr/verification-brief.md
 bundle-: skills/gatekeep-pr/reference/assessment.md
-bundle-: skills/brainstorming/reference/menu-layout.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/menu-layout.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Start at Teardown after the selected post steps finished. Stop at the closing message. Narrate commands as text only; execute nothing. This is one teardown operation, not a PR assessment, menu, provisioning or delivery replay.

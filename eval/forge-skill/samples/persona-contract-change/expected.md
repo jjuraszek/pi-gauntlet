@@ -6,6 +6,6 @@
 - fact-6: judged: The frontmatter (every line between the first two `---` lines) is byte-identical to the fixture.
 - fact-7: judged: No `reference/` file or any file other than the persona was created.
 - fact-8: judged: No `/skill:` reference was added.
-- fact-9: judged: The comment line beginning `<!-- grammar identical to skills/subagent-driven-development/spec-reviewer-prompt.md` is gone.
+- fact-9: judged: The comment line beginning `<!-- grammar identical to skills/gauntlet/implement/waves/spec-reviewer-prompt.md` is gone.
 - fact-10: judged: No line other than that comment and at most one adjacent blank line changed.
 - fact-11: judged: The earlier HTML comment about clause decomposition (line 16 of the fixture) is unchanged.

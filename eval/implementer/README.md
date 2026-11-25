@@ -5,7 +5,7 @@ This target tests whether the implementer persona, dispatched with the SDD imple
 | Skill file | Loaded content |
 |---|---|
 | `agents/implementer.md` | Body without frontmatter |
-| `skills/subagent-driven-development/implementer-prompt.md` | Whole file |
+| `skills/gauntlet/implement/waves/implementer-prompt.md` | Whole file |
 
 Process, commands, and record schema: eval/README.md.
 

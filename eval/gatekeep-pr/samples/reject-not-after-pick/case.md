@@ -1,6 +1,6 @@
 bundle-: skills/gatekeep-pr/reference/sync.md
 bundle-: skills/gatekeep-pr/reference/cleanup.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/commit-message.md
 ## Entry
 
 Exercise only the pick boundary and the six independent continuations below. Use one compact record-update table, then the later menu for each checkpoint. State ordering of the record save versus work once. Do not replay provisioning, initial reports, note composition, helpers, pushes or watches; their finite outcomes are supplied. For C, E and F, name only the closure inputs and scope of review before and after the supplied head move. Stop at each later menu's hint and pick nothing there. These are synthetic snapshots; run no tools. Keep the whole reply under 1500 words.

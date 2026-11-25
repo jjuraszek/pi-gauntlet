@@ -1,0 +1,315 @@
+{
+  "sample": "ordinary-request-no-run",
+  "arm": "candidate",
+  "skillSha": "438a903a8414ba63f5b3ec0cdd3bf9fe790a7998f7b7a67a0903a42805658b85",
+  "inputSha": "9c1e217aa3c46900b2a8711ae4ffe24af01024f07b97e856b55fb1a5eae40d8a",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "I'll treat this as a direct bug fix, not a gauntlet run. You asked for a code change, not for brainstorming or the gauntlet, so I won't reset the trackers or create a worktree. I'll work in the current checkout. If you'd prefer to go through the full spec-first flow, say `/skill:gauntlet` before I start editing.\n\n**Plan:** find where the CSV header row is built and where the on-screen column labels are defined. Make the export use the same label source rather than a separate hard-coded list. Then add a test that checks the exported header row against those labels.\n\n**Tool actions before the first edit (in order, none run yet):**\n\n1. `bash`: `rg -n -i \"csv\" --glob '!node_modules'` from the repo root, to find the export code.\n2. `bash`: `rg -n -i \"export\" -g '*{csv,Csv,CSV}*'` and `rg -n -i \"header\" <dirs found in action 1>`, to find where the header row is built.\n3. `read`: the CSV export module(s) found in actions 1-2, to see how column headings are currently produced (hard-coded strings, field keys, or something else).\n4. `bash`: `rg -n \"<field keys or heading strings from action 3>\"`, to find where the on-screen table defines its column labels (column definitions, i18n/locale file, or view component).\n5. `read`: the on-screen column-definition or label source found in action 4, to confirm which labels the UI actually shows and whether they're shared or duplicated.\n6. `bash`: `rg -n -i \"csv|export\" <test dirs>`, to find any existing export tests and the test layout.\n7. `read`: the closest existing export test file (or a neighboring test, if none exists), to match its framework and fixture style.\n8. `read`: `package.json` (or the repo's build or test config), to find the test command.\n9. `bash`: run the existing test command for the export area, to record a baseline before changing anything.\n\nAfter that, the edit will make the CSV header row read from the same label source the screen uses, instead of keeping a second copy. The regression test will check that the exported header row equals the on-screen labels in order. Then I'll re-run the tests and report the result.\n",
+      "words": 357,
+      "wallMs": 10769,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "I’ll trace how the screen labels and CSV headers are built, make them agree, and add a regression test for the exported header row. This is a direct implementation request; I won’t start the gauntlet workflow or create a worktree.\n\nBefore my first edit, I would take these tool actions in order (none have run):\n\n1. **`terminal` — repository root and status:** run `git rev-parse --show-toplevel` and `git status --short` in the supplied checkout.\n2. **`terminal` — applicable repository instructions:** locate `AGENTS.md` in the checkout and its ancestor directories.\n3. **`read` — discovered instruction files:** read the applicable `AGENTS.md` files before inspecting or changing their governed code.\n4. **`terminal` — CSV export and screen-label implementations:** search tracked files for CSV export entry points, header construction, and column-label definitions.\n5. **`read` — matching source files:** trace the export’s callers and the on-screen label source, including column ordering and any localization or formatting involved.\n6. **`terminal` — regression tests and test configuration:** locate existing export tests, fixtures, and the repository’s documented test command.\n7. **`read` — relevant tests and configuration:** identify the narrowest regression test that checks the actual exported header row against the intended screen labels.\n\nThen I would update the owning header-generation path, add the regression test, and run the relevant tests.\n",
+      "words": 205,
+      "wallMs": 10356,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+      "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
+      "candidateOutputSha": "940e183023890473284bc3e187188572a940fde6040c7bb2752bf7abece38598",
+      "facts": {
+        "tracker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "worktree": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "step-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "request": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "No fact moved: both outputs decline to reset trackers, start a phase, or create a worktree, list only repo-search, read, and test-baseline actions targeting the CSV exporter, label source, tests, and manifest (nothing under skills/gauntlet/ and no skill invocation), and offer the workflow only as an opt-in the user must explicitly request, so the request is addressed directly and not treated as entry consent. After's wording differs only in naming `/skill:gauntlet` instead of `/skill:brainstorming` as the opt-in and in stating it will work in the current checkout; both are mentions of an option, not invocations. To keep all four facts stable, keep the explicit 'not a gauntlet run / no tracker reset / no worktree' statement, keep the workflow offer phrased as a conditional the user must trigger, and keep the pre-edit action list restricted to project files so no step-instruction read or skill invocation can slip in.",
+      "wallMs": 5343,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+      "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
+      "candidateOutputSha": "87d7d9e8f00f50f11b57d422c2178f97ed9cef802347574a54d8c9fd35e7b83d",
+      "facts": {
+        "tracker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "worktree": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "step-read": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "request": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Nothing moved on this case: both Before and After treat the CSV export request as ordinary direct work, explicitly decline to start the gauntlet or create a worktree, list only status checks, AGENTS.md reads, source/test searches and reads as pre-edit actions, and neither reads anything under skills/gauntlet/ nor invokes a workflow skill or phase tracker. After differs only in tool naming (`terminal` vs `bash`), splitting locate/read into separate steps, and dropping the baseline test run, none of which touches a fact. To keep all four facts, preserve the wording that an ordinary coding request with entry instructions in context still requires explicit consent before any phase start, worktree creation, or step-instruction read, so the assistant keeps routing straight to locating the exporter and its tests.",
+      "wallMs": 4233,
+      "verdict": "unchanged"
+    }
+  },
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "ordinary-request-no-run",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "a175b3699e67b5e04afab603e9f711a370ba1c9dcc1305566988c5697f98cbd6",
+      "candidateSkillSha": "90d44352c58f6ab4e700d01fb68c11c2b67f562bff5c1243be6e7cd8aefdec04",
+      "inputSha": "9c1e217aa3c46900b2a8711ae4ffe24af01024f07b97e856b55fb1a5eae40d8a",
+      "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-2"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
+            "payloadSha": "9b9f00a5cac23cef02fc05289025fa739a7df93ae98a150212863304e53ff8cf"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
+            "payloadSha": "f151f77717c773e64915b0cdd4ebd9d18dc7a9fe897261057fd4afeee42b3891"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "616f1185cc38658980a649123176f5ba80e6ffc6949fb05948a10de1992709ec",
+            "payloadSha": "feda5fe43af538d6472149d904af001899c07afaf12f4930ef586bfd8502adbc"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "331fbc886d45969de98acde77ced5d654c1492445e0845dbb374233143cdb3b3",
+            "payloadSha": "488001027b0202771c96a88a2dc1f031de8493c17c058e5f73b61d97d5d18964"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "65aa00addd690fce7bd896da2ae1fe0e5ac561833328e0fda6dcf96d8b328379",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+        "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
+        "candidateOutputSha": "616f1185cc38658980a649123176f5ba80e6ffc6949fb05948a10de1992709ec",
+        "facts": {
+          "tracker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "step-read": {
+            "before": "holds",
+            "after": "fails",
+            "label": "regression"
+          },
+          "request": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "Both outputs decline to enter the gauntlet, take no tracker action, create no worktree, and go straight to locating the exporter, the label source and the tests, so tracker, worktree and request hold on both sides. The fact that moved is step-read. After's action 2 reads the gauntlet project overrides (`.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`) and consults their `# shared` / `## verification` sections. That is a judgement call, since these files are not under skills/gauntlet/ and no workflow skill is invoked. I marked it as failing because the files are gauntlet step-override instructions and reading them is a gauntlet entry action performed for an ordinary request; Before read only the product code, the tests and package.json. The After wording appears to let the override lookup, or the verification-command lookup, apply before consent is given. To keep what Before kept, state that the override files are read only after the user has explicitly chosen the gauntlet, and that an ordinary request takes its test command from the project's own manifest (package.json, Makefile) with no gauntlet file read. The consent sentence and the `/skill:gauntlet` offer in After are fine and deliver the Change as intended.",
+        "wallMs": 13018,
+        "verdict": "inconclusive",
+        "confirmation": {
+          "status": "ok",
+          "text": "I'll treat this as a direct fix in the current checkout. I won't start the gauntlet flow, which means no tracker reset, worktree or spec, because an implementation request on its own doesn't start that flow. If you want the full brainstorm-to-ship process instead, say `/skill:gauntlet` or ask for the gauntlet before I edit anything.\n\n**Plan:** Find where the CSV header row is built and where the on-screen labels are defined. Then make the export use the same label source rather than a second hard-coded list. Finally, add a test that checks the exported header row against those labels.\n\n**Tool actions before the first edit (in order):**\n\n1. `bash`: `git status && git log --oneline -5` in the repo root, to confirm the clean checkout and see recent context.\n2. `bash`: `rg -n -i \"csv|export\" --type-add 'src:*.{ts,tsx,js,jsx,py,rb,go}' -t src`, to locate the export code path.\n3. `read`: the CSV export module found in step 2, to see how header names are produced (field keys, a separate header array, or something else).\n4. `bash`: `rg -n` for the column identifiers used in that module, to find the table or grid that renders the on-screen labels.\n5. `read`: the on-screen column definition file or files from step 4, to identify the label source (column config, i18n keys or inline strings).\n6. `bash`: `rg -n -i \"csv|export\" -g '*test*' -g '*spec*'`, to find any existing export tests and the test framework's conventions.\n7. `read`: the closest existing test file from step 6, or the test config such as `package.json` or `pytest.ini`, if none exists.\n8. `bash`: run the existing export tests, or the narrowest relevant test command, to record a baseline before changing anything.\n\nAfter that, I'll write the regression test first and confirm it fails because the headings differ. Then I'll change the export to read headings from the shared label source and re-run the test to confirm it passes.\n",
+          "words": 317,
+          "wallMs": 10704,
+          "mechanical": {},
+          "judgeWallMs": 5117,
+          "facts": {
+            "tracker": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "worktree": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "step-read": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            },
+            "request": {
+              "before": "holds",
+              "after": "holds",
+              "label": "held"
+            }
+          },
+          "feedback": "No fact moved: both outputs treat the request as a direct fix, explicitly decline to reset trackers, start a phase, or create a worktree, list only repo-inspection actions (grep/rg, read of export, label, test and manifest files, baseline test run) with no read of gauntlet step files or skill invocation, and offer the workflow only as an opt-in the user must explicitly ask for. After's wording keeps all four facts; the mention of `/skill:gauntlet` is an offer rather than an invocation, so it does not load step instructions. To stay safe, keep the consent sentence phrased as a conditional offer the user must act on, and keep the pre-edit action list limited to project files so no entry under skills/gauntlet/ or a tracker call ever appears in it."
+        },
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "65aa00addd690fce7bd896da2ae1fe0e5ac561833328e0fda6dcf96d8b328379",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+        "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
+        "candidateOutputSha": "331fbc886d45969de98acde77ced5d654c1492445e0845dbb374233143cdb3b3",
+        "facts": {
+          "tracker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "step-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "request": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved: both Before and After treat the CSV export request as a direct implementation task, explicitly decline to start the gauntlet or create a worktree, list only repository-inspection actions (AGENTS.md, git status, search, reading exporter/column definitions/tests) with no phase tracker action and no read of skills/gauntlet/ step instructions or workflow skill invocation. After's wording keeps all four facts; to keep them stable, retain the explicit statement that an ordinary coding request does not start the workflow or a worktree, and keep the pre-edit action list limited to project files (repository AGENTS.md is fine, but avoid any wording that could be read as loading gauntlet step files or resetting the tracker).",
+        "wallMs": 4538,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+        "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
+        "candidateOutputSha": "616f1185cc38658980a649123176f5ba80e6ffc6949fb05948a10de1992709ec",
+        "facts": {
+          "tracker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "step-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "request": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved: both outputs decline to enter the gauntlet, take no tracker action, create no worktree, load no step instructions, and go straight to locating the exporter, the label source and the tests, offering the full flow only as an explicit opt-in. The one visible difference is that After adds a step reading project override files (`.pi/gauntlet.md`, `<repo root>/gauntlet.md`, `<repo root>/doc/gauntlet.md`) for verification commands. That is project configuration, not a file under skills/gauntlet/, so step-read still holds, but it is the closest After comes to a boundary. To keep the margin, the wording should say that an ordinary request may consult the repository's gauntlet.md only for verification commands and must not open anything under skills/gauntlet/ or invoke a workflow skill. After also drops Before's explicit statement that it will not start a brainstorm phase; it starts none, so tracker holds, but keeping the wording that an ordinary request starts no phase, resets no tracker and creates no worktree would make the refusal as explicit as Before's.",
+        "wallMs": 8048,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
+        "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
+        "candidateOutputSha": "331fbc886d45969de98acde77ced5d654c1492445e0845dbb374233143cdb3b3",
+        "facts": {
+          "tracker": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "worktree": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "step-read": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "request": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          }
+        },
+        "feedback": "No fact moved on this case: both outputs treat the CSV export request as a direct implementation task, explicitly decline to start the gauntlet or create a worktree, list only AGENTS.md, exporter, column-definition, and test reads (nothing under skills/gauntlet/ and no workflow skill invocation), and take no phase tracker action. After differs only in ordering (AGENTS.md read first, no baseline test run) and in saying 'gauntlet workflow' rather than 'gauntlet', neither of which touches a fact. To keep this stable, the After wording should continue to state plainly that an ordinary coding request is not entry consent and that no phase, worktree, or step-instruction read happens without explicit consent; avoid any phrasing that could invite a 'reset tracker' or 'check for a run in progress' action as a precaution, since that would fail the tracker fact.",
+        "wallMs": 4918,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    }
+  },
+  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
+}

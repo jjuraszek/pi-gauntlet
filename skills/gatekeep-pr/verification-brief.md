@@ -48,7 +48,7 @@ Immediately after sorting, write the list in the visible text of the assistant r
 | 0 | Stop: `no open PRs awaiting <login>'s review in <owner/repo>`; substitute `@me` for unreadable login. |
 | 1 | Continue single-PR with origin token `https://github.com/<owner/repo>/pull/<N>`. |
 | 2+ pi | Re-enter set routing with sorted origin URL tokens, `source: discovered`. |
-| 2+ Claude Code | Use the stop-format instructions read as the first tool call after the sort and put the list in that reply. Skip the `reference/batch.md` read. In a separate stop message, write three consecutive lines with no blank lines: use the [first-line rule](../brainstorming/reference/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
+| 2+ Claude Code | Use the stop-format instructions read as the first tool call after the sort and put the list in that reply. Skip the `reference/batch.md` read. In a separate stop message, write three consecutive lines with no blank lines: use the [first-line rule](../gauntlet/menu-layout.md#first-line-rule) for `stuck`, print `multi-PR mode requires pi's nested dispatch` and end with exactly one `discovered, smallest first: <numbers comma-separated>` line. |
 
 Origin URL tokens keep the repository identity through admission and gh pr view regardless of GH_REPO or gh repo set-default. GitHub resolves both `@me` qualifiers: include direct and team review requests but exclude the viewer's PRs even when `viewer.login` is unreadable.
 
@@ -111,7 +111,7 @@ For `<phrase>` describe the change in at most 12 words from the title and first 
 
 #### Ticket display
 
-The display hint does not replace step 1's `issue_ref` or step 2's ticket fetch. Read `tracker:` and `workspace urlKey` under `## Issue tracker` from origin's default branch: resolve `git symbolic-ref --short refs/remotes/origin/HEAD`, then `git show <ref>:<path>` in the project overrides search order. Never use PR checkout settings. With no overrides, no tracker key, or `tracker: linear`, allow Linear IDs and one lookup. Any other tracker value disables Linear IDs, addresses and lookups. With an unreadable ref allow Linear IDs and addresses from PR text, but no configured key or lookup.
+The display hint does not replace step 1's `issue_ref` or step 2's ticket fetch. Read `tracker:` and `workspace urlKey` under `# shared` `## issue-tracker` from origin's default branch: resolve `git symbolic-ref --short refs/remotes/origin/HEAD`, then `git show <ref>:<path>` in the project overrides search order. Never use PR checkout settings. With no overrides, no tracker key, or `tracker: linear`, allow Linear IDs and one lookup. Any other tracker value disables Linear IDs, addresses and lookups. With an unreadable ref allow Linear IDs and addresses from PR text, but no configured key or lookup.
 
 Take the first reference in this order:
 
@@ -197,7 +197,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
 - issue_ref: <ref> | null
 - issue: null   # shape and fill: step 2, reference/assessment.md ## Fetch the ticket
 - worktree_discovery: { expected_path, exists, branch, dirty, ahead, behind }
-- worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the substituted ## using-git-worktrees destroy: command, else a legacy wrapper's exact destroy invocation, else null
+- worktree: { path, branch, created, destroy }   # filled in step 2, reference/assessment.md: worktree.path; worktree.branch is the actual local branch (headRefName, pr-<N>, or whatever a worktree wrapper created); worktree.created is true when this run created it; worktree.destroy is the substituted ## worktrees destroy: command, else a legacy wrapper's exact destroy invocation, else null
 - sync: <record>   # entry --rebase only; grammar: reference/sync.md ## Sync record; loop sync authority lives in repair.wave.sync
 - truncation_notes: []
 ```
@@ -284,7 +284,7 @@ Row precedence is top-down: the first matching row wins. The Fix wave row is an 
 
 | Path | Trigger | Action | Evidence recorded |
 |---|---|---|---|
-| Opt-out | `local verification: always` in `## PR gate` | Run local command unconditionally; a Failed-CI block below still applies independently | Local; `local run: local verification: always` |
+| Opt-out | `local verification: always` directly under `# gatekeep-pr` | Run local command unconditionally; a Failed-CI block below still applies independently | Local; `local run: local verification: always` |
 | Failed CI | Any blocking conclusion in the resolved set | Blocks: mints a `P#` (any resolved-set failure, required or not) and names the check in the evidence block; route the P# to the delivery wave under a set course, otherwise render initial; obstacle exits use `reference/menus.md`. A green local run never overrides it. Only the human `ci-infrastructure-broken` disposition - a pick, never a trigger - runs the fallback local run; merge stays withheld until that run is green | The disposition; plus the fallback run's result when the disposition triggered one |
 | Held run | an `action_required` rollup CheckRun whose run matches an `actions_runs` entry, or an `actions_runs` entry with `action_required` and no rollup entry (a rollup CheckRun matches the `actions_runs` entry whose `databaseId` equals the run id parsed from the CheckRun's `detailsUrl`) | Pending: render `approve workflow run` when available - `viewer_permission` in `WRITE`/`MAINTAIN`/`ADMIN`, the rule `reference/menus.md` `## action` owns; when the row is not available, or it was picked and the API returned 403 or 404, run the local command at once; the fresh Section B helper receives the resolved row `held run not approvable` in its task; an approved run that completes is re-resolved per `reference/fix-wave.md` `## Evidence after push`, which dispatches the claim-check-only helper | `local run: held run not approvable` when it fired, else n/a (waiting) |
 | Pending | >=1 **binding** pending check, no blocking conclusion | record pending evidence; run a bounded watch only at delivery step 4 through `reference/post-selection-loop.md` `### Wait course`; never a local run, never an evidence-less merge; when a later re-resolve moves this head to CI-sufficient, the orchestrator dispatches a fresh Section B helper in claim-check-only mode (no local run) so every material claim gets a disposition | n/a (waiting) |
@@ -428,7 +428,7 @@ No such comment -> no reviewer workflow known -> no window check;
 
 **Approach output (step 4, before gate work).** With caller-supplied `work_started == false`, perform a whole-PR approach check on `origin/<baseRefName>...<headRefOid>` and the source behind it. Keep native findings delta-bounded for an ancestor review; the separately labeled whole-PR diff grounds only the approach judgment. Do not repeat this check in pre-push wave review or after gate work starts.
 
-Use `review-baseline.md` `## Approach grounds` with the merged rubric and overrides file resolved at the merge-base by `reference/assessment.md` `## Configuration` and `## PR gate`. Read `AGENTS.md` and the documents it links directly (one hop) at `origin/<baseRefName>`. No other document grounds an architecture rule or recorded decision. The native verdict (`SHIP`, `FIX_FIRST`, `REJECT`) is never an input to the approach judgment.
+Use `review-baseline.md` `## Approach grounds` with the merged rubric and overrides file resolved at the merge-base by `reference/assessment.md` `## Configuration`. Read `AGENTS.md` and the documents it links directly (one hop) at `origin/<baseRefName>`. No other document grounds an architecture rule or recorded decision. The native verdict (`SHIP`, `FIX_FIRST`, `REJECT`) is never an input to the approach judgment.
 
 Append this caller-required section after the native report and any closure lines. Keep each field on one line; emit the literal `none` when no entry passes both rubric validity tests.
 

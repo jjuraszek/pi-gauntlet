@@ -32,12 +32,12 @@ export function prepareCoordinated() {
   for (const leg of [home, companion]) {
     git(leg.primary, 'config', 'remote.origin.url', `https://example.test/${leg.repo}.git`);
   }
-  const overrides = '# Fixture overrides\n\n## Issue tracker\n- repo: acme/repo-a\n\n## shape-ticket\n- sibling: https://example.test/acme/repo-b.git\n';
+  const overrides = '# shared\n\n## issue-tracker\n- repo: acme/repo-a\n\n## siblings\n- sibling: https://example.test/acme/repo-b.git\n';
   for (const path of [home.primary, home.worktree]) {
-    write(join(path, '.pi/gauntlet-overrides.md'), overrides);
+    write(join(path, '.pi/gauntlet.md'), overrides);
     write(join(path, 'README.md'), rules);
   }
-  git(home.primary, 'add', '.pi/gauntlet-overrides.md', 'README.md');
+  git(home.primary, 'add', '.pi/gauntlet.md', 'README.md');
   git(home.primary, 'commit', '-qm', 'Declare the companion fixture');
 
   const block = (repo, scope, design) => `### Leg: ${repo}
@@ -61,7 +61,7 @@ design: ${design}
     .replace('## Design', `## Legs\n\n${block(home.repo, 'AC 1', 'Check two widgets in test/widget.test.mjs.')}\n${companionBlock}\n## Design`));
   const planPath = join(home.worktree, home.artifact);
   write(planPath, read(planPath).replace('---', `Baseline ${home.repo}: ${home.base}\nBaseline ${companion.repo}: ${companion.base}\n\n---`));
-  git(home.worktree, 'add', '.pi/gauntlet-overrides.md', 'README.md', 'doc/specs/widget.md', home.artifact);
+  git(home.worktree, 'add', '.pi/gauntlet.md', 'README.md', 'doc/specs/widget.md', home.artifact);
   git(home.worktree, 'commit', '-qm', 'Record the coordinated widget run');
   home.head = git(home.worktree, 'rev-parse', 'HEAD');
   write(join(companion.worktree, 'doc/specs/widget.md'), `# Widget count\n\n**Home:** ${home.repo} fixture-resume doc/specs/widget.md\n\n## Problem\n${problem}\n\n## Decisions\n${design}\n\n${companionBlock}`);

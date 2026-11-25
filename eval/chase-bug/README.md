@@ -8,7 +8,7 @@ approval, writes, or hotfix execution.
 |---|---|
 | `skills/chase-bug/SKILL.md` | Step 5 through before Quick Reference |
 | `skills/chase-bug/reference/verdict-report.md` | Whole file |
-| `skills/finishing-a-development-branch/reference/commit-message.md` | Whole file |
+| `skills/gauntlet/commit-message.md` | Whole file |
 | `skills/chase-bug/reference/attempt-budget.md` | Whole file; candidate-only at the comparison base |
 
 Gate samples additionally bundle the whole skill and shared menu-layout reference.

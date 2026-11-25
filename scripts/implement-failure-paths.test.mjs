@@ -10,8 +10,8 @@ import { buildSync } from 'esbuild';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = path => readFileSync(join(root, path), 'utf8');
-const skill = read('skills/subagent-driven-development/SKILL.md');
-const dispatch = read('skills/subagent-driven-development/reference/dispatch-contract.md');
+const skill = read('skills/gauntlet/implement/waves/waves.md');
+const dispatch = read('skills/gauntlet/implement/waves/dispatch-contract.md');
 const schema = name => JSON.parse(dispatch.match(new RegExp(`const ${name} = (.*);`))[1]);
 const implementerSchema = schema('IMPLEMENTER_STATUS_SCHEMA');
 const scratch = mkdtempSync(join(tmpdir(), 'implement-failure-paths-'));

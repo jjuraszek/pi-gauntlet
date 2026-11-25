@@ -8,10 +8,10 @@ import { sha256 } from '../eval/lib/checks.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const coordinated = read('skills/loop-implementation/reference/coordinated-legs.md');
+const coordinated = read('skills/gauntlet/implement/loop/coordinated-legs.md');
 const gatekeep = read('skills/gatekeep-pr/reference/fix-wave.md');
 const hotfix = read('skills/chase-bug/hotfix.md');
-const transport = read('skills/loop-implementation/reference/return-file.md');
+const transport = read('skills/gauntlet/return-file.md');
 const recipe = marker => {
   const source = marker === 'companion-return-shell' ? coordinated : transport;
   const match = source.match(new RegExp(`<!-- ${marker} -->\\s*\x60\x60\x60bash\\n([\\s\\S]*?)\\n\x60\x60\x60`));

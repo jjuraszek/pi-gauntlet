@@ -6,8 +6,8 @@ bundle-: skills/gatekeep-pr/reference/cleanup.md
 bundle-: skills/gatekeep-pr/reference/fix-wave.md
 bundle-: skills/gatekeep-pr/reference/reject.md
 bundle-: skills/gatekeep-pr/reference/assessment.md
-bundle-: skills/brainstorming/reference/menu-layout.md
-bundle-: skills/finishing-a-development-branch/reference/commit-message.md
+bundle-: skills/gauntlet/menu-layout.md
+bundle-: skills/gauntlet/commit-message.md
 ## Arguments
 
 No token for A, B, C and E. `123` for D.

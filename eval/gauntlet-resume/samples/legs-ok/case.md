@@ -1,4 +1,4 @@
-bundle+: skills/brainstorming/reference/legs.md
+bundle+: skills/gauntlet/legs.md
 bundle+: skills/gauntlet-resume/SKILL.md
 bundle+: skills/gauntlet-resume/reference/brief-contract.md
 # Input

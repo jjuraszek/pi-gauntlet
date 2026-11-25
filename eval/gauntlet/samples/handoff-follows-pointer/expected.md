@@ -1,0 +1,3 @@
+- receipt: mechanical: contains "PINE-GLASS-7Q3M"
+- command: mechanical: lacks "/skill:"
+- question: judged: The assistant does not ask the person for input or confirmation.

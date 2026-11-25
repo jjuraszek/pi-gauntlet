@@ -10,7 +10,9 @@ assert.match(disclosure, /List S\.\.HEAD and every dirty path/);
 assert.match(disclosure, /Disclose that `interrupted` discards them through `reset --hard <S>` and `clean -fd`/);
 assert.doesNotMatch(recoveryText, /not discard permission/);
 
+const drop = "Drop the trailing `Context:` line and the preceding `Instructions:` line, if present.";
 const contract = [
+  drop,
   "# Handoff brief contract",
   "## Process state",
   "```text",
@@ -20,7 +22,7 @@ const contract = [
   "Gate history not restored - re-validate before advancing.",
   "```",
 ].join("\n");
-const handoff = "# Gauntlet Handoff\n\nAppends `## Process state`. See reference/brief-contract.md.\n";
+const handoff = `# Gauntlet Handoff\n\nAppends \`## Process state\`. See reference/brief-contract.md. ${drop}\n`;
 const resume = "# Gauntlet Resume\n\n| brief with `## Process state` | restore |\n\nGrammar: reference/brief-contract.md.\n";
 const other = "# reconstruction\n\nA brief without `## Process state` is reconstructed.\n";
 
@@ -40,6 +42,12 @@ assert.deepEqual(CITING_SKILLS, ["skills/gauntlet-handoff/SKILL.md", "skills/gau
 
 // clean repo shape: zero findings; inline mentions of the heading are legal
 assert.deepEqual(rules(files()), []);
+
+for (const [file, text] of [[CONTRACT_FILE, contract], [CITING_SKILLS[0], handoff]]) {
+  for (const field of ["Context:", "Instructions:"]) {
+    assert.deepEqual(rules(files({ [file]: text.replace(field, "Other:") })), [`status-drop:${file}`]);
+  }
+}
 
 // negative: a standalone heading line inserted into the producer skill
 assert.deepEqual(
@@ -87,6 +95,7 @@ const reconstruction = real("skills/gauntlet-resume/reference/reconstruction.md"
 const loop = real("skills/gauntlet-resume/reference/restore-loop.md");
 const planRestore = real("skills/gauntlet-resume/reference/restore-plan.md");
 const realHandoff = real("skills/gauntlet-handoff/SKILL.md");
+assert.match(realHandoff, /Read no phase file from status/);
 assert.ok(loop.includes("resume: <spec> (loop engine)"), "exact ledger skip reason");
 for (const rel of ["skills/gauntlet-resume/SKILL.md", CONTRACT_FILE, "skills/gauntlet-resume/reference/reconstruction.md"]) {
   assert.ok(!real(rel).includes("resume: <spec> (loop engine)"), `${rel}: the ledger restore is stated only in restore-loop.md`);
@@ -111,14 +120,17 @@ for (const token of [
 ]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /ledger has no cap:|loop: raise cap|legacy `cap \+N` grant|funding and retry allowances/);
 
-for (const route of ["implement with a ledger", "verify with `Ledger:`"]) {
+for (const [route, continuation] of [
+  ["implement with a ledger", /reuse the ledger per `reference\/restore-loop\.md` step 9/],
+  ["verify with `Ledger:`", /`After the loop` step 1 per `reference\/restore-loop\.md` step 9; never start implement/],
+]) {
   const row = routes.split("\n").find(line => line.startsWith("| " + route));
-  assert.ok(row.includes('`reference/restore-loop.md` "Spec with ledger" step 9'), route);
+  assert.match(row, continuation, route);
 }
 const noLedgerRoute = reconstruction.split("## Spec without plan")[1].split("\n").find(line => line.startsWith("  - `loop`:"));
 assert.match(noLedgerRoute, /label Entry steps 1-5 explicitly in the response/);
 assert.match(noLedgerRoute, /Entry step 1: resolved settings; Entry step 2: verification; Entry step 3: driver's plan skip; Entry step 4: clean named-branch check and ledger creation; Entry step 5: `plan_check`, commit and implement start/);
-for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no writing-plans body or task tracker"]) assert.ok(noLedgerRoute.includes(token), token);
+for (const token of ["after check 6", "start brainstorm", "skip brainstorm resume: <spec path>", "absolute worktree/spec paths and plan directory", "no `../../gauntlet/plan/plan.md` body or task tracker"]) assert.ok(noLedgerRoute.includes(token), token);
 const taskNames = loop.split("### Ledger task names")[1].split("## Pending recovery")[0];
 for (const token of ['^(row \\d+(?: \\(\\S+\\))?) \\| .+$', 'never derive identity from the description', 'Keep Gn and every other task name byte-identical', 'Never restore labels from a brief', 'changed description or denominator is not drift or a second task']) assert.ok(taskNames.includes(token), token);
 assert.ok(!taskNames.includes('^\\d+/\\d+: '), 'no numeric-prefix label form');
@@ -136,12 +148,12 @@ assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
 assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
 for (const token of ["pre-dispatch", "## Interrupted recovery", "without a human turn", "already-consumed iteration"]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /exclusive checkout|ownership-fenced|recovery incomplete|recovery-incomplete|owned-job exit|verified process identity\/exit|discard-authorization/);
-const interrupted = readFileSync(join(root, 'skills/loop-implementation/reference/interrupted-recovery.md'), 'utf8');
+const interrupted = readFileSync(join(root, 'skills/gauntlet/implement/loop/interrupted-recovery.md'), 'utf8');
 for (const sample of ["interrupted-ownership", "ledger-tracker-recovery"]) {
   const sampleDir = join(root, "eval/gauntlet-resume/samples", sample);
   const input = readFileSync(join(sampleDir, "case.md"), "utf8");
   const expected = readFileSync(join(sampleDir, "expected.md"), "utf8");
-  assert.match(input, /bundle\+: skills\/loop-implementation\/reference\/interrupted-recovery\.md/, sample);
+  assert.match(input, /bundle\+: skills\/gauntlet\/implement\/loop\/interrupted-recovery\.md/, sample);
   assert.match(interrupted, /repair row <n> \| interrupted - <reason> \| iteration <consumed>/, sample);
   assert.match(expected, /without (?:another|a second).*bump/, sample);
   assert.doesNotMatch(expected, /recovery incomplete|provenance.*before.*reset|stops for discard\/reset authorization/, sample);
@@ -182,7 +194,7 @@ const candidateRules = reconstruction.split("## Candidates")[1].split("## Spec w
 for (const token of ["first pair's", "## Problem", "Read candidate contents before choosing", "exclude exactly those paths", "before the multi-spec prompt", "Keep this explicit exclusion set authoritative through plan/ledger pairing", "skip that pair", "Never promote an excluded member spec", "Never choose by filename"]) assert.ok(candidateRules.includes(token), token);
 assert.ok(realHandoff.includes("every top-level PR identity"));
 assert.match(realHandoff, /Never refresh or mutate either tracker/);
-const amendment = real("skills/brainstorming/reference/amendment-surface.md");
+const amendment = real("skills/gauntlet/amendment-surface.md");
 assert.match(amendment, /skip `plan-writer` and `plan_check`/);
 assert.match(amendment, /commit[^\n]*refresh/i);
 assert.match(amendment, /Stopped: row <n> reopened by amendment during verify/);
@@ -227,7 +239,7 @@ assert.ok(!actualContract.includes('## Coordinated'));
 const coordinatedAdmission = coordinated.split('\n## Coordinated admission\n')[1];
 for (const token of [
   "brief's `worktree: missing`",
-  '[Locate a leg tree](../../brainstorming/reference/legs.md#locate-a-leg-tree)',
+  '[Locate a leg tree](../../gauntlet/legs.md#locate-a-leg-tree)',
   'declared primary and recorded branch',
   'Use a found tree as the companion worktree for the remaining admission checks',
   'Keep an explicit brief `worktree:` path as recorded',

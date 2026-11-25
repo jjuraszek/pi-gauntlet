@@ -12,7 +12,7 @@ const CLI = join(dirname(fileURLToPath(import.meta.url)), "gauntlet-telemetry-se
 const SPEC = "doc/specs/x.md";
 const REC = ".git/gauntlet/telemetry/doc/specs/x.yaml";
 const REF = "refs/telemetry/records";
-const BLOB = "team/product/brainstorming/doc/specs/x.yaml";
+const BLOB = "team/product/gauntlet/doc/specs/x.yaml";
 const RECORD = `schema: 1
 spec: doc/specs/x.md
 run_id: r-1
@@ -71,7 +71,7 @@ const invoke = (args, env = {}) => {
   return { status: r.status, stderr: r.stderr.trim(), lines: r.stdout.split("\n").filter(Boolean) };
 };
 const run = (root, args = [], env = {}) => invoke(["--worktree", root, "--option", "squash", "--base", "main", ...args], env);
-const blob = (root, spec = SPEC) => git(root, ["show", `${REF}:team/product/brainstorming/${spec.replace(/\.md$/, ".yaml")}`]);
+const blob = (root, spec = SPEC) => git(root, ["show", `${REF}:team/product/gauntlet/${spec.replace(/\.md$/, ".yaml")}`]);
 const record = (root) => parseYaml(blob(root));
 const head = (root) => git(root, ["rev-parse", "HEAD"]);
 const recPath = (root, spec = SPEC) => join(realpathSync(root), `.git/gauntlet/telemetry/${spec.replace(/\.md$/, ".yaml")}`);

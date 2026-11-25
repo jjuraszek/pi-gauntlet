@@ -35,8 +35,8 @@ function historicalModels(candidate, baseline) {
 
 const restoreLoop = read('skills/gauntlet-resume/reference/restore-loop.md');
 const pending = restoreLoop.split('\n## Pending recovery\n')[1].split(/\n#{1,2} /)[0];
-const driver = read('skills/loop-implementation/SKILL.md');
-const holds = read('skills/loop-implementation/reference/driver-holds.md');
+const driver = read('skills/gauntlet/implement/loop/loop.md');
+const holds = read('skills/gauntlet/implement/loop/driver-holds.md');
 
 test('home resume written rules preserve the original boundary and consumed counts', () => {
   for (const text of [

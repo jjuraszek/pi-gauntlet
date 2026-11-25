@@ -1,5 +1,5 @@
 bundle+: skills/chase-bug/SKILL.md
-bundle+: skills/brainstorming/reference/menu-layout.md
+bundle+: skills/gauntlet/menu-layout.md
 
 Produce two independent step-4 gate messages, separated by --- and nothing else. All writes and handoffs are simulated; do not run tools.
 
