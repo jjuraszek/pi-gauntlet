@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v9.0.0 - 2026-11-25
 
 ### Upgrade from 8.x
 
