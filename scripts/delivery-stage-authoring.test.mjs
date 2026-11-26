@@ -37,6 +37,7 @@ for (const [name, sample] of targetName ? selected : [
   ['gauntlet', 'pr-body-drafted-row'],
   ['gauntlet', 'post-action-sorted'],
   ['check-delivery', 'non-ac-row-listed'],
+  ['ship', 'pr-body-integration'],
   ['loop', 'seed-dispositions'],
   ['plan', 'post-action-no-task'],
 ]) {
@@ -70,6 +71,12 @@ for (const [name, sample] of targetName ? selected : [
       assert.ok(Object.values(runMechanical(facts, candidate.outputs[model].text)).every((value) => value === 'holds'), `${model}: mechanical facts`);
       for (const { id } of facts) assert.equal(judged.facts[id]?.after, 'holds', `${model}: ${id}`);
       assert.ok(['improved', 'unchanged'].includes(judged.verdict), `${model}: ${judged.verdict}`);
+      if (name === 'ship' && sample === 'pr-body-integration') {
+        const [section, staleBody] = [...text.matchAll(/^```markdown\n([\s\S]*?)\n```/gm)].map(match => match[1]);
+        const output = candidate.outputs[model].text;
+        assert.equal(output.split(section).length - 1, 2, `${model}: one verbatim block per body`);
+        assert.ok(output.includes(staleBody.replace(/## Integration[\s\S]*?(?=\n\n## Notes)/, () => section)), `${model}: only the stale block changes`);
+      }
       if (name === 'plan' && sample === 'post-action-no-task') {
         const { createJiti } = await import('jiti');
         const { checkPlan } = await createJiti(import.meta.url).import('../extensions/lib/plan-check.ts');

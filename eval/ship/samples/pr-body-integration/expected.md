@@ -1,0 +1,3 @@
+- offer: judged: The offer keeps the ordinary named-branch menu in order (create PR, draft PR, squash to main, keep, discard) and asks no question or lists any item about Integration. Unchecked conditions do not withhold options or delay the choice.
+- create: judged: The new PR body keeps Summary and Test Plan and carries the supplied Integration section verbatim once after Test Plan, including its six lines and the indented instruction. It claims none were checked.
+- update: judged: The existing draft body replaces only the stale Integration section with the spec's complete current block once, without the obsolete screenshot entry, a Rework block or changes to surrounding text, spacing or order.

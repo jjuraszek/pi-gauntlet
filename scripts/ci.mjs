@@ -312,7 +312,6 @@ const tokenChecks = [
   ["skills/gauntlet/plan/plan-contract.md", "deviates:", true],
   ["skills/gauntlet/ship/ship.md", "## Acceptance criteria", true],
   ["skills/gauntlet/ship/ship.md", "- deferred: <where>", true],
-  ["skills/gauntlet/ship/ship.md", "When the spec's `## Acceptance criteria` has at least one `venue:`, `deferred:`, or `elsewhere:` row", true],
   // #40 gauntlet-handoff ownership boundary: delegates the core brief to cohort, never copies it
   ["skills/gauntlet-handoff/SKILL.md", "phase_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "plan_tracker", true],

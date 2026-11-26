@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 13
+iterations: 14
 allowance: 10
-returned: 39 | home | 20ddd397e97d2384e52022884c471fda82739280
+returned: 41 | home | 8d0678f33a61f7013718b186d9e73423d98e0119
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -49,7 +49,7 @@ returned: 39 | home | 20ddd397e97d2384e52022884c471fda82739280
 | 38 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered only tagging from the six Integration entries, ran it once on pick and ran nothing on stop |
 | 39 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both selected replays listed all six entries once as not checked, judged and executed none, and proceeded with the approved evidence comment |
 | 40 | cut | 0 | deviates: the pull request body carries the whole section; the offer lists nothing above its options |
-| 41 | open | 0 | |
+| 41 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs ship pr-body-integration; 2 passed; both selected replays offered all five choices without an entry question; new and updated bodies carried the exact six entries and nested text |
 | 42 | cut | 0 | deviates: the merge-gate report lists no entries |
 | 43 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both replays judged only the two importer behaviors on blue and listed the other three rows with their kinds; no status write |
 | 44 | open | 0 | |
@@ -87,3 +87,4 @@ row 35 done | Neither engine assigned any of the six Integration entries, and bo
 row 39 done | Both delivery replays listed all six Integration entries once as not checked and proceeded with the approved comment without judging or executing an entry. | Reuse the non-ac-row-listed fixture to check which ticket rows affect delivery and what the evidence comment records.
 row 43 done | Both replays judged the two importer behaviors on blue, listed the three misplaced rows with their kinds and made no status write. | nothing new to build on
 row 47 done | Both delivery reports named blue.example.test as the configured target and matched its version to the shipped commit. | nothing new to build on
+row 41 done | Both replays offered all five choices without asking about Integration entries and copied the current section verbatim into new and existing PR bodies. | Reuse the pr-body-integration fixture to check menu choices, nested entry text and byte preservation outside a replaced section.

@@ -24,12 +24,13 @@ git -C <worktree> diff --name-status origin/$DEFAULT...HEAD
 
 Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 4. Keep implementation approvals available.
 
-Push, then create with explicit head/base and the spec H1 as title. Pass the summary verbatim through the quoted heredoc shown below, including its literal delimiter in narrated commands. Run gh against the worktree repository:
+Push, then create with explicit head/base and the spec H1 as title. Pass the summary verbatim through the quoted heredoc shown below, including its literal delimiter in narrated commands. Directly after the summary, carry the committed home spec's `## Integration` section per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr); omit it when absent. Run gh against the worktree repository:
 
 ```bash
 git -C <worktree> push -u origin <branch>
 gh pr create --draft --head <branch> --base "$DEFAULT" --title "<spec H1 text>" --body-file - <<'EOF'
 <gate summary verbatim, or the **Goal:** line on the degraded-summary path>
+<spec's Integration block when present>
 EOF
 ```
 

@@ -6,6 +6,11 @@ Read current ledger pending recovery from restore-loop.md before verification or
 
 For a deferred spec, print the numbered gauntlet command before starting delivery so the user can open the PR in a fresh session.
 
+Carry the spec's Integration section into a new PR and reconcile only that block on an existing PR. Keep the offer independent of its entries. The pr-body-integration replay checks the menu and rendered bodies, not live publication.
+
 ## Expected to move
+
+- pr-body-integration/create: fails -> holds - Give the reader the current section after Test Plan.
+- pr-body-integration/update: fails -> holds - Replace the outdated block without changing the rest of the draft.
 
 - deferred-spec-stop/notice: fails -> holds - Name the explicit gauntlet entry and the resolved PR number.
