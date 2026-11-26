@@ -3,16 +3,16 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | 24e6b468968620ce827a26def2994a8c2e7f50d8
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | cut | 0 | deviates: the shared definition ships in other words - no ticket-comment clause, no required entry details, no merge-gate exception sentence; the four named places point to the one file that holds it |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
-| 4 | open | 0 | |
+| 4 | open | 0 | timeout -k 30 30 node --test scripts/ac-definition-owner.test.mjs; no shipped file contains the definition; 11 files use retired sorting terms; the delivery check does not reference ac-classes.md |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
@@ -63,3 +63,5 @@ returned: none
 | 52 | cut | 0 | deviates: no sample-data handling in the delivery check |
 
 ## Decisions
+
+row 0 done | seeded 1 rows, closed 0 on baseline | row 4
