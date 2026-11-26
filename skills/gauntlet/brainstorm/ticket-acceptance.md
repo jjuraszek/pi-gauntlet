@@ -10,7 +10,7 @@ A ticket is guidance, not sole truth. Fetch it; propose scope, approach, or acce
 |---|---|
 | Criterion | Copy the whole ticket row verbatim to `## Acceptance criteria` with its disposition. |
 | Entry | Move it verbatim to `## Integration`; indent `ticket row, not an acceptance criterion: <kind>` beneath it. This is not a scope cut: no disposition, `## Out of scope` entry or cut question. |
-| Mixed | Keep the whole row verbatim as a criterion with its repo-group disposition. Copy only its external clause, in its own words, to `## Integration` as a plain entry. |
+| Mixed | Write in both sections: keep the whole row verbatim as a criterion with its repo-group disposition; copy only its external clause to `## Integration`, without a marker. For `on staging, the importer rejects a row without an id`, the entire Integration item is `- on staging`. |
 
 **This repo** is the `repo:` value of the overrides `# shared` `## issue-tracker` section, else the `owner/name` path of `git remote get-url origin` with any `.git` suffix stripped; a repo group matches it when the group name equals that value or its basename, case-insensitive. Apply [../legs.md](../legs.md)'s identifier-before-basename membership resolution before attribution. A ticket without repo groups holds only this repo's rows; never guess attribution. A grouped ticket with no group matching any member stops the brainstorm with that fact.
 

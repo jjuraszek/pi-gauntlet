@@ -1,8 +1,8 @@
 {
   "sample": "workflow-stage-ticket-row",
   "arm": "candidate",
-  "skillSha": "32158c2901d2425decd774180cd582d691c382396f765ad81c90f48e1638bf7c",
-  "inputSha": "9f38b8f151522ca1f1949b5139de976d41a42d603950cc056fc44ee5c40e0688",
+  "skillSha": "09c021022904e8d6dfc912d38fe50955762615ea193fa6d2a7284c1f384ae029",
+  "inputSha": "8a6caec7814e9d8db0bee8f14aef7a87c7bd5e1e06573388592beead9bf32dcf",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,137 +17,103 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Message 1**\n\n```text\ngauntlet: question\n\n## Today\nThe importer accepts rows that lack an id and reports any malformed row with one generic error. The complexity check already has a limit of 20, but the CI target does not yet fail on a function above that limit.\n\n## The change\nAn import with a row missing its id is rejected, and the error names the offending row. The CI target fails on a function of complexity 21. The public import entry point stays as it is.\n\n## What I checked\n- Held: The importer's row validation and error reporting, the complexity check and its limit, and every ticket row against the code and contracts, with no contradiction.\n\nThe framing holds: checked the importer's row validation, its error reporting, and the complexity check.\nThe ticket's first acceptance row has only one observable, a delivery-pipeline stage, not a behavior of the change:\n\"- [ ] GitHub CI is green on the head of the pull request\"\nHow should this row ship?\nA) in-scope - the pull request head's CI run passes\nB) deviates: <your reason>\nC) deferred: <where it goes>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row \"GitHub CI is green on the head of the pull request\" is a workflow-stage proof with no behavior\nRecommendation: D - a stage proof is not an outcome, so the ticket should retire the row.\n```\n\n*Recorded answer: A*\n\n---\n\n**Message 2**\n\n```text\ngauntlet: question\nRecorded: row 1 stays in-scope as written.\nThe second acceptance row puts a behavior next to a clause that only proves a delivery stage. The clause is \"CI is green on the PR head\":\n\"- [ ] The importer rejects a row without an id and CI is green on the PR head\"\nHow should this row ship?\nA) in-scope - the importer rejects a row without an id, and the pull request head's CI run passes\nB) deviates: <your reason>\nC) deferred: <where it goes>\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 row \"The importer rejects a row without an id and CI is green on the PR head\" carries a stage-only clause beside the id-rejection behavior\nRecommendation: D - a stage proof is not an outcome, so the ticket should keep the rejection behavior and retire the CI clause.\n```\n\n*Recorded answer: A*\n\n---\n\n**Message 3**\n\n```text\ngauntlet: question\nRecorded: row 2 stays in-scope as written. The third row (\"make ci rejects a function of complexity 21\") is not a stage proof, because the CI target's own behavior is what this change modifies. It stays in-scope without a question.\nHow should the importer's error name the offending row?\nA) use the existing importer error format and add the offending row's identifier to it\nB) add a new structured error type that carries the row number and the failing field\nC) other - name it\nRecommendation: A - the existing format keeps one error shape for callers, and adding the row identifier meets the fourth row.\n```\n\n*Recorded answer: A (the existing importer error format)*\n\n---\n\n**Message 4 (approaches)**\n\n```text\ngauntlet: question\nNo implicit dependency was recorded as missing or not checkable. The importer's validation path and the complexity check were both found and traced.\n\nI recommend Approach 1, the reuse-only option.\n\n1. Extend the existing validation and check (recommended). Add a missing-id rejection to the importer's existing row validation. Have it raise the existing error format with the offending row named in it. Wire the existing complexity check, limit 20, into the CI target so a function of complexity 21 fails it. The public importRows entry point stays unchanged. This adds no new construct. The cost is that validation stays inline in the importer.\nRemoves: the generic malformed-row error text for the missing-id case\nAdds: a missing-id branch and a row identifier in the existing error in src/importer.ts; a complexity-check step in the make ci target that invokes scripts/complexity.mjs; importer tests for missing id and the named row; a CI-target test or fixture for complexity 21\nPattern: follows the importer's own validation in src/importer.ts and the existing check in scripts/complexity.mjs, with no parallel path.\n\n2. A separate row-schema validator. Move row validation into a new validator module that importRows calls. This makes the rules easier to test in isolation, but it adds a second validation layer beside the importer's existing one for a single new rule.\nRemoves: inline row checks in src/importer.ts\nAdds: a new src/importer-schema.ts module and its tests; a call site in importRows; the same make ci wiring of scripts/complexity.mjs\nPattern: cuts across src/importer.ts's existing validation by adding a second layer for one rule.\n\n3. Collect every invalid row instead of stopping at the first. This drops the ask's implicit assumption that one offending row is reported. Validation would run across all rows, and the existing error would list every row missing an id. Callers get fuller feedback, but every malformed import pays for a full validation pass, and the error message changes beyond naming one row.\nRemoves: first-failure exit in the importer's validation loop\nAdds: an accumulator in src/importer.ts validation; a multi-row message in the existing error format; tests for one and several missing ids; the same make ci wiring\nPattern: follows src/importer.ts validation and scripts/complexity.mjs, but widens the error contract beyond what the ticket asks.\n\nApproach 1 meets all four rows with the least new surface. It would flip to Approach 3 if importer callers need every bad row reported in one pass.\nWhich approach should the design use?\nA) Approach 1 - extend the existing validation and check\nB) Approach 2 - separate row-schema validator\nC) Approach 3 - report every invalid row\nRecommendation: A - it reuses both existing paths and adds no construct.\n```\n\n---\n\n**Implied Design requirements from the Reporter note**\n\n- The public `importRows` entry point is preserved: its name and call signature stay as they are, and the missing-id rejection and named-row error are delivered behind it.\n- The two `retired workflow-stage proof:` lines are not Design requirements. They only record where proofs came from:\n  - \"CI is green on the PR head\"\n  - \"The importer rejects a row without an id and make ci passes\"\n\n  The ticket rows themselves stay verbatim, and rows 1 and 2 are in-scope per the recorded answers.\n",
-      "words": 1012,
-      "wallMs": 40795,
-      "mechanical": {
-        "opening-titles": "holds"
-      }
+      "text": "No cut question is needed: the reporter raised no scope cuts and the checkout contradicts no row. Sorting applies the class definition without asking.\n\n```markdown\n## Acceptance criteria\n\nTicket acme/widgets#77, checkbox list, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n```\n\n```markdown\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n```\n\n## How the rows were sorted\n\n- **The two importer rows and the `make ci` row stay as acceptance criteria.** The files at the delivered commit can make each one true.\n  - The complexity row describes how the check itself behaves, so it is a criterion and not a pipeline result (sorting rule 1).\n- **The staging row is mixed.**\n  - It stays whole and verbatim as an `in-scope` criterion.\n  - Only its external clause, `on staging`, moves to Integration, with no marker.\n- **The other seven ticket rows move verbatim to Integration, each with its marker.**\n  - They are entries, not scope cuts.\n  - So they get no disposition, no `## Out of scope` entry, and no `Scope cuts:` listing.\n- **The ticket's own Integration entry comes first, copied verbatim.**\n  - This includes its nested line.\n  - The moved rows and the mixed clause follow in ticket order.\n- **No design commitment is an Integration entry, so nothing is added from the design.**\n  - Those commitments are: keeping the public importer entry point, rejecting missing ids, naming the offending row, and extending the existing complexity check.\n  - They stay as Design clauses.\n- **Placement:** `## Acceptance criteria` follows `## Problem`, and `## Integration` sits directly before `## Errors and edge cases`.\n\nI am stopping here, before the approval summary and before any file or tracker write.\n",
+      "words": 418,
+      "wallMs": 16479,
+      "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Message 1\ngauntlet: question\n\n## Today\nThe importer accepts rows without an id and reports malformed rows with a generic error. The complexity check already has a limit of 20.\n\n## The change\nThe ticket asks for missing-id rejection, errors that name the offending row, and `make ci` rejection of a function with complexity 21. The public `importRows` entry point stays unchanged.\n\n## What I checked\n- Held: The supplied observations support extending the existing importer validation and complexity check, with no reported code or contract contradiction.\n- Held: The complexity-related acceptance row describes behavior being changed; the two CI-green clauses describe delivery-stage proof.\n\nThe framing holds: checked the supplied importer behavior, complexity-check behavior, and ticket requirements.\nHow should we treat this ticket row?\n\n- [ ] GitHub CI is green on the head of the pull request\n\nA) in-scope - retain the row as written\nB) deviates: omit the CI-green requirement from this change\nC) deferred: name a tracker reference, spec path, or URL for this requirement\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 remove this workflow-stage proof row; its only observable is the PR head’s CI result\nRecommendation: D - a CI-stage result is proof of delivery, not a product outcome.\n\n### Message 2\ngauntlet: question\n\nThe preceding row remains in-scope, as you chose. This next row combines importer behavior with a delivery-stage proof; it must stay intact unless the ticket is repaired.\n\nHow should we treat this ticket row?\n\n- [ ] The importer rejects a row without an id and CI is green on the PR head\n\nA) in-scope - retain both missing-id rejection and the CI-green clause as written\nB) deviates: retain missing-id rejection but omit the CI-green clause\nC) deferred: name a tracker reference, spec path, or URL for this requirement\nD) repair the ticket - /skill:shape-ticket acme/widgets#77 preserve missing-id rejection and remove the workflow-stage CI-green clause\nRecommendation: D - preserve the importer outcome without making a delivery-stage result part of its acceptance row.\n\n### Message 3\ngauntlet: question\n\nBoth rows remain in-scope, as you chose. The complexity-21 row needs no scope question: changing what `make ci` rejects is itself requested behavior.\n\nHow should the importer present the offending row?\nA) Use the existing importer error format, adding the offending row to its message\nB) Introduce a structured error containing separate row and reason fields\nC) other - name it\nRecommendation: A - it delivers the requested information without introducing a new public error contract.\n\n### Message 4 — Approaches\n\nI recommend **extending the existing validation and complexity-check paths**. Both approaches below preserve `importRows` and use the existing importer error format, as you chose.\n\nThe distinguishing axis is **where row validation runs**: within the current importer validation path or in a separate preflight pass.\n\n**A) Extend the existing paths — recommended, reuse-only**\n\nUpdate the validation in `src/importer.ts` to reject missing ids and include the offending row in its existing error format. Extend the existing check in `scripts/complexity.mjs` so `make ci` rejects a function with complexity 21, retaining the limit of 20.\n\nThis keeps ownership together and avoids a second validation path. The supplied observations do not establish the importer’s mutation or partial-progress behavior, so this approach makes no new atomicity guarantee.\n\nRemoves: none  \nAdds: missing-id rejection and row-identifying messages in `src/importer.ts`; complexity-21 rejection through the existing `scripts/complexity.mjs` check; focused regression coverage for those outcomes  \nPattern: Extends the existing owners in `src/importer.ts` and `scripts/complexity.mjs` rather than creating parallel validation or checking paths.\n\n**B) Add a preflight validation pass**\n\nHave `importRows` validate rows before entering its existing import path, reporting missing ids and offending rows through the existing error format. Make the same complexity-check change as in A.\n\nThis separates validation from importing, but adds a pass and requires deciding how existing malformed-row checks move into it. It could also change when failures occur relative to import work; the supplied observations do not establish whether that change is desirable.\n\nRemoves: row-validation checks moved out of the existing import path  \nAdds: a preflight validation helper and invocation in `src/importer.ts`; row-identifying errors; complexity-21 rejection through `scripts/complexity.mjs`; focused regression coverage  \nPattern: Keeps validation owned by `src/importer.ts`, but introduces a new boundary that must replace—not duplicate—the existing checks.\n\nAn assumption-dropping candidate that omits the complexity change is not viable: the ticket explicitly requires `make ci` to reject complexity 21, and that outcome remains in-scope.\n\nI would switch to B only if validation must finish before any import work occurs.\n\n**Implied Design requirements from the Reporter note**\n- Preserve the public `importRows` entry point.\n- The two lines marked `retired workflow-stage proof:` are provenance only; they add no Design requirements.\n",
-      "words": 743,
-      "wallMs": 35047,
-      "mechanical": {
-        "opening-titles": "holds"
-      }
+      "text": "## Acceptance criteria\n\nTicket acme/widgets#77, Acceptance criteria, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n",
+      "words": 186,
+      "wallMs": 8655,
+      "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "c0ed8aba998411f3124c27a3eb4051ad347d377c139c673eac507609f9db7837",
+      "factsSha": "5e81f42940956603018d379a76a0b731a5701060967fbc7376b52fe127919e01",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7d1c853d842f4cf5907200f3059c40854ae11c57d3eab273d33d0dc328883a03",
-      "baselineOutputSha": "2fb72b35c41716da5fc94a00110181e01cfa26d512d2f1d9063d73e9c80b3ea1",
-      "candidateOutputSha": "3a1b6adcbdbcf33aba88f25d93317f54700da1b07d8d7d7018660baf27e490ee",
+      "intentSha": "3ec55f154eb4f88ff941bef2bc4b4106d4446b53f7c040d2c259d116a54d68e9",
+      "baselineOutputSha": "b435f8d1755048f4c5e5c981f59fa6188c13ed78ef05c70cae7646ef53d782b4",
+      "candidateOutputSha": "9b0262a7f2af5adab9223fb8098769c130f106c04c1fe2e6b6df80f83426b94e",
       "facts": {
-        "opening-register": {
-          "before": "holds",
+        "criteria": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f1": {
-          "before": "holds",
+        "moved": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f2": {
-          "before": "holds",
+        "kinds": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f3": {
-          "before": "holds",
+        "mixed": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f4": {
-          "before": "holds",
+        "carried": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f5": {
-          "before": "holds",
+        "no-question": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f6": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f7": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "opening-titles": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         }
       },
-      "feedback": "No fact moved: both outputs satisfy all eight facts, so the After wording delivers the Change without altering the cut recommendation or the row rules on this sample. In both, the opening is in everyday words with the tracker id only in option D, the sole-stage row's cut question comes first after the holds-statement with A-D in order on separate lines and Recommendation: D, the bundled row gets its own D-recommended cut question with the row quoted intact, the make ci and row-naming rows get no disposition question, and only the importRows requirement is carried from the Reporter note. Three After drifts are still within the facts but worth watching. First, option A restates the row as an outcome (\"the pull request head's CI run passes\") instead of plainly keeping the row as written, and the D recommendations add what the ticket should retire or keep; wording that keeps A as \"in-scope\" for the row as written, and leaves the row's rewrite to the repair command, would protect f2 and f5 against a stricter reading. Second, the closing section re-quotes both retired proof lines and adds that rows 1 and 2 are in-scope; stating only that the marked lines carry no Design requirement, as Before did, would keep f7 from being misread as carrying a make ci passes obligation. Third, After's `## Today` adds that the CI target does not yet fail above the limit, which the gather draft implies but does not state; keeping `## Today` to what the draft observed would avoid inventing current behavior.",
-      "wallMs": 14086,
-      "verdict": "unchanged"
+      "feedback": "Before wrote no sections at all: it stopped on a lettered question about the GitHub CI row and recommended a ticket repair, so every fact fails there, including no-question. After sorts without asking and delivers all six facts. Acceptance criteria holds exactly the missing-id row, the whole `on staging, the importer names the offending row in its error` row and the make-ci complexity row, each verbatim with `in-scope`. Integration opens with the carried drain-the-queue entry and its nested `Read the queue length again after the final batch.` line, with no marker. The seven externally fulfilled rows follow in ticket order as separate plain items without checkboxes, each with its own indented `ticket row, not an acceptance criterion: <kind>` line and the right kind. The mixed row contributes only a bare `on staging` entry with no marker. Before held none of these facts, so there is nothing to preserve from it. To keep After stable, keep the wording that says the sort applies the class definition without a question when the reporter supplied no cuts and the checkout contradicts no row, that a pipeline-result row is moved rather than raised for repair, that a mixed row stays whole under criteria while only its external clause is copied unmarked, and that an existing Integration entry is carried first with its nested lines. The trailing `How the rows were sorted` explanation is not required by any fact and runs past the requested stopping point; consider wording that ends the output at the authored sections.",
+      "wallMs": 10327,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "c0ed8aba998411f3124c27a3eb4051ad347d377c139c673eac507609f9db7837",
+      "factsSha": "5e81f42940956603018d379a76a0b731a5701060967fbc7376b52fe127919e01",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "7d1c853d842f4cf5907200f3059c40854ae11c57d3eab273d33d0dc328883a03",
-      "baselineOutputSha": "2b474e095f8c0c46e7fab0e5fa249063099758769d229751909d20c40fb2b940",
-      "candidateOutputSha": "cf3f993e1868184bab55abcdbc8955265d1a7eb8150f441cf4c3f8639918ac88",
+      "intentSha": "3ec55f154eb4f88ff941bef2bc4b4106d4446b53f7c040d2c259d116a54d68e9",
+      "baselineOutputSha": "6f14e66ed5da13acb42ad571ddf8315bb36c1cb3f1a60f7ac971974b7c6a2894",
+      "candidateOutputSha": "e7014d751a19e8d68557f67ee4b21e67abc75e0734dca14e652ef8fbb817c7ec",
       "facts": {
-        "opening-register": {
-          "before": "holds",
+        "criteria": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f1": {
-          "before": "holds",
+        "moved": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f2": {
-          "before": "holds",
+        "kinds": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f3": {
-          "before": "holds",
+        "mixed": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f4": {
-          "before": "holds",
+        "carried": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
-        "f5": {
-          "before": "holds",
+        "no-question": {
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f6": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f7": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "opening-titles": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         }
       },
-      "feedback": "No fact moved between Before and After: both open with the three titled sections in everyday words, put the sole-stage row's cut question straight after the holds-statement with A-D on separate lines, name /skill:shape-ticket acme/widgets#77 in D, and recommend D. Both also give the bundled row its own intact cut question with D recommended, leave the complexity-21 and offending-row rows unquestioned for disposition, and carry only the importRows requirement from the Reporter note while treating both retired-proof lines as provenance. Two small After drifts are worth guarding against, though neither fails a fact as written. First, the opening's \"## The change\" now names the `importRows` identifier where Before said \"the public importer entry point\"; wording that keeps code identifiers out of the opening prose in favour of role names would protect opening-register. Second, After places the question lead-in before the quoted row rather than after it; this still satisfies f1 and f2, but an explicit order of quoted row, then lead-in, then options would keep it stable. The shared class-table read did not change the cut recommendation or the row-intact rule, so the current wording delivers the Change for this sample.",
-      "wallMs": 13341,
-      "verdict": "unchanged"
+      "feedback": "Before stopped at a scope-decision question about the vendor-confirmation row and recommended a ticket repair, so it wrote neither section and every fact fails there. After sorts the rows without asking, and that moves all six facts to holds. It keeps only the missing-id row, the whole mixed staging/error row and the make-ci row under Acceptance criteria, each verbatim with `in-scope`. Integration opens with the existing drain-the-queue entry and its nested `Read the queue length again after the final batch.` line, unmarked. The seven externally fulfilled rows follow as separate plain items in ticket order, checkbox removed, each with its own indented `ticket row, not an acceptance criterion: <kind>` line and the correct kind. The mixed row contributes only a bare `on staging` entry with no marker. Before held no fact, so nothing was lost. To keep the After result stable, the wording should keep saying explicitly that workflow-stage rows are sorted rather than questioned or repaired. It should also keep saying that a mixed row stays whole under Acceptance criteria while only its external clause is copied unmarked, that existing Integration entries come first with nested lines intact, and that moved rows drop the checkbox but keep exact text and ticket order. One fragile spot: the bare `on staging` item sits between marked rows with nothing tying it to its source row. If the wording later adds an annotation there, it would break the 'plain entry, without a marker' fact, so it should state that this clause is copied with nothing added.",
+      "wallMs": 11074,
+      "verdict": "improved"
     }
   },
   "refresh": {
@@ -434,5 +400,5 @@
       }
     }
   },
-  "repoSha": "5fcd408fd30b278a6cced10768736c84c43d3b71"
+  "repoSha": "1c6cfb9d6c71d86b854043064e93e4b080e5aa83"
 }

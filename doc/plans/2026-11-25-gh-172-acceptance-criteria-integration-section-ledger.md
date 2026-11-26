@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 14 | home | 0983643e2a8d3be3caab0d0c2d6fa4dc9cb62812
+returned: 20 | home | 1c6cfb9d6c71d86b854043064e93e4b080e5aa83
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -28,14 +28,14 @@ returned: 14 | home | 0983643e2a8d3be3caab0d0c2d6fa4dc9cb62812
 | 17 | cut | 0 | deviates: a note in the repository stays an acceptance row; a comment on the ticket is a tracker update and moves to `Integration` |
 | 18 | cut | 0 | deviates: the row moves to `Integration` like every tracker update; the gate carries no sentence about comments |
 | 19 | cut | 0 | deviates: no sample-data requirement and no not-ready filing for it |
-| 20 | open | 0 | |
+| 20 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays kept the file requirements and moved seven external rows to Integration without asking; all six facts held |
 | 21 | open | 0 | |
 | 22 | open | 0 | |
 | 23 | cut | 0 | deviates: the ticket row stays word for word as the in-scope row with no environment tag and is proved by a check in the checkout; the row is also copied to `Integration` as a live check |
 | 24 | cut | 0 | deviates: brainstorming asks no data question |
 | 25 | cut | 0 | deviates: the row is a tracker update and moves to `Integration` |
 | 26 | open | 0 | |
-| 27 | open | 0 | |
+| 27 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays carried the queue-drain entry and its indented detail word for word |
 | 28 | open | 0 | |
 | 29 | cut | 0 | deviates: the entry is one line in the design's own words with no required details; it is written in `Integration` and not in the design text |
 | 30 | cut | 0 | deviates: a ticket comment is an `Integration` entry; no step drafts, shows, posts or judges it |
@@ -75,4 +75,6 @@ row 7 done | Both drafts moved the five external obligations to Integration and 
 row 15 done | Both drafts replaced the old housekeeping heading with Integration and kept its archive and notification entries. | nothing new to build on
 row 16 done | Both drafts kept the script's status conversion as a criterion and moved the operator's run on live orders to Integration. | nothing new to build on
 row 14 done | Both merge-menu replays offered the release tag from Integration alongside the guide publication requested in the PR body. | Reuse the post-merge-menu fixture to compare a merger's selected actions with a stop that runs nothing.
+row 20 done | Both spec-writing replays moved operational rows to Integration and kept the whole mixed row as a criterion, copying only its staging clause. | Reuse the workflow-stage-ticket-row fixture and its six cached facts to check extraction from an unrepaired ticket.
+row 27 done | Both spec-writing replays kept the ticket's queue-drain entry and its nested instruction word for word. | nothing new to build on
 row 38 done | Of the six Integration entries, both replays offered only tagging, ran it once when selected, and ran no post step when the merger chose stop. | nothing new to build on

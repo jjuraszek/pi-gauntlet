@@ -1,6 +1,10 @@
-for: eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97
+for: 6c5b9b6650905ee558b7feb3d651614cf90d00fc72a6c655a45600a5d52f9b60
 
 ## Change
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
+
+## Earlier entry comparison
 
 An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout. For handoff-follows-pointer, the completion reply supplies the next file. A read-only replay resumes with that tool result in history. Only the file provides the receipt; a narrated read cannot pass.
 
@@ -170,8 +174,6 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - multi-repo-script-placed-leg/host: fails -> holds - Preserve pre-existing host ownership without an invented removal contract.
 - multi-repo-script-placed-leg/tokens: fails -> holds - Separate shared creation NAME from located destruction basename.
 - multi-repo-script-placed-leg/locate: fails -> holds - Locate by linked branch block and validate identity after a folder rename.
-- workflow-stage-ticket-row/opening-titles: fails -> holds - the first message puts the three titles before the intact row's cut question.
-- workflow-stage-ticket-row/opening-register: fails -> holds - the surrounding opening prose names parts by role while leaving the quoted row intact.
 - opening-message-ticket-not-fetched/titles: fails -> holds - Render the three opening titles even when only an unread ticket reference is available.
 - opening-message-ticket-not-fetched/not-checked: fails -> holds - State the denied fetch and the wait for ticket content on a Not checked: line.
 - opening-message-ticket-not-fetched/unknown-content: fails -> holds - Keep current behavior and requested change unknown rather than infer them from unrelated recon.
@@ -189,13 +191,12 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - workflow-stage-drafted-row/f2: holds -> holds - Preserve one row per Design behavior, including the suite-proof sketch's outcome.
 - workflow-stage-drafted-row/f3: holds -> holds - Ask no scope-cut question and emit no none fallback.
 - workflow-stage-drafted-row/f4: holds -> holds - Keep the full-suite command and focused cases in Tests.
-- workflow-stage-ticket-row/f1: fails -> holds - Ask the sole-stage cut question first after the holds-statement.
-- workflow-stage-ticket-row/f2: fails -> holds - Keep A-D on separate lines in order.
-- workflow-stage-ticket-row/f3: fails -> holds - Name the ticket in D's shape-ticket repair command.
-- workflow-stage-ticket-row/f4: fails -> holds - Recommend D for the sole-stage row.
-- workflow-stage-ticket-row/f5: fails -> holds - Send the bundled row intact to its own cut question, recommending D.
-- workflow-stage-ticket-row/f6: holds -> holds - Do not question CI-as-product or behavior rows.
-- workflow-stage-ticket-row/f7: fails -> holds - Carry real Reporter-note requirements, never retired proof as Design.
+- workflow-stage-ticket-row/criteria: fails -> holds - Only file-checkable requirements stay, with mixed ticket rows verbatim.
+- workflow-stage-ticket-row/moved: fails -> holds - Move each externally fulfilled row as a separate item in ticket order.
+- workflow-stage-ticket-row/kinds: fails -> holds - Mark each moved row with its kind.
+- workflow-stage-ticket-row/mixed: fails -> holds - Copy only the external clause of a mixed row.
+- workflow-stage-ticket-row/carried: fails -> holds - Carry the existing Integration entry first with its nested line intact.
+- workflow-stage-ticket-row/no-question: fails -> holds - Sort without a question.
 - design-names-paid-actions/flow-bound: fails -> holds - Propose no flow-wide count in round two, name each runner and inputs, and state that approval authorizes every named action for the whole flow.
 - design-names-paid-actions/named-runs: fails -> holds - Permit needed runs of named actions after spec approval without requiring a count or treating a stated count as a bound.
 - design-names-paid-actions/unnamed-unreachable: fails -> holds - Name the loop's unreachable boundary for an action the spec does not name, not for a missing count.

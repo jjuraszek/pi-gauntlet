@@ -29,6 +29,7 @@ for (const [name, sample] of targetName ? samples.map((sample) => [targetName, s
   ['shape-ticket', 'venue-stripped'],
   ['shape-ticket', 'integration-sort'],
   ['shape-ticket', 'pr-body-proof'],
+  ['gauntlet', 'workflow-stage-ticket-row'],
   ['gauntlet', 'pr-body-drafted-row'],
   ['gauntlet', 'post-action-sorted'],
 ]) {

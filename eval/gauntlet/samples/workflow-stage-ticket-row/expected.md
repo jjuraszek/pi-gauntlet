@@ -1,9 +1,6 @@
-- opening-titles: mechanical: matches /gauntlet: question\s+(?:\*\*Message 1[^\n]*\*\*\s+)?## Today\n[\s\S]*?\n## The change\n[\s\S]*?\n## What I checked\n/
-- opening-register: judged: In the first message, prose around the intact quoted ticket row uses everyday words and names checked parts by their role. File-and-line references, commit ids and trace counts are absent from this opening; the tracker id appears only in the repair command option. Literal wording inside the quoted row stays intact rather than being simplified.
-- f1: judged: The first ordinary question follows the holds-statement and is the cut question for the intact row "- [ ] GitHub CI is green on the head of the pull request", before any implementation-detail question.
-- f2: judged: That cut question offers A) in-scope, B) deviates:, C) deferred:, D) repair the ticket, in that order and on separate lines.
-- f3: judged: Option D names /skill:shape-ticket acme/widgets#77.
-- f4: judged: The sole-stage row's cut question says Recommendation: D.
-- f5: judged: The bundled row "- [ ] The importer rejects a row without an id and CI is green on the PR head" also gets a cut question with D recommended; the ticket row remains intact, unedited and unsplit.
-- f6: judged: Neither the CI-as-product row "make ci rejects a function of complexity 21" nor the behavior row "The importer names the offending row in its error" is questioned for a disposition change.
-- f7: judged: Neither retired workflow-stage proof Reporter note line is carried as a Design requirement or a new AC; the retained mixed original "The importer rejects a row without an id and make ci passes" adds no make ci passes suite obligation to Design. Preserving the public importRows entry point is carried.
+- criteria: judged: Only the missing-id row, the entire mixed staging/error row and the make-ci complexity requirement appear under Acceptance criteria, each word for word with an in-scope disposition.
+- moved: judged: Integration contains separate plain list items with the exact original row text (without its checkbox) for the operator cutover, vendor confirmation, empty staging queue, deployed login, ticket comment, ticket transition and green CI result, in their original relative order.
+- kinds: judged: Each of those seven moved rows has its own indented `ticket row, not an acceptance criterion: <kind>` line. The kinds are person step, merge or deploy condition, environment state, live check, tracker update (both ticket writes) and pipeline result respectively.
+- mixed: judged: Integration copies only `on staging` from the mixed error row as a plain entry, without a marker, not the importer functionality or a paraphrased live check.
+- carried: judged: Integration begins with the existing `before deploy to staging - operator: drain the queue; done when the queue length reads 0` entry word for word, immediately followed by its original indented `- Read the queue length again after the final batch.` line. This entry has no moved-row marker.
+- no-question: judged: The response writes the sections without asking for a scope decision, a ticket repair or an answer about moving any row.
