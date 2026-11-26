@@ -36,6 +36,7 @@ for (const [name, sample] of targetName ? selected : [
   ['spec-gate', 'scope-cuts-listed'],
   ['gauntlet', 'pr-body-drafted-row'],
   ['gauntlet', 'post-action-sorted'],
+  ['check-delivery', 'non-ac-row-listed'],
   ['loop', 'seed-dispositions'],
   ['plan', 'post-action-no-task'],
 ]) {

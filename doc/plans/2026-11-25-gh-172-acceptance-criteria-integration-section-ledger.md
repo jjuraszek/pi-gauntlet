@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 12
+iterations: 13
 allowance: 10
-returned: 35 | home | 480abeb8cbdb667910a5249c535876b85807a911
+returned: 39 | home | 20ddd397e97d2384e52022884c471fda82739280
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -47,15 +47,15 @@ returned: 35 | home | 480abeb8cbdb667910a5249c535876b85807a911
 | 36 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; both replay models gave none of the six Integration entries a verdict or blocker |
 | 37 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope integration-not-judged; both replays gave none of the six Integration entries a verdict or blocker; the missing error line number remained a gap |
 | 38 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered only tagging from the six Integration entries, ran it once on pick and ran nothing on stop |
-| 39 | open | 0 | |
+| 39 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both selected replays listed all six entries once as not checked, judged and executed none, and proceeded with the approved evidence comment |
 | 40 | cut | 0 | deviates: the pull request body carries the whole section; the offer lists nothing above its options |
 | 41 | open | 0 | |
 | 42 | cut | 0 | deviates: the merge-gate report lists no entries |
-| 43 | open | 0 | |
+| 43 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both replays judged only the two importer behaviors on blue and listed the other three rows with their kinds; no status write |
 | 44 | open | 0 | |
 | 45 | open | 0 | |
 | 46 | cut | 0 | deviates: the review reports the unknown disposition as today; the engines add no guard and run the row as in-scope, the default for a row with no recognized disposition |
-| 47 | open | 0 | |
+| 47 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both replays named the configured blue.example.test target and matched it to the shipped commit |
 | 48 | cut | 0 | deviates: the delivery check reads no documentation for a target; without a configured target an observable row stays `unverified: no delivery target` |
 | 49 | cut | 0 | deviates: the delivery check adds no stop for a missing or ambiguous target |
 | 50 | cut | 0 | deviates: the delivery check adds no stop for a missing or ambiguous target |
@@ -84,3 +84,6 @@ row 26 done | The merge gate accounts for the marked In Review entry without jud
 row 37 done | Both merge-gate replays left all six Integration entries without a verdict or blocker and flagged the missing error line number. | nothing new to build on
 row 28 done | Both spec writers nested the pause, drain and rollback commands under the ticket's Integration entry without requiring them in acceptance criteria, Design or Tests. | Reuse the post-action-sorted fixture to check command order, rollback placement and the distinction between operator steps and script output.
 row 35 done | Neither engine assigned any of the six Integration entries, and both saved plans cited the external audit command without scheduling it. | Reuse seed-dispositions to check ledger seeding and post-action-no-task to validate mixed rows with the plan checker.
+row 39 done | Both delivery replays listed all six Integration entries once as not checked and proceeded with the approved comment without judging or executing an entry. | Reuse the non-ac-row-listed fixture to check which ticket rows affect delivery and what the evidence comment records.
+row 43 done | Both replays judged the two importer behaviors on blue, listed the three misplaced rows with their kinds and made no status write. | nothing new to build on
+row 47 done | Both delivery reports named blue.example.test as the configured target and matched its version to the shipped commit. | nothing new to build on

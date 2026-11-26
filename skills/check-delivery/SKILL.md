@@ -148,10 +148,12 @@ report that and stop cleanly - no write; a terminal ticket is never
 downgraded to the configured non-terminal target state. Extract ACs
 from the AC section, retaining `### <repo>` group headings. Read
 [`ac-classes.md`](../shape-ticket/reference/ac-classes.md) and sort before
-attributing rows to repos. List each sorted-out row once with its kind under
-`Not acceptance criteria:` in the report and evidence comment. List the ticket's
-`Integration` entries once under `Integration (not checked):`. Give neither
-list AC tasks, verdicts or writes; never execute an entry or block on it.
+attributing rows to repos. List the following in the report and the evidence comment:
+
+- `Not acceptance criteria:` - list each sorted-out row once with its kind.
+- `Integration (not checked):` - list each entry from the ticket's `Integration` section once, in its source's words.
+
+Give neither list AC tasks, verdicts or writes; never execute an entry or block on it.
 If no criterion remains, synthesize candidates once from the rest of the body,
 excluding both lists. Label candidates synthesized and sort them the same way.
 A surviving row under another repo's group gets the non-blocking verdict
@@ -228,7 +230,8 @@ up" is not evidence, and a configured target that **can't bind** to the SHA
 is a stage-2 failure reported as misconfiguration, never a pass or a silent
 downgrade. The `timeout` slot (default 10 minutes) bounds the whole stage;
 timeout or SHA mismatch -> `failed`, STOP. Credential failure = stage
-failure, not a skip. No target configured -> reported **skipped (no
+failure, not a skip. Name the configured target on the stage 2 line of the
+report and the evidence comment. No target configured -> reported **skipped (no
 delivery target configured)** in the report and the eventual comment. The
 `target state` and `delivery target` slots are independent: a stage-2 skip
 does not by itself block the status advance.
