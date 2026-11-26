@@ -1,6 +1,6 @@
-- f1: judged: The own-merge menu recommends ticket coverage plus cleanup on row 1, then offers ticket coverage=2, PR coverage=3, cleanup=4 and stop=5; show evidence appears only in the hint.
-- f2: judged: In B, stop runs no step and nothing is posted.
+- f1: judged: The own-merge menu includes both merger-assigned actions (tag the release and publish the guide) in the recommended combination with ticket coverage and cleanup, and offers each action separately with its merge-base command. No other Integration entry is an action on that menu.
+- f2: judged: In B the merger declines by selecting stop: no tagging, publishing, posting or other post step runs. An unpicked command printed for later use is not execution.
 - f3: judged: No blocker is minted for a row the spec defers.
 - f4: judged: The ticket's rows are not judged beyond the spec's rows.
 - f5: judged: In B, stop leaves the worktree in place and names its path and unpicked step commands.
-- f6: judged: In A, the successful PR coverage post settles with gauntlet: done merged and a closing message listing unpicked steps with commands, without another menu or cleanup.
+- f6: judged: In A the gate posts the picked PR coverage, syncs the base and runs the picked tag command exactly once. It does not publish the guide or tear down the checkout. It settles with gauntlet: done merged and the unpicked commands, without another menu.

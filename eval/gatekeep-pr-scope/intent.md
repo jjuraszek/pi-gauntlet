@@ -1,8 +1,8 @@
-for: 6f3c69075b4b181046667b247d8fe1966e8ad9bde5413c0bc338da04b3a78d69
+for: 14fd05ac2b38fff43a320dfe4e4afd2f32a05048cf58369319a2927517060b0f
 
 ## Change
 
-Scratch relocation changes the shared assembly only. Validate paths deterministically; preserve saved scope results as earlier evidence. No scope sample runs; the only selected model sample is gatekeep-pr/teardown-own-run-folder.
+Select post-merge-menu for Integration handling. The standard PR-named step mechanism offers the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. Preserve earlier scope results as partial evidence; do not rerun other samples.
 
 Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
@@ -12,8 +12,9 @@ Render the single post menu after approve or merge, execute the validated select
 
 ## Expected to move
 
-- post-merge-menu/f1: fails -> holds - Row 1 combines ticket coverage and cleanup with individual steps below.
-- post-merge-menu/f6: fails -> holds - The PR coverage pick settles once without another menu or cleanup.
+- post-merge-menu/f1: holds -> holds - Offer tagging from Integration and guide publication from the PR body; do not offer the other five Integration entries.
+- post-merge-menu/f2: holds -> holds - Stop runs neither action.
+- post-merge-menu/f6: holds -> holds - The PR coverage and tag picks settle once without publishing the guide or removing the worktree.
 - mixed-coverage/f1: fails -> holds - Two-sentence grounded opening preserves deliberate deviation reasons without inventing one.
 - mixed-coverage/f3: fails -> holds - Describe behaviors without row numbers or labeled fields.
 - cleanup-after-approve/f1: fails -> holds - Cleanup is row 1; release and close ticket stay unselected, with their landed-change prerequisite in the not-run list, not execution result lines.

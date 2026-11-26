@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 5 | home | f36eee452e3c34674a6d9b008d77b0199102812a
+returned: 14 | home | 0983643e2a8d3be3caab0d0c2d6fa4dc9cb62812
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -22,7 +22,7 @@ returned: 5 | home | f36eee452e3c34674a6d9b008d77b0199102812a
 | 11 | cut | 0 | deviates: with no required details the gate has nothing to name |
 | 12 | cut | 0 | deviates: no step reads the old heading as a second section name; an old-heading ticket section is raw input whose entries the first ticket check carries to the spec's `Integration` |
 | 13 | cut | 0 | deviates: neither the pull request offer nor the merge-gate report lists entries |
-| 14 | open | 0 | |
+| 14 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered tagging from Integration and guide publication from the PR body |
 | 15 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays replaced the housekeeping heading with Integration and preserved both entries |
 | 16 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays kept the migration script's behavior under Acceptance Criteria and its run on live orders under Integration |
 | 17 | cut | 0 | deviates: a note in the repository stays an acceptance row; a comment on the ticket is a tracker update and moves to `Integration` |
@@ -46,7 +46,7 @@ returned: 5 | home | f36eee452e3c34674a6d9b008d77b0199102812a
 | 35 | open | 0 | |
 | 36 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; both replay models gave none of the six Integration entries a verdict or blocker |
 | 37 | open | 0 | |
-| 38 | open | 0 | |
+| 38 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered only tagging from the six Integration entries, ran it once on pick and ran nothing on stop |
 | 39 | open | 0 | |
 | 40 | cut | 0 | deviates: the pull request body carries the whole section; the offer lists nothing above its options |
 | 41 | open | 0 | |
@@ -74,3 +74,5 @@ row 6 done | Both repair drafts kept the deploy script's production target and c
 row 7 done | Both drafts moved the five external obligations to Integration and quoted their original rows in the Reporter note. | nothing new to build on
 row 15 done | Both drafts replaced the old housekeeping heading with Integration and kept its archive and notification entries. | nothing new to build on
 row 16 done | Both drafts kept the script's status conversion as a criterion and moved the operator's run on live orders to Integration. | nothing new to build on
+row 14 done | Both merge-menu replays offered the release tag from Integration alongside the guide publication requested in the PR body. | Reuse the post-merge-menu fixture to compare a merger's selected actions with a stop that runs nothing.
+row 38 done | Of the six Integration entries, both replays offered only tagging, ran it once when selected, and ran no post step when the merger chose stop. | nothing new to build on

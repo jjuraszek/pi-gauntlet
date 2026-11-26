@@ -1,35 +1,29 @@
-# eval report: gatekeep-pr-scope (partial run: cleanup-after-approve)
+# eval report: gatekeep-pr-scope (partial run: post-merge-menu)
 
-for: 1c5817f14a6cda876abbf9f16359759b71d586267873b398acb6608eb7aa8b63
+for: 14fd05ac2b38fff43a320dfe4e4afd2f32a05048cf58369319a2927517060b0f
 
-wall: 16s
+wall: 82s
 
 ## Change
+
+Select post-merge-menu for Integration handling. The standard PR-named step mechanism offers the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. Preserve earlier scope results as partial evidence; do not rerun other samples.
+
+Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
 Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
 
 Render the single post menu after approve or merge, execute the validated selection once in step order, and settle with the not-run list. Pause only for a selected nested skill. The replay wrapper requests no post-pick menu re-render except inspection or invalid-input handling. Preserve cleanup guards and selected-only authority.
 
-## Coverage and authority
-
-Coverage is sample-scoped, not a target-wide pass. cleanup-after-approve runs against the final skill text, and all its current must-hold cells hold on both models. Its D7 expectation states that unselected release and close-ticket overrides remain unrun and appear in the menu and closing not-run list; selecting cleanup executes only its worktree, branch and base sub-steps.
-
-Preserved earlier-revision results: cleanup-closed-unmerged, cleanup-merged-at-step-1, cleanup-no-section, cleanup-null-issue, deferred-with-ref, deferred-without-ref, deviates, directional-dependency, elsewhere-settled, mixed-coverage, no-spec-quality, post-merge-menu and ticket-drifted. Their recorded skillSha identifies the revision that produced each result; they do not establish final-text coverage.
-
-The caller excludes the two base-existing unchanged-mechanics failures in gatekeep-pr without a spec amendment. This target keeps its saved results; none of its current must-hold cells requires another run.
-
-D8 baseline limitation: the frozen baseline uses the working-tree skillFiles list, with menus.md and without decision-menu.md. It does not establish the original 11-template flow. Judge candidate facts absolutely, not from improved or unchanged comparison direction. Mechanical preservation rests on the migrated deterministic assertions and selected candidate facts. No live PR or target-wide sweep runs.
-
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| cleanup-after-approve | anthropic/claude-opus-5-5 | improved | 15742 | f1: holds -> holds (intended but unchanged); f2: fails -> holds (unplanned improvement); f3: holds -> holds (held) |
-| cleanup-after-approve | github-copilot/gpt-6.1-sol | improved | 15012 | f1: holds -> holds (intended but unchanged); f2: fails -> holds (unplanned improvement); f3: holds -> holds (held) |
+| post-merge-menu | anthropic/claude-opus-5-5 | unchanged | 7166 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (held); f4: holds -> holds (held); f5: holds -> holds (held); f6: holds -> holds (intended but unchanged) |
+| post-merge-menu | github-copilot/gpt-6.1-sol | unchanged | 10359 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (held); f4: holds -> holds (held); f5: holds -> holds (held); f6: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- cleanup-after-approve / anthropic/claude-opus-5-5: After keeps every fact Before kept and moves f2 to holds: the post-approve menu's "Skipped, not numbered" block states that close ticket needs the merge commit and release needs a landed change, the closing not-run list repeats those reasons with the commands, and the cleanup execution prints only worktree/branch/base lines instead of folding close ticket and release into cleanup's result lines as Before did (Before's not-run list also merely named `gh issue close` and `/skill:release` without the prerequisite). Two wording risks to tighten: the post-approve menu says "Pick one, or several separated by commas" while the Change asks for a single validated selection executed once, so prefer "Pick one"; and the cleanup commands run with `git -C <scratch>` while the menu promised "from the primary checkout", so use the primary path consistently to preserve the cleanup guard story.
-- cleanup-after-approve / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and repairs f2: Before listed close ticket and release as cleanup result lines ('close ticket: skipped - needs a landed change') and its closing 'Not run:' list merely named ticket closure and release without a reason, which reads as if those overrides were cleanup sub-steps that happened to be skipped. After moves the landed-change/merge-commit prerequisite into the menu text and into the closing not-run list, prints only worktree/branch/base/cleanup as result lines, quotes each override's configured command without invoking it, and still prints 'branch: skipped - PR not merged' with no git branch -D. The two-sentence opening uses behavior names rather than row numbers or AC labels while preserving the deferred reference and the post-merge speed observation. One wording nit that does not affect the facts: the menu says 'Pick one, or several separated by commas' while the handled reply is a single numeric selection; keeping 'Pick one' would match the single-selection execution model more precisely.
+- post-merge-menu / anthropic/claude-opus-5-5: No fact moved: both outputs render the own-merge menu with row 1 as the sole recommended combination (ticket coverage, cleanup, publish the guide, tag the release), offer publish and tag separately with their merge-base commands and quoted source, and keep the other five Integration entries off the menu; both treat AC3 and AC5 as deferred to acme/widgets#46 without a blocker and judge only the spec's rows; in A both post the PR coverage, sync the base, run the tag command once, leave the guide unpublished and the worktree in place, and settle with gauntlet: done merged plus the not-run list and no further menu; in B both run no post step and name .worktrees/pr-210 with the unpicked commands. The After wording delivers the Change's intended shape here (two-sentence behavior-named opening without row numbers, single post menu, one execution in step order, settle with the not-run list). To keep these facts stable, keep the explicit 'No step runs' and 'The checkout is left as found' lines in the stop variant, keep the 'Checkout <path> on local branch' line in the settle block, and keep each not-run bullet carrying its exact command. Two small things to watch: the After final-menu stop row now says the worktree is left as it is where Before said it is removed, so make sure that matches the intended cleanup guard; and the After coverage block dropped the 'observable half checked after merge' note on AC4, which the Change asks to preserve as a post-merge observation in posted coverage, so consider restoring it even though no fact in this case tests it.
+- post-merge-menu / github-copilot/gpt-6.1-sol: No fact moved: After keeps all six, matching the expected holds -> holds for f1, f2 and f6. The menu still puts ticket coverage, cleanup, publish the guide and tag the release in the recommended row 1, offers the two merger actions separately with their merge-base commands and source quotes, and leaves the other five Integration entries off. Variant A posts PR coverage, syncs the base, runs the tag command once, and settles with `gauntlet: done merged` plus the not-run list and no second menu. Variant B runs nothing and names the worktree path and every unpicked command. Three places are thinner than Before and worth pinning in the wording so later edits do not erode f5 and f6. First, the stop row now reads "leave the checkout unchanged" instead of promising to list what remains undone; keep that listing an explicit requirement of the settle step. Second, in A the unpicked publish step is given as a bare `scripts/publish-guide.sh` while B gives the full `(cd '<primary>' && ...)` form; require the full runnable command for every not-run step in both variants. Third, the opening and the posted AC4 line dropped Before's note that production timing is observed after merge; the Change asks to preserve post-merge observations, so restore that clause.
 
 exit: 0
