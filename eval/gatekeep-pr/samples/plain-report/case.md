@@ -14,7 +14,7 @@ C: No code blockers, nits or replies, all spec behaviors covered (CSV download, 
 
 ## Evidence continuation
 
-After snapshot A's report and menu, the human replies `show evidence`. Inspect A only, then re-render its unchanged report and menu without a pick or write. A's retained IDs are P1 for the missing header, L1 for the nightly-export guide, P2 for the paging nit and C1 for comment-73. Repair usage is 1 of 4 rounds and 1 of 4 syncs. Its scope row mapping is 1 CSV download covered, 2 header format covered, 3 scheduled exports deferred to acme/widgets#46, 4 buffered CSV deviates per spec, 5 export UI elsewhere per spec in acme/export-ui. The inspected evidence also retains the head, prior-review and sync SHAs, CI run 7001 and /tmp/gatekeep-export.log supplied in A.
+After snapshot A's report and menu, the human replies `show evidence`. Inspect A only, then re-render its unchanged report and menu without a pick or write. A's retained IDs are P1 for the missing header, L1 for the nightly-export guide, P2 for the paging nit and C1 for comment-73. A's run record is at `/tmp/gatekeep-42/state.json`. In the inspection, copy its usage line verbatim: `repair rounds 1 of 4, syncs 1 of 4`. Its scope row mapping is 1 CSV download covered, 2 header format covered, 3 scheduled exports deferred to acme/widgets#46, 4 buffered CSV deviates per spec, 5 export UI elsewhere per spec in acme/export-ui. The inspected evidence also retains the head, prior-review and sync SHAs, CI run 7001 and /tmp/gatekeep-export.log supplied in A.
 
 ## Entry
 
