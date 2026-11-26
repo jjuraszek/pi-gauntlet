@@ -37,6 +37,15 @@ test('shipped instructions and extension sources do not use the retired venue di
   assert.deepEqual(offenders.map(([path]) => path), []);
 });
 
+test('only ticket migration readers name the old housekeeping heading', () => {
+  const readers = sources.filter(([, text]) => text.includes('Post-deployment housekeeping')).map(([path]) => path);
+  assert.deepEqual(readers.sort(), [
+    'skills/gauntlet/brainstorm/gatherer.md',
+    'skills/gauntlet/brainstorm/ticket-acceptance.md',
+    'skills/shape-ticket/SKILL.md',
+  ]);
+});
+
 test('sorters, council and conformance use the shared definition', () => {
   for (const [token, paths] of [
     ['ac-classes.md', ['skills/shape-ticket/SKILL.md', 'skills/gauntlet/brainstorm/ticket-acceptance.md', 'skills/check-delivery/SKILL.md']],
@@ -48,4 +57,8 @@ test('sorters, council and conformance use the shared definition', () => {
   ]) {
     assert.deepEqual(paths.filter(path => !read(path).includes(token)), [], `missing ${token}`);
   }
+});
+
+test('companion spec grammar carries Integration between Problem and Decisions', () => {
+  assert.match(read('skills/gauntlet/legs.md'), /^```markdown\n# <home spec title>\n[^`]*^## Problem\n[^`]*^## Integration\n[^`]*^## Decisions\n/m);
 });

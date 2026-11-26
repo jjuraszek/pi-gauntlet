@@ -21,7 +21,7 @@ test("council edits restore ticket rows to their sections without adding deploym
   assert.match(persona, /AC definition:/);
   assert.equal(read(`${dir}/samples/${sample}/fixture/reference/ac-classes.md`), read("skills/shape-ticket/reference/ac-classes.md"));
   assert.match(persona, /clusters that assert data shape, ordering, or semantics/);
-  assert.match(persona, /wishful, tautological, unspecified-but-binding, external-input, or post-deployment proof/);
+  assert.match(persona, /only for integrity \(wishful, tautological, unspecified-but-binding, or external-input dependency\)\./);
 
   const target = JSON.parse(read(`${dir}/target.json`));
   const { text, bundle } = parseCase(read(`${dir}/samples/${sample}/case.md`));

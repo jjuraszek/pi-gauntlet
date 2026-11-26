@@ -65,12 +65,12 @@ for (const [name, rows] of Object.entries({
 test("ledger discriminant is the exact first line", () => {
   for (const prefix of ["\n", " "]) assert.ok(checkPlan(prefix + ledger(), ledgerSpec, { exists: () => false, glob: () => [] }).findings.some(f => f.check === "input"));
 });
-for (const disposition of ["in-scope", "deviates: alternate", "deferred: #70", "elsewhere: #71"]) {
+for (const disposition of ["in-scope", "deviates: alternate", "deferred: #70", "elsewhere: #71", "venue: browser"]) {
   test(`ledger disposition ${disposition}`, () => {
     const cut = /^(deviates|deferred|elsewhere):/.test(disposition);
     const spec = `## Acceptance criteria\n- [ ] Works\n  ${disposition}\n`;
     assert.deepEqual(checkPlan(ledger([`1 | ${cut ? "cut" : "open"} | 0 | ${cut ? disposition : ""}`]), spec, { exists: () => false, glob: () => [] }).findings, []);
-    assert.ok(checkPlan(ledger([`1 | ${cut ? "done" : "cut"} | 0 | check passed`]), spec, { exists: () => false, glob: () => [] }).findings.length);
+    assert.ok(checkPlan(ledger([`1 | ${cut ? "done" : "cut"} | 0 | check passed`]), spec, { exists: () => false, glob: () => [] }).findings.some(f => f.reason === "status does not match spec disposition"));
   });
 }
 for (const status of ["done", "failed", "cut"]) test(`ledger empty evidence rejects ${status}`, () => {

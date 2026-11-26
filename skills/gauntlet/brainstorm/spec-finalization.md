@@ -38,8 +38,8 @@ Spec-writing replaces the context draft, in this exact order:
    guard is a backstop, not the primary check.
 4. **After the line-1 check**, run the second predecessor pass. Compose a query from
    the spec's H1 terms, then the terms of every H2 that is not a template heading
-   (Problem, Acceptance criteria, Design, Errors and edge cases, Tests, Documentation
-   impact, Out of scope, Open questions), then the `**Goal:**` line's terms - same
+   (Problem, Acceptance criteria, Design, Integration, Errors and edge cases, Tests,
+   Documentation impact, Out of scope, Open questions), then the `**Goal:**` line's terms - same
    token rules as the scout, deduplicated, cut at 15. Run
    `(cd <abs worktree path> && node <SPEC_INDEX> --query '<terms>' --limit 5 --exclude <spec path relative to the worktree>)`
    with `<SPEC_INDEX>` resolved as in `gatherer.md`. Take the `live` rows and drop every
@@ -129,9 +129,7 @@ EOF
 ```
 
 After the home commit, write and commit every companion leg file through
-`git -C <companion worktree>` using [../legs.md](../legs.md)'s artifact grammar:
-`**Home:**` tuple, copied `## Problem`, `## Decisions` from shared
-Design/Errors/Out-of-scope and repo-binding clauses, and its own block verbatim.
+`git -C <companion worktree>` using the [companion file grammar](../legs.md#home-block-and-companion-files).
 Use the same subject as the home spec commit and the shared ticket rule.
 Stop naming any failed companion; do not present artifact completion until all
 files agree. A single-member run writes no companion file.
