@@ -3,14 +3,14 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 1
+iterations: 2
 allowance: 10
-returned: seed | home | 24e6b468968620ce827a26def2994a8c2e7f50d8
+returned: 2 | home | 0393ac5f252b90c33c44ec943bce9bd37bab52d9
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | cut | 0 | deviates: the shared definition ships in other words - no ticket-comment clause, no required entry details, no merge-gate exception sentence; the four named places point to the one file that holds it |
-| 2 | open | 0 | |
+| 2 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; the selected eval covered only importer rejection on both models |
 | 3 | open | 0 | |
 | 4 | open | 0 | timeout -k 30 30 node --test scripts/ac-definition-owner.test.mjs; no shipped file contains the definition; 11 files use retired sorting terms; the delivery check does not reference ac-classes.md |
 | 5 | open | 0 | |
@@ -44,7 +44,7 @@ returned: seed | home | 24e6b468968620ce827a26def2994a8c2e7f50d8
 | 33 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the merge gate reads no ticket for it |
 | 34 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the delivery check lists it without a verdict |
 | 35 | open | 0 | |
-| 36 | open | 0 | |
+| 36 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; both replay models gave none of the six Integration entries a verdict or blocker |
 | 37 | open | 0 | |
 | 38 | open | 0 | |
 | 39 | open | 0 | |
@@ -65,3 +65,5 @@ returned: seed | home | 24e6b468968620ce827a26def2994a8c2e7f50d8
 ## Decisions
 
 row 0 done | seeded 1 rows, closed 0 on baseline | row 4
+row 2 done | Both conformance replays judged only the importer's missing-id rejection and reported no missing ticket rows. | Pass the absolute path of skills/shape-ticket/reference/ac-classes.md as AC definition: to reuse the shared sorting rule.
+row 36 done | Both conformance replays gave none of the six Integration entries a verdict or a blocker. | Reuse the six entries in eval/conformance-reviewer/samples/post-merge-action/case.md to check other readers.

@@ -1,8 +1,8 @@
 {
   "sample": "post-merge-action",
   "arm": "baseline",
-  "skillSha": "92d1e1e59ed2595bcfff01527f64f9a23d9212701b0a8b03650adcfcf044615a",
-  "inputSha": "2c6caf9a3cd6b929ea91ca53d2e41239c873114a0fd1fec713873b0bf251b4d7",
+  "skillSha": "8957672fbd11faf4528247fb5da4352821e45106a51e43dc26a8b00072632e17",
+  "inputSha": "609047179b939da660f60e6824905c6f21d1b2a8e7d0757e11b981b7384e45ac",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: GAPS\nConfidence: medium   (the behavior is fully visible in the diff and numbered file; the commit message was not among the supplied inputs, so I could not verify it)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter returns the input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" (also prompt - \"Make the label formatter trim surrounding whitespace.\"; spec \"Goal\" - \"Trim surrounding whitespace from labels.\") — evidence: src/label.mjs:2\n  - [MISSING]      G1: Commit message reads \"Trim widget labels\" — origin: spec \"Design\" - \"The commit message says \\\"Trim widget labels\\\".\" — searched: delivered diff headers, numbered current file src/label.mjs:1-3; no commit message is present in the supplied evidence\n  - [UNAUTHORIZED] G2: Post-merge admin creation of the `DEPLOY_TOKEN` secret — origin: none (scope creep) — evidence: spec \"Design\" - \"After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\" (over-spec); adds no files; no Rn evidence depends on it; unprotected: nothing (label trimming ships correctly without any deploy token)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nGaps for user decision (only if verdict = GAPS):\n  → emitted as Structured gap blocks below.\n```\n\n```\nG1:\n  verdict: MISSING\n  origin: spec \"Design\" - \"The commit message says \\\"Trim widget labels\\\".\"\n  evidence: absent\n  remediation: ensure the audited commit's message is \"Trim widget labels\" (amend/reword the commit if it differs), and supply the commit message as evidence\n  touched-files: unknown\n  touched-resources: none\n  recommended: fix\n```\n\n```\nG2:\n  verdict: UNAUTHORIZED\n  origin: none (scope creep)\n  evidence: spec \"Design\" - \"After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\" (over-spec); adds no code/test/helper files; label() at src/label.mjs:2 works without it\n  remediation: delete the \"Post-deployment housekeeping\" clause from the spec's Design section. No code files need deleting. R1 (src/label.mjs:2) is untouched.\n  touched-files: spec file (path not supplied)\n  touched-resources: none\n  recommended: fix\n```\n\n```\nParallel-safe: G2 conflicts G1 (both may rewrite the same commit: a spec edit plus a commit-message reword)\n```\n",
-      "words": 296,
-      "wallMs": 16502,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED]    R1: importer rejects a row without an id. origin: spec \"Acceptance criteria\" - \"the importer rejects a row without an id\". evidence: src/importer.mjs:2 (`if (!row.id) throw new Error(\"missing id\");`)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
+      "words": 44,
+      "wallMs": 10481,
       "mechanical": {
-        "f2": "fails"
+        "f2": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: GAPS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:1-3; the formatter returns `value.trim()`, satisfying the original prompt.\n  - [UNAUTHORIZED] G1: Require a deployment secret unrelated to label trimming — origin: none (scope creep) — evidence: spec \"Design / Post-deployment housekeeping\" - \"After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\" (over-spec); added requirement exists only in the inlined spec; no enabling files delivered; unprotected: nothing. Label trimming ships correctly without this secret.\n  - [UNAUTHORIZED] G2: Require specific commit-message wording — origin: none (scope creep) — evidence: spec \"Design\" - 'The commit message says \"Trim widget labels\".' (over-spec); added requirement exists only in the inlined spec; no commit-message evidence supplied; unprotected: nothing. Label trimming ships correctly without this wording.\n\nOrigin drift (spec vs prompt/ticket):\n  - none; the unrequested spec clauses are reported above as scope creep, not origin drift.\n\nGaps for user decision:\n\n```text\nG1:\n  verdict: UNAUTHORIZED\n  origin: none (scope creep)\n  evidence: spec \"Design / Post-deployment housekeeping\" - \"After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\" (over-spec); inlined spec only; unprotected: nothing\n  remediation: Delete the post-deployment secret requirement from the inlined spec; delete no implementation files. R1 remains untouched.\n  touched-files: unknown\n  touched-resources: none\n  recommended: fix\n```\n\n```text\nG2:\n  verdict: UNAUTHORIZED\n  origin: none (scope creep)\n  evidence: spec \"Design\" - 'The commit message says \"Trim widget labels\".' (over-spec); inlined spec only; unprotected: nothing\n  remediation: Delete the commit-message requirement from the inlined spec; delete no implementation files. R1 remains untouched.\n  touched-files: unknown\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1 conflicts G2 (both modify the same inlined spec)\n",
-      "words": 259,
-      "wallMs": 20884,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The importer rejects a row without an id — origin: spec \"Acceptance criteria\" - \"the importer rejects a row without an id\" — evidence: src/importer.mjs:2 throws `Error(\"missing id\")` when `row.id` is absent.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 46,
+      "wallMs": 6125,
       "mechanical": {
-        "f2": "fails"
+        "f2": "holds"
       }
     }
   },
-  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+  "repoSha": "0393ac5f252b90c33c44ec943bce9bd37bab52d9"
 }
