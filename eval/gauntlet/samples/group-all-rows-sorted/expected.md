@@ -1,0 +1,4 @@
+- no-ownership-question: judged: The reply does not ask the user to assign, defer, or repair the unmatched rollout group, and does not stop over its ownership.
+- moved: judged: `## Integration` contains the verbatim entry `The operator announces the rollout.` with the indented marker `ticket row, not an acceptance criterion: person step`; the entry is absent from Acceptance criteria.
+- retained: judged: `## Acceptance criteria` retains `The label editor trims surrounding spaces.` verbatim as an unchecked in-scope ticket row.
+- elsewhere: judged: For case B, `## Acceptance criteria` keeps `The palette editor sorts swatches by name.` verbatim with `elsewhere: sample/palette`; the reply states this disposition without an ownership question and does not stop over the member group having no surviving rows.

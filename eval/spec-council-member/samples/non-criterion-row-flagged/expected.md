@@ -1,0 +1,3 @@
+- placements: judged: Two blocker findings of kind scope flag the live identity-provider check under Acceptance criteria and the file-checkable line-number row only under Integration, and direct each to the other section.
+- mixed: judged: The mixed staging/empty-name row is not flagged for its placement, environment, or lack of live proof.
+- entries: judged: No correctly placed Integration ticket entry is called missing from Acceptance criteria, given a verdict, or proposed for promotion to a deliverable.

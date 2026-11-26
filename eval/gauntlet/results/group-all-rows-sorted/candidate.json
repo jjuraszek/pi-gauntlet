@@ -1,0 +1,100 @@
+{
+  "sample": "group-all-rows-sorted",
+  "arm": "candidate",
+  "skillSha": "89c155da3772c1dc4016d13e99a8fa2005eb782c4de780f0ec341f8090f28400",
+  "inputSha": "76a58de1db78c5f96dce0902fd660cd69afaab18c8ff01285caee475b4bdd96e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Case A - ticket #64\n\n**Sorting** (each row sorted before any ownership is assigned):\n- `The label editor trims surrounding spaces.` is a **criterion**. It sits under the `labels` group, which matches the settled member `sample/labels` by basename, so it is `in-scope`. The member's leg owns it as `scope: AC 1`.\n- `The operator announces the rollout.` is an **entry** (person step). It moves verbatim to `## Integration` with its marker. This is not a scope cut: it gets no disposition, no `## Out of scope` entry, and no cut question.\n\n**Ownership:**\n- After sorting, the `rollout` group has no surviving acceptance row, so the unmatched-group question does not apply.\n- The `labels` heading matches a member, so no stop applies.\n\n```markdown\n## Acceptance criteria\n\nTicket #64, Acceptance criteria, rows verbatim:\n\n- [ ] The label editor trims surrounding spaces.\n  in-scope\n```\n\n```markdown\n## Integration\n\n- The operator announces the rollout.\n  ticket row, not an acceptance criterion: person step\n```\n\nCase A stops here, before any write or approval summary.\n\n## Case B - ticket #65\n\n**Sorting:**\n- `The maintainer posts the handoff note.` is an **entry** (person step). It moves verbatim to `## Integration` with its marker, even though it sits under the matching `labels` group. It is not a scope cut.\n- `The palette editor sorts swatches by name.` is a **criterion**. Its group `sample/palette` is a known repo outside this change, so it is `elsewhere: sample/palette`. This is stated, not asked, and creates no leg.\n\n**Ownership:**\n- No question or stop applies. The original `labels` heading matches the member `sample/labels`, and no surviving row sits under an unmatched group.\n- The member's leg owns no AC index: AC 1 is `elsewhere:`. This repo's work for #65 is therefore carried only by Design clauses and `## Integration`.\n- No design-derived row is added to this ticket-row section.\n\n```markdown\n## Acceptance criteria\n\nTicket #65, Acceptance criteria, rows verbatim:\n\n- [ ] The palette editor sorts swatches by name.\n  elsewhere: sample/palette\n```\n\n```markdown\n## Integration\n\n- The maintainer posts the handoff note.\n  ticket row, not an acceptance criterion: person step\n```\n\nCase B stops here, before any write or approval summary.\n",
+      "words": 329,
+      "wallMs": 17308,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "# Case A\n\n`labels` matches the sole member, `sample/labels`. The rollout announcement is an Integration entry, not an acceptance criterion, so its unmatched heading requires no ownership question.\n\n## Acceptance criteria\n\nTicket #64, Acceptance criteria, rows verbatim:\n\n- [ ] The label editor trims surrounding spaces.\n  in-scope\n\n## Integration\n\n- The operator announces the rollout.\n  ticket row, not an acceptance criterion: person step\n\n# Case B\n\nThe original `labels` heading matches the sole member, even though its row sorts into Integration. `sample/palette` is a known nonmember, so its criterion receives `elsewhere: sample/palette` without an ownership question or scope-cut question.\n\n## Acceptance criteria\n\nTicket #65, Acceptance criteria, rows verbatim:\n\n- [ ] The palette editor sorts swatches by name.\n  elsewhere: sample/palette\n\n## Integration\n\n- The maintainer posts the handoff note.\n  ticket row, not an acceptance criterion: person step\n",
+      "words": 123,
+      "wallMs": 11929,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0b68ddd35fa858b492f7a616180104fe0c096f13515ee7564e06ba7ca4caaa52",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "85a93e3612fdd5cd53081cb5bb55b133bf862662b43f715c320f1ce063f8aec3",
+      "candidateOutputSha": "32092d67bc34ef0ba8e3daf951ee3a90a8e1d6e2a32570513ba7ce52dbe56f5d",
+      "facts": {
+        "no-ownership-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "elsewhere": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After sorts each row before assigning ownership, which is what moved the facts: the rollout row is classed as a person step and moved verbatim to `## Integration` with the marker `ticket row, not an acceptance criterion: person step`, so the unmatched `rollout` group has no surviving acceptance row and no ownership question or stop is raised, and the Case A sections are actually rendered with `The label editor trims surrounding spaces.` kept verbatim as an unchecked `in-scope` row. Before stopped Case A on an A/B/C ownership question for `rollout` before writing any sections, so the moved entry and the retained row never appeared in an Acceptance criteria or Integration section. For Case B both outputs keep `The palette editor sorts swatches by name.` verbatim with `elsewhere: sample/palette`, stated rather than asked, and neither stops over the member group; After additionally moves the handoff-note row to Integration and says explicitly that the matched `labels` heading prevents a stop even though the member's rows all moved. To keep this, retain the wording that orders sorting ahead of the unmatched-group check, that conditions the question on a surviving acceptance row, and that checks original group headings for a member match so a known nonmember row stays `elsewhere: <repo>`; also keep the instruction to render both sections as literal `## Acceptance criteria` and `## Integration` blocks, since Before's Case B replaced Integration with a `## Legs` prose description and a deferral to an unread file, which would be a risk for any fact keyed on the Integration section.",
+      "wallMs": 6835,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0b68ddd35fa858b492f7a616180104fe0c096f13515ee7564e06ba7ca4caaa52",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "08e4a6d134ec5d393f951c4478cace09ef64b076a31a0049cf2f0c5a166ab883",
+      "candidateOutputSha": "3664cbd1952aea17aaa301ca089262d9186c54f7bf5c2ed2fd78f8ec338e0abd",
+      "facts": {
+        "no-ownership-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "elsewhere": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "In After, the wording that sorts externally fulfilled rows before counting groups is what moved the facts: the rollout row is treated as a person step, so it lands verbatim in `## Integration` with the `ticket row, not an acceptance criterion: person step` marker, the unmatched `rollout` heading no longer triggers an ownership question, and Case A proceeds to show `The label editor trims surrounding spaces.` as an unchecked in-scope row; Before instead stopped Case A at an A/B/C ownership question and produced no sections, so those three facts failed there. The Case B fact held in both outputs: each keeps the palette row verbatim with `elsewhere: sample/palette` and neither asks an ownership question or stops over the member group, though Before left the handoff-note row in Acceptance criteria as in-scope and wrote Integration as prose, while After moves it to Integration with the marker. To keep this, retain the explicit ordering (sort rows to Integration first, then ask about an unmatched group only if it has a surviving acceptance row, and check original headings for a member match even when that member's rows all move), and keep the rule that a surviving known-nonmember row stays `elsewhere: <repo>`; nothing Before held was lost in After.",
+      "wallMs": 5976,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
+}

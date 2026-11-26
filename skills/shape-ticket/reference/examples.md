@@ -12,24 +12,25 @@ Read this when applying the AC integrity gate (drafting, repairing, or adjudicat
 **Tautological**
 
 - Bad: `- [ ] The identified flaky tests are fixed`
-- Good (discovery conversion): `- [ ] A list of tests failing intermittently over the last 30 CI runs is linked, with per-test failure rates`
+- Good (discovery conversion): `- [ ] A committed findings file lists tests failing intermittently over the last 30 CI runs, with per-test failure rates`
 
 **Unspecified-but-binding**
 
 - Bad: `- [ ] Import completes in acceptable time`
 - Good: `- [ ] Importing a 10k-row CSV completes in under 60s`
 
-**Workflow-stage proof**
+**Pipeline result**
 
-- Bad: `- [ ] The importer rejects a row without an id and CI is green on the PR head`
-- Good: `- [ ] The importer rejects a row without an id` (the CI result is the PR gate's observation, not an outcome)
+- Source: `The importer rejects a row without an id and CI is green on the PR head`
+- Acceptance Criteria: `- [ ] The importer rejects a row without an id`
+- Integration: `- CI is green on the PR head`
 
 **Discovery pair** (bad ticket -> good ticket, not just a bad->good AC)
 
 - Bad ticket: `Investigate checkout performance` - unbounded, no artifact.
-- Good ticket: `Discovery: capture checkout-flow latency baseline`, with ACs:
-  - `- [ ] p50/p95 for the 3 checkout steps captured, method documented`
-  - `- [ ] go/no-go decision on optimization work recorded with rationale`
+- Good ticket: `Discovery: capture checkout-flow latency baseline`. Sort its rows by the [shared definition](ac-classes.md):
+  - Acceptance Criteria: `- [ ] A findings document in the repository identifies the slowest checkout step.`
+  - Integration: `- Record the baseline and measurement method in the metrics dashboard.`
 
 ### Rationalization table
 

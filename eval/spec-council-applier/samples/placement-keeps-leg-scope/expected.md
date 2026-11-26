@@ -1,0 +1,3 @@
+- placement: judged: The resulting spec moves `the operator starts the cutover` verbatim from Acceptance criteria to Integration, with the ticket marker for a person step. The two functionality rows stay verbatim and in their original order.
+- ownership: judged: The resulting home leg orchard/importer lists only `scope: AC 1`, preserving ownership of `the importer rejects empty input`, and the companion orchard/reports lists only `scope: AC 2`, preserving ownership of `the report counts rejected imports`. Neither leg gains or loses a functionality row.
+- no-question: judged: The resulting spec and council-audit.md ask no placement or ownership question. The audit applies the chair's cluster.

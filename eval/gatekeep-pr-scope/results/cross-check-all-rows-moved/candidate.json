@@ -1,0 +1,110 @@
+{
+  "sample": "cross-check-all-rows-moved",
+  "arm": "candidate",
+  "skillSha": "c90090ed9730dbe5d97f89090389b8e2b559be8a964d9db3b458a37f6445a02d",
+  "inputSha": "52d2a315cac953c517b468eccfe41bbfebcc2ab9570880d70fed8b842e1d4b20",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n**PR to gate:**\n- [#12](https://github.com/sample/labels/pull/12) +? -?, yours, [#11](https://github.com/sample/labels/issues/11) - reject blank labels before saving\n\nThis PR makes saving a label refuse a blank value and answer with the message \"Label is required\"; you are its author. Both promised behaviors are covered: a blank label is rejected before anything is saved, and the rejection returns that exact message, and the new test checks both.\n\nNothing blocks merging: the test check passed in CI on the commit being reviewed, and the description matches what the code does. You cannot approve your own PR, so approval is not offered.\n\nI recommend merge because every requirement is covered, the checks passed and GitHub reports the branch ready to merge.\n\nPick one:\n1. merge - squash-merge this PR into the base branch with a commit message written from the spec. [recommended]\n2. stop - end the run and leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n\nshow evidence\n\nstate: <run folder>/state\ncourse: none picked yet\ntarget: sample/labels, PR 12, base branch as gathered\nscope baseline: spec doc/specs/blank-labels.md at the commit being reviewed; two acceptance rows plus the Design section (\"Reject a blank label before saving and return `Label is required`.\")\nrepair usage: 0 rounds, 0 syncs; caps not yet set (no delivery course picked)\nwatch deadline: none\nwave checkpoints: none\nfailed-prerequisite history: none\nprior review: none\nsync: not requested (no --rebase)\nevidence source: CI - the test check, conclusion success, on the commit being reviewed (run link as gathered)\nclaim dispositions:\n- \"Reject blank labels before saving\" - matched: src/labels.mjs rejects a blank label before saving; test/labels.test.mjs asserts no save happens.\nAC outcomes:\n- row 1, \"A blank label is rejected before saving.\" - covered (code path in src/labels.mjs, exercised by test/labels.test.mjs)\n- row 2, \"Rejecting a blank label returns `Label is required`.\" - covered (returned error asserted by test/labels.test.mjs)\n- Design clause, reject before saving and return `Label is required` - covered by the same code and test\ncross-check: matched\ncheck dispositions: none needed; no failing checks\ndrafted payloads: none\ndrafted replies: none\n\nI recommend merge because every requirement is covered, the checks passed and GitHub reports the branch ready to merge.\n\nPick one:\n1. merge - squash-merge this PR into the base branch with a commit message written from the spec. [recommended]\n2. stop - end the run and leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n\nB:\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n",
+      "words": 417,
+      "wallMs": 21607,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR rejects blank labels before saving, and you are its author. The spec's requirements are covered: a blank label prevents saving and returns `Label is required`, with a test exercising both behaviors.\n\nNothing blocks merging. The test passed in CI, and the review found no independent problems. You cannot approve your own PR.\n\nI recommend merge because the promised behavior is implemented and tested.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR open without merging.\n\nType a number; show evidence prints the full record.\n\nshow evidence\n\nstate: not supplied in the fixture\ncourse: null\ntarget: sample/labels#12; base branch not supplied\nscope: spec, doc/specs/blank-labels.md\nrepair and sync usage: no course work recorded; caps not initialized\ndeadline: null\nwave: null\nprior review: not supplied\nverification source: ci\ncheck: test, success\nhead SHA and run URL: not supplied\nlocal verification: not run\nclaims:\n- Reject blank labels before saving - matched by src/labels.mjs and test/labels.test.mjs.\ncoverage:\n- A blank label is rejected before saving. - covered; src/labels.mjs rejects it, and test/labels.test.mjs asserts no save.\n- Rejecting a blank label returns `Label is required`. - covered; src/labels.mjs returns the error, and test/labels.test.mjs asserts it.\ncross-check: matched\nblockers: none\nnits: none\ndrafted payloads and replies: none\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nNothing blocks merging. You cannot approve your own PR.\n\nI recommend merge because the promised behavior is implemented and tested.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR open without merging.\n\nType a number; show evidence prints the full record.\n\ncross-check: differs on row 2 - the spec governs here; /skill:check-delivery judges the ticket\n",
+      "words": 265,
+      "wallMs": 18056,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "e3016be401661b4a1cd044013ba7d3f0dd97325c01d52ffc4af00a2fe5c24ea9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "17edc5b71300bb1090d61a4484ce5a1170cd7e532bf302eed6975878a10a7d7b",
+      "baselineOutputSha": "c51756b90ae02a3059e326d624a4c5549edb6a4852046cee4e601a4b7f41c1d7",
+      "candidateOutputSha": "bb28bc98d9527a6e9ecaf6511f9954b019e261c635c16823e0053516a11888aa",
+      "facts": {
+        "matched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-drift": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "differs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "report-omits-entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "The After wording moved three facts by counting marked Integration entries toward ticket-row accounting: A's cross-check now reads `matched` instead of `differs on rows 1, 2`, no ticket row is reported as missing or drifted, and B narrows to `differs on row 2` once the rollout-date entry is absent from both spec sections. The `entries` fact held in both outputs, since neither gives an Integration entry a coverage outcome or raises a blocker. `report-omits-entries` also held in both, contrary to the expected fails -> holds: Before never named the staging-count or rollout-date entries or gave either a status, and its `differs on rows 1, 2` line is only ticket-row accounting, so this case does not demonstrate that part of the Change. To keep these results, keep the rule that a verbatim, marked Integration entry accounts for its ticket row without being judged, and keep the cross-check line limited to `matched` or the original ticket row numbers, with no entry text or status. Unrelated to the facts, After also added a 'PR to gate' header with `+? -?` placeholders and dropped the merge-state line from show evidence; confirm both are intended.",
+      "wallMs": 9662,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "e3016be401661b4a1cd044013ba7d3f0dd97325c01d52ffc4af00a2fe5c24ea9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "17edc5b71300bb1090d61a4484ce5a1170cd7e532bf302eed6975878a10a7d7b",
+      "baselineOutputSha": "12a0b0a04598899d9a7c3bc7acae33ca985ad032471d495c6be5d861f3727f00",
+      "candidateOutputSha": "a34d83b7bea5bb6be443ce0d0517ad464221c5272786c87f980c3d99e171c671",
+      "facts": {
+        "matched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-drift": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "differs": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "report-omits-entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved four facts in the intended direction and lost none. In A, show evidence now prints `cross-check: matched`, where Before printed `differs on rows 1, 2` because it treated the design-drafted acceptance rows as drift instead of counting the marked Integration entries as accounting for both ticket rows. In B, After reports `differs on row 2` only, where Before again reported rows 1 and 2. After also drops Before's `Staging verification: not run` and `Ticket comment: not posted` lines, which stated a status for each Integration entry, so the report, evidence and menus no longer name or status those entries. The `entries` fact held in both: neither output gives an Integration entry a coverage outcome or a blocker. To keep this, retain the wording that counts marked Integration entries toward ticket-row accounting without listing them, and keep verification lines limited to checks actually tied to acceptance rows. One small point: After's B answer is not labelled `B:` and directly follows A's re-rendered menu, so consider wording that keeps the separately requested line visibly distinct from the gate output.",
+      "wallMs": 9945,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f320063e6e5e344585cbc4d9d16bdfaeb18a77c6"
+}

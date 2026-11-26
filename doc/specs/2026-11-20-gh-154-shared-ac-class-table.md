@@ -1,5 +1,7 @@
 # Shared AC class table: brainstorming reads a small reference file instead of shape-ticket's main file
 
+> **Superseded by:** [doc/specs/2026-11-25-gh-172-acceptance-criteria-integration-section.md](./2026-11-25-gh-172-acceptance-criteria-integration-section.md) - the six-row table content in D1, the cut-question pointer in D3 and their pins in D4 only
+
 **Goal:** The six-row acceptance-criteria class table has one home, `skills/shape-ticket/reference/ac-classes.md`, that shape-ticket's gate and brainstorming's two stage-proof instructions both read on demand, so a ticketed brainstorm reads about 1.6 KB for the check instead of the 48,627-byte `skills/shape-ticket/SKILL.md`, with class wording and both skills' behavior unchanged.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

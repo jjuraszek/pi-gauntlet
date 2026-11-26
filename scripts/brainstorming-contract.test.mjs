@@ -76,7 +76,7 @@ test('restored and redraw entry load the ticket contract before questionary or l
 
 test('moved ticket contract retains verbatim schema and all no-ticket cases', () => {
   const text = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
-  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'venue: <env> - <observation>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria', 'Drafted from the design']) assert.ok(text.includes(marker), marker);
+  for (const marker of ['every top-level checkbox row', 'Post-deployment housekeeping', 'all written `- [ ]`', 'in-scope', 'deviates: <why>', 'deferred: <where>', 'elsewhere: <repo>', 'Cut question', 'Scope cuts:', 'none - no ticket', 'none - ticket has no acceptance criteria', 'none - ticket not fetched (<reason>)', 'Never author acceptance criteria', 'Drafted from the design']) assert.ok(text.includes(marker), marker);
   assert.ok(text.includes('Replace `<name>` with the supplied unmatched group heading verbatim'));
   assert.doesNotMatch(text, /only when it changes what the user observes/);
   assert.doesNotMatch(text, /operates without it/);
@@ -86,7 +86,7 @@ test('moved ticket contract retains verbatim schema and all no-ticket cases', ()
 
 test('drafted contract preserves outcomes, legal bodies, and post-council recovery', () => {
   const ticket = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
-  for (const marker of ['Drafted from the design, no ticket rows:', 'Drafted from the design, ticket <ref> has no acceptance criteria:', 'Pasted rows are ticket rows', 'Never append `## Spec contract`', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input', 'Post-deployment', 'never invent', 'binary', 'before writing', 'no valid row', 'explicit scope decision', '## Out of scope']) assert.ok(ticket.includes(marker), marker);
+  for (const marker of ['Drafted from the design, no ticket rows:', 'Drafted from the design, ticket <ref> has no acceptance criteria:', 'Pasted rows are ticket rows', 'Never append `## Spec contract`', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input', 'never invent', 'observable result', 'before writing', 'no valid row', 'explicit scope decision', '## Out of scope']) assert.ok(ticket.includes(marker), marker);
   const draftedCut = ticket.slice(ticket.indexOf('**Drafted cut question.**'));
   for (const marker of ['A) in-scope - <reading>', 'B) deviates: <why>', 'C) deferred: <where>', 'omit D', 'Recommend A', 'full question']) assert.ok(draftedCut.includes(marker), marker);
   const finalization = read('skills/gauntlet/brainstorm/spec-finalization.md');
@@ -107,7 +107,7 @@ test('tree-wide integrity splits only drafted rows using complete Design familie
   assert.ok(text.includes('human ticket repair through `/skill:shape-ticket` before approval'));
 });
 
-test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, and example', () => {
+test('ticket shaping and spec writing share the boundary without copying the integrity class table', () => {
   const ticket = read('skills/shape-ticket/SKILL.md');
   const brainstorming = read('skills/gauntlet/brainstorm/ticket-acceptance.md');
   for (const [path, text] of [
@@ -117,31 +117,12 @@ test('workflow-stage proof has an owning gate, ticket trigger, drafting rule, an
     assert.ok(Buffer.byteLength(text) < 50000, `${path}: byte limit`);
     assert.ok(text.split('\n').length < 2000, `${path}: line limit`);
   }
-  assert.match(brainstorming, /^\| Workflow-stage proof \|/m);
   assert.doesNotMatch(ticket, /^\| Class \| Definition \|/m);
-  assert.ok(ticket.includes('Read `reference/ac-classes.md` now for the class table:'));
-  const classes = read('skills/shape-ticket/reference/ac-classes.md');
+  const classes = read('skills/shape-ticket/reference/ac-classes.md').split('## Acceptance criteria classes')[1];
   const names = Array.from(classes.matchAll(/^\| ([^|\n]+) \|/gm), ([, name]) => name);
-  assert.deepEqual(names, ['Class', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input dependency', 'Post-deployment', 'Workflow-stage proof']);
-  const gateRow = classes.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
-  for (const marker of ['drop', 'Reporter note', 'Label every retained original containing a dropped stage clause', "including AC uniqueness's split-row copy", 'leave no unmarked duplicate', "a pull request's title, body, state or review"]) assert.ok(gateRow.includes(marker), marker);
-  assert.match(brainstorming, /on a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
-  assert.ok(ticket.includes('relocation or a stage-proof drop empties the AC list'));
-  const classLink = '[`shape-ticket/reference/ac-classes.md`](../../shape-ticket/reference/ac-classes.md)';
-  const trigger = brainstorming.split('\n').find((line) => line.startsWith('| An observation in a ticket row') &&
-    line.includes(`workflow-stage proof under ${classLink}`));
-  assert.ok(trigger, 'cut-question trigger links to the shared class table');
-  const drafted = brainstorming.split('\n').find((line) => line.startsWith('| Workflow-stage proof |'));
-  assert.ok(drafted?.includes(classLink), 'drafting rule links to the shared class table');
-  for (const row of [trigger, drafted]) assert.ok(!row.includes('shape-ticket/SKILL.md'));
-  assert.ok(trigger.includes('D - a stage proof is not an outcome'));
-  assert.ok(trigger.includes('pull-request text is itself the behavior under change'));
-  assert.ok(gateRow.includes('not a behavior of the change'));
-  assert.ok(ticket.includes('Keep a row whose behavior produces pull-request text'));
-  const sorting = brainstorming.slice(brainstorming.indexOf('## Row production at spec-writing'), brainstorming.indexOf('Branch on the gathered result'));
-  for (const marker of ['**Change or post action.**', 'On every gathered result', 'with its real actor and timing', 'never as an acceptance row, a Tests line or a Design imperative', '**Post-deployment housekeeping.**', 'unless that text or result is itself a behavior of the change', 'Ticket rows stay verbatim.']) assert.ok(sorting.includes(marker), marker);
-  assert.ok(brainstorming.includes('a PR title, body or state'));
-  assert.ok(read('skills/shape-ticket/reference/examples.md').includes('**Workflow-stage proof**'));
+  assert.deepEqual(names, ['Class', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input dependency']);
+  assert.match(brainstorming, /refresh both gather draft blocks from that fetch before re-extracting: `## Ticket acceptance criteria \(verbatim\)` and `## Ticket Integration entries \(verbatim\)`\. Remove the latter when neither Integration source heading below is present\. On a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
+  assert.match(ticket, /If no criterion remains, recover a real criterion or park the ticket/);
 });
 
 test('drafted requirements are protected in each actual critique task and the applier body', () => {
@@ -158,7 +139,8 @@ test('drafted requirements are protected in each actual critique task and the ap
   assert.ok(worker, 'actual worker dispatch task');
   tasks.push(worker[1]);
   for (const task of tasks) {
-    for (const marker of ['Drafted rows are spec requirements', 'integrity', 'Design commitment', "user's scope-decision procedure", 'quoting the row alone', 'never replace the section with `none`', 'Never draft new rows']) assert.ok(task.includes(marker), marker);
+    assert.match(task, /Drafted rows are spec requirements|Treat drafted rows as spec requirements/);
+    for (const marker of ['integrity', 'Design commitment', "user's scope-decision procedure", 'quoting the row alone', 'never replace the section with `none`', 'Never draft new rows']) assert.ok(task.includes(marker), marker);
   }
   for (const marker of ['pre-approval rewrites only for integrity', 'Delete a drafted row only after its Design commitment is cut', 'Preserve every committed outcome', 'clarification', 'never invent']) assert.ok(worker[1].includes(marker), `worker: ${marker}`);
 });
@@ -439,7 +421,7 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
   for (const rule of [
     'When row 4 is not recommended and acceptance rows exist',
     "assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent",
-    'Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows',
+    'Assess only `in-scope` rows (the default when no disposition is recognized); skip `deviates:`, `deferred:`, and `elsewhere:` rows',
     'Treat two or more separately checkable outcomes in one row as bundled',
     'Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome',
     'Recommend row 1 for a bundled row',
@@ -447,10 +429,10 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
     'Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.',
   ]) assert.ok(text.includes(rule), rule);
   const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
-  for (const id of ['bundle-in-scope', 'bundle-venue', 'bundle-high']) {
+  for (const id of ['bundle-in-scope', 'bundle-after-cuts', 'bundle-high']) {
     assert.ok(fixture.includes(`| ${id} |`), id);
   }
-  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-venue.*bundle-high/m);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-after-cuts.*bundle-high/m);
 });
 
 test('unbundled acceptance rows recommend loop with the exact fallback reason', () => {
@@ -509,7 +491,7 @@ test('spec publication and re-entry share shape proof and published persistence'
   const gather = read('skills/gauntlet/brainstorm/gatherer.md');
   assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
   assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
-  for (const marker of ['--body-file -', "<<'EOF'", 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
+  for (const marker of ['--body-file <scratch-file>', 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
   for (const path of ['skills/gauntlet/brainstorm/spec-pr.md', 'skills/gauntlet/pr-head.md']) {
     assert.match(read(path), /rerun `?\/skill:gauntlet #N/, path);
     assert.doesNotMatch(read(path), /\bbrainstorming #N\b/i, path);
@@ -1171,12 +1153,13 @@ test('scope grammar pins original AC ownership independently of design and dispo
   assert.equal(template.match(/^scope:/gm)?.length, 1);
   assert.match(template, /^scope: AC 1, AC 3$/m);
   for (const clause of [
-    'exactly one `scope:` line', 'one-based original AC indices, including cut rows',
+    'exactly one `scope:` line', 'one-based indices of checkbox',
+    'Include cut rows and exclude `## Integration` entries.',
     'Repeat shared indices in each owning leg', 'unlisted across all legs default home',
     'all legs say `scope: none`', 'Never infer ownership from `design:` prose or paths',
     'Before committing home or companion artifacts, validate',
     'missing or duplicate scope lines', 'duplicate indices within one leg',
-    'nonexistent original indices', 'same index in different legs is valid',
+    'nonexistent indices', 'same index in different legs is valid',
     'scope: AC 0', 'scope: AC 1.5', 'scope: AC 1-3', 'scope: 1',
     'scope: AC 1,', 'scope: none, AC 1', 'scope: AC 1, AC 1',
     'design: implements AC 2',

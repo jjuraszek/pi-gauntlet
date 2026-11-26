@@ -1,8 +1,8 @@
 {
   "sample": "post-merge-action",
   "arm": "candidate",
-  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
-  "inputSha": "2c6caf9a3cd6b929ea91ca53d2e41239c873114a0fd1fec713873b0bf251b4d7",
+  "skillSha": "535dff0614583ff3cb1f5a1de09f797fdcc2e297e517f069761c48b7aa046d08",
+  "inputSha": "609047179b939da660f60e6824905c6f21d1b2a8e7d0757e11b981b7384e45ac",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line change, fully visible in the diff and numbered file; no checks were run because no tools were available)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Labels have surrounding whitespace trimmed — origin: spec \"Goal\" - \"Trim surrounding whitespace from labels.\" — evidence: src/label.mjs:2 (`return value.trim();`)\n  - [DELIVERED]    R2: The label formatter returns its input with surrounding whitespace removed — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:1-2 (`export function label(value) {` / `return value.trim();`)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
-      "words": 85,
-      "wallMs": 6130,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-line change; the single requirement maps directly to the committed guard)\n\nRequirement coverage:\n  - [DELIVERED]    R1: importer rejects a row without an id — origin: spec \"Acceptance criteria\" - \"the importer rejects a row without an id\" — evidence: src/importer.mjs:2 (`if (!row.id) throw new Error(\"missing id\");` runs before the row is returned at src/importer.mjs:3)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 63,
+      "wallMs": 8478,
       "mechanical": {
         "f2": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter returns the input with surrounding whitespace removed.\" — evidence: src/label.mjs:2\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 38,
-      "wallMs": 4861,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The importer rejects a row without an id — origin: spec \"Acceptance criteria\" - \"the importer rejects a row without an id\" — evidence: src/importer.mjs:2\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 39,
+      "wallMs": 5353,
       "mechanical": {
         "f2": "holds"
       }
@@ -36,49 +36,59 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "f40452c2d24163ac4dc21d12fe6efcc19741347447f48ad51b15eba64017ec59",
+      "factsSha": "c78d572c1c793d70bc8e6d19739de302f2b22483aed21969de09bdef96c34ee3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "c4adc641e38ac1216571bc07a850dab921bfbdb5df627ea2d39db86bd907b239",
-      "candidateOutputSha": "a2a33f67bc5a10b6b3a9a57dc956e4e217ebab0c8ddae07075b745f8785cd5bb",
+      "intentSha": "4a1f901c576a273c500e075ddaf1a164e65f14e3e31f1afcd8923715bfdb47f4",
+      "baselineOutputSha": "86776ebb5ccded9a55cbc7daa5e5ec8368265fc24914471ff7c539c815f81ec4",
+      "candidateOutputSha": "1cac82e7c651ef96e2d296e059088b05d3661635683f2d1aba112c2427219db9",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "The After wording moved f1 as intended: the report no longer quotes, paraphrases or explains the after-merge `DEPLOY_TOKEN` admin step or the commit-message sentence, and produces no coverage row, gap block, UNAUTHORIZED row, drift line or skip note for either, while the trimming behavior stays DELIVERED with evidence at src/label.mjs:2 and the verdict becomes CONFORMS. Before failed because it turned the commit-message sentence into a MISSING gap (G1) and the housekeeping sentence into an UNAUTHORIZED row (G2), quoting both, and its confidence note also mentioned the commit message. To keep this result stable, keep the exclusion wording explicit that post-merge operator steps and commit-message sentences are omitted silently (no skip note, and no mention in the confidence line); the After confidence note's 'no checks were run' is fine since it does not reference either excluded sentence, but take care that the wording never invites a remark about unverified delivery-stage evidence there. Splitting the Goal and Design sentences into two delivered rows is harmless for this fact, though you may want wording that merges duplicate behavior statements into one requirement if other samples expect a single row.",
-      "wallMs": 5641,
-      "verdict": "improved"
+      "feedback": "Neither fact moved between the two outputs: both Before and After list exactly one requirement (the importer rejecting a row without an id, delivered at src/importer.mjs:2), report CONFORMS with no origin drift, and give no requirement number, verdict, gap, skip note, drift entry or missing-from-spec remark to the ticket-comment row, the other five ticket rows, or any of the six Integration entries (including the release tag and production order-total comparison). The expected fails -> holds movement for this sample is therefore not visible here, because Before already satisfied both facts. After's only differences are a parenthetical confidence rationale and a slightly longer evidence note citing src/importer.mjs:3, neither of which touches the excluded rows; keep that wording free of any mention of the excluded rows (no 'skipped' or 'out of scope' notes) so both facts continue to hold while delivering the Change.",
+      "wallMs": 3904,
+      "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "f40452c2d24163ac4dc21d12fe6efcc19741347447f48ad51b15eba64017ec59",
+      "factsSha": "c78d572c1c793d70bc8e6d19739de302f2b22483aed21969de09bdef96c34ee3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "66d52ce40ca5a5d64bae27ae95e519bf4f9194f4a645694e91fe305893488252",
-      "candidateOutputSha": "df63d0552429763050dc25677dd4dec15ee696c72841e7e8d52ebe8c891f0afe",
+      "intentSha": "4a1f901c576a273c500e075ddaf1a164e65f14e3e31f1afcd8923715bfdb47f4",
+      "baselineOutputSha": "e7c60979683a22b3ced29fbf8eb6b66ef6b8c770d09a464472bf4dd8ded30518",
+      "candidateOutputSha": "3bda22ee6275734325860da78d24e73edd994784ee6f34507800d28ea8dc690e",
       "facts": {
         "f1": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
         },
         "f2": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "The After wording moved f1 as intended: Before quoted both the DEPLOY_TOKEN housekeeping sentence and the commit-message sentence as UNAUTHORIZED rows G1 and G2 with gap blocks, a GAPS verdict, and an origin-drift comment about them, while After omits both sentences entirely (no row, gap block, drift line, or skip note) and retains the delivered trimming requirement with evidence at src/label.mjs:2 under a CONFORMS verdict. Nothing Before kept was lost for this fact; to keep it stable, keep the wording that classifies post-merge operator steps and commit-message sentences as delivery-stage clauses excluded silently (no skip note or scope-creep row), and keep the instruction to cite precise line evidence for the delivered behavior so the src/label.mjs:2 citation persists.",
-      "wallMs": 3998,
-      "verdict": "improved"
+      "feedback": "Neither fact moved between the two outputs: both Before and After list a single delivered requirement (the importer rejecting a row without an id, with evidence at src/importer.mjs:2), give no requirement number, verdict, gap, skip note or drift entry to the ticket-comment row or the other five ticket rows, and give no verdict or blocker to any of the six Integration entries, including the release tag and the production order-total comparison. The expected fails -> holds movement for these facts is therefore not shown by this sample, because Before already satisfied them; the After wording keeps both facts, and the only visible difference is that After's evidence cites the line without describing the throw, which does not affect either fact. To keep both facts while delivering the Change, retain the wording that limits requirements to file-delivered functionality and excludes tracker, operator, gate and stage rows regardless of where the spec places them, with no skip note or drift entry for the excluded rows.",
+      "wallMs": 4368,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "82d0241fa8a790abba434341571d3685d325143f"
+  "repoSha": "1289b2135789d49b9a550da647b1a54a4905e8ad"
 }

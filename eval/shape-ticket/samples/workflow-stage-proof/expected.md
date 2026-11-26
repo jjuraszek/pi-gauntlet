@@ -1,6 +1,6 @@
 - f1: judged: ABC-201's drafted Acceptance Criteria omit the standalone CI-green row.
 - f2: judged: ABC-201's bundled row becomes exactly - [ ] The importer rejects a row without an id, with no make ci clause in the drafted Acceptance Criteria.
 - f3: judged: ABC-201's third criterion is preserved byte-identically as - [ ] The importer names the offending row in its error.
-- f4: judged: ABC-201's fenced Proposed Reporter note retains the original bundled row verbatim and labels the dropped standalone CI text and the removed make ci passes proof with retired workflow-stage proof:. Every retained original containing the removed clause, including the bundled original kept by AC uniqueness, carries that label; no unmarked duplicate remains.
+- f4: judged: ABC-201 lists `CI is green on the PR head` and the detached `make ci passes` under Integration. The fenced Proposed Reporter note retains the original bundled row verbatim. Neither section uses a `retired` label.
 - f5: judged: ABC-201 proceeds toward its normal confirmation gate, with no integrity hard stop or park for these criteria.
-- f6: judged: ABC-202 reaches no-AC recovery: recover a real pre-prod AC or park the ticket, never approve or file an empty Acceptance Criteria list and never invent a replacement behavior.
+- f6: judged: ABC-202 reaches no-AC recovery: recover a real functionality criterion or park the ticket, never approve or file an empty Acceptance Criteria list and never invent a replacement behavior.

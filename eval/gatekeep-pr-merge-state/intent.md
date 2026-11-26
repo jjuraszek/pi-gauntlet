@@ -1,6 +1,8 @@
-for: 426a989432580788c61b7074d92c0abe3a17b6a1e4c085b5578cdc07392725cd
+for: 2abf501083b43367ca407bec7586b57c6797dec61e734cc1837fc30be05ad1df
 
 ## Change
+
+Preserve PR-named steps, including open actions, without routing observation-only clauses to later judgment. No merge-state sample is selected for this wording change; saved replies remain earlier evidence.
 
 Scratch relocation changes the shared assembly only. Validate paths deterministically; preserve saved merge-state results as earlier evidence. No merge-state sample runs; the only selected model sample is gatekeep-pr/teardown-own-run-folder.
 

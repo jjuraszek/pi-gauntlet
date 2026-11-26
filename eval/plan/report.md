@@ -1,12 +1,14 @@
-# eval report: writing-plans (partial run: leg-checkout-by-branch)
+# eval report: plan (partial run: post-action-no-task)
 
-for: f23e54bba108936cbb56506a6510ce372eb1f3a2de2ee8dde43cc1be6b800f12
+for: 66520522b2d861d6a1e1778fbf2acd87719c2bdc406afbba760f4ff38b9d8ee0
 
-wall: 50s
+wall: 39s
 
 ## Change
 
-Partition writing-plans by reader. Keep only the planning flow in SKILL.md and move the authoring rules into the complete plan contract. Send four paths, not a skill path, to the child. Load open-questions.md only on substantive questions or the second identical parent FAIL, and stop when that reference is unreadable. Preserve stamping, one finished-plan read and execution handoff.
+Select post-action-no-task to check that an unrecognized disposition neither removes the scanner requirement from the plan nor adds a sandbox task. The replay checks the writer's assignment, not just the coverage grammar.
+
+Partition planning by reader. Keep only the planning flow in SKILL.md and move the authoring rules into the complete plan contract. Send four paths, not a skill path, to the child. Load open-questions.md only on substantive questions or the second identical parent FAIL, and stop when that reference is unreadable. Preserve stamping, one finished-plan read and execution handoff.
 
 The selected fresh-child-authors-plan replay checks that the parent dispatches four paths and reads neither reference on a clean run. The selected parent-offers-fix-first-narrow-amend replay checks a narrated read before the recovery menu, while gate-line-first checks the user-facing first line and pause without narration. These interpretation and read-order choices require model replay; deterministic checks establish the file partition and branch pointers, not the narrated behavior. Coverage is sample-scoped, not an instrumented plan-phase run or a target-wide pass.
 
@@ -14,34 +16,18 @@ The child-reads-one-contract replay checks that the plan-writer reads the whole 
 
 The leg-checkout-by-branch case selects the replay's existing Role: plan-writer branch and drops the parent skill slice. This removes conflicting parent dispatch/no-write instructions from the child exercise while preserving all six expected facts. Its case asks for every Files kind of each task path and scopes the final reply line to case A, because one reply covers three independent observations and case C writes no plan. The contract's ownership wording for an edited test file is moved text, unchanged by this edit. Reseed and replay only this sample; retain the two passing PR records and all other sample evidence.
 
-The latest run reseeded and replayed only leg-checkout-by-branch after its case text changed (four replay calls, two judge calls, no confirmation). All six facts hold on both models: each reply declares the edited test as Modify and Test, closes case A with its own reply line and ends case C at the lookup report.
-
-## Retained evidence
-
-These samples were not rerun. Their saved candidate records retain passing facts on both models; the two PR records remain unchanged. Coverage is sample-scoped, not a target-wide pass or a live plan-phase run.
-
-| sample | retained candidate record |
-|---|---|
-| fresh-child-authors-plan | [record](results/fresh-child-authors-plan/candidate.json) |
-| parent-offers-fix-first-narrow-amend | [record](results/parent-offers-fix-first-narrow-amend/candidate.json) |
-| gate-line-first | [record](results/gate-line-first/candidate.json) |
-| child-reads-one-contract | [record](results/child-reads-one-contract/candidate.json) |
-| removal-lists-delete | [record](results/removal-lists-delete/candidate.json) |
-| maintenance-after-delete | [record](results/maintenance-after-delete/candidate.json) |
-| baseline-fails-on-base | [record](results/baseline-fails-on-base/candidate.json) |
-| pr-subject-threads | [record](results/pr-subject-threads/candidate.json) |
-| pr-subject-sync-repair | [record](results/pr-subject-sync-repair/candidate.json) |
+The post-action-no-task replay checks that Integration entries have no task or coverage row. For a mixed row, keep the functional literal in the assigned work and put the external command only in the owning task's excluded citation. Run the local plan checker on both saved plans; this sample does not exercise live planning.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| leg-checkout-by-branch | anthropic/claude-opus-5-5 | unchanged | 11685 | branch-lookup: holds -> holds (held); path-roots: holds -> holds (held); home-plan: holds -> holds (held); baseline: holds -> holds (held); recorded-home: holds -> holds (held); missing: holds -> holds (held) |
-| leg-checkout-by-branch | github-copilot/gpt-6.1-sol | unchanged | 13576 | branch-lookup: holds -> holds (held); path-roots: holds -> holds (held); home-plan: holds -> holds (held); baseline: holds -> holds (held); recorded-home: holds -> holds (held); missing: holds -> holds (held) |
+| post-action-no-task | anthropic/claude-opus-5-5 | unchanged | 8659 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
+| post-action-no-task | github-copilot/gpt-6.1-sol | unchanged | 8690 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
 
 ## Feedback
 
-- leg-checkout-by-branch / anthropic/claude-opus-5-5: No fact moved: all six hold in both outputs, so on this sample the role-scoped case and the moved contract text preserved leg lookup by branch, path resolution against /workspace/tree-pool/settings-73, the home plan path and header, the companion baseline, the recorded-home handling in B and the stop in C. After is slightly stronger on the baseline fact, because it writes the scoped command with an explicit `cd` into the companion tree, where Before left the run location implied by the admitted checkout; keep the contract wording that produces that explicit location. After is slightly less explicit than Before on two points that still hold: its lookup narration does not restate that recon comes only from the companion tree, and it says only 'Home carries only this plan and the spec' rather than naming where the plan lives. If you want those facts robust across replays, keep contract wording that tells the plan-writer to name the plan's home location and to state that companion recon never uses home source paths. After's step 3 also adds 'remove any test assertion that imports legacySetting' and its `git add` omits the deleted path (harmless after `git rm`); neither touches a listed fact.
-- leg-checkout-by-branch / github-copilot/gpt-6.1-sol: No fact moved: After still locates the companion by branch from the /workspace/widget worktree list, validates checkout identity, resolves all four paths under /workspace/tree-pool/settings-73, keeps the plan at the home path with the home spec in the header, uses baseline 2222222 with npm test as verification, ignores the absent trees/fixed-slot in B, and stops in C with the exact cannot-resolve line and no PLAN WRITTEN line. Three details in After hold only narrowly and are worth pinning down in the contract wording. First, After adds a plan-level `## Files` section that appears before the task's `Leg: team/widget` line and lists tests/settings.test.mjs under Modify only; home-plan and path-roots hold because the per-task block still puts Leg before its Files and carries both Modify and Test. State that the per-task Files block is authoritative, that Leg precedes it, and that an edited test file gets both kinds wherever Files are listed. Second, the Spec header became an absolute /workspace/home/active/... path; say whether the header cites the home-relative doc/specs/settings.md or the absolute path so it stays unambiguously the home spec. Third, B shrank to "Repeat A unchanged" without naming the path; require B-style restatements to name the selected checkout (/workspace/tree-pool/settings-73) and say explicitly that the recorded home is neither planned against nor a stop condition.
+- post-action-no-task / anthropic/claude-opus-5-5: No fact moved between the two outputs: all four hold in both. The expected citation move (fails -> holds) does not show in this sample, because Before already cites `release-audit --live` exactly once, on the Excluded citation line in Task 1 (owner of Acceptance criteria L8-L9), and keeps it out of steps, Tests and table cells; After does the same. In both, the coverage table has only the two Design rows and the L8-L9 row, each owned by an implementing task, and no task touches an Integration entry, the import sandbox or the live audit. The one relevant difference is that After drops Before's explicit closing sentence that Integration entries get no row and no task; the fact still holds by absence, but if you want that guarantee to be robust, keep contract wording that says Integration entries get neither a row nor a task. Also keep the wording that puts the external command only on the owning task's single Excluded citation line, and the mixed-row rule that carries only the functional literal `EMPTY` into the row, tests and steps.
+- post-action-no-task / github-copilot/gpt-6.1-sol: No fact moved between Before and After on this sample: all four hold in both. The citation fact was expected to go from fails to holds, but Before already satisfies it. In both outputs `release-audit --live` appears exactly once, on its own line opening `Excluded citation (not work, not an acceptance condition):` inside Task 1, which owns § "Acceptance criteria" L8-L9. It is not in any step, Tests bullet or coverage-table cell, so this replay does not show the new wording causing the citation behaviour. After still keeps Integration L12-L18 out of the coverage table and out of every task, including tagging. It keeps the literal `EMPTY` in Task 1's tests, implementation step and coverage row without drawing in the import sandbox or the live audit. It also keeps Design L4 and L5 each with a row and an owning task. To keep these, preserve the contract wording that places the excluded citation as a standalone line in the owning task, outside the Tests list and the steps, and the rule that Integration entries get neither a row nor a task. To demonstrate the intended movement, you would need a sample whose Before actually puts the command in a step or omits it. The only differences in After are incidental: `Baseline home` instead of `Baseline project`, a flat Files list, and format/commit split into seven steps. None of them affects a listed fact.
 
 exit: 0

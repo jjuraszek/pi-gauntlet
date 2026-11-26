@@ -1,0 +1,4 @@
+- moved: judged: The earlier `CI is green on the PR head` row moves to Integration with a pipeline-result marker and gets no AC index.
+- companion-scope: judged: The later CLI row remains verbatim and in-scope, and the `label-cli` leg claims `scope: AC 1`, counted after moving the earlier row out of Acceptance criteria.
+- nonmember: judged: The mixed web client row remains verbatim with `elsewhere: label-web`; the external staging clause alone is copied to Integration.
+- carried: judged: The companion has a verbatim copy of the home Integration section, including the original nested release-thread line, the moved pipeline result and its marker, and the mixed row's detached clause.

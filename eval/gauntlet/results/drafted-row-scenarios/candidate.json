@@ -1,0 +1,70 @@
+{
+  "sample": "drafted-row-scenarios",
+  "arm": "candidate",
+  "skillSha": "78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3",
+  "inputSha": "270a815591f0820b3b1ec8ddeab6816a358934a3e317ebfe7ae31c2fce5722f9",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an import ID that is empty, contains only spaces, or contains a slash, and returns the same invalid-ID error in all three cases.\n  in-scope\n\nStopped before any write. This section has not been written to the spec file or committed. The design commits to one ID validation constraint, so the three rejected inputs are scenarios of one row rather than three separate rows. The row is a draft until you approve it at the spec gate.\n",
+      "words": 88,
+      "wallMs": 5220,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an empty ID, an ID containing only spaces, or an ID containing a slash with the same invalid-ID error in all three cases.\n  in-scope\n\nStopped before writing the spec.\n",
+      "words": 41,
+      "wallMs": 5223,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "f611ab0fa2d631d56bcb883eb32f88266e58a07bd6c6c6980bdc99c94e3d317c",
+      "candidateOutputSha": "f9ba8074e64f82afd3c955d0d5d2e34b7665b1f6deb28e8eaa27e2fb92e2aba8",
+      "facts": {
+        "one-constraint": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moved one-constraint from fails to holds: it drafts a single checkbox row covering the empty, spaces-only and slash IDs with the same invalid-ID error, and says the three inputs are scenarios of one row, where Before split them into three separate rows with the stated rationale that each case should be checked separately. Before held no fact that After lost, so nothing needs restoring; to keep this result stable, keep the instruction that several malformed-input scenarios of the same functionality stay one drafted constraint row, and keep it explicit that the row must still name every scenario and the shared error so merging rows never drops a case.",
+      "wallMs": 3863,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "ad81dba529fc21d2f11e2ee061f16a9d59adbf20b57b3e9778ac72886313a365",
+      "candidateOutputSha": "3561535d7beada042fac4755fa111752710d341ff3aa1c2741e3d3ca91a45fa8",
+      "facts": {
+        "one-constraint": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Both outputs draft exactly one checkbox row covering the empty, spaces-only and slash IDs with the same invalid-ID error, so the fact holds in Before and After and the wording change did not move it. After names the importer as the subject of the row, which matches the fact's phrasing more directly than Before's 'Importing with...', and adds a 'Stopped before writing the spec.' line that does not affect the row count. To keep this stable, retain the explicit instruction to keep one drafted constraint row for several malformed-input scenarios of the same functionality, and avoid any wording that could be read as one row per scenario or per input case.",
+      "wallMs": 3704,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
+}

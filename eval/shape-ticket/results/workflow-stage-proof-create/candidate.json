@@ -1,8 +1,8 @@
 {
   "sample": "workflow-stage-proof-create",
   "arm": "candidate",
-  "skillSha": "88e27b117c2e29baddd8fd7e7f5954bc0e9994e7a3626ef6c2d423a6a547ae0a",
-  "inputSha": "0ed6e4695e4f1778cb1e74872c19eeecb80d1f67715b1f04d7730ed296aa1c83",
+  "skillSha": "60f7d6745de6ce5c5242fba146d19aed0618cb2189173d97cd6ac7a3031f4a0a",
+  "inputSha": "3bbce4003e2ef1dbbedca1cce7de8569bfc57ef0fcea35c7ce320c0a51c6cf07",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n```text\nReporter note:\nretired workflow-stage proof: CI passes on the pull request\n```\n\n## AC integrity gate outcome\n\n- **Normalization:** Both criteria were already `- [ ]` items, so no syntax changed.\n- **Uniqueness:** Neither row's observable appears in the other, so no rows were removed or split.\n- **Row 1 passes as a Behavioral AC.**\n  - Setup: an import row has no id.\n  - Action: an operator imports it.\n  - Observable result: the importer rejects the row with a missing-id error.\n  - It can be verified before production.\n  - The row text is kept exactly as written.\n- **Row 2 is dropped as a Workflow-stage proof.**\n  - Its only observable is a CI run result on the pull request, which is a delivery-pipeline stage and not a behavior of the change.\n  - Its text is kept in the Reporter note as `retired workflow-stage proof: CI passes on the pull request`.\n- **Result:**\n  - No hard stop, no park, and no Post-deployment relocation.\n  - The AC list still has one pre-production behavioral row, so the no-AC failure does not apply.\n  - Because the drop displaced detail, one Reporter-note comment is proposed for the confirmation gate.\n",
-      "words": 197,
-      "wallMs": 8605,
+      "text": "## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Integration\n\n- CI passes on the pull request\n\n## Proposed Reporter note\n\n```text\nReporter note: original acceptance criterion moved to Integration (pipeline result):\n- [ ] CI passes on the pull request\n```\n\n## AC integrity gate outcome\n\n**Pass. There is no hard stop and no park.**\n\n- **Normalization:** both source rows were already `- [ ]` items.\n- **Sorting:**\n  - \"CI passes on the pull request\" is a `pipeline result`, so it moved to `## Integration` in its source words.\n  - Its original row is kept verbatim in the Reporter note.\n  - \"rejects it with a missing-id error\" is a functionality delivered by the importer's files at the delivered commit, so it stays an acceptance criterion.\n- **Remaining criterion:** this is a behavioral AC. It states an observable result for one functionality: a row without an id is rejected with a missing-id error. It needs no baseline or format.\n- **Defect classes:** no wishful, tautological, unspecified-but-binding, or external-input class applies.\n- **Uniqueness:** one criterion remains, so nothing is implied, removed or split.\n- **Result:** one criterion survives, so no recovery is needed.\n",
+      "words": 182,
+      "wallMs": 10572,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done drafted\n\n## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Proposed Reporter note\n\n```untrusted_text\nReporter note:\nretired workflow-stage proof: - [ ] CI passes on the pull request\n```\n\n## Integrity gate outcome\n\nPassed. Retained the behavioral criterion; dropped the workflow-stage proof and preserved it in the proposed Reporter note.\n",
-      "words": 57,
-      "wallMs": 7088,
+      "text": "gauntlet: done integrity-passed\n\n## Acceptance Criteria\n\n- [ ] When an operator imports a row without an id, the importer rejects it with a missing-id error\n\n## Integration\n\n- CI passes on the pull request\n\n## Proposed Reporter note\n\n```untrusted\nReporter note:\n- [ ] CI passes on the pull request\n```\n\nIntegrity gate: **passed**. The missing-id criterion is behavioral. “CI passes on the pull request” is a pipeline-result obligation, moved to Integration with its original row preserved in the Reporter note.\n",
+      "words": 71,
+      "wallMs": 6574,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "d8286bbe99ab9c3ca19398ec66e008fb5ebcf8c05bd5526acc9e5073addd5dcd",
+      "factsSha": "0ea99baec88ec06748d8240ab799ae2e7f6665891a4190902eed1d098af16f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2f20f29905462c9623f746c430b4f3ebb09d88776048e92fb4b95515a2078c8a",
-      "baselineOutputSha": "cabd91cc40fcc6a52b2390980ef654580b761f3ed3c68b806fb0b2340785cf3f",
-      "candidateOutputSha": "41c1d69fedec60335aff99b2ed9a369e889534fce8b3f6bcf707cb2aed0d13c3",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "2703e80805b9976ab81e0680e5786d4bc1038acc6d060951faeabf6255607484",
+      "candidateOutputSha": "138131e745e988accfb2fe6248e13cb72b68ca1f60a30d1d84122f092d29bc89",
       "facts": {
         "behavior": {
           "before": "holds",
@@ -49,9 +49,9 @@
           "label": "held"
         },
         "note": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "proceed": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs keep the behavior row byte-for-byte under Acceptance Criteria, drop the CI row from the drafted criteria, carry it in the Proposed Reporter note as `retired workflow-stage proof: CI passes on the pull request`, and state that no hard stop or park applies so the draft proceeds. The After wording therefore delivers the step-4 class-table check in create mode without regressing anything Before held. The only visible differences are presentational (a three-backtick rather than four-backtick fence around the note, and a bulleted rather than tabular gate outcome); if a fixed fence width or the per-row class table matters downstream, state it explicitly in the wording, since the current text lets either form through. To keep these facts stable, retain the explicit instructions that surviving behavior rows are copied verbatim, that dropped stage proof goes to the Reporter note under the exact retired-proof label, and that a non-empty surviving AC list means no hard stop or park.",
-      "wallMs": 5607,
-      "verdict": "unchanged"
+      "feedback": "The only fact that moved is `note`, from fails to holds. Before drafted no Integration entry (it said the template had no such section) and labelled the row `retired workflow-stage proof:` in the Reporter note. After carries `CI passes on the pull request` unmodified as an Integration bullet and keeps the original in the Reporter note with no `retired` label, which is what the instruction to sort pipeline results under Integration and retain displaced originals without a retirement label asks for. The other three facts hold in both outputs: the behavior row is byte-for-byte identical, no acceptance row names CI, and the gate passes with no hard stop or park. One fragility to guard: After's Reporter note reproduces the displaced row with its `- [ ]` checkbox, which a stricter reader could take for a drafted acceptance row naming CI. To keep `ci` safe, keep the wording that says the Reporter note holds the displaced original as quoted, fenced data under a 'moved to Integration' lead, and that Integration entries are plain bullets rather than checkboxes.",
+      "wallMs": 7834,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "d8286bbe99ab9c3ca19398ec66e008fb5ebcf8c05bd5526acc9e5073addd5dcd",
+      "factsSha": "0ea99baec88ec06748d8240ab799ae2e7f6665891a4190902eed1d098af16f21",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2f20f29905462c9623f746c430b4f3ebb09d88776048e92fb4b95515a2078c8a",
-      "baselineOutputSha": "b6aa90fa37c4b91aa940a48aa0e82bab46bab93e7fff08815e5e1bca763c782c",
-      "candidateOutputSha": "99d6d892c3f6b33dd6f4c5f58a268a6ef08d7834110eeaf7b6cdf4e3551e301b",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "7365809a2bc95f5847ad99611974d545b92e01f6eab416048926fd1b9216a719",
+      "candidateOutputSha": "b363da9f740514c639e53bce4b3ce131b2a413b44c95452fde437eb492f25e97",
       "facts": {
         "behavior": {
           "before": "holds",
@@ -81,9 +81,9 @@
           "label": "held"
         },
         "note": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "held"
+          "label": "unplanned improvement"
         },
         "proceed": {
           "before": "holds",
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this case: After keeps the behavior row byte-identical, drafts no CI row, carries the dropped criterion in the fenced Proposed Reporter note under the `retired workflow-stage proof:` label, and passes the integrity gate without a hard stop or park, exactly as Before does. The only differences are cosmetic: the status line reads `done drafted` instead of `done integrity-gate-passed`, and the gate rationale is shorter. One shared fragility: both outputs write the note line as `retired workflow-stage proof: - [ ] CI passes on the pull request`, keeping the checkbox marker between the label and the criterion text. I counted this as holding because the label and the verbatim criterion are both present, but a stricter literal reading of the fact would fail both. If you want the exact string `retired workflow-stage proof: CI passes on the pull request`, state in the wording whether the retained text includes the leading `- [ ]` marker or only the criterion text, and keep the current rules on byte-identical surviving rows and letting a surviving behavior criterion proceed.",
-      "wallMs": 8939,
-      "verdict": "unchanged"
+      "feedback": "The After wording moved `note` from fails to holds: Before left Integration as \"None specified.\" and put the CI row in the Reporter note under a \"retired workflow-stage proof\" label, while After carries the unmodified text `CI passes on the pull request` as an Integration entry and keeps the original row verbatim in the Reporter note with no retirement label. The other three facts are unchanged: the behavior row is preserved verbatim under Acceptance Criteria in both, no acceptance row names CI in either, and both pass the integrity gate without a hard stop or parking. To keep this, retain the explicit instructions that pipeline results are carried under Integration as unmodified text, that displaced originals go verbatim into the Reporter note without any retirement label, and that a surviving behavior criterion is enough for the gate to pass; avoid any wording that could push the pipeline row back into Acceptance Criteria or cause the Integration entry to be paraphrased.",
+      "wallMs": 5299,
+      "verdict": "improved"
     }
   },
-  "repoSha": "5fcd408fd30b278a6cced10768736c84c43d3b71"
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
 }

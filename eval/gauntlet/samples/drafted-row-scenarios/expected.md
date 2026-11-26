@@ -1,0 +1,1 @@
+- one-constraint: judged: The drafted section has exactly one checkbox row: the importer rejects an empty ID, a spaces-only ID or an ID with a slash with the same invalid-ID error. It does not split the three inputs into separate acceptance rows.

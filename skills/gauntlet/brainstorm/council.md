@@ -40,7 +40,7 @@ brainstorming owns the gate: it resolves this config via `gauntlet_setting`, emi
 
 ## The council run
 
-Resolve `../documentation-impact.md` relative to this installed file as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member, chair, and applier task below; do not add it to the spec.
+Resolve `../documentation-impact.md` relative to this installed file as one absolute `<DOCUMENTATION_IMPACT_GUIDELINE>` path value. Pass that value in every member, chair, and applier task below. Resolve `../../shape-ticket/reference/ac-classes.md` against this file's directory as the absolute `<AC_DEFINITION>` path for members and the applier. Add neither path to the spec.
 
 ### 1 — Fan out to members
 
@@ -66,6 +66,7 @@ subagent({
     cwd: "<abs worktree path>",
     task: "Problem statement: <the problem the spec addresses, from its Context section and the user's stated intent>.\n" +
           "Human input (verbatim; off-limits for over-spec):\n```\n<original prompt>\n<ticket AC snapshot, if any>\n<questionary answers that changed scope>\n```\n" +
+          "AC definition: <AC_DEFINITION>\n" +
           "Read the spec at <abs path to doc/specs/...>. The portable citation `documentation-impact.md` in the spec is the pi-gauntlet guideline at <DOCUMENTATION_IMPACT_GUIDELINE>, not a consumer doc; do not flag it as an external reference. The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it. Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows. Verify the spec's load-bearing claims against the codebase, bounded per your verification-hygiene rules (rg, explicit paths, timeout 30). Critique it on your five axes and emit your template.",
     output: "<tmpdir>/member-" + i + "-" + slug(model) + ".md",
     outputMode: "file-only"
@@ -134,6 +135,7 @@ subagent({
   cwd: "<abs worktree path>",
   control: { needsAttentionAfterMs: 300000, inFlightSilenceCeilingMs: 600000, inFlightSilenceKillMs: 900000 },
   task: "Problem statement: <same problem as members and chair>. Spec: <abs spec path>. Chair report: <tmpdir>/chair.md. Worktree: <abs worktree path>.\n" +
+        "AC definition: <AC_DEFINITION>\n" +
         "Member critiques (probe evidence only):\n" + usableMemberPaths.join("\n") + "\n" +
         "Human input (verbatim; off-limits for over-spec):\n```\n<same block>\n```\n" +
         "External context fetched during brainstorming: <ticket reference + body/comments, or 'none'>.\n" +

@@ -1,8 +1,8 @@
 {
   "sample": "legs-verification-line",
   "arm": "baseline",
-  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
-  "inputSha": "93f9797b89afd869f6bb0fcb6686dc913a65b828d76344843594ae4c6d1f1566",
+  "skillSha": "8957672fbd11faf4528247fb5da4352821e45106a51e43dc26a8b00072632e17",
+  "inputSha": "025fff713a2638329db7feebf680fbbfd2e1fe5eb7a61153d51934c712b95fcc",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small, fully visible diff; both Design clauses and the bundle clause map to concrete lines; no tests were run because no tools were available)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Labels are normalized before the CLI prints them — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:1-3 (the CLI bundle's `label` now returns `value.trim().toLowerCase()`). The inputs state that the unchanged CLI entry point already calls `label` before printing.\n  - [DELIVERED]    R4: Regenerated CLI bundle committed with the change — origin: spec \"Legs / Leg: acme/widgets\" - \"[...] regenerated bundles committed [...]\" — evidence: bin/widget.mjs:2 matches src/label.mjs:2. The inputs state the bundle is regenerated from src/label.mjs and committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n\nThere are no structured gap blocks because every row is DELIVERED.\n\n```\nParallel-safe: none\n```\n",
-      "words": 168,
-      "wallMs": 15013,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (small diff; every requirement maps to a cited line in the complete delivered files; the CLI entry point's call to `label` is from the task's description, since its lines are not shown)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2 (`value.trim()`)\n  - [DELIVERED]    R2: Label formatter lowercases the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2 (`.toLowerCase()`)\n  - [DELIVERED]    R3: Labels are normalized before the CLI prints them — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2 (bundled `label` returns `value.trim().toLowerCase()`; the CLI entry point is unchanged and already calls `label` before printing)\n  - [DELIVERED]    R4: Regenerated CLI bundle committed with the change — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"verification: [...] regenerated bundles committed [...]\" — evidence: bin/widget.mjs:1-3 (tracked and committed in the audited change; regenerated from src/label.mjs, and its line 2 matches src/label.mjs:2)\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 161,
+      "wallMs": 12367,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Normalize labels before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2; supplied delivery evidence confirms the unchanged CLI entry point calls `label` before printing.\n  - [DELIVERED] R2: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R3: Lowercase labels — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2, bin/widget.mjs:2.\n  - [DELIVERED] R4: Include the regenerated CLI bundle in the committed change — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:1-3; supplied delivery evidence confirms this bundle was regenerated from the source and is tracked and committed.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n",
-      "words": 119,
-      "wallMs": 9865,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Normalize labels before CLI printing — origin: spec \"Goal\" - \"Normalize labels before printing them from the CLI.\" — evidence: bin/widget.mjs:2; supplied file description confirms the unchanged CLI entry point calls `label` before printing.\n  - [DELIVERED] R2: Trim surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2, bin/widget.mjs:2\n  - [DELIVERED] R3: Lowercase the label — origin: spec \"Design\" - \"The label formatter lowercases the label.\" — evidence: src/label.mjs:2, bin/widget.mjs:2\n  - [DELIVERED] R4: Include the regenerated CLI bundle — origin: spec \"Legs / Leg: acme/widgets / contract\" - \"regenerated bundles committed\" — evidence: bin/widget.mjs:1–3; supplied file description confirms it is regenerated from src/label.mjs and committed in the audited change.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 115,
+      "wallMs": 9856,
       "mechanical": {
         "f1": "holds"
       }
     }
   },
-  "repoSha": "43b5c7b1a38cbb773808bc23fecac5694582da0a"
+  "repoSha": "1289b2135789d49b9a550da647b1a54a4905e8ad"
 }

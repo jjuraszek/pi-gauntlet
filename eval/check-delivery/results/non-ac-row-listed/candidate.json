@@ -1,0 +1,110 @@
+{
+  "sample": "non-ac-row-listed",
+  "arm": "candidate",
+  "skillSha": "bb9619e8f2c7f855324cbb981eb07f8fe8ea5d2c0c9b76bbf02bb26a9a4ab397",
+  "inputSha": "10b65347807250d8b67a95196fe82e060a54183933ee83954e7cab0877839be6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\nAll stages passed and both acceptance criteria are `satisfied`, so this is the all-clear confirmation gate. The block below is the exact evidence comment. It is also the full delivery report.\n\n**Exact write about to happen**\n- No ratified descope, so there is no body edit.\n- One evidence comment is posted on #75 with `gh issue comment 75 --repo <this repo> --body <comment below>`.\n- There is no status advance because no target state is configured.\n\n```markdown\nDelivered: ace0075\n\n**Deliverable set:** PR #76 (closes #75) - landed commit `ace0075`, an ancestor of the default branch. This is the shipped SHA. No other deliverables and no open deliverable PRs.\n\n**Stages**\n- Stage 0, pre-flight: pass. Ticket is open, has no comments, no prior `Delivered:` marker and no comment amendments.\n- Stage 1, merge landed: pass. Shipped SHA is `ace0075`.\n- Stage 2, delivery target `https://blue.example.test/version` returns `<sha>`: pass. The endpoint returned `ace0075`. No deploy watch is configured.\n- Stage 3, AC re-verification: pass. 2 of 2 satisfied.\n\n**Acceptance criteria**\n\n| AC | Verdict | Evidence |\n|---|---|---|\n| the importer rejects a row without an id | `satisfied` | Runtime observation on the blue deployment serving `ace0075`: a row without an id returned 422 `id required`. |\n| on staging, the importer rejects a row without a name | `satisfied` | Runtime observation on the blue deployment serving `ace0075`: a row without a name returned 422 `name required`. Judged on its functionality. The environment name in the row does not select a target, so the observation is against the configured delivery target. |\n\n**Not acceptance criteria:**\n- the operator runs the cutover - `person step`\n- after deploy to staging, login succeeds against the real identity provider - `live check`\n- the ticket is moved to In Review - `tracker update`\n\n**Integration (not checked):**\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\n**Reviewer script**\n1. `curl -fsS https://blue.example.test/version` - expect `ace0075`.\n2. Submit an import row with no id to the importer on the blue deployment - expect HTTP 422 `id required`.\n3. Submit an import row with no name to the importer on the blue deployment - expect HTTP 422 `name required`.\n```\n\nStatus advance: none. No target state is configured, so the run posts the comment only. It never guesses a workflow state. \"moved to In Review\" is listed above as a tracker update and is not performed.\n\nPick one:\n1. approve the write\n2. decline\n\n---\n\n**Simulation outcome:** The human selects option 1. The pre-write re-fetch shows no change. Writes in this simulation:\n- **Proceeds:** the evidence comment above, posted once to #75.\n- **Does not proceed:** any status advance, because no target state is configured. No body edit, because there is no `descope edits` and no `proposed descope`. No Integration entry is executed.\n\nNo tools are run and no real writes are made.\n",
+      "words": 527,
+      "wallMs": 23558,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/confirmation-gate\n\n## Exact evidence comment\n\n```text\nDelivered: ace0075\n\nDeliverable set:\n- PR #76 closed #75; landed commit ace0075 is on the default branch.\n- No other deliverables.\n\nStage results:\n- Stage 0 — passed: #75 belongs to this repo, is open, and has no comments. Two acceptance criteria remain after sorting.\n- Stage 1 — passed: the deliverable landed on the default branch at ace0075.\n- Stage 2 — passed: configured target https://blue.example.test/version returned ace0075.\n- Stage 3 — passed: both acceptance criteria are satisfied by runtime observations on that same blue deployment.\n\nAcceptance criteria:\n\n| Criterion | Verdict | Evidence |\n| --- | --- | --- |\n| the importer rejects a row without an id | satisfied | The importer on the deployment identified as ace0075 returned 422 `id required` for a row without an id. |\n| on staging, the importer rejects a row without a name | satisfied | The importer on that same deployment returned 422 `name required` for a row without a name. The environment wording does not select a separate delivery target. |\n\nNot acceptance criteria:\n- the operator runs the cutover — person step\n- after deploy to staging, login succeeds against the real identity provider — live check\n- the ticket is moved to In Review — tracker update\n\nIntegration (not checked):\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nReviewer script:\n1. Run `curl -fsS https://blue.example.test/version`; expect ace0075.\n2. Using the importer interface on that same deployment, submit an otherwise valid row without an id; expect HTTP 422 with `id required`.\n3. Submit an otherwise valid row without a name; expect HTTP 422 with `name required`.\n\nStatus advance: no target state configured.\n```\n\n**Proposed write:** post the exact comment above to #75. No body edit or status advance. The sorted-out tracker-update entry does not configure a target state.\n\nPick one:\n1. approve the write\n2. decline\n\nThe supplied human response selects option 1, and the simulated pre-write read is unchanged.\n\ngauntlet: done delivered\n#75: delivered\n\nIn this simulation, the evidence-comment write proceeds successfully. No body edit or status write proceeds. No tools or real writes were used.\n",
+      "words": 404,
+      "wallMs": 19463,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b7b5d0f567b4059373d119bde0dc39df80fac33fc6f23ec32d148d3ba082582b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "bed7774d8d1efc1202fbff476ffa9610ee49985ac11a5a593ac45f8373675fc2",
+      "baselineOutputSha": "6957e45dada1d8afb60e56bf60ef98364751adb92fddaf60c4e1e896014757ab",
+      "candidateOutputSha": "b667a0a6d045318a892040862e552024ef5b51bac18a3c9ff2a38e061817d852",
+      "facts": {
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "sorted": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "observed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "target": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "write": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved every fact. Sorting the unrepaired ticket before extraction is what did it: the cutover, real-provider login and In Review rows now land under Not acceptance criteria with the kinds person step, live check and tracker update, instead of receiving unexplained-gap or proposed-descope verdicts as in Before. The six Integration entries are carried verbatim, once each, under Integration (not checked) with no verdict or execution; Before never listed them and only mentioned the cutover row as gap evidence. The explicit line that the environment name in the row does not select a target lets the second AC be satisfied from the blue 422, leaving exactly two verdicts. Before judged five rows and failed the staging row for lack of proof that blue is staging. With no gaps, the run takes the all-clear path and the approved write is the evidence comment for ace0075, with no status, label or body change and no Integration entry executed. Before posted a findings comment and withheld the evidence comment. Before did name the blue target bound to ace0075, but only in a findings comment and a non-comment report, with no evidence comment warranted, so I marked target as failing there; After puts the Stage 2 line naming https://blue.example.test/version and ace0075 inside the evidence comment itself. Before kept no fact, so nothing regressed. To keep these results stable, retain the wording that requires the three sections (target-naming stage line, Not acceptance criteria with kinds, Integration (not checked)) in the shared report-and-comment text, and the sentence that an environment word in an AC row does not select a different target. One small tightening: the Stage 2 line reads 'returns `<sha>`: pass' before stating the returned value, so consider having it print the target and bound SHA directly to avoid the placeholder appearing in the posted comment.",
+      "wallMs": 7978,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b7b5d0f567b4059373d119bde0dc39df80fac33fc6f23ec32d148d3ba082582b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "bed7774d8d1efc1202fbff476ffa9610ee49985ac11a5a593ac45f8373675fc2",
+      "baselineOutputSha": "29200df4cfccde275aa0b7c38e646c0f7ca80c6a6a155aa09e8f28645c11c398",
+      "candidateOutputSha": "58863436d04f2f124dfc04e5c9dbf3c5b6f1fca4692cb8b50cce911b38d954b4",
+      "facts": {
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "sorted": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "observed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "target": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "write": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved entries, sorted and write as intended: sorting the unrepaired ticket first left only the two importer rows as acceptance criteria, the cutover, login and In Review rows appear once each under 'Not acceptance criteria' with person step, live check and tracker update, and the six Integration items are copied verbatim once under 'Integration (not checked)' with no verdict, so nothing blocks the approved evidence comment for ace0075, which posts with no body or status change. It also moved observed, which was not on the expected list: Before gave the missing-name row an 'unexplained gap' because blue was not shown to be staging and gave verdicts to three non-AC rows, while After has exactly two satisfied verdicts each backed by its 422 and states that the environment wording does not select a separate target; that is consistent with the Change (check the importer's constraints on the configured target), so add it to the expected moves rather than treating it as a regression. Target held in both, since both name https://blue.example.test/version and bind it to ace0075. To keep all of this, retain the wording that makes sorting precede attribution, that an environment word inside a criterion does not choose a different target, that Integration entries are carried verbatim without verdict, task or blocker, and that sorted-out rows never configure a status advance; the 'Two acceptance criteria remain after sorting' line in Stage 0 and the explicit 'No body edit or status advance' statement are worth preserving as they make these facts easy to read from the output.",
+      "wallMs": 6529,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "20ddd397e97d2384e52022884c471fda82739280"
+}

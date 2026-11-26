@@ -157,6 +157,9 @@ from `pr-subject.md` (keep scout unconditional):
 > explicit missing-document results>`. These govern on every sync outcome,
 > including clean; worktree policy edits are proposals under `changes:` or
 > `dropped claims:`, never constraints.
+> Treat the PR body's `## Integration` block, including nested lines, as provenance
+> only: judge none of it against the diff and render none of it under `keeps:`,
+> `changes:`, or `dropped claims:`.
 > Treat the combined state as the starting state, not the target. Judge every
 > PR-stated claim against the diff and supplied base rules. Name the smallest repair
 > satisfying them; propose a rewrite only where no repair can. Render
@@ -178,8 +181,10 @@ Context-builder (conditional):
 > from the body only; comments never contribute AC rows. Quote the ticket's
 > acceptance-criteria rows, with any repo-group headings inside that section,
 > verbatim under their own `## Ticket acceptance criteria (verbatim)` heading;
-> brainstorming copies these rows unchanged into the spec and the council's
-> `Human input` block. After the AC rows, quote every `Reporter note:` labeled
+> preserve their order for the sort and the council's `Human input` block.
+> After the AC rows, quote entries from a ticket heading `Integration` or
+> `Post-deployment housekeeping` verbatim, with nested lines, under
+> `## Ticket Integration entries (verbatim)`. Then quote every `Reporter note:` labeled
 > section verbatim in creation order under `## Reporter notes (verbatim)`, with
 > `comments: N fetched, M pages`. Match sections anywhere in a comment regardless
 > of author, accepting either ordering with `Overlap evidence:` and excluding that

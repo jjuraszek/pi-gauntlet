@@ -53,6 +53,8 @@ the resolved config can reach — this is the last correctness gate. `thinking` 
 frontmatter-pinned at `xhigh` and is not call-site overridable, so the config supplies only
 `model`.
 
+In every reviewer task, including re-audits, pass `AC definition: <absolute path>` resolved from [the acceptance criterion definition](../shape-ticket/reference/ac-classes.md) relative to this installed file.
+
 Self-checking in the main session is the fallback when delegation isn't possible.
 
 ## Source of truth (priority order)
@@ -60,7 +62,7 @@ Self-checking in the main session is the fallback when delegation isn't possible
 | Order | Source | Why |
 |---|---|---|
 | 1 | The written spec (`doc/specs/…`) | Canonical. Brainstorm already fetched the ticket, reconciled its ACs, recorded deviations here. |
-| 1 | The spec's `## Acceptance criteria` section | Same priority as the spec body. The ticket's AC rows verbatim with dispositions; `in-scope`/`venue:` rows are requirements, `deviates:`/`deferred:`/`elsewhere:` rows are recorded drift - read per the `conformance-reviewer` persona. |
+| 1 | The spec's `## Acceptance criteria` section | Same priority as the spec body. The ticket's AC rows verbatim with dispositions; `in-scope` criteria are requirements, `deviates:`/`deferred:`/`elsewhere:` rows are recorded drift - read per the `conformance-reviewer` persona. |
 | 2 | Original prompt | Catches inline requirements never folded into the spec. |
 | 3 | Re-fetch the ticket | **Fallback only**, when no spec exists. Skip when a spec exists — the live ticket may have drifted. |
 

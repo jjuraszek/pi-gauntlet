@@ -1,12 +1,19 @@
-for: 91a2f97b5f545e6ab8506198c1a2d45fe710e23a996bf492a8f06114fa1de314
+for: c2742e76c74da7545a1e8d72267d9f0dc7b36b5a4ddee124a4bb0a104a98ba2f
 
 ## Change
+
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows; neither result changes the judgment.
+
+Report functionality-only coverage in plain-report, both in the opening and in the evidence mapping. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and PR-named steps, including open actions without trusted commands. Keep observation-only clauses out of post steps without promising a later judgment. A spec path named inside the PR body's Integration block is not a contract candidate for the merge gate.
 
 Search once for other authors' open PRs awaiting the viewer's review, even when the viewer's team is asked to review the viewer's own PR. A typed PR still bypasses discovery. Keep a changes-requested PR in discovery when every requester was asked again or the last commit came after all outstanding change requests. The answered sample supplies fixed verdicts and checks which lookups the parent runs, which PRs it lists and routes, and what it says when a lookup fails. A shell test classifies the responses; it cannot show that the parent used the verdict before routing. Show each list in visible reply text with a bold heading. For one typed PR, show the list after the initial PR, viewer and ticket display reads, in the reply carrying the first remaining Gather read (`gh run list`). Mint the run folder, create the continuation record, and initialize the tracker only after that call; reuse all the reads in the rest of Gather. The typed-list-note replay names the paired call outside the visible reply; it checks narrated order, not actual delivery beside a tool call. At first provisioning the single-PR runner or set parent sends the list only when earlier reply text in view lacks it. The list-send-if-missing replay tests whether the writer distinguishes a visible list from a shell result or a pasteable line. Resolve discovered-roster ticket links before the final sort and send the list in the reply carrying the first tool call after the sort. The over-cap and Claude Code rejection replays check the narrated command order and the list's carrier; their tools are off, so they cannot observe actual tool-call delivery or exercise the optional Linear lookup.
 
 For overrides-own-block-only, a verifier runs the shared verification command on an already green head because gatekeep-pr requests local verification. The shape-ticket report suffix has no effect.
 
+Unselected samples, including `merge-landed-message` and `fix-row-return-file`, retain their historical results. They are not coverage for this change.
+
 ## Expected to move
+- plain-report/scope: fails -> holds - Describe and map functionality without naming an Integration entry or its status.
 - overrides-own-block-only/verify: fails -> holds - Combine the trusted shared command with the gate's local-verification policy.
 
 - no-arg-discovery-over-cap/f1: fails -> holds - Finish ticket resolution before sorting and send the discovered roster with the batch instructions read before rejecting the set.

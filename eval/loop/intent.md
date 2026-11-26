@@ -1,6 +1,14 @@
-for: 8a677f33e53f3969e4332f5156e8037184aadd82b1abe9fbe3d84cf7f2a9a0c4
+for: a090e019ad9bd2e5539d679572854018f538edd635b970bdee136868dfb5e9fd
 
 ## Change
+
+Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
+
+The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
+
+## Earlier comparisons
+
+Select unreachable-cut to check whether a valid marker on an admitted failed target leads to an amendment, including when an older spec has no recognized disposition. A wording pin cannot show whether the driver instead redispatches the failed row. This replay narrates routing; it does not run a worker.
 
 Keep one loop implementation entry point and read current-format interrupted recovery from restore-loop.md after the resume engine split. Admit home returns from ledger-held attribution and companion returns from checkout-local return files, without reading commit messages or charging consumed iterations twice. Preserve target-only failed-attempt accounting, unchanged foreign rows, reset-based interrupted recovery and verification repair counts. Stop a ledger without returned: with the unsupported-format sentence and recovery pointer instead of routing through resume conversion. Selected text replays cover return admission, interrupted child and companion recovery, leg resume and verification repair on supplied observations; they do not prove live dispatch or tracker execution. Coverage is sample-scoped, not a target-wide pass.
 
@@ -9,6 +17,10 @@ Use shared wording at loop commit sites and pass its absolute path plus the reso
 
 Rebind this intent to the combined assembly on the rebased tree without replaying or rejudging any loop execution sample. Saved replies and verdicts remain earlier-revision evidence, not current coverage.
 
+The seed-dispositions replay indexes only acceptance criteria and assigns no Integration entry to the worker. Check the four dispositions, absent-disposition default, seed dispatch and partial-seed admission on this sample only.
+
 ## Expected to move
+- unreachable-cut/default-row: fails -> holds - Route the defaulted row's unreachable marker through the same amendment as an explicitly in-scope row.
+- seed-dispositions/entries: fails -> holds - Leave all six Integration entries out of the ledger and worker assignments.
 
 - returned-line-admission/missing-line: fails -> holds - Stop the unsupported ledger in the driver without conversion, dispatch or mutation.

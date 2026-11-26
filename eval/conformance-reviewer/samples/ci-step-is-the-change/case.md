@@ -1,3 +1,5 @@
+bundle+: skills/shape-ticket/reference/ac-classes.md
+
 Audit this synthetic change. The spec, verbatim prompt, diff and numbered current files below are the complete inputs. No tools are available. Stop at the conformance report.
 
 ## Verbatim prompt

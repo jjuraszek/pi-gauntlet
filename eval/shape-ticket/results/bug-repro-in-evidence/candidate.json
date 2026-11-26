@@ -1,0 +1,100 @@
+{
+  "sample": "bug-repro-in-evidence",
+  "arm": "candidate",
+  "skillSha": "c3cac6db61af513228594f8e4360dbe8a907c010b2a990ba4300134c378d1751",
+  "inputSha": "ba0c28f5d226aad50718e1b031af616df452c148f155601794e1567b6f546a39",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\n**Ticket 1 of 1 (create)**\n\nAudit:\n- scenario: present\n\n**Title** (new): Importer reports success on empty input instead of rejecting it\n\n**Body** (as-new):\n\n```markdown\n## Context\n\nThe command-line importer reads an input file and imports its contents.\n\n## Problem\n\nWhen the command-line importer is given an empty input file, it reports success instead of rejecting the input.\n\nA zero-byte input file passed to the importer reports success.\n\nsource: attachment: import-session.txt\n\nscenario: setup: a zero-byte input file; action: pass the file to the importer; observed: the importer reports success; inputs: attachment: import-session.txt\n\n## Idea\n\nThe reporter asks that the importer reject empty input instead of reporting success.\n\n## Acceptance Criteria\n\n- [ ] The importer rejects empty input.\n```\n\n**Metadata changeset:** none\n\n**Evidence:**\n- Repro steps (reporter):\n  - Create a zero-byte input file.\n  - Pass the file to the importer.\n- Observed: The importer reports success.\n- Expected: The importer rejects empty input.\n- Scenario (audit, confirmed): setup is a zero-byte input file; action is passing the file to the importer.\n- Source: attachment: import-session.txt (supplied by the reporter, readable)\n\n**Source gaps:** none. The one Problem example carries its `source:` footer.\n\n**Roast dispositions:** applied: none; surfaced-ambiguous: none\n\n**Split proposal:** none\n\n**Proposed comment:** none (no displaced detail)\n\n**Relations:** none\n\nPick one:\n1. Approve exact diff: create this ticket with the title, body, and metadata shown above [recommended]\n2. Revise: describe the change, and I will recheck and re-present the diff\n3. Decline: skip this ticket, with no write\n",
+      "words": 233,
+      "wallMs": 13996,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=shape-ticket/step-8 recommended=1\n\nAudit: scenario: present\n\n**Title (new):** Reject empty input in the command-line importer\n\n**Body (new):**\n\n## Context\nThe command-line importer accepts an input file.\n\n## Problem\nEmpty input is reported as successful instead of rejected.\n\nExample: Passing a zero-byte input file to the importer reports success.\nsource: attachment: import-session.txt\nscenario: setup: create a zero-byte input file; action: pass the file to the importer; observed: the importer reports success; inputs: attachment: import-session.txt\n\n## Idea\nReporter proposes rejecting empty input.\n\n## Acceptance Criteria\n- [ ] The importer rejects empty input.\n\n---\n\n**Metadata changeset:** None.\n\n**Evidence**\n- Repro:\n  1. Create a zero-byte input file.\n  2. Pass the file to the importer.\n- Observed: The importer reports success.\n- Expected: The importer rejects empty input.\n- Source: attachment: import-session.txt — readable; the repository audit confirms the reported scenario.\n- Environment and observation time: not supplied.\n\n**Source gaps:** None.\n**Roast dispositions:** No findings.\n**Proposed comment:** None.\n\nPick one:\n1. Approve exact proposed ticket [recommended]\n2. Revise\n3. Decline\n",
+      "words": 152,
+      "wallMs": 9749,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "8d40009cea671f2bbd3b12ba8e48fb00d5458a5b1d8c3994f2fb650edbca2c76",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "03195cd93db0434fa1b660481a254e2528cbdd35a154906cd3eddd6f5dc42c5d",
+      "candidateOutputSha": "7f0204e56c6ec79cdcdaecc8ab5abc05bada59c20c407d648cd2c1c6963d2261",
+      "facts": {
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "expected-result": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-repro-in-criteria": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-format-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved expected-result and no-repro-in-criteria as intended: the acceptance row is now the reporter's plain sentence `The importer rejects empty input.` instead of Before's Given/When/Then row that restated the zero-byte setup and the pass-to-importer action. The Evidence list still carries both repro steps, the observed success and the expected rejection in both outputs, and neither output asks a question about the row's format, so those two guards held unchanged. To keep this stable, keep the wording that says bug repro steps and observed-versus-expected belong in the gate's Evidence list while the expected result stays as the reporter's plain acceptance row, not converted to setup/action/result; keep stating explicitly that the Evidence list must hold the steps themselves (the Problem scenario footer alone is not enough), and that the sort is made without a clarification question, so future edits do not trade the Evidence entries or introduce a format question while preserving the plain row.",
+      "wallMs": 5236,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "8d40009cea671f2bbd3b12ba8e48fb00d5458a5b1d8c3994f2fb650edbca2c76",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "9ea5985d4dc11e9c51c655cb9cdd2841ca0e7659e6c8757d2edb0963b5792745",
+      "candidateOutputSha": "65027e679b9bb01329c19588eed5a87cf76816601c4b78e7d44949af3af3ca14",
+      "facts": {
+        "evidence": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "expected-result": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-repro-in-criteria": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-format-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved expected-result and no-repro-in-criteria as intended: the acceptance row is now the reporter's plain sentence `The importer rejects empty input.` rather than Before's Given/When/Then rewrite that folded the zero-byte setup and the pass-the-file action into the criterion. The Evidence list still carries both repro steps, the observed success and the expected rejection in both outputs, and neither output asks a question about the acceptance row's format, so those two facts held throughout. To keep this, retain the instructions that the bug repro steps and observed-versus-expected belong in the gate's Evidence list and that the expected result stays as the reporter's plain acceptance row without conversion to setup/action/result; also keep the wording that the sort is made without a clarification question, since that is what protects no-format-question. The added one-sentence Problem example with its source footer did not displace the Evidence list here, but keep the explicit statement that the example or scenario footer does not substitute for the Evidence entries so the evidence fact cannot regress.",
+      "wallMs": 5731,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
+}

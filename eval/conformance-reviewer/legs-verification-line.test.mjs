@@ -16,21 +16,13 @@ const sample = "legs-verification-line";
 
 test("leg verification retains file requirements and omits delivery-stage clauses", () => {
   const persona = read("agents/conformance-reviewer.md");
-  assert.ok(persona.includes("Exception - delivery stage and operator step."), "the audit needs a delivery-stage exclusion");
-  assert.ok(persona.includes("a `## Legs` contract line or a clause of one"));
-  assert.ok(persona.includes("quote only the behavior in `origin`, truncating the rest with `[...]`"));
-  assert.ok(persona.includes("This includes the step-1 over-spec exception clauses."));
-  assert.ok(!persona.includes('This is the only exception to "spec is canonical"'));
-  const stage = "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run";
-  const ci = read("scripts/ci.mjs");
-  for (const [token, want] of [[stage, true], ["This is the only exception to", false]]) {
-    assert.ok(ci.includes(`["agents/conformance-reviewer.md", ${JSON.stringify(token)}, ${want}]`), `CI pin missing: ${token}`);
-    assert.equal(persona.includes(token), want);
-  }
+  assert.ok(persona.includes("Keep a file deliverable within the same sentence as its own requirement, even when missing."));
   assert.deepEqual(lintTarget(resolve(root, dir)), []);
 
   const target = JSON.parse(read(`${dir}/target.json`));
   const { text, bundle } = parseCase(read(`${dir}/samples/${sample}/case.md`));
+  assert.ok(bundle.includes("skills/shape-ticket/reference/ac-classes.md"));
+  assert.match(text, /^- verification: .*; regenerated bundles committed;/m);
   const expected = read(`${dir}/samples/${sample}/expected.md`);
   const { facts } = parseExpected(expected);
   const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));

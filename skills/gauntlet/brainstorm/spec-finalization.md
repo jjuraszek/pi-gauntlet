@@ -10,8 +10,8 @@ Spec-writing replaces the context draft, in this exact order:
 2. Write the spec with the `write` tool (**full replacement**) at the spec path.
    After the mandatory draft read and before the full replacement, apply
    `ticket-acceptance.md`'s row-production branch to the approved two-round design plus the original prompt.
-   Keep `## Acceptance criteria` after Problem; draft one observable outcome per row,
-   default `in-scope`, retaining environment-bound pre-production proof as `venue:`.
+   Keep `## Acceptance criteria` after Problem; draft one functionality or constraint per row,
+   default `in-scope`.
    Apply the inline integrity recovery and cut question there before writing.
    Using `edit` at this step is a red flag. The header block (between the H1 and the
    first `##`) carries `**Amend-grant:** none` directly below `**Goal:**`; a redraw's
@@ -38,8 +38,8 @@ Spec-writing replaces the context draft, in this exact order:
    guard is a backstop, not the primary check.
 4. **After the line-1 check**, run the second predecessor pass. Compose a query from
    the spec's H1 terms, then the terms of every H2 that is not a template heading
-   (Problem, Acceptance criteria, Design, Errors and edge cases, Tests, Documentation
-   impact, Out of scope, Open questions), then the `**Goal:**` line's terms - same
+   (Problem, Acceptance criteria, Design, Integration, Errors and edge cases, Tests,
+   Documentation impact, Out of scope, Open questions), then the `**Goal:**` line's terms - same
    token rules as the scout, deduplicated, cut at 15. Run
    `(cd <abs worktree path> && node <SPEC_INDEX> --query '<terms>' --limit 5 --exclude <spec path relative to the worktree>)`
    with `<SPEC_INDEX>` resolved as in `gatherer.md`. Take the `live` rows and drop every
@@ -129,9 +129,7 @@ EOF
 ```
 
 After the home commit, write and commit every companion leg file through
-`git -C <companion worktree>` using [../legs.md](../legs.md)'s artifact grammar:
-`**Home:**` tuple, copied `## Problem`, `## Decisions` from shared
-Design/Errors/Out-of-scope and repo-binding clauses, and its own block verbatim.
+`git -C <companion worktree>` using the [companion file grammar](../legs.md#home-block-and-companion-files).
 Use the same subject as the home spec commit and the shared ticket rule.
 Stop naming any failed companion; do not present artifact completion until all
 files agree. A single-member run writes no companion file.
@@ -149,7 +147,9 @@ Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" }
 
 Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditional cleanup of this checkout's scratch file).
 
-Follow the [first-line rule](../menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
+Follow the [first-line rule](../menu-layout.md). Paste the summary verbatim. Use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry. Show the audit only on row 3.
+
+Render `Scope cuts:` from the committed spec's `## Acceptance criteria`: list every `deferred:` and `deviates:` row, or `none`. Directly below it, render `Not acceptance criteria:` from `## Integration`: for each `ticket row, not an acceptance criterion: <kind>` marker, list its parent row once with that kind, without asking about the move. Omit the line when there are no markers.
 
 Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[recommended]` at the end of that row's sentence, never to a flag line or row 3. Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number; give a concrete reason after the dash.
 
@@ -157,7 +157,7 @@ Decide the recommendation before rendering, without printing the deliberation. F
 
 When row 4 is not recommended and the committed spec has zero acceptance rows, recommend row 1 with this reason: `Recommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.`
 
-When row 4 is not recommended and acceptance rows exist, assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent. Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows. Treat two or more separately checkable outcomes in one row as bundled. Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome. Recommend row 1 for a bundled row. Use the first bundled row in section order, with its one-based index among all rows, in this reason: `Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.` When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`
+When row 4 is not recommended and acceptance rows exist, assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent. Assess only `in-scope` rows (the default when no disposition is recognized); skip `deviates:`, `deferred:`, and `elsewhere:` rows. Treat two or more separately checkable outcomes in one row as bundled. Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome. Recommend row 1 for a bundled row. Use the first bundled row in section order, with its one-based index among all rows, in this reason: `Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.` When none of the assessed rows is bundled, recommend row 2 with this reason: `Recommended: 2 - no row bundles more than one outcome.`
 
 ```
 gauntlet: gate=brainstorm/user-review-gate recommended=<recommended-row>
@@ -165,6 +165,7 @@ gauntlet: gate=brainstorm/user-review-gate recommended=<recommended-row>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 Scope cuts: <row text, first 60 chars> - <disposition>; ... | none
+Not acceptance criteria: <row text, first 60 chars> - <kind>; ...
 
 Drafted acceptance criteria (approval ratifies):
 - [ ] <row text verbatim>

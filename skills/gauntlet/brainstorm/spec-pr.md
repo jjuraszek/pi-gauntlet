@@ -18,26 +18,32 @@ Resolve the default base once, never substitute the worktree creation ref:
 
 ```bash
 DEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+printf 'Default base: %s\n' "$DEFAULT"
 git -C <worktree> fetch origin "$DEFAULT"
-git -C <worktree> diff --name-status origin/$DEFAULT...HEAD
+git -C <worktree> diff --name-status "origin/$DEFAULT...HEAD"
 ```
 
 Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 4. Keep implementation approvals available.
 
-Push, then create with explicit head/base and the spec H1 as title. Pass the summary verbatim through the quoted heredoc shown below, including its literal delimiter in narrated commands. Run gh against the worktree repository:
+Resolve `SCRATCH` for the worktree through [scratch folder](../return-file.md#scratch-folder) and run `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the absolute path it prints as the file writer's destination. Write the gate summary verbatim (the `**Goal:**` line on the degraded-summary path), then the committed home spec's `## Integration` section when present per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr). Push once:
 
 ```bash
 git -C <worktree> push -u origin <branch>
-gh pr create --draft --head <branch> --base "$DEFAULT" --title "<spec H1 text>" --body-file - <<'EOF'
-<gate summary verbatim, or the **Goal:** line on the degraded-summary path>
-EOF
+```
+
+After a successful push, run the entire create block in one shell call, including on retry. Substitute each placeholder as one shell-quoted literal: use the observed worktree, recorded branch, repo-relative spec path, printed default base and same printed body-file path. Read the committed H1 as data, including in narrated commands:
+
+```bash
+TITLE=$(git -C <worktree> show HEAD:<spec path> | sed -n '/^# /{s/^# //;p;q;}') &&
+  test -n "$TITLE" &&
+  (cd <worktree> && gh pr create --draft --head <branch> --base <base> --title "$TITLE" --body-file <scratch-file>)
 ```
 
 | Observation | Action |
 |---|---|
 | Push rejected | Print git output; retain amended spec and checkout; re-present with 4 retryable. |
 | Create fails after push | Print error and pushed branch. Keep brainstorm incomplete and checkout intact. Render the create-only retry view below. |
-| Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
+| Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality repeat the entire create block, no push, no amend. |
 | Create succeeds | Print URL, then ``Continue: start a fresh session, then run `/skill:gauntlet #<N>`.`` with the returned PR number before completing brainstorm; then perform ownership-based cleanup below. |
 
 Render the create-only retry view per [../menu-layout.md](../menu-layout.md) at every context reading, including 25% or lower and `Context: unknown`:
@@ -135,8 +141,8 @@ git -C <worktree> show -s --format=%b "$AUDIT_SHA"
 
 Recognize an audit only with all `Applied:`, `Deferred:`, and `Rejected:` labels. A drafted-AC repair line alone is not an audit. Count Council from the pinned body; offer row 3 only with that audit and read that same body on 3, never HEAD. Audit absence does not block re-gating.
 
-Reuse [User Review Gate](spec-finalization.md#user-review-gate)'s summarizer dispatch, fresh temp path, settings/context lookup, recommendation, last content-producing Read, verbatim render, degraded path, and unconditional temp cleanup, but skip its unconditional initial spec commit. Render Scope cuts and drafted rows from the carried spec. Offer 1/2 and optional 3; with zero AC rows omit 2 and its flags and explain `Loop engine unavailable: this spec has no acceptance-criteria rows.` Withhold 4 with `Withheld: draft PR - #N already exists`; clarify a 4 reply by naming rendered choices.
+Reuse [User Review Gate](spec-finalization.md#user-review-gate)'s summarizer dispatch, fresh temp path, settings/context lookup, recommendation, last content-producing Read, verbatim render, degraded path, and unconditional temp cleanup, but skip its unconditional initial spec commit. Reuse its full acceptance-criteria and Integration disclosure from the carried spec. Offer 1/2 and optional 3; with zero AC rows omit 2 and its flags and explain `Loop engine unavailable: this spec has no acceptance-criteria rows.` Withhold 4 with `Withheld: draft PR - #N already exists`; clarify a 4 reply by naming rendered choices.
 
-For a change request, revise and stage the spec and reconciled banners; make a new commit without the old audit body (no new council ran). For coordinated changes touching Problem, shared Design, Errors and edge cases, Out of scope, companion-binding clauses or a Leg block, rewrite and commit affected companion files in their live worktrees per [../legs.md](../legs.md) before re-dispatching the summarizer with a fresh temp path and re-presenting. Complete the amendment only when carried parts agree; infer no second council or approval.
+For a change request, revise and stage the spec and reconciled banners; make a new commit without the old audit body (no new council ran). Apply the [carried-part rewrite rule](../legs.md#home-block-and-companion-files) before re-dispatching the summarizer with a fresh temp path and re-presenting. Complete the amendment only when carried parts agree; infer no second council or approval.
 
 For approval 1/2 with their accepted flags, persist on home only; leave companion files untouched. Apply the ordinary gate's rejected-reply checks and accepted mapping before any write. Replace deferred with `waves` for 1 or `loop` for 2, write the decoded `**Amend-grant:**`, and write exactly one `**PR:** <owner/repo#N>` directly below Engine, lowercasing owner/repo parsed from the admitted PR URL. Stage and make a new commit `spec: select engine and grant for PR #N`; never amend a published commit. Verify all three fields through `git show HEAD:<spec path>` before completing brainstorm with the selected engine. For an accepted `--allowance=N`, print `run allowance: N` on its own line before reading the file named by `Instructions:`, even in a narrated approval trace; do not put the carrier in a table or replace it with a promise to print it. Keep the allowance out of the spec and settings. Stop on persistence or verification failure. Apply this same new-commit persistence to the unmarked route's gate approval (1/2 with their accepted flags), never `--amend`.

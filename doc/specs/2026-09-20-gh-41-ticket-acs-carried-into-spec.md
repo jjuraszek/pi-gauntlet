@@ -1,6 +1,7 @@
 # Ticket acceptance criteria carried verbatim into the spec
 
 > **Superseded by:** [doc/specs/2026-10-09-ac-coverage-dispositions.md](./2026-10-09-ac-coverage-dispositions.md) - the AC extraction rule and the disposition ask rule only
+> **Superseded by:** [doc/specs/2026-11-25-gh-172-acceptance-criteria-integration-section.md](./2026-11-25-gh-172-acceptance-criteria-integration-section.md) - the `venue:` disposition in every section and "Finish - surface what waits for deploy" only
 
 **Ticket:** jjuraszek/pi-gauntlet#41
 **Date:** 2026-09-20

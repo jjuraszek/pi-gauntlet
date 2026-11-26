@@ -1,45 +1,67 @@
-Audit this change against the complete spec and verbatim prompt below. No pull request exists. No tools are available. The diff and numbered current file are the complete delivered evidence. Stop at the conformance report.
+bundle+: skills/shape-ticket/reference/ac-classes.md
+
+AC definition: /package/skills/shape-ticket/reference/ac-classes.md (bundled above)
+
+Audit the delivered change against the spec, the fetched ticket snapshot and the original prompt. No pull request exists. The diff and numbered current file below are the complete delivered evidence.
 
 ## Verbatim original prompt
 
 ```text
-Make the label formatter trim surrounding whitespace.
+Implement the importer change described by the ticket.
+```
+
+## Fetched ticket (verbatim)
+
+```markdown
+## Acceptance Criteria
+- [ ] the importer rejects a row without an id
+- [ ] the cutover steps are posted as a comment on the ticket
+- [ ] the operator runs the cutover
+- [ ] the change merges only after the vendor confirms the fix
+- [ ] the staging queue is empty before the deploy
+- [ ] after deploy to staging, login succeeds against the real identity provider
+- [ ] the ticket is moved to In Review
 ```
 
 ## Spec
 
 ```markdown
-# Trim widget labels
+# Require an id for imports
 
-## Goal
-Trim surrounding whitespace from labels.
+## Acceptance criteria
+- [ ] the importer rejects a row without an id
+  in-scope
+- [ ] the cutover steps are posted as a comment on the ticket
+  in-scope
 
-## Design
-The label formatter returns the input with surrounding whitespace removed.
-
-**Post-deployment housekeeping.** After merge, a repository admin creates the `DEPLOY_TOKEN` secret.
-
-The commit message says "Trim widget labels".
+## Integration
+- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it
+- before deploy to staging - operator: drain the queue; done when the queue length reads 0
+- `not stated` - operator: run the cutover; done when `not stated`
+- after merge - person merging: tag the release; done when the tag exists
+- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds
+- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy
 ```
 
 ## Delivered diff
 
 ```diff
-diff --git a/src/label.mjs b/src/label.mjs
---- a/src/label.mjs
-+++ b/src/label.mjs
-@@ -1,3 +1,3 @@
- export function label(value) {
--  return value;
-+  return value.trim();
+diff --git a/src/importer.mjs b/src/importer.mjs
+--- a/src/importer.mjs
++++ b/src/importer.mjs
+@@ -1,3 +1,4 @@
+ export function importRow(row) {
++  if (!row.id) throw new Error("missing id");
+   return { ...row };
  }
 ```
 
 ## Numbered current file
 
-`src/label.mjs` is tracked and committed in the audited change:
+`src/importer.mjs` is tracked and committed in the audited change:
 ```text
-1 export function label(value) {
-2   return value.trim();
-3 }
+1 export function importRow(row) {
+2   if (!row.id) throw new Error("missing id");
+3   return { ...row };
+4 }
 ```

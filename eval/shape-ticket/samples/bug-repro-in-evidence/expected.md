@@ -1,0 +1,4 @@
+- evidence: judged: The confirmation's Evidence list includes both repro steps (create a zero-byte file and pass it to the importer), the observed success, and the expected rejection. A Problem example or scenario footer alone does not count.
+- expected-result: judged: An acceptance row states `The importer rejects empty input.` in the reporter's words.
+- no-repro-in-criteria: judged: No acceptance row restates repro steps or uses setup/action/result or Given/When/Then form.
+- no-format-question: judged: The reply does not ask a question about the acceptance row's format.

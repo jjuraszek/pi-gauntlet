@@ -1,0 +1,90 @@
+{
+  "sample": "spec-pr-integration-sync-failed",
+  "arm": "candidate",
+  "skillSha": "c2d2aea0cef5a9cfc5849a99583c164376073736f2af8130f99111c1b15f2f12",
+  "inputSha": "dfdd239a879d23804cdf5b780d6e39d3c65109bc5b4d87b34d58c87870617b10",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**1. Edit result (reported once):**\n\n```\nPR #42 body's Integration block is not in sync (gh pr edit failed: HTTP 503) - repair from doc/specs/export.md, section `## Integration`.\n```\n\nThe existing body stays unchanged. I don't retry the edit, and the checkout stays in place for repair.\n\n**2. Readiness for row 1, issued next:**\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\n**3. After `gh pr ready` succeeds, the closing message:**\n\n```\ngauntlet: done pushed\nPushed to PR #42 (acme/widget) and marked it ready for review.\nWorktree kept for PR iteration.\n```\n\n**4. Mark ship complete:**\n\n```\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n",
+      "words": 94,
+      "wallMs": 6931,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "PR body's Integration block is not in sync: HTTP 503. Repair it from `doc/specs/export.md`, section `## Integration`.\n\nNext command:\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nAfter readiness succeeds:\n```text\nphase_tracker({ action: \"complete\", phase: \"ship\" })\n```\n\nUser-visible completion:\n```text\ngauntlet: done pushed\nPushed to acme/widget#42 and marked it ready for review. Worktree preserved.\n```\n",
+      "words": 51,
+      "wallMs": 8858,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7f7e0b208a136803eae7c2e40ac3c1f1e51d0c6e94c14fb20727705da96449f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e5759f16f05c0e965a4e214a71a2535ce9891da8400a1d034f7f37c8b48111e9",
+      "baselineOutputSha": "28732579337c95510409cc0ed77ffd929cb29e8423110bf20ac9ae75b52a7a97",
+      "candidateOutputSha": "ee8b15fca8d9233b234e16d69417775816f74699a61885616740379fb68e773a",
+      "facts": {
+        "unsynchronized": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-copy-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved `unsynchronized` as intended: it emits a single line stating that PR #42's Integration block is not in sync, cites the HTTP 503 edit failure, and names `## Integration` in `doc/specs/export.md` as the repair source, and it does not repeat that report in the closing message. Before failed this fact because it reported the failure as a generic body edit failure, framed the edit as a misstep the route should not have attempted, never named the spec section as a repair source in one line, and mentioned the unsynced state a second time in the final message. Both outputs avoid claiming the block was copied or updated, and both proceed directly to `gh pr ready 42 -R acme/widget` without retrying, asking or stopping, so `no-copy-claim` and `ready` hold on both sides. To keep all three, keep the wording that makes the isolated copy failure a one-line report naming block and source, explicitly says not to claim success, and tells the reader to continue to readiness; it may help to state explicitly that the closing message must not restate the sync failure and must not say the body was synced, so the once-only report and the no-claim property stay stable. Note that After dropped the seal stdout and the spec path line from the closing message that Before carried; if those matter elsewhere, say that the closing message is otherwise unchanged by this rule.",
+      "wallMs": 6441,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7f7e0b208a136803eae7c2e40ac3c1f1e51d0c6e94c14fb20727705da96449f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e5759f16f05c0e965a4e214a71a2535ce9891da8400a1d034f7f37c8b48111e9",
+      "baselineOutputSha": "accac8dcf8810db292886714db72948ed857bc8d1fc2a4898657410b6c1e8181",
+      "candidateOutputSha": "7be140efca5f0ab97056495af426db70e3c91462e3940669645993ad876e6710",
+      "facts": {
+        "unsynchronized": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-copy-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved `unsynchronized` from fails to holds: it now emits a single line stating the PR body's Integration block is not in sync (with the HTTP 503 cause) and names `## Integration` in `doc/specs/export.md` as the repair source, where Before only said the body was unchanged and that it would not synchronize the section, never naming the spec file as the source. Both outputs avoid any claim that the block was copied or updated, and both go straight to `gh pr ready 42 -R acme/widget` without retrying, asking, or stopping, so `no-copy-claim` and `ready` are kept. To keep this stable, keep the rule phrased as 'report the unsynchronized block and its source once, in one line, without claiming success, then continue to readiness'; make sure the final completion text continues to say nothing implying the body was synchronized (After's completion line dropped 'PR body unchanged', which is fine, but avoid any replacement wording like 'body updated'), and keep the unsynchronized report from being repeated in the completion summary so the 'once' condition still holds.",
+      "wallMs": 5034,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "818cc80850441c4e2d1c636d9cb87e87794596c5"
+}

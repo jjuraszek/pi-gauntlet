@@ -1,23 +1,25 @@
-# eval report: gauntlet (partial run: handoff-follows-pointer)
+# eval report: gauntlet (partial run: ordinary-request-no-run)
 
-for: 0866b31cea705429fd0576541ea992ecc59a31985f22f572cb2aa10c9c0ba88f
+for: 78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3
 
-wall: 6s
+wall: 8s
 
 ## Change
 
-An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout. For handoff-follows-pointer, the completion reply supplies the next file. A read-only replay resumes with that tool result in history. Only the file provides the receipt; a narrated read cannot pass.
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 5486 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
-| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 2966 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 7065 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 6696 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
 
 ## Feedback
 
-- handoff-follows-pointer / anthropic/claude-opus-5-5: Before and After are the identical single line `PINE-GLASS-7Q3M`, so nothing in the After wording moved the one fact under judgment: neither output asks the person for input or confirmation, and `question` holds in both. Each output consists only of that receipt-style token, with no question, menu or request to confirm, so the After wording continues the approved run without a prompt just as Before did. To keep it that way while still delivering the Change, keep the hand-off instruction phrased as a direct continuation (read the file named by the completion reply, then proceed) and avoid adding any wording that invites a consent check at this point, since consent was already given for the approved run.
-- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Both outputs are the identical single token "PINE-GLASS-7Q3M" with no question or request for confirmation, so the fact holds in Before and After alike; nothing in the After wording moved it. To keep this fact while delivering the Change, keep the hand-off continuation free of any prompt to the person: the reply should proceed directly from the tracker result (reading the file named by the completion reply) without asking for input or confirmation.
+- ordinary-request-no-run / anthropic/claude-opus-5-5: None of the four facts moved: both outputs treat the CSV request as a direct fix, explicitly decline to reset trackers, start brainstorm or create a worktree, list only repo-level grep/read/bash actions (the After's added read of the root AGENTS.md is project configuration, not a file under skills/gauntlet/), and offer the workflow only as an opt-in the user must ask for rather than treating the request as entry consent. The After wording's changes to ticket-row sorting, Integration provenance and ownership questions did not leak into this first-turn entry behaviour. To keep it that way, leave the entry rule's wording intact so that an ordinary fix request does not start a phase, read step files or provision a worktree, and keep the new sorting and Integration rules scoped to the spec-writing and rework-scouting steps so they are not read as actions to take at session start.
+- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved on this sample: both outputs treat the CSV export request as a direct implementation task, list only checkout, AGENTS.md, exporter/label source and test reads before the first edit, and take no tracker action, create no worktree, and read nothing under skills/gauntlet/. The only visible difference is cosmetic: Before explicitly says it will not create a worktree, while After instead says it will not reset the gauntlet trackers and drops the worktree mention; After still holds because it arranges no worktree, but the fact is now satisfied by omission rather than by statement. To keep all four facts robustly while delivering the ticket-row sorting and Integration-provenance changes, keep those new rules scoped to the spec-writing and rework-scouting steps so they are not read as applying at session entry, and leave the entry wording that says a plain implementation request does not start a phase, reset trackers, create a worktree, or load workflow step files unchanged.
 
 exit: 0

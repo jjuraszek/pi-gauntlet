@@ -1,3 +1,5 @@
+bundle+: skills/shape-ticket/reference/ac-classes.md
+
 Audit this change against the complete spec and verbatim prompt below. No pull request exists. No CI, review, merge or full-suite result is supplied. No tools are available. The diff and numbered current file are the complete delivered evidence.
 
 ## Verbatim original prompt
@@ -26,7 +28,7 @@ The branch is merged before handoff.
 
 ## Tests
 The root scan time before and after is recorded in the PR body.
-The full verification suite passes with `npm test`.
+`src/label.mjs` trims the label, and the full verification suite passes with `npm test`.
 The release workflow run succeeds.
 ```
 

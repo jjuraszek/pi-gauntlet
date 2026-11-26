@@ -33,7 +33,7 @@ test('PR-named actions resolve only through unique merge-base commands', () => {
   assert.ok(steps, 'step 5 owns after-merge action discovery and command resolution');
   for (const rule of [
     /PR body.*spec at the assessed head/,
-    /observation.*check-delivery/,
+    /Exclude observation-only acceptance or verification clauses and automatic deploy or release notes from post steps\./,
     /merge-base.*overrides file.*AGENTS\.md/,
     /one hop/,
     /same sentence, list item or table row/,

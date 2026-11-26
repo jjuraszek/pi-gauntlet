@@ -15,7 +15,7 @@ const read = (path) => readFileSync(resolve(root, path), "utf8");
 const dir = "eval/conformance-reviewer";
 
 for (const sample of ["stage-only-sentences", "mixed-row"]) {
-  test(`${sample}: stage clauses yield no row, gap, drift or skip note`, () => {
+  test(`${sample}: functionality is covered without judging external clauses`, () => {
     assert.deepEqual(lintTarget(resolve(root, dir)), []);
     const target = JSON.parse(read(`${dir}/target.json`));
     const { text, bundle } = parseCase(read(`${dir}/samples/${sample}/case.md`));
@@ -38,7 +38,11 @@ for (const sample of ["stage-only-sentences", "mixed-row"]) {
       assert.ok(Object.values(runMechanical(facts, output.text)).every((value) => value === "holds"), `${model}: mechanical facts`);
       assert.match(output.text, /Conformance verdict: CONFORMS/);
       assert.doesNotMatch(output.text, /\[(?:PARTIAL|MISSING|DRIFTED|UNAUTHORIZED)\]/);
-      assert.doesNotMatch(output.text, /PR description|Ship evidence|root scan time|job on the PR head/i);
+      if (sample === "mixed-row") {
+        assert.match(output.text, /legacy\//);
+      } else {
+        assert.doesNotMatch(output.text, /PR description|Ship evidence|root scan time/i);
+      }
       const judged = candidate.judge[model];
       assert.ok(judgmentCurrent(judged, {
         factsSha: sha256(expected), judgePromptSha: sha256(read("eval/judge.md")),

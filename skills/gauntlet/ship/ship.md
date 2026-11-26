@@ -212,7 +212,7 @@ Which option?
 
 Rows 1-2 run the Option 1/2 blocks; row 3 runs the Keep block and row 4 the Discard block.
 
-**Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
+Keep `## Integration` in the PR body, not in the offer: ask nothing about its entries, run none and leave every menu choice unchanged. **Don't add explanation** - keep options concise. When the minors line lists findings and the block has no `whole-diff minors fix:` line, add only this line under the menu: `Or reply "fix minors" (or "fix minors F3, F9") for one Minor fix round.` This line is the only addition to the exact numbered options.
 
 **Standalone extra reply - `fix minors`.** When the rendered `whole-diff minors` line lists findings, `fix minors` (all) or `fix minors F3, F9` (a subset by `Fn`) is a valid reply beside the numbered options. It dispatches one `implementer` round (`cwd` = the worktree; task = the selected finding lines verbatim; `SCOPED_TEST_COMMANDS` = for PR subjects, the executable scoped union captured in Step 1, excluding `none - PR subject, scoped`; for other subjects, the plan-header verification set). For a ledger, supply the gate set as `SCOPED_TEST_COMMANDS`, retaining owning checkouts per [verification-set.md](verification-set.md). For PR subjects, require successful evidence for every supplied command after the fix; failed or missing evidence stops before returning to the menu. Read [commit-message.md](../commit-message.md), pass its resolved absolute path as `wording:` and its resolved `ticket:` in the task, and have the worker commit from its Whole-diff minors fix row. Return to Step 3.5, where the freshness rule re-audits conformance as for any working-tree change and the regenerated block records the spent round (`whole-diff minors fix: <full SHA>`); Step 4 then re-renders. No code review follows this round: the whole-diff review is an unscoped first review, so its Minors are graded Minors. A block that already carries `whole-diff minors fix:` refuses the reply with "minors round already spent". Any numbered choice ships without them.
 
@@ -256,7 +256,7 @@ For the close-absorbed-PR question, start the message with `gauntlet: gate=ship/
 Emit `fixed in <sha7>` only when the rework flow actually recorded that fix SHA for the thread, for example in the plan task's receipt field. Use the accepted-complete fallback when no SHA is recorded; do not search commit messages. A touched file alone is not completion proof.
 Run the existing strip-and-seal block with `--option pr --base origin/<baseRefName>` and the selected spec; retain its stop-on-error behavior. This seal measures the whole PR, not rework-only; never use PRE_REWORK_HEAD as its base. Then probe each recorded PR with its own number using `git -C "$WORKTREE" rev-parse -q --verify refs/gauntlet/pre-rework/pr-<N>`; only when absent, run `git -C "$WORKTREE" update-ref refs/gauntlet/pre-rework/pr-<N> <PRE_REWORK_HEAD>` with that PR's original SHA. Preserve existing refs and stop on command error or update-ref failure. Push only home with the preflight-selected form: lease case `git -C "$WORKTREE" push --no-follow-tags --force-with-lease=<home headRefName>:<PRE_REWORK_HEAD> origin HEAD:refs/heads/<home headRefName>`; other admitted cases (including merge records) `git -C "$WORKTREE" push --no-follow-tags origin HEAD:refs/heads/<home headRefName>`.
 Save the pushed home head SHA on success. A lease refusal (`stale info`) skips body editing and closure, names members left open, preserves the worktree, and returns with row 1 withheld: `push withheld: origin/<headRefName> moved past <PRE_REWORK_HEAD7>`; no retry, no reset. Report any other rejected push once, skip body editing and closure, name members left open, and return to the menu without retrying or forcing. Preserve the worktree.
-After a successful push, fetch only home's description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder), then create a body file with `mktemp "$SCRATCH/pr-body.XXXXXX"`; write the existing body bytes exactly, then one blank line, then this block:
+After a successful push, fetch only home's description fresh with `gh pr view <N> --json body` in the record's repository. Decode the JSON body without trimming or shell command substitution (which loses trailing newlines). Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder), then create a body file with `mktemp "$SCRATCH/pr-body.XXXXXX"`; preserve the existing body bytes, then append one blank line and this block. Reconcile `## Integration` per [Option 1](#option-1-push-and-create-pr) in that edit: leave a matching section alone; otherwise remove the obsolete block, if any, and carry the spec's current section at the end of the appended Rework block:
 ```markdown
 ## Rework
 
@@ -293,30 +293,35 @@ On `1`, re-fetch state/head immediately before each `gh pr close <N> --comment "
 Rows 2-6, withheld/failed ancestry, withheld/rejected push, and failed body fetch/edit never offer closure; name untouched members with `Member PRs #13, #14 left open.` Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above.
 #### Option 1: Push and Create PR
 
-Read [commit-message.md](../commit-message.md) for the Landed message subject and resolve its ticket rule. Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](../commit-message.md) for the Landed message subject and resolve its ticket rule. Use that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 # Push branch
 git -C "$WORKTREE" push -u origin "$FEATURE"
 ```
 
-```bash
-# Create PR
-(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body "$(cat <<'EOF'
+Resolve `SCRATCH` for the observed worktree through [scratch folder](../return-file.md#scratch-folder) in the call that runs `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the file writer to write the Markdown below to the printed absolute path and the one-line landed subject to that path with `.title` appended. In the separate create call, substitute the observed worktree and printed body path as shell-quoted literals: `(cd <worktree> && LANDED_SUBJECT=$(cat <scratch-file>.title) && gh pr create --title "$LANDED_SUBJECT" --body-file <scratch-file>)`.
+
+```markdown
 ## Summary
 <2-3 bullets of what changed>
 
 ## Test Plan
 - [ ] <verification steps>
-EOF
-)")
+
+<spec's Integration block when present>
+
+<disposition appendix when applicable>
 ```
 
-For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan` and the rest of the body unchanged. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard. When the spec's `## Acceptance criteria` has at least one `venue:`, `deferred:`, or `elsewhere:` row, append this block after `## Test Plan`, listing those rows verbatim with their disposition, so the reader knows what `/skill:check-delivery` verifies before the prod deploy and what a follow-up or another repo owns. With no such rows, end the body at `## Test Plan`. Keep this disposition appendix out of Option 3's landed message.
+For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan`. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard.
+
+**PR body Integration block.** Copy the leg's spec section headed `## Integration` verbatim, including nested text, up to the next peer or higher heading or end of file. In a new PR place it after `## Test Plan`, before any disposition appendix; omit the block when absent. For an existing PR read its body fresh without trimming and compare that block alone. Add a missing block, replace a differing block or remove a stale one when absent from the spec; preserve every other byte. Leave one current copy. Skip the Integration edit when the blocks match or neither exists. On a body read or write failure limited to Integration synchronization, report once in one line that the PR body's Integration block is not in sync and name the leg's spec path and its `## Integration` section as the source for repair. Keep the checkout for repair, make no claim that the copy succeeded, and continue the next step (readiness, push reporting or companion reconciliation). Keep Integration out of squash messages.
+
+When the spec's `## Acceptance criteria` has `deferred:` or `elsewhere:` rows, append this disposition appendix with those rows verbatim. Keep this disposition appendix out of Option 3's landed message.
 
 ```markdown
 ## Acceptance criteria
-- [ ] <row text verbatim> - venue: <env> - <observation>
 - [ ] <row text verbatim> - deferred: <where>
 - [ ] <row text verbatim> - elsewhere: <repo>
 ```
@@ -325,7 +330,7 @@ For a ledger, render `Verification: scoped - <commands>; CI on this push holds t
 
 #### Option 2: Push and Create Draft PR
 
-Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then Option 1's push and `gh pr create` commands with `--draft` added. The PR body is unchanged. Do not clean up the worktree.
+Option 1's strip-and-seal step seals the telemetry record before the push. Follow Option 1, adding `--draft` only to `gh pr create`. The PR body is unchanged. Do not clean up the worktree.
 
 #### Option 3: Squash-merge to base
 
@@ -451,7 +456,7 @@ A host-owned worktree (Step 6: no `home:` match, or the legacy "Otherwise") keep
 - **Fix:** Let the seal own publication from common-dir metadata; stage no telemetry record in the product checkout.
 
 ## Completion
-Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason for an executed operation that fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
+Start the final outcome message with exactly one terminal line before summaries. Start the message with `gauntlet: done pr-created` after successful normal or draft PR creation. Start the message with `gauntlet: done merged` after successful squash-merge and post-merge verification. Start the message with `gauntlet: done kept` after Keep. Start the message with `gauntlet: done discarded` only after typed discard authorization and successful discard. Start the message with `gauntlet: done pushed` after successful PR-subject push and body edit, only after the close-member gate is answered or no members qualify. When the push option succeeds except for an Integration copy already reported as not in sync, start the closing message with the same `done` marker as for a successful copy (`gauntlet: done pushed` for a PR-subject push) and omit the warning from the closing summary. Start the message with `gauntlet: stuck` followed on that line by a short concrete reason when the selected option fails, before error evidence or a return menu. Do not combine a terminal marker with a gate marker in one message; a subsequent menu starts a new gate message. Pending choices, implementation stalls and conformance escalation are not terminal outcomes. Read and apply [menu-layout](../menu-layout.md). Preserve strip, seal, cleanup and ship-state rules below; terminal reporting does not complete ship after Discard or failure. Once the chosen option (Options 1-4 or PR-subject row 1 - not Discard) is executed successfully, mark the ship phase complete:
 ```
 phase_tracker({ action: "complete", phase: "ship" })
 ```

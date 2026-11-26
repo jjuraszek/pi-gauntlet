@@ -1,0 +1,4 @@
+- document: judged: Acceptance Criteria keep `The findings document is committed to this repository.` as written, without converting it to setup/action/result prose.
+- external-baseline: judged: Integration lists `The timing baseline is recorded only in the external metrics dashboard, with the measurement method.` as a source-worded entry, and Acceptance Criteria do not include the baseline.
+- retained: judged: The draft accounts for both requested outputs; the proposed Reporter note quotes the original baseline row verbatim if it is moved or rewritten.
+- no-question: judged: The reply does not ask a question about how to sort the discovery rows.

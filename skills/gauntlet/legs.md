@@ -166,17 +166,18 @@ For a no-`home:` variant, apply the creator-specific omissions in
 ### Scope grammar and validation
 
 Write exactly one `scope:` line in each block: `scope: none` or a comma-separated
-list of `AC <index>` entries, as in the template. Use one-based original AC indices, including cut rows;
-count checkbox rows in their original order, not ledger entries or disposition-filtered rows.
+list of `AC <index>` entries, as in the template. Use one-based indices of checkbox
+rows in the home spec's `## Acceptance criteria` section, in section order.
+Include cut rows and exclude `## Integration` entries.
 Repeat shared indices in each owning leg; indices unlisted across all legs default home.
-When all legs say `scope: none`, every original AC defaults home.
+When all legs say `scope: none`, every AC defaults home.
 Never infer ownership from `design:` prose or paths: `design: implements AC 2`
 does not claim AC 2 without an explicit scope entry. Put owned paths and
 observable outcomes in `design:` instead.
 
 Before committing home or companion artifacts, validate every block against the
-original AC count. Reject missing or duplicate scope lines, duplicate indices within one leg,
-malformed lists, and nonexistent original indices; the same index in different legs is valid.
+AC count defined above. Reject missing or duplicate scope lines, duplicate indices within one leg,
+malformed lists, and nonexistent indices; the same index in different legs is valid.
 Use these rejection cases as the boundary checks:
 
 | Invalid line | Reason |
@@ -188,7 +189,7 @@ Use these rejection cases as the boundary checks:
 | `scope: AC 1,` | Trailing comma / empty entry |
 | `scope: none, AC 1` | Mixed sentinel and list |
 | `scope: AC 1, AC 1` | Duplicate within one leg |
-| `scope: AC 4` with only three original ACs | Nonexistent original index |
+| `scope: AC 4` with only three AC rows | Nonexistent index |
 
 Reject empty values, negative indices and any other entry not matching
 `AC [1-9][0-9]*`, separated by comma and space. Preserve scope indices on
@@ -197,14 +198,15 @@ Keep this grammar here; consumers refer to it rather than inventing ownership ru
 
 Keep shared Design, Errors and edge cases, and Out of scope outside `## Legs`;
 those clauses bind every member. Assign member ticket groups `in-scope` and name
-their ownership through original AC indices in `scope:`. Unmatched groups retain ticket-acceptance's
+their ownership through these indices in `scope:`. Unmatched groups retain ticket-acceptance's
 `this repo / elsewhere / repair` question; `elsewhere:` creates no leg.
 
 Commit home first using spec-finalization's gate and audit. Read
 [commit-message.md](commit-message.md)
 for the companion spec commit's wording and ticket rule. Then write one companion
 file per companion in its own spec directory with the home's filename. Use
-`git -C <companion worktree>` to add and commit that file with the home spec subject:
+`git -C <companion worktree>` to add and commit that file with the home spec subject.
+Include `## Integration` only when the home spec has that section:
 
 ```markdown
 # <home spec title>
@@ -213,6 +215,9 @@ file per companion in its own spec directory with the home's filename. Use
 
 ## Problem
 <home Problem copied verbatim>
+
+## Integration
+<home Integration copied verbatim>
 
 ## Decisions
 <shared Design, Errors and edge cases, Out of scope, and clauses naming this
@@ -223,7 +228,7 @@ repo or its owned paths in design, copied from home>
 ```
 
 Rewrite and commit affected companion files in the same amendment when Problem,
-shared decisions, repo-binding clauses, or their block changes. Do not call an
+Integration, shared decisions, repo-binding clauses, or their block changes. Do not call an
 amendment complete while a carried part disagrees.
 
 Treat recorded `contract:` lines as authority for every spec with `## Legs`,

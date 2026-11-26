@@ -1,0 +1,78 @@
+{
+  "sample": "placement-keeps-leg-scope",
+  "arm": "baseline",
+  "skillSha": "d2afe149f267148f9f176ac8daa637cad11c73693baaa9247065e028dea4d2ba",
+  "inputSha": "28397ba9ee9703dc1cd8e431b6010040af858e3c2c000c01eee6c00a3ea8e661",
+  "kind": "edit",
+  "assembly": "n/a",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..dc106b9 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,4 @@\n+Applied:\n+- Applied: [blocker] cutover-placement - raised-by: [alpha-core] -> moved \"the operator starts the cutover\" from Acceptance criteria to Integration as a person step entry; renumbered leg scopes (importer AC 2 -> AC 1, reports AC 3 -> AC 2) (grounded: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/import-status.md b/doc/specs/import-status.md\nindex 2663795..1230709 100644\n--- a/doc/specs/import-status.md\n+++ b/doc/specs/import-status.md\n@@ -4,10 +4,9 @@\n Reject empty imports and count rejected imports in the report.\n \n ## Integration\n+- person step: the operator starts the cutover\n \n ## Acceptance criteria\n-- [ ] the operator starts the cutover\n-  in-scope\n - [ ] the importer rejects empty input\n   in-scope\n - [ ] the report counts rejected imports\n@@ -22,7 +21,7 @@ contract:\n - plan-dir: doc/plans\n - verification: npm test\n Rules: AGENTS.md\n-scope: AC 2\n+scope: AC 1\n design: Reject empty imports in src/import.mjs.\n \n ### Leg: orchard/reports\n@@ -32,5 +31,5 @@ contract:\n - plan-dir: doc/plans\n - verification: npm test\n Rules: AGENTS.md\n-scope: AC 3\n+scope: AC 2\n design: Count rejected imports in src/report.mjs.\n",
+      "words": 156,
+      "wallMs": 11869,
+      "tree": {
+        "council/chair.md": {
+          "lines": 5,
+          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [blocker] grounded: cutover-placement - raised-by: [alpha-core] - The operator cutover step is in the wrong section -> correct its placement.\nresolved:\n"
+        },
+        "council/member-0-alpha-core.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: partial\nlean: nothing to cut\nfindings:\n- [blocker] cutover-placement: The cutover step is a person step, not a feature.\nprobed: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.\n"
+        },
+        "council-audit.md": {
+          "lines": 4,
+          "content": "Applied:\n- Applied: [blocker] cutover-placement - raised-by: [alpha-core] -> moved \"the operator starts the cutover\" from Acceptance criteria to Integration as a person step entry; renumbered leg scopes (importer AC 2 -> AC 1, reports AC 3 -> AC 2) (grounded: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.)\nDeferred: none\nRejected: none\n"
+        },
+        "doc/specs/import-status.md": {
+          "lines": 35,
+          "content": "# Import status\n\n## Design\nReject empty imports and count rejected imports in the report.\n\n## Integration\n- person step: the operator starts the cutover\n\n## Acceptance criteria\n- [ ] the importer rejects empty input\n  in-scope\n- [ ] the report counts rejected imports\n  in-scope\n\n## Legs\n\n### Leg: orchard/importer\nbranch: import-status\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\nscope: AC 1\ndesign: Reject empty imports in src/import.mjs.\n\n### Leg: orchard/reports\nbranch: import-status\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\nscope: AC 2\ndesign: Count rejected imports in src/report.mjs.\n"
+        },
+        "reference/ac-classes.md": {
+          "lines": 11,
+          "content": "# Acceptance criteria and Integration\n\nAn acceptance criterion states a functionality or a constraint the change delivers: what is observed, not how it is built. One row may cover several scenarios of one functionality. It holds when the files at the delivered commit make it true and a check run in a checkout of that commit shows it.\n\nEverything else asked around the change is an `Integration` entry. An entry is one list item in its source's words, never judged and never blocking.\n\n## Entry kinds\n\n| Kind | Example |\n|---|---|\n| `person step` | the operator runs the cutover |\n"
+        }
+      },
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..fb68285 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,3 @@\n+Applied: [blocker] grounded: cutover-placement - raised-by: [alpha-core] -> moved the operator cutover step verbatim to Integration as a person step; updated leg AC references for the remaining criteria (grounded: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/import-status.md b/doc/specs/import-status.md\nindex 2663795..06f7f1c 100644\n--- a/doc/specs/import-status.md\n+++ b/doc/specs/import-status.md\n@@ -4,10 +4,9 @@\n Reject empty imports and count rejected imports in the report.\n \n ## Integration\n+- the operator starts the cutover\n \n ## Acceptance criteria\n-- [ ] the operator starts the cutover\n-  in-scope\n - [ ] the importer rejects empty input\n   in-scope\n - [ ] the report counts rejected imports\n@@ -22,7 +21,7 @@ contract:\n - plan-dir: doc/plans\n - verification: npm test\n Rules: AGENTS.md\n-scope: AC 2\n+scope: AC 1\n design: Reject empty imports in src/import.mjs.\n \n ### Leg: orchard/reports\n@@ -32,5 +31,5 @@ contract:\n - plan-dir: doc/plans\n - verification: npm test\n Rules: AGENTS.md\n-scope: AC 3\n+scope: AC 2\n design: Count rejected imports in src/report.mjs.\n",
+      "words": 145,
+      "wallMs": 18168,
+      "tree": {
+        "council/chair.md": {
+          "lines": 5,
+          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [blocker] grounded: cutover-placement - raised-by: [alpha-core] - The operator cutover step is in the wrong section -> correct its placement.\nresolved:\n"
+        },
+        "council/member-0-alpha-core.md": {
+          "lines": 6,
+          "content": "verdict: needs-work\naddresses-problem: partial\nlean: nothing to cut\nfindings:\n- [blocker] cutover-placement: The cutover step is a person step, not a feature.\nprobed: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.\n"
+        },
+        "council-audit.md": {
+          "lines": 3,
+          "content": "Applied: [blocker] grounded: cutover-placement - raised-by: [alpha-core] -> moved the operator cutover step verbatim to Integration as a person step; updated leg AC references for the remaining criteria (grounded: read doc/specs/import-status.md - the operator's step is a checkbox under Acceptance criteria.)\nDeferred: none\nRejected: none\n"
+        },
+        "doc/specs/import-status.md": {
+          "lines": 35,
+          "content": "# Import status\n\n## Design\nReject empty imports and count rejected imports in the report.\n\n## Integration\n- the operator starts the cutover\n\n## Acceptance criteria\n- [ ] the importer rejects empty input\n  in-scope\n- [ ] the report counts rejected imports\n  in-scope\n\n## Legs\n\n### Leg: orchard/importer\nbranch: import-status\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\nscope: AC 1\ndesign: Reject empty imports in src/import.mjs.\n\n### Leg: orchard/reports\nbranch: import-status\ncontract:\n- spec-dir: doc/specs\n- plan-dir: doc/plans\n- verification: npm test\nRules: AGENTS.md\nscope: AC 2\ndesign: Count rejected imports in src/report.mjs.\n"
+        },
+        "reference/ac-classes.md": {
+          "lines": 11,
+          "content": "# Acceptance criteria and Integration\n\nAn acceptance criterion states a functionality or a constraint the change delivers: what is observed, not how it is built. One row may cover several scenarios of one functionality. It holds when the files at the delivered commit make it true and a check run in a checkout of that commit shows it.\n\nEverything else asked around the change is an `Integration` entry. An entry is one list item in its source's words, never judged and never blocking.\n\n## Entry kinds\n\n| Kind | Example |\n|---|---|\n| `person step` | the operator runs the cutover |\n"
+        }
+      },
+      "mechanical": {}
+    }
+  },
+  "repoSha": "bb7a982f906de74245d2c39af8dfaa8ec8e2bb15"
+}

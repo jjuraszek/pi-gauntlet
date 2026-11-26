@@ -1,0 +1,5 @@
+- matched: judged: In A, under show evidence the ticket cross-check reads matched even though both spec acceptance rows were drafted from the design.
+- no-drift: judged: In A, neither original ticket row is reported missing or drifted.
+- entries: judged: Neither Integration entry gets a coverage outcome or raises a blocker.
+- differs: judged: B's cross-check reads differs on original ticket row 2 only, with the rollout-date entry absent from both spec sections.
+- report-omits-entries: judged: A's report, show evidence output, and menus do not name either Integration entry or state a status for one; the informational cross-check line can summarize ticket-row accounting.

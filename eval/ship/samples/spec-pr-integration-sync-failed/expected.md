@@ -1,0 +1,3 @@
+- unsynchronized: judged: The reply reports once, in one line, that the PR body's Integration block is not in sync and names the `## Integration` section in `doc/specs/export.md` as the source for repair.
+- no-copy-claim: judged: The reply does not claim the Integration block was copied, synchronized, or updated.
+- ready: judged: After the failed body edit, the reply proceeds to mark PR 42 ready by issuing `gh pr ready 42 -R acme/widget` rather than stopping, asking, or retrying the edit.

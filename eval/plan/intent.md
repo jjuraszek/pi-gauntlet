@@ -1,6 +1,8 @@
-for: d4f5132dd782fff1d8917de03361338a5817ad2005183414c37e7640df2488ba
+for: 66520522b2d861d6a1e1778fbf2acd87719c2bdc406afbba760f4ff38b9d8ee0
 
 ## Change
+
+Select post-action-no-task to check that an unrecognized disposition neither removes the scanner requirement from the plan nor adds a sandbox task. The replay checks the writer's assignment, not just the coverage grammar.
 
 Partition planning by reader. Keep only the planning flow in SKILL.md and move the authoring rules into the complete plan contract. Send four paths, not a skill path, to the child. Load open-questions.md only on substantive questions or the second identical parent FAIL, and stop when that reference is unreadable. Preserve stamping, one finished-plan read and execution handoff.
 
@@ -10,7 +12,10 @@ The child-reads-one-contract replay checks that the plan-writer reads the whole 
 
 The leg-checkout-by-branch case selects the replay's existing Role: plan-writer branch and drops the parent skill slice. This removes conflicting parent dispatch/no-write instructions from the child exercise while preserving all six expected facts. Its case asks for every Files kind of each task path and scopes the final reply line to case A, because one reply covers three independent observations and case C writes no plan. The contract's ownership wording for an edited test file is moved text, unchanged by this edit. Reseed and replay only this sample; retain the two passing PR records and all other sample evidence.
 
+The post-action-no-task replay checks that Integration entries have no task or coverage row. For a mixed row, keep the functional literal in the assigned work and put the external command only in the owning task's excluded citation. Run the local plan checker on both saved plans; this sample does not exercise live planning.
+
 ## Expected to move
+- post-action-no-task/citation: fails -> holds - Cite the external command exactly once without making it a worker step.
 
 - fresh-child-authors-plan/four-paths: fails -> holds - Send only the worktree, spec, plan and contract paths.
 - parent-offers-fix-first-narrow-amend/reads-open-questions: fails -> holds - Read the question reference before rendering its menu.

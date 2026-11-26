@@ -57,9 +57,21 @@ Rejected: none
 - [ ] Historical duplicate charges receive automatic refunds.
   deferred: acme/widgets#46
 - [ ] The receipt export opens in the browser.
-  venue: staging - export opens in the browser
+  deviates: offer the export as a download instead
 - [ ] Grower confirmations use the shared email transport.
   elsewhere: acme/mailer
+
+## Spec Integration
+
+- Compare receipts after the first billing cycle.
+- the operator runs the cutover
+  ticket row, not an acceptance criterion: person step
+- the change merges only after the vendor confirms the fix
+  ticket row, not an acceptance criterion: merge or deploy condition
+- the staging queue is empty before the deploy
+  ticket row, not an acceptance criterion: environment state
+- after deploy to staging, login succeeds against the real identity provider
+  ticket row, not an acceptance criterion: live check
 
 ## User reply
 

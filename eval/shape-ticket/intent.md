@@ -1,13 +1,13 @@
-for: cb8995629cb7d872d67730a17f301f67b622b48fcb1e3354dba52065ce926eff
+for: c3cac6db61af513228594f8e4360dbe8a907c010b2a990ba4300134c378d1751
 
 ## Change
-Check the shared class table at step 4 in create and repair mode. Preserve surviving behavior wording and retain dropped stage proof in the Reporter note in workflow-stage-proof-create, workflow-stage-proof and pr-body-proof. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
+Use a committed findings file, not a linked list, as the discovery-conversion example so the draft asks for a deliverable in the repository. No judged fact is expected to move from this example repair.
 
-Drop ticket rows whose sole observable is a pull request's title or body while preserving behavior that produces pull-request text. Run only pr-body-proof against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit. Require the retired-proof Reporter note and byte-identical surviving behavior rows. The first comparison dropped the release-script row on both candidate models, so add an explicit file-produced-text example beside the unchanged class row; retain every must-hold fact and the original baseline. Preserve all prior records; this tool-free checkpoint proves drafted text, not live tracker writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs.
+Apply the shared definition to discovery rows. Keep the repository findings document as written under Acceptance Criteria; move the external-only baseline to Integration and retain the original in the Reporter note. Make the sort without a clarification question or a forced acceptance row format.
+
+Sort ticket rows by the shared definition. Keep the file-delivered functionality under Acceptance Criteria, including environment names that define it and scenarios of the same constraint. Carry external clauses and pipeline results under Integration and retain every displaced original verbatim in the Reporter note, without a retirement label. On repair, carry existing housekeeping entries under Integration. The text replays inspect the proposed body and note, not tracker writes.
 
 Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
-
-Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
 
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
 
@@ -22,20 +22,20 @@ Bound Context, examples and Idea for a product-aware repo stranger; preserve com
 
 Clarify the overlap reference's repeated-defect rule: completion plus compatible same-concern additions does not justify a duplicate without evidence distinguishing a new regression. The closed-concern-additions sample alone bundles that reference and checks supplied-evidence recommendations, allowing useful existing-ticket additions or no write while retaining create-anyway as an override. The member-file-only sample alone bundles the complete skill and selects Roast item 2: add file-only transport on initial/retry member tasks while retaining cheap effort, inline chair, structural quorum and parent split-axis ownership. Retain the Draft behavior and existing sample bundles; Git retains prior intent and historical replay evidence. Apply the shared menu contract at the confirmation gate so options stay separately numbered after concerns and legacy numeric replies name the resolved subset approval before simulated creation.
 
-Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
+Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-versus-expected in the gate's Evidence list. Retain the expected result in the reporter's plain acceptance row without converting it to setup/action/result. Leave each Problem example at rule 5's one sentence or one number followed by its source footer. Take the roast's permitted reference paths from its dispatch shape. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
 
 Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
 
-Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundled observations, preserve surviving behavioral text and untouched rows byte-for-byte during that drop, retain displaced text in the fenced Reporter note with the retired workflow-stage proof label, and route an emptied AC list to recovery or park. The workflow-stage-proof sample checks repair of mixed behavior/stage rows and a second ticket with only stage proof; coverage is sample-scoped, not a target-wide pass.
-
 ## Expected to move
+- discovery-row-sorted/external-baseline: fails -> holds - Sort a baseline recorded only in an external dashboard into Integration, not Acceptance Criteria.
+- bug-repro-in-evidence/expected-result: fails -> holds - Keep the reporter's plain expected result as the acceptance row.
+- bug-repro-in-evidence/no-repro-in-criteria: fails -> holds - Both baseline replies rewrite the acceptance row into Given/When/Then; keep the reproduction details in Evidence instead.
 - pr-body-proof/f1: fails -> holds - Exclude a PR-description checklist as delivery-stage proof.
-- pr-body-proof/f2: fails -> holds - Retain the dropped row under its retired-proof label.
+- venue-stripped/original: fails -> holds - Keep the whole original latency row in the Reporter note after removing the observation environment.
 - pr-body-proof/f3: holds -> holds - Keep the release script's generated PR text as a behavior.
 - pr-body-proof/f4: holds -> holds - Keep the file-removal behavior verbatim.
 - per-ref-settlement/identity: fails -> holds - Both baseline replies identify the create by title rather than the returned #83.
 - per-ref-settlement/no-title-key: fails -> holds - One baseline reply uses the drafted title as its row key; the other omits a plain row.
-- workflow-stage-proof/f4: fails -> holds - Both baseline replies retain the removed text but omit the retired workflow-stage proof label.
 - gate-line-first/settlement: fails -> holds - Render exact fixed-order nonzero counters on the first stuck line.
 - gate-line-first/per-ref: holds -> holds - Preserve the six lines and keep ended stops settled.
 - obsolete-premise-contradicted/verdict: fails -> holds - Both pre-edit replies omit the obsolete line; require confirmed premise contradiction before not reproduced.

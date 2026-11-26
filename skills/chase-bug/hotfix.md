@@ -222,6 +222,7 @@ succeeds (it creates both). Every destructive command below is gated on its flag
    `output:` path. Add `model: <closureReview.model>` when defined; omit `model:`
    when undefined.
 
+   Pass `AC definition: <absolute path>` resolved from [the acceptance criterion definition](../shape-ticket/reference/ac-classes.md) relative to this installed file.
    Pass no spec path; never direct the reviewer to read the record. Inline its
    origin in the task text, located as `prompt`, in this order:
 

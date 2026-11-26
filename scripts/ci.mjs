@@ -231,19 +231,16 @@ const tokenChecks = [
   ["skills/shape-ticket/SKILL.md", "`^lean:` line", true],
   ["skills/shape-ticket/reference/ac-classes.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["agents/conformance-reviewer.md", "(over-spec)", true],
-  ["agents/conformance-reviewer.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["agents/conformance-reviewer.md", "This is the only exception to", false],
   ["agents/wave-reviewer.md", "met | unmet | out-of-scope", true],
   ["skills/gauntlet/implement/waves/wave-reviewer-prompt.md", "TRAJECTORY: CONVERGING", true],
   ["skills/gauntlet/implement/waves/dispatch-contract.md", "WAVE_VERDICT_SCHEMA", true],
   ["skills/gauntlet/plan/plan-contract.md", "is never waivable", true],
-  ["skills/gauntlet/plan/plan-contract.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   // council provenance / probe-before-apply / standing amend approval
   ["agents/spec-council-member.md", "probed:", true],
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],
   ["agents/spec-council-synthesizer.md", "grounded|hypothesis:", true],
   ["agents/spec-council-applier.md", "clusters that assert data shape, ordering, or semantics", true],
-  ["agents/spec-council-applier.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["skills/gauntlet/brainstorm/council.md", "outputMode: \"file-only\"", true],
   ["skills/shape-ticket/SKILL.md", "outputMode: \"file-only\"", true],
   ["skills/gauntlet/amendment-surface.md", "waives per-diff review", true],
@@ -312,12 +309,9 @@ const tokenChecks = [
   ["agents/spec-council-member.md", "no human input to match", true],
   ["agents/conformance-reviewer.md", "recorded in spec? yes", true],
   ["skills/gauntlet/conformance-check.md", "The spec's `## Acceptance criteria` section", true],
-  ["skills/gauntlet/conformance-check.md", "`in-scope`/`venue:` rows are requirements", true],
   ["skills/gauntlet/plan/plan-contract.md", "deviates:", true],
-  ["skills/gauntlet/plan/plan-contract.md", "table only `in-scope` and `venue:` rows", true],
   ["skills/gauntlet/ship/ship.md", "## Acceptance criteria", true],
   ["skills/gauntlet/ship/ship.md", "- deferred: <where>", true],
-  ["skills/gauntlet/ship/ship.md", "When the spec's `## Acceptance criteria` has at least one `venue:`, `deferred:`, or `elsewhere:` row", true],
   // #40 gauntlet-handoff ownership boundary: delegates the core brief to cohort, never copies it
   ["skills/gauntlet-handoff/SKILL.md", "phase_tracker", true],
   ["skills/gauntlet-handoff/SKILL.md", "plan_tracker", true],
@@ -555,7 +549,7 @@ try {
 }
 
 try {
-  execFileSync(process.execPath, ["--test", "--test-reporter=dot", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-discovery-answered.test.mjs"), R("scripts/gate-teardown.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/gatekeep-reject.test.mjs"), R("scripts/gatekeep-overrule.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-council-reply.test.mjs"), R("scripts/brainstorming-draft-publication.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), R("scripts/delivery-stage-authoring.test.mjs"), R("scripts/entry-phase-evals.test.mjs"), R("eval/conformance-reviewer/ci-step-is-the-change.test.mjs"), R("eval/conformance-reviewer/legs-verification-line.test.mjs"), R("eval/conformance-reviewer/prompt-stage-sentence.test.mjs"), R("eval/conformance-reviewer/stage-exclusion.test.mjs"), R("eval/spec-council-applier/pr-description-finding.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
+  execFileSync(process.execPath, ["--test", "--test-reporter=dot", R("scripts/happy-path-run.test.mjs"), R("scripts/implement-amendment.test.mjs"), R("scripts/skill-size-lint.test.mjs"), R("scripts/ac-definition-owner.test.mjs"), R("scripts/pi-cohort-floor-lint.test.mjs"), R("scripts/wave-review.test.mjs"), R("scripts/implement-failure-paths.test.mjs"), R("scripts/anchored-task.test.mjs"), R("scripts/gatekeep-comment-reconcile.test.mjs"), R("scripts/gatekeep-discovery-answered.test.mjs"), R("scripts/gate-teardown.test.mjs"), R("scripts/gatekeep-fix-loop-contract.test.mjs"), R("scripts/gatekeep-reject.test.mjs"), R("scripts/gatekeep-overrule.test.mjs"), R("scripts/brainstorming-contract.test.mjs"), R("scripts/brainstorming-plan-approval.test.mjs"), R("scripts/brainstorming-loop-approval.test.mjs"), R("scripts/brainstorming-funded-approval.test.mjs"), R("scripts/brainstorming-budget-only-approval.test.mjs"), R("scripts/brainstorming-allowance-approval.test.mjs"), R("scripts/brainstorming-rejected-replies.test.mjs"), R("scripts/brainstorming-pr-subject-gate.test.mjs"), R("scripts/brainstorming-worker-gate.test.mjs"), R("scripts/brainstorming-bare-approve.test.mjs"), R("scripts/brainstorming-council-reply.test.mjs"), R("scripts/brainstorming-draft-publication.test.mjs"), R("scripts/brainstorming-pr-regate-approval.test.mjs"), R("scripts/delivery-stage-authoring.test.mjs"), R("scripts/entry-phase-evals.test.mjs"), R("eval/conformance-reviewer/ci-step-is-the-change.test.mjs"), R("eval/conformance-reviewer/legs-verification-line.test.mjs"), R("eval/conformance-reviewer/prompt-stage-sentence.test.mjs"), R("eval/conformance-reviewer/stage-exclusion.test.mjs"), R("eval/spec-council-applier/pr-description-finding.test.mjs"), ...readdirSync(R("eval/lib")).filter((f) => f.endsWith(".test.mjs")).sort().map((f) => R(`eval/lib/${f}`))], { stdio: "pipe" });
   ok("happy-path and wave-review shell fixtures, PR comment, brainstorming source, delivery-stage authoring and eval contracts pass");
 } catch (e) {
   fail(`happy-path, wave-review, PR comment, brainstorming, delivery-stage authoring or eval regression checks failed:\n    ${String(e.stdout || e.stderr || e).trimEnd().replaceAll("\n", "\n    ")}`);

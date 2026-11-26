@@ -1,0 +1,25 @@
+# eval report: gauntlet (partial run: group-all-rows-sorted)
+
+for: 78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3
+
+wall: 8s
+
+## Change
+
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| group-all-rows-sorted | anthropic/claude-opus-5-5 | improved | 6835 | no-ownership-question: fails -> holds (intended change); moved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); elsewhere: holds -> holds (held) |
+| group-all-rows-sorted | github-copilot/gpt-6.1-sol | improved | 5976 | no-ownership-question: fails -> holds (intended change); moved: fails -> holds (unplanned improvement); retained: fails -> holds (unplanned improvement); elsewhere: holds -> holds (held) |
+
+## Feedback
+
+- group-all-rows-sorted / anthropic/claude-opus-5-5: After sorts each row before assigning ownership, which is what moved the facts: the rollout row is classed as a person step and moved verbatim to `## Integration` with the marker `ticket row, not an acceptance criterion: person step`, so the unmatched `rollout` group has no surviving acceptance row and no ownership question or stop is raised, and the Case A sections are actually rendered with `The label editor trims surrounding spaces.` kept verbatim as an unchecked `in-scope` row. Before stopped Case A on an A/B/C ownership question for `rollout` before writing any sections, so the moved entry and the retained row never appeared in an Acceptance criteria or Integration section. For Case B both outputs keep `The palette editor sorts swatches by name.` verbatim with `elsewhere: sample/palette`, stated rather than asked, and neither stops over the member group; After additionally moves the handoff-note row to Integration and says explicitly that the matched `labels` heading prevents a stop even though the member's rows all moved. To keep this, retain the wording that orders sorting ahead of the unmatched-group check, that conditions the question on a surviving acceptance row, and that checks original group headings for a member match so a known nonmember row stays `elsewhere: <repo>`; also keep the instruction to render both sections as literal `## Acceptance criteria` and `## Integration` blocks, since Before's Case B replaced Integration with a `## Legs` prose description and a deferral to an unread file, which would be a risk for any fact keyed on the Integration section.
+- group-all-rows-sorted / github-copilot/gpt-6.1-sol: In After, the wording that sorts externally fulfilled rows before counting groups is what moved the facts: the rollout row is treated as a person step, so it lands verbatim in `## Integration` with the `ticket row, not an acceptance criterion: person step` marker, the unmatched `rollout` heading no longer triggers an ownership question, and Case A proceeds to show `The label editor trims surrounding spaces.` as an unchecked in-scope row; Before instead stopped Case A at an A/B/C ownership question and produced no sections, so those three facts failed there. The Case B fact held in both outputs: each keeps the palette row verbatim with `elsewhere: sample/palette` and neither asks an ownership question or stops over the member group, though Before left the handoff-note row in Acceptance criteria as in-scope and wrote Integration as prose, while After moves it to Integration with the marker. To keep this, retain the explicit ordering (sort rows to Integration first, then ask about an unmatched group only if it has a surviving acceptance row, and check original headings for a member match even when that member's rows all move), and keep the rule that a surviving known-nonmember row stays `elsewhere: <repo>`; nothing Before held was lost in After.
+
+exit: 0

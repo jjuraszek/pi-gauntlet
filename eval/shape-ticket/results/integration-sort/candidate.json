@@ -1,0 +1,120 @@
+{
+  "sample": "integration-sort",
+  "arm": "candidate",
+  "skillSha": "60f7d6745de6ce5c5242fba146d19aed0618cb2189173d97cd6ac7a3031f4a0a",
+  "inputSha": "48713d2728a2b8fca8622f2fb3cd56042de034e8d86d24f7b625228a8738ec53",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Only the sections from Acceptance Criteria onward are shown. Context, Problem and Idea are not part of this view.\n\n## Acceptance Criteria\n- [ ] The deploy script refuses the target `production` without the confirm flag.\n- [ ] The migration script converts legacy status to reviewed status.\n- [ ] The script rejects an order with a missing, blank or unknown status.\n- [ ] Already reviewed orders remain unchanged.\n\n## Integration\n- Archive the cutover log.\n- Notify the support desk.\n- The operator runs the cutover.\n- The change merges only after the vendor confirms the fix.\n- The staging queue is empty before the deploy.\n- After the cutover, no production order carries the legacy status.\n- After deploy to staging, login succeeds against the real identity provider.\n- The operator runs it (the migration script) on live orders.\n\n## Proposed Reporter note\n\n````text\nReporter note: acceptance rows moved to Integration or rewritten, original wording kept verbatim:\n\n- [ ] The operator runs the cutover.\n- [ ] The change merges only after the vendor confirms the fix.\n- [ ] The staging queue is empty before the deploy.\n- [ ] After the cutover, no production order carries the legacy status.\n- [ ] After deploy to staging, login succeeds against the real identity provider.\n- [ ] The migration script converts legacy status to reviewed status, and the operator runs it on live orders.\n````\n\nSorting notes:\n- **Kept as acceptance criteria:** the `production` refusal stays, because the script treats that environment name as data. The status-rejection row stays as one row, because it covers several scenarios of one function.\n- **Row split in two:** the migration row was mixed. Its conversion behavior stays as a criterion, and only the \"operator runs it on live orders\" clause moved to Integration.\n- **Rows moved to Integration:** each of these went in the reporter's own words:\n  - the cutover (a step a person does)\n  - the vendor confirmation before merge (a merge condition)\n  - the empty staging queue (a state of the environment)\n  - the two checks after cutover and after deploy (checks run on the live system)\n- **Section renamed:** \"Post-deployment housekeeping\" is now \"Integration\", with both of its entries kept.\n",
+      "words": 326,
+      "wallMs": 15621,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: done drafted\n\n## Acceptance Criteria\n- [ ] The deploy script refuses the target `production` without the confirm flag.\n- [ ] The migration script converts legacy status to reviewed status.\n- [ ] The script rejects an order with a missing, blank or unknown status.\n- [ ] Already reviewed orders remain unchanged.\n\n## Integration\n- The operator runs the cutover.\n- The change merges only after the vendor confirms the fix.\n- The staging queue is empty before the deploy.\n- After the cutover, no production order carries the legacy status.\n- After deploy to staging, login succeeds against the real identity provider.\n- the operator runs it on live orders.\n- Archive the cutover log.\n- Notify the support desk.\n\n## Proposed Reporter note\n```untrusted\nReporter note:\n- [ ] The operator runs the cutover.\n- [ ] The change merges only after the vendor confirms the fix.\n- [ ] The staging queue is empty before the deploy.\n- [ ] After the cutover, no production order carries the legacy status.\n- [ ] After deploy to staging, login succeeds against the real identity provider.\n- [ ] The migration script converts legacy status to reviewed status, and the operator runs it on live orders.\n```\n",
+      "words": 169,
+      "wallMs": 11148,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "415e1cc16de0550e9b676a3a718948b5a277aadbff432d7897d3dd6b02027236",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "aa4a52a66d4fbdd345eb234e4605aad93fc1a8885b54bd69dbbe25a735ee4b43",
+      "candidateOutputSha": "cb0eb7692e8ceeefe55a3e0acb92ea195e01070a44a622a3004166305e51e78e",
+      "facts": {
+        "target": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "mixed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "scenarios": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "constraint": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved four facts from fails to holds and lost none. The shared-definition sort put all five externally fulfilled rows under Integration in source wording and quoted them verbatim in the Reporter note without a retirement label, where Before left vendor confirmation and a truncated login row in Acceptance Criteria, dropped the staging-queue row from the body and quoted only two of the five in the note. The mixed migration row is now split so the conversion stays a criterion, the operator's live-order run sits under Integration, and the whole original is retained in the note; Before put the run under the old heading. The repair rule to carry housekeeping under Integration replaced the Post-deployment housekeeping heading while keeping both entries, and the instruction to keep scenarios of the same constraint together stopped the three-way split of the rejection row. The deploy-script row with `production` and the confirm flag, and the plain 'Already reviewed orders remain unchanged.' row, held in both. Two things to tighten without risking any fact: the case asked for only the proposed sections and the Reporter note, yet After adds a leading sentence and a trailing 'Sorting notes' block, so say explicitly that the draft view carries no rationale outside the body and the note; and the Integration entry 'The operator runs it (the migration script) on live orders.' inserts a parenthetical gloss into the reporter's clause, so specify whether a split-off clause should be carried exactly as written or with its pronoun resolved, to keep the wording stable across runs.",
+      "wallMs": 7266,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "415e1cc16de0550e9b676a3a718948b5a277aadbff432d7897d3dd6b02027236",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
+      "baselineOutputSha": "0f0c625f974328a11650c7626c91b47a6397b5e6acc8d87b70e10eb498747756",
+      "candidateOutputSha": "212244a223ddc4610b33e191df3f7a469a47cb2c1454318f318bfea1d4908054",
+      "facts": {
+        "target": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "mixed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "heading": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "scenarios": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "constraint": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved three facts from fails to holds and lost none. The rule to carry external clauses and pipeline results under Integration moved the staging-queue and deployed-login rows out of Acceptance Criteria and put the vendor row in the body, so all five external rows now sit under Integration in source wording and the Reporter note quotes all five verbatim, without the 'retired workflow-stage proof' label Before attached. The rule to carry existing housekeeping under Integration on repair replaced the Post-deployment housekeeping heading while keeping both entries. For the mixed row, Acceptance Criteria keep only the conversion, the note keeps the whole original, and Integration carries the live-orders clause; this holds, but the fragment 'the operator runs it on live orders.' is lowercase and has a dangling 'it', whereas Before wrote a standalone entry ('The operator runs the migration script on live orders.'). Consider wording that says a clause split from a mixed row is carried as a self-contained Integration entry naming its subject, with the verbatim original kept only in the Reporter note. Two smaller points outside the facts: After emits a 'gauntlet: done drafted' status line before the sections even though the case asks for only the proposed sections and note, and Integration lists split-off rows before the pre-existing housekeeping entries; if order matters, state it. The target row, the single rejection criterion with three scenarios, and the plain 'Already reviewed orders remain unchanged.' row are intact in both outputs, so the current wording for those should stay as is.",
+      "wallMs": 7557,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
+}

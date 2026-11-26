@@ -10,22 +10,21 @@ Local evidence: `worktree_root` matches the provisioned path, every `run_cwd` si
 
 Inputs: the digest's `scope` block (step 2: the spec's rows with dispositions and its `design`, or the PR's stated intent), the source behind the diff at the assessed `headRefOid`, tests in the diff and existing tests the diff reaches, docs in the diff and docs the diff makes stale, CI per the brief's Evidence resolution table. PR body, PR comments, and the live ticket are leads to verify, never evidence; the spec at the assessed head is the contract.
 
-Split each AC row once into a **mechanism half** (code + test + doc that make the behavior possible) and, when the row names an observation that needs an environment, dataset, deployed target, or external system that repository tests cannot reach, an **observation half**. Behavior a unit test can assert ("retries three times then fails", "rejects a nil name") is mechanism, never an observation half. A `venue:` row's mechanism half is judged like an `in-scope` row. Judge the mechanism half only; the observation half is checked after merge, not here, and blocks nothing.
+Judge each `in-scope` row and Design clause on its file-delivered functionality alone. Keep literals that define it. An external observation or obligation, including a purely operational Design clause, is not evidence and not a gap. `## Integration` entries are not work or requirements: give them no outcome and never block on them.
 
 | Outcome | Condition | Report through `report.md` | Blocks |
 |---|---|---|---|
 | `covered` | evidence matches what the AC promises: executable behavior needs the code path plus a real test that exercises it; a documentation-only AC is judged against the promised doc text and demands no test; in both cases docs that describe the behavior agree with it | covered behavior | no |
-| `gap` | any part of the mechanism absent in this PR for an `in-scope` or `venue:` row, a `deferred:` row with empty `ref`, or a Design clause | missing behavior as a blocker | yes - a mechanism `gap` is a blocker |
-| `not judged here` | the observation half; the mechanism half of the same row is still judged `covered`/`gap` | observation half is checked after merge, not here; write, list or hand nothing to check-delivery | no |
+| `gap` | promised functionality absent in this PR for an `in-scope` row or Design clause, or a `deferred:` row with empty `ref` | missing behavior as a blocker | yes - a mechanism `gap` is a blocker |
 | `deferred per spec` | a `deferred: <ref>` row with non-empty `ref` | deferred behavior and its `ref` | no |
 | `deviates per spec` | a `deviates: <why>` row; the Design clauses the `<why>` names or quotes are judged for mechanism like an `in-scope` row | deviation and its `why`; keep a missing adopted clause as one blocker | only an adopted clause's `gap` |
 | `elsewhere per spec` | an `elsewhere: <repo>` row | external behavior and its `repo` | no |
 
 The `design` section is always part of the judged contract: a Design requirement with no mechanism in the diff is a `gap` blocker whether or not an AC row points at it. A `deferred:` row whose `ref` is empty is a `gap` ("row <n> is deferred to no ticket, spec, or URL"); the gate checks the reference's shape only, never that its destination shipped - delivery is `/skill:check-delivery`'s job. A row the repository cannot satisfy is corrected in the spec (`deviates: <why>` through brainstorming's amendment path) and, for `/skill:check-delivery`, on the ticket through `/skill:shape-ticket`; this gate posts no tracker comment, and no ticket edit lifts a withhold.
 
-**No spec rows** (`source: pr`, or `source: spec` with empty `rows`): judge the PR's intent from its title and body and `design` when present; apply neither `not judged here` nor scope creep against rows. Render through `report.md`.
+**No spec rows** (`source: pr`, or `source: spec` with empty `rows`): judge the PR's stated intent and `design` when present; do not apply scope creep against absent rows. Render through `report.md`.
 
-**Coverage.** With `source: spec`, retain covered, `deferred per spec`, `deviates per spec`, `elsewhere per spec` and observation-half outcomes; classify any other uncovered row as `gap`. Render through `report.md`. The spec's disposition is the record: a tracker comment, a PR named in the body, or a later PR never widens or narrows it, and a bare `deferred:` is never confirmed by the ticket.
+**Coverage.** With `source: spec`, retain covered, `deferred per spec`, `deviates per spec` and `elsewhere per spec` outcomes; classify any other uncovered row as `gap`. Render through `report.md`. The spec's disposition is the record: a tracker comment, a PR named in the body, or a later PR never widens or narrows it, and a bare `deferred:` is never confirmed by the ticket.
 
 **Claims.** Treat `contradicted` as a blocker and draft a scope-neutral exact description correction; when a correction would narrow either spec-owned or PR-owned scope, pause the correction and route to the explicit contract-decision course in `post-selection-loop.md` `### Continuation record`, retaining the independent mechanism blocker. Render `unverifiable-pre-merge` as optional non-blocking Description uncertainty naming what the gate cannot verify, not as a nit or proof. Assess supplied evidence; leave `matched`, explicitly pending observations, and qualitative prose alone. Never invent unperformed work or a future commitment. Draft requested factual clarification only after an explicit human request; preserve the assertion with the two-part replacement `Author's statement: <assertion> (not verified by this gate). Gate evidence: <evidence>`, rather than deleting it. Use pending-work wording only with an explicit record in the assessed body, approved spec, linked ticket, or request; conflicting records remain uncertain.
 
@@ -60,7 +59,7 @@ A delivery course repairs every open approach blocker; never withhold a dispatch
 
 ## PR-named steps
 
-At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Leave observation-only acceptance or verification clauses and automatic deploy or release notes to `/skill:check-delivery`, not post steps.
+At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Exclude observation-only acceptance or verification clauses and automatic deploy or release notes from post steps.
 
 Resolve commands only from merge-base files: `# gatekeep-pr` and `# shared` `## cleanup` in the overrides file, `AGENTS.md`, and documents `AGENTS.md` links directly (one hop). Count a command only when the document names it for that action in the same sentence, list item or table row. Count distinct command strings; repeated citations of the same string count once. PR text triggers an action and never supplies its command.
 

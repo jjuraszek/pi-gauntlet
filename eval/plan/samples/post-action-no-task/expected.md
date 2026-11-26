@@ -1,6 +1,4 @@
-- f1: judged: The Spec coverage table has no row quoting or covering the Post-deployment housekeeping paragraph or the repository admin's secret-creation step.
-- f2: judged: No task implements, verifies, or makes acceptance conditional on the repository admin creating the DEPLOY_TOKEN secret after merge.
-- f3: judged: The mixed acceptance row is tabled for its behavior alone (the scan test passing over the full tracked tree), with an owning task; neither its tabled requirement nor task work includes the job on the PR head.
-- f4: judged: The Design imperative to ignore blank lines when counting records has a coverage row.
-- f5: judged: The task owning the mixed acceptance row carries the literal slow exactly once, only on a line opening Excluded citation (not work, not an acceptance condition):, and in no step or acceptance condition.
-- f6: judged: The release-script imperative to write the changelog section into the pull request body has a coverage row and an owning implementation task, because producing that text is behavior of the change.
+- entries: judged: The Spec coverage table has no row for any Integration entry. No task implements, verifies, blocks on or delegates any of those entries, including release tagging.
+- mixed-row: judged: The plan tables and tasks reporting the literal EMPTY for an input with no records, without making the import sandbox or the operator's live audit part of the requirement or its proof.
+- citation: judged: The external command release-audit --live appears exactly once in the plan, only on a line opening Excluded citation (not work, not an acceptance condition): within the task owning Acceptance criteria L8-L9. It is absent from steps, Tests and table cells.
+- design: judged: Blank-line counting and the release script's rendering of the changelog section in the pull request body each have a coverage row and an implementation owner.

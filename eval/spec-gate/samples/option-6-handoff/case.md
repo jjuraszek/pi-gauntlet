@@ -3,11 +3,24 @@ bundle+: skills/gauntlet/ship/ship.md
 ## Narrated handoff checkpoints
 Override normal replay output: no tools exist. Narrate calls and printed lines in order, not claims of live execution. Render the initial gate once; subsequent labeled independent turns give deltas only. Stay within 1000 words total. Define shared command sequences once and refer to them by name in variant deltas; render both retry gates explicitly. Never repeat the success sequence for a variant.
 
-Repository acme/widget, worktree /work/widget/.worktrees/spec-export, branch spec-export. The approved doc/specs/export.md is headed # Export receipts, Goal: Repeated exports return one receipt. Amend-grant is none; no Engine yet. Its committed ## Legs has exactly one block: ### Leg: acme/widget, branch: spec-export, contract: with home: /work/widget/.worktrees/<name>, create: git worktree add <home> -b <branch>, destroy: git worktree remove <home> && git worktree prune, spec-dir: doc/specs; Rules: AGENTS.md; scope: none. This is a one-block control, not coordinated publication. Its Acceptance criteria body is `none - ticket not fetched (tracker unreachable)`: zero checkbox rows. Summary is "Repeated exports return one receipt." The initial spec commit audit is Applied: none / Deferred: none / Rejected: none. Council, lint, placeholder and predecessor passes succeeded. No PR subject. Start at the User Review Gate, not council.
+Repository acme/widget, worktree /work/widget/.worktrees/spec-export, branch spec-export. The approved doc/specs/export.md has the literal first line ``# Export `pwd` receipts``. Goal: Repeated exports return one receipt. Amend-grant is none; no Engine yet. Its committed ## Legs has exactly one block: ### Leg: acme/widget, branch: spec-export, contract: with home: /work/widget/.worktrees/<name>, create: git worktree add <home> -b <branch>, destroy: git worktree remove <home> && git worktree prune, spec-dir: doc/specs; Rules: AGENTS.md; scope: none. This is a one-block control, not coordinated publication. Its Acceptance criteria body is `none - ticket not fetched (tracker unreachable)`: zero checkbox rows. Summary is "Repeated exports return one receipt." The initial spec commit audit is Applied: none / Deferred: none / Rejected: none. Council, lint, placeholder and predecessor passes succeeded. No PR subject. Start at the User Review Gate, not council.
+
+The spec ends with this section:
+
+```markdown
+## Integration
+
+Keep these labels on the receipt:
+
+~~~text
+EOF
+End of receipt
+~~~
+```
 
 Status returns Context: 12.0% of window; loopEngine resolves maxIterationsPerRow: 4.
 
-Success: render gate, then bare reply 4. All git/gh calls succeed. gh defaultBranchRef is main, despite creation ref staging. The diff against origin/main is A doc/specs/export.md only. PR creation returns https://github.com/acme/widget/pull/42. Overrides home: /work/widget/.worktrees/<name>, no destroy wrapper; ownership matches and remove/prune succeed. After URL/completion, branch --show-current prints spec-export; ls-remote origin refs/heads/spec-export, tree HEAD and primary refs/heads/spec-export all read aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. Removal/prune succeed; the tree is neither listed nor on disk and the branch still equals that SHA. Conditional update-ref deletion succeeds; read-back finds no ref. Show header persistence, base proof, the complete push/create commands (including the quoted heredoc delimiter and stdin body), URL/Continue line/completion/cleanup ordering and the exact removed/deleted report.
+Success: render gate, then bare reply 4. All git/gh calls succeed. gh defaultBranchRef is main, despite creation ref staging. The diff against origin/main is A doc/specs/export.md only. PR creation returns https://github.com/acme/widget/pull/42. Overrides home: /work/widget/.worktrees/<name>, no destroy wrapper; ownership matches and remove/prune succeed. After URL/completion, branch --show-current prints spec-export; ls-remote origin refs/heads/spec-export, tree HEAD and primary refs/heads/spec-export all read aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. Removal/prune succeed; the tree is neither listed nor on disk and the branch still equals that SHA. Conditional update-ref deletion succeeds; read-back finds no ref. Show header persistence, base proof, the complete push/create commands and the exact body contents separately (show the transport used), URL/Continue line/completion/cleanup ordering and the exact removed/deleted report.
 
 Independent reply deltas before any success: Flagged = `4 --fund-rounds=3`; Change = `4 but rename receipts to vouchers`; Audit = `3 4`. Explain writes vs re-gate and audit rendering.
 

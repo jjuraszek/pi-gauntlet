@@ -1,35 +1,33 @@
-# eval report: gatekeep-pr-scope (partial run: cleanup-after-approve)
+# eval report: gatekeep-pr-scope (partial run: cross-check-all-rows-moved)
 
-for: 1c5817f14a6cda876abbf9f16359759b71d586267873b398acb6608eb7aa8b63
+for: c90090ed9730dbe5d97f89090389b8e2b559be8a964d9db3b458a37f6445a02d
 
-wall: 16s
+wall: 31s
 
 ## Change
 
-Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. With one ticket row absent from both spec sections, report `differs` for that original ticket row only. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and PR-named steps, including open actions without trusted commands. Keep observation-only clauses out of post steps without promising a later judgment.
+
+Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
+
+Select integration-not-judged for scope accounting: match a verbatim, marked ticket row once without judging it, keep actual drift visible, and give no claim disposition to an observation under the body's Integration heading. Judge the mixed row's promised behavior and the absent line number separately. State the reason tagging the release is open without giving it a runnable row, and promise no later judgment of the mixed row's staging confirmation. Select post-merge-menu for the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. These samples do not cover the rest of the target.
+
+Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
+
+Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and functionality-only coverage; retain detailed mapping under show evidence and in posted coverage.
 
 Render the single post menu after approve or merge, execute the validated selection once in step order, and settle with the not-run list. Pause only for a selected nested skill. The replay wrapper requests no post-pick menu re-render except inspection or invalid-input handling. Preserve cleanup guards and selected-only authority.
-
-## Coverage and authority
-
-Coverage is sample-scoped, not a target-wide pass. cleanup-after-approve runs against the final skill text, and all its current must-hold cells hold on both models. Its D7 expectation states that unselected release and close-ticket overrides remain unrun and appear in the menu and closing not-run list; selecting cleanup executes only its worktree, branch and base sub-steps.
-
-Preserved earlier-revision results: cleanup-closed-unmerged, cleanup-merged-at-step-1, cleanup-no-section, cleanup-null-issue, deferred-with-ref, deferred-without-ref, deviates, directional-dependency, elsewhere-settled, mixed-coverage, no-spec-quality, post-merge-menu and ticket-drifted. Their recorded skillSha identifies the revision that produced each result; they do not establish final-text coverage.
-
-The caller excludes the two base-existing unchanged-mechanics failures in gatekeep-pr without a spec amendment. This target keeps its saved results; none of its current must-hold cells requires another run.
-
-D8 baseline limitation: the frozen baseline uses the working-tree skillFiles list, with menus.md and without decision-menu.md. It does not establish the original 11-template flow. Judge candidate facts absolutely, not from improved or unchanged comparison direction. Mechanical preservation rests on the migrated deterministic assertions and selected candidate facts. No live PR or target-wide sweep runs.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| cleanup-after-approve | anthropic/claude-opus-5-5 | improved | 15742 | f1: holds -> holds (intended but unchanged); f2: fails -> holds (unplanned improvement); f3: holds -> holds (held) |
-| cleanup-after-approve | github-copilot/gpt-6.1-sol | improved | 15012 | f1: holds -> holds (intended but unchanged); f2: fails -> holds (unplanned improvement); f3: holds -> holds (held) |
+| cross-check-all-rows-moved | anthropic/claude-opus-5-5 | improved | 9662 | matched: fails -> holds (intended change); no-drift: fails -> holds (intended change); entries: holds -> holds (held); differs: fails -> holds (intended change); report-omits-entries: holds -> holds (intended but unchanged) |
+| cross-check-all-rows-moved | github-copilot/gpt-6.1-sol | improved | 9945 | matched: fails -> holds (intended change); no-drift: fails -> holds (intended change); entries: holds -> holds (held); differs: fails -> holds (intended change); report-omits-entries: fails -> holds (intended change) |
 
 ## Feedback
 
-- cleanup-after-approve / anthropic/claude-opus-5-5: After keeps every fact Before kept and moves f2 to holds: the post-approve menu's "Skipped, not numbered" block states that close ticket needs the merge commit and release needs a landed change, the closing not-run list repeats those reasons with the commands, and the cleanup execution prints only worktree/branch/base lines instead of folding close ticket and release into cleanup's result lines as Before did (Before's not-run list also merely named `gh issue close` and `/skill:release` without the prerequisite). Two wording risks to tighten: the post-approve menu says "Pick one, or several separated by commas" while the Change asks for a single validated selection executed once, so prefer "Pick one"; and the cleanup commands run with `git -C <scratch>` while the menu promised "from the primary checkout", so use the primary path consistently to preserve the cleanup guard story.
-- cleanup-after-approve / github-copilot/gpt-6.1-sol: After keeps every fact Before kept and repairs f2: Before listed close ticket and release as cleanup result lines ('close ticket: skipped - needs a landed change') and its closing 'Not run:' list merely named ticket closure and release without a reason, which reads as if those overrides were cleanup sub-steps that happened to be skipped. After moves the landed-change/merge-commit prerequisite into the menu text and into the closing not-run list, prints only worktree/branch/base/cleanup as result lines, quotes each override's configured command without invoking it, and still prints 'branch: skipped - PR not merged' with no git branch -D. The two-sentence opening uses behavior names rather than row numbers or AC labels while preserving the deferred reference and the post-merge speed observation. One wording nit that does not affect the facts: the menu says 'Pick one, or several separated by commas' while the handled reply is a single numeric selection; keeping 'Pick one' would match the single-selection execution model more precisely.
+- cross-check-all-rows-moved / anthropic/claude-opus-5-5: The After wording moved three facts by counting marked Integration entries toward ticket-row accounting: A's cross-check now reads `matched` instead of `differs on rows 1, 2`, no ticket row is reported as missing or drifted, and B narrows to `differs on row 2` once the rollout-date entry is absent from both spec sections. The `entries` fact held in both outputs, since neither gives an Integration entry a coverage outcome or raises a blocker. `report-omits-entries` also held in both, contrary to the expected fails -> holds: Before never named the staging-count or rollout-date entries or gave either a status, and its `differs on rows 1, 2` line is only ticket-row accounting, so this case does not demonstrate that part of the Change. To keep these results, keep the rule that a verbatim, marked Integration entry accounts for its ticket row without being judged, and keep the cross-check line limited to `matched` or the original ticket row numbers, with no entry text or status. Unrelated to the facts, After also added a 'PR to gate' header with `+? -?` placeholders and dropped the merge-state line from show evidence; confirm both are intended.
+- cross-check-all-rows-moved / github-copilot/gpt-6.1-sol: The After wording moved four facts in the intended direction and lost none. In A, show evidence now prints `cross-check: matched`, where Before printed `differs on rows 1, 2` because it treated the design-drafted acceptance rows as drift instead of counting the marked Integration entries as accounting for both ticket rows. In B, After reports `differs on row 2` only, where Before again reported rows 1 and 2. After also drops Before's `Staging verification: not run` and `Ticket comment: not posted` lines, which stated a status for each Integration entry, so the report, evidence and menus no longer name or status those entries. The `entries` fact held in both: neither output gives an Integration entry a coverage outcome or a blocker. To keep this, retain the wording that counts marked Integration entries toward ticket-row accounting without listing them, and keep verification lines limited to checks actually tied to acceptance rows. One small point: After's B answer is not labelled `B:` and directly follows A's re-rendered menu, so consider wording that keeps the separately requested line visibly distinct from the gate output.
 
 exit: 0

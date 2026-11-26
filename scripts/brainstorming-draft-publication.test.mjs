@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { sha256 } from '../eval/lib/checks.mjs';
 import { replayFactsSha } from './replay-facts.mjs';
 
@@ -19,14 +22,50 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
     'On clean `4`', '**Amend-grant:** none', '**Engine:** deferred',
     'commit --amend --no-edit -q', 'show HEAD:<spec path>',
     'shared predicate against `origin/$DEFAULT` before pushing',
-    'push -u origin <branch>', 'gh pr create --draft --head <branch> --base "$DEFAULT"',
-    '--body-file -', "<<'EOF'", 'no push, no amend',
+    'push -u origin <branch>',
+    'repeat the entire create block, no push, no amend',
     '4 - retry opening the draft PR [recommended]',
     'gauntlet: gate=brainstorm/user-review-gate recommended=4',
     'Context: unknown', 'no amend and no push',
     'Continue: start a fresh session, then run `/skill:gauntlet #<N>`.',
     'Start no plan or loop',
   ]) assert.ok(publish.includes(token), token);
+  const ship = read('skills/gauntlet/ship/ship.md').split('#### Option 1: Push and Create PR')[1].split('#### Option 2:')[0];
+  for (const recipe of [publish, ship]) {
+    assert.doesNotMatch(recipe, /<</);
+  }
+  const heading = 'Export `pwd` receipts';
+  const env = { PATH: process.env.PATH, SCRATCH: mkdtempSync(join(tmpdir(), 'draft body ')), HEADING: heading };
+  const mint = publish.match(/`([^`]*mktemp [^`]+)`/)[1];
+  const bodyFile = execFileSync('bash', ['-ec', mint], { env, encoding: 'utf8' }).trimEnd();
+  assert.equal(dirname(bodyFile), env.SCRATCH);
+  const body = 'Repeated exports return one receipt.\n\n## Integration\n\n~~~text\nEOF\nEnd of receipt\n~~~';
+  writeFileSync(bodyFile, body, { flag: 'r+' });
+  const blocks = [...publish.matchAll(/```bash\n([\s\S]*?)\n```/g)].map(match => match[1]);
+  const push = blocks.find(block => block.includes('push -u origin'));
+  const create = blocks.find(block => block.includes('gh pr create --draft'));
+  const run = (block, ghExit) => spawnSync('bash', ['-ec', `
+    git() {
+      case "$*" in
+        "-C $SCRATCH push -u origin topic") echo push ;;
+        "-C $SCRATCH show HEAD:export spec.md") printf '# %s\\n' "$HEADING" ;;
+        *) return 1 ;;
+      esac
+    }
+    gh() { printf '%s\\0' "$PWD" "$@"; return "$GH_EXIT"; }
+    ${block.replaceAll('<worktree>', '"$2"').replaceAll('<branch>', "'topic'").replaceAll('<spec path>', "'export spec.md'").replaceAll('<base>', "'release/next'").replaceAll('<scratch-file>', '"$1"')}`,
+    'publish', bodyFile, env.SCRATCH], { encoding: 'utf8', env: { ...env, GH_EXIT: String(ghExit) } });
+  const pushed = run(push, 0);
+  assert.equal(pushed.stdout, 'push\n');
+  assert.equal(pushed.status, 0, pushed.stderr);
+  for (const status of [1, 0]) {
+    const result = run(create, status);
+    assert.equal(result.status, status, result.stderr);
+    const argv = result.stdout.split('\0').slice(0, -1);
+    assert.deepEqual(argv, [env.SCRATCH, 'pr', 'create', '--draft', '--head', 'topic', '--base', 'release/next', '--title', heading, '--body-file', bodyFile]);
+    assert.equal(readFileSync(argv.at(-1), 'utf8'), body);
+  }
+  assert.match(ship, /```markdown\n## Summary[^`]*## Test Plan[^`]*<[^>]*Integration[^>]*>\s+<[^>]*disposition appendix[^>]*>\n```/);
   assert.doesNotMatch(publish, /(?:option|row|Retry|clean|hidden|retryable)\s+`?6\b/);
   assert.ok(publish.indexOf('show HEAD:<spec path>') < publish.indexOf('push -u origin'));
 });

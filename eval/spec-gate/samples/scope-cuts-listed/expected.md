@@ -1,3 +1,5 @@
 - f1: mechanical: contains "Scope cuts:"
-- f2: judged: The Scope cuts line names the deferred row and the venue row and no in-scope or elsewhere row.
+- f2: judged: Scope cuts names only the deferred automatic-refunds row and the deviating browser-export row with their dispositions, not a venue or Integration entry.
 - f3: judged: The Scope cuts line sits between the committed-to line and the Council line.
+- moved: judged: Directly below Scope cuts, one `Not acceptance criteria:` line lists each of the four marked rows once with its marker kind: operator cutover - person step, vendor confirmation - merge or deploy condition, empty staging queue - environment state, and deployed login - live check. The unmarked receipt comparison is absent from that line.
+- no-question: judged: Moving the four rows prompts no question about their placement or scope. The normal approval menu and the user's choice of plan engine proceed.

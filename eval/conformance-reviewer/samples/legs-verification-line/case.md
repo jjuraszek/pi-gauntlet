@@ -1,3 +1,5 @@
+bundle+: skills/shape-ticket/reference/ac-classes.md
+
 Audit this change against the complete spec and verbatim prompt below. No pull request exists. No CI or full-suite result is supplied. No tools are available. The diff and numbered current files are the complete delivered evidence.
 
 ## Verbatim original prompt

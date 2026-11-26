@@ -1,0 +1,34 @@
+{
+  "sample": "mixed-migration-row",
+  "arm": "baseline",
+  "skillSha": "2c7c710108aa05032fce7f9dfb378485df1ecd7ff1f251ffc085056c276d6277",
+  "inputSha": "f1765127a6f161141912a5bd11b440b67c98e5e8fb1db3875e07994e1f9883a3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Simulated loop-implementer replay: row 2, starting at step 5\n\nThe live run is an external obligation, not file-delivered functionality, so neither snapshot touches the database. Row 2 closes as `done` on the local check in both.\n\n## Snapshot A: release credential and live database available\n\n**Trace**\n\n1. **State carried in.** Steps 1–4 are already done. The script is present in the checkout, and the worker has just run the Design check, bounded:\n   ```\n   timeout -k 30 600 node --test test/migrate.test.mjs\n   ```\n   It exited 0 with 2 tests passed and 0 failed. The test file is named explicitly, so a missing file exits nonzero and the command cannot pass without selecting a test.\n\n2. **What the row's functionality covers.** The row asks for two things:\n   - **Deliver the account migration script.** This is file-delivered functionality, and the local schema check proves it.\n   - **Run it against the live accounts database.** This is an external observation or obligation the row names. Under step 4 it is not part of the row's functionality.\n\n   The local check needs no live result or data.\n\n3. **Action-authorization check.** The row names the live run, so the approved spec authorizes it for the flow. That authorization only applies \"on every attempt that needs it.\" This attempt does not need it, because the passing local check is the row's proof. A live run would also be a paid or external action, which could never be the evidence's first segment anyway.\n\n4. **Database action: none.** I do not run `node migrate.mjs --live`. Having the credential is not a reason to spend a live action the row's check does not need. The live run belongs to the release runbook, outside this row's closure.\n\n5. **Edit to the row 2 mutable cells:**\n\n   | status | attempts | evidence |\n   |---|---|---|\n   | done | 1 | timeout -k 30 600 node --test test/migrate.test.mjs; 2 passed; 0 failed |\n\n   The cells went from `open | 0 | ...` to `done | 1 | ...`.\n\n6. **Decision line** appended to `## Decisions`. Per the instructions, the trace stops here with no commit.\n\n**Final reply:**\nrow 2 done | Confirmed the delivered migrate.mjs passes the local account-schema check; the live run stays an external obligation outside this row. | Reuse migrate.mjs and test/migrate.test.mjs (local schema copy) as the fixture; run node --test test/migrate.test.mjs for later migration rows.\n\n## Snapshot B: release credential absent\n\n**Trace**\n\n1. **State carried in** is identical to snapshot A. I ran `timeout -k 30 600 node --test test/migrate.test.mjs`, which exited 0 with 2 passed and 0 failed.\n\n2. **Same reading as snapshot A.** The live run is an external obligation, not file-delivered functionality, and the local check needs no live data.\n\n3. **Action-authorization check.** The missing credential would only matter if this attempt needed the live action. It does not. The `unreachable: ... - ...` failure path therefore does not apply. Marking the row `failed` would wrongly fail a row whose deliverable is proven.\n\n4. **Database action: none.** I do not attempt the live command and do not ask for the credential.\n\n5. **Edit to the row 2 mutable cells:**\n\n   | status | attempts | evidence |\n   |---|---|---|\n   | done | 1 | timeout -k 30 600 node --test test/migrate.test.mjs; 2 passed; 0 failed |\n\n6. **Decision line** appended. The trace stops here with no commit.\n\n**Final reply:**\nrow 2 done | Confirmed the delivered migrate.mjs passes the local account-schema check; the live run stays an external obligation outside this row. | Reuse migrate.mjs and test/migrate.test.mjs (local schema copy) as the fixture; run node --test test/migrate.test.mjs for later migration rows.\n",
+      "words": 561,
+      "wallMs": 16511,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Snapshot A — credential and live database available\n\n1. Supplied observation: `node --test test/migrate.test.mjs` passed with two tests and no failures.\n2. Run the same selective check with the required timeout wrapper for recorded evidence:\n   ```sh\n   timeout -k 30 60 node --test test/migrate.test.mjs\n   ```\n   Result: exit 0, two tests passed, no failures.\n3. Database action: none. The local check proves the file-delivered functionality without a live run. The named live action is authorized, but this attempt does not need it; the external execution obligation is not part of the file-delivered functionality.\n4. Update row 2:\n   - `status`: `done`\n   - `attempts`: `1`\n   - `evidence`: `timeout -k 30 60 node --test test/migrate.test.mjs; 2 passed; 0 failed`\n5. Append the decision below to `## Decisions`. Stop without committing.\n\nFinal reply:\nrow 2 done | Validated the delivered migration script against the local account schema with two passing tests. | Reuse migrate.mjs and test/migrate.test.mjs for migration work and local schema checks.\n\n## Snapshot B — release credential absent\n\n1. Supplied observation: `node --test test/migrate.test.mjs` passed with two tests and no failures.\n2. Run the same selective check with the required timeout wrapper for recorded evidence:\n   ```sh\n   timeout -k 30 60 node --test test/migrate.test.mjs\n   ```\n   Result: exit 0, two tests passed, no failures.\n3. Database action: none. The missing release credential does not block this local check or the file-delivered functionality. No live action is needed, so the missing-prerequisite failure rule is not triggered.\n4. Update row 2:\n   - `status`: `done`\n   - `attempts`: `1`\n   - `evidence`: `timeout -k 30 60 node --test test/migrate.test.mjs; 2 passed; 0 failed`\n5. Append the decision below to `## Decisions`. Stop without committing.\n\nFinal reply:\nrow 2 done | Validated the delivered migration script against the local account schema with two passing tests. | Reuse migrate.mjs and test/migrate.test.mjs for migration work and local schema checks.\n",
+      "words": 288,
+      "wallMs": 20803,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "c0bcff96fcbfb8aa1ff03f2290178d381da7cb7b"
+}

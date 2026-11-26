@@ -40,8 +40,19 @@ Anything else (not found, inconclusive, timed out, contradicted) -> create `## O
 
 Inline an `external-ref:` cluster only from the human-input block or fetched external context carrying the reference. Otherwise defer it with `-> user supplies at gate`.
 
-Drafted rows are spec requirements, not Human input; permit pre-approval rewrites only for integrity (wishful, tautological, unspecified-but-binding, external-input, or post-deployment proof). Preserve the committed outcome and use only Design-sourced proof; leave missing values for clarification. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows.
+Treat drafted rows as spec requirements, not Human input; permit pre-approval rewrites only for integrity (wishful, tautological, unspecified-but-binding, or external-input dependency). Preserve the committed outcome and use only Design-sourced proof; leave missing values for clarification. Delete a drafted row only after its Design commitment is cut through the user's scope-decision procedure; quoting the row alone never permits deletion, and never replace the section with `none`. Never draft new rows.
 
 Subject to the drafted-row protection above, execute an applied `over-spec:` cluster by deleting or shrinking the quoted clause and every acceptance-criteria or testing-approach line that exists only for it. Keep the human-input block off-limits for over-spec. End its audit line with `-> cut (was adds: M files / N tests / K ACs)` or `-> shrunk to <replacement> (was adds: ...)`.
 
-When a cluster asks for an operator instruction to be carried in the pull-request description, write the instruction itself into the section the cluster targets as an operator step: who does what, and when, keeping the actor and timing the cluster gives. An operator step is a step a person performs that no file delivers, whatever its timing; never turn one into an obligation of the implementation. Never write an acceptance row or a Design clause whose sole observable is commit message text or a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run, unless that observable is itself a behavior of the change (a workflow file, a pull-request template, code that writes pull-request text).
+## Acceptance criteria and Integration
+
+Read the file at `AC definition:` in the task. Put an entry a cluster asks for under `## Integration` in its source's words, not under Acceptance criteria or Design. A ticket entry already there is not a missing acceptance criterion. Never grade or run an entry.
+
+Before approval, correct a placement the chair flags from the `Human input` snapshot, without a question:
+
+| Flagged placement | Edit |
+|---|---|
+| A pure entry under `## Acceptance criteria` | Move it verbatim to `## Integration` as a plain list item. For a ticket row, indent `ticket row, not an acceptance criterion: <kind>` directly beneath it. |
+| A file-checkable ticket row only under `## Integration` | Move it verbatim to `## Acceptance criteria` as a checkbox. Give it `in-scope` for this repo or a member repo, `elsewhere: <repo>` for a known nonmember group. Remove the old entry and its marker. |
+
+When a correction adds or removes an acceptance row, rewrite every `scope:` line in the same edit so each leg keeps the same surviving rows at their new positions (the `## Legs` scope grammar). Drop removed rows from every list, use `scope: none` for empty lists, and leave returned rows unlisted.

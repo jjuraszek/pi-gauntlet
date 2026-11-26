@@ -1,23 +1,25 @@
 # eval report: gauntlet (partial run: handoff-follows-pointer)
 
-for: eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97
+for: 78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3
 
 wall: 6s
 
 ## Change
 
-An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout. For handoff-follows-pointer, the completion reply supplies the next file. A read-only replay resumes with that tool result in history. Only the file provides the receipt; a narrated read cannot pass.
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 5486 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
-| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 2966 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 5080 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 5183 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- handoff-follows-pointer / anthropic/claude-opus-5-5: Before and After are the identical single line `PINE-GLASS-7Q3M`, so nothing in the After wording moved the one fact under judgment: neither output asks the person for input or confirmation, and `question` holds in both. Each output consists only of that receipt-style token, with no question, menu or request to confirm, so the After wording continues the approved run without a prompt just as Before did. To keep it that way while still delivering the Change, keep the hand-off instruction phrased as a direct continuation (read the file named by the completion reply, then proceed) and avoid adding any wording that invites a consent check at this point, since consent was already given for the approved run.
-- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Both outputs are the identical single token "PINE-GLASS-7Q3M" with no question or request for confirmation, so the fact holds in Before and After alike; nothing in the After wording moved it. To keep this fact while delivering the Change, keep the hand-off continuation free of any prompt to the person: the reply should proceed directly from the tracker result (reading the file named by the completion reply) without asking for input or confirmation.
+- handoff-follows-pointer / anthropic/claude-opus-5-5: Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the one fact holds in both and the After wording moved nothing. The output contains no authored spec sections (no acceptance rows, Integration entries, or sorting of ticket rows), so this sample shows nothing about whether the Change is delivered. To keep this fact while delivering the Change, the wording should keep the instruction to continue from the tracker result without an ownership or confirmation question, and the case should be checked for whether it actually exercises the ticket-row sorting path rather than returning a bare token.
+- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Before and After are the identical single token `PINE-GLASS-7Q3M`, which contains no question and no request for input or confirmation, so the fact holds in both and nothing in the After wording moved it. Because the outputs are the same, this sample shows no observable effect of the Change at all: neither output contains authored spec sections, sorted ticket rows, or Integration entries, so the workflow-stage-ticket-row behaviors cannot be judged from this text. To keep this fact while delivering the Change, keep the wording that sorts moved rows into Integration without an ownership question or stop when all local hand-off requirements are complete, and check that the case actually triggers the spec-writer sorting path rather than returning only a receipt-like token.
 
 exit: 0

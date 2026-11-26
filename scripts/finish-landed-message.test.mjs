@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 
@@ -56,8 +56,7 @@ function environment(cwd) {
     ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null',
     GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid',
     GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid',
-    PRIMARY: cwd, WORKTREE: cwd, LANDED_SUBJECT: subject,
-    ARGS: join(cwd, 'pr arguments'),
+    PRIMARY: cwd,
   };
 }
 
@@ -88,11 +87,11 @@ test('finish delegates squash and PR wording to the shared contract without rewr
   assert.match(wording, /spec header's `\*\*Ticket:\*\*` line/);
   assert.match(wording, /place and form named by the overrides `# shared` `## issue-tracker` `refs:` line/);
   assert.match(pr, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\) for the Landed message subject and resolve its ticket rule/);
-  assert.match(pr, /Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style/);
+  assert.match(pr, /Use that subject for the PR title; keep the PR body's project style/);
   assert.match(pr, /Keep this disposition appendix out of Option 3's landed message/);
   assert.match(squash, /Read \[commit-message\.md\]\(\.\.\/commit-message\.md\) and compose its Landed message from the spec's Goal and in-scope acceptance rows, applying its ticket rule/);
   assert.match(squash, /Compose it before stripping the plan; insert the composed message verbatim into the quoted heredoc below/);
-  assert.match(skill, /Option 1's push and `gh pr create` commands with `--draft` added\. The PR body is unchanged/);
+  assert.match(skill, /Follow Option 1, adding `--draft` only to `gh pr create`\. The PR body is unchanged/);
 });
 
 test('saved landed-message examples retain all six outcomes and only the bound body ticket', async t => {
@@ -121,15 +120,26 @@ test('the isolated commit command preserves each message through a quoted stdin 
 });
 
 test('the isolated PR command passes the same subject and keeps the project body for normal and draft PRs', async t => {
-  const command = pr.match(/```bash\n# Create PR\n([\s\S]*?)\n```/)?.[1];
+  const command = pr.match(/`(\(cd [^`]*gh pr create [^`]+\))`/)?.[1];
   assert.ok(command, 'select only gh pr create, without push, strip, seal or cleanup');
-  const body = '## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>';
+  const template = pr.match(/```markdown\n(## Summary[\s\S]*?)\n```/)[1];
+  const integration = '## Integration\n\n~~~text\nEOF\nEnd of receipt\n~~~';
+  const body = template.replace("<spec's Integration block when present>", integration).replace('\n\n<disposition appendix when applicable>', '');
+  assert.equal(body, `## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>\n\n${integration}`);
   for (const draft of [false, true]) await t.test(draft ? 'draft' : 'normal', () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'finish-title-'));
-    const env = environment(cwd);
-    const selected = draft ? command.replace('gh pr create', 'gh pr create --draft') : command;
-    run(cwd, env, 'bash', ['-c', `gh() { printf '%s\\0' "$@" > "$ARGS"; }\n${selected}`]);
-    const args = readFileSync(env.ARGS, 'utf8').split('\0').slice(0, -1);
-    assert.deepEqual(args, ['pr', 'create', ...(draft ? ['--draft'] : []), '--title', subject, '--body', body]);
+    const cwd = mkdtempSync(join(tmpdir(), 'finish title '));
+    const env = { PATH: process.env.PATH };
+    const title = 'Report `id` and $(printf missing) literally';
+    const mint = pr.match(/`([^`]*mktemp [^`]+)`/)[1];
+    const bodyFile = run(cwd, { ...env, SCRATCH: cwd }, 'bash', ['-ec', mint]).trimEnd();
+    assert.equal(dirname(bodyFile), cwd);
+    writeFileSync(bodyFile, body, { flag: 'r+' });
+    writeFileSync(`${bodyFile}.title`, title);
+    const create = command.replaceAll('<scratch-file>', '"$1"').replace('<worktree>', '"$2"');
+    const selected = draft ? create.replace('gh pr create', 'gh pr create --draft') : create;
+    const output = run(dirname(cwd), env, 'bash', ['-c', `gh() { printf '%s\\0' "$PWD" "$@"; }\n${selected}`, 'create', bodyFile, cwd]);
+    const args = output.split('\0').slice(0, -1);
+    assert.deepEqual(args, [cwd, 'pr', 'create', ...(draft ? ['--draft'] : []), '--title', title, '--body-file', bodyFile]);
+    assert.equal(readFileSync(args.at(-1), 'utf8'), body);
   });
 });

@@ -1,0 +1,90 @@
+{
+  "sample": "pr-rework-integration-not-claims",
+  "arm": "candidate",
+  "skillSha": "a9fda4234af0bc64b40e2cfb9d9eb303a816b2aee2a5df5b086db9f25cfeea69",
+  "inputSha": "997117aeb78faef398842a6f8fb613b457259fc4758b56efc920e638bddce9ff",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\nkeeps: The PR's stated intent of at most three attempts per request survives; it matches the base rule requiring a limit of three attempts. The single-path change to the loop bound in `src/retry.ts` also survives as the place to enforce that limit.\nchanges: The bound in `src/retry.ts` changes from `attempt < 4` to `attempt < 3`. The current diff does not meet the stated claim or the base rule. `attempt` starts at zero and each iteration makes one request, so `attempt < 4` runs iterations 0 through 3, which is four attempts. `attempt < 3` gives exactly three. This is a one-token repair, not a rewrite. The base sync was a no-op with no contract exceptions, and no scoped tests were run.\ndropped claims: none\nunresolved threads: none\n\nconstraints added since fork: none\n",
+      "words": 136,
+      "wallMs": 7413,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps: The existing bounded retry loop in `src/retry.ts`, making one request per iteration.\n\nchanges: Change `attempt < 4` to `attempt < 3`. Since `attempt` starts at zero, the synchronized diff permits four attempts; this minimal repair meets the base rule requiring three.\n\ndropped claims: “The retry loop now makes at most three attempts per request.” The synchronized diff does not yet satisfy this claim.\n\nunresolved threads: none\n\nconstraints added since fork: none\n",
+      "words": 77,
+      "wallMs": 7445,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "fc1813026174aa0216f055c9a5ce4ec6dcd85ff6afe4fa35a2c66f042df4214c",
+      "candidateOutputSha": "e513b0ebeeb80289b20d7dee9e6ca69e89f22ab0f7ceebb41f48851e4d875c33",
+      "facts": {
+        "contradicted-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provenance-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The provenance-only instruction moved the intended fact: Before listed the operator-card step and its nested shift-log line under keeps and judged them against the diff (\"the diff cannot verify them\", \"the limit written on the operator card must be three\"), while After leaves both lines out of keeps, changes, and dropped claims and raises no question about them. The contradicted-claim fact survives in After, but more weakly: After says the diff \"does not meet the stated claim or the base rule\" and shows that `attempt < 4` yields four attempts, whereas Before explicitly said this \"contradicts the PR's stated limit\" and called the claim false against the diff. To keep that fact robust, add wording that the provenance-only rule covers only the `## Integration` block and that every other PR-body claim must still be checked against the diff and, when the diff disagrees, be named explicitly as contradicted with the observed versus claimed value. Also note that After omits the Integration block entirely; if the scout is meant to carry it forward as provenance, say where it should appear verbatim (outside the claim dispositions, nested lines intact) so that omission is not read as dropping it.",
+      "wallMs": 5467,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "0d9d08aef9aac2d5ace7695fbb9283ef90d3710be6bd875916632e5a35c8fa72",
+      "candidateOutputSha": "75c42a1c5091793b6f8059f463df3208f339a615d1551e051cfa072c754ee162",
+      "facts": {
+        "contradicted-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "provenance-only": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The provenance-only wording moved the intended fact: Before rendered the operator-card update and its nested shift-log step under keeps and judged them against the diff (\"Neither operational action is implemented by the supplied diff\"), while After leaves the Integration block out of keeps, changes, and dropped claims entirely and asks nothing about it. The contradicted-claim fact still holds in After because the changes line says the diff permits four attempts and the dropped-claims line says the diff does not satisfy the three-attempt claim, but the contradiction is now split across two lines; Before stated it directly in the dropped claim (\"The supplied diff permits four attempts\"). To keep that fact robust, have the wording require the dropped-claim entry itself to state the observed count against the claimed one. After also dropped the base-sync, scoped-tests and carried-specs lines that Before reported; no fact here keys on them, but if the scout output is meant to carry them, say that treating Integration as provenance only removes nothing else from the record. Consider stating whether the scout should carry the Integration block forward verbatim as provenance, since After omits it silently rather than noting it as carried.",
+      "wallMs": 5504,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
+}

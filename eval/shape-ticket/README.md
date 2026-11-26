@@ -1,6 +1,6 @@
 # shape-ticket eval
 
-Tests the draft, parent obsolete verdict, gated close/drop choices, single recommended menu row, AC integrity gate, and Evidence gate render: Problem examples carry source footers, source gaps appear at the gate, multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming a verification venue.
+Tests the draft, parent obsolete verdict, gated close/drop choices, single recommended menu row, AC integrity gate, and Evidence gate render: Problem examples carry source footers, source gaps appear at the gate, multi-repo tickets attribute AC rows to repo groups, and repaired rows retain their measurements without naming the environment where they were observed.
 
 | Skill file | Slice |
 |---|---|
@@ -16,6 +16,8 @@ Use audit baseline A (`5b97a46a7b0ef331e72077362e92eff4a59e1b77`) for batch/audi
 
 | Sample | Coverage |
 |---|---|
+| venue-stripped | Repair a latency limit: remove the measurement environment, keep the baseline and target, and quote the original row in the Reporter note |
+| integration-sort | Sort a repaired ticket's criteria and external clauses, retain the `production` input literal, grouped scenarios and constraint wording, and carry existing housekeeping entries to Integration |
 | workflow-stage-proof-create | Create-mode step-4 checkpoint: exclude the audit reference and check the draft and Reporter note for a CI-only criterion |
 | batch-repair | Distinct-ref order, local hard stops, scoped context, uniqueness, one-at-a-time gates and terminal statuses |
 | audit-repo-fit | Cited attributed sketches, AC-only mechanisms and verbatim displaced detail |

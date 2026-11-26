@@ -1,0 +1,34 @@
+{
+  "sample": "pr-body-integration",
+  "arm": "baseline",
+  "skillSha": "0e5cfbf221b4c6abce575807aa0319ff31629710cf629ba630ae87e97f59c014",
+  "inputSha": "68809f52d7abd480783fb3366d54e3986a84a0c3c86e12ae53f15b92a9639509",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**A. Step 4 menu**\n\n```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**A. New PR body for option 1**\n\nThe file writer writes this body to `/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3`. Option 1's body template contains only Summary and Test Plan, plus a disposition appendix when one applies, and there is none here. The spec's `## Integration` section is not part of that template.\n\n```markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n```\n\n**B. Resulting body for the existing draft PR**\n\nFor a header-linked PR, the skill keeps the home PR body byte-for-byte and adds no Rework block. The amended spec does not rewrite the body.\n\n```markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- Ask the old vendor for a screenshot.\n\n## Notes\n\nFollow up with the catalog team.\n```\n\n**A. Create command**\n\n```bash\ncd '/work/import queue' && gh pr create --title 'Report a missing `id` in $(import)' --body-file '/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3'\n```\n\nThe body was supplied with `--body-file`, pointing at the literal absolute path of the minted scratch file. The separate file-writer call had already written that file. Single quotes keep the shell from running the backticks and `$(import)` in the title.\n",
+      "words": 238,
+      "wallMs": 12814,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**A. New PR body**\n\n```markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n```\n\n**B. Existing draft PR body — unchanged**\n\n```markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- Ask the old vendor for a screenshot.\n\n## Notes\n\nFollow up with the catalog team.\n```\n\n```bash\n(cd '/work/import queue' && gh pr create --title 'Report a missing `id` in $(import)' --body-file '/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3')\n```\n\nThe new PR body was supplied through the absolute `--body-file` path minted and written in the separate earlier call; the existing draft’s body is preserved byte-for-byte.\n",
+      "words": 146,
+      "wallMs": 12873,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "3780cd7082a4ac2a0932651b458a5233ea755dc2"
+}

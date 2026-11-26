@@ -1,6 +1,6 @@
 # gatekeep-pr scope-contract eval
 
-Test the step 5-7 report, numbered menu, and handling of one pick against fourteen frozen digests covering spec deferrals, deviations, ticket drift, review blockers, post-merge behavior, and settled elsewhere attribution. The directional-dependency sample also loads `skills/check-delivery/SKILL.md` through its leading `bundle+:` line.
+Test the step 5-7 report, numbered menu, and handling of one pick against frozen digests covering spec deferrals, deviations, ticket drift, review blockers, post-merge behavior, and settled elsewhere attribution. The directional-dependency sample also loads `skills/check-delivery/SKILL.md` through its leading `bundle+:` line.
 
 | Skill file | Slice |
 |---|---|
@@ -18,6 +18,7 @@ Test the step 5-7 report, numbered menu, and handling of one pick against fourte
 
 | Sample | Must hold |
 |---|---|
+| integration-not-judged | Show only real ticket drift, the file-delivered coverage and the missing line number; give Integration entries no outcome or claim disposition. |
 | elsewhere-settled | The Delivers line records rows 3 and 5 as elsewhere per spec, the gate lists zero blockers, and the menu offers merge. |
 | cleanup-null-issue | The output prints close ticket: skipped - no issue resolved and runs no gh issue close. |
 | cleanup-after-approve | After the approve succeeds the menu offers cleanup as row 1 recommended. |

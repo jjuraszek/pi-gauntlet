@@ -1,8 +1,8 @@
 {
   "sample": "post-action-sorted",
   "arm": "candidate",
-  "skillSha": "eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97",
-  "inputSha": "6df0aa6081885d8731a461fd1582526f987273d4c1ec59d10f61cd5411ca9143",
+  "skillSha": "78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3",
+  "inputSha": "c9b96deb1e73122c1a8c932d6a6b75ca40bb11c8db7830b979cd2dd97d391ff3",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,36 +17,40 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "1. **Readiness check (no reads).** The ticket-acceptance reference, the gather draft, and the Spec Self-Review instructions from `skills/gauntlet/brainstorm/spec-finalization.md` are already in context from earlier reads. No required reference is unreadable, so nothing blocks this step.\n\n2. **Branch on the gathered result.** The result is \"Ticket rows extracted.\" I keep the `Ticket ABC-204, Acceptance Criteria, rows verbatim:` header. I copy both rows character-for-character from the verbatim block, with their dispositions. I append no drafted or Design-derived rows.\n\n3. **Screen for a workflow-stage proof.**\n   - Row 2 names pull-request body text. However, the release script's generated body is itself the behavior under change, so this row is not a stage proof.\n   - Row 1 is an observable change to the source tree.\n   - No cut-question trigger fires, so no question is required before writing. Both rows stay `in-scope`.\n\n4. **Sort each design commitment as a change or an operator step.**\n   - **Parser test removal and preserved entry point/error format:** a change. It goes in Design and Tests.\n   - **Release script writing the changelog section into the PR body:** a change, because code produces that text. It goes in Design and Tests.\n   - **Admin creating `DEPLOY_TOKEN` after merge:** an operator step that happens after merge. It goes in the `**Post-deployment housekeeping.**` paragraph inside Design, with its actor and timing. It gets no acceptance row, no Tests line, and no Design imperative.\n   - **Recording the scan time in the PR body:** a delivery note, not a behavior of any file. The rules forbid writing a sentence that makes pull-request body text an obligation, so I leave it out of the spec. It is not a ticket row or a drafted outcome, so no scope cut is involved.\n\n5. **Render the sections** (as I would write them, not a claimed file write):\n\n```markdown\n## Acceptance criteria\n\nTicket ABC-204, Acceptance Criteria, rows verbatim:\n\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n  in-scope\n- [ ] The release script writes the changelog section into the pull request body\n  in-scope\n\n## Design\n\nRemove: the obsolete tests of the retired parser. The retired parser's test directory is empty afterward.\n\nKeep the public parser entry point and its error format unchanged.\n\nThe release script writes the changelog section into the pull request body it generates. A fixture changelog and the captured generated body let a local test compare that section verbatim.\n\n**Post-deployment housekeeping.** After merge, a repository admin creates the `DEPLOY_TOKEN` secret. The admin owns this manual step, because no source file can create the secret.\n\n## Tests\n\n- The retired parser's test directory is empty after the obsolete tests are removed - retired parser test directory inspection\n- The release script's generated pull request body contains the changelog section verbatim - release script body vs. changelog fixture comparison\n- The public parser entry point and error format are unchanged - none: the chosen tests cover only the two acceptance rows, and this design changes neither surface\n```\n\n6. **Next stage.** Proceed to checklist step 8 (spec self-review lint) using the instructions already in context. I make no claim that the file was written or that any test was run.\n",
-      "words": 505,
-      "wallMs": 20014,
-      "mechanical": {}
+      "text": "1. **Confirm the required reads.** The session already holds the instructions for spec-writing and Spec Self-Review from `skills/gauntlet/brainstorm/spec-finalization.md`, read successfully earlier. The Ticket Handling reference (`brainstorm/ticket-acceptance.md`) and the gather draft are also in context. No read is outstanding or unreadable, so nothing blocks this step and no reference is re-read.\n\n2. **Choose the gathered-result branch.** Ticket ABC-204 was fetched and its rows were extracted, so the \"ticket criteria remain after sorting\" branch applies:\n   * Keep the `Ticket <ref>, <heading>, rows verbatim:` header.\n   * Copy each row character-for-character from the verbatim block.\n   * Give each row a disposition.\n   * Append no design-derived rows to this section.\n\n3. **Sort the rows (sorting was already applied at extraction, so no question is asked).**\n   * **Row 1** is a criterion. The retired test directory is empty in the files at the delivered commit, and a check of the directory shows it.\n   * **Row 2** is a criterion. It is a functionality that produces pull-request text, and the release script delivers it. A local fixture comparison shows it, so sorting rule 1 keeps it whole.\n   * Neither row moves to Integration, and neither row is mixed.\n   * The ticket has no repo groups, so both rows belong to this repo and are `in-scope`.\n\n4. **Sort the design commitments into Integration entries.**\n   * The pause/drain/resume commands are design detail for the ticket's existing drain entry. They are indented under it, not written as a Design imperative.\n   * The `DEPLOY_TOKEN` creation is a person step after merge, so it becomes an Integration entry. Its secret-store detail is indented under it.\n   * The scan time in the PR body is pull-request text that no file produces (pipeline result), so it becomes an Integration entry.\n   * Source entries come first, then design entries, in design order.\n\n5. **Check whether a question is needed: none.**\n   * No row is cut or ambiguous.\n   * No external yardstick or value is missing.\n   * No drafted-row integrity class applies, because these are ticket rows.\n   * No cut-question trigger fired.\n   * Spec-writing proceeds without a stop.\n\n6. **Render the sections.** `## Integration` sits directly before `## Errors and edge cases`. The rendered text is below; no file write is claimed.\n\n```markdown\n## Acceptance criteria\n\nTicket ABC-204, Acceptance Criteria, rows verbatim:\n\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n  in-scope\n- [ ] The release script writes the changelog section into the pull request body\n  in-scope\n\n## Design\n\n- Remove: the obsolete tests of the retired parser, leaving the retired parser's test directory empty.\n- Keep the public parser entry point and its error format unchanged.\n- Change: the release script writes the changelog section into the pull request body it generates.\n- Add: a fixture changelog and a test that captures the release script's generated body and compares its changelog section verbatim against the fixture.\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  Run `queue pause` before `queue drain`.\n  To back out, run `queue resume`.\n- After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\n  Use the staging repository's secret store.\n- Record the scan time in the PR body; this is a delivery note, not output of the release script or any other file-producing behavior.\n\n## Tests\n\n- The retired parser's test directory contains no files - the test that inspects the retired test directory\n- The release script's generated pull request body carries the changelog section verbatim - the test comparing the generated body against the changelog fixture\n- The public parser entry point and error format stay unchanged - none: the approved design selected no test for this retained contract; the spec states it as unchanged and adds no check\n```\n\n7. **Next stage.** Spec-writing continues through its remaining steps, then goes to checklist step 8 (self-review lint). No tests have been run and no commit is claimed.\n",
+      "words": 612,
+      "wallMs": 26939,
+      "mechanical": {
+        "entry": "holds"
+      }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "1. **Resume spec-writing; no prerequisite read remains.** The fixed observations say the required Spec Self-Review read succeeded earlier and the ticket-acceptance reference and draft are already in context. No new read or blocking stop is required, and no question is outstanding.\n\n2. **Separate deliverable changes from operator actions.** Preserve both ticket rows verbatim and in scope. The release-script row describes behavior under change, not merely workflow-stage proof. Put secret creation in post-deployment housekeeping with the supplied actor and timing. Exclude “Record the scan time in the PR body” as a spec obligation: it is a delivery note, not file-produced behavior.\n\n3. **Prepare the following sections without claiming file writes or test execution.**\n\n   ## Acceptance criteria\n\n   Ticket ABC-204, Acceptance Criteria, rows verbatim:\n\n   - [ ] The retired parser's test directory is empty after its obsolete tests are removed\n     in-scope\n   - [ ] The release script writes the changelog section into the pull request body\n     in-scope\n\n   ## Design\n\n   - Remove the obsolete parser tests so the retired parser's test directory is empty afterward.\n   - Keep the public parser entry point and error format unchanged.\n   - Make the release script write the changelog section into the pull request body.\n   - Use a fixture changelog and a captured generated body for a local test that compares the changelog section verbatim.\n\n   **Post-deployment housekeeping.** After merge, a repository admin creates the `DEPLOY_TOKEN` secret. The admin owns this manual action; no source file can create the secret.\n\n   ## Tests\n\n   - The retired parser's test directory is empty after removal of its obsolete tests - retired test-directory inspection.\n   - The release script's generated pull request body contains the fixture changelog section verbatim - local changelog-to-generated-body comparison.\n   - The public parser entry point remains unchanged - public parser entry-point compatibility test.\n   - The public parser error format remains unchanged - public parser error-format compatibility test.\n",
-      "words": 285,
-      "wallMs": 19678,
-      "mechanical": {}
+      "text": "1. **Read prerequisites — already satisfied.** The fixed observations say the required Spec Self-Review read succeeded earlier and its instructions, the ticket-acceptance reference, and the draft are already in session context. No prerequisite read is outstanding. This narration makes no live read call.\n\n2. **Sort the requirements before writing.** Both ticket rows describe functionality or constraints delivered by the files, so both remain verbatim acceptance criteria with `in-scope` dispositions. The queue-drain step, post-merge secret creation, and scan-time delivery note belong in Integration. Moving those obligations is not a scope cut.\n\n   **No question is required before writing:** the approved design supplies the operator instructions and secret-store choice, and no external yardstick or binding value is missing.\n\n3. **Spec-writing stage — proposed Acceptance criteria and Design text.** No file write is claimed.\n\n```markdown\n## Acceptance criteria\n\nTicket ABC-204, Acceptance Criteria, rows verbatim:\n\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n  in-scope\n- [ ] The release script writes the changelog section into the pull request body\n  in-scope\n\n## Design\n\n- Remove: the obsolete tests from the retired parser's test directory, leaving that directory empty.\n- Preserve the public parser entry point and error format unchanged.\n- Make the release script write the changelog section into the pull request body.\n- Add: a local check that inspects the retired parser's test directory and verifies that it is empty.\n- Add: a fixture changelog, a captured generated pull request body, and a local test comparing the changelog section in that body verbatim against the fixture.\n- Add: regression coverage verifying that the public parser entry point and error format remain unchanged.\n- The scan-time note is a delivery obligation, not an additional output requirement for the release script or another file-producing behavior.\n```\n\n4. **Integration-writing stage — retain the source obligation and attach its approved operational details.** The other two approved delivery obligations follow it; none becomes an acceptance row or Tests line.\n\n```markdown\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Run `queue pause` before `queue drain`.\n  - To back out, run `queue resume`.\n- After merge, a repository admin creates the `DEPLOY_TOKEN` secret.\n  - Use the staging repository's secret store.\n- Record the scan time in the PR body.\n  - This is a delivery note, not output of the release script or any other file-producing behavior.\n```\n\n5. **Tests-writing stage — proposed checks, not executed results.** The first two lines map directly to the ticket rows; the third covers the approved preservation constraint. Test names below are proposed, not claims about existing tests.\n\n```markdown\n## Tests\n\n- The retired parser's test directory is empty after removal of its obsolete tests - retired parser test-directory emptiness check\n- The generated pull request body contains the changelog section verbatim from the fixture - release-body changelog fixture comparison\n- The public parser entry point and error format remain unchanged - public parser compatibility regression test\n```\n\n6. **Stage boundary.** This renders the requested spec sections without claiming that files were written, tests ran, self-review completed, or the critique pass occurred. The next checklist stage is spec self-review, followed by the required critique pass.\n",
+      "words": 500,
+      "wallMs": 25385,
+      "mechanical": {
+        "entry": "holds"
+      }
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "7163a24fbd0b0cdfd9c3eba8371e9f6ced4a866c32d076eaa7a1cbdcffda959d",
+      "factsSha": "ce951dadb6517e506c711d4c92e07cf173b12631293e1e1a4b1082b9c154df68",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
-      "baselineOutputSha": "de6c87c57f5a3af43afd0b9d8be10b772332ebe42d92eebd655bc0764a167bac",
-      "candidateOutputSha": "45e98e54ad02f958d2f6453b162c9d1969183ab20ca0d2d51e73d1c0a3290f9a",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "b24be2e695e14f5c03799b3f824d5132810e7093326b9dac2c2066db8d0f06be",
+      "candidateOutputSha": "09ad7642eea7617fdb06d751a8076f38030c25ef6b3878770a2fa089304cc8b9",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f3": {
           "before": "holds",
@@ -57,28 +61,38 @@
           "before": "holds",
           "after": "holds",
           "label": "intended but unchanged"
+        },
+        "drain": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "All four facts hold in both outputs, so the After wording moved nothing on this case. Both render the two ABC-204 rows verbatim with in-scope dispositions and the provenance header, add no row and ask no cut question (f3); both place the DEPLOY_TOKEN step in a bold-labelled **Post-deployment housekeeping.** paragraph inside Design with the admin actor and after-merge timing, and keep it out of Tests and imperatives (f1); both leave the scan-time PR-body note out of every authored section, with the only PR-text obligation being the release script's generated changelog body (f2); and both keep that release-script requirement in Design with a Tests line comparing the generated body against the changelog fixture (f4). Note that the expected fails -> holds movement for f1 and f2 is not visible here because Before already satisfies them. To keep these facts stable, preserve the wording that sorts each commitment into change versus operator step, names the bold housekeeping label explicitly as a paragraph inside Design, and forbids any sentence making non-script PR text an obligation; After's Design states the release-script behavior as a plain declarative rather than an Add: line, which still satisfies f4, but keeping an explicit fixture-comparison Tests line is what anchors it.",
-      "wallMs": 5938,
-      "verdict": "unchanged"
+      "feedback": "The After wording moved f1 and f2 by routing every person-performed or non-file-produced commitment into `## Integration`. The `DEPLOY_TOKEN` step is now a single Integration item with the secret-store line indented beneath it, where Before put it in a `**Post-deployment housekeeping.**` paragraph inside Design. The scan-time note is now an Integration entry, where Before left it out of the spec entirely. Nothing Before held was lost: the two ABC-204 rows are still copied character-for-character with `in-scope` and the ticket header, no row is added and no cut question is asked, Design and Tests still carry the release script's changelog behaviour with the fixture comparison, and the queue drain appears only under Integration. To keep this stable, keep three things explicit in the wording: script-produced pull-request text stays a whole in-scope criterion; design detail for an existing Integration entry is indented under that entry, not restated as a Design imperative; and delivery-note PR text becomes an Integration entry, not a criterion, Design line or Tests line. One wording risk: the Tests lines in After paraphrase the ticket rows (\"contains no files\", \"carries the changelog section verbatim\") where Before quoted them, so if a later fact keys on Tests quoting row text, say whether Tests lines should restate the row verbatim.",
+      "wallMs": 9085,
+      "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "7163a24fbd0b0cdfd9c3eba8371e9f6ced4a866c32d076eaa7a1cbdcffda959d",
+      "factsSha": "ce951dadb6517e506c711d4c92e07cf173b12631293e1e1a4b1082b9c154df68",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "878ba0c7fe1050d0e56f1ab3b84ecca445c7e9873f84e7f7d97c9a189a143c18",
-      "baselineOutputSha": "4fd3817c08d5ad5cb4ca0b722c681a10a73108a7cb1b278ac86773b08f504886",
-      "candidateOutputSha": "85090e8de5f1ad85d921c0f1226b5b8a768cf4b4cf1e4e334ec4e3ca4d936be7",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "baselineOutputSha": "4ba8c49a468853bcc5ab3b2f19cc4ffa46a5e7c55d265666bdb39dc78a94366e",
+      "candidateOutputSha": "72b5e4ca752a6d35db48e4394812b8056125d35e875d1b3959341597dd8e17d9",
       "facts": {
         "f1": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f2": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "intended change"
         },
         "f3": {
           "before": "holds",
@@ -89,12 +103,22 @@
           "before": "holds",
           "after": "holds",
           "label": "intended but unchanged"
+        },
+        "drain": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "entry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
         }
       },
-      "feedback": "No fact moved between Before and After: both outputs put the secret creation in a bold-labelled **Post-deployment housekeeping.** paragraph (not a heading) with the repository admin as actor and after-merge timing, both leave the scan-time PR-body note out of Design and Tests as an obligation, both copy the two ABC-204 rows verbatim with in-scope dispositions and provenance while adding no row and asking no scope-cut question, and both keep the release script's changelog-into-PR-body requirement in Design with a fixture-versus-generated-body comparison in Tests. The expected fails -> holds movement on f1 and f2 is not visible here because Before already satisfied them. After's housekeeping paragraph is slightly cleaner since it drops Before's extra sentence mentioning acceptance criteria and test requirements, and its indented section rendering under a numbered step did not disturb the verbatim rows; to keep all four facts, keep the wording that sorts admin-owned post-merge actions into the labelled paragraph with actor and timing, keeps delivery-note PR text out of authored obligations, and still treats script-generated PR text as a behavior with a Design line and a Tests line.",
-      "wallMs": 5593,
-      "verdict": "unchanged"
+      "feedback": "After moved f1, f2 and drain by rendering a real `## Integration` section. The ticket's drain entry is carried verbatim first with the pause and resume instructions nested beneath it, the DEPLOY_TOKEN step is its own item with the secret-store line indented under it, and the scan-time note is an Integration entry. Before had put the drain and secret steps in Design and dropped the scan-time note altogether. f3 and f4 are kept: both ticket rows are copied character-for-character with `in-scope` and the ABC-204 provenance line, no row is added, no scope question is asked, and the release-script changelog behaviour stays in Design with a fixture comparison in Tests. The one fragile spot is the Design bullet \"The scan-time note is a delivery obligation, not an additional output requirement...\". It is a disclaimer rather than an imperative, so f2 still holds, but it puts an Integration item back into Design and a stricter reader could count it. The wording should say that a moved entry is mentioned only under `## Integration` and that Design carries no sentence about it, not even a negative one. Keep the current wording that preserves existing Integration entries first with nested lines intact and leaves ticket rows verbatim.",
+      "wallMs": 10772,
+      "verdict": "improved"
     }
   },
-  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
+  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
 }
