@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Breaking for specs and overrides: remove the `venue:` disposition and rename the ticket's `Post-deployment housekeeping` section to `Integration`. Use `Integration` for checks that need a deployed environment. (#172)
+- Require pi-cohort 8.5.2 or newer.
 
 ## v9.0.0 - 2026-11-25
 
