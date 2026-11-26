@@ -18,26 +18,32 @@ Resolve the default base once, never substitute the worktree creation ref:
 
 ```bash
 DEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)
+printf 'Default base: %s\n' "$DEFAULT"
 git -C <worktree> fetch origin "$DEFAULT"
-git -C <worktree> diff --name-status origin/$DEFAULT...HEAD
+git -C <worktree> diff --name-status "origin/$DEFAULT...HEAD"
 ```
 
 Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 4. Keep implementation approvals available.
 
-Resolve `SCRATCH` for the worktree through [scratch folder](../return-file.md#scratch-folder) and run `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the absolute path it prints as the file writer's destination. Write the gate summary verbatim (the `**Goal:**` line on the degraded-summary path), then the committed home spec's `## Integration` section when present per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr). Read the committed H1 into `TITLE` as data, including in narrated commands. In the create call, substitute the same printed path as one shell-quoted argument for `<scratch-file>`. Run in the worktree repository:
+Resolve `SCRATCH` for the worktree through [scratch folder](../return-file.md#scratch-folder) and run `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the absolute path it prints as the file writer's destination. Write the gate summary verbatim (the `**Goal:**` line on the degraded-summary path), then the committed home spec's `## Integration` section when present per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr). Push once:
 
 ```bash
-TITLE=$(git -C <worktree> show "HEAD:<spec path>" | sed -n '/^# /{s/^# //;p;q;}')
-test -n "$TITLE" || exit 1
 git -C <worktree> push -u origin <branch>
-gh pr create --draft --head <branch> --base "$DEFAULT" --title "$TITLE" --body-file <scratch-file>
+```
+
+After a successful push, run the entire create block in one shell call, including on retry. Substitute each placeholder as one shell-quoted literal: use the observed worktree, recorded branch, repo-relative spec path, printed default base and same printed body-file path. Read the committed H1 as data, including in narrated commands:
+
+```bash
+TITLE=$(git -C <worktree> show HEAD:<spec path> | sed -n '/^# /{s/^# //;p;q;}') &&
+  test -n "$TITLE" &&
+  (cd <worktree> && gh pr create --draft --head <branch> --base <base> --title "$TITLE" --body-file <scratch-file>)
 ```
 
 | Observation | Action |
 |---|---|
 | Push rejected | Print git output; retain amended spec and checkout; re-present with 4 retryable. |
 | Create fails after push | Print error and pushed branch. Keep brainstorm incomplete and checkout intact. Render the create-only retry view below. |
-| Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality rerun create only, no push, no amend. |
+| Retry 4 after published handoff | Refresh origin's branch head; require `origin/<branch>` == HEAD. On mismatch print both full SHAs and stop. On equality repeat the entire create block, no push, no amend. |
 | Create succeeds | Print URL, then ``Continue: start a fresh session, then run `/skill:gauntlet #<N>`.`` with the returned PR number before completing brainstorm; then perform ownership-based cleanup below. |
 
 Render the create-only retry view per [../menu-layout.md](../menu-layout.md) at every context reading, including 25% or lower and `Context: unknown`:
