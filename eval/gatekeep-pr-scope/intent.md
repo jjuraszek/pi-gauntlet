@@ -1,12 +1,12 @@
-for: 02ffb799ff2ffd5a86fcafc25504d8ac87ec8f895789c331a7885606773325d4
+for: c90090ed9730dbe5d97f89090389b8e2b559be8a964d9db3b458a37f6445a02d
 
 ## Change
 
-Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. With one ticket row absent from both spec sections, report `differs` for that original ticket row only. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and actions already offered by the post-merge menu.
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. With one ticket row absent from both spec sections, report `differs` for that original ticket row only. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and PR-named steps, including open actions without trusted commands. Keep observation-only clauses out of post steps without promising a later judgment.
 
 Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
 
-Select integration-not-judged for scope accounting: match a verbatim, marked ticket row once without judging it, keep actual drift visible, and give no claim disposition to an observation under the body's Integration heading. Judge the mixed row's promised behavior and the absent line number separately. Select post-merge-menu for the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. These samples do not cover the rest of the target.
+Select integration-not-judged for scope accounting: match a verbatim, marked ticket row once without judging it, keep actual drift visible, and give no claim disposition to an observation under the body's Integration heading. Judge the mixed row's promised behavior and the absent line number separately. State the reason tagging the release is open without giving it a runnable row, and promise no later judgment of the mixed row's staging confirmation. Select post-merge-menu for the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. These samples do not cover the rest of the target.
 
 Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
@@ -24,6 +24,8 @@ Render the single post menu after approve or merge, execute the validated select
 - integration-names-spec-path/no-blocker-or-stop: fails -> holds - An absent spec named only within Integration cannot trigger the missing-contract blocker or a selection stop.
 - integration-not-judged/cross-check: fails -> holds - Account for the moved tracker update; report only the drifted line-number row.
 - integration-not-judged/claims: fails -> holds - Check the importer's behavior claim, not the nested live assertion.
+- integration-not-judged/open-tag: holds -> holds - Keep the merger's action visible and explain why it is open without a runnable row.
+- integration-not-judged/no-later-judgment: fails -> holds - Judge the functionality without referring the staging confirmation for later judgment.
 - post-merge-menu/f1: holds -> holds - Offer tagging from Integration and guide publication from the PR body; do not offer the other five Integration entries.
 - post-merge-menu/f2: holds -> holds - Stop runs neither action.
 - post-merge-menu/f6: holds -> holds - The PR coverage and tag picks settle once without publishing the guide or removing the worktree.

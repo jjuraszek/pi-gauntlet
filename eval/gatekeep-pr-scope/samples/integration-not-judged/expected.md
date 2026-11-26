@@ -2,3 +2,5 @@
 - functionality: judged: Missing-id rejection is covered from the handler and test. The absent line number is a gap and a blocker. Neither missing staging confirmation nor the ticket's extra column number adds a gap.
 - entries: judged: None of the six operational entries (vendor confirmation, queue drain, cutover, tag, deployed login, production total) or the tracker update gets a coverage outcome or raises a blocker.
 - claims: judged: The PR body's missing-id assertion is matched against evidence. Neither the staging totals entry under its Integration heading nor its nested assertion gets a claim disposition, including unverifiable-pre-merge.
+- open-tag: judged: The report states that tagging the release is an open after-merge action because no trusted command is available. It is not offered as a runnable row.
+- no-later-judgment: judged: The reply does not promise that anyone or any later step will judge or verify the mixed row's staging confirmation.

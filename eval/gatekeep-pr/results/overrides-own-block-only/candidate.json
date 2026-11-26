@@ -38,7 +38,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85ead651180ee54868854ee43ca2bb8b472a4fc1cd1ea7d6b82a5168a6248c40",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8d8e457c4ae21d7bfb4cc2aaa559e6382602701bed39b24f3cfff5907a702825",
+      "intentSha": "d32eec97ae2d6458855d0af46f0e147a197af03b616401e50c76d9005212c345",
       "baselineOutputSha": "eda8c538230d3c48064a1cac00ba85ab768a9305124c75b40e6c4194918023e4",
       "candidateOutputSha": "939631c5525b1cbf34c4e0b3797ac4c60bd573758d8e5c97cdf7a5ca9cd8dacc",
       "facts": {
@@ -53,14 +53,14 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved `verify` as intended: the verifier now reads the merge-base `gauntlet.md` so that the `# shared` verification command combines with the `# gatekeep-pr` `local verification: always` policy, explicitly lets the opt-out row win over CI-sufficient, and narrates an actual local run of `node checks/amber-receipt.mjs` on head `1111111` (exit 0, log captured, cleanliness check), whereas Before said no recognized `## PR gate` section existed, relied on CI alone and stated it did not invoke the command. Before held no facts that After lost, so nothing needs restoring. To keep this stable, retain the explicit wording that the gate's own block plus the shared block are both trusted configuration and that local verification runs even on an already green head; note After also correctly left out the shape-ticket suffix, so keep the statement that other skills' blocks have no effect. One minor inconsistency to watch: After says the PR body has no material claims while the digest says no claims need a separate command; this does not affect the fact but tighter wording would avoid drift.",
-      "wallMs": 5124,
+      "feedback": "The After output moved `verify` from fails to holds because it now treats the merge-base `gatekeep-pr` block's `local verification: always` as trusted configuration, lets that opt-out win over the CI-sufficient row, and narrates an actual local run of `node checks/amber-receipt.mjs` on the assessed head (head check, exit 0, cleanliness check, `source: local`). Before explicitly said the setting was not recognized, stayed CI-first, and stated it did not invoke the command, so the fact failed there. Before held no facts that After lost, so nothing needs restoring; to keep this result stable, keep the wording that the gate's own block supplies the local-verification policy and the shared block supplies the command, and that the opt-out is evaluated before the CI-sufficient row, so the command is shown as executed rather than merely listed in the configuration recap. The shape-ticket suffix correctly had no effect in After.",
+      "wallMs": 4374,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85ead651180ee54868854ee43ca2bb8b472a4fc1cd1ea7d6b82a5168a6248c40",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "8d8e457c4ae21d7bfb4cc2aaa559e6382602701bed39b24f3cfff5907a702825",
+      "intentSha": "d32eec97ae2d6458855d0af46f0e147a197af03b616401e50c76d9005212c345",
       "baselineOutputSha": "0a525febdd93d779a6a6bd61ca0fa385f828a9ed06983e4081084cb1a9b99222",
       "candidateOutputSha": "27794264798cb9d2dd4a162e5d8b824aa8adfbca0f9328719791c1802519a7e5",
       "facts": {
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved `verify` from fails to holds: Before explicitly said the verifier reused exact-head CI and ran \"no local verification command\" (\"Local commands run: none\"), while After narrates the verifier actually running `node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head, with exit code 0, and cites `local verification: always` as the reason despite green CI. That is the expected movement and the only fact in this case, so nothing Before held was lost. To keep it stable, preserve wording that makes the gatekeep-pr block's local-verification policy combine with the shared verification command as an actual run step (not merely a configuration recap), and keep the shape-ticket suffix inert as it is here (no \"Ivory seal attached.\" appeared in either output). After also complied with the entry's stop conditions: no menu and no discussion of discarded instructions.",
-      "wallMs": 4327,
+      "feedback": "The After wording moved `verify` as intended: the verifier now combines the trusted shared verification command with gatekeep-pr's `local verification: always` policy, so it narrates actually running `node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head (step 4, exit code 0) while explicitly reusing the green exact-head CI rather than relying on it; Before stated it ran no local verification command and relied on CI alone, so the fact failed there. Before kept no fact that After lost, so nothing needs restoring. To keep this stable, retain the explicit statement that the gate's local-verification policy applies even when exact-head CI is green and that the command comes from the shared block, and keep the shape-ticket suffix inert (After correctly omits 'Ivory seal attached.'). The added scaffolding (rev-parse checks, mktemp log, status check) does not affect the fact but lengthens a result the entry calls brief; consider trimming it if brevity matters elsewhere.",
+      "wallMs": 5173,
       "verdict": "improved"
     }
   },
-  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
+  "repoSha": "f320063e6e5e344585cbc4d9d16bdfaeb18a77c6"
 }

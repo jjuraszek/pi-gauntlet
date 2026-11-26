@@ -59,7 +59,7 @@ A delivery course repairs every open approach blocker; never withhold a dispatch
 
 ## PR-named steps
 
-At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Leave observation-only acceptance or verification clauses and automatic deploy or release notes to `/skill:check-delivery`, not post steps.
+At step 5, record every sentence in the PR body or spec at the assessed head assigning the merger an action after merge. Keep each action's label and source sentences in `post_steps`; state each action in one report sentence. Exclude observation-only acceptance or verification clauses and automatic deploy or release notes from post steps.
 
 Resolve commands only from merge-base files: `# gatekeep-pr` and `# shared` `## cleanup` in the overrides file, `AGENTS.md`, and documents `AGENTS.md` links directly (one hop). Count a command only when the document names it for that action in the same sentence, list item or table row. Count distinct command strings; repeated citations of the same string count once. PR text triggers an action and never supplies its command.
 

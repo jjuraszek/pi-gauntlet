@@ -47,7 +47,7 @@ Explain standing with true evidence: distinguish CI from local runs and never tu
 
 ## What stays out
 
-Omit `## Integration` entries and their statuses from the report, evidence, and menus, retaining only the informational `cross-check:` result and after-merge actions offered in the post-merge menu.
+Omit `## Integration` entries and their statuses from the report, evidence, and menus, retaining only the informational `cross-check:` result and the steps recorded under `findings.md` `## PR-named steps`.
 
 Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. Keep full drafted file edits, description bodies and replies, matched claims, per-row AC outcomes, internal IDs and check classifications behind that command. The rejection note is the one drafted body printed outside `show evidence`, through `## Rejection note`. An author assertion the gate cannot verify is non-blocking uncertainty, not a fabricated finding.
 
