@@ -6,7 +6,6 @@ checks: commands
 iterations: 17
 allowance: 10
 returned: 45 | home | 3e6014712d1c82cb4ddad24ebbbac8bd7fa81e91
-pending: verify | home | 731ea13c17d0b90874583865eb8bddafb791f9b0
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -91,3 +90,4 @@ row 47 done | Both delivery reports named blue.example.test as the configured ta
 row 41 done | Both replays offered all five choices without asking about Integration entries and copied the current section verbatim into new and existing PR bodies. | Reuse the pr-body-integration fixture to check menu choices, nested entry text and byte preservation outside a replaced section.
 row 44 done | The tracker now recognizes the same four dispositions as the spec writer and keeps a venue: line in the acceptance row text. | Reuse the refresh fixture in extensions/plan-tracker.test.ts to distinguish row text from a disposition.
 row 45 done | Shipped instructions no longer treat venue: as a disposition when recommending an engine or routing an unreachable row. | Run scripts/ac-definition-owner.test.mjs to catch the retired disposition in shipped sources.
+repair verification | home 83ade1d | iteration 17
