@@ -242,7 +242,6 @@ const tokenChecks = [
   ["agents/spec-council-member.md", "End every finding with `probed:`", true],
   ["agents/spec-council-synthesizer.md", "grounded|hypothesis:", true],
   ["agents/spec-council-applier.md", "clusters that assert data shape, ordering, or semantics", true],
-  ["agents/spec-council-applier.md", "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run", true],
   ["skills/gauntlet/brainstorm/council.md", "outputMode: \"file-only\"", true],
   ["skills/shape-ticket/SKILL.md", "outputMode: \"file-only\"", true],
   ["skills/gauntlet/amendment-surface.md", "waives per-diff review", true],

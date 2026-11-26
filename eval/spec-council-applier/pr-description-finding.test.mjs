@@ -16,14 +16,10 @@ const dir = "eval/spec-council-applier";
 const sample = "pr-description-finding";
 
 // Model replays are run separately; this check reuses the saved fixture edits and judgments.
-test("a PR-description finding becomes an operator step with its original actor and timing", () => {
+test("council edits restore ticket rows to their sections without adding deployment requirements", () => {
   const persona = read("agents/spec-council-applier.md");
-  const stage = "a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run";
-  assert.ok(persona.includes(stage), "applier must exclude delivery-stage obligations");
-  assert.ok(read("scripts/ci.mjs").includes(`["agents/spec-council-applier.md", "${stage}", true]`));
-  assert.match(persona, /write the instruction itself into the section the cluster targets as an operator step/);
-  assert.match(persona, /keeping the actor and timing the cluster gives/);
-  assert.match(persona, /unless that observable is itself a behavior of the change/);
+  assert.match(persona, /AC definition:/);
+  assert.equal(read(`${dir}/samples/${sample}/fixture/reference/ac-classes.md`), read("skills/shape-ticket/reference/ac-classes.md"));
   assert.match(persona, /clusters that assert data shape, ordering, or semantics/);
   assert.match(persona, /wishful, tautological, unspecified-but-binding, external-input, or post-deployment proof/);
 
@@ -63,8 +59,14 @@ test("a PR-description finding becomes an operator step with its original actor 
     }
     const spec = tree["doc/specs/job-status.md"].content;
     assert.equal(spec.match(/^\*\*Amend-grant:\*\*.*$/m)?.[0], before["doc/specs/job-status.md"].content.match(/^\*\*Amend-grant:\*\*.*$/m)?.[0]);
-    assert.equal(spec.match(/## Acceptance criteria\n([\s\S]*?)(?=\n## )/)?.[1], before["doc/specs/job-status.md"].content.match(/## Acceptance criteria\n([\s\S]*?)(?=\n## )/)?.[1]);
-    assert.match(spec, /## Errors and edge cases\n[\s\S]*?DEPLOY_TOKEN/);
+    const criteria = spec.match(/^## Acceptance criteria\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
+    assert.deepEqual(criteria.match(/^- \[ \] .+$/gm)?.sort(), [
+      "- [ ] the importer rejects a row without an id", "- [ ] the status report lists the rejected row's line number",
+    ]);
+    const entries = spec.match(/^## Integration\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
+    assert.match(entries, /^- the cutover steps are posted as a comment on the ticket\n +ticket row, not an acceptance criterion: tracker update$/m);
+    assert.match(entries, /^- Before merging, a repository admin creates the DEPLOY_TOKEN secret\.$/m);
+    assert.doesNotMatch(entries, /the status report lists the rejected row's line number/);
     for (const { id } of facts) assert.equal(judged.facts[id]?.after, "holds", `${model}: ${id}`);
     assert.ok(["improved", "unchanged"].includes(judged.verdict), `${model}: ${judged.verdict}`);
   }

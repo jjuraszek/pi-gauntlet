@@ -1,0 +1,90 @@
+{
+  "sample": "non-criterion-row-flagged",
+  "arm": "candidate",
+  "skillSha": "d1c29d8bebc57b79c9d01f8722800c199906691f8d5a83667c670c4ebf714a97",
+  "inputSha": "a1a404647a0f7178e9506ba7570bfc2523ecee721395c7ce895239073d98e408",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: partial — the spec rejects rows without an id, but \"identify rejected line numbers\" appears only as an Integration entry. Design says \"Report each rejected input line number\", yet no acceptance criterion gates that functionality.\nfindings:\n- [blocker] scope @ Acceptance criteria: \"after deploy to staging, login succeeds against the real identity provider\" — this row is a pure entry under Acceptance criteria (kind: `live check`). No file at the delivered commit can make it true, and a checkout check cannot show it. → Move it to Integration verbatim with the note \"ticket row, not an acceptance criterion: live check\", and remove it from Acceptance criteria. — probed: none\n- [blocker] scope @ Integration: \"the status report lists the rejected row's line number\" — this file-checkable ticket row appears only under Integration. The status report's output is functionality the parser and report code deliver, and Design already commits to it (\"Report each rejected input line number\"). Its label \"environment state\" is wrong. → Move it to Acceptance criteria verbatim with `in-scope`, and delete the Integration entry and its label. — probed: none\nlean: nothing to cut\n",
+      "words": 178,
+      "wallMs": 10257,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "verdict: needs-work\naddresses-problem: yes — The Design specifies rejecting missing ids and reporting rejected line numbers, but two ticket rows are misclassified.\nfindings:\n- [blocker] scope @ Acceptance criteria: \"after deploy to staging, login succeeds against the real identity provider\" — This is a pure live-check entry, not functionality delivered by the files → Move the row verbatim to Integration. — probed: none\n- [blocker] scope @ Integration: \"the status report lists the rejected row's line number\" — This is file-checkable functionality, not an environment-state entry, and appears only under Integration → Move the row verbatim to Acceptance criteria. — probed: none\nlean: nothing to cut\n",
+      "words": 95,
+      "wallMs": 8290,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "3fafec101277abdcab1310abe006b77d9fb70984294cce34b719c34ee09f1d65",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fa48daea9a34ddca50696669614806cd504d45bdf7ff7693505254ceaab31d9b",
+      "baselineOutputSha": "8fac309343ecf544e7dc6c36350cbb0bf27d6c6e17781155614ca6f5adf9acd5",
+      "candidateOutputSha": "61ae7e6c23820a79294770317e1ac7c7700f8fb15f35f69cda0464e31336acee",
+      "facts": {
+        "placements": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After moves all three facts to holds and loses nothing Before held. On placements, After gives two blocker scope findings, one per misplaced row (the live identity-provider check under Acceptance criteria, the file-checkable line-number row only under Integration), and sends each verbatim to the other section. Before called them a blocker gap and a major gap, and sent the login row to a 'Post-deployment housekeeping' section rather than Integration. On mixed, After leaves the staging/empty-name row alone, where Before raised a major ambiguity over its staging clause and local-only proof. On entries, After touches no correctly placed Integration entry, where Before re-classed the vendor-confirmation row as an external-input dependency to be parked. That last call was the least clear-cut: I read re-classing and parking as giving the entry a verdict, though Before did not call it missing from Acceptance criteria or propose promoting it. To keep these results, keep the wording that names the finding as blocker scope per misplaced row with the opposite section as the target, and keep the explicit statement that a correctly placed mixed row and entries already in Integration get no finding. Two things After no longer mentions are the orphaned '- on staging' Integration bullet and the unspecified numbering base and report target; no fact here covers them, so if you want them back, add a line that allows non-placement findings on fragments that are not ticket rows without reopening placement on the mixed row.",
+      "wallMs": 13966,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "3fafec101277abdcab1310abe006b77d9fb70984294cce34b719c34ee09f1d65",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "fa48daea9a34ddca50696669614806cd504d45bdf7ff7693505254ceaab31d9b",
+      "baselineOutputSha": "abd7be5146f1c3a028961fd6a06e9af35cc14db67efd98bab2c178070258872e",
+      "candidateOutputSha": "5bfb01ec523d7f2c3d1b26dcd25d1050883383147a0bee9792cb42c6261d01ab",
+      "facts": {
+        "placements": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "mixed": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entries": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After produces exactly two blocker scope findings, one for the live identity-provider row under Acceptance criteria and one for the file-checkable line-number row under Integration, each directed verbatim to the other section, so `placements` now holds. Before had flagged only the line-number row, as a major external-ref finding, and missed the identity-provider row entirely. After also leaves the mixed staging/empty-name row alone, as Before did, so `mixed` holds in both. `entries` moves from fails to holds: Before issued major gap findings on the correctly placed vendor-confirmation and In Review rows, demanding re-disposition and Reporter notes, while After says nothing about any correctly placed Integration entry. No fact that Before kept was lost. To keep this, retain the wording that gives each misplaced row its own blocker scope finding with a move-verbatim correction, and the explicit statement that correctly placed mixed rows and ticket entries already in Integration get no finding. One loose end: After's addresses-problem line says \"two ticket rows are misclassified\" without naming them, so naming the rows there would make the summary agree visibly with the findings.",
+      "wallMs": 7516,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "a22e03217252c01c8444754891e4685eea0d5232"
+}

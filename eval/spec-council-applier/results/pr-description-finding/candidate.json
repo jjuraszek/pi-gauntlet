@@ -1,8 +1,8 @@
 {
   "sample": "pr-description-finding",
   "arm": "candidate",
-  "skillSha": "d2afe149f267148f9f176ac8daa637cad11c73693baaa9247065e028dea4d2ba",
-  "inputSha": "ec88e4db42529c795365e00c5e46a48ef99e1e8cfa0d1a7e9a8fa35b3149d3dc",
+  "skillSha": "9f17000509d054c5ea27f8e5ac3c4424a799a26b913fcbe465946ea40d45c1d9",
+  "inputSha": "2a19666e477dbf6fe8c4f24f0b9de7434c77e06d6005c4a215fa54887b7595d0",
   "kind": "edit",
   "assembly": "n/a",
   "thinking": "medium",
@@ -17,29 +17,33 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..fbf960f 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,3 @@\n+Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> added operator step to Errors and edge cases: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\" (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 193b420..e457aca 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -10,6 +10,8 @@ Report existing job status strings.\n ## Errors and edge cases\n A job with no status returns unknown.\n \n+Operator step (cutover, from ops/cutover.md; performed by a person, delivered by no file): before merging, a repository admin creates the DEPLOY_TOKEN secret.\n+\n ## Tests\n - Check existing job status strings and the unknown fallback.\n \n",
-      "words": 108,
-      "wallMs": 12577,
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..52071b2 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,6 @@\n+Applied:\n+- Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> added the ops/cutover.md instruction verbatim as an Integration entry: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\" (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\n+- Applied: [blocker] posted-comment - raised-by: [alpha-core] -> moved \"the cutover steps are posted as a comment on the ticket\" verbatim from Acceptance criteria to Integration with marker `ticket row, not an acceptance criterion: tracker update` (grounded: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.)\n+- Applied: [blocker] rejected-line - raised-by: [alpha-core] -> moved \"the status report lists the rejected row's line number\" verbatim from Integration to Acceptance criteria as a checkbox marked `in-scope`; removed the old entry and its environment state marker (grounded: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 6b744c3..f5808a8 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -7,7 +7,7 @@ Reject import rows without an id and include rejected line numbers in the status\n ## Acceptance criteria\n - [ ] the importer rejects a row without an id\n   in-scope\n-- [ ] the cutover steps are posted as a comment on the ticket\n+- [ ] the status report lists the rejected row's line number\n   in-scope\n \n ## Integration\n@@ -21,8 +21,9 @@ Reject import rows without an id and include rejected line numbers in the status\n   ticket row, not an acceptance criterion: live check\n - the ticket is moved to In Review\n   ticket row, not an acceptance criterion: tracker update\n-- the status report lists the rejected row's line number\n-  ticket row, not an acceptance criterion: environment state\n+- the cutover steps are posted as a comment on the ticket\n+  ticket row, not an acceptance criterion: tracker update\n+- Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n \n ## Tests\n Import a row without an id; check its rejection and the line number in the report.\n",
+      "words": 303,
+      "wallMs": 23926,
       "tree": {
         "council/chair.md": {
-          "lines": 5,
-          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [major] grounded: pr-description-cutover - raised-by: [alpha-core] - Errors and edge cases omits the cutover instruction in ops/cutover.md -> add to Errors and edge cases that the pull-request description must carry this instruction: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\"\nresolved:\n"
+          "lines": 7,
+          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [major] grounded: pr-description-cutover - raised-by: [alpha-core] - The cutover instruction requested for the PR description is absent from the spec -> preserve the instruction from ops/cutover.md in the spec.\n- [blocker] grounded: posted-comment - raised-by: [alpha-core] - The comment ticket row is in the wrong section -> correct its placement.\n- [blocker] grounded: rejected-line - raised-by: [alpha-core] - The line-number ticket row is in the wrong section -> correct its placement.\nresolved:\n"
         },
         "council/member-0-alpha-core.md": {
-          "lines": 6,
-          "content": "verdict: needs-work\naddresses-problem: yes\nlean: nothing to cut\nfindings:\n- [major] pr-description-cutover: Errors and edge cases needs the cutover instruction in the pull-request description.\nprobed: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n"
+          "lines": 10,
+          "content": "verdict: needs-work\naddresses-problem: partial\nlean: nothing to cut\nfindings:\n- [major] pr-description-cutover: The requested operator instruction is absent.\nprobed: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n- [blocker] posted-comment: The comment ticket row is misplaced.\nprobed: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.\n- [blocker] rejected-line: The line-number ticket row is misplaced.\nprobed: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.\n"
         },
         "council-audit.md": {
-          "lines": 3,
-          "content": "Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> added operator step to Errors and edge cases: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\" (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\nDeferred: none\nRejected: none\n"
+          "lines": 6,
+          "content": "Applied:\n- Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> added the ops/cutover.md instruction verbatim as an Integration entry: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\" (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\n- Applied: [blocker] posted-comment - raised-by: [alpha-core] -> moved \"the cutover steps are posted as a comment on the ticket\" verbatim from Acceptance criteria to Integration with marker `ticket row, not an acceptance criterion: tracker update` (grounded: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.)\n- Applied: [blocker] rejected-line - raised-by: [alpha-core] -> moved \"the status report lists the rejected row's line number\" verbatim from Integration to Acceptance criteria as a checkbox marked `in-scope`; removed the old entry and its environment state marker (grounded: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.)\nDeferred: none\nRejected: none\n"
         },
         "doc/specs/job-status.md": {
-          "lines": 19,
-          "content": "# Job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\n## Design\nReport existing job status strings.\n\n## Acceptance criteria\n- Existing job status strings appear in the report.\n\n## Errors and edge cases\nA job with no status returns unknown.\n\nOperator step (cutover, from ops/cutover.md; performed by a person, delivered by no file): before merging, a repository admin creates the DEPLOY_TOKEN secret.\n\n## Tests\n- Check existing job status strings and the unknown fallback.\n\n## Documentation impact\nUse reference/documentation-impact.md.\n"
+          "lines": 32,
+          "content": "# Import job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\n## Design\nReject import rows without an id and include rejected line numbers in the status report.\n\n## Acceptance criteria\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] the status report lists the rejected row's line number\n  in-scope\n\n## Integration\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n\n## Tests\nImport a row without an id; check its rejection and the line number in the report.\n\n## Documentation impact\nUse reference/documentation-impact.md.\n"
         },
         "ops/cutover.md": {
           "lines": 1,
           "content": "Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n"
+        },
+        "reference/ac-classes.md": {
+          "lines": 34,
+          "content": "# Acceptance criteria and Integration\n\nAn acceptance criterion states a functionality or a constraint the change delivers: what is observed, not how it is built. One row may cover several scenarios of one functionality. It holds when the files at the delivered commit make it true and a check run in a checkout of that commit shows it.\n\nEverything else asked around the change is an `Integration` entry. An entry is one list item in its source's words, never judged and never blocking.\n\n## Entry kinds\n\nName the nearest kind to explain why a row is an entry. The definition is the boundary, even when no kind names an obligation exactly.\n\n| Kind | Example |\n|---|---|\n| `person step` | the operator runs the cutover |\n| `merge or deploy condition` | the change merges only after the vendor confirms the fix |\n| `environment state` | the staging queue is empty before the deploy; a deploy or a data move that happens outside the change |\n| `live check` | after deploy to staging, login succeeds against the real identity provider; after the cutover, no production order carries the legacy status |\n| `tracker update` | the ticket is moved to In Review; the cutover steps are posted as a comment on the ticket |\n| `pipeline result` | a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run; commit message text |\n\n## Sorting rules\n\n1. Keep a functionality that handles an environment name, pull-request text or a pipeline as an acceptance criterion. A workflow file can itself deliver the requested behavior.\n2. Keep a mixed row as one acceptance criterion for its functionality alone. Only the external observation or obligation is an entry; keep every literal that defines the functionality, such as `production` in a script's rejection rule.\n3. When in doubt whether files deliver the functionality, keep the row as an acceptance criterion. Doubt about which kind names an entry is not that doubt.\n4. Sort a check the same way in production as in any other environment.\n\n## Acceptance criteria classes\n\n| Class | Definition | Outcome after failed recovery |\n|---|---|---|\n| Wishful | better/worse claim, no baseline + target + measurement | **hard stop** - no write until the human supplies values or splits out discovery |\n| Tautological | gates on a set this ticket itself produces (\"top N\", \"the identified issues\") | **hard stop** - enumerate today, or convert to a discovery ticket |\n| Unspecified-but-binding | closure-gating word with no value (\"acceptable latency\") | file allowed, **park** in the tracker's not-ready state, missing value named |\n| External-input dependency | yardstick another party must hand over first | **park**, blocker named; if resolving it is the assignee's own work, stays ready (over-fire guard) |\n"
         },
         "reference/documentation-impact.md": {
           "lines": 1,
@@ -50,29 +54,33 @@
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..a5da88a 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,3 @@\n+Applied: [major] grounded: pr-description-cutover - raised-by: [alpha-core] -> added the cutover instruction to Errors and edge cases as an operator step: Before merging, a repository admin creates the DEPLOY_TOKEN secret. (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 193b420..8e1d4ca 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -10,8 +10,11 @@ Report existing job status strings.\n ## Errors and edge cases\n A job with no status returns unknown.\n \n+Operator step: Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n+\n ## Tests\n - Check existing job status strings and the unknown fallback.\n \n ## Documentation impact\n Use reference/documentation-impact.md.\n+The portable reference/documentation-impact.md names this guideline, not an external consumer reference.\n",
-      "words": 118,
-      "wallMs": 16106,
+      "text": "diff --git a/council-audit.md b/council-audit.md\nindex e69de29..d0ce4f7 100644\n--- a/council-audit.md\n+++ b/council-audit.md\n@@ -0,0 +1,5 @@\n+Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> preserved the operator instruction verbatim under Integration (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\n+Applied: [blocker] posted-comment - raised-by: [alpha-core] -> moved the comment ticket row verbatim to Integration with a tracker update marker (grounded: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.)\n+Applied: [blocker] rejected-line - raised-by: [alpha-core] -> moved the line-number ticket row verbatim to Acceptance criteria as an in-scope checkbox and removed its Integration entry and marker (grounded: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.)\n+Deferred: none\n+Rejected: none\ndiff --git a/doc/specs/job-status.md b/doc/specs/job-status.md\nindex 6b744c3..83f3063 100644\n--- a/doc/specs/job-status.md\n+++ b/doc/specs/job-status.md\n@@ -7,10 +7,13 @@ Reject import rows without an id and include rejected line numbers in the status\n ## Acceptance criteria\n - [ ] the importer rejects a row without an id\n   in-scope\n-- [ ] the cutover steps are posted as a comment on the ticket\n+- [ ] the status report lists the rejected row's line number\n   in-scope\n \n ## Integration\n+- Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n+- the cutover steps are posted as a comment on the ticket\n+  ticket row, not an acceptance criterion: tracker update\n - the operator runs the cutover\n   ticket row, not an acceptance criterion: person step\n - the change merges only after the vendor confirms the fix\n@@ -21,11 +24,11 @@ Reject import rows without an id and include rejected line numbers in the status\n   ticket row, not an acceptance criterion: live check\n - the ticket is moved to In Review\n   ticket row, not an acceptance criterion: tracker update\n-- the status report lists the rejected row's line number\n-  ticket row, not an acceptance criterion: environment state\n \n ## Tests\n Import a row without an id; check its rejection and the line number in the report.\n \n ## Documentation impact\n+No introduced or amended feature docs.\n Use reference/documentation-impact.md.\n+The portable reference/documentation-impact.md names this guideline, not an external consumer reference.\n",
+      "words": 310,
+      "wallMs": 38589,
       "tree": {
         "council/chair.md": {
-          "lines": 5,
-          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [major] grounded: pr-description-cutover - raised-by: [alpha-core] - Errors and edge cases omits the cutover instruction in ops/cutover.md -> add to Errors and edge cases that the pull-request description must carry this instruction: \"Before merging, a repository admin creates the DEPLOY_TOKEN secret.\"\nresolved:\n"
+          "lines": 7,
+          "content": "consensus: needs-work\nlean: 1 of 1 members found nothing to cut\nclusters:\n- [major] grounded: pr-description-cutover - raised-by: [alpha-core] - The cutover instruction requested for the PR description is absent from the spec -> preserve the instruction from ops/cutover.md in the spec.\n- [blocker] grounded: posted-comment - raised-by: [alpha-core] - The comment ticket row is in the wrong section -> correct its placement.\n- [blocker] grounded: rejected-line - raised-by: [alpha-core] - The line-number ticket row is in the wrong section -> correct its placement.\nresolved:\n"
         },
         "council/member-0-alpha-core.md": {
-          "lines": 6,
-          "content": "verdict: needs-work\naddresses-problem: yes\nlean: nothing to cut\nfindings:\n- [major] pr-description-cutover: Errors and edge cases needs the cutover instruction in the pull-request description.\nprobed: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n"
+          "lines": 10,
+          "content": "verdict: needs-work\naddresses-problem: partial\nlean: nothing to cut\nfindings:\n- [major] pr-description-cutover: The requested operator instruction is absent.\nprobed: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n- [blocker] posted-comment: The comment ticket row is misplaced.\nprobed: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.\n- [blocker] rejected-line: The line-number ticket row is misplaced.\nprobed: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.\n"
         },
         "council-audit.md": {
-          "lines": 3,
-          "content": "Applied: [major] grounded: pr-description-cutover - raised-by: [alpha-core] -> added the cutover instruction to Errors and edge cases as an operator step: Before merging, a repository admin creates the DEPLOY_TOKEN secret. (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\nDeferred: none\nRejected: none\n"
+          "lines": 5,
+          "content": "Applied: [major] pr-description-cutover - raised-by: [alpha-core] -> preserved the operator instruction verbatim under Integration (grounded: read ops/cutover.md - Before merging, a repository admin creates the DEPLOY_TOKEN secret.)\nApplied: [blocker] posted-comment - raised-by: [alpha-core] -> moved the comment ticket row verbatim to Integration with a tracker update marker (grounded: read doc/specs/job-status.md - the row is a checkbox under Acceptance criteria.)\nApplied: [blocker] rejected-line - raised-by: [alpha-core] -> moved the line-number ticket row verbatim to Acceptance criteria as an in-scope checkbox and removed its Integration entry and marker (grounded: read doc/specs/job-status.md - the row appears only in Integration with an environment state marker.)\nDeferred: none\nRejected: none\n"
         },
         "doc/specs/job-status.md": {
-          "lines": 20,
-          "content": "# Job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\n## Design\nReport existing job status strings.\n\n## Acceptance criteria\n- Existing job status strings appear in the report.\n\n## Errors and edge cases\nA job with no status returns unknown.\n\nOperator step: Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n\n## Tests\n- Check existing job status strings and the unknown fallback.\n\n## Documentation impact\nUse reference/documentation-impact.md.\nThe portable reference/documentation-impact.md names this guideline, not an external consumer reference.\n"
+          "lines": 34,
+          "content": "# Import job status\n**Amend-grant:** every later spec amendment applies without asking; redraw still stops; grant is not approval.\n\n## Design\nReject import rows without an id and include rejected line numbers in the status report.\n\n## Acceptance criteria\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] the status report lists the rejected row's line number\n  in-scope\n\n## Integration\n- Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n\n## Tests\nImport a row without an id; check its rejection and the line number in the report.\n\n## Documentation impact\nNo introduced or amended feature docs.\nUse reference/documentation-impact.md.\nThe portable reference/documentation-impact.md names this guideline, not an external consumer reference.\n"
         },
         "ops/cutover.md": {
           "lines": 1,
           "content": "Before merging, a repository admin creates the DEPLOY_TOKEN secret.\n"
+        },
+        "reference/ac-classes.md": {
+          "lines": 34,
+          "content": "# Acceptance criteria and Integration\n\nAn acceptance criterion states a functionality or a constraint the change delivers: what is observed, not how it is built. One row may cover several scenarios of one functionality. It holds when the files at the delivered commit make it true and a check run in a checkout of that commit shows it.\n\nEverything else asked around the change is an `Integration` entry. An entry is one list item in its source's words, never judged and never blocking.\n\n## Entry kinds\n\nName the nearest kind to explain why a row is an entry. The definition is the boundary, even when no kind names an obligation exactly.\n\n| Kind | Example |\n|---|---|\n| `person step` | the operator runs the cutover |\n| `merge or deploy condition` | the change merges only after the vendor confirms the fix |\n| `environment state` | the staging queue is empty before the deploy; a deploy or a data move that happens outside the change |\n| `live check` | after deploy to staging, login succeeds against the real identity provider; after the cutover, no production order carries the legacy status |\n| `tracker update` | the ticket is moved to In Review; the cutover steps are posted as a comment on the ticket |\n| `pipeline result` | a CI or workflow run result, a pull request's title, body, state or review, a merge, or a full verification-suite run; commit message text |\n\n## Sorting rules\n\n1. Keep a functionality that handles an environment name, pull-request text or a pipeline as an acceptance criterion. A workflow file can itself deliver the requested behavior.\n2. Keep a mixed row as one acceptance criterion for its functionality alone. Only the external observation or obligation is an entry; keep every literal that defines the functionality, such as `production` in a script's rejection rule.\n3. When in doubt whether files deliver the functionality, keep the row as an acceptance criterion. Doubt about which kind names an entry is not that doubt.\n4. Sort a check the same way in production as in any other environment.\n\n## Acceptance criteria classes\n\n| Class | Definition | Outcome after failed recovery |\n|---|---|---|\n| Wishful | better/worse claim, no baseline + target + measurement | **hard stop** - no write until the human supplies values or splits out discovery |\n| Tautological | gates on a set this ticket itself produces (\"top N\", \"the identified issues\") | **hard stop** - enumerate today, or convert to a discovery ticket |\n| Unspecified-but-binding | closure-gating word with no value (\"acceptable latency\") | file allowed, **park** in the tracker's not-ready state, missing value named |\n| External-input dependency | yardstick another party must hand over first | **park**, blocker named; if resolving it is the assignee's own work, stays ready (over-fire guard) |\n"
         },
         "reference/documentation-impact.md": {
           "lines": 1,
@@ -84,54 +92,22 @@
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "f6184a15c0f56e70555b7ea44f261efd3d4df0c7568567bedb01d2dcf74ee8e3",
+      "factsSha": "5dfa7278f27aa5eb80334b1530737f7168686e2ac2f77045ec7922fb62dfa534",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "daa657956711d3c2d2e9410dbdcd33d2e8c52553ba86e3c03cb2c6cc50d61101",
-      "baselineOutputSha": "729c0fbe9c714432097d35a44a97488b8a4611e1e1c60ee15e7baebf536da955",
-      "candidateOutputSha": "093663ae946bf02da57f65e2ab58448c020d9d880412f0282c5b212b6cce26fc",
+      "intentSha": "4d443e84c6e60a67e9c56da1773fc84ddc07d73c85808848fd11c6a5b9407500",
+      "baselineOutputSha": "dda117192f0f30fe111ec66014052c1cdce17626cc566f5a6962e181d6b384f1",
+      "candidateOutputSha": "2f0c6e926a68b935d48c491eaf8f7553565705f829cb47141fe9a0dbf71ac79d",
       "facts": {
         "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f2": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f3": {
-          "before": "holds",
-          "after": "holds",
-          "label": "held"
-        },
-        "f4": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        }
-      },
-      "feedback": "No fact moved between Before and After on this sample: both outputs already place the instruction itself in Errors and edge cases as an operator step ('Before merging, a repository admin creates the DEPLOY_TOKEN secret'), keep the repository admin actor and before-merge timing, write no PR-body, CI-run or merge obligation, and produce an identical audit with pr-description-cutover under Applied: with [major] and raised-by: [alpha-core] plus Deferred: none and Rejected: none. The expected fails -> holds movement on f1, f2 and f4 therefore did not show, because Before did not fail them here; the Before wording already led the model to read the chair's 'pull-request description must carry' as an operator step rather than a deliverable. The only visible difference in After is the added parenthetical 'performed by a person, delivered by no file', which reinforces f2 and f4 by making the non-deliverable status explicit, and costs nothing on the other facts. To keep everything held, retain the wording that has the instruction written verbatim with its actor and timing in the targeted section, and leave the audit grammar untouched; if you want to demonstrate the change's effect, you need a sample or repeated runs where the Before wording actually produces a PR-description obligation, since this pair does not prove the classification improvement.",
-      "wallMs": 6333,
-      "verdict": "unchanged"
-    },
-    "github-copilot/gpt-6.1-sol": {
-      "factsSha": "f6184a15c0f56e70555b7ea44f261efd3d4df0c7568567bedb01d2dcf74ee8e3",
-      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "daa657956711d3c2d2e9410dbdcd33d2e8c52553ba86e3c03cb2c6cc50d61101",
-      "baselineOutputSha": "8617006f24d5b5eb0c6738908721c5d6f3465d6eaf4fc5c64e0e0138ff896461",
-      "candidateOutputSha": "c0eedc9165e1437c75e6f2c66003e69ef24af8e08db3d1c2a9de3fc941ba8f45",
-      "facts": {
-        "f1": {
-          "before": "holds",
-          "after": "holds",
-          "label": "intended but unchanged"
-        },
-        "f2": {
           "before": "fails",
           "after": "holds",
           "label": "intended change"
         },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
         "f3": {
           "before": "holds",
           "after": "holds",
@@ -143,10 +119,42 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Only f2 moved; f1 and f4 did not move as expected because they already hold in Before. Before's spec already has the instruction itself in Errors and edge cases, labelled as an operator step with the repository admin and before-merging timing intact. Its one defect is the parenthetical \"(for the pull-request description)\", which still marks the step as destined for the PR body; I read that as a residual PR-body deliverable, so f2 fails there, though it is a close call because the parenthetical is not a full \"must\" sentence. After drops the parenthetical and writes plain \"Operator step: Before merging, a repository admin creates the DEPLOY_TOKEN secret.\", which clears f2 and keeps f1 and f4. The After audit keeps the Applied:/Deferred:/Rejected: grammar with [major] and raised-by: [alpha-core] and no longer mentions the PR description, so f3 holds in both. To keep this result, the wording should say explicitly that a chair request to carry an instruction in the PR description is satisfied by writing the instruction verbatim as an operator step in the targeted section, with no mention of the PR description, CI or merge as a destination or deliverable, not even parenthetically. It should also say to keep the source's actor and timing unchanged and leave the audit line format untouched.",
-      "wallMs": 12618,
+      "feedback": "Only f1 moved. Before paraphrased the ops/cutover.md instruction (lowercased, no period) and appended \"carried in the pull-request description\", which makes PR text a deliverable. After adds the source sentence exactly as its own Integration list item with no PR, merge or comment requirement, so keep the wording that puts the instruction under Integration in its source's words with nothing appended. f2 and f4 were expected to move but already held in Before: it had exactly the two verbatim in-scope acceptance rows, the comment row under Integration with the tracker update marker, the line-number entry and its environment state marker removed, and the five original entries untouched. After keeps all of that, and f3 holds in both, since each audit has one Applied line per cluster with original severity and raised-by and no question. One thing to consider: After's cutover entry has no kind marker while Before's had \"person step\". No fact here grades that, but if you want consistency with the other entries, say whether a non-ticket Integration entry should name its nearest kind, without reintroducing a delivery-channel parenthetical.",
+      "wallMs": 9672,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5dfa7278f27aa5eb80334b1530737f7168686e2ac2f77045ec7922fb62dfa534",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4d443e84c6e60a67e9c56da1773fc84ddc07d73c85808848fd11c6a5b9407500",
+      "baselineOutputSha": "d05c7d314ad3793b8bb0b94fc078f0ac4d14f844ea09924f176d2bc0a2040572",
+      "candidateOutputSha": "720788d1f98696cab8266ba3d93142eb8010a1382adc302446ad08ff219ac110",
+      "facts": {
+        "f1": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "f2": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "f3": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "f4": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Only f1 moved: Before put the ops/cutover.md sentence under Integration as an exact list item but annotated it \"to carry in the pull-request description; person step\", which makes PR text a requirement of the spec, while After carries the bare verbatim item with no PR-description, merge or comment deliverable. f2 and f4 were expected to move from fails to holds, but they already hold in Before: both outputs leave exactly the missing-id and line-number rows as verbatim in-scope checkboxes, move the comment row verbatim to Integration with the tracker update marker, drop the line-number entry and its environment state marker, and leave the five original Integration entries untouched. f3 holds in both, with three Applied lines carrying the original severity and raised-by and no scope or placement question. To keep all of this, keep the wording that says the operator instruction goes under Integration as one list item in its source's words with no added delivery channel, and keep the instruction to correct the two flagged placements verbatim without asking and to leave the other entries unedited. One side effect to watch, outside the facts: After added a \"No introduced or amended feature docs.\" line to Documentation impact; if that is not wanted, say that sections other than Acceptance criteria and Integration are left as they are unless a cluster names them.",
+      "wallMs": 9858,
       "verdict": "improved"
     }
   },
-  "repoSha": "43b5c7b1a38cbb773808bc23fecac5694582da0a"
+  "repoSha": "a22e03217252c01c8444754891e4685eea0d5232"
 }
