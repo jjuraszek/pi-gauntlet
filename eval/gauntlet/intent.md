@@ -1,4 +1,4 @@
-for: 10ff9e3c41e88f0da44627885819a821802f2b52d6c860ba2a991f76f5a50799
+for: c4a998790b00da8a2ddb379fc6330df343e3a0f6b3a3fe3e7dc43cad44ebd062
 
 ## Change
 Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality.
