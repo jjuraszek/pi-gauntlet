@@ -453,6 +453,11 @@ Each target gets its `intent.md` per `eval/README.md`. Samples, one decision eac
 | `gatekeep-pr/overrides-own-block-only` | rerun only | no fact changes; `scripts/entry-phase-evals.test.mjs` requires its saved replies to be fresh, and the report-file edit makes them stale |
 | `check-delivery/non-ac-row-listed` | new | with the five-row unrepaired ticket and a configured non-staging target, two rows are judged on that target, three are listed as not acceptance criteria, six `Integration` entries are listed as not checked, and the write still goes ahead |
 | `ship/pr-body-integration` | new | the pull request body carries `## Integration` verbatim; an existing body whose section differs from the spec's ends with one current copy and its other text unchanged; the offer asks nothing about entries and its options are unchanged |
+| `ship/spec-pr-integration-sync-failed` | new | when the body edit fails, the reply reports the body as not synchronized, still marks the pull request ready on row 1, and does not say the copy succeeded |
+| `gatekeep-pr-scope/integration-names-spec-path` | new | a pull request body whose `Integration` entry names another spec path: the contract is the spec the body names outside that block, with no "names a spec that is not at its head" blocker |
+| `gauntlet/pr-rework-integration-not-claims` | new | a reworked pull request whose body carries `## Integration`: no entry appears under keeps, changes or dropped claims |
+| `gauntlet/group-all-rows-sorted` | new | a grouped ticket where one unmatched group's rows all sort to `## Integration`: the unmatched-group question is not asked for it |
+| `gauntlet/handoff-follows-pointer`, `ordinary-request-no-run` | rerun only | no fact changes; `scripts/entry-phase-evals.test.mjs` requires their saved replies to be fresh, and the `ticket-acceptance.md` edit makes them stale |
 
 In rows 2-4 and in every sample that uses the seven-row ticket, "the definition" is D1's: "the cutover steps are posted as a comment on the ticket" is a `tracker update` entry and is treated like the other five non-criterion rows. The quoted ticket rows are unchanged.
 
@@ -485,6 +490,10 @@ Remove the two tests that pin the layout of the saved `gatekeep-pr/plain-report`
 - A finish without a pull request prints nothing about entries; the spec that ships with the code is the record.
 - Multi-leg: the sort runs first, the repo-group rule then gives every surviving row its disposition (a mixed row under a nonmember heading is `elsewhere: <repo>`), and `scope: AC <n>` indices count the checkbox rows of the spec's `## Acceptance criteria` section, cut rows included and `## Integration` entries excluded; each companion file carries `## Integration` and each leg's pull request body carries it from that leg's file.
 - An entry that spans several lines keeps its nested lines with it everywhere it is copied.
+- A pull request body whose `## Integration` copy cannot be written is reported once as not synchronized; the readiness action still runs and no step claims the copy succeeded. Add this to `skills/gauntlet/ship/spec-pr.md` and the body rule in `skills/gauntlet/ship/ship.md`.
+- The merge gate picks its contract path from the pull request body outside the `## Integration` block; a spec path named inside an entry is never a candidate. Add this to `skills/gatekeep-pr/reference/assessment.md`.
+- On pull request rework, the body's `## Integration` block is provenance, not a stated claim: the rework scout judges no entry against the diff. Add this to `skills/gauntlet/brainstorm/pr-subject.md` and the scout block in `skills/gauntlet/brainstorm/gatherer.md`.
+- The unmatched-repo-group question is asked only for a group that keeps at least one acceptance row after the sort; a group whose rows all moved to `## Integration` is not asked about. Add this to `skills/gauntlet/brainstorm/ticket-acceptance.md`.
 
 ## Tests
 
@@ -536,6 +545,10 @@ Remove the two tests that pin the layout of the saved `gatekeep-pr/plain-report`
 - Edge: multi-leg sort, ownership, indices and the companion copy - `eval/gauntlet` `legs-integration-sorted`, `scripts/ac-definition-owner.test.mjs`
 - Edge: finish without a pull request prints nothing - none: absence of an instruction
 - Edge: rows pasted at the gate are sorted - none: same instruction as row 20, no separate path
+- Edge: a failed body copy does not hold back readiness - `eval/ship` `spec-pr-integration-sync-failed`
+- Edge: a spec path inside an entry is not the contract - `eval/gatekeep-pr-scope` `integration-names-spec-path`
+- Edge: rework judges no entry as a claim - `eval/gauntlet` `pr-rework-integration-not-claims`
+- Edge: an emptied repo group is not asked about - `eval/gauntlet` `group-all-rows-sorted`
 - Whole suite - `npm test`
 
 ## Documentation impact
