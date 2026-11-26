@@ -1,4 +1,4 @@
-for: 8a677f33e53f3969e4332f5156e8037184aadd82b1abe9fbe3d84cf7f2a9a0c4
+for: e8a9d1e770e03c07a484d2f7d1c017b9e9638ec75458f0db57b6b330d59a1b82
 
 ## Change
 
@@ -9,6 +9,9 @@ Use shared wording at loop commit sites and pass its absolute path plus the reso
 
 Rebind this intent to the combined assembly on the rebased tree without replaying or rejudging any loop execution sample. Saved replies and verdicts remain earlier-revision evidence, not current coverage.
 
+The seed-dispositions replay indexes only acceptance criteria and assigns no Integration entry to the worker. Check the four dispositions, absent-disposition default, seed dispatch and partial-seed admission on this sample only.
+
 ## Expected to move
+- seed-dispositions/entries: fails -> holds - Leave all six Integration entries out of the ledger and worker assignments.
 
 - returned-line-admission/missing-line: fails -> holds - Stop the unsupported ledger in the driver without conversion, dispatch or mutation.

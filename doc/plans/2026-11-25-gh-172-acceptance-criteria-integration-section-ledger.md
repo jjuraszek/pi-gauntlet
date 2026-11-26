@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 11
+iterations: 12
 allowance: 10
-returned: 28 | home | 07b44d459ae1d66a0b1fc31895d7459731115d02
+returned: 35 | home | 480abeb8cbdb667910a5249c535876b85807a911
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -43,7 +43,7 @@ returned: 28 | home | 07b44d459ae1d66a0b1fc31895d7459731115d02
 | 32 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the review gives it no verdict |
 | 33 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the merge gate reads no ticket for it |
 | 34 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the delivery check lists it without a verdict |
-| 35 | open | 0 | |
+| 35 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs loop seed-dispositions plan/post-action-no-task; 4 passed, 0 failed; both models left all six entries unassigned in both selected replays; both saved plans passed checkPlan |
 | 36 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; both replay models gave none of the six Integration entries a verdict or blocker |
 | 37 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope integration-not-judged; both replays gave none of the six Integration entries a verdict or blocker; the missing error line number remained a gap |
 | 38 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered only tagging from the six Integration entries, ran it once on pick and ran nothing on stop |
@@ -83,3 +83,4 @@ row 22 done | Both spec writers drafted the import diagnostic from the design wh
 row 26 done | The merge gate accounts for the marked In Review entry without judging it and still reports a ticket row whose wording changed. | Reuse the integration-not-judged fixture to check ticket drift, file-delivered coverage and nested PR body claims.
 row 37 done | Both merge-gate replays left all six Integration entries without a verdict or blocker and flagged the missing error line number. | nothing new to build on
 row 28 done | Both spec writers nested the pause, drain and rollback commands under the ticket's Integration entry without requiring them in acceptance criteria, Design or Tests. | Reuse the post-action-sorted fixture to check command order, rollback placement and the distinction between operator steps and script output.
+row 35 done | Neither engine assigned any of the six Integration entries, and both saved plans cited the external audit command without scheduling it. | Reuse seed-dispositions to check ledger seeding and post-action-no-task to validate mixed rows with the plan checker.

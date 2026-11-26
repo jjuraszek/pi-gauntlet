@@ -1,7 +1,9 @@
-for: 2236cecf20ced69615e04e9b8c267fd150782aacfcb6d4de658612c3233ac50d
+for: 2c7c710108aa05032fce7f9dfb378485df1ecd7ff1f251ffc085056c276d6277
 
 ## Change
 Read dispatched wording and ticket inputs for loop worker messages. Keep home attribution in the committed ledger's returned field and outside-ledger rows in the supplied checkout-local return file, written before the single code commit. Remove all dispatch state from messages. Select only home-plain-commit and companion-return-file for this edit.
+
+The loop driver's seed-dispositions replay includes this persona and checks that no Integration entry becomes worker work. The standalone persona replies below are retained evidence from their earlier revision, not a replay of the new boundary.
 
 ## Expected to move
 - home-plain-commit/ordinary-message: fails -> holds - Use a plain outcome subject and the dispatched ticket.
