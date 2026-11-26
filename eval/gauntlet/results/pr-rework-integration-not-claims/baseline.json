@@ -1,0 +1,34 @@
+{
+  "sample": "pr-rework-integration-not-claims",
+  "arm": "baseline",
+  "skillSha": "e20ea3fab5ddba808358ba64230561466d3b88059012f4404ed04b9546513cb8",
+  "inputSha": "997117aeb78faef398842a6f8fb613b457259fc4758b56efc920e638bddce9ff",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps:\n- The PR's intent stands: the retry loop makes at most three attempts per request, as the base rules require.\n- The change stays confined to the loop bound in `src/retry.ts`. No other path changed.\n- The PR body's post-deploy integration steps are kept in their original nesting:\n  - After deploy, update the operator card with the new retry limit.\n    - Record the revised card's issue number in the shift log.\n- These integration steps happen outside the repository, so the diff cannot verify them. The limit written on the operator card must be three.\n\nchanges:\n- `src/retry.ts`: change the loop bound from `attempt < 4` to `attempt < 3`.\n  - `attempt` starts at zero and each iteration makes one request.\n  - So `attempt < 4` runs iterations 0-3, which is four attempts. That contradicts the PR's stated limit and the base rule of three.\n  - `attempt < 3` runs iterations 0-2, which is exactly three attempts.\n  - This one-line repair satisfies both the PR claim and the base rules, so no rewrite is needed.\n- The base sync was a no-op with no contract exceptions, so none are carried into this change. No scoped tests were run.\n\ndropped claims: none. The PR's only stated claim, \"at most three attempts per request,\" is false against the current diff, which allows four. The repair above makes it true, so the claim is kept rather than dropped.\n\nthreads: none (no unresolved threads)\n\ncarried specs: none\n\nconstraints added since fork: none\n",
+      "words": 240,
+      "wallMs": 10122,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps: Bound retries to three attempts per request. Retain the PR body’s post-deploy requirements: update the operator card with the new retry limit, then record the revised card’s issue number in the shift log. Neither operational action is implemented by the supplied diff.\n\nchanges: Repair `src/retry.ts` by changing `attempt < 4` to `attempt < 3`. With a zero-based counter and one request per iteration, the synchronized loop currently makes four attempts; this minimal repair meets the base rule requiring three. No rewrite is needed.\n\ndropped claims:\n- “The retry loop now makes at most three attempts per request.” The supplied diff permits four attempts.\n\nThreads: none.\nCarried specs: none.\n\nconstraints added since fork: none.\nBase sync: no-op; no contract exceptions.\nScoped tests: none run (supplied observation).\n",
+      "words": 130,
+      "wallMs": 8101,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9a21ed59c9601968d3cacd5df9b761d7e6c2a51c"
+}

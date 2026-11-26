@@ -157,6 +157,9 @@ from `pr-subject.md` (keep scout unconditional):
 > explicit missing-document results>`. These govern on every sync outcome,
 > including clean; worktree policy edits are proposals under `changes:` or
 > `dropped claims:`, never constraints.
+> Treat the PR body's `## Integration` block, including nested lines, as provenance
+> only: judge none of it against the diff and render none of it under `keeps:`,
+> `changes:`, or `dropped claims:`.
 > Treat the combined state as the starting state, not the target. Judge every
 > PR-stated claim against the diff and supplied base rules. Name the smallest repair
 > satisfying them; propose a rewrite only where no repair can. Render
