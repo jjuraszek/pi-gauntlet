@@ -95,3 +95,4 @@ repair verification | home 6c281f7 | iteration 18
 amended | 1 item(s) | Ledger exemption in the retired-tag check
 amended | 1 item(s) | Leg ownership kept through a placement correction
 amended | 1 item(s) | Bug repro steps stay in the Evidence list
+amended | 1 item(s) | Merge-gate report example without the after-merge observation
