@@ -1,17 +1,19 @@
-for: 14fd05ac2b38fff43a320dfe4e4afd2f32a05048cf58369319a2927517060b0f
+for: 725ec2f9ad4da1f33f9424dc1be932b6eb11313da8547e38e7227cb388b03a0b
 
 ## Change
 
-Select post-merge-menu for Integration handling. The standard PR-named step mechanism offers the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. Preserve earlier scope results as partial evidence; do not rerun other samples.
+Select integration-not-judged for scope accounting: match a verbatim, marked ticket row once without judging it, keep actual drift visible, and give no claim disposition to an observation under the body's Integration heading. Judge the mixed row's promised behavior and the absent line number separately. Select post-merge-menu for the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. These samples do not cover the rest of the target.
 
 Bind this intent to the shared gatekeep-pr assembly after #160's rejection, overrule and repair/report changes. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Run no scope model sample for this repair; selected #160 evidence lives in eval/gatekeep-pr/report.md.
 
-Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and post-merge observations; retain detailed mapping under show evidence and in posted coverage.
+Describe scope in a two-sentence plain-language opening using behavior names, not row numbers or labeled fields. Preserve covered mechanisms, deferred references, deliberate deviations and their approved reasons, external repositories and functionality-only coverage; retain detailed mapping under show evidence and in posted coverage.
 
 Render the single post menu after approve or merge, execute the validated selection once in step order, and settle with the not-run list. Pause only for a selected nested skill. The replay wrapper requests no post-pick menu re-render except inspection or invalid-input handling. Preserve cleanup guards and selected-only authority.
 
 ## Expected to move
 
+- integration-not-judged/cross-check: fails -> holds - Account for the moved tracker update; report only the drifted line-number row.
+- integration-not-judged/claims: fails -> holds - Check the importer's behavior claim, not the nested live assertion.
 - post-merge-menu/f1: holds -> holds - Offer tagging from Integration and guide publication from the PR body; do not offer the other five Integration entries.
 - post-merge-menu/f2: holds -> holds - Stop runs neither action.
 - post-merge-menu/f6: holds -> holds - The PR coverage and tag picks settle once without publishing the guide or removing the worktree.

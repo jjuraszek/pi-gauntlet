@@ -352,8 +352,9 @@ output, not authored prose; anything written in your own words is labeled
 dispositions are judged against the recorded CI evidence and the diff; on the
 local path, against the run and the diff. Claim-check the PR body -
 **material claims only** (test/verification/behavior assertions: "added
-X", "tests cover Y", "fixed Z"), not qualitative prose. Disposition each
-claim as one of:
+X", "tests cover Y", "fixed Z"), not qualitative prose. Exclude the body's
+`## Integration` section, including nested text, from the claim list. Give each
+remaining material claim one disposition:
 
 - `matched` - evidence in the run or diff confirms it.
 - `contradicted` - evidence in the run or diff refutes it.

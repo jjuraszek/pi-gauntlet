@@ -1,0 +1,4 @@
+- cross-check: judged: Under show evidence the only differing ticket row is ticket row 3 (the added column number); the tracker update at row 2 is not reported missing or different. Ticket drift is not a blocker.
+- functionality: judged: Missing-id rejection is covered from the handler and test. The absent line number is a gap and a blocker. Neither missing staging confirmation nor the ticket's extra column number adds a gap.
+- entries: judged: None of the six operational entries (vendor confirmation, queue drain, cutover, tag, deployed login, production total) or the tracker update gets a coverage outcome or raises a blocker.
+- claims: judged: The PR body's missing-id assertion is matched against evidence. Neither the staging totals entry under its Integration heading nor its nested assertion gets a claim disposition, including unverifiable-pre-merge.

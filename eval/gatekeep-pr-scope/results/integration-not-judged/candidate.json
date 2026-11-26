@@ -1,0 +1,100 @@
+{
+  "sample": "integration-not-judged",
+  "arm": "candidate",
+  "skillSha": "725ec2f9ad4da1f33f9424dc1be932b6eb11313da8547e38e7227cb388b03a0b",
+  "inputSha": "315511000cb162c7937e90a63253ea56b6cc200c3f0a20ae3c9b43ee44a9f434",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR makes the importer refuse an import record that has no id before writing it, and adds the import validation spec; you are its author. The spec keeps two behaviors in scope: refusing records without an id, which is covered by a test showing the record is refused and nothing is written, and putting the line number in the import error, which this PR does not deliver yet.\n\nOne problem blocks merging: the spec requires the import error to name the line of the bad record, but the importer returns only the message and never works out a line number (src/importer.mjs:12). An operator importing a large file therefore cannot tell which record failed, and no test checks for a line number (test/importer.test.mjs:8). After merge, the spec asks the person merging to tag the release. No documented command was found for that step, so it will be listed for you to do by hand. The spec's staging and production checks are confirmed after deploy and are not part of this review.\n\nI recommend deliver because the missing line number is a code change inside this PR that the repair can make and test.\n\nPick one:\n1. deliver - add the line number to the import error with a test, rebase on main, watch the checks, and repeat until merge is offered. [recommended]\n2. assess - post the problem to the PR as a review and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n---\n\nshow evidence\n\nstate: not supplied in this fixture (no run record path was provided)\ncourse: none (unset)\ntarget: acme/widgets #210\nscope baseline: source spec, path doc/specs/import-validation.md, rows 1-2, design \"Reject records without an id before writing them. Include the line number in the error.\"\nrepair rounds used 0, syncs used 0; caps unset until a course is picked\npoll deadline: none; wave checkpoint: none; failed prerequisites: none\nprior review: none\nsync: not run (no --rebase)\n\nEvidence record (source ci):\n- test - completed, success, on the assessed head; ran the test in the diff (test/importer.test.mjs:8); run URL unavailable\n- No deployed environment was queried.\n- merge state CLEAN, mergeable MERGEABLE, head pushable true\n\nClaim dispositions (PR body; its Integration section is excluded from the claim list):\n- \"The importer rejects records with no id.\" - matched: src/importer.mjs:12 returns the missing-id error before writing, and test/importer.test.mjs:8 asserts the rejection and zero writes, with the test check green.\n\nAC outcomes:\n- Row 1, \"the importer rejects a record without an id; the operator confirms the rejection on staging\" - covered. The rejection ships with a test. The staging confirmation is an after-deploy observation, not judged here.\n- Row 2, \"the import error includes the line number\" - gap. The error carries only the message, and no test covers line numbers.\n- Design, \"Reject records without an id before writing them.\" - covered.\n- Design, \"Include the line number in the error.\" - gap. This is the same defect as row 2.\n- Spec Integration entries - no outcome. They are not requirements and do not block.\n\ncross-check: differs on row 3 - the spec governs here; /skill:check-delivery judges the ticket\n\nCheck dispositions: none\n\nBlocker numbering: problem 1 -> L1 (row 2 gap), L2 (Design line-number clause)\n\nDrafted payloads:\n- L1/L2 (target: file): in src/importer.mjs:12, track the source line of each record and include it in the missing-id error. In test/importer.test.mjs, assert that the error names the line of the id-less record. In docs/import.md, state that the error names the line.\n\nDrafted replies: none\n\nPR-named after-merge steps:\n- tag the release - open, because no command is documented for it. Source: \"after merge - person merging: tag the release; done when the tag exists\"\n\ngauntlet: gate=gatekeep-pr/initial recommended=1\n\nI recommend deliver because the missing line number is a code change inside this PR that the repair can make and test.\n\nPick one:\n1. deliver - add the line number to the import error with a test, rebase on main, watch the checks, and repeat until merge is offered. [recommended]\n2. assess - post the problem to the PR as a review and make no repairs.\n3. stop - remove the worktree and leave the PR as it is.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n",
+      "words": 716,
+      "wallMs": 40123,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/initial recommended=1\n\nThis PR rejects records without an id before writing them, and you are its author. The missing-id rejection is covered by code and a test, but the promised line number is missing from import errors; staging confirmation remains an operational check, not a pre-merge requirement.\n\nOne problem blocks merging: the missing-id error contains no line number, so an operator cannot locate the rejected record from the error. The implementation and test need to include and verify that location (src/importer.mjs:12; test/importer.test.mjs:8).\n\nThe test check passed in CI. The spec also asks the person merging to tag the release after merge, but no trusted command for that action was supplied, so that step cannot run yet.\n\nI recommend deliver because the missing line number is a repair to behavior the spec already promises.\n\nPick one:\n1. deliver - add and test error line numbers, rebase on the base branch if needed, watch CI, and continue until merge is offered. [recommended]\n2. assess - post the missing line number as a review comment on your PR and make no repairs.\n3. stop - end the assessment and remove the worktree if it is safe to remove.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n\n### Show evidence\n\nNo external command or write is needed for this selection. The fixture does not supply a saved-progress path, commit SHA, worktree path, or helper-output paths; those values cannot be reconstructed without tools.\n\n**Scope and coverage**\n\nThe governing contract is doc/specs/import-validation.md at the commit being reviewed.\n\n- Covered: \"the importer rejects a record without an id; the operator confirms the rejection on staging\". src/importer.mjs:12 rejects the record before writing, and test/importer.test.mjs:8 verifies rejection and zero writes. The staging confirmation is an external observation, so its absence is neither proof nor a gap in this gate.\n- Gap: \"the import error includes the line number\". The error contains only a message, and no test covers line numbers.\n- Design: rejection before writing is covered. Including the line number is missing and contributes to the same blocker, not a second problem.\n- docs/import.md agrees with the existing missing-id behavior and does not promise line numbers.\n\ncross-check: differs on row 3 - the spec governs here; /skill:check-delivery judges the ticket\n\nTicket row 2 matches the spec's Integration entry marked \"ticket row, not an acceptance criterion: tracker update\" and is excluded from the remaining comparison. Ticket row 1 matches the first spec criterion; ticket row 3 additionally asks for a column number, which this spec does not require.\n\nThe spec's Integration entries receive no acceptance outcomes and create no blockers. This includes vendor confirmation, queue draining, cutover, release tagging, identity-provider login, production-total comparison, staging rejection confirmation, and the tracker update.\n\n**Verification and claims**\n\n- Evidence source: CI.\n- Check: test; conclusion: success on the assessed head.\n- The check exercised test/importer.test.mjs:8.\n- No local verification run or deployed-environment query was reported.\n- Material claim: \"The importer rejects records with no id.\"\n  - Disposition: matched.\n  - Evidence: the rejection before writing in src/importer.mjs:12 and the rejection/zero-writes assertions in test/importer.test.mjs:8.\n- The PR body's Integration section is excluded from material-claim checking. Its staging-total observation is not an unverified claim or a blocker here.\n\n**Findings and drafted repair**\n\n- L1: missing error line number; open.\n- Visible problem 1 maps to L1.\n- The acceptance-criterion gap and missing Design behavior are one defect.\n- No independent reviewer finding or approach conflict was reported.\n- No smaller points or reply drafts were supplied.\n- Draft repair: carry the input line number into the missing-id error at src/importer.mjs:12 and extend test/importer.test.mjs:8 to assert that number while retaining rejection and zero-write assertions. The fixture does not include enough source text to provide an exact patch.\n\n**Permissions and progress**\n\n- PR: acme/widgets#210; OPEN; not draft.\n- Viewer: maria; author; WRITE access.\n- Head pushable: true.\n- Mergeable: MERGEABLE.\n- Merge state: CLEAN.\n- Course: unset.\n- No repair, sync, approval, merge, or post has been selected.\n- Repair and sync caps have not been initialized; no repair or sync was performed in this fixture.\n- No watch deadline is established.\n\n**After-merge action**\n\n- Action: tag the release.\n- Source: \"after merge - person merging: tag the release; done when the tag exists\".\n- Command: unresolved because no trusted command was supplied.\n- The PR body's staging-total check is an observation, not an action assigned to the person merging.\n\nI recommend deliver because the missing line number is a repair to behavior the spec already promises.\n\nPick one:\n1. deliver - add and test error line numbers, rebase on the base branch if needed, watch CI, and continue until merge is offered. [recommended]\n2. assess - post the missing line number as a review comment on your PR and make no repairs.\n3. stop - end the assessment and remove the worktree if it is safe to remove.\n\nType a number; show evidence prints the full record. overrule <n> sets problem <n> aside for this run\n",
+      "words": 800,
+      "wallMs": 34257,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "9f3ffc52283a6f111cda211489883dbcbe052e07b3d26a3ea849357f864e38e9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "31d9d293712968a6dcf7424062f0eb9532d90d4670181d4a06a6b4242d88dded",
+      "baselineOutputSha": "c24c74cc22633be0e42373dbd1a4133ffb0fafa35e490c769cfac68e6d0148ad",
+      "candidateOutputSha": "b8f4e2e3b6f325a134b6a373eec5d2f0803f828d37a394f3dc9a5b7326988003",
+      "facts": {
+        "cross-check": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "functionality": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "claims": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the two facts it was meant to move and lost none. The cross-check line now reads \"differs on row 3\" instead of \"differs on rows 2, 3\", so the tracker update that the spec moved into Integration is no longer reported as drift, and the drift still does not block. The claim list now states that the body's Integration section is excluded, so the staging-total assertion no longer gets the \"unverifiable-pre-merge\" disposition that Before gave it, while the missing-id claim is still matched to src/importer.mjs:12 and test/importer.test.mjs:8. Functionality held in both: the rejection is covered, the line number is a gap and the single blocker, and the staging confirmation is explicitly not judged. Entries held in both, and After makes it firmer with the explicit \"Spec Integration entries - no outcome\" line. To keep these, retain the wording that matches a marked ticket row once without judging it and that drops anything under the body's Integration heading from the claim list. Keep the tag step's \"open\" status clearly a post-merge step status, so it is not read as a coverage outcome. Two things to watch: the prose sentence \"The spec's staging and production checks are confirmed after deploy and are not part of this review\" is fine as is, but it should not grow into per-entry statements that read as dispositions; and the After evidence repeats the \"gauntlet: gate=\" header before the re-rendered menu, which Before did not, though this affects no fact here.",
+      "wallMs": 11070,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "9f3ffc52283a6f111cda211489883dbcbe052e07b3d26a3ea849357f864e38e9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "31d9d293712968a6dcf7424062f0eb9532d90d4670181d4a06a6b4242d88dded",
+      "baselineOutputSha": "e5d770656f6ded73d4d31c4c3fa2e9c1c35d6a2b1cc962bfff0f64bf9ae22f02",
+      "candidateOutputSha": "eb51c82741e1df805ebe2c746c97a52fb41998b7d5f72c655c8d9e13afd2be41",
+      "facts": {
+        "cross-check": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "functionality": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "claims": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved both expected facts and lost none. The cross-check now reads \"differs on row 3\" and says outright that ticket row 2 matches the spec's marked Integration entry and is excluded, where Before reported \"differs on row 2\" and so treated the tracker update as the drift while never naming the column number. The claims section now gives a disposition only to \"The importer rejects records with no id.\" and says the PR body's Integration section is excluded from claim checking, where Before gave the staging-total assertion \"unverifiable-pre-merge\". Functionality and entries hold in both: the missing-id rejection is covered from src/importer.mjs:12 and the test, the line number is the single gap and blocker, staging confirmation and the column number add no gap, and the operational entries and tracker update get no coverage outcome or blocker. To keep this, hold on to the wording that matches a verbatim marked ticket row once without judging it and reports only the remaining drift by ticket row number. Also keep the explicit statement that body Integration observations get no claim disposition. Two risks to watch: the mixed row is labelled \"Covered\" with the staging clause quoted inside it, so keep the adjacent sentence saying the staging confirmation is an external observation and neither proof nor a gap, or a reader may take the staging part as covered. And the list of Integration entries says \"receive no acceptance outcomes\"; keep that as a single blanket statement rather than per-entry lines, which could read as coverage outcomes.",
+      "wallMs": 10661,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5e71a3b01aeda3c9c839b05eea84e0fff03ae802"
+}

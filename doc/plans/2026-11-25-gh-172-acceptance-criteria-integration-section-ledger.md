@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
-returned: 22 | home | df20c4a3d0f276b59eb43a53cdc3afd61778d8be
+returned: 26 | home | 5e71a3b01aeda3c9c839b05eea84e0fff03ae802
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -34,7 +34,7 @@ returned: 22 | home | df20c4a3d0f276b59eb43a53cdc3afd61778d8be
 | 23 | cut | 0 | deviates: the ticket row stays word for word as the in-scope row with no environment tag and is proved by a check in the checkout; the row is also copied to `Integration` as a live check |
 | 24 | cut | 0 | deviates: brainstorming asks no data question |
 | 25 | cut | 0 | deviates: the row is a tracker update and moves to `Integration` |
-| 26 | open | 0 | |
+| 26 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope integration-not-judged; both replays reported only ticket row 3 as drift, not the In Review entry; cached spec-writing, approval, council-edit and conformance checks passed |
 | 27 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays carried the queue-drain entry and its indented detail word for word |
 | 28 | open | 0 | |
 | 29 | cut | 0 | deviates: the entry is one line in the design's own words with no required details; it is written in `Integration` and not in the design text |
@@ -45,7 +45,7 @@ returned: 22 | home | df20c4a3d0f276b59eb43a53cdc3afd61778d8be
 | 34 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the delivery check lists it without a verdict |
 | 35 | open | 0 | |
 | 36 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; both replay models gave none of the six Integration entries a verdict or blocker |
-| 37 | open | 0 | |
+| 37 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope integration-not-judged; both replays gave none of the six Integration entries a verdict or blocker; the missing error line number remained a gap |
 | 38 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope post-merge-menu; 2 passed; both replays offered only tagging from the six Integration entries, ran it once on pick and ran nothing on stop |
 | 39 | open | 0 | |
 | 40 | cut | 0 | deviates: the pull request body carries the whole section; the offer lists nothing above its options |
@@ -80,3 +80,5 @@ row 27 done | Both spec-writing replays kept the ticket's queue-drain entry and 
 row 38 done | Of the six Integration entries, both replays offered only tagging, ran it once when selected, and ran no post step when the merger chose stop. | nothing new to build on
 row 21 done | The approval gate lists each moved ticket row once with its kind, separate from scope cuts, without asking about the move. | Reuse the scope-cuts-listed fixture to check that the gate lists marked Integration entries and omits unmarked ones.
 row 22 done | Both spec writers drafted the import diagnostic from the design when the ticket's only row was an operator cutover, and kept that step under Integration. | Reuse the ticket-all-rows-sorted fixture to check the drafted header, diagnostic and marked person step.
+row 26 done | The merge gate accounts for the marked In Review entry without judging it and still reports a ticket row whose wording changed. | Reuse the integration-not-judged fixture to check ticket drift, file-delivered coverage and nested PR body claims.
+row 37 done | Both merge-gate replays left all six Integration entries without a verdict or blocker and flagged the missing error line number. | nothing new to build on
