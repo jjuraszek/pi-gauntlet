@@ -1,8 +1,8 @@
 {
   "sample": "option-6-handoff",
   "arm": "candidate",
-  "skillSha": "bb16ff311a260eadfb4dcd259df3c85c1caa75ac395f9daf147e0096386a0e39",
-  "inputSha": "a7a0a9a523ebd19d7b6bfb7abc741db4e1f93e84d4f098aed6833eac6965cb27",
+  "skillSha": "99e34bc15def4181f660cc0e69d89d58feec07a9724a2b5671b9fb5330a9864c",
+  "inputSha": "17dffb05fbe2cdacfd799c90e754b5dafaee50ba2903665717675047b67f51ee",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,41 +17,41 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Initial gate (Context 12.0%; loopEngine `maxIterationsPerRow: 4`)**\n\n```\ngauntlet: gate=brainstorming/user-review-gate recommended=1\nRepeated exports return one receipt.\n\nSpec written and committed to widget/doc/specs/export.md (worktree: /work/widget/.worktrees/spec-export).\nScope cuts: none\n\nCouncil: 0 applied, 0 deferred, 0 rejected\nLoop engine unavailable: this spec has no acceptance-criteria rows.\n\nPick one:\n1 - plan engine: write a task plan, then implement it in reviewed waves. [recommended]\n- `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).\n- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).\n\n3 - council explanation: show the council audit, then return to this gate without approving.\n\n4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.\n\nRecommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.\n\nOr tell me what to change in the spec, paste acceptance-criteria rows (the ticket was not fetched: tracker unreachable), or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n**Reply `4`: success path**\n\n1. **Header persistence.** In the header, `**Amend-grant:** none` stays, and `**Engine:** deferred` is added directly below it. Then `git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md` and `commit --amend --no-edit -q`. `show HEAD:doc/specs/export.md` confirms both lines.\n2. **Base proof (one block, so the home recipe runs as written).**\n   - `DEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)` returns `main`, not the creation ref `staging`.\n   - `git -C … fetch origin \"$DEFAULT\"` succeeds.\n   - `git -C … diff --name-status origin/main...HEAD` prints `A doc/specs/export.md`. The diff is spec-only.\n3. **Publish.**\n```bash\ngit -C /work/widget/.worktrees/spec-export push -u origin spec-export\ngh pr create --draft --head spec-export --base \"$DEFAULT\" --title \"Export receipts\" --body-file - <<'EOF'\nRepeated exports return one receipt.\nEOF\n```\n4. **Ordering after create.** These print in this order:\n   - `https://github.com/acme/widget/pull/42`\n   - ``Continue: start a fresh session, then run `/skill:brainstorming #42`.``\n   - `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`\n5. **Cleanup.**\n   - `branch --show-current` prints `spec-export`.\n   - ls-remote, tree HEAD and the primary's ref all read `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, so that SHA is pinned.\n   - The tree matches `home:`, so the recorded destroy runs from `/work/widget`: `git worktree remove /work/widget/.worktrees/spec-export && git worktree prune`.\n   - Read-back: the tree is neither listed nor on disk, and the ref still equals the pin.\n   - `git -C /work/widget update-ref -d refs/heads/spec-export aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` runs. Read-back finds no ref.\n   - `acme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export`\n\nThere is no plan, loop, or handoff brief.\n\n**Reply deltas (before any write)**\n\n- **Flagged `4 --fund-rounds=3`:** This is rejected. Nothing is written and the gate waits. The one question: \"`--fund-rounds=3` is accepted only on row 1 (plan engine) - did you mean `1 --fund-rounds=3`, or a clean `4`?\"\n- **Change `4 but rename receipts to vouchers`:** This is a change request, not approval.\n  - Revise the spec, then recommit it with the same quoted-heredoc commit, keeping the audit body.\n  - Re-dispatch the summarizer to a fresh `mktemp` path, then re-present the gate.\n  - No Engine or grant is written. Approval is read only from the reply to the new gate.\n- **Audit `3 4`:** This prints `git -C … show -s --format=%b HEAD` (`Applied: none / Deferred: none / Rejected: none`). It then re-presents the identical gate above verbatim.\n  - There is no status or settings call and no recommendation recompute.\n  - Nothing is written, because a reply carrying `3` never grants.\n\n**Invalid diff**\n\nThe amend succeeds, but `diff --name-status origin/main...HEAD` prints `A doc/specs/export.md` and `M src/export.ts`. In the separate case, the staging creation-ref commit gives `M .gitignore` instead. The amended spec and checkout are retained, with no push and no removal. The gate is redrawn with row 4 replaced:\n```\nWithheld: draft PR - diff against origin/main is not spec-only (src/export.ts)\n```\nIn the separate case the parenthetical reads `(.gitignore)`. Rows 1 and 3 remain, and Recommended stays at 1.\n\n**Rejected push**\n\nThe proof is clean, but the push prints `remote: permission denied`. That output is printed, and the amended commit and worktree are kept. The same gate is re-presented with row 4 retryable. There is no create, completion, or cleanup.\n\n**Create failure**\n\nPush succeeds, but create prints `GraphQL: unavailable`. The output reports that `spec-export` was pushed at `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Brainstorm stays incomplete, there is no cleanup, and the retry view renders.\n\nAt Context 12.0%:\n```\ngauntlet: gate=brainstorming/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\nAt Context unknown:\n```\ngauntlet: gate=brainstorming/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\n- **Bare `approve` (either view):**\n  1. Print `Taking \"approve\" as option 4 - retry opening the draft PR`.\n  2. Run `git -C … fetch origin spec-export`.\n  3. Prove `origin/spec-export` equals HEAD: both are `aaaa…aaaa`.\n  4. Re-run the same `gh pr create … <<'EOF'` only, which returns `…/pull/42`.\n\n  There is no amend or push.\n- **Reply `1` or `2`:** Nothing is written. The one question: \"Only row 4 (retry opening the draft PR) is available - reply `4`?\"\n- **Moved retry:** The refresh shows `origin/spec-export` at `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`, while HEAD is at `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Both are printed and the flow stops.\n\n**Cleanup deltas (after URL, Continue line and completion)**\n\n- **Differing remote:** `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is at bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, tree is at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- **Missing remote (exit 2):** `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is missing`\n- **Moved branch:** The tree is removed, but the ref is now at bbbb, which differs from the pin. The ref is kept.\n  `acme/widget: removed /work/widget/.worktrees/spec-export, branch spec-export kept - spec-export moved to bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- **Safe `workspace destroy spec-export --keep-branch`:** It runs from the primary with no native removal. Read-back shows the tree gone and the ref at aaaa, so the gated `update-ref -d … aaaa…` runs.\n  `acme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export`\n- **Guarded `--published-only`:** Its source deletes only after removing the tree, and only at the pinned SHA. It exits 0, and read-back finds neither tree nor branch. No second deletion is needed. The report is the same removed/deleted line.\n- **Unguarded wrapper:** It is refused before execution.\n  `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - destroy deletes spec-export unguarded`\n- **Host-owned `/work/host/spec-export`:** `acme/widget: kept /work/host/spec-export and spec-export - host-owned`\n  - This tree is outside the recorded `home:`, so a later `brainstorming #42` stops on a branch checked out at another path.\n  - To recover: switch or remove that host checkout by hand, then rerun.\n- **Failed native removal:** The output `worktree is locked` is printed. Read-back shows the tree still listed and on disk, and the branch present. There is no `--force` fallback.\n  `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - removal failed: worktree is locked`\n",
-      "words": 1107,
-      "wallMs": 50584,
+      "text": "## Initial gate\n\nNarrated before the summary `Read`: `gauntlet_setting({ key: \"loopEngine\" })` returns maxIterationsPerRow 4. Row 2 is withheld, so that value is unused. `phase_tracker({ action: \"status\" })` returns `Context: 12.0%`. Then the narrated `Read` of the summary file runs, and the narrated `rm \"$SUMMARY_PATH\"` follows.\n\n```\ngauntlet: gate=brainstorm/user-review-gate recommended=1\nRepeated exports return one receipt.\n\nSpec written and committed to widget/doc/specs/export.md (worktree: /work/widget/.worktrees/spec-export).\nScope cuts: none\n\nCouncil: 0 applied, 0 deferred, 0 rejected\n\nLoop engine unavailable: this spec has no acceptance-criteria rows. The ticket was not fetched (tracker unreachable); paste acceptance rows to add them.\n\nPick one:\n1 - plan engine: write a task plan, then implement it in reviewed waves. [recommended]\n- `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).\n- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).\n\n3 - council explanation: show the council audit, then return to this gate without approving.\n\n4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:gauntlet #<N>` there.\n\nRecommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n```\n\n## Success: reply `4`\n\n**Header persistence.** Edit `**Amend-grant:** none` and add `**Engine:** deferred` directly below it. Then:\n- `git -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md`\n- `git -C … commit --amend --no-edit -q`\n- `git -C … show HEAD:doc/specs/export.md` confirms both lines are present.\n\n**Base proof (sequence \"PROOF\").**\n- `gh repo view --json defaultBranchRef -q .defaultBranchRef.name` returns `main`. The creation ref is not used as the base.\n- `git -C … fetch origin main`\n- `git -C … diff --name-status origin/main...HEAD` returns `A\tdoc/specs/export.md`. The diff is spec-only.\n\n**Body (sequence \"BODY\").**\n- `SCRATCH=…/.git/gauntlet/tmp`\n- `BODY=$(mktemp \"$SCRATCH/pr-body.XXXXXX\")`\n- The body is written with the **file writer, not a heredoc**, because the Integration section contains a bare `EOF` line. Exact contents:\n\n```markdown\nRepeated exports return one receipt.\n\n## Integration\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n```\n\n**Push and create (sequences \"PUSH\" and \"CREATE\").**\n```bash\ngit -C /work/widget/.worktrees/spec-export push -u origin spec-export\n(cd /work/widget/.worktrees/spec-export && gh pr create --draft --head spec-export --base main --title \"Export receipts\" --body-file \"$BODY\")\n```\n\n**Output, in order:**\n1. `https://github.com/acme/widget/pull/42`\n2. ``Continue: start a fresh session, then run `/skill:gauntlet #42`.``\n3. `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`\n4. Cleanup (sequence \"CLEANUP\"), described below.\n\n**CLEANUP.**\n- **Pin the SHA.** `branch --show-current` prints `spec-export`. The `ls-remote` check, tree `HEAD` and primary `refs/heads/spec-export` all read `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, so that SHA is pinned.\n- **Destroy.** The recorded `home:` matches. The recorded destroy runs from `/work/widget`: `git worktree remove /work/widget/.worktrees/spec-export && git worktree prune`.\n- **Read-back.** The tree is neither listed nor on disk. The ref still equals the pinned SHA.\n- **Ref deletion.** `git -C /work/widget update-ref -d refs/heads/spec-export aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. A second read-back finds no ref.\n- **Report:** `acme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export`\n\nNo plan, loop or handoff brief follows.\n\n## Reply deltas (no writes for any of these)\n\n- **Flagged, `4 --fund-rounds=3`:** The gate keeps waiting. Question: *\"`--fund-rounds=3` belongs to row 1 (plan engine); flags aren't accepted on row 4. Did you mean `4` or `1 --fund-rounds=3`?\"*\n- **Change, `4 but rename receipts to vouchers`:** This is treated as a change request, not an approval.\n  - Revise the spec, including the H1.\n  - Recommit with the quoted-heredoc commit, keeping the audit body.\n  - Re-dispatch the summarizer to a fresh temp path and re-present the gate.\n  - No Engine or grant is written and no PR is opened. Approval is read only from the reply to the re-presented gate.\n- **Audit, `3 4`:** `git -C … show -s --format=%b HEAD` prints `Applied: none` / `Deferred: none` / `Rejected: none`. The gate is then re-presented verbatim, with no new status or settings call. No approval is recorded; only a clean `4` on that gate approves.\n\n## Invalid diff\n\nAfter a clean `4`, the amend succeeds and PROOF prints the offending lines against `origin/main`:\n\n| Variant | PROOF output |\n|---|---|\n| Earlier commit | `A doc/specs/export.md`, `M src/export.ts` |\n| Creation-ref staging | `M .gitignore` |\n\nNothing is pushed or removed, and the amended spec is retained. The gate is redrawn with rows 1 and 3 still available, plus one of these lines:\n\n```\nWithheld: draft PR - diff against origin/main is not spec-only (src/export.ts)\nWithheld: draft PR - diff against origin/main is not spec-only (.gitignore)\n```\n\n## Rejected push\n\nPROOF passes, then PUSH prints `remote: permission denied`. The amended commit and the worktree are kept. The gate is re-presented with `4` retryable. No create, no completion.\n\n## Create failure\n\nPUSH succeeds. CREATE prints `GraphQL: unavailable` and branch `spec-export` (pushed at `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`). Brainstorm stays incomplete.\n\n**View at Context: 12.0%**\n```\ngauntlet: gate=brainstorm/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\n**View at Context: unknown**\n```\ngauntlet: gate=brainstorm/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\n**Bare `approve` (either view):**\n1. Print `Taking \"approve\" as option 4 - retry opening the draft PR`.\n2. `git -C … fetch origin spec-export`.\n3. `origin/spec-export` equals `HEAD`, both `aaaa…aaaa`.\n4. Run CREATE only, then the success output sequence and CLEANUP. No amend and no push.\n\n**Replies `1` or `2`:** *\"Only row 4 (retry opening the draft PR) is available; reply `4`?\"* Nothing is written.\n\n**Moved retry:** `origin/spec-export bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ≠ HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Stop.\n\n## Cleanup deltas\n\n- **Differing remote:** `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is at bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, tree is at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- **Missing remote:** `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is missing`\n- **Moved branch:** `acme/widget: removed /work/widget/.worktrees/spec-export, branch spec-export kept - spec-export moved to bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- **Safe keyed wrapper:** `workspace destroy 'spec-export' --keep-branch` runs, with no native removal. Read-back shows the tree is gone and the ref is at `aaaa…`. The guarded `update-ref -d` runs, then: `acme/widget: removed …/spec-export, deleted spec-export`\n- **Guarded wrapper:** The source check passes. `workspace destroy 'spec-export' --published-only` exits 0. Read-back finds neither tree nor branch, so no second deletion runs. Same removed/deleted report.\n- **Unguarded wrapper:** Refused before execution: `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - destroy deletes spec-export unguarded`\n- **Host-owned:** `acme/widget: kept /work/host/spec-export and spec-export - host-owned`\n  - This tree is outside the recorded `home:`. A later `/skill:gauntlet #42` will stop because `spec-export` is checked out at another path.\n  - To recover, free the branch in the host checkout (switch it off `spec-export` or remove it with the host's tooling), then rerun.\n- **Failed native removal:** `worktree is locked` is printed. Read-back shows the tree still listed and on disk, and the branch still present: `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - removal failed: worktree is locked`\n",
+      "words": 1117,
+      "wallMs": 59837,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=brainstorming/user-review-gate recommended=1\nRepeated exports return one receipt.\n\nSpec written and committed to acme/widget/doc/specs/export.md (worktree: /work/widget/.worktrees/spec-export).\nScope cuts: none\nCouncil: 0 applied, 0 deferred, 0 rejected\n\nAcceptance criteria: none - ticket not fetched (tracker unreachable).\nLoop engine unavailable: this spec has no acceptance-criteria rows. You may paste the ticket’s acceptance rows.\n\nPick one:\n1 - plan engine: write a task plan, then implement it in reviewed waves. [recommended]\n- `--amends-stop`: stop for review before a blocked task changes scope, acceptance criteria, or contracts; otherwise apply and report at finish.\n- `--fund-rounds=N`: fund N extra fix rounds per task after escalation; otherwise stop and ask.\n\n3 - council explanation: show the council audit, then return to this gate without approving.\n\n4 - draft PR: approve the spec's content, publish a draft PR, and stop this flow for a fresh session to continue there.\n\nRecommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**Narrated checkpoints only; nothing below is executed.** After rendering, remove the external summary temp file.\n\n### Success — reply `4`\n\n**Publication sequence P:** edit home to contain:\n```markdown\n**Amend-grant:** none\n**Engine:** deferred\n```\nNarrate:\n```bash\ngit -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md\ngit -C /work/widget/.worktrees/spec-export commit --amend --no-edit -q\ngit -C /work/widget/.worktrees/spec-export show HEAD:doc/specs/export.md\nDEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)\ngit -C /work/widget/.worktrees/spec-export fetch origin \"$DEFAULT\"\ngit -C /work/widget/.worktrees/spec-export diff --name-status origin/$DEFAULT...HEAD\n```\nHeader verification succeeds; DEFAULT is `main`, not `staging`. Resolve flowGuards specDirs; inspect the pinned whole diff and hunks: only `A doc/specs/export.md`. One Leg means no companion publication.\n\n**Create command C**, run against the worktree repository:\n```bash\ngh pr create --draft --head spec-export --base \"$DEFAULT\" --title \"Export receipts\" --body-file - <<'EOF'\nRepeated exports return one receipt.\nEOF\n```\nP continues with:\n```bash\ngit -C /work/widget/.worktrees/spec-export push -u origin spec-export\n```\nthen C.\n\n**Success sequence S:** print:\n```text\nhttps://github.com/acme/widget/pull/42\nContinue: start a fresh session, then run `/skill:brainstorming #42`.\n```\nNarrate `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`, then cleanup.\n\n**Cleanup sequence K:** derive primary `/work/widget`; verify current branch, live remote, tree HEAD and primary branch ref. All three SHAs equal `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`. Recorded ownership matches. Run:\n```bash\ngit -C /work/widget worktree remove /work/widget/.worktrees/spec-export\ngit -C /work/widget worktree prune\n```\nRead worktree list, disk presence and branch ref. Tree is absent; ref remains pinned. Run:\n```bash\ngit -C /work/widget update-ref -d refs/heads/spec-export aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\nRead back: ref absent. Print:\n```text\nacme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export\n```\n\n### Independent pre-success replies\n\n**Flagged:** no writes. Gate waiting. Which rendered row do you want, since `--fund-rounds=3` belongs to row 1, not row 4?\n\n**Change:** no publication approval. Rename receipts to vouchers, reconcile affected spec text, recommit with the audit, dispatch a fresh summarizer/temp path, and re-gate.\n\n**Audit:** read the initial commit body and print:\n```text\nApplied: none\nDeferred: none\nRejected: none\n```\nRe-present the initial gate verbatim; no writes or approval.\n\n### Invalid diffs\n\nAfter P’s amend/proof, print respectively:\n```text\norigin/main\nA doc/specs/export.md\nM src/export.ts\nWithheld: draft PR - diff against origin/main is not spec-only (src/export.ts)\n```\nor:\n```text\norigin/main\nA doc/specs/export.md\nM .gitignore\nWithheld: draft PR - diff against origin/main is not spec-only (.gitignore)\n```\nWithhold 4; retain implementation choice 1. No push/removal.\n\n### Rejected push\n\nPrint `remote: permission denied`; retain amended commit/worktree. Re-present the initial choices with 4 retryable. No create/completion.\n\n### Create failure and retries\n\nPrint `GraphQL: unavailable`, pushed branch `origin/spec-export`; no completion/cleanup.\n\n**Context 12.0%:**\n```text\ngauntlet: gate=brainstorming/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\n**Context unknown:**\n```text\ngauntlet: gate=brainstorming/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\nEach bare `approve`: print `Taking \"approve\" as option 4 - retry opening the draft PR`; fetch `origin spec-export`, prove origin equals HEAD `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, then C and S/K. Never amend/push again.\n\nIndependent `1` or `2`: no writes; gate waiting. Will you select rendered row 4?\n\nMoved retry: stop, reporting:\n```text\norigin/spec-export: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nHEAD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\n### Independent cleanup deltas after S\n\n- Remote differs: `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is at bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, tree is at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n- Remote missing: `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is missing`\n- Ref moves after removal: `acme/widget: removed /work/widget/.worktrees/spec-export, branch spec-export kept - spec-export moved to bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`\n- Safe `workspace destroy spec-export --keep-branch`: use wrapper, no native removal; read back, perform K’s conditional deletion; K’s success report.\n- Guarded `workspace destroy spec-export --published-only`: inspect source, execute; read-back confirms both absent; K’s success report, no second deletion.\n- Unguarded wrapper: refuse execution. `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - destroy deletes spec-export unguarded`\n- Host-owned: `acme/widget: kept /work/host/spec-export and spec-export - host-owned`. Continuation stops because the branch is checked out at another path; resolve that checkout before retrying.\n- Removal fails: print `worktree is locked`; read-back confirms both remain. `acme/widget: kept /work/widget/.worktrees/spec-export and spec-export - removal failed: worktree is locked`\n\nNo plan, loop, or handoff brief.\n",
-      "words": 832,
-      "wallMs": 26102,
+      "text": "gauntlet: gate=brainstorm/user-review-gate recommended=1\nRepeated exports return one receipt.\n\nSpec written and committed to acme/widget/doc/specs/export.md (worktree: /work/widget/.worktrees/spec-export).\nScope cuts: none\nCouncil: 0 applied, 0 deferred, 0 rejected\n\nLoop engine unavailable: this spec has no acceptance-criteria rows.\nAcceptance criteria: `none - ticket not fetched (tracker unreachable)`. You may paste ticket acceptance rows to revise the spec.\n\nPick one:\n1 - plan engine: write a task plan, then implement it in reviewed waves. [recommended]\n- `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).\n- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).\n\n3 - council explanation: show the council audit, then return to this gate without approving.\n\n4 - draft PR: approve the spec's content only and publish it as a draft PR; to continue, start a fresh session and run `/skill:gauntlet #<N>` there.\n\nRecommended: 1 - the spec has no acceptance rows, so the loop engine has nothing to iterate.\n\nOr tell me what to change in the spec, or say \"revert applied council edit <X>\" to undo a specific applied edit.\n\n---\n\n**Narration only.** Supplied settings allowance: 4; status: 12.0%. Summary cleanup is narrated as `rm \"$SUMMARY_PATH\"`.\n\n### Shared success sequence — bare `4`\n\nRead publication references and resolve home flowGuards/specDirs. Edit home header:\n```markdown\n**Amend-grant:** none\n**Engine:** deferred\n```\nNarrate:\n```bash\ngit -C /work/widget/.worktrees/spec-export add -- doc/specs/export.md\ngit -C /work/widget/.worktrees/spec-export commit --amend --no-edit -q\ngit -C /work/widget/.worktrees/spec-export show HEAD:doc/specs/export.md\n```\nVerify both fields. No companion file.\n\n**Base proof:**\n```bash\nDEFAULT=$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)\ngit -C /work/widget/.worktrees/spec-export fetch origin \"$DEFAULT\"\ngit -C /work/widget/.worktrees/spec-export diff --name-status origin/$DEFAULT...HEAD\n```\n`DEFAULT=main`; output `A doc/specs/export.md`. Inspect pinned hunks: predicate passes; staging is not the base.\n\n**Body transport:** resolve checkout scratch, `BODY=$(mktemp \"$SCRATCH/pr-body.XXXXXX\")`; use a file writer, not a shell heredoc. Exact bytes written:\n````markdown\nRepeated exports return one receipt.\n\n## Integration\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n````\n\n**Push/create** — gh runs in the worktree repository:\n```bash\ngit -C /work/widget/.worktrees/spec-export push -u origin spec-export\n(cd /work/widget/.worktrees/spec-export && gh pr create --draft --head spec-export --base \"$DEFAULT\" --title \"Export receipts\" --body-file \"$BODY\")\n```\nPrint:\n```text\nhttps://github.com/acme/widget/pull/42\nContinue: start a fresh session, then run `/skill:gauntlet #42`.\n```\nThen narrate `phase_tracker({ action: \"complete\", phase: \"brainstorm\" })`, then cleanup.\n\n### Shared cleanup sequence\n\nPrimary `/work/widget`; verify current branch, live remote, tree HEAD, primary branch tip:\n```bash\ngit -C /work/widget/.worktrees/spec-export branch --show-current\ngit -C /work/widget/.worktrees/spec-export ls-remote --exit-code --heads origin refs/heads/spec-export\ngit -C /work/widget/.worktrees/spec-export rev-parse HEAD\ngit -C /work/widget rev-parse refs/heads/spec-export\n```\nAll tips equal `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`; pin it. Resolve ownership; native removal/prune. Read worktree list, disk presence, and ref. Tree absent, ref unchanged:\n```bash\ngit -C /work/widget update-ref -d refs/heads/spec-export aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\nRead back: no ref.\n```text\nacme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export\n```\n\n### Independent pre-success deltas\n\n**Flagged:** No writes; gate waiting. Which rendered choice do you want without `--fund-rounds=3`, which belongs to engine row 1?\n\n**Change:** Rename receipts to vouchers, reconcile banners, fresh summary, heredoc recommit preserving audit; re-gate without approval/publication.\n\n**Audit:** `3 4` grants nothing. Narrate `git ... show -s --format=%b HEAD`; print verbatim:\n```text\nApplied: none\nDeferred: none\nRejected: none\n```\nReuse the initial gate verbatim; no settings/status/summary calls or writes.\n\n**Invalid diff:** After header persistence/base proof, print independently:\n```text\norigin/main\nA doc/specs/export.md\nM src/export.ts\nWithheld: draft PR - diff against origin/main is not spec-only (src/export.ts)\n```\nSeparate staging contribution:\n```text\norigin/main\nA doc/specs/export.md\nM .gitignore\nWithheld: draft PR - diff against origin/main is not spec-only (.gitignore)\n```\nRetain amended checkout; omit 4, keep 1/3. No push/removal.\n\n**Rejected push:** Print `remote: permission denied`; retain amendment/checkout, re-present initial gate with 4 retryable. No create/completion.\n\n### Create failure and independent retries\n\nPrint `GraphQL: unavailable`; retain published HEAD/checkout/body; no completion/cleanup.\n\n**Context 12.0%:**\n```text\ngauntlet: gate=brainstorm/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\n\n**Context unknown:**\n```text\ngauntlet: gate=brainstorm/user-review-gate recommended=4\n4 - retry opening the draft PR [recommended]\nWithheld: implementation approvals - the handoff commit is published; an approval would amend it\nRecommended: 4 - the handoff commit is published; retrying the draft PR is the only action left.\n```\nEach `approve`: print `Taking \"approve\" as option 4 - retry opening the draft PR`; fetch origin spec-export, prove origin/spec-export equals HEAD `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`, rerun only shared create command; follow shared URL/completion/cleanup tail.\n\nIndependent `1`: No writes; gate waiting. Will you select rendered row 4?\nIndependent `2`: No writes; gate waiting. Will you select rendered row 4?\n\nMoved retry: stop before create:\n```text\norigin/spec-export: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\nHEAD: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\n### Independent cleanup deltas\n\nUse shared checks/read-back; never repeat publication.\n\n```text\nacme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is at bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, tree is at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\nacme/widget: kept /work/widget/.worktrees/spec-export and spec-export - origin/spec-export is missing\nacme/widget: removed /work/widget/.worktrees/spec-export, branch spec-export kept - spec-export moved to bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\n```\n\nSafe `workspace destroy spec-export --keep-branch`: wrapper only, then gated ref deletion.\nGuarded `workspace destroy spec-export --published-only`: inspect source, execute; read-back absent tree/ref, no second deletion. Both report:\n```text\nacme/widget: removed /work/widget/.worktrees/spec-export, deleted spec-export\n```\nUnguarded wrapper: refuse before execution.\n```text\nacme/widget: kept /work/widget/.worktrees/spec-export and spec-export - destroy deletes spec-export unguarded\nacme/widget: kept /work/host/spec-export and spec-export - host-owned\n```\nLater continuation stops on this branch checked out at another path; resolve its location by hand before rerunning.\n\nFailed native removal: print `worktree is locked`; read-back retains both:\n```text\nacme/widget: kept /work/widget/.worktrees/spec-export and spec-export - removal failed: worktree is locked\n```\nNo plan, loop, or handoff brief.\n",
+      "words": 895,
+      "wallMs": 29648,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "69f3a0dec6cab946c7b4cc77cbaed6bbf8c6d9aa93d1be315070431a17644ae3",
+      "factsSha": "85374e85271481e181c1d9107d2c9b672f79dbddb1c237dda7b077dbae00f4b0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b02560ac3e0e8c146ce6a32d9465fd68c07f63726e078a9fd2db1fe110864f57",
-      "baselineOutputSha": "42045b0e458a0b9cc98c6cd8cb09b7b2f2a2bd56996f1e2cbff55b121014b61a",
-      "candidateOutputSha": "972698ae434a827fe86215044b25e66d90f5d405d09a2a59e4fac5cb53b1a1c3",
+      "intentSha": "e6bcd5da47c62ef2d06d4f92a5d269ce17b1020f9e6442c430b51be75e9b0ba3",
+      "baselineOutputSha": "54084be91dcddeb964de8bf871a6a71090a1607d0c51770f8c4d1c27d3deb4db",
+      "candidateOutputSha": "88dbb0ee1a730318247a56c45e063760aa4622850e204537228a3b02004754bc",
       "facts": {
         "menu": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "persistence": {
           "before": "holds",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "held"
         },
         "publication": {
-          "before": "holds",
+          "before": "fails",
           "after": "holds",
-          "label": "intended but unchanged"
+          "label": "unplanned improvement"
         },
         "single-member": {
           "before": "holds",
@@ -79,9 +79,9 @@
           "label": "held"
         },
         "create-failure": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "retry": {
           "before": "holds",
@@ -89,14 +89,14 @@
           "label": "held"
         },
         "retry-menu": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "continue": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "cleanup": {
           "before": "holds",
@@ -114,41 +114,41 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved menu, retry-menu and continue as intended, and no fact that Before kept was lost. The zero-row gate now renders rows 1, 3 and 4 with no row 2, no loop row and no allowance line. Both create-only retry views show only row 4 tagged [recommended], with the recommended=4 marker, a Recommended: 4 reason, the exact 'Taking \"approve\" as option 4 - retry opening the draft PR' echo, and one question naming row 4 for replies 1 and 2. The fresh-session Continue line sits between the PR URL and brainstorm completion. Persistence and publication did not move as expected because Before already satisfied them as written: it decoded bare 4 to its draft-PR row 6 and ran the same header write, amend, show check, origin/main proof, push and draft create. If you want those two to discriminate, the facts need to name the row-4 routing explicitly. I marked create-failure as failing in Before only because its retry gate was labelled row 6 rather than 4; that is a strict reading of 'retry 4', and After's row-4 gate satisfies it. To keep everything that holds, preserve the 'Withheld: implementation approvals' line on the retry gate, rows 1 and 3 on the invalid-diff redraw, and the exact per-repo kept/removed report strings. One fragile spot is the surviving 'Loop engine unavailable' line on the zero-row gate: it is not a loop row or allowance line, but keep any maxIterationsPerRow mention out of the gate body so menu cannot be read as failing.",
-      "wallMs": 26945,
+      "feedback": "The only fact that moved is publication, from fails to holds. Before piped the body through `--body-file -` with a shell heredoc and passed `--base \"$DEFAULT\"`, so the body was shell source and no scratch file was named. After writes the body with the file writer to a mktemp scratch file under .git/gauntlet/tmp and passes `--body-file \"$BODY\"` with an explicit `--base main`; keep that wording. No fact that Before kept was lost, but several now hold by implication rather than by statement, and one more round of trimming could drop them. In the create-failure section After no longer says there is no cleanup or that the checkout is intact; only the completion ordering implies it. The invalid-diff section says the amended spec is retained but no longer names the checkout. The differing-remote, missing-remote and moved-branch deltas give only the report line, without Before's explicit 'nothing is pinned' and 'no update-ref'. The safe-wrapper report abbreviates the path to `…/spec-export`. Restoring those short explicit clauses and the full path would make these facts robust. None of the Expected to move ids appear in this case's facts, and this sample's recommendation rendering is unchanged between Before and After.",
+      "wallMs": 19705,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "69f3a0dec6cab946c7b4cc77cbaed6bbf8c6d9aa93d1be315070431a17644ae3",
+      "factsSha": "85374e85271481e181c1d9107d2c9b672f79dbddb1c237dda7b077dbae00f4b0",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "b02560ac3e0e8c146ce6a32d9465fd68c07f63726e078a9fd2db1fe110864f57",
-      "baselineOutputSha": "bd6f7bc2d8053f9260792d00169dd718d7e4b2de15b496732c57ec3fc8100566",
-      "candidateOutputSha": "953d2ef1984fe58f78110c28764b7dc175b3d30579be6a89bc96c5357e37a7ca",
+      "intentSha": "e6bcd5da47c62ef2d06d4f92a5d269ce17b1020f9e6442c430b51be75e9b0ba3",
+      "baselineOutputSha": "42e5fec19a895c337a3d258ab43ffeaac767bdb5078b8c33e89fd68420d59958",
+      "candidateOutputSha": "75dbcdb4cf2d2b0ed4a99117f20ca097d4b961791f6ba033e86119516d0b5894",
       "facts": {
         "menu": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "persistence": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "publication": {
           "before": "fails",
           "after": "holds",
-          "label": "intended change"
+          "label": "unplanned improvement"
         },
         "single-member": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "completion": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "replies": {
           "before": "holds",
@@ -156,55 +156,55 @@
           "label": "held"
         },
         "invalid": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "rejection": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "create-failure": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "retry": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "retry-menu": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "continue": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "held"
         },
         "cleanup": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "remote-gate": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         },
         "moved-ref": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "held"
         }
       },
-      "feedback": "Before rendered the zero-row gate with rows 1, 2, 3 and 6, treated bare 4 as unavailable, and declined to narrate any publication, retry or cleanup scenario, so only the replies fact held there (no writes on Flagged, re-gate on Change, audit print on Audit). The After wording moved every other fact: omitting row 2 and its flags gives the 1/3/4 menu with no allowance line, and routing row 4 to Amend-grant none plus Engine deferred unlocks persistence, the origin/main spec-only proof, push-then-create, the URL, the Continue line, completion and cleanup. The create-only retry gates for both context views show only row 4 with recommended=4 and the exact approve echo, and no fact that Before kept was lost. Several holds rest on thin or implied text, so to make them robust: state the push before defining the create command rather than defining C first and saying P continues with push then C; say explicitly in the invalid-diff, differing-remote and missing-remote variants that the amended commit and checkout are retained and that no destroy or ref deletion runs; say that the moved retry stops without push, create or completion; and give replies 1 and 2 separately worded single questions naming row 4.",
-      "wallMs": 19720,
+      "feedback": "The only fact that moved is publication, from fails to holds. Before piped the body through `--body-file -` with a quoted shell heredoc, so the literal EOF line sat in shell source and no scratch file was named. After writes the exact bytes with a file writer to a mktemp scratch path and passes `--body-file \"$BODY\"`, keeping push before create with explicit head and base and the H1 title. No fact that Before kept was lost, but three After wordings are thinner than Before and worth firming up. First, the narration line `Supplied settings allowance: 4; status: 12.0%` sits just below the zero-row gate; keep it clearly outside the gate, or drop it, so it cannot be read as an allowance line. Second, the create-failure text says only `retain published HEAD/checkout/body`; restore Before's explicit statement that branch spec-export is pushed at the full SHA. Third, the equality retry no longer says `never amend/push again`, and the unguarded and host reports now share one code block; say the former explicitly and give each variant its own labelled report as Before did. None of the recommended-row behaviours named in the Change are exercised by this case, so nothing here confirms or contradicts them.",
+      "wallMs": 18263,
       "verdict": "improved"
     }
   },
-  "repoSha": "7c2409ae2414994a5eabeca5c38d63101034a2f3"
+  "repoSha": "61e4afdda096accd057dbc1a8d5fc7d666fb80f5"
 }

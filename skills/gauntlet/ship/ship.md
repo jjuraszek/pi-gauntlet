@@ -300,16 +300,18 @@ Read [commit-message.md](../commit-message.md) for the Landed message subject an
 git -C "$WORKTREE" push -u origin "$FEATURE"
 ```
 
-```bash
-# Create PR
-(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body "$(cat <<'EOF'
+Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder) and set `BODY=$(mktemp "$SCRATCH/pr-body.XXXXXX")`. Use the file writer to write this Markdown to that path, then run `(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body-file "$BODY")`:
+
+```markdown
 ## Summary
 <2-3 bullets of what changed>
 
 ## Test Plan
 - [ ] <verification steps>
-EOF
-)")
+
+<spec's Integration block when present>
+
+<disposition appendix when applicable>
 ```
 
 For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan`. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard.

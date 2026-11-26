@@ -20,13 +20,20 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
     'commit --amend --no-edit -q', 'show HEAD:<spec path>',
     'shared predicate against `origin/$DEFAULT` before pushing',
     'push -u origin <branch>', 'gh pr create --draft --head <branch> --base "$DEFAULT"',
-    '--body-file -', "<<'EOF'", 'no push, no amend',
+    '--body-file "$BODY"', 'no push, no amend',
     '4 - retry opening the draft PR [recommended]',
     'gauntlet: gate=brainstorm/user-review-gate recommended=4',
     'Context: unknown', 'no amend and no push',
     'Continue: start a fresh session, then run `/skill:gauntlet #<N>`.',
     'Start no plan or loop',
   ]) assert.ok(publish.includes(token), token);
+  const ship = read('skills/gauntlet/ship/ship.md').split('#### Option 1: Push and Create PR')[1].split('#### Option 2:')[0];
+  for (const recipe of [publish, ship]) {
+    assert.match(recipe, /mktemp "\$SCRATCH\/pr-body\.XXXXXX"/);
+    assert.match(recipe, /gh pr create [^\n]+--body-file "\$BODY"/);
+    assert.doesNotMatch(recipe, /<</);
+  }
+  assert.match(ship, /```markdown\n## Summary[^`]*## Test Plan[^`]*<[^>]*Integration[^>]*>\s+<[^>]*disposition appendix[^>]*>\n```/);
   assert.doesNotMatch(publish, /(?:option|row|Retry|clean|hidden|retryable)\s+`?6\b/);
   assert.ok(publish.indexOf('show HEAD:<spec path>') < publish.indexOf('push -u origin'));
 });

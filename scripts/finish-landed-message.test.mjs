@@ -121,15 +121,21 @@ test('the isolated commit command preserves each message through a quoted stdin 
 });
 
 test('the isolated PR command passes the same subject and keeps the project body for normal and draft PRs', async t => {
-  const command = pr.match(/```bash\n# Create PR\n([\s\S]*?)\n```/)?.[1];
+  const command = pr.match(/`(\(cd "\$WORKTREE" && gh pr create [^`]+\))`/)?.[1];
   assert.ok(command, 'select only gh pr create, without push, strip, seal or cleanup');
-  const body = '## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>';
+  const template = pr.match(/```markdown\n(## Summary[\s\S]*?)\n```/)[1];
+  const integration = '## Integration\n\n~~~text\nEOF\nEnd of receipt\n~~~';
+  const body = template.replace("<spec's Integration block when present>", integration).replace('\n\n<disposition appendix when applicable>', '');
+  assert.equal(body, `## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>\n\n${integration}`);
   for (const draft of [false, true]) await t.test(draft ? 'draft' : 'normal', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'finish-title-'));
     const env = environment(cwd);
+    env.BODY = join(cwd, 'pr body.md');
+    writeFileSync(env.BODY, body);
     const selected = draft ? command.replace('gh pr create', 'gh pr create --draft') : command;
     run(cwd, env, 'bash', ['-c', `gh() { printf '%s\\0' "$@" > "$ARGS"; }\n${selected}`]);
     const args = readFileSync(env.ARGS, 'utf8').split('\0').slice(0, -1);
-    assert.deepEqual(args, ['pr', 'create', ...(draft ? ['--draft'] : []), '--title', subject, '--body', body]);
+    assert.deepEqual(args, ['pr', 'create', ...(draft ? ['--draft'] : []), '--title', subject, '--body-file', env.BODY]);
+    assert.equal(readFileSync(args.at(-1), 'utf8'), body);
   });
 });
