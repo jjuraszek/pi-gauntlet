@@ -1,7 +1,7 @@
 {
   "sample": "drafted-row-scenarios",
   "arm": "candidate",
-  "skillSha": "3d7454537b84f928bf924616459ed97b217ba48955a87657fe5c254e2432609f",
+  "skillSha": "78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3",
   "inputSha": "270a815591f0820b3b1ec8ddeab6816a358934a3e317ebfe7ae31c2fce5722f9",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Here is the `## Acceptance criteria` section I will write into the spec. Nothing has been written to disk yet.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an import ID that is empty, contains only spaces, or contains a slash, and returns the same invalid-ID error in all three cases.\n  in-scope\n```\n\nHow I drafted it:\n\n- **Header.** There is no ticket, so the section uses the drafted-from-design header rather than a ticket-row header.\n- **One row.** The design commits to a single validation constraint. One row can cover several scenarios, so the empty, all-spaces and slash cases share a row instead of being split into three. The row describes what a user or test observes (the import is rejected with one shared error), not how it is built.\n- **Integrity check.**\n  - It is not *wishful*: there is no better/worse claim.\n  - It is not *tautological*: it does not depend on a set this change produces.\n  - It is not *tree-wide*: it does not require zero findings across a tree.\n  - It is not *unspecified-but-binding*: \"the same invalid-ID error\" can be checked by comparing the three rejections.\n  - It is not *external-input*: no outside yardstick is needed.\n- **Disposition.** `in-scope` is the default, and nothing has been cut.\n- **No `## Integration` section.** There are no integration steps, so that section is left out.\n\nAt the user review gate, this row appears under \"Drafted acceptance criteria (approval ratifies)\". Approving the spec ratifies it.\n",
-      "words": 237,
-      "wallMs": 7396,
+      "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an import ID that is empty, contains only spaces, or contains a slash, and returns the same invalid-ID error in all three cases.\n  in-scope\n\nStopped before any write. This section has not been written to the spec file or committed. The design commits to one ID validation constraint, so the three rejected inputs are scenarios of one row rather than three separate rows. The row is a draft until you approve it at the spec gate.\n",
+      "words": 88,
+      "wallMs": 5220,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an empty ID, an ID containing only spaces, or an ID containing a slash with the same invalid-ID error in all three cases.\n  in-scope\n",
-      "words": 36,
-      "wallMs": 8310,
+      "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an empty ID, an ID containing only spaces, or an ID containing a slash with the same invalid-ID error in all three cases.\n  in-scope\n\nStopped before writing the spec.\n",
+      "words": 41,
+      "wallMs": 5223,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
       "baselineOutputSha": "f611ab0fa2d631d56bcb883eb32f88266e58a07bd6c6c6980bdc99c94e3d317c",
-      "candidateOutputSha": "3ab3f3addd4f46637558f11f19ddac86bccebfa086693886c94ab21706ed37b4",
+      "candidateOutputSha": "f9ba8074e64f82afd3c955d0d5d2e34b7665b1f6deb28e8eaa27e2fb92e2aba8",
       "facts": {
         "one-constraint": {
           "before": "fails",
@@ -44,16 +44,16 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After moved one-constraint from fails to holds: its Acceptance criteria section contains exactly one checkbox row stating that the importer rejects an empty, spaces-only or slash-containing ID with the same invalid-ID error, whereas Before split the three malformed inputs into three separate rows and explicitly justified doing so ('Each malformed-ID case has its own row'). The wording that keeps one drafted constraint row for several malformed-input scenarios of the same functionality is what delivered this, and no fact held by Before was lost here. To keep it stable, retain the explicit statement that scenarios of one design constraint share a row, and consider trimming the long drafting rationale (integrity check, disposition, gate notes) since the case only asked to show the section and stop before any write; the extra narration is harmless to this fact but adds surface for drift in other cases.",
-      "wallMs": 4509,
+      "feedback": "After moved one-constraint from fails to holds: the section now has exactly one checkbox row that covers the empty, spaces-only and slash IDs together with the same invalid-ID error, where Before split them into three rows and justified the split ('Each malformed-ID case has its own row so it can be checked separately'). The wording 'Keep one drafted constraint row for several malformed-input scenarios of the same functionality' is what delivers this; keep it as an explicit statement that scenarios of one design constraint share a row, and keep it scoped to drafted rows from a single design constraint so it does not collapse genuinely distinct Design behaviors (one row per behavior) or verbatim ticket rows. No fact that Before held was lost in this case, since Before held none; the retained 'Drafted from the design, no ticket rows' lead-in, the in-scope marker, and the stop-before-write statement are all still present in After.",
+      "wallMs": 4913,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
       "baselineOutputSha": "ad81dba529fc21d2f11e2ee061f16a9d59adbf20b57b3e9778ac72886313a365",
-      "candidateOutputSha": "c4ac63a6eadd4453496b4e2a776f7231664ad008ef32336e69fb3109fa89a157",
+      "candidateOutputSha": "3561535d7beada042fac4755fa111752710d341ff3aa1c2741e3d3ca91a45fa8",
       "facts": {
         "one-constraint": {
           "before": "holds",
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs draft exactly one checkbox row covering the empty, spaces-only and slash-containing IDs with the same invalid-ID error, so one-constraint holds before and after; the After wording did not move it. The only visible difference is that After names the importer as the subject ('The importer rejects...') where Before says 'Importing with ... rejects the ID', which matches the fact's phrasing slightly more directly but does not change the verdict. To keep this fact while delivering the Change, keep the explicit instruction that several malformed-input scenarios of the same functionality stay in one drafted constraint row, and make sure the new row-counting and sorting language for grouped ticket rows is clearly scoped to ticket rows so it cannot be read as a reason to split a drafted row into one row per input case.",
-      "wallMs": 4053,
+      "feedback": "Both outputs draft exactly one checkbox row covering the empty, spaces-only and slash IDs with the same invalid-ID error, so the fact holds before and after; After did not move it. After's row names the importer as the subject explicitly ('The importer rejects...'), which matches the fact's wording slightly more directly than Before's 'Importing with... rejects the ID', and it adds a 'Stopped before writing the spec.' line that does not affect the row count. To keep this fact while delivering the Change, retain the wording that tells the writer to keep one drafted constraint row for several malformed-input scenarios of the same functionality, and avoid any phrasing that could be read as one row per input scenario or per error case.",
+      "wallMs": 3947,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
+  "repoSha": "51fcb979d05138cd8e6d4de44446b6aa5c6c990e"
 }

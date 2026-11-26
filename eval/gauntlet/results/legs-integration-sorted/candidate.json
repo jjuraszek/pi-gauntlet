@@ -1,7 +1,7 @@
 {
   "sample": "legs-integration-sorted",
   "arm": "candidate",
-  "skillSha": "498029620c0450ed0dd685c1e4129212f0f077411115b0d00c6666ae3dfc1261",
+  "skillSha": "af57e2b644718b4b0e21022cd29b4a46c06e3fe88b6426355d2d8b2c05504375",
   "inputSha": "8472cf92f18626fd6bbfd745635d378a9f570a827c88975a85c3ca706503ac67",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Sorted the four ticket items by the acceptance-criteria definition (no question needed):\n\n- **Pipeline result:** \"CI is green on the PR head\" moves to Integration with a marker.\n- **Delivered by `label-cli`:** \"the CLI trims spaces around labels\" stays a criterion, marked `in-scope`.\n- **Mixed row for `label-web`:** \"on staging, the web client lowercases labels\" stays a verbatim criterion marked `elsewhere: label-web`. Its external clause, \"on staging\", is also copied to Integration without a marker.\n- **Ticket Integration entry:** copied verbatim, including its nested line.\n\n`label-web` is not part of this change, so it gets no leg.\n\n**Home spec `doc/specs/label-trim.md`: Acceptance criteria**\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance Criteria, rows verbatim:\n\n- [ ] the CLI trims spaces around labels\n  in-scope\n- [ ] on staging, the web client lowercases labels\n  elsewhere: label-web\n```\n\n**Home spec: Integration** (placed directly before `## Errors and edge cases`)\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\n**Home spec: leg scopes** (in `## Legs`, home first, branch `label-trim`)\n\n```markdown\n### Leg: labels\nbranch: label-trim\nscope: none\n\n### Leg: label-cli\nbranch: label-trim\nscope: AC 1\n```\n\nScope check:\n- The section has two checkbox rows, so the valid indices are AC 1 and AC 2.\n- AC 1 is owned by `label-cli`.\n- AC 2 is listed by no leg, so the grammar defaults it to home. Its `elsewhere: label-web` disposition means no leg delivers it.\n- Each block has exactly one `scope:` line, with no duplicates and no out-of-range index.\n\n**Companion file `doc/specs/label-trim.md` in `label-cli`: Integration**\n\nThe home spec has an Integration section, so the companion copies it verbatim:\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nAt the gate:\n- `Scope cuts:` will read `none`, because `elsewhere:` is not a cut.\n- `Not acceptance criteria:` will list `CI is green on the PR head - pipeline result`.\n\nStopping here; nothing has been written or committed.\n",
-      "words": 345,
-      "wallMs": 16637,
+      "text": "The sorted sections are below. Nothing has been written or committed.\n\n**Row sorting**\n- \"CI is green on the PR head\" is a pipeline result, not something the change's files deliver. It moves to `## Integration` with its marker. It is not a scope cut, so it gets no disposition and no cut question.\n- \"the CLI trims spaces around labels\" is a criterion. Its group matches the settled member `label-cli`, so it is `in-scope` and that leg owns it.\n- \"on staging, the web client lowercases labels\" mixes a criterion with an outside condition. The whole row stays as a criterion. Its group is the known nonmember `label-web`, so it is `elsewhere: label-web` and creates no leg. Only its outside clause, \"on staging\", is copied to `## Integration`.\n\n**Home spec `doc/specs/label-trim.md`: `## Acceptance criteria`**\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance Criteria, rows verbatim:\n\n- [ ] the CLI trims spaces around labels\n  in-scope\n- [ ] on staging, the web client lowercases labels\n  elsewhere: label-web\n```\n\n**Home spec: `## Integration`** (placed directly before `## Errors and edge cases`)\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\n**Home spec: leg scopes in `## Legs`** (only the scope line of each block is shown; branch, contract, Rules, and design lines are filled per member)\n\n```markdown\n### Leg: labels\nbranch: label-trim\nscope: none\n\n### Leg: label-cli\nbranch: label-trim\nscope: AC 1\n```\n\nScope check: the section has 2 checkbox rows. AC 1 belongs to `label-cli`. AC 2 is the `elsewhere:` row; it is counted in the numbering but no leg claims it. Integration entries are not counted. Each leg has exactly one valid `scope:` line.\n\n**Companion file `label-trim.md` in `label-cli`'s spec directory: `## Integration`** (the home section copied unchanged, because the home spec has one)\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nWhen the gate is shown, it will read `Scope cuts: none` and `Not acceptance criteria: CI is green on the PR head - pipeline result`.\n\nStopped before any write.\n",
+      "words": 365,
+      "wallMs": 17676,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "### Home: `doc/specs/label-trim.md`\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance Criteria, rows verbatim:\n\n- [ ] the CLI trims spaces around labels\n  in-scope\n- [ ] on staging, the web client lowercases labels\n  elsewhere: label-web\n```\n\nLeg scopes on branch `label-trim`:\n\n```markdown\n### Leg: labels\nscope: none\n\n### Leg: label-cli\nscope: AC 1\n```\n\nThese are scope excerpts, not complete leg blocks. `label-web` is not a member and gets no leg.\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nThe CI row is an Integration entry, not a scope cut. The web row remains verbatim as an acceptance criterion assigned elsewhere; only its external staging clause is also copied into Integration.\n\n### Companion: `label-cli`\n\nIts companion file carries the home Integration section verbatim:\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nStopped before any write.\n",
-      "words": 178,
-      "wallMs": 8267,
+      "text": "No write is performed. The CI row is an Integration entry; the web row remains verbatim as an acceptance criterion assigned `elsewhere: label-web`, with its external staging clause also in Integration.\n\n### Home: `doc/specs/label-trim.md`\n\n```markdown\n## Acceptance criteria\n\nTicket #42, Acceptance Criteria, rows verbatim:\n\n- [ ] the CLI trims spaces around labels\n  in-scope\n- [ ] on staging, the web client lowercases labels\n  elsewhere: label-web\n```\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nThe home spec’s leg scope fields are:\n\n```markdown\n### Leg: labels\nbranch: label-trim\nscope: none\n\n### Leg: label-cli\nbranch: label-trim\nscope: AC 1\n```\n\n`label-web` is a known nonmember, so it has no leg. Its row retains index AC 2.\n\n### Companion: `label-cli`’s `doc/specs/label-trim.md`\n\nThe companion carries the home Integration section verbatim:\n\n```markdown\n## Integration\n\n- before release - operator: announce the change; done when the release note is posted\n  - Use the release thread.\n- CI is green on the PR head\n  ticket row, not an acceptance criterion: pipeline result\n- on staging\n```\n\nStopped before writing either file.\n",
+      "words": 183,
+      "wallMs": 10013,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "c36688cc0821eb5573620fb08493bf416a43d5e909b785b8b7f503a3d0679e0e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
       "baselineOutputSha": "b6c19facffdf057953a29f536939af1db7b28596e929c2ad89ce99e2ff43ab72",
-      "candidateOutputSha": "2d2ed5f88a7501430b603940d4ca90758a5c4b751d31b6689ef4e680f5eca352",
+      "candidateOutputSha": "b58b24d86bd342a79002700e7d56b5dcd3ff6ab974759dae63c7451912d0a578",
       "facts": {
         "moved": {
           "before": "fails",
@@ -59,16 +59,16 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "After moved all four facts. The sort-then-count wording made the writer take `CI is green on the PR head` out of Acceptance criteria into Integration with the `ticket row, not an acceptance criterion: pipeline result` marker and no AC index, where Before kept it as row 1 and asked a disposition question. That in turn let `label-cli` claim `scope: AC 1` on the verbatim, in-scope CLI row instead of AC 2. The mixed web row stays verbatim with `elsewhere: label-web` and only `on staging` is copied to Integration; Before left the clause in place. The companion Integration is now a byte-for-byte copy of the home section, including the nested `Use the release thread.` line, the moved row with its marker, and the detached clause; Before paraphrased the ticket entry into one sentence and dropped the nesting. Before held none of these facts, so nothing was lost. To keep the gains stable, keep explicit wording that indices are counted only over surviving rows, that an existing Integration entry is carried first with nested lines intact, and that the companion copy is verbatim rather than summarised. One loose end: the scope check says the unclaimed `elsewhere:` row 'defaults to home' and then says no leg delivers it; a sentence stating that `elsewhere:` rows are claimed by no leg would remove that near-contradiction without affecting any fact.",
-      "wallMs": 7151,
+      "feedback": "All four facts moved from fails to holds, and Before held none of them, so nothing was lost. Before left `CI is green on the PR head` in Acceptance criteria as a pending row and asked a disposition question, so the CLI row was numbered AC 2; it also paraphrased the ticket's Integration entry into one sentence, dropping the nested `Use the release thread.` line, and copied no staging clause. After sorts without a question: the CI row goes to `## Integration` with the marker `ticket row, not an acceptance criterion: pipeline result` and gets no index, so `label-cli` claims `scope: AC 1`. The web row stays verbatim as `elsewhere: label-web` with only `on staging` copied to Integration, and the companion Integration is identical to the home section, nested line included. To keep this, hold on to the wording that numbers rows only after moved entries leave Acceptance criteria, that carries the existing Integration entry first and verbatim with its nested lines, and that copies only the external clause of a mixed row. One thing to tighten: the detached `on staging` entry carries no marker or source-row reference, so a reader of Integration alone cannot tell which row it came from; say explicitly whether a detached clause should carry one.",
+      "wallMs": 8073,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "c36688cc0821eb5573620fb08493bf416a43d5e909b785b8b7f503a3d0679e0e",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
       "baselineOutputSha": "77b627144fee7fd5bc59238fa1dea9173448c301e6f898f195e1383050c18c32",
-      "candidateOutputSha": "8d3bba0334d7951e92b8d990e811e4f691883521a4e0239690458cfb22c6fad6",
+      "candidateOutputSha": "9be075449ff8762244d4e1d8eedb32e2b7ef2da5ce8ea4b1a4aebd0a20610238",
       "facts": {
         "moved": {
           "before": "fails",
@@ -91,10 +91,10 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before stops at a scope-cut question about the `CI is green on the PR head` row and recommends ticket repair, so it produces no Acceptance criteria, Integration, leg scopes, or companion section and all four facts fail there. After sorts without a question: the CI row sits in Integration with the `pipeline result` marker and is absent from Acceptance criteria, the CLI row stays verbatim and in-scope with `label-cli` claiming `scope: AC 1` counted after the move, the web row stays verbatim with `elsewhere: label-web` while only `on staging` is copied to Integration, and the companion Integration is a byte-for-byte copy of the home section including the nested `Use the release thread.` line. No fact that Before held was lost, so nothing needs to be restored. To keep this stable, keep the wording that says moved rows are sorted before indexing and get no AC index, and that the companion carries Integration verbatim. One thing to consider tightening: the detached clause appears as a bare `- on staging` with no kind marker or pointer back to its source row, unlike the moved CI row; if you want mixed-row clauses marked consistently, say so explicitly in the wording, otherwise a reader may not know where the clause came from.",
-      "wallMs": 6284,
+      "feedback": "Before stopped at a scope-cut question about the CI row and showed none of the requested sections, so every fact fails there. After sorts without a question: the CI row moves to Integration with the `ticket row, not an acceptance criterion: pipeline result` marker and no AC index, the CLI row stays verbatim and in-scope with `label-cli` claiming `scope: AC 1` counted after the move, the web row stays verbatim with `elsewhere: label-web` while only `on staging` is copied to Integration, and the companion Integration is an identical copy including the nested release-thread line. Nothing Before held was lost. To keep this stable, keep the wording that indices are counted after sorting and that the companion carries Integration verbatim; consider also stating that a detached mixed-row clause should carry a kind marker like moved whole rows do, since After's bare `- on staging` entry is unmarked and could fail a stricter reading of per-entry kind marking.",
+      "wallMs": 4929,
       "verdict": "improved"
     }
   },
-  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
+  "repoSha": "51fcb979d05138cd8e6d4de44446b6aa5c6c990e"
 }
