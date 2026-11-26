@@ -491,7 +491,7 @@ test('spec publication and re-entry share shape proof and published persistence'
   const gather = read('skills/gauntlet/brainstorm/gatherer.md');
   assert.match(gather, /For a rework PR subject \(shape fails\), supply this additional scout block/);
   assert.match(gather, /<rework PR subject only: every per-PR scout subsection/);
-  for (const marker of ['--body-file "$BODY"', 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
+  for (const marker of ['--body-file <scratch-file>', 'Create fails after push', 'no push, no amend', 'both full SHAs', 'removes nothing', 'skip its unconditional initial spec commit']) assert.ok(ref.includes(marker), marker);
   for (const path of ['skills/gauntlet/brainstorm/spec-pr.md', 'skills/gauntlet/pr-head.md']) {
     assert.match(read(path), /rerun `?\/skill:gauntlet #N/, path);
     assert.doesNotMatch(read(path), /\bbrainstorming #N\b/i, path);

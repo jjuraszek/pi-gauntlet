@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { sha256 } from '../eval/lib/checks.mjs';
 
@@ -128,14 +128,18 @@ test('the isolated PR command passes the same subject and keeps the project body
   const body = template.replace("<spec's Integration block when present>", integration).replace('\n\n<disposition appendix when applicable>', '');
   assert.equal(body, `## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>\n\n${integration}`);
   for (const draft of [false, true]) await t.test(draft ? 'draft' : 'normal', () => {
-    const cwd = mkdtempSync(join(tmpdir(), 'finish-title-'));
-    const env = environment(cwd);
-    env.BODY = join(cwd, 'pr body.md');
-    writeFileSync(env.BODY, body);
-    const selected = draft ? command.replace('gh pr create', 'gh pr create --draft') : command;
-    run(cwd, env, 'bash', ['-c', `gh() { printf '%s\\0' "$@" > "$ARGS"; }\n${selected}`]);
+    const cwd = mkdtempSync(join(tmpdir(), 'finish title '));
+    const env = { ...environment(cwd), SCRATCH: cwd };
+    delete env.BODY;
+    const mint = pr.match(/`([^`]*mktemp [^`]+)`/)[1];
+    const bodyFile = run(cwd, env, 'bash', ['-ec', mint]).trimEnd();
+    assert.equal(dirname(bodyFile), env.SCRATCH);
+    writeFileSync(bodyFile, body, { flag: 'r+' });
+    const create = command.replace('<scratch-file>', '"$1"');
+    const selected = draft ? create.replace('gh pr create', 'gh pr create --draft') : create;
+    run(cwd, env, 'bash', ['-c', `gh() { printf '%s\\0' "$@" > "$ARGS"; }\n${selected}`, 'create', bodyFile]);
     const args = readFileSync(env.ARGS, 'utf8').split('\0').slice(0, -1);
-    assert.deepEqual(args, ['pr', 'create', ...(draft ? ['--draft'] : []), '--title', subject, '--body-file', env.BODY]);
+    assert.deepEqual(args, ['pr', 'create', ...(draft ? ['--draft'] : []), '--title', subject, '--body-file', bodyFile]);
     assert.equal(readFileSync(args.at(-1), 'utf8'), body);
   });
 });

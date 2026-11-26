@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
 import { sha256 } from '../eval/lib/checks.mjs';
 import { replayFactsSha } from './replay-facts.mjs';
 
@@ -21,7 +23,7 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
     'commit --amend --no-edit -q', 'show HEAD:<spec path>',
     'shared predicate against `origin/$DEFAULT` before pushing',
     'push -u origin <branch>', 'gh pr create --draft --head <branch> --base "$DEFAULT"',
-    '--body-file "$BODY"', 'no push, no amend',
+    'no push, no amend',
     '4 - retry opening the draft PR [recommended]',
     'gauntlet: gate=brainstorm/user-review-gate recommended=4',
     'Context: unknown', 'no amend and no push',
@@ -30,13 +32,18 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
   ]) assert.ok(publish.includes(token), token);
   const ship = read('skills/gauntlet/ship/ship.md').split('#### Option 1: Push and Create PR')[1].split('#### Option 2:')[0];
   for (const recipe of [publish, ship]) {
-    assert.match(recipe, /mktemp "\$SCRATCH\/pr-body\.XXXXXX"/);
-    assert.match(recipe, /gh pr create [^\n]+--body-file "\$BODY"/);
     assert.doesNotMatch(recipe, /<</);
   }
   const heading = 'Export `pwd` receipts';
+  const env = { ...process.env, SCRATCH: mkdtempSync(join(tmpdir(), 'draft body ')), HEADING: heading, DEFAULT: 'main' };
+  delete env.BODY;
+  const mint = publish.match(/`([^`]*mktemp [^`]+)`/)[1];
+  const bodyFile = execFileSync('bash', ['-ec', mint], { env, encoding: 'utf8' }).trimEnd();
+  assert.equal(dirname(bodyFile), env.SCRATCH);
+  const body = 'Repeated exports return one receipt.\n\n## Integration\n\n~~~text\nEOF\nEnd of receipt\n~~~';
+  writeFileSync(bodyFile, body, { flag: 'r+' });
   const create = publish.split('```bash\n').map(block => block.split('\n```')[0]).find(block => block.includes('gh pr create --draft'))
-    .replaceAll('<worktree>', 'work').replaceAll('<branch>', 'topic').replaceAll('<spec path>', 'spec.md').replaceAll('<spec H1 text>', heading);
+    .replaceAll('<worktree>', 'work').replaceAll('<branch>', 'topic').replaceAll('<spec path>', 'spec.md').replaceAll('<spec H1 text>', heading).replace('<scratch-file>', '"$1"');
   const args = execFileSync('bash', ['-ec', `
     git() {
       case "$*" in
@@ -46,8 +53,10 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
       esac
     }
     gh() { printf '%s\\0' "$@"; }
-    ${create}`], { encoding: 'utf8', env: { ...process.env, HEADING: heading, DEFAULT: 'main', BODY: 'body file' } });
-  assert.deepEqual(args.split('\0'), ['pr', 'create', '--draft', '--head', 'topic', '--base', 'main', '--title', heading, '--body-file', 'body file', '']);
+    ${create}`, 'create', bodyFile], { encoding: 'utf8', env });
+  const argv = args.split('\0').slice(0, -1);
+  assert.deepEqual(argv, ['pr', 'create', '--draft', '--head', 'topic', '--base', 'main', '--title', heading, '--body-file', bodyFile]);
+  assert.equal(readFileSync(argv.at(-1), 'utf8'), body);
   assert.match(ship, /```markdown\n## Summary[^`]*## Test Plan[^`]*<[^>]*Integration[^>]*>\s+<[^>]*disposition appendix[^>]*>\n```/);
   assert.doesNotMatch(publish, /(?:option|row|Retry|clean|hidden|retryable)\s+`?6\b/);
   assert.ok(publish.indexOf('show HEAD:<spec path>') < publish.indexOf('push -u origin'));

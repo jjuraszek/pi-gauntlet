@@ -1,8 +1,8 @@
 {
   "sample": "pr-body-integration",
   "arm": "candidate",
-  "skillSha": "4e68d19b729f95e08c36492f16acc5b7e9d098b502f9d5d57a1b4fea54989a39",
-  "inputSha": "048f475fbd4c13534eac1d1a09f877cf96aa20535cd12eacb0df558551d286ba",
+  "skillSha": "4da094fe2bf3419c00581c368dc076c36a5b04a2439b487c21a1baf3f0e14b50",
+  "inputSha": "8805fe77fa62cb003eb04b4aef2c522715dd9583bd53e1156f61b46f9d77a05a",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**A. Step 4 menu**\n\n```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**A. New PR body (option 1)**\n\n```markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n```\n\n**B. Existing draft PR body after reconciliation (push, keep draft)**\n\n```markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n\n## Notes\n\nFollow up with the catalog team.\n```\n\n**Create command (A, option 1)**\n\n```bash\n(cd \"$WORKTREE\" && gh pr create --title \"$LANDED_SUBJECT\" --body-file \"$BODY\")\n```\n\nThe body was written with the file writer to `BODY`, a `mktemp \"$SCRATCH/pr-body.XXXXXX\"` file in the worktree's scratch folder. It was then passed through `--body-file` rather than a shell heredoc, so the `EOF` line inside the Integration receipt cannot end the input early.\n",
-      "words": 379,
-      "wallMs": 15716,
+      "text": "**A. Step 4 offer**\n\n```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n**A. New PR body (option 1)**\n\n````markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n````\n\n**B. Existing draft PR body after push (row 2, still a draft)**\n\n````markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n\n## Notes\n\nFollow up with the catalog team.\n````\n\n**Create command (A)**\n\n```bash\n(cd \"$WORKTREE\" && gh pr create --title \"$LANDED_SUBJECT\" --body-file '/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3')\n```\n\nThe file writer wrote the body to the minted scratch path in a separate call. The create command then passed that path to `--body-file` as one shell-quoted argument, so the body never went through a heredoc or command substitution.\n",
+      "words": 373,
+      "wallMs": 14801,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n```markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n```\n\n```markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n\n## Notes\n\nFollow up with the catalog team.\n```\n\n```bash\n(cd \"$WORKTREE\" && gh pr create --title \"$LANDED_SUBJECT\" --body-file \"$BODY\")\n```\n\nThe new PR body would be supplied via `--body-file \"$BODY\"`, using a scratch file populated by the file writer; no writes or commands were executed here.\n",
-      "words": 337,
-      "wallMs": 14987,
+      "text": "```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n```markdown\n## Summary\n- Report an import row's missing id.\n\n## Test Plan\n- [x] Reject a row without an id.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n```\n\n```markdown\nImporter handoff:  keep  spacing.\n\n## Integration\n\n- before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Keep intake paused during the drain.\n- `not stated` - operator: run the cutover; done when `not stated`\n- after merge - person merging: tag the release; done when the tag exists\n- after deploy to staging - operator: log in through the real identity provider; done when the login succeeds\n- after deploy to production - operator: compare the order total; done when it equals the total read before the deploy\n\nKeep these labels on the receipt:\n\n~~~text\nEOF\nEnd of receipt\n~~~\n\n## Notes\n\nFollow up with the catalog team.\n```\n\n```bash\n(cd \"$WORKTREE\" && gh pr create --title \"$LANDED_SUBJECT\" --body-file '/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3')\n```\n\nThe new PR body is supplied by a separate file-writer call to the minted absolute path, then passed to the create command through the single shell-quoted `--body-file` argument.\n",
+      "words": 340,
+      "wallMs": 12996,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "6943ce7541c6de890002b2ff23de857068e1d07622eb4b56002116b47d98a49b",
+      "factsSha": "957ee86d3e5bd0690e69ec1926c479410dc5d59f0036c29fe43b37b8e5b45844",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "6198f27850222dd42036b63717a668b2c6f9106a0d450551fb34941ed557be5b",
-      "baselineOutputSha": "dbc757152cdce138e80954167ec7a8666610923e5219178a9eef43c57e893856",
-      "candidateOutputSha": "717cd225bb5491a5b59c7541433e110dcc140c2eb47d0781600d62945d7aacfd",
+      "baselineOutputSha": "75acacc9953c294b410d9c2e6e3395c38d0b4d478a07352dff5ff6d51529ccc5",
+      "candidateOutputSha": "0af432431ac30b1cd7ce962a80550be525406d5f23e8bbbec7ef7ca917619bcf",
       "facts": {
         "offer": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither output differs on any fact: both show the five-option named-branch menu in order with no Integration question or item, both carry the spec's Integration section verbatim once after Test Plan (all six entries, the indented instruction, the literal EOF and End of receipt lines) with no claim that any condition was checked, and both replace only the stale Integration block in the existing draft while keeping the double-spaced lead line, the Notes section and their order, with no screenshot entry or Rework block. So the expected fails -> holds moves on create and update are not visible in this pair; Before already satisfied them. The After wording is slightly clearer on transport: it states the body was written with the file writer to a mktemp scratch file and passed by --body-file, which makes 'written as data, outside shell source' explicit, whereas Before only implied it in a shell comment. Keep that explicit statement of the file writer plus scratch path, keep the rule that the offer is independent of Integration entries, and keep the instruction to reconcile only the Integration block on an existing body; those are the phrases holding all three facts.",
-      "wallMs": 5441,
+      "feedback": "No fact moved between Before and After: all three hold in both outputs, so the expected fails -> holds movement for create and update does not show in this sample, because Before already met them. Both outputs give the five-item named-branch menu in order with no Integration question or item. Both carry the Integration section verbatim once after Test Plan, including the indented instruction and the literal EOF and End of receipt lines, with no claim that any condition was checked. Both pass the literal minted path `/work/import queue/.git/gauntlet/tmp/pr-body.B72pL3` as one quoted `--body-file` argument, with the body written by a separate call. Both replace only the stale Integration block in the existing draft, keeping the double-spaced first line and the Notes section. The After differences are cosmetic: single quotes instead of double around the path, the `whole-diff minors: none` line dropped from the offer, and a shorter transport sentence. To keep these facts stable, keep the wording that requires the literal minted path in both the writer and the create call (not a shell variable from the mint), the body written as file data rather than a heredoc, and reconciliation limited to the Integration block. Consider having the transport sentence restate the path explicitly, as Before did, so the same-path claim is visible in the prose as well as the command.",
+      "wallMs": 9373,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "6943ce7541c6de890002b2ff23de857068e1d07622eb4b56002116b47d98a49b",
+      "factsSha": "957ee86d3e5bd0690e69ec1926c479410dc5d59f0036c29fe43b37b8e5b45844",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "6198f27850222dd42036b63717a668b2c6f9106a0d450551fb34941ed557be5b",
-      "baselineOutputSha": "c6ca91ecac5885a615fedabbe856393fca02ad9fe7c1697b91bf971bbd65155a",
-      "candidateOutputSha": "08873cc9717c683cbd389944763d93b1e944fe1169f1f02dab7fd6dac3ce9cc6",
+      "baselineOutputSha": "82249cce158737c8ef5a442edc4683dc332017dd74285e543090d20b751fc618",
+      "candidateOutputSha": "b5546332abd5656a76f99ed8e006f6478b9a1c595b67c40b55a7651635e26341",
       "facts": {
         "offer": {
           "before": "holds",
@@ -71,9 +71,9 @@
           "label": "held"
         },
         "create": {
-          "before": "fails",
+          "before": "holds",
           "after": "holds",
-          "label": "intended change"
+          "label": "intended but unchanged"
         },
         "update": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Offer and update are identical in both outputs: the five-option named-branch menu appears in order with no Integration question or item, and the draft body swaps only the stale Integration block for the spec's full current block once, dropping the screenshot entry and leaving the lead line's double spacing, the Notes section and order untouched, with no Rework block. The only fact that moved is create: both outputs render the same correct body (Summary, Test Plan, then the Integration section verbatim once with the indented instruction and literal EOF and End of receipt lines, no claim that any condition was checked), but Before passed it with `--body-file -` and a quoted heredoc, so the body sat inside shell source and no scratch file was used, whereas After passes `--body-file \"$BODY\"` and states that the scratch file was populated by the file writer. To keep this, retain the wording that the body is written as data to a scratch file and the path is passed to the command; consider also having the closing sentence state explicitly that the body text never appears in shell source, and keep the title as data too (After uses `$LANDED_SUBJECT` rather than an inline string, which is fine). Nothing Before kept was lost in After.",
-      "wallMs": 13634,
-      "verdict": "improved"
+      "feedback": "No fact moved: both outputs show the same five-option menu with no Integration question, the same new PR body with the Integration section verbatim once after Test Plan (indented instruction and literal EOF / End of receipt lines intact, no checked claims), and the same draft body with only the stale Integration block replaced and the surrounding text, double spacing and Notes section untouched. Because Before already satisfies create and update on this sample, the expected fails -> holds movement is not visible here. The only difference is the create command: After keeps the minted path as one single-quoted literal --body-file argument, which still satisfies the fact, but it now shows \"$WORKTREE\" and \"$LANDED_SUBJECT\" where Before showed the concrete directory and title. Those variables do not come from the mint, so the fact holds, but in a separate call they read as dependence on shell state and put the margin at risk. To keep it safe, have the wording require the rendered create command to use concrete literal values (or state that the title and directory are resolved in the same call), and keep the explicit sentence that the writer and the create call use the same printed path with the body written as file data rather than a heredoc or shell variable.",
+      "wallMs": 10967,
+      "verdict": "unchanged"
     }
   },
-  "repoSha": "61e4afdda096accd057dbc1a8d5fc7d666fb80f5"
+  "repoSha": "c4b0f2fae2be8820557e79048bc9e95abef05cd5"
 }

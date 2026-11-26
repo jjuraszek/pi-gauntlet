@@ -300,7 +300,7 @@ Read [commit-message.md](../commit-message.md) for the Landed message subject an
 git -C "$WORKTREE" push -u origin "$FEATURE"
 ```
 
-Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder) and set `BODY=$(mktemp "$SCRATCH/pr-body.XXXXXX")`. Use the file writer to write this Markdown to that path, then run `(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body-file "$BODY")`:
+Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder) and run `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the file writer to write this Markdown to the absolute path it prints. In the create call, substitute the same printed path as one shell-quoted argument for `<scratch-file>`: `(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body-file <scratch-file>)`.
 
 ```markdown
 ## Summary
