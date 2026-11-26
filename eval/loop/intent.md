@@ -1,10 +1,12 @@
-for: 3d9af025ff6726499fc1b0e805dbed3a6c17a9d91d3ee6a462b5f28228050d41
+for: ab67e05c73e809eb74281562655c037ab4a70315b54c9407e4a04bfb70db2ae0
 
 ## Change
 
-Select unreachable-cut to check whether a valid marker on an admitted failed target leads to an amendment, including when an older spec has no recognized disposition. A wording pin cannot show whether the driver instead redispatches the failed row. This replay narrates routing; it does not run a worker.
+The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
 
 ## Earlier comparisons
+
+Select unreachable-cut to check whether a valid marker on an admitted failed target leads to an amendment, including when an older spec has no recognized disposition. A wording pin cannot show whether the driver instead redispatches the failed row. This replay narrates routing; it does not run a worker.
 
 Keep one loop implementation entry point and read current-format interrupted recovery from restore-loop.md after the resume engine split. Admit home returns from ledger-held attribution and companion returns from checkout-local return files, without reading commit messages or charging consumed iterations twice. Preserve target-only failed-attempt accounting, unchanged foreign rows, reset-based interrupted recovery and verification repair counts. Stop a ledger without returned: with the unsupported-format sentence and recovery pointer instead of routing through resume conversion. Selected text replays cover return admission, interrupted child and companion recovery, leg resume and verification repair on supplied observations; they do not prove live dispatch or tracker execution. Coverage is sample-scoped, not a target-wide pass.
 
