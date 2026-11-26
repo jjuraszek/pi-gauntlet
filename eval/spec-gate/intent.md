@@ -1,10 +1,12 @@
-for: d097923fa0970afaa411da6d42e961433aae8ae6fa628c23a30634a65c01098d
+for: ec3171f5beacef50bf911ba58c0e116940449abc691c1a2a795b332ade7f8e57
 
 ## Change
 
-Select scope-cuts-listed to check the approval message for an unrepaired ticket. The rendered gate, not the prompt text, shows whether all four marked rows appear once with their kind, apart from the cuts, without a new question. This replay stops after the gate reply; it does not write a spec or start implementation.
+The recommended-row replay checks that the gate selects the first bundled in-scope row after three cut rows and a single-observation row. Wording pins alone do not show which row the recommendation quotes. Only this sample is in scope.
 
 ## Earlier comparisons
+
+Select scope-cuts-listed to check the approval message for an unrepaired ticket. The rendered gate, not the prompt text, shows whether all four marked rows appear once with their kind, apart from the cuts, without a new question. This replay stops after the gate reply; it does not write a spec or start implementation.
 
 Migrate full-council's plain plan approval and drafted-rows-block's rendered menu to the four-row contract, preserving briefing, audit, drafted-row and continuation assertions. Leave partial-coverage's case and facts unchanged: its f5 already says reply 2 grants auto-apply amendments. Extend flag-replies with bare defaults, recommended approve with opt-out, label selectors, combined loop opt-out/allowance, and each rejected-reply class. Share exact G definitions and the approval recipe to keep the independent table within the existing target cap; require standalone unwrapped plain-text allowance carriers directly before the loop invocation for digit and label selectors. Include the exact loop engine --allowance=6 reply with the default grant, loop engine and ledger-only allowance; backtick-wrapped carriers do not satisfy these facts. Run only full-council, partial-coverage, drafted-rows-block and flag-replies, seeding baseline first wherever case text changed. Preserve other records and partial-report rows. These selected tool-free narrations do not prove live persistence or target-wide coverage.
 

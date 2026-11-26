@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "af56d7980ecde39250cd009ff7f1f543e8280a7fe71b11fafc2418c58565eaf3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6617c67f1b1e188984444e8b3341db334a4975ac6f6ac17ad10191075c5e9a71",
+      "intentSha": "982bb40719092aef5625c2ac9157578f1d568cb80190d74dfaed78dde1955e0f",
       "baselineOutputSha": "4b4af9692e1d6391418b0ebd2f28b28056912b445a0f9177078d7da8e095073a",
       "candidateOutputSha": "2b97fb6866ba0f6e3296907419876b43c81837cd64d52f8fdf419c6f3489f1fa",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "No fact changed state between the two outputs on this sample; in particular, `entries` already held in Before, so the expected fails -> holds move does not show in the text. Before said the Integration items \"get no ledger rows\" and deferred them to \"verify and closure, not the loop\"; its ledger, seed task, gate set and next targets contained no Integration entry, the release tag included. After is more explicit and more robust: it counts \"six `## Integration` entries\", says they get \"no ledger row, no worker, and no gate pair\", and repeats \"Integration entries contribute nothing\" in the gate set. After also states \"No `model:` override is passed\" and \"Commit the stamped skeleton\" outright, where Before only showed these implicitly through a dispatch call with no model field and a `base:` line in the ledger. Keep those explicit sentences. Keep the wording that an unreached row's empty evidence is normal and that a first seed miss at 1 of 4 repairs and redispatches the seed, since `admission` depends on both. To make the `entries` gain unambiguous, avoid any phrasing like Before's \"handling belongs to verify and closure\", which a reader could take as deferred work or a later blocker, and consider saying outright that no Integration entry is a seed check, blocker or next target.",
-      "wallMs": 12722,
+      "feedback": "No fact moved on this case: all four hold in both Before and After. Both outputs show the same five-row skeleton (rows 1 and 2 open with empty evidence, rows 3-5 cut with their deviates/deferred/elsewhere reasons, all attempts 0), keep every Integration entry out of the ledger, commit the skeleton before starting implement, dispatch the seed to a fresh, synchronous loop-implementer in the worktree with file-only output and acceptance level none, admit A (target row 2) and B (exit to verify), and route C, D and E to seed repair and redispatch. After is slightly more explicit in three places: it says the six Integration entries get no row, no worker and no gate pair; it states that no `model:` override is passed, where Before only omitted the parameter and noted that escalation does not apply to seed; and it calls the committed ledger the stamped skeleton. Keep those explicit sentences, since they make the entries and dispatch facts hold without relying on omission. Before already satisfied the entries fact here, so the expected fails-to-holds move for seed-dispositions/entries does not show on this case. The other two expected moves (unreachable-cut/default-row and returned-line-admission/missing-line) are not exercised by this seed-phase replay, so it gives no evidence on them either way.",
+      "wallMs": 11280,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "af56d7980ecde39250cd009ff7f1f543e8280a7fe71b11fafc2418c58565eaf3",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "6617c67f1b1e188984444e8b3341db334a4975ac6f6ac17ad10191075c5e9a71",
+      "intentSha": "982bb40719092aef5625c2ac9157578f1d568cb80190d74dfaed78dde1955e0f",
       "baselineOutputSha": "9172958cf313385d7d07bf4feebc0fb00ec7a1ce89bde07ff53d62509ae4e805",
       "candidateOutputSha": "87463658e8d6f30d941ae9a435b936da18c95bcfe9518393be345b9aa3b6e2bd",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this sample: both outputs satisfy all four, so the expected fails -> holds on entries did not show up because Before already kept every Integration bullet out of the ledger (\"None of the six Integration bullets becomes a row\") and never used one as a worker assignment, seed check, blocker or next target. What the After wording did change is explicitness: it now says no Integration entry receives a row, worker, attempt, evidence requirement or gate, which covers the fact more directly than Before's row-only statement. Keep that sentence. To make the fact robust rather than merely not violated, the wording could also have the driver say that Integration entries, including post-merge ones such as the release tag, are never a blocker or next target. After dropped Before's explicit note that the `in-scope` line under AC2 leaves row 2 open without creating another row; the table still shows it, but keeping that note, plus one saying AC1's absent disposition defaults to open, would protect the dispositions fact. The skeleton commit before implement start, the fresh foreground file-only dispatch with none acceptance and no model override, and the A/B admission and C-E repair-and-redispatch routes are intact in After and should stay as written.",
-      "wallMs": 11275,
+      "feedback": "None of the four facts moved: both outputs hold on all of them. On `entries`, Before only says that none of the six Integration bullets becomes a row, and it holds because nothing else in the text assigns, checks, blocks on or targets an Integration entry. After states this outright (no row, worker, attempt, evidence requirement or gate), which is the sturdier form, so keep that sentence. Two things in After are thinner than Before and could cost a fact on a different sample. First, After drops Before's explicit note that the `in-scope` line under AC2 leaves row 2 open without creating a row, and it never says AC1 is open by default because it has no disposition; `dispositions` now rests on the table alone. Second, After says \"stage only the skeleton\" where Before said \"stage the stamped skeleton\", so the stamping step is only implied by the `plan_check` call before the commit. Wording that names each row's disposition source and keeps the stamp, commit, then start-implement order explicit would protect `dispositions` and `dispatch`. This case does not exercise the unreachable-marker amendment route or the unsupported-ledger stop, so it shows nothing about whether the Change's intended behaviour was delivered.",
+      "wallMs": 11995,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "480abeb8cbdb667910a5249c535876b85807a911"
+  "repoSha": "3e6014712d1c82cb4ddad24ebbbac8bd7fa81e91"
 }

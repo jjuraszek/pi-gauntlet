@@ -27,6 +27,16 @@ test('current instructions do not give competing rules for stages and deployed o
   }), []);
 });
 
+test('shipped instructions and extension sources do not use the retired venue disposition', () => {
+  const offenders = sources.filter(([path, text]) => {
+    if (path.startsWith('extensions/') && path.endsWith('.test.ts')) return false;
+    // Finish removes loop ledgers; their evidence quotes the inputs that checks reject.
+    if (/^doc\/plans\/[^/]+-ledger\.md$/.test(path) && text.startsWith('# Ledger - loop engine\n')) return false;
+    return text.includes('venue:');
+  });
+  assert.deepEqual(offenders.map(([path]) => path), []);
+});
+
 test('sorters, council and conformance use the shared definition', () => {
   for (const [token, paths] of [
     ['ac-classes.md', ['skills/shape-ticket/SKILL.md', 'skills/gauntlet/brainstorm/ticket-acceptance.md', 'skills/check-delivery/SKILL.md']],

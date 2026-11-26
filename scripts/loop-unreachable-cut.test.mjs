@@ -21,7 +21,6 @@ test('admitted target evidence routes before budget and dispatch without driver 
     '^unreachable: .+ - .+$',
     'Never inspect later result segments, other rows or a rejected return',
     'Leave malformed markers on the ordinary failed-attempt path',
-    'Keep `venue:` rows on the ordinary failed-attempt path',
     '| Otherwise | Return to the ordered table. |',
   ]) assert.ok(section.includes(token), token);
   assert.doesNotMatch(section, /bound spent:|action counts|authorization bounds|raise an action's bound/);
@@ -49,7 +48,7 @@ test('unreachable cuts reuse the amendment owner and preserve ledger accounting'
     'amended the spec: row <n> - unreachable in this checkout - <what>',
     'Without amend permission', 'human batch',
     'single amendment commit', 'amended | cut row <n> | <first item title>', 'Preserve attempts, iterations, allowance and spent escalation',
-    '`Deferred/deviates per spec:`', 'never convert the disposition to `venue:`',
+    '`Deferred/deviates per spec:`',
   ]) assert.ok(section.includes(token), token);
   assert.match(driver, /Read \[unreachable-returns\]\(unreachable-returns\.md\) in full now with read at its absolute path/);
   assert.ok(Buffer.byteLength(driver) < 45_000);

@@ -420,7 +420,7 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
   for (const rule of [
     'When row 4 is not recommended and acceptance rows exist',
     "assess the committed spec's `## Acceptance criteria` in the main loop, without a tool or subagent",
-    'Assess only `in-scope` and `venue:` rows; skip `deviates:`, `deferred:`, and `elsewhere:` rows',
+    'Assess only `in-scope` rows (the default when no disposition is recognized); skip `deviates:`, `deferred:`, and `elsewhere:` rows',
     'Treat two or more separately checkable outcomes in one row as bundled',
     'Treat several facets of one observation (the fields of one rendered line, a value and where it is stored) as one outcome',
     'Recommend row 1 for a bundled row',
@@ -428,10 +428,10 @@ test('bundled acceptance rows recommend a plan with the first qualifying row and
     'Recommended: 1 - row <k> "<row text, first 60 chars>" commits to <outcome>, <outcome>[, ...]; a plan splits it into tasks.',
   ]) assert.ok(text.includes(rule), rule);
   const fixture = read('eval/spec-gate/samples/recommended-row/case.md');
-  for (const id of ['bundle-in-scope', 'bundle-venue', 'bundle-high']) {
+  for (const id of ['bundle-in-scope', 'bundle-after-cuts', 'bundle-high']) {
     assert.ok(fixture.includes(`| ${id} |`), id);
   }
-  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-venue.*bundle-high/m);
+  assert.match(read('eval/spec-gate/samples/recommended-row/expected.md'), /^- bundled: judged:.*bundle-in-scope.*bundle-after-cuts.*bundle-high/m);
 });
 
 test('unbundled acceptance rows recommend loop with the exact fallback reason', () => {

@@ -1,6 +1,10 @@
-for: e8a9d1e770e03c07a484d2f7d1c017b9e9638ec75458f0db57b6b330d59a1b82
+for: 3d9af025ff6726499fc1b0e805dbed3a6c17a9d91d3ee6a462b5f28228050d41
 
 ## Change
+
+Select unreachable-cut to check whether a valid marker on an admitted failed target leads to an amendment, including when an older spec has no recognized disposition. A wording pin cannot show whether the driver instead redispatches the failed row. This replay narrates routing; it does not run a worker.
+
+## Earlier comparisons
 
 Keep one loop implementation entry point and read current-format interrupted recovery from restore-loop.md after the resume engine split. Admit home returns from ledger-held attribution and companion returns from checkout-local return files, without reading commit messages or charging consumed iterations twice. Preserve target-only failed-attempt accounting, unchanged foreign rows, reset-based interrupted recovery and verification repair counts. Stop a ledger without returned: with the unsupported-format sentence and recovery pointer instead of routing through resume conversion. Selected text replays cover return admission, interrupted child and companion recovery, leg resume and verification repair on supplied observations; they do not prove live dispatch or tracker execution. Coverage is sample-scoped, not a target-wide pass.
 
@@ -12,6 +16,7 @@ Rebind this intent to the combined assembly on the rebased tree without replayin
 The seed-dispositions replay indexes only acceptance criteria and assigns no Integration entry to the worker. Check the four dispositions, absent-disposition default, seed dispatch and partial-seed admission on this sample only.
 
 ## Expected to move
+- unreachable-cut/default-row: fails -> holds - Route the defaulted row's unreachable marker through the same amendment as an explicitly in-scope row.
 - seed-dispositions/entries: fails -> holds - Leave all six Integration entries out of the ledger and worker assignments.
 
 - returned-line-admission/missing-line: fails -> holds - Stop the unsupported ledger in the driver without conversion, dispatch or mutation.

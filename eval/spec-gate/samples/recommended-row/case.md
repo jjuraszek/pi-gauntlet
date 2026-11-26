@@ -78,7 +78,7 @@ Evaluate each independent case using its replacement committed acceptance sectio
 | Case | Status observation | Acceptance section |
 |---|---|---|
 | bundle-in-scope | Context: 12.0% of window | A |
-| bundle-venue | Context: unknown | B |
+| bundle-after-cuts | Context: unknown | B |
 | bundle-high | Context: 31.0% of window | A |
 | unbundled-facets | Context: unknown | C |
 
@@ -100,7 +100,7 @@ Ticket #42, checkbox list, rows verbatim:
 - [ ] The status line shows the receipt ID, total, and currency.
   in-scope
 - [ ] Retries return the receipt and enqueue a follow-up email.
-  venue: staging payment sandbox
+  in-scope
 - [ ] Publish a receipt schema and add its migration command.
   in-scope
 
@@ -116,4 +116,4 @@ Ticket #42, checkbox list, rows verbatim:
 - [ ] The status line shows the receipt ID, total, and currency.
   in-scope
 - [ ] The receipt identifier is stored in the request record.
-  venue: staging payment sandbox
+  in-scope
