@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 10
+iterations: 11
 allowance: 10
-returned: 26 | home | 5e71a3b01aeda3c9c839b05eea84e0fff03ae802
+returned: 28 | home | 07b44d459ae1d66a0b1fc31895d7459731115d02
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -36,7 +36,7 @@ returned: 26 | home | 5e71a3b01aeda3c9c839b05eea84e0fff03ae802
 | 25 | cut | 0 | deviates: the row is a tracker update and moves to `Integration` |
 | 26 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gatekeep-pr-scope integration-not-judged; both replays reported only ticket row 3 as drift, not the In Review entry; cached spec-writing, approval, council-edit and conformance checks passed |
 | 27 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays carried the queue-drain entry and its indented detail word for word |
-| 28 | open | 0 | |
+| 28 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet post-action-sorted; 2 passed; both replays nested pause, drain and rollback under the ticket entry and kept them out of acceptance criteria, Design and Tests; selected eval reused replies and refreshed two judgments |
 | 29 | cut | 0 | deviates: the entry is one line in the design's own words with no required details; it is written in `Integration` and not in the design text |
 | 30 | cut | 0 | deviates: a ticket comment is an `Integration` entry; no step drafts, shows, posts or judges it |
 | 31 | cut | 0 | deviates: a ticket comment is an `Integration` entry; the run posts nothing |
@@ -82,3 +82,4 @@ row 21 done | The approval gate lists each moved ticket row once with its kind, 
 row 22 done | Both spec writers drafted the import diagnostic from the design when the ticket's only row was an operator cutover, and kept that step under Integration. | Reuse the ticket-all-rows-sorted fixture to check the drafted header, diagnostic and marked person step.
 row 26 done | The merge gate accounts for the marked In Review entry without judging it and still reports a ticket row whose wording changed. | Reuse the integration-not-judged fixture to check ticket drift, file-delivered coverage and nested PR body claims.
 row 37 done | Both merge-gate replays left all six Integration entries without a verdict or blocker and flagged the missing error line number. | nothing new to build on
+row 28 done | Both spec writers nested the pause, drain and rollback commands under the ticket's Integration entry without requiring them in acceptance criteria, Design or Tests. | Reuse the post-action-sorted fixture to check command order, rollback placement and the distinction between operator steps and script output.

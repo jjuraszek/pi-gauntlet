@@ -13,13 +13,17 @@ Ticket ABC-204, Acceptance Criteria, rows verbatim:
 - [ ] The release script writes the changelog section into the pull request body
   in-scope
 
+## Ticket Integration entries (verbatim)
+- before deploy to staging - operator: drain the queue; done when the queue length reads 0
+
 The approved design says:
 - Remove the obsolete parser tests; the retired parser's test directory is empty afterward. Keep the public parser entry point and error format unchanged.
 - The release script writes the changelog section into the pull request body. A fixture changelog and captured generated body let a local test compare that section verbatim.
-- After merge a repository admin creates the `DEPLOY_TOKEN` secret. The admin owns this manual action; no source file can create the secret.
+- For the ticket's drain step, run `queue pause` before `queue drain`. To back out, run `queue resume`.
+- After merge a repository admin creates the `DEPLOY_TOKEN` secret. Use the staging repository's secret store.
 - Record the scan time in the PR body. This is a delivery note, not output of the release script or any other file-producing behavior.
 
 The chosen tests inspect the retired test directory and compare the release script's generated body against its changelog fixture. No external yardstick or value is missing.
 
 ## Narrated read actions
-Continue at spec-writing. Render the `## Acceptance criteria`, `## Design`, and `## Tests` sections you would write, including dispositions and every necessary operator instruction with its supplied actor and timing. Include any question required before writing. Do not claim live file writes or executed tests.
+Continue at spec-writing. Render the `## Acceptance criteria`, `## Design`, any `## Integration` section and `## Tests` you would write, including dispositions and the supplied operator instructions. Include any question required before writing. Do not claim live file writes or executed tests.
