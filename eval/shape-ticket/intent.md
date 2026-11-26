@@ -1,6 +1,8 @@
 for: c3cac6db61af513228594f8e4360dbe8a907c010b2a990ba4300134c378d1751
 
 ## Change
+Use a committed findings file, not a linked list, as the discovery-conversion example so the draft asks for a deliverable in the repository. No judged fact is expected to move from this example repair.
+
 Apply the shared definition to discovery rows. Keep the repository findings document as written under Acceptance Criteria; move the external-only baseline to Integration and retain the original in the Reporter note. Make the sort without a clarification question or a forced acceptance row format.
 
 Sort ticket rows by the shared definition. Keep the file-delivered functionality under Acceptance Criteria, including environment names that define it and scenarios of the same constraint. Carry external clauses and pipeline results under Integration and retain every displaced original verbatim in the Reporter note, without a retirement label. On repair, carry existing housekeeping entries under Integration. The text replays inspect the proposed body and note, not tracker writes.

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "8d40009cea671f2bbd3b12ba8e48fb00d5458a5b1d8c3994f2fb650edbca2c76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "03195cd93db0434fa1b660481a254e2528cbdd35a154906cd3eddd6f5dc42c5d",
       "candidateOutputSha": "7f0204e56c6ec79cdcdaecc8ab5abc05bada59c20c407d648cd2c1c6963d2261",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved both targeted facts: the acceptance row now reads `The importer rejects empty input.` in the reporter's own words, where Before rewrote it as a Given/When/Then row that embedded the zero-byte setup and the pass-to-importer action and added a 'does not report success' clause. The Evidence list still carries both repro steps, the observed success and the expected rejection in After (as it did in Before), and neither reply asks about the acceptance row's format, so those two guards held on both sides. To keep this stable, retain the explicit instructions that bug repro steps and observed-versus-expected live in the gate's Evidence list and that the expected result stays as the reporter's plain acceptance row without conversion to setup/action/result; the Evidence fact depends on the list itself naming both steps, so do not let the scenario footer or the audit scenario line substitute for the explicit repro bullets, and keep the sort happening silently so no clarification question about row format appears.",
-      "wallMs": 5690,
+      "feedback": "After moved expected-result and no-repro-in-criteria as intended: the acceptance row is now the reporter's plain sentence `The importer rejects empty input.` instead of Before's Given/When/Then row that restated the zero-byte setup and the pass-to-importer action. The Evidence list still carries both repro steps, the observed success and the expected rejection in both outputs, and neither output asks a question about the row's format, so those two guards held unchanged. To keep this stable, keep the wording that says bug repro steps and observed-versus-expected belong in the gate's Evidence list while the expected result stays as the reporter's plain acceptance row, not converted to setup/action/result; keep stating explicitly that the Evidence list must hold the steps themselves (the Problem scenario footer alone is not enough), and that the sort is made without a clarification question, so future edits do not trade the Evidence entries or introduce a format question while preserving the plain row.",
+      "wallMs": 5236,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "8d40009cea671f2bbd3b12ba8e48fb00d5458a5b1d8c3994f2fb650edbca2c76",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "9ea5985d4dc11e9c51c655cb9cdd2841ca0e7659e6c8757d2edb0963b5792745",
       "candidateOutputSha": "65027e679b9bb01329c19588eed5a87cf76816601c4b78e7d44949af3af3ca14",
       "facts": {
@@ -91,10 +91,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved expected-result and no-repro-in-criteria as intended: the acceptance row is now the reporter's plain sentence `The importer rejects empty input.` rather than Before's Given/When/Then rewrite that folded the zero-byte setup and pass-to-importer action into the criterion. Evidence stayed intact in both outputs (both repro steps, observed success, expected rejection all appear in the gate's Evidence list, not only in the Problem example or scenario footer), and neither output asks a question about the row's format, with the menu remaining the only prompt. To keep this stable, keep the instruction explicit that the bug's expected result is carried verbatim as the acceptance row while repro steps and observed-versus-expected live in the Evidence list, and that the sort is made without a clarification question; avoid any wording that suggests the Problem example or scenario footer can stand in for the Evidence list, since the After now also carries the repro in a Problem example and a future reply could drop it from Evidence as redundant.",
-      "wallMs": 5370,
+      "feedback": "The After wording moved expected-result and no-repro-in-criteria as intended: the acceptance row is now the reporter's plain sentence `The importer rejects empty input.` rather than Before's Given/When/Then rewrite that folded the zero-byte setup and the pass-the-file action into the criterion. The Evidence list still carries both repro steps, the observed success and the expected rejection in both outputs, and neither output asks a question about the acceptance row's format, so those two facts held throughout. To keep this, retain the instructions that the bug repro steps and observed-versus-expected belong in the gate's Evidence list and that the expected result stays as the reporter's plain acceptance row without conversion to setup/action/result; also keep the wording that the sort is made without a clarification question, since that is what protects no-format-question. The added one-sentence Problem example with its source footer did not displace the Evidence list here, but keep the explicit statement that the example or scenario footer does not substitute for the Evidence entries so the evidence fact cannot regress.",
+      "wallMs": 5731,
       "verdict": "improved"
     }
   },
-  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
 }

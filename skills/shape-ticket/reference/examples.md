@@ -12,7 +12,7 @@ Read this when applying the AC integrity gate (drafting, repairing, or adjudicat
 **Tautological**
 
 - Bad: `- [ ] The identified flaky tests are fixed`
-- Good (discovery conversion): `- [ ] A list of tests failing intermittently over the last 30 CI runs is linked, with per-test failure rates`
+- Good (discovery conversion): `- [ ] A committed findings file lists tests failing intermittently over the last 30 CI runs, with per-test failure rates`
 
 **Unspecified-but-binding**
 

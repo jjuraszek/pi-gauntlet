@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "ebfcb6d888b935ae5da8290e0161ab8520fc10b94e244e493fcbeff8206653a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "975c3a69702b80af7d24c9d910a37c9bc408ca0caee7120a7a0a9e67d333bdca",
       "candidateOutputSha": "e377b4ca2454ca98931ecaccece6642088739d812f8dd434daa1acb1e4a1ee84",
       "facts": {
@@ -69,14 +69,14 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved f4 from fails to holds, and no fact that Before kept was lost. Before drafted no Integration section, dropped the CI row and the `make ci passes` clause, and labelled both note lines `retired workflow-stage proof`. After lists `CI is green on the PR head` and `make ci passes` under Integration, keeps the bundled row verbatim in the fenced Reporter note, and uses no retirement label. The Acceptance Criteria are identical in both outputs (f1-f3), ABC-201 still passes the integrity gate with no hard stop or park and heads to its step 8 confirmation gate (f5), and ABC-202 still reaches no-AC recovery with recover-or-park, no approval and no write (f6). Two things in After sit close to the edge and are worth tightening. First, the ABC-202 recovery question offers an example ('should a file in the repo record or check the CI result?'); it is framed as a question and paired with 'I will not invent one', so f6 holds, but a wording that forbids suggesting candidate behaviors in the recovery question would remove the risk of it reading as an invented replacement. Second, After's note fence is a plain `text` block described in prose as untrusted data, whereas Before used an explicit `<untrusted-data>` wrapper; if the untrusted-data fencing matters, name the required wrapper so the sort-to-Integration change does not loosen it.",
-      "wallMs": 12081,
+      "feedback": "The After wording's instruction to sort pipeline results and external clauses into Integration, keeping displaced originals verbatim in the Reporter note without a retirement label, is what moved f4. Before refused to draft an Integration section and prefixed both note lines with `retired workflow-stage proof:`, whereas After lists `CI is green on the PR head` and `make ci passes` under Integration and keeps the bundled row verbatim in a fenced, unlabelled note. f1, f2, f3 and f5 are unchanged: both outputs drop the standalone CI row from Acceptance Criteria, reduce the bundled row to exactly `- [ ] The importer rejects a row without an id`, keep the third row byte-identical, and send ABC-201 on to its step 8 confirmation gate with no hard stop or park. f6 holds in both, but After is closer to the edge: its recovery question offers a leading example (\"should a file in the repo record or check the CI result?\"), which a stricter reader could take as suggesting replacement behavior. To keep f6 safe, tell the recovery question to ask for the missing functionality without offering candidate behaviors. Two smaller things would guard f4 and f6: After dropped the explicit `<untrusted-data>` wrapper that Before had inside the fence and relies on a prose statement plus a plain text fence, so require the explicit untrusted-data fencing on the Reporter note; and state outright that an empty Acceptance Criteria list is never approved or filed, even when Integration is populated.",
+      "wallMs": 11785,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "ebfcb6d888b935ae5da8290e0161ab8520fc10b94e244e493fcbeff8206653a5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "8263224b78a9e1e364d935ed8d1430437e8aeb0d503d69271a02f6fd3f214188",
       "candidateOutputSha": "1c248086542eb49ea541cd9b86b86f845c76f83b3a31f4d1efbafd35704f68c4",
       "facts": {
@@ -111,10 +111,10 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact that moved is f4, and it moved in the intended direction: After adds an Integration section listing `CI is green on the PR head` and the detached `make ci passes`, and its fenced Reporter note keeps the original bundled row verbatim with no `retired` label, whereas Before refused to add Integration and prefixed both note rows with `retired workflow-stage proof:`. Every fact Before held is kept: the ABC-201 criteria are the same two rows with the third byte-identical (f1-f3), ABC-201 still passes the integrity gate with no stop or park (f5), and ABC-202 still lands on supply-a-real-criterion-or-park with no approval path and no invented behavior (f6). To keep this stable, retain the wording that says pipeline results and external clauses go under Integration with displaced originals kept verbatim and unlabelled in the note, and keep it explicit that sorting a ticket's only row into Integration does not satisfy the gate; After's line that neither an empty Acceptance Criteria section nor the Integration entry may be approved is what protects f6. Two small risks to watch: After fences the repaired sections as `markdown` rather than as untrusted data and uses `##` instead of the source's `###` headings, which no fact here tests but the case prompt asks for, and the leading `gauntlet: question` covers the whole reply, so wording that keeps ABC-201's pass visibly separate from ABC-202's open question will keep f5 safe.",
-      "wallMs": 11570,
+      "feedback": "The only fact that moved is f4, from fails to holds. Before refused to add an Integration section and prefixed both displaced rows with `retired workflow-stage proof:` in the Reporter note. After lists `CI is green on the PR head` and `make ci passes` under Integration and keeps the original bundled row verbatim in the fenced note with no retirement label, which follows directly from the new wording on carrying pipeline results under Integration and retaining displaced originals unlabelled. Every fact Before held is still held: the standalone CI row is gone from Acceptance Criteria, the bundled row is trimmed to exactly `- [ ] The importer rejects a row without an id`, the third criterion is byte-identical, ABC-201 passes toward its normal confirmation gate with no hard stop, and ABC-202 reaches recover-or-park without an invented behavior or an approvable empty list. To keep this stable, keep the explicit wording that a ticket whose only row sorts into Integration has no acceptance criterion and must recover a real one or park, since After's ABC-202 path now also preserves an Integration entry and that must never read as an approvable body. One small drift to watch: After fences the repaired sections as `markdown` rather than as untrusted data, so if that fencing matters, say that every drafted section, not only the Reporter note, is fenced as untrusted.",
+      "wallMs": 9559,
       "verdict": "improved"
     }
   },
-  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
 }

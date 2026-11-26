@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "d2c8291dbbcee0c1bf1ca11b86afe9ffa2673a37b6626c13f3eeebcc88010f19",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "b6ce7d55b4d4c8d13da77f05cb5a695b44b30cb258c20a74a45a4e99c7579f1d",
       "candidateOutputSha": "e6efeda3949d72901e20dc4f6b4bab67eedba8641aa48d959f95983ada7c8974",
       "facts": {
@@ -54,14 +54,14 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "All three facts hold in both outputs: After's latency row keeps <= 2s and the 5s baseline with no environment name, no Acceptance Criteria row names staging/production/UAT/experimental, and the Reporter note carries the full original row `p95 export latency <= 2s in staging (baseline 5s)` verbatim, so the Change's move of the external clause and housekeeping into Integration cost nothing here. The expected venue-stripped/original move (fails -> holds) is not visible in this sample because Before already retained the whole original row. Two fragilities to guard: the bare `- in staging` bullet under Integration sits one section below the AC list and could be read as an AC-adjacent row naming an environment, so word the rule so Integration entries are full sentences clearly outside Acceptance Criteria (e.g. 'Observe the p95 limit in staging'); and the note's explanatory label line preceding the original row is fine only as long as the original row itself stays byte-for-byte intact on its own line, so state explicitly that annotations go on a separate line and never inside or in place of the displaced original. Also note After folded the measurement method into the AC row rather than rewriting to Given/When/Then, which matches the Change's 'no forced acceptance row format' intent; keep that wording.",
-      "wallMs": 6809,
+      "feedback": "All three facts hold in both outputs: After's latency row keeps `<= 2s (baseline 5s)` with no environment named, no Acceptance Criteria row names staging or another environment, and the Reporter note carries the original row `p95 export latency <= 2s in staging (baseline 5s)` verbatim, so the new wording moved none of the judged facts. The visible differences are that After sorts the displaced `in staging` clause and the housekeeping entry into `## Integration` (as the Change intends) and keeps the AC row in the reporter's plain form instead of Before's Given/When/Then rewrite. Two risks to guard in the wording: the bare `- in staging` line under Integration sits close to f3, since a reader who counts Integration bullets as AC rows would fail it, so state explicitly that Integration entries are not acceptance rows and that environment names removed from a row must never reappear under Acceptance Criteria; and After's Reporter note adds explanatory labels around the originals (e.g. 'rewritten; \"in staging\" moved to Integration...'), which borders on the 'without a retirement label' instruction, so say that displaced originals go into the note verbatim with at most a neutral heading, to keep the verbatim original text intact and unambiguous.",
+      "wallMs": 6182,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "d2c8291dbbcee0c1bf1ca11b86afe9ffa2673a37b6626c13f3eeebcc88010f19",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "intentSha": "1072a9e0d7456562c147102e2b86bde511c0f651a3a13024c38d8b323bd46f73",
       "baselineOutputSha": "146ba13cb64a103d836375823103ec71314e9a3546ce5b096066c3d056762e7f",
       "candidateOutputSha": "fee6ca1aafd1e620ff8eb50fedd07315c1f0bdb45cd5f76247c66f0882f37790",
       "facts": {
@@ -81,10 +81,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved `original` from fails to holds: the Reporter note now carries the displaced row `p95 export latency <= 2s in staging (baseline 5s)` verbatim, where Before proposed no note at all. f1 and f3 hold in both: the After AC row keeps the 2s target and the 5s baseline and names no environment, with `in staging` carried under Integration rather than Acceptance Criteria. Before's row also held, though it rewrote the row into a 'When requesters export...' form; After's lighter edit that keeps the reporter's plain row is the safer wording. To keep these facts stable, keep the instruction that an external observation clause is stripped from the AC row and carried under Integration while the whole original row goes verbatim into the Reporter note, and state explicitly that the stripped environment name must not reappear anywhere in an AC row (including in appended measurement-method text). One risk to watch: the bare `- in staging` Integration bullet is a fragment without its subject; wording such as 'carry the external clause with enough of its row to be readable' would make it clearer without putting the environment back into Acceptance Criteria.",
-      "wallMs": 6301,
+      "feedback": "The After wording moved `original` from fails to holds: the Reporter note now carries the displaced row `p95 export latency <= 2s in staging (baseline 5s)` verbatim, where Before proposed no Reporter note at all and only mentioned the removed staging restriction in an integrity comment. f1 and f3 hold in both: each latency row keeps the 2s target and the 5s baseline and names no environment, and After places `in staging` under Integration and inside the quoted Reporter note, not in an AC row. To keep these stable, keep the instruction that the environment clause leaves the acceptance row and goes to Integration while the whole original row is retained verbatim in the Reporter note. The bare `- in staging` Integration bullet is a fragment that a reader could mistake for a criterion, so consider wording that makes the carried clause a full sentence (e.g. 'Observed in staging') and states explicitly that Integration entries are not acceptance rows. Also say that the quoted original in the Reporter note should be visibly marked as a retained original, so its unchecked-box form is not read as a live AC row naming staging.",
+      "wallMs": 8356,
       "verdict": "improved"
     }
   },
-  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
 }
