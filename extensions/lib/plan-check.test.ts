@@ -9,7 +9,7 @@ const ledgerSpec = `# Spec
 - [ ] Second
   deferred: #70
 - [ ] Third
-  venue: browser
+  in-scope
 ## Design
 - [ ] Not an AC
 `;
@@ -55,7 +55,7 @@ for (const [name, rows] of Object.entries({
   order: ["3 | open | 0 |", "2 | cut | 0 | deferred: #70", "1 | open | 0 |"],
   status: ["1 | closed | 0 | check", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
   cutDefault: ["1 | cut | 0 | check", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
-  cutVenue: ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | cut | 0 | check"],
+  cutInScope: ["1 | open | 0 |", "2 | cut | 0 | deferred: #70", "3 | cut | 0 | check"],
   openDeferred: ["1 | open | 0 |", "2 | open | 0 |", "3 | open | 0 |"],
   attempts: ["1 | open | -1 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
   fractional: ["1 | open | 1.5 |", "2 | cut | 0 | deferred: #70", "3 | open | 0 |"],
@@ -65,7 +65,7 @@ for (const [name, rows] of Object.entries({
 test("ledger discriminant is the exact first line", () => {
   for (const prefix of ["\n", " "]) assert.ok(checkPlan(prefix + ledger(), ledgerSpec, { exists: () => false, glob: () => [] }).findings.some(f => f.check === "input"));
 });
-for (const disposition of ["in-scope", "venue: browser", "deviates: alternate", "deferred: #70", "elsewhere: #71"]) {
+for (const disposition of ["in-scope", "deviates: alternate", "deferred: #70", "elsewhere: #71"]) {
   test(`ledger disposition ${disposition}`, () => {
     const cut = /^(deviates|deferred|elsewhere):/.test(disposition);
     const spec = `## Acceptance criteria\n- [ ] Works\n  ${disposition}\n`;

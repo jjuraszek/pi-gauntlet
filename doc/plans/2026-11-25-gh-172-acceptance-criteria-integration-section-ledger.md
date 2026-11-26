@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 14
+iterations: 15
 allowance: 10
-returned: 41 | home | 8d0678f33a61f7013718b186d9e73423d98e0119
+returned: 44 | home | 5965405e377b465f4ce0a535703976bdefb19f82
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -52,7 +52,7 @@ returned: 41 | home | 8d0678f33a61f7013718b186d9e73423d98e0119
 | 41 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs ship pr-body-integration; 2 passed; both selected replays offered all five choices without an entry question; new and updated bodies carried the exact six entries and nested text |
 | 42 | cut | 0 | deviates: the merge-gate report lists no entries |
 | 43 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both replays judged only the two importer behaviors on blue and listed the other three rows with their kinds; no status write |
-| 44 | open | 0 | |
+| 44 | done | 1 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; 36 passed, 0 failed; refresh keeps venue: staging in the row label rather than reading it as a disposition; seed-dispositions replay passed for both models |
 | 45 | open | 0 | |
 | 46 | cut | 0 | deviates: the review reports the unknown disposition as today; the engines add no guard and run the row as in-scope, the default for a row with no recognized disposition |
 | 47 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs check-delivery non-ac-row-listed; 2 passed; both replays named the configured blue.example.test target and matched it to the shipped commit |
@@ -88,3 +88,4 @@ row 39 done | Both delivery replays listed all six Integration entries once as n
 row 43 done | Both replays judged the two importer behaviors on blue, listed the three misplaced rows with their kinds and made no status write. | nothing new to build on
 row 47 done | Both delivery reports named blue.example.test as the configured target and matched its version to the shipped commit. | nothing new to build on
 row 41 done | Both replays offered all five choices without asking about Integration entries and copied the current section verbatim into new and existing PR bodies. | Reuse the pr-body-integration fixture to check menu choices, nested entry text and byte preservation outside a replaced section.
+row 44 done | The tracker now recognizes the same four dispositions as the spec writer and keeps a venue: line in the acceptance row text. | Reuse the refresh fixture in extensions/plan-tracker.test.ts to distinguish row text from a disposition.

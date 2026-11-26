@@ -618,7 +618,7 @@ test("refresh resolves the owning root, normalizes original AC text, and keeps l
     "## Acceptance Criteria", "- [x] Keep   cut requirements", "  visible",
     "  deferred: #1", "    disposition continuation", "- [ ] Reject malformed allowance replies",
     "  elsewhere: repo-b#2", "- [ ] Verify loop behavior", "  and recovery | row 99 is only text",
-    "  venue: staging - observe completion", "## Design", "- [ ] Not an acceptance criterion",
+    "  venue: staging", "  in-scope", "## Design", "- [ ] Not an acceptance criterion",
   ].join("\n"));
   const text = ledger(["1 | cut | 0 | deferred", "2 | done | 0 | baseline", "3 | open | 2 | check"], "", "allowance: 4");
   writeFileSync(path, text);
@@ -626,7 +626,7 @@ test("refresh resolves the owning root, normalizes original AC text, and keeps l
   const first = await h.call({ action: "refresh", path: "ledger.md" });
   assert.equal(first.details.error, undefined);
   assert.deepEqual(first.details.tasks.map(t => t.label), [
-    "Keep cut requirements visible", descriptions[1], "2/4: Verify loop behavior and recovery | row 99 is only text",
+    "Keep cut requirements visible", descriptions[1], "2/4: Verify loop behavior and recovery | row 99 is only text venue: staging",
   ]);
   assert.match(first.content[0].text, /row 3 \| 2\/4: Verify loop behavior and recovery \| row 99 is only text/);
   for (const [status, tail, pending] of [
