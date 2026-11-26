@@ -54,3 +54,5 @@ Before approval, correct a placement the chair flags from the `Human input` snap
 |---|---|
 | A pure entry under `## Acceptance criteria` | Move it verbatim to `## Integration` as a plain list item. For a ticket row, indent `ticket row, not an acceptance criterion: <kind>` directly beneath it. |
 | A file-checkable ticket row only under `## Integration` | Move it verbatim to `## Acceptance criteria` as a checkbox. Give it `in-scope` for this repo or a member repo, `elsewhere: <repo>` for a known nonmember group. Remove the old entry and its marker. |
+
+When a correction adds or removes an acceptance row, rewrite every `scope:` line in the same edit so each leg keeps the same surviving rows at their new positions ([legs.md scope grammar](../skills/gauntlet/legs.md#scope-grammar-and-validation)). Drop removed rows from every list, use `scope: none` for empty lists, and leave returned rows unlisted.
