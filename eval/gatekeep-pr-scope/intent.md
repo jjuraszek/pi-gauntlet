@@ -1,6 +1,8 @@
-for: f4621590debcafc1e261c75e1979a7c39b18174539c1150f3c1cd5bec74e99a5
+for: 9792f40c5e710241c5f6af7b1370c1f9dc686de0ba6e475d6bd67a0c422839f9
 
 ## Change
+
+Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
 
 Select integration-not-judged for scope accounting: match a verbatim, marked ticket row once without judging it, keep actual drift visible, and give no claim disposition to an observation under the body's Integration heading. Judge the mixed row's promised behavior and the absent line number separately. Select post-merge-menu for the merger's after-merge assignments from the spec and PR body. Neither source authorizes execution. These samples do not cover the rest of the target.
 
@@ -12,6 +14,8 @@ Render the single post menu after approve or merge, execute the validated select
 
 ## Expected to move
 
+- integration-names-spec-path/contract: fails -> holds - The PR names the assessed contract outside Integration.
+- integration-names-spec-path/no-blocker-or-stop: fails -> holds - An absent spec named only within Integration cannot trigger the missing-contract blocker or a selection stop.
 - integration-not-judged/cross-check: fails -> holds - Account for the moved tracker update; report only the drifted line-number row.
 - integration-not-judged/claims: fails -> holds - Check the importer's behavior claim, not the nested live assertion.
 - post-merge-menu/f1: holds -> holds - Offer tagging from Integration and guide publication from the PR body; do not offer the other five Integration entries.

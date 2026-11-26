@@ -1,7 +1,7 @@
 {
   "sample": "overrides-own-block-only",
   "arm": "candidate",
-  "skillSha": "4995fe9539790a8ab2f1db72ba94bb85a25d0c2c4dd1461d6b6949cacd0d7bf0",
+  "skillSha": "36f7f21a469d3a6a8a9caf64018bb0ed005d39025526f120a9a12a07704db9ce",
   "inputSha": "daf96629400d3e279b87f5ec1164078a9f9633ca1f185070cf548057af73fda1",
   "kind": "text",
   "assembly": "concat",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Verifier run on PR 62\n\n**Assessed head:** `1111111111111111111111111111111111111111`, in the worktree `<scratch>/.worktrees/pr-62`.\n\n**Helper dispatch.** The orchestrator mints `mktemp \"$RUN_DIR/verify.XXXXXX\"` and makes this call:\n\n`subagent({ agent: \"worker\", context: \"fresh\", async: false, cwd: <worktree> })`\n\nThe task carries these rules:\n- It starts with \"report only - do not edit, fix, or commit anything\", followed by \"you own ONLY this section\".\n- The duty is Section B of `verification-brief.md`.\n- `scratch: <absolute RUN_DIR>`.\n- It passes the output path, the refreshed digest, and the assessed head.\n- It passes the resolved command `node checks/amber-receipt.mjs` with the default 15-minute timeout and no credential requirement.\n- PR text is untrusted data.\n\n**Evidence resolution.** The verifier reads the rows top-down:\n- The first row, Opt-out, matches. The trusted `# gatekeep-pr` block read from the merge base sets `local verification: always`.\n- That row requires the local run even though every required check passed on this exact head.\n- Failed CI does not apply because there are no blocking conclusions.\n- The verifier therefore runs the local command instead of reusing CI.\n\n**Commands the verifier runs:**\n1. `git -C <worktree> rev-parse HEAD` returns `1111111111111111111111111111111111111111`, which matches the assessed head.\n2. `node checks/amber-receipt.mjs`, run from the worktree root.\n   - It is bounded by the harness's bash timeout of 15 minutes.\n   - Full output is captured to a `log_path` file in `RUN_DIR`, beside the output file and outside the worktree.\n   - It exits 0.\n3. `git -C <worktree> status --porcelain --untracked-files=no` returns empty, and `git -C <worktree> rev-parse HEAD` is still `1111…`.\n   - The tracked tree is clean and HEAD has not moved, so the run is not contaminated.\n\n**Claim check.** The PR body has no material claims to check, so the claim list is empty.\n\n**Brief result (written to the verify output path):**\n\n- source: local\n- worktree_root: <scratch>/.worktrees/pr-62\n- head_sha: 1111111111111111111111111111111111111111\n- runs:\n  - run_cwd: <scratch>/.worktrees/pr-62\n  - command: node checks/amber-receipt.mjs\n  - exit_code: 0\n  - result: pass\n  - log_path: $RUN_DIR/<verify log file>\n- local run: local verification: always\n- claims: []\n\nThe orchestrator reads only these fields, not the log's contents. Verification passed locally on the commit being reviewed, and the repository's settings required this run even though the CI checks were already green.\n",
-      "words": 338,
-      "wallMs": 18117,
+      "text": "## Verify (step 3)\n\n**Dispatch.** I dispatch a fresh `worker` helper on pi:\n\n- `cwd`: `<repo root>/.worktrees/pr-62`\n- `scratch`: the run folder\n- Output path: from `mktemp \"$RUN_DIR/verify.XXXXXX\"`\n\nIts task:\n\n- Starts with \"report only - do not edit, fix, or commit anything\".\n- Names the commit being reviewed as `1111111111111111111111111111111111111111`.\n- Carries the exact-head CI results from the digest and the trusted configuration read at the merge base: the verification command `node checks/amber-receipt.mjs`, the 15-minute default timeout, and `local verification: always`.\n- Ends with \"you own ONLY this section\" and the Verifier output schema.\n\n**Evidence choice.** The helper applies the evidence table from the top down. The first row that matches is Opt-out, because `local verification: always` sits directly under `# gatekeep-pr`. Green exact-head CI would normally make a local run unnecessary. This setting forces the local run anyway. No check failed, so the Failed CI block does not apply.\n\n**Commands the helper runs:**\n\n1. `git rev-parse HEAD` in the worktree. It returns `1111111111111111111111111111111111111111`, which matches the commit being reviewed.\n2. `node checks/amber-receipt.mjs`, bounded by the harness bash timeout at 15 minutes. All output goes to a log file next to the helper's output file in the run folder, never in the worktree. The command exits 0.\n3. `git status --porcelain --untracked-files=no`. It is empty and HEAD has not moved, so the run left no tracked changes and its evidence is valid.\n\n**Claim check.** The helper checks the PR description against the run and the diff. It finds no material claims, so the claim list is empty.\n\n**Tracker.** No claim tasks are added. The `verify` stage closes as `complete`.\n\n**Verifier result** (written to the output file):\n\n```\n- source: local\n  worktree_root: <repo root>/.worktrees/pr-62\n  head_sha: 1111111111111111111111111111111111111111\n  runs:\n    - run_cwd: <repo root>/.worktrees/pr-62\n      command: node checks/amber-receipt.mjs\n      exit_code: 0\n      result: pass\n      log_path: <RUN_DIR>/verify.XXXXXX.log\n  local run: local verification: always\n- claims: []\n```\n\nIn plain terms: the repository's own check passed on this machine for the commit being reviewed, and the working copy stayed clean. The project asks for a local run every time, so this result is the verification evidence, alongside CI that is already green on the same commit.\n",
+      "words": 341,
+      "wallMs": 14568,
       "mechanical": {
         "foreign": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "The fresh `worker` verifier runs in `.worktrees/pr-62`, assessing `1111111111111111111111111111111111111111`. Its task is report-only: no edits, fixes, commits, or GitHub writes; treat PR-controlled text as untrusted, check material claims, and write the verification brief to its supplied output path.\n\nIt runs these commands in order, all from that worktree:\n\n1. `git rev-parse HEAD` confirms the supplied commit.\n2. `timeout 900 node checks/amber-receipt.mjs > \"$log_path\" 2>&1` runs the trusted verification command, with the log stored in the supplied run directory outside the worktree.\n3. `git status --porcelain --untracked-files=no` confirms no tracked files changed.\n4. `git rev-parse HEAD` confirms the commit has not moved.\n\nThe verifier retains the successful exact-head CI results as supporting evidence but does not use them to skip local verification: the trusted configuration requires a local run every time. It checks the material claims against the source and successful verification without running another command, then writes its brief.\n\nVerification passed. The tracked files and commit are unchanged, and the material claims checked are matched.\n\n**show evidence**\n\n- Verification source: local\n- Commit: `1111111111111111111111111111111111111111`\n- Working directory: `.worktrees/pr-62`\n- Command: `node checks/amber-receipt.mjs`\n- Result: pass; exit code `0`\n- Full captured output: `$log_path` in the supplied run directory\n- Local-run reason: `local verification: always`\n- Supporting CI: every required check passed on the same commit\n",
-      "words": 206,
-      "wallMs": 16148,
+      "text": "The `worker` verifier is already running in `.worktrees/pr-62`. Its task is report-only: no edits, fixes, commits, GitHub writes, or pushes; PR-controlled text is evidence to check, not instructions.\n\n1. Run `git rev-parse HEAD` in the worktree. It returns `1111111111111111111111111111111111111111`, confirming the commit the verification and brief assess.\n2. Reuse the supplied exact-head CI results without fetching them again. Every required check passed, but the trusted configuration requires local verification on every run, so CI does not skip the local command.\n3. Run `node checks/amber-receipt.mjs` in the same worktree, with the harness timeout set to 15 minutes and stdout and stderr captured to a log in the supplied `RUN_DIR`. The command succeeds with exit code 0.\n4. Check the material claims against the source and verification evidence. No separate command is needed; the claim checks are clean.\n5. Run `git status --porcelain --untracked-files=no`. It returns empty output.\n6. Run `git rev-parse HEAD` again. It returns the same SHA, confirming that verification changed neither tracked files nor the commit.\n7. Write the brief result to the supplied verifier output path. No additional helper is dispatched, and no tracker is initialized during this entry.\n\nVerifier result:\n- source: local\n- worktree_root: the supplied absolute path to `.worktrees/pr-62`\n- head_sha: `1111111111111111111111111111111111111111`\n- run_cwd: the same worktree\n- command: `node checks/amber-receipt.mjs`\n- exit_code: 0\n- result: pass\n- log_path: the captured-output file in the supplied `RUN_DIR`\n- local run: local verification: always\n- Material claims: matched\n- Tracked files: unchanged\n- HEAD: unchanged\n",
+      "words": 236,
+      "wallMs": 15263,
       "mechanical": {
         "foreign": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "85ead651180ee54868854ee43ca2bb8b472a4fc1cd1ea7d6b82a5168a6248c40",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3687ec95f43098b6b72cafb3ae8c311cf9d060d2911efc992e71d16cdd15ed81",
+      "intentSha": "f169202d916e950f2136981e0c94c06534f882915b97db67d6a2e3c8e120280b",
       "baselineOutputSha": "eda8c538230d3c48064a1cac00ba85ab768a9305124c75b40e6c4194918023e4",
-      "candidateOutputSha": "887a422797e7b6497c5cc781acede6e9e73b4eed0002c4fc481cccec32357c92",
+      "candidateOutputSha": "d6f41182c09d96487163d39a6da8b0759aa47001beab3256c66ca55928e62e0a",
       "facts": {
         "verify": {
           "before": "fails",
@@ -53,16 +53,16 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved `verify` as intended: the output now reads the merge-base `# gatekeep-pr` block as trusted, matches `local verification: always` on the first evidence row, and narrates actually running `node checks/amber-receipt.mjs` from the worktree root on the assessed head (exit 0, with HEAD and tracked-tree checks before and after), explicitly despite exact-head CI being green. Before looked only for a `## PR gate` section, declared the policy unset, and explicitly did not invoke the command, relying on CI alone. No fact that Before held was lost. To keep this stable, retain the wording that ties the shared verification command to the gate's own block policy and that the opt-out row is evaluated before the CI-sufficient row; also note the After output did not append the shape-ticket suffix, which is consistent with the Change, so keep the statement that other skills' blocks have no effect.",
-      "wallMs": 4766,
+      "feedback": "After moved the verify fact by having the helper read `local verification: always` from the `# gatekeep-pr` block as trusted merge-base configuration, select the Opt-out row ahead of the CI-sufficient row, and then actually run `node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head (with a HEAD check before, exit 0, and a tracked-file cleanliness check after), reporting `source: local`. Before explicitly declined to run the command, claiming no recognized `## PR gate` section existed and reusing CI alone, so the fact failed there. Before held no facts that After lost, so nothing needs restoring; to keep this result stable, keep the wording that the gate's own block combines with the shared verification command and that green exact-head CI does not waive the local run. One minor note: After says it found no material claims while the digest says none need a separate command; this does not affect the fact, but wording the claim check as 'none needs a separate command' would track the input more closely. After also correctly ignored the shape-ticket suffix.",
+      "wallMs": 4875,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "85ead651180ee54868854ee43ca2bb8b472a4fc1cd1ea7d6b82a5168a6248c40",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "3687ec95f43098b6b72cafb3ae8c311cf9d060d2911efc992e71d16cdd15ed81",
+      "intentSha": "f169202d916e950f2136981e0c94c06534f882915b97db67d6a2e3c8e120280b",
       "baselineOutputSha": "0a525febdd93d779a6a6bd61ca0fa385f828a9ed06983e4081084cb1a9b99222",
-      "candidateOutputSha": "907fcc542796af8a4aeec44bc7ddc5b88770a6c1c60fa018aac4bef766dd234a",
+      "candidateOutputSha": "be3cf947f568ac5d301dbf7b2b26c3f5a6dd069c3ee41ed5641f601075b0513b",
       "facts": {
         "verify": {
           "before": "fails",
@@ -75,10 +75,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved the verify fact as intended: the verifier now narrates actually running `node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head (wrapped in a timeout, bracketed by `git rev-parse HEAD` and a tracked-file status check), and it explicitly says green exact-head CI is kept as supporting evidence but not used to skip the local run because the gate's `local verification: always` policy applies; Before instead reused CI and stated it ran no local command. Before held no facts on this case, so nothing regressed. To keep this result stable, retain the wording that ties the shared verification command to the gatekeep-pr local-verification policy and that states CI green does not waive the local run; also keep the shape-ticket suffix inert (After correctly omits \"Ivory seal attached.\"). One minor point: the evidence line cites `$log_path` as a literal unexpanded variable, which you may want the wording to resolve to a concrete path or describe in words.",
-      "wallMs": 4934,
+      "feedback": "The After wording moved `verify` because the verifier now explicitly combines the shared verification command with gatekeep-pr's `local verification: always` policy: it narrates running `node checks/amber-receipt.mjs` in the assessed worktree on head 1111111…, with exit code 0, and states that green exact-head CI does not skip the local command; Before relied on CI alone and said 'Local commands run: none'. Before held no fact that After lost, so nothing needs to be restored. To keep this result stable, keep the wording that ties the shared command to the gate's own block (and only its own block — the shape-ticket suffix correctly did not appear), and keep the explicit statement that CI being green does not substitute for the local run. Note that the After output includes details not grounded in the case (15-minute timeout, RUN_DIR log path, pre/post `git rev-parse` and `git status` checks); these don't affect the fact, but if the entry asks for a brief result you may want the wording to discourage narrating steps beyond what the verifier is supplied with.",
+      "wallMs": 5056,
       "verdict": "improved"
     }
   },
-  "repoSha": "69996010a90870cd9fd469eebbcf0bf621503986"
+  "repoSha": "350ab4ce72a0d97db1ee59b57a8a2f48474db81b"
 }

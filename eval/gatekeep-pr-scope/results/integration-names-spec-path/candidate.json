@@ -1,0 +1,80 @@
+{
+  "sample": "integration-names-spec-path",
+  "arm": "candidate",
+  "skillSha": "9792f40c5e710241c5f6af7b1370c1f9dc686de0ba6e475d6bd67a0c422839f9",
+  "inputSha": "73b6ef715c3bc764b10a34fe67f6d8db458505ebdad7b62b7ce37b0b5bf5a5fe",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Step 2, Select the scope contract, was replayed from the fixed inputs. The replay stops here, before verification, review, report and menus.\n\n**Selected scope record**\n\n- scope:\n  - source: spec\n  - path: doc/specs/import-validation.md\n  - rows:\n    - n: 1\n    - text: the importer rejects a record without an id\n    - disposition: in-scope\n    - ref: (empty)\n  - design: Reject records without an id before writing them.\n  - cross_check: not run: no reference found\n- issue: null\n- issue_note: no reference found\n\n**How the contract was chosen**\n\n- The PR body names `doc/specs/import-validation.md` outside its `## Integration` block. That file exists at the assessed head, so rule 1 selects it.\n- The `## Integration` block, including its nested Reference line, is excluded from contract-path selection. Its `doc/specs/staging-import-totals.md` path was never a candidate.\n- That path's absence at the head therefore creates no blocker.\n- No other candidate exists. The diff adds only `src/importer.mjs` and changes no spec file, so rules 2 and 3 select nothing and rule 4's two-candidate stop does not apply.\n- The cross-check was not run because no ticket reference was found. This is informational only and never a blocker.\n\n**Blockers or stops from selection**\n\nNone.\n",
+      "words": 177,
+      "wallMs": 7005,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "scope:\n  source: spec\n  path: doc/specs/import-validation.md\n  rows:\n    - n: 1\n      text: the importer rejects a record without an id\n      disposition: in-scope\n      ref: \"\"\n  design: Reject records without an id before writing them.\n  cross_check: \"not run: no reference found\"\n\nNo blockers or stops arise from scope selection. The staging totals reference is inside the PR's Integration section, so it is excluded from contract selection; its missing file does not block this step.\n\nReplay stopped before verification, review, or menus.\n",
+      "words": 75,
+      "wallMs": 5881,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "130526b899f0227cab0b561b2c66edd36b848de53ff0ca4cab076f2e4e3a95b7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2da9286a474b605c01f6fb2ef75bdbf773a8a21a70e55abd019eda9fb2649bfd",
+      "baselineOutputSha": "d57c85e151654186bcf7605c16e2c679005cb9c4b0508997f1ce88420d36928b",
+      "candidateOutputSha": "8b2bb0a35130c492c7f65f565920af2ce24ebb7ec38795d90983ca3d62d2617f",
+      "facts": {
+        "contract": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "no-blocker-or-stop": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Neither fact moved between the two outputs: both Before and After select `doc/specs/import-validation.md` at the head as the contract, treat the Integration-nested `doc/specs/staging-import-totals.md` as a non-candidate, and report no blocker, stop, or request to choose a spec. This means the expected fails -> holds movement is not visible in this pair, since Before already satisfied both facts. After's wording states the exclusion more directly (the Integration block, including its nested Reference line, is excluded from contract-path selection; the path's absence creates no blocker; the two-candidate stop does not apply), which delivers the Change; keep those explicit statements, and keep the explicit 'None' under blockers or stops so the no-blocker fact stays unambiguous.",
+      "wallMs": 3793,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "130526b899f0227cab0b561b2c66edd36b848de53ff0ca4cab076f2e4e3a95b7",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2da9286a474b605c01f6fb2ef75bdbf773a8a21a70e55abd019eda9fb2649bfd",
+      "baselineOutputSha": "51d0338fdfe05a30acec3bb84aea65910db2063491737262391fb6baf59e057d",
+      "candidateOutputSha": "3c126af385dfdfdfd1479b5546b1bc6e4b0e09cd08c46a4ca9036f6afda4d3f9",
+      "facts": {
+        "contract": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-blocker-or-stop": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both facts moved as intended and neither was held by Before, so nothing regressed. Before selected the first spec-directory path in the PR body (`doc/specs/staging-import-totals.md` under Integration) and raised a blocker for its absence at the assessed head; After selects `doc/specs/import-validation.md` from the Contract section, fills in the row and design from the head spec, and states explicitly that the Integration-nested reference is excluded from selection and its missing file does not block. The wording that excludes spec paths inside the PR body's Integration block from contract selection is what moved both facts; keep that exclusion phrased so it covers nested lines under Integration entries (as here) and keep the explicit statement that an absent Integration-only path raises neither a blocker nor a selection stop, so the output continues to say so plainly rather than leaving it implied.",
+      "wallMs": 4233,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9a21ed59c9601968d3cacd5df9b761d7e6c2a51c"
+}

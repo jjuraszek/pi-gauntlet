@@ -1,0 +1,2 @@
+- contract: judged: The selected contract is the head spec `doc/specs/import-validation.md`, named outside the PR body's Integration block.
+- no-blocker-or-stop: judged: The missing `doc/specs/staging-import-totals.md` named inside the PR body's Integration block does not cause a blocker, a stop, or a request to choose a spec.

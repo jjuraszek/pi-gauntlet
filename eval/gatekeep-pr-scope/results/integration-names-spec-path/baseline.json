@@ -1,0 +1,34 @@
+{
+  "sample": "integration-names-spec-path",
+  "arm": "baseline",
+  "skillSha": "f4621590debcafc1e261c75e1979a7c39b18174539c1150f3c1cd5bec74e99a5",
+  "inputSha": "73b6ef715c3bc764b10a34fe67f6d8db458505ebdad7b62b7ce37b0b5bf5a5fe",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Selection uses the spec the PR names under `## Contract`, at the commit being reviewed.\n\n- **Spec under `## Contract`:** The body names `doc/specs/import-validation.md`, and `git show <headRefOid>:doc/specs/import-validation.md` returns the file. Rule 1 therefore selects it.\n- **Spec under `## Integration`:** The body also names `doc/specs/staging-import-totals.md`, which does not exist at the head. That path is a reference for an operator check after deploy. Integration entries are not work or requirements and never block, so this path is neither a contract candidate nor a missing-spec blocker. There is no second candidate, so no stop or question is needed.\n- **Diff:** It adds only `src/importer.mjs` and adds or modifies no spec files, so rules 2 and 3 contribute nothing.\n\n```text\n- issue: null\n- issue_note: no reference found\n- scope: {\n    source: spec,\n    path: doc/specs/import-validation.md,\n    rows: [\n      { n: 1, text: \"the importer rejects a record without an id\", disposition: in-scope, ref: \"\" }\n    ],\n    design: \"Reject records without an id before writing them.\",\n    cross_check: not run: no reference found\n  }\n```\n\nSelection produced no blockers and no stops. The replay ends here, before verification, review and menus.\n",
+      "words": 170,
+      "wallMs": 9494,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "scope:\n- source: spec\n- path: doc/specs/staging-import-totals.md\n- rows: []\n- design: \"\"\n- cross_check: \"not run: no reference found\"\n\nOne blocker: the PR names `doc/specs/staging-import-totals.md`, but that file is absent from the commit being reviewed. The selection rule takes the first spec-directory path named in the PR body; it does not exclude references under Integration, so the later Contract reference does not replace this selection.\n\nReplay stopped after scope selection. Verification, review, and menus were not run.\n",
+      "words": 71,
+      "wallMs": 11639,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "9a21ed59c9601968d3cacd5df9b761d7e6c2a51c"
+}

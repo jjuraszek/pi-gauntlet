@@ -85,7 +85,7 @@ A failed fetch (tracker unreachable, bad ref) sets `issue: null` with `issue_not
 
 ## Select the scope contract
 
-The judged contract is the spec at the assessed head when the PR carries one, else the PR's stated intent; the ticket is a cross-check source, never a contract here (`/skill:check-delivery` judges it after merge). Spec dirs: `gauntlet_setting({ key: "flowGuards" })` -> `specDirs`; on a harness without that tool, `doc/specs` and `docs/specs`. Read every candidate from the assessed head with `git -C <worktree> show <headRefOid>:<path>`. Selection, first match wins:
+The judged contract is the spec at the assessed head when the PR carries one, else the PR's stated intent; the ticket is a cross-check source, never a contract here (`/skill:check-delivery` judges it after merge). Spec dirs: `gauntlet_setting({ key: "flowGuards" })` -> `specDirs`; on a harness without that tool, `doc/specs` and `docs/specs`. Read every candidate from the assessed head with `git -C <worktree> show <headRefOid>:<path>`. Exclude the PR body's `## Integration` block, including its nested lines, from contract-path selection. Selection, first match wins:
 
 1. A spec-dir path named in the PR body -> that file; absent at the head -> one blocker ("the PR names a spec that is not at its head"); `source` stays `spec` with empty `rows` and `design`, never `source: pr`.
 2. Else the spec-dir file the diff adds.
