@@ -1,0 +1,100 @@
+{
+  "sample": "zero-criteria-entries-listed",
+  "arm": "candidate",
+  "skillSha": "7e3fd0dcead696d7bd7331844de51d1aea670e26223566186241ec6cd515d287",
+  "inputSha": "abf758a936871d61688e3a9b4917da060a526666090c303cb0c624940d830817",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/set-recovery\n\n#### sample/widget#12\n\nsample/widget#12: declined\n\n#### sample/widget#15\n\n> STOPPED - cannot verify a ticket that asserts nothing\n\nNot acceptance criteria:\n- The operator clears the queue. (person step)\n- After deploy, confirm that live orders appear in the dashboard. (live check)\n\nPick one:\n1. retry\n2. skip\n",
+      "words": 42,
+      "wallMs": 4243,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=check-delivery/set-recovery\n\n#### sample/widget#12\nsample/widget#12: declined\n\n#### sample/widget#15\n> STOPPED - cannot verify a ticket that asserts nothing\n\nNot acceptance criteria:\n- The operator clears the queue. (person step)\n- After deploy, confirm that live orders appear in the dashboard. (live check)\n\nPick one:\n\n1. retry\n2. skip\n",
+      "words": 42,
+      "wallMs": 2970,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a60f105b0ae27341c59678f25370646a9d0237180081b476a96668adb63890c5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e14ee968ef4c5beb800a8c593b71ebdfb09acbef64910cd7815b7ee49fcc6cee",
+      "baselineOutputSha": "6491ac3a74ff35e100b7656a86df95e3999707de66d67a9550620df97021ce68",
+      "candidateOutputSha": "30e96478dfc358aee2a2cbe4529b83f9b2e63c4bf52ac3a4d7c90c6181d0ea4b",
+      "facts": {
+        "excluded-rows": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "stop-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sibling-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved excluded-rows as intended: the two rows now appear exactly once each under a \"Not acceptance criteria:\" heading, with their original (person step) and (live check) labels, no verdict, no request to perform them, and the stop reason still stated separately as the blocker. Nothing else moved: the gate line is still check-delivery/set-recovery, the stop reason text is verbatim, retry and skip remain the only options, no tracker write is offered or claimed, and ticket 12 still shows only its plain declined outcome without a reopened gate or re-rendered report. To keep this stable, keep the wording that places the excluded rows after the quoted STOPPED line and before the choices, copied verbatim from the child's report, and keep stating that the list is informational only so the rows are never framed as the reason for the stop or as actions for the user; avoid any wording that could invite a per-row verdict or a second listing of the rows elsewhere in the turn.",
+      "wallMs": 5350,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a60f105b0ae27341c59678f25370646a9d0237180081b476a96668adb63890c5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "e14ee968ef4c5beb800a8c593b71ebdfb09acbef64910cd7815b7ee49fcc6cee",
+      "baselineOutputSha": "1ac72f534754095dc1317c0e1a1623b8bb73a244b5ae3c0664867932862d20b3",
+      "candidateOutputSha": "1c72a182b4623481ad6fc2bb07f67ae49cc925ec32e3870ff518d5f0352f395e",
+      "facts": {
+        "excluded-rows": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "stop-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-write": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "sibling-unchanged": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Before and After are textually identical apart from a blank line after \"Pick one:\", so no fact moved between them. Both already list the two excluded rows exactly once under Not acceptance criteria with no verdict, no request to perform them, and the stop reason (not either row) as the blocker; both keep the single check-delivery/set-recovery gate with the unchanged stop reason and retry/skip options, offer or claim no tracker write, and carry ticket 12's plain declined outcome without reopening its gate or re-rendering its report. The expected fails -> holds move on excluded-rows did not appear because Before already satisfies it in this replay; if the wording change is meant to be what produces the rows, this case does not demonstrate it, so consider a case where the earlier wording actually drops the rows. Keep the current After wording as is: rows listed once beneath the stop line, no verdict language, and the sibling line left as a plain declined outcome.",
+      "wallMs": 5151,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+}
