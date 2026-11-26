@@ -1,6 +1,8 @@
-for: 078317a2ef061a971550814d0e61517412f9f6c6f5f7205a57b703e252fdfc8e
+for: c3cac6db61af513228594f8e4360dbe8a907c010b2a990ba4300134c378d1751
 
 ## Change
+Apply the shared definition to discovery rows. Keep the repository findings document as written under Acceptance Criteria; move the external-only baseline to Integration and retain the original in the Reporter note. Make the sort without a clarification question or a forced acceptance row format.
+
 Sort ticket rows by the shared definition. Keep the file-delivered functionality under Acceptance Criteria, including environment names that define it and scenarios of the same constraint. Carry external clauses and pipeline results under Integration and retain every displaced original verbatim in the Reporter note, without a retirement label. On repair, carry existing housekeeping entries under Integration. The text replays inspect the proposed body and note, not tracker writes.
 
 Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
@@ -23,6 +25,7 @@ Carry source provenance in Problem, surface named gaps at the existing gate, req
 Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
 
 ## Expected to move
+- discovery-row-sorted/external-baseline: fails -> holds - Sort a baseline recorded only in an external dashboard into Integration, not Acceptance Criteria.
 - bug-repro-in-evidence/expected-result: fails -> holds - Keep the reporter's plain expected result as the acceptance row.
 - bug-repro-in-evidence/no-repro-in-criteria: fails -> holds - Both baseline replies rewrite the acceptance row into Given/When/Then; keep the reproduction details in Evidence instead.
 - pr-body-proof/f1: fails -> holds - Exclude a PR-description checklist as delivery-stage proof.

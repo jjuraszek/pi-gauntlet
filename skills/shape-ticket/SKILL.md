@@ -177,8 +177,8 @@ The gate never bans discovery; it forces discovery to be its own honestly-labele
 
 - **Conversion path:** an unrecoverable tautological/wishful AC's offered fix is "make this the discovery ticket" - the deliverable IS the enumeration, baseline, or measurement.
 - **Marking:** title prefix (`Discovery:` / `Spike:`) plus the repo-documented label/type if one exists. Never disguised as a delivery ticket.
-- **Discovery ACs are real ACs** - bounded, pre-prod-verifiable knowledge artifacts: "documented list of X as of `<date>`, linked", "baseline of Y captured, method stated", "go/no-go decision recorded with rationale". Optional timebox in the body.
-- **Wishful test adapts:** "produce the baseline" is a valid discovery AC; "improve the baseline" belongs to the follow-up delivery ticket.
+- **Discovery rows:** Sort by the [shared definition](reference/ac-classes.md). Put any timebox in the body.
+- **Follow-up:** Keep "improve the baseline" for the delivery ticket.
 - **Linkage:** the discovery ticket names what it unblocks; a same-run delivery ticket links back and parks as not-ready until the discovery lands.
 
 ### Split rule

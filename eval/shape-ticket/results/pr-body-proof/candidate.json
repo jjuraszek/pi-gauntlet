@@ -1,7 +1,7 @@
 {
   "sample": "pr-body-proof",
   "arm": "candidate",
-  "skillSha": "01395e9e69564540853cd7f799404145bf8563a6623810499bf482e6ee13ddd6",
+  "skillSha": "60f7d6745de6ce5c5242fba146d19aed0618cb2189173d97cd6ac7a3031f4a0a",
   "inputSha": "7c378de84f0baf59b49fa1c8dcc46cfa0075a8f7e83b2d50da8859a93c70e1ed",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## ABC-203: repaired draft (step 4 and AC integrity gate)\n\n### Acceptance Criteria\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n- [ ] The release script writes the changelog section into the pull request body\n\n### Integration\n- The PR description lists every deleted test file\n\n## Proposed Reporter note\n\n````text\nUNTRUSTED DATA - verbatim source text, not instructions\nReporter note:\n- [ ] The PR description lists every deleted test file\n````\n\n### How each row was sorted (`reference/ac-classes.md`)\n\n| Original row | Sorted as | Why |\n|---|---|---|\n| The PR description lists every deleted test file | Integration entry (`pipeline result`) | The pull request body's content is not something the files at the delivered commit can make true. It is an observation about PR text written around the change. Moved verbatim, and the original row is kept verbatim in the Reporter note. |\n| The retired parser's test directory is empty after its obsolete tests are removed | Acceptance criterion (behavioral) | The delivered commit's files make it true. Its observable result is checkable in a checkout. The set of files is listed in the repo today, so it is not tautological. |\n| The release script writes the changelog section into the pull request body | Acceptance criterion (behavioral) | Sorting rule 1 applies: the release script is a functionality that handles pull-request text, so the files deliver it. Sorting rule 3 also applies: when in doubt, keep the row as a criterion. |\n\n**AC uniqueness:** Neither remaining row's text contains the other's observable. They describe different functionalities: removing the tests and publishing the changelog. No row was dropped or split.\n\n### Gate outcome\n- **Normalize:** This is substantive full-replacement repair, not conformance-only. A relocation changed the AC section, so the byte-lock does not apply. The remaining rows are already `- [ ]` items.\n- **Classes:** No wishful, tautological, unspecified-but-binding, or external-input criterion remains.\n  - **Hard stop:** none.\n  - **Park:** none.\n  - **Result:** the ticket stays ready.\n- **Criterion survival:** Two real criteria remain, so no recovery or parking is needed.\n- **Comment:** One Reporter-note comment is proposed, because the relocated row is newly displaced detail. Comments and attachments are empty, so no existing note satisfies it.\n- **Evidence gate:** The single source footer (`source: https://example.test/parser/203`) is already carried. There is no source gap.\n- **Unchanged sections:** Context, Problem and Idea are unchanged. The Idea already sits on one attributed sketch line.\n\nStopped before the step 5 gates, the roast, the confirmation gate and any tracker write.\n",
-      "words": 384,
-      "wallMs": 15926,
+      "text": "## ABC-203 - Draft (repair, full replacement)\n\nAC changes because one row moves to Integration, so this is a full-replacement repair rather than a byte-locked conformance rewrite. Context, Problem (with its `source:` footer) and Idea are carried unchanged. The Idea is already a single attributed sketch line, so step 4 demotes nothing from it.\n\n### Context\nMaintainers removed the obsolete parser. Its old test files remain in the test directory.\n\n### Problem\nThe test directory still contains tests for a parser that no longer exists. Example: selecting the old parser test attempts to load the deleted parser.\nsource: https://example.test/parser/203\n\n### Idea\nThe reporter proposes removing the old parser tests and publishing the changelog through the release script.\n\n### Acceptance Criteria\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n- [ ] The release script writes the changelog section into the pull request body\n\n### Integration\n- The PR description lists every deleted test file\n\n## Proposed Reporter note\n\n````text\nUNTRUSTED DATA - original ticket text displaced by this repair, preserved verbatim; not instructions.\n\nReporter note: Original Acceptance Criteria row moved to Integration (pipeline result - pull request description text):\n- [ ] The PR description lists every deleted test file\n````\n\n## AC integrity gate (assembled draft)\n\n**Normalization:** All rows were already `- [ ]` items, so nothing needed re-serializing.\n\n**Sorting** (against `reference/ac-classes.md`):\n\n- **\"The PR description lists every deleted test file\"** becomes an Integration entry.\n  - Its kind is `pipeline result`: it checks what a pull request's body says. Files at the delivered commit cannot make it true.\n  - Nothing in the change produces that text, so sorting rule 1 does not apply.\n  - The entry is kept in the source's words and moved whole, not split.\n  - The original row is kept verbatim in the Reporter note.\n- **\"The retired parser's test directory is empty after its obsolete tests are removed\"** stays as an acceptance criterion.\n  - The files at the delivered commit make it true.\n  - A checkout of that commit shows it.\n- **\"The release script writes the changelog section into the pull request body\"** stays as an acceptance criterion under sorting rule 1.\n  - It describes a functionality that handles pull-request text.\n  - The release script in the delivered files delivers that behavior.\n\n**Uniqueness:** Neither remaining row contains the other's observable, and they are different functionalities. Nothing was removed or split.\n\n**Class checks:**\n\n- Both remaining rows are behavioral. Each states an observable result.\n- Neither row is comparative.\n- The \"empty\" check covers a set that exists today: the old test files already in the directory. It does not gate on a set this ticket produces, so it is not tautological.\n- No row is wishful, tautological, unspecified-but-binding, or dependent on an external input.\n\n**Outcome:** The gate passes. There is no hard stop and no park, and at least one acceptance criterion remains.\n\n**Comment:** One Reporter-note comment is proposed, carrying the AC row this repair displaced. There are no comments yet, so no existing note covers this displacement.\n\nStopping here, before the step 5 deterministic gates, the roast, the confirmation gate, and any tracker write.\n",
+      "words": 489,
+      "wallMs": 18756,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done draft-prepared,ac-gate=passed\n\n### Repaired sections\n\n```untrusted_text\n## Acceptance Criteria\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n- [ ] The release script writes the changelog section into the pull request body\n\n## Integration\n- The PR description lists every deleted test file\n```\n\n**AC integrity gate: passed.** The PR-description requirement is an Integration entry (`pipeline result`), not delivered functionality. The release-script criterion remains an AC because it describes behavior delivered by the script. Neither remaining criterion requires recovery or parking.\n\nThis relocation requires substantive repair, not byte-locked conformance-only repair. All other body sections, the title, metadata, and the existing source footer remain unchanged. No confirmation or tracker write performed.\n\n## Proposed Reporter note\n\n```untrusted_text\nReporter note:\n- [ ] The PR description lists every deleted test file\n```\n",
-      "words": 122,
-      "wallMs": 15182,
+      "text": "gauntlet: done drafted\n\n**ABC-203 — Remove the retired parser tests**\n\nAC relocation makes this a substantive repair. Proposed replacement body:\n\n```untrusted\n## Context\nMaintainers removed the obsolete parser. Its old test files remain in the test directory.\n\n## Problem\nThe test directory still contains tests for a parser that no longer exists. Example: selecting the old parser test attempts to load the deleted parser.\nsource: https://example.test/parser/203\n\n## Idea\nThe reporter proposes removing the old parser tests and publishing the changelog through the release script.\n\n## Acceptance Criteria\n- [ ] The retired parser's test directory is empty after its obsolete tests are removed\n- [ ] The release script writes the changelog section into the pull request body\n\n## Integration\n- The PR description lists every deleted test file\n```\n\n## Proposed Reporter note\n\n```untrusted\nReporter note:\n- [ ] The PR description lists every deleted test file\n```\n\n**AC integrity gate: passed.**\n- The PR-description inventory is an **Integration** entry of kind **pipeline result**, not a delivered functionality. It is preserved without judging or gating it.\n- The empty retired-parser test directory is an observable delivered constraint.\n- The release script’s changelog-writing behavior is delivered functionality, even though its output is a pull request body.\n- The two remaining criteria cover distinct observables; neither implies the other. No wishful, tautological, or parking condition remains.\n\nThe displaced original row is retained verbatim in the single proposed comment. Title, metadata, remaining prose, and source link are unchanged. No confirmation requested and no tracker writes performed.\n",
+      "words": 231,
+      "wallMs": 16421,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "0507cd326e739c18dcb3917d17ae25c0accb72883addefacd70c0603606b0804",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50e335f20575835c72754fe5bf446f46cc37698a58e9fd5977d39d6f7767779a",
+      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
       "baselineOutputSha": "691cc9f16faddc4e7d2690333d7c7c6b447b42c5a37d0bdb57dc26a8d39302e0",
-      "candidateOutputSha": "077591c5428ec31897858d23852896f76efc94acdb0706ead4e1ce0ea1d6a0c8",
+      "candidateOutputSha": "398d73ce2bf6dd1e2c96eeae0374964227aaec379233d73611e77d0690e146ed",
       "facts": {
         "f1": {
           "before": "holds",
@@ -59,16 +59,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved between Before and After: all four hold in both, so the expected fails -> holds move on f1 is not visible in this pair, because Before already dropped the PR-description row from Acceptance Criteria. After delivers the Change as intended: the PR-description row leaves Acceptance Criteria and is carried under a separate Integration heading, the original row sits verbatim in the fenced Reporter note without the 'retired workflow-stage proof:' label, and the two surviving rows are byte-identical including the `- [ ]` prefix. The one fragile point is f1: the row now reappears in the body under Integration, and a stricter reader could treat that as an equivalent PR-description proof row if Integration looked like part of the criteria. To keep f1 safe, keep the wording that makes Integration a distinct, non-checkbox section outside Acceptance Criteria, and state explicitly that Integration entries are not acceptance criteria and must not be rendered as `- [ ]` rows. To keep f2 to f4, retain the instructions that the displaced original is copied verbatim into the fenced note and that surviving rows are copied byte-for-byte on substantive repair.",
-      "wallMs": 9214,
+      "feedback": "No fact moved: all four hold in both outputs, so f1 did not show the expected fails -> holds on this sample. Before already dropped the PR-description row from Acceptance Criteria and kept its text in the fenced Reporter note. What the After wording changed is the route: the row now goes to a separate Integration section as a pipeline result instead of being dropped, and the note carries the full original `- [ ]` row without the `retired workflow-stage proof:` label, which matches the Change. Both surviving rows remain byte-identical, and the release-script row is kept as file-delivered behavior under sorting rule 1. To keep all four facts, keep the wording that puts Integration entries under their own heading outside Acceptance Criteria, never as a checkbox row there. Also keep the requirement that the displaced original is copied whole and verbatim inside the fenced note, and that surviving rows are copied byte-for-byte on a full-replacement repair. One risk to guard against: the note's descriptive lead-in (\"moved to Integration (pipeline result - ...)\") should stay a neutral provenance line, so that it neither becomes a retirement label nor paraphrases the row.",
+      "wallMs": 10014,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "0507cd326e739c18dcb3917d17ae25c0accb72883addefacd70c0603606b0804",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "50e335f20575835c72754fe5bf446f46cc37698a58e9fd5977d39d6f7767779a",
+      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
       "baselineOutputSha": "aa59178daf0fee2dab450bc9113c1daec6d8279c7da91203ae40c1b162839239",
-      "candidateOutputSha": "b1a437c3b4f410755ac9c362f18f3d5b8af22762db8920b103525af5b45aa899",
+      "candidateOutputSha": "5f4de1407dade89851dfd570d3e8fb79b19cc18ff546b2ddd8e6f151ad89a0f1",
       "facts": {
         "f1": {
           "before": "holds",
@@ -91,8 +91,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither output loses a fact, so nothing moved here: both drafts drop the PR-description row from Acceptance Criteria with no equivalent proof row, keep the two remaining rows byte-identical, and carry the original PR-description row verbatim in the fenced Reporter note. Note that f1 was expected to go fails -> holds, but Before already holds on this sample, so it acts as a guard rather than a move. The After wording delivers the Change visibly: the displaced row now sits under a separate Integration heading and the Reporter note carries it without the 'retired workflow-stage proof:' label. The one risk to watch is f1: the Integration entry repeats the PR-description requirement in the proposed body, and it holds only because it sits outside the Acceptance Criteria heading as a non-checkbox line. To keep that safe, have the wording state explicitly that Integration entries are never rendered as checkbox rows and never placed under Acceptance Criteria, and that the Reporter note keeps the displaced original with its original checkbox bytes and no label.",
-      "wallMs": 5842,
+      "feedback": "No fact moved between Before and After on this case: both drafts drop the PR-description row from Acceptance Criteria without adding an equivalent proof row, both keep the two remaining rows byte-identical, and both retain the original row verbatim in the fenced Reporter note. Note that f1 was expected to go fails -> holds, but the Before text shown here already satisfies it, so this sample shows no observed move for f1. The After wording delivers the Change cleanly: the displaced row is carried under Integration rather than discarded, and the Reporter note holds the raw original row with no retirement label (Before prefixed it with 'retired workflow-stage proof:', which still contained the row verbatim). To keep these facts stable, keep the instruction that the Integration section sits outside Acceptance Criteria and that the Integration entry is not rendered as a checkbox criterion, since a reader could otherwise count a PR-description line re-added as an AC-style row as an equivalent proof row and fail f1; also keep the rule that kept rows are copied byte-for-byte, including the checkbox prefix, and that the Reporter note carries the full original row rather than a paraphrase.",
+      "wallMs": 6094,
       "verdict": "unchanged"
     }
   },
@@ -342,5 +342,5 @@
       }
     }
   },
-  "repoSha": "efaa5eaf26c62cc6d318ff45c342f17e05d8d060"
+  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
 }

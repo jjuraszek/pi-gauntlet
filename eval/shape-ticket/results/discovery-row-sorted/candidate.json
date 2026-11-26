@@ -1,0 +1,100 @@
+{
+  "sample": "discovery-row-sorted",
+  "arm": "candidate",
+  "skillSha": "7647a93445970094c7f254a69b9309361bdb30accf12e4a662de02a067bde45f",
+  "inputSha": "20969b687c50be2418070c37d241033e411ca99f37d0a6745593cfe935c3e647",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Acceptance Criteria\n- [ ] The findings document is committed to this repository.\n\n## Integration\n- The timing baseline is recorded only in the external metrics dashboard, with the measurement method.\n\n## Proposed Reporter note\n````text\nReporter note: original acceptance row, moved to Integration because the files at the delivered commit cannot make it true (environment state: an external metrics dashboard):\n- [ ] The timing baseline is recorded only in the external metrics dashboard, with the measurement method.\n````\n",
+      "words": 70,
+      "wallMs": 8162,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Acceptance Criteria\n- [ ] The findings document is committed to this repository.\n\n## Integration\n- The timing baseline is recorded only in the external metrics dashboard, with the measurement method.\n\n## Proposed Reporter note\n```untrusted\nReporter note:\n- [ ] The timing baseline is recorded only in the external metrics dashboard, with the measurement method.\n```\n",
+      "words": 47,
+      "wallMs": 6518,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "1453070d85f354558610bef45f029418de199186a526c797a6d059dcfb69429b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "baselineOutputSha": "c5bb90fe5aa7ceeb03248506c92d4868472a638bc96913320ae7d6e0a5439316",
+      "candidateOutputSha": "41233f29a7029d7aba9fd4708cdb2fc0c0d72cb15d23b3377175e0c1b36b93b5",
+      "facts": {
+        "document": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "external-baseline": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "retained": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved external-baseline as intended: the dashboard-only baseline now sits under Integration in the reporter's own words and is gone from Acceptance Criteria, while the repository findings document stays as the plain `- [ ]` row with no setup/action/result rewrite. The Reporter note quotes the displaced row verbatim, including its checkbox, so both requested outputs remain accounted for, and the sort is made without a clarification question. Before kept document, retained (trivially, since nothing was moved) and no-question, and After keeps all three, so nothing regressed. To keep it that way, hold on to the wording that says the file-delivered row stays as written, that every displaced original is quoted verbatim in the Reporter note, and that the sort is decided without asking. One thing to watch: the note's lead-in adds a rationale ('because the files at the delivered commit cannot make it true (environment state: ...)'); this is harmless here, but if the Change's 'without a retirement label' is meant to exclude such explanatory labels, tighten the wording to require only the verbatim original plus a short 'moved to Integration' pointer.",
+      "wallMs": 6093,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "1453070d85f354558610bef45f029418de199186a526c797a6d059dcfb69429b",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "81dcc2e4f7aaadfa742abdd0a483b033613ec370f9210795c6615a78f8f24d35",
+      "baselineOutputSha": "f6b7be9f426141e184708ebb98dc0e147994b76954a97c79b0a267f1543dc6e0",
+      "candidateOutputSha": "73236fc4d45154c447145b624ba8303f424c086404afd1e59bace90e30f5dd9e",
+      "facts": {
+        "document": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "external-baseline": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "no-question": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved three facts: it keeps `The findings document is committed to this repository.` verbatim as a plain checkbox under Acceptance Criteria (Before had dropped it into the Reporter note under a `retired workflow-stage proof` label), it places the external-dashboard baseline under Integration in the reporter's wording and out of Acceptance Criteria (Before left it as the only acceptance row), and the Reporter note now quotes the displaced baseline row verbatim with no retirement label, so both requested outputs are accounted for. Neither output asks a sorting question, so no-question held in both. To keep these, retain wording that says the file-delivered row stays under Acceptance Criteria as written with no setup/action/result conversion, that external-only clauses go to Integration in source wording, and that each displaced original is copied verbatim into the Reporter note without a label; keep the instruction to sort without a clarification question so no-question does not regress.",
+      "wallMs": 5652,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+}
