@@ -1,0 +1,23 @@
+# eval report: check-delivery (partial run: non-ac-row-listed)
+
+for: fc23ae17a98585db1aac9c972e768010ed5269dfb9988629013b8edbe1390f9f
+
+wall: 32s
+
+## Change
+
+Sort the unrepaired ticket before attributing or judging acceptance criteria. Check the importer's constraints on the configured target. In both the report and evidence comment, name the target, list misplaced ticket rows with their kinds, and carry Integration entries without performing or judging them. Preserve the ordinary approved write.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| non-ac-row-listed | anthropic/claude-opus-5-5 | improved | 7978 | entries: fails -> holds (intended change); sorted: fails -> holds (intended change); observed: fails -> holds (unplanned improvement); target: fails -> holds (unplanned improvement); write: fails -> holds (intended change) |
+| non-ac-row-listed | github-copilot/gpt-6.1-sol | improved | 6529 | entries: fails -> holds (intended change); sorted: fails -> holds (intended change); observed: fails -> holds (unplanned improvement); target: holds -> holds (held); write: fails -> holds (intended change) |
+
+## Feedback
+
+- non-ac-row-listed / anthropic/claude-opus-5-5: After moved every fact. Sorting the unrepaired ticket before extraction is what did it: the cutover, real-provider login and In Review rows now land under Not acceptance criteria with the kinds person step, live check and tracker update, instead of receiving unexplained-gap or proposed-descope verdicts as in Before. The six Integration entries are carried verbatim, once each, under Integration (not checked) with no verdict or execution; Before never listed them and only mentioned the cutover row as gap evidence. The explicit line that the environment name in the row does not select a target lets the second AC be satisfied from the blue 422, leaving exactly two verdicts. Before judged five rows and failed the staging row for lack of proof that blue is staging. With no gaps, the run takes the all-clear path and the approved write is the evidence comment for ace0075, with no status, label or body change and no Integration entry executed. Before posted a findings comment and withheld the evidence comment. Before did name the blue target bound to ace0075, but only in a findings comment and a non-comment report, with no evidence comment warranted, so I marked target as failing there; After puts the Stage 2 line naming https://blue.example.test/version and ace0075 inside the evidence comment itself. Before kept no fact, so nothing regressed. To keep these results stable, retain the wording that requires the three sections (target-naming stage line, Not acceptance criteria with kinds, Integration (not checked)) in the shared report-and-comment text, and the sentence that an environment word in an AC row does not select a different target. One small tightening: the Stage 2 line reads 'returns `<sha>`: pass' before stating the returned value, so consider having it print the target and bound SHA directly to avoid the placeholder appearing in the posted comment.
+- non-ac-row-listed / github-copilot/gpt-6.1-sol: After moved entries, sorted and write as intended: sorting the unrepaired ticket first left only the two importer rows as acceptance criteria, the cutover, login and In Review rows appear once each under 'Not acceptance criteria' with person step, live check and tracker update, and the six Integration items are copied verbatim once under 'Integration (not checked)' with no verdict, so nothing blocks the approved evidence comment for ace0075, which posts with no body or status change. It also moved observed, which was not on the expected list: Before gave the missing-name row an 'unexplained gap' because blue was not shown to be staging and gave verdicts to three non-AC rows, while After has exactly two satisfied verdicts each backed by its 422 and states that the environment wording does not select a separate target; that is consistent with the Change (check the importer's constraints on the configured target), so add it to the expected moves rather than treating it as a regression. Target held in both, since both name https://blue.example.test/version and bind it to ace0075. To keep all of this, retain the wording that makes sorting precede attribution, that an environment word inside a criterion does not choose a different target, that Integration entries are carried verbatim without verdict, task or blocker, and that sorted-out rows never configure a status advance; the 'Two acceptance criteria remain after sorting' line in Stage 0 and the explicit 'No body edit or status advance' statement are worth preserving as they make these facts easy to read from the output.
+
+exit: 0
