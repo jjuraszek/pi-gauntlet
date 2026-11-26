@@ -24,7 +24,7 @@ for (const name of targetName ? new Set(selected.map(([name]) => name)) : ['gaun
   });
 }
 
-for (const [name, sample] of targetName ? selected : [
+const cases = targetName ? selected : [
   ['conformance-reviewer', 'post-merge-action'],
   ['spec-council-member', 'non-criterion-row-flagged'],
   ['shape-ticket', 'venue-stripped'],
@@ -47,12 +47,19 @@ for (const [name, sample] of targetName ? selected : [
   ['ship', 'pr-body-integration'],
   ['loop', 'seed-dispositions'],
   ['plan', 'post-action-no-task'],
-]) {
+];
+
+for (const name of new Set(cases.map(([name]) => name))) {
+  test(`${name}: eval target passes structural lint`, () => {
+    assert.deepEqual(lintTarget(resolve(root, `eval/${name}`)), []);
+  });
+}
+
+for (const [name, sample] of cases) {
   test(`${name}/${sample}: cached authoring facts hold on both models`, async () => {
     const dir = `eval/${name}`;
     const target = JSON.parse(read(`${dir}/target.json`));
     const { text, bundle, drop } = parseCase(read(`${dir}/samples/${sample}/case.md`));
-    assert.deepEqual(lintTarget(resolve(root, dir)), []);
     const expected = read(`${dir}/samples/${sample}/expected.md`);
     const { facts } = parseExpected(expected);
     const baseline = JSON.parse(read(`${dir}/results/${sample}/baseline.json`));
