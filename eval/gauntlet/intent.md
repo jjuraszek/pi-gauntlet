@@ -1,7 +1,7 @@
-for: c4a998790b00da8a2ddb379fc6330df343e3a0f6b3a3fe3e7dc43cad44ebd062
+for: 3d7454537b84f928bf924616459ed97b217ba48955a87657fe5c254e2432609f
 
 ## Change
-Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality.
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Apply the existing ownership question and no-member stop only to groups with surviving acceptance rows. When all rows move to Integration, draft acceptance rows from the design without an ownership question. `group-all-rows-sorted` checks the ownership decision before any write, not the live workflow.
 
 Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 
@@ -130,6 +130,7 @@ For spec-pr-regate-legs, replace unconditional missing-remote push advice with p
 Require an explicit canonical-primary comparison and full observed ready reports during coordinated re-gating. Strengthen checkpoint A's remote-only fact and supply concrete merge results without changing its prior requirements or B/G recovery cases. Run only spec-pr-regate-legs using its third and final authorized run; require every current fact to hold, without accepting historical remote-only variance for this change. Reuse caller-root's saved passing results without another model run. This is selected narrated coverage, not live Git execution or a target-wide pass.
 
 ## Expected to move
+- group-all-rows-sorted/no-ownership-question: fails -> holds - An unmatched group whose only row moves to Integration does not require an ownership decision.
 - handoff-follows-pointer/receipt: fails -> holds - Read the file named by the completion reply before continuing.
 - handoff-follows-pointer/command: fails -> holds - Continue without a skill invocation.
 - pr-body-drafted-row/f1: fails -> holds - Leave PR-description proof out while keeping PR text produced by a script.

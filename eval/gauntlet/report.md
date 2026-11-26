@@ -1,12 +1,12 @@
-# eval report: gauntlet (partial run: ticket-all-rows-sorted)
+# eval report: gauntlet (partial run: ordinary-request-no-run)
 
-for: c4a998790b00da8a2ddb379fc6330df343e3a0f6b3a3fe3e7dc43cad44ebd062
+for: 3d7454537b84f928bf924616459ed97b217ba48955a87657fe5c254e2432609f
 
-wall: 11s
+wall: 8s
 
 ## Change
 
-Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality.
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Apply the existing ownership question and no-member stop only to groups with surviving acceptance rows. When all rows move to Integration, draft acceptance rows from the design without an ownership question. `group-all-rows-sorted` checks the ownership decision before any write, not the live workflow.
 
 Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 
@@ -14,12 +14,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ticket-all-rows-sorted | anthropic/claude-opus-5-5 | improved | 5191 | drafted: fails -> holds (unplanned improvement); provenance: fails -> holds (unplanned improvement); moved: fails -> holds (unplanned improvement) |
-| ticket-all-rows-sorted | github-copilot/gpt-6.1-sol | improved | 4610 | drafted: fails -> holds (unplanned improvement); provenance: fails -> holds (unplanned improvement); moved: fails -> holds (unplanned improvement) |
+| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 7271 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 6539 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
 
 ## Feedback
 
-- ticket-all-rows-sorted / anthropic/claude-opus-5-5: After moves the fact to holds: because the ticket's only row is a person step, After sorts it out of Acceptance criteria into Integration (marked 'ticket row, not an acceptance criterion: person step') and, with no ticket rows left, drafts the design's observable diagnostic as an unchecked in-scope row under a 'Drafted from the design' header, with no cutover row and no rows-verbatim header. Before instead kept the cutover row verbatim under a 'Ticket #58, checkbox list, rows verbatim' header and explicitly held the importer diagnostic out of the section, so it failed on all three points. Before held nothing on this fact, so there is nothing to preserve; to keep After stable, keep the wording that says a ticket whose rows all move to Integration leaves zero AC rows and therefore takes the drafted-row branch and its header. One wording risk: the header 'ticket #58 has no acceptance criteria' is slightly inaccurate since the ticket had a row that was moved; phrasing such as 'no file-checkable acceptance criteria remain after sorting' would be more precise without changing the result.
-- ticket-all-rows-sorted / github-copilot/gpt-6.1-sol: After moved the fact by sorting the ticket's only row (the operator cutover, a person step) out of Acceptance criteria into Integration and replacing the 'rows verbatim' header with a drafted header plus one unchecked in-scope row stating that the importer reports the name of the missing column when a required header is absent; Before instead kept the cutover row verbatim under a ticket-rows-verbatim header and drafted no diagnostic row, so the fact failed there. Nothing Before held was lost. To keep this result stable, keep the wording that says when every ticket row is moved out as externally fulfilled, the writer drafts rows from the design's observable behaviors under a drafted header rather than leaving the section empty or retaining the verbatim header. One thing to consider tightening: the After header says the ticket 'has no acceptance criteria', which is slightly inaccurate since the ticket had one row that was moved; wording such as 'no file-checkable acceptance criteria remain after sorting' would be more precise without affecting the fact.
+- ordinary-request-no-run / anthropic/claude-opus-5-5: None of the four facts moved: both outputs decline to reset trackers or start a brainstorm phase, create no worktree, list no read of any file under skills/gauntlet/ and invoke no workflow skill, and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, offering the workflow only as an explicit opt-in. The After wording about sorting ticket rows and Integration entries did not leak into this entry-turn case, so nothing needs repair here. The one difference is that After names `/skill:gauntlet` where Before names `/skill:brainstorming`; either is still an offer rather than an invocation. To keep these facts stable, keep the entry instructions saying that a plain implementation request is not consent to enter the workflow, and that mentioning the skill command to the user is different from running it or reading its step files.
+- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved on this case. Both outputs treat the CSV request as a direct implementation task: each explicitly declines to start the gauntlet or create a worktree, lists only status checks, AGENTS.md reads, and searches and reads of the exporter, label source and tests, and neither takes a tracker action nor reads anything under skills/gauntlet/. The After wording (ticket-row sorting, Integration carry-over, ownership question scoping) did not leak into this non-workflow entry turn; After differs only in tool naming (`terminal` instead of `bash`), in splitting locate and read into separate steps, and in dropping the baseline test run before the edit, none of which touches a listed fact. To keep this, leave the new sorting and ownership rules scoped to the spec-writer stage, so that they do not read as entry triggers and a plain coding request still does not count as consent to enter the workflow.
 
 exit: 0

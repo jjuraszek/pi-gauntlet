@@ -1,7 +1,7 @@
 {
   "sample": "drafted-row-scenarios",
   "arm": "candidate",
-  "skillSha": "c4a998790b00da8a2ddb379fc6330df343e3a0f6b3a3fe3e7dc43cad44ebd062",
+  "skillSha": "3d7454537b84f928bf924616459ed97b217ba48955a87657fe5c254e2432609f",
   "inputSha": "270a815591f0820b3b1ec8ddeab6816a358934a3e317ebfe7ae31c2fce5722f9",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Here is the `## Acceptance criteria` section the spec will carry. Nothing has been written to disk yet.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an ID that is empty, contains only spaces, or contains a slash, and reports the same invalid-ID error in all three cases.\n  in-scope\n```\n\n- **Provenance:** There is no ticket, so the row comes from the approved design and the original request. It goes under the drafted header with the default `in-scope` disposition.\n- **One row:** The design commits to one validation constraint. The three malformed shapes are scenarios of that one rule, so they share one row. The row describes what a test sees: a rejection and the same error. It does not describe how the check is built.\n- **Integrity check:** The row passes as written. Its set of three shapes is already listed. It names no better-or-worse target, no undefined value and no outside yardstick.\n- **Integration:** This section is left out because the design has no person steps, deploy conditions or live checks.\n\nThe spec gate will show this row under \"Drafted acceptance criteria (approval ratifies)\". Approving the spec there ratifies it.\n",
-      "words": 191,
-      "wallMs": 7107,
+      "text": "Here is the `## Acceptance criteria` section I will write into the spec. Nothing has been written to disk yet.\n\n```markdown\n## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an import ID that is empty, contains only spaces, or contains a slash, and returns the same invalid-ID error in all three cases.\n  in-scope\n```\n\nHow I drafted it:\n\n- **Header.** There is no ticket, so the section uses the drafted-from-design header rather than a ticket-row header.\n- **One row.** The design commits to a single validation constraint. One row can cover several scenarios, so the empty, all-spaces and slash cases share a row instead of being split into three. The row describes what a user or test observes (the import is rejected with one shared error), not how it is built.\n- **Integrity check.**\n  - It is not *wishful*: there is no better/worse claim.\n  - It is not *tautological*: it does not depend on a set this change produces.\n  - It is not *tree-wide*: it does not require zero findings across a tree.\n  - It is not *unspecified-but-binding*: \"the same invalid-ID error\" can be checked by comparing the three rejections.\n  - It is not *external-input*: no outside yardstick is needed.\n- **Disposition.** `in-scope` is the default, and nothing has been cut.\n- **No `## Integration` section.** There are no integration steps, so that section is left out.\n\nAt the user review gate, this row appears under \"Drafted acceptance criteria (approval ratifies)\". Approving the spec ratifies it.\n",
+      "words": 237,
+      "wallMs": 7396,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
       "text": "## Acceptance criteria\n\nDrafted from the design, no ticket rows:\n\n- [ ] The importer rejects an empty ID, an ID containing only spaces, or an ID containing a slash with the same invalid-ID error in all three cases.\n  in-scope\n",
       "words": 36,
-      "wallMs": 3497,
+      "wallMs": 8310,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "f611ab0fa2d631d56bcb883eb32f88266e58a07bd6c6c6980bdc99c94e3d317c",
-      "candidateOutputSha": "90e094e5acd8f9099026b4a43d67b76766633403c4411d8edbbe3d693ff78577",
+      "candidateOutputSha": "3ab3f3addd4f46637558f11f19ddac86bccebfa086693886c94ab21706ed37b4",
       "facts": {
         "one-constraint": {
           "before": "fails",
@@ -44,14 +44,14 @@
           "label": "unplanned improvement"
         }
       },
-      "feedback": "Before split the three malformed-ID inputs into three separate checkbox rows (empty, spaces-only, slash), so one-constraint fails there; After drafts exactly one checkbox row stating the importer rejects an empty, spaces-only, or slash-containing ID with the same invalid-ID error, so the fact holds. The wording that keeps one drafted constraint row for several malformed-input scenarios of the same functionality is what moved it, and the After output's 'One row' note shows the writer tied the three shapes to the single design constraint. No fact that Before held was lost in this case, so no repair is needed here; to keep it stable, keep the rule phrased as 'scenarios of one constraint share one row' and distinct from the one-row-per-Design-behavior rule so writers do not over-merge genuinely separate behaviors, and consider trimming the extra commentary bullets after the section (provenance, integrity check, Integration) if the request is only to show the section, since they add text beyond what was asked without affecting this fact.",
-      "wallMs": 5507,
+      "feedback": "After moved one-constraint from fails to holds: its Acceptance criteria section contains exactly one checkbox row stating that the importer rejects an empty, spaces-only or slash-containing ID with the same invalid-ID error, whereas Before split the three malformed inputs into three separate rows and explicitly justified doing so ('Each malformed-ID case has its own row'). The wording that keeps one drafted constraint row for several malformed-input scenarios of the same functionality is what delivered this, and no fact held by Before was lost here. To keep it stable, retain the explicit statement that scenarios of one design constraint share a row, and consider trimming the long drafting rationale (integrity check, disposition, gate notes) since the case only asked to show the section and stop before any write; the extra narration is harmless to this fact but adds surface for drift in other cases.",
+      "wallMs": 4509,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "dc8035b46a10d70de58d36b63b8ae7dcd5f90afea2d0c9f882d8828a9b4e2bec",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "ad81dba529fc21d2f11e2ee061f16a9d59adbf20b57b3e9778ac72886313a365",
       "candidateOutputSha": "c4ac63a6eadd4453496b4e2a776f7231664ad008ef32336e69fb3109fa89a157",
       "facts": {
@@ -61,10 +61,10 @@
           "label": "held"
         }
       },
-      "feedback": "The only fact under Facts, one-constraint, holds in both outputs: each shows a single checkbox row that covers the empty ID, the spaces-only ID and the slash ID together with the same invalid-ID error, and neither splits the three inputs into separate rows. After's only visible difference is the subject of the sentence ('The importer rejects...' instead of 'Importing with... rejects the ID'), which matches the fact's phrasing slightly more directly but does not change the verdict. Nothing moved, so no wording repair is needed; to keep this stable, retain the explicit instruction that several malformed-input scenarios of the same functionality stay in one drafted constraint row, and keep it clearly separate from the ticket-row sorting and Integration-carrying rules so those do not get applied to drafted rows.",
-      "wallMs": 4445,
+      "feedback": "Both outputs draft exactly one checkbox row covering the empty, spaces-only and slash-containing IDs with the same invalid-ID error, so one-constraint holds before and after; the After wording did not move it. The only visible difference is that After names the importer as the subject ('The importer rejects...') where Before says 'Importing with ... rejects the ID', which matches the fact's phrasing slightly more directly but does not change the verdict. To keep this fact while delivering the Change, keep the explicit instruction that several malformed-input scenarios of the same functionality stay in one drafted constraint row, and make sure the new row-counting and sorting language for grouped ticket rows is clearly scoped to ticket rows so it cannot be read as a reason to split a drafted row into one row per input case.",
+      "wallMs": 4053,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "3b26e6ee61b87f1a1fd744d157cebdc0f604e02c"
+  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
 }

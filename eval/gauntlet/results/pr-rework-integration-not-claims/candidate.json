@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps: The retry loop is bounded, as the PR states: \"The retry loop now makes at most three attempts per request.\" The only changed path is `src/retry.ts`. Its loop condition replaces the old `attempt < 5`.\n\nchanges: Change the loop condition in `src/retry.ts` from `attempt < 4` to `attempt < 3`. `attempt` starts at zero, and each iteration makes one request. The current `attempt < 4` therefore allows four attempts (0-3). That contradicts both the PR's stated limit and the base rule, which requires three attempts. `attempt < 3` allows exactly three (0-2) and makes the stated claim true. This one-token repair is enough, so no rewrite is needed. Base sync was a no-op, so no sync contract exceptions carry here.\n\ndropped claims: none\n\nunresolved threads: none\n\ncarried specs: none\n\nconstraints added since fork: none\n",
-      "words": 137,
-      "wallMs": 6589,
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\nkeeps: the loop bound in `src/retry.ts` stays the single place that limits retries, and it tightens from the base's `attempt < 5`. keeps: the stated intent \"The retry loop now makes at most three attempts per request,\" which the base rules also require.\nchanges: change `attempt < 4` to `attempt < 3` in `src/retry.ts`. `attempt` starts at zero and each iteration makes one request, so the current diff allows four attempts. That breaks both the PR's stated claim and the base rule limiting retries to three attempts. This one-token edit is the smallest repair, so no rewrite is needed. The base sync was a no-op and recorded no contract exceptions or scoped test results.\ndropped claims: none\nthreads: none unresolved\n\nconstraints added since fork: none\n",
+      "words": 129,
+      "wallMs": 7598,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps: `src/retry.ts` reduces the retry loop’s maximum attempt count from five to four.\nchanges: Change `attempt < 4` to `attempt < 3`. With `attempt` starting at zero and one request per iteration, this is the smallest repair that satisfies the base rule requiring at most three attempts.\ndropped claims:\n- “The retry loop now makes at most three attempts per request.” The synchronized diff permits four attempts.\n\nThreads: none\nPR-carried specs: none\nconstraints added since fork: none\nBase sync: no-op; no exceptions.\nScoped tests: none run (supplied observation).\n",
-      "words": 92,
-      "wallMs": 4541,
+      "text": "## PR under rework\n\n### PR #27 - Bound retries\n\nkeeps: The existing retry loop and its reduction from five attempts remain the starting point.\n\nchanges: Change `src/retry.ts` from `attempt < 4` to `attempt < 3`. With `attempt` starting at zero and one request per iteration, the synchronized diff allows four attempts; this minimal repair satisfies the base rule requiring three.\n\ndropped claims:\n- “The retry loop now makes at most three attempts per request.” The supplied diff permits four attempts.\n\nThreads: none  \nCarried specs: none  \nBase sync: no-op; no exceptions  \nScoped tests: none run\n\nconstraints added since fork: none\n",
+      "words": 94,
+      "wallMs": 6368,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "fc1813026174aa0216f055c9a5ce4ec6dcd85ff6afe4fa35a2c66f042df4214c",
-      "candidateOutputSha": "7c0db5bf28d3cfce6b989afb0d25172665f93ad16e6525a8233e9f1468b13072",
+      "candidateOutputSha": "84b714401d8074742e2a1a8378e59a24075ba764d332e2adecb1448578dbe709",
       "facts": {
         "contradicted-claim": {
           "before": "holds",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "Both outputs report the three-attempt claim as contradicted by the four attempts the diff allows (Before under changes and dropped claims, After under changes), and neither raises a question about the Integration block. The fact that moved is provenance-only: Before rendered the operator-card step and its nested shift-log line under keeps, and judged them against the diff ('the diff cannot verify them', 'the limit written on the operator card must be three'), while After leaves both Integration lines out of keeps, changes, and dropped claims entirely, so the fact holds. No fact regressed. One thing to watch: After drops the Integration block altogether rather than carrying it as provenance, which satisfies the fact as written but would lose the verbatim text if a downstream stage expects the scout to hand it on; if that matters, the wording should say to pass the Integration block through verbatim in a separate provenance-only place outside keeps/changes/dropped claims, with no judgment and no question. Keep the explicit statement that the diff allows four attempts against the stated three, since that is what holds contradicted-claim.",
-      "wallMs": 5137,
+      "feedback": "After moved provenance-only from fails to holds: Before rendered the operator-card update and its nested shift-log step as a bullet under keeps and judged them against the diff (\"the diff cannot verify them\", \"the limit written on the operator card must be three\"), while After leaves the Integration block out of keeps, changes, and dropped claims entirely and never judges it. Both outputs report the three-attempt claim as contradicted by the four attempts the diff allows (After: \"the current diff allows four attempts. That breaks both the PR's stated claim and the base rule\"), and neither raises a question about the Integration block, so no fact regressed. To keep this stable, keep the wording that tells the scout Integration entries are provenance carried verbatim elsewhere and are not sorted into keeps/changes/dropped claims or checked against the diff; note that After now omits the Integration block and the `carried specs: none` line altogether, so if the author wants the block's verbatim carriage to be visible in the scout output, state explicitly where it is carried (outside the three judged lists, with nested lines intact) so that it does not slide back under keeps, and keep the explicit statement that the diff's four attempts contradict the body's three-attempt claim.",
+      "wallMs": 5904,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "0d9d08aef9aac2d5ace7695fbb9283ef90d3710be6bd875916632e5a35c8fa72",
-      "candidateOutputSha": "c4ec0a0846b6a4ffcf5de7ff608ad4561b6022f3bb2dba6d1a106ef353b069dd",
+      "candidateOutputSha": "7d4541df6961bfe4f486d68c1457e25868f508381b849b1b6acf82f8eb01c781",
       "facts": {
         "contradicted-claim": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "Before rendered the Integration block's operator-card update and its nested shift-log step under `keeps:` and judged them against the diff (\"Neither operational action is implemented by the supplied diff\"), which fails provenance-only; After leaves both lines out of keeps, changes, and dropped claims entirely, so that fact now holds, while the three-attempt claim is still reported as contradicted by the four attempts the diff allows and no question is raised about Integration in either output. No fact that Before kept was lost. To keep this stable, the wording should continue to state explicitly that Integration entries (including nested lines) are provenance carried verbatim elsewhere and are never judged against the diff or listed under keeps/changes/dropped claims, and never prompt a question; if you want the scout to show it saw the block, allow at most a neutral provenance mention outside those three lists rather than silence, so that omission is not mistaken for loss in later stages.",
-      "wallMs": 4883,
+      "feedback": "Before failed provenance-only because its keeps line rendered both Integration steps (operator-card update and shift-log entry) as kept requirements and judged them against the diff ('Neither operational action is implemented by the supplied diff'); After leaves the Integration block out of keeps, changes, and dropped claims entirely, so that fact now holds. Both outputs report the three-attempt claim as contradicted by the four attempts the diff allows, and neither raises a question about Integration, so those facts hold on both sides. To keep this result, retain wording that treats PR-body Integration entries as provenance to carry verbatim rather than as claims to verify or keep; note that After omits the Integration block altogether, so if the Change intends it to be carried verbatim (nested line intact), say explicitly where the scout should reproduce it outside keeps/changes/dropped claims, without diff judgment and without a question.",
+      "wallMs": 4201,
       "verdict": "improved"
     }
   },
-  "repoSha": "9a21ed59c9601968d3cacd5df9b761d7e6c2a51c"
+  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
 }

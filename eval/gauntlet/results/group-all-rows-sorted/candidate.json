@@ -1,0 +1,90 @@
+{
+  "sample": "group-all-rows-sorted",
+  "arm": "candidate",
+  "skillSha": "a720318d151ef64e2943b4f55aeba3d29cab9ca6769d863071a5a430f8c22fcf",
+  "inputSha": "38aa5f01a981ef603ec24f46df997943facb2cc59f360c38c4c4697e4b8714d1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Ownership resolves without a question. I sorted both ticket rows by the acceptance-criteria definition before assigning ownership:\n\n- **`labels` row:** *The label editor trims surrounding spaces.* This is a criterion, because the files at the delivered commit make it true. Its group matches the sole member `sample/labels`, so it is `in-scope`.\n- **`rollout` row:** *The operator announces the rollout.* This is an Integration entry (a person step), not a criterion. It moves verbatim to `## Integration` with no disposition, no `## Out of scope` entry and no cut question. After sorting, the unmatched `rollout` group keeps no acceptance row, so the \"this repo / elsewhere / repair\" ownership question does not apply.\n\nAt least one acceptance row sits under a group matching a member, so the brainstorm continues. Provenance stays flat: no repo-group headings appear in the spec.\n\n```markdown\n## Acceptance criteria\n\nTicket #64, Acceptance criteria, rows verbatim:\n\n- [ ] The label editor trims surrounding spaces.\n  in-scope\n```\n\n```markdown\n## Integration\n\n- The operator announces the rollout.\n  ticket row, not an acceptance criterion: person step\n```\n\nThe `## Integration` section sits directly before `## Errors and edge cases`. The design's commitment to trim spaces around labels is already covered by the in-scope criterion, so it adds no Integration entry.\n",
+      "words": 194,
+      "wallMs": 8691,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Acceptance criteria\n\nTicket #64, Acceptance criteria, rows verbatim:\n\n- [ ] The label editor trims surrounding spaces.\n  in-scope\n\n## Integration\n\n- The operator announces the rollout.\n  ticket row, not an acceptance criterion: person step\n",
+      "words": 29,
+      "wallMs": 7224,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "ce9adcacc25773c61daa7704724497cf547f4c194b30a616cb58349c319153a5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "baselineOutputSha": "4551e379ad2522c2e41b3e95216c59a54ef269694fee6ee56fdc0ab0f7c1bdab",
+      "candidateOutputSha": "0a3c7974a29fadf23fdb469d9d008538bb29fc9645115daeb970eb5b74234d48",
+      "facts": {
+        "no-ownership-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After sorts the rows before deciding ownership, which is what moved all three facts: the rollout row is classified as a person step and placed verbatim under `## Integration` with the indented marker `ticket row, not an acceptance criterion: person step`, the unmatched group then has no surviving acceptance row so no A/B/C ownership question is asked, and `## Acceptance criteria` shows `The label editor trims surrounding spaces.` verbatim as an unchecked in-scope row. Before stopped at a `gauntlet: question` over the rollout group and rendered neither section, so all three facts fail there, including `retained`, since no Acceptance criteria section was shown at all. Before kept nothing that After lost, so no wording needs restoring; to keep this stable, hold the explicit order (sort rows first, then apply the ownership question only to groups with surviving acceptance rows) and the exact marker text, and consider trimming the surrounding narration (the provenance note and section-placement remark) so the reply stops cleanly after the two sections as the continuation requests.",
+      "wallMs": 5289,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "ce9adcacc25773c61daa7704724497cf547f4c194b30a616cb58349c319153a5",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
+      "baselineOutputSha": "7bda78c15c8766ff0980fe1ad1c94022f4a62c0af15862857764858d4a1e9a93",
+      "candidateOutputSha": "4febf17b85228294781e91781e8f8067b996d924bd6c8e0b6d371b7fa3415824",
+      "facts": {
+        "no-ownership-question": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "moved": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        }
+      },
+      "feedback": "After sorts the rollout row into Integration before applying the ownership check, so the unmatched `rollout` group has no surviving acceptance row and no ownership question is raised; this flips no-ownership-question from fails to holds. The Integration entry carries `The operator announces the rollout.` verbatim with the indented marker `ticket row, not an acceptance criterion: person step`, and the row is absent from Acceptance criteria, so moved holds. The labels row stays verbatim as an unchecked `- [ ]` row with an `in-scope` line, so retained holds. Before stopped at the ownership question and rendered neither section, so all three facts fail there; nothing Before held was lost. To keep this stable, keep the wording that the ownership question and no-member stop apply only to groups with surviving acceptance rows after sorting, and keep the instruction that moved entries are copied verbatim with the kind marker on an indented line while surviving ticket rows keep their unchecked checkbox and verbatim text.",
+      "wallMs": 4574,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
+}

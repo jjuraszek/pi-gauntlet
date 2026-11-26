@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "905b48e319d207331f407c2ee7fca9b8a640cfa057cd665e0213d67945b4b7bb",
       "candidateOutputSha": "940e183023890473284bc3e187188572a940fde6040c7bb2752bf7abece38598",
       "facts": {
@@ -59,14 +59,14 @@
           "label": "held"
         }
       },
-      "feedback": "None of the four facts moved: both outputs treat the request as a direct fix, explicitly decline to reset trackers, start brainstorm or create a worktree, list only repo searches, reads of the exporter, label source, tests and manifest, and a baseline test run before the first edit, and never read or invoke anything under skills/gauntlet/. After still only offers the workflow as an opt-in the user must type (`/skill:gauntlet`), which matches the fact's allowance for asking for explicit choice rather than treating the request as entry consent. The ticket-row sorting and constraint-row wording in the Change does not surface in this first-turn case, so nothing needs adjusting to keep these facts; just keep the entry text clear that a plain implementation request is not consent to enter a workflow and that the workflow is mentioned only as an offer, not invoked or read.",
-      "wallMs": 7465,
+      "feedback": "None of the four facts moved: both outputs decline to reset trackers or start a brainstorm phase, create no worktree, list no read of any file under skills/gauntlet/ and invoke no workflow skill, and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, offering the workflow only as an explicit opt-in. The After wording about sorting ticket rows and Integration entries did not leak into this entry-turn case, so nothing needs repair here. The one difference is that After names `/skill:gauntlet` where Before names `/skill:brainstorming`; either is still an offer rather than an invocation. To keep these facts stable, keep the entry instructions saying that a plain implementation request is not consent to enter the workflow, and that mentioning the skill command to the user is different from running it or reading its step files.",
+      "wallMs": 7271,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "008c01ac7140d3a71716891859cb5ec67e6b7fe345d4a14e032ecb861b4973c5",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "5370946137b2f858a3731ff7bec04e8ccbc70bf446a1fe8e32bdc68ff17d6e5c",
+      "intentSha": "9f6d5fe7fe23ba2cfdb54853b7856e89799274dca0843b1e710bf06d22b43694",
       "baselineOutputSha": "97bd0882648fd78da5443b238853e3a424cb617ad16ac94a9b15598288b2c989",
       "candidateOutputSha": "87d7d9e8f00f50f11b57d422c2178f97ed9cef802347574a54d8c9fd35e7b83d",
       "facts": {
@@ -91,8 +91,8 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved between Before and After on this case. Both outputs treat the CSV export request as a direct implementation task, explicitly decline to start the gauntlet workflow or create a worktree, and list only status checks, AGENTS.md reads, and exporter, label and test discovery before the first edit. Neither takes a tracker action or reads anything under skills/gauntlet/. The After wording's ticket-row sorting and constraint-row changes do not leak into this plain first-turn request, which is the desired result. To keep it that way, keep the new sorting and companion-carry rules scoped to the spec-writing stage, so they cannot be read as a trigger to enter the workflow, read a step file, or touch the tracker when a user simply asks for a code fix without consenting to the workflow.",
-      "wallMs": 7712,
+      "feedback": "No fact moved on this case. Both outputs treat the CSV request as a direct implementation task: each explicitly declines to start the gauntlet or create a worktree, lists only status checks, AGENTS.md reads, and searches and reads of the exporter, label source and tests, and neither takes a tracker action nor reads anything under skills/gauntlet/. The After wording (ticket-row sorting, Integration carry-over, ownership question scoping) did not leak into this non-workflow entry turn; After differs only in tool naming (`terminal` instead of `bash`), in splitting locate and read into separate steps, and in dropping the baseline test run before the edit, none of which touches a listed fact. To keep this, leave the new sorting and ownership rules scoped to the spec-writer stage, so that they do not read as entry triggers and a plain coding request still does not count as consent to enter the workflow.",
+      "wallMs": 6539,
       "verdict": "unchanged"
     }
   },
@@ -311,5 +311,5 @@
       }
     }
   },
-  "repoSha": "1289b2135789d49b9a550da647b1a54a4905e8ad"
+  "repoSha": "07ef62152f82f0c1959d487bf7b4729e081c8cb9"
 }

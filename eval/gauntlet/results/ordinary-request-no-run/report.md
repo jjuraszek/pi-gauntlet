@@ -1,23 +1,25 @@
 # eval report: gauntlet (partial run: ordinary-request-no-run)
 
-for: eaabe1071ee7efc5abe91e7a7d3fda55c6a29db6a501bec4cf2e2622ccdfac97
+for: 3d7454537b84f928bf924616459ed97b217ba48955a87657fe5c254e2432609f
 
-wall: 16s
+wall: 8s
 
 ## Change
 
-An ordinary coding request does not enter the gauntlet, even with the entry instructions in context. Select ordinary-request-no-run to check the assistant's proposed actions before its first edit: no phase starts, no worktree is created and no step instructions are loaded. Both revisions require consent; no fact is expected to move. This tool-free sample checks the assistant's routing decision, not a live checkout. For handoff-follows-pointer, the completion reply supplies the next file. A read-only replay resumes with that tool result in history. Only the file provides the receipt; a narrated read cannot pass.
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Apply the existing ownership question and no-member stop only to groups with surviving acceptance rows. When all rows move to Integration, draft acceptance rows from the design without an ownership question. `group-all-rows-sorted` checks the ownership decision before any write, not the live workflow.
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 
 ## Cells
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 5343 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
-| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 4233 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 7271 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 6539 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
 
 ## Feedback
 
-- ordinary-request-no-run / anthropic/claude-opus-5-5: No fact moved: both outputs decline to reset trackers, start a phase, or create a worktree, list only repo-search, read, and test-baseline actions targeting the CSV exporter, label source, tests, and manifest (nothing under skills/gauntlet/ and no skill invocation), and offer the workflow only as an opt-in the user must explicitly request, so the request is addressed directly and not treated as entry consent. After's wording differs only in naming `/skill:gauntlet` instead of `/skill:brainstorming` as the opt-in and in stating it will work in the current checkout; both are mentions of an option, not invocations. To keep all four facts stable, keep the explicit 'not a gauntlet run / no tracker reset / no worktree' statement, keep the workflow offer phrased as a conditional the user must trigger, and keep the pre-edit action list restricted to project files so no step-instruction read or skill invocation can slip in.
-- ordinary-request-no-run / github-copilot/gpt-6.1-sol: Nothing moved on this case: both Before and After treat the CSV export request as ordinary direct work, explicitly decline to start the gauntlet or create a worktree, list only status checks, AGENTS.md reads, source/test searches and reads as pre-edit actions, and neither reads anything under skills/gauntlet/ nor invokes a workflow skill or phase tracker. After differs only in tool naming (`terminal` vs `bash`), splitting locate/read into separate steps, and dropping the baseline test run, none of which touches a fact. To keep all four facts, preserve the wording that an ordinary coding request with entry instructions in context still requires explicit consent before any phase start, worktree creation, or step-instruction read, so the assistant keeps routing straight to locating the exporter and its tests.
+- ordinary-request-no-run / anthropic/claude-opus-5-5: None of the four facts moved: both outputs decline to reset trackers or start a brainstorm phase, create no worktree, list no read of any file under skills/gauntlet/ and invoke no workflow skill, and both go straight to locating the CSV exporter, the on-screen label source and the existing tests, offering the workflow only as an explicit opt-in. The After wording about sorting ticket rows and Integration entries did not leak into this entry-turn case, so nothing needs repair here. The one difference is that After names `/skill:gauntlet` where Before names `/skill:brainstorming`; either is still an offer rather than an invocation. To keep these facts stable, keep the entry instructions saying that a plain implementation request is not consent to enter the workflow, and that mentioning the skill command to the user is different from running it or reading its step files.
+- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved on this case. Both outputs treat the CSV request as a direct implementation task: each explicitly declines to start the gauntlet or create a worktree, lists only status checks, AGENTS.md reads, and searches and reads of the exporter, label source and tests, and neither takes a tracker action nor reads anything under skills/gauntlet/. The After wording (ticket-row sorting, Integration carry-over, ownership question scoping) did not leak into this non-workflow entry turn; After differs only in tool naming (`terminal` instead of `bash`), in splitting locate and read into separate steps, and in dropping the baseline test run before the edit, none of which touches a listed fact. To keep this, leave the new sorting and ownership rules scoped to the spec-writer stage, so that they do not read as entry triggers and a plain coding request still does not count as consent to enter the workflow.
 
 exit: 0
