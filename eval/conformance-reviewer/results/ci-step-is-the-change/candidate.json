@@ -1,8 +1,8 @@
 {
   "sample": "ci-step-is-the-change",
   "arm": "candidate",
-  "skillSha": "4274619d09ee78ed26770bee585aed1179dff054a70822197747fe1b93d7483c",
-  "inputSha": "e287914f551c1325b03b80db4f97e65781b3272600dd18f10ccc841683c0f0ea",
+  "skillSha": "535dff0614583ff3cb1f5a1de09f797fdcc2e297e517f069761c48b7aa046d08",
+  "inputSha": "20c136f697e0e63d275dd38e3321df7d5e5d639b41881bd98bce7acd8c633c02",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\nConformance verdict: GAPS\nConfidence: high   (the diff is one hunk, and all three affected files are given in full with line numbers)\n\nRequirement coverage:\n  - [DELIVERED]    R1: label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2\n  - [MISSING]      G1: remove the browser-install step from the CI workflow — origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\" — searched: diff (no hunk for .github/workflows/ci.yml); step still present at .github/workflows/ci.yml:8-9\n  - [MISSING]      G2: regenerated bundle bin/label.mjs reflects the trimming formatter — origin: spec \"Legs / widget-tools\" - \"[...] regenerated bundles committed\" — searched: diff (no hunk for bin/label.mjs); bin/label.mjs:2 still returns `value` untrimmed, stale against src/label.mjs:2\n\nOrigin drift (spec vs prompt/ticket):\n  none\n```\n\n```\nG1:\n  verdict: MISSING\n  origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\"\n  evidence: .github/workflows/ci.yml:8\n  remediation: delete the \"Install browser\" step (lines 8-9) from the test job's steps in .github/workflows/ci.yml, and keep checkout and \"Test labels\"\n  touched-files: .github/workflows/ci.yml\n  touched-resources: none\n  recommended: fix\n```\n\n```\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / widget-tools\" - \"[...] regenerated bundles committed\"\n  evidence: bin/label.mjs:2\n  remediation: regenerate the tracked bundle bin/label.mjs from src/label.mjs so it returns value.trim(), then include it in the change\n  touched-files: bin/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1,G2 disjoint\n",
-      "words": 196,
-      "wallMs": 16662,
+      "text": "```\nConformance verdict: GAPS\nConfidence: high   (the diff and the full current files are inlined; each requirement maps directly to a numbered line)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Label formatter trims surrounding whitespace. Origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" Evidence: src/label.mjs:2\n  - [MISSING]      G1: Remove the browser-install CI step. Origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\" Searched: .github/workflows/ci.yml:8-9, which still holds `- name: Install browser` / `run: npm run install-browser`. The diff never touches the workflow.\n  - [MISSING]      G2: Commit the regenerated label bundle. Origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\". Searched: bin/label.mjs:2 still holds `return value;`, which does not match src/label.mjs:2 `return value.trim();`. The diff does not touch bin/label.mjs.\n\nOrigin drift (spec vs prompt/ticket):\n  (none)\n\nGaps for user decision (only if verdict = GAPS):\n  → emitted as Structured gap blocks below.\n```\n\n```\nG1:\n  verdict: MISSING\n  origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\"\n  evidence: absent\n  remediation: delete the \"Install browser\" step (.github/workflows/ci.yml lines 8-9) and leave the checkout and \"Test labels\" steps in place\n  touched-files: .github/workflows/ci.yml\n  touched-resources: none\n  recommended: fix\n```\n\n```\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\"\n  evidence: absent\n  remediation: regenerate bin/label.mjs from src/label.mjs so the tracked bundle includes the trim, then commit it\n  touched-files: bin/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1,G2 disjoint\n",
+      "words": 214,
+      "wallMs": 10974,
       "mechanical": {
         "f1": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: GAPS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Trim surrounding whitespace from labels — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:2\n  - [MISSING] G1: Remove the browser-install CI step — origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\" — searched: .github/workflows/ci.yml:8-9; the browser-install step remains unchanged.\n  - [MISSING] G2: Deliver the regenerated tracked label bundle — origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\" — searched: bin/label.mjs:1-3 and the complete delivered diff; bin/label.mjs:2 still returns the untrimmed value, and no regenerated bundle is included.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nGaps for user decision:\n\n```text\nG1:\n  verdict: MISSING\n  origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\"\n  evidence: .github/workflows/ci.yml:8-9\n  remediation: Remove the browser-install step from the CI workflow.\n  touched-files: .github/workflows/ci.yml\n  touched-resources: none\n  recommended: fix\n```\n\n```text\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\"\n  evidence: bin/label.mjs:2\n  remediation: Regenerate the tracked label bundle from the updated source and include it in the delivered change.\n  touched-files: bin/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1,G2 disjoint\n",
-      "words": 171,
-      "wallMs": 10985,
+      "text": "Conformance verdict: GAPS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: The source label formatter trims surrounding whitespace — origin: spec \"Design\" - \"The label formatter trims surrounding whitespace.\" — evidence: src/label.mjs:1-3\n  - [MISSING] G1: Remove the browser-install step from CI — origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\" — searched: entire delivered diff and .github/workflows/ci.yml:6-11; the browser-install step remains at lines 8-9.\n  - [MISSING] G2: Deliver the regenerated tracked label bundle — origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\" — searched: entire delivered diff and bin/label.mjs:1-3; the unchanged bundle still returns the untrimmed value at line 2.\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nGaps for user decision:\n\n```yaml\nG1:\n  verdict: MISSING\n  origin: spec \"Design\" - \"Remove the CI step in `.github/workflows/ci.yml` that installs the browser.\"\n  evidence: .github/workflows/ci.yml:8-9\n  remediation: Remove the browser-install step from the workflow.\n  touched-files: .github/workflows/ci.yml\n  touched-resources: none\n  recommended: fix\n```\n\n```yaml\nG2:\n  verdict: MISSING\n  origin: spec \"Legs / Leg: widget-tools\" - \"regenerated bundles committed\"\n  evidence: bin/label.mjs:1-3\n  remediation: Regenerate and include the tracked bin/label.mjs bundle so it reflects the source formatter's trimming behavior.\n  touched-files: bin/label.mjs\n  touched-resources: none\n  recommended: fix\n```\n\nParallel-safe: G1,G2 disjoint\n",
+      "words": 176,
+      "wallMs": 13250,
       "mechanical": {
         "f1": "holds"
       }
@@ -38,9 +38,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "bc16844b57490b0b45b3d14a1b856c91a978e8bb3bda9151c2b5794bc7851e88",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "c013a949574c9200e24c1ef733087566baccd713b66127c1e34935b17776a26c",
-      "candidateOutputSha": "6811f559db21c8fe91b231a7e9e1b983b13999534fb2a2741d6011215b8f705d",
+      "intentSha": "4a1f901c576a273c500e075ddaf1a164e65f14e3e31f1afcd8923715bfdb47f4",
+      "baselineOutputSha": "8207b583cb22b653320ca51f1ba2e568b11247cf705fd75900131a737b143a0e",
+      "candidateOutputSha": "7a70716359e77c9b8fe53c32b2e53f748a5497e877d7fdf6a00ecf35c1c580fe",
       "facts": {
         "f2": {
           "before": "holds",
@@ -63,16 +63,16 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this regression sample: After, like Before, reports GAPS with a MISSING row and gap for the browser-install step still at .github/workflows/ci.yml:8-9 (origin quoting the spec's Design sentence, treated as an implementation requirement rather than an excluded stage proof), a MISSING row and gap whose origin quotes \"regenerated bundles committed\" from the leg verification line with evidence that bin/label.mjs:2 is stale against src/label.mjs:2, and recommended: fix on both. The only differences are cosmetic (After cites file:line as gap evidence instead of \"absent\", and words the G2 title slightly differently). To keep this stable while delivering the Change, keep the wording that separates a spec instruction to edit a workflow file (a file deliverable) from delivery-stage evidence such as CI runs or PR gates, and keep the explicit rule that a file clause on a leg verification line stays in coverage with the spec as its origin even when the prompt repeats it; avoid any phrasing that excludes by keyword such as 'CI' or 'verification' rather than by whether the clause describes a change to tracked files.",
-      "wallMs": 5275,
+      "feedback": "No fact moved on this regression sample: After still reports the undeleted browser-install step as a MISSING requirement and gap with the spec Design sentence quoted as origin, still reports the stale bundle as a MISSING requirement and gap with origin quoting \"regenerated bundles committed\" from the leg verification line, and both gaps keep recommended: fix with no waiver or rescoping as a delivery-stage obligation. The only notable difference is that After's structured gap blocks say `evidence: absent` where Before cited `.github/workflows/ci.yml:8` and `bin/label.mjs:2`; f4 still holds because the coverage line for G2 identifies bin/label.mjs:2 as still `return value;` and not matching the modified src/label.mjs:2, but that margin is thinner than in Before. To keep these facts robust while delivering the Change, the wording should state that a workflow-file edit named by the spec is an implementation requirement rather than an excluded stage, that a file clause on a leg verification line stays in coverage with its spec origin even when the prompt repeats it, and that the gap block's evidence field should cite the file and line showing the unremoved step or stale bundle rather than `absent` when such a line exists.",
+      "wallMs": 5471,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "bc16844b57490b0b45b3d14a1b856c91a978e8bb3bda9151c2b5794bc7851e88",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "541b5ced976e19f152d35cb268689d5a7b05c18ef2d237893c21084b4e3c0594",
-      "baselineOutputSha": "282ba037788eceb178f817e484b349414f41ce94636b7f30b42fd9601c087667",
-      "candidateOutputSha": "1d9a5a51043c25fde9e4c28f3c46d55f634592ebc026e5d9b2c48b22e0072855",
+      "intentSha": "4a1f901c576a273c500e075ddaf1a164e65f14e3e31f1afcd8923715bfdb47f4",
+      "baselineOutputSha": "6aab5bc58fc0722542cb44eac6d2567710862177ce75bdf238c9e0683ee7643f",
+      "candidateOutputSha": "66b5c8c678c1014203ad63dfb6f88da6ee8afdfe299bbf337568aa1bd85293c2",
       "facts": {
         "f2": {
           "before": "holds",
@@ -95,10 +95,10 @@
           "label": "held"
         }
       },
-      "feedback": "No fact moved on this regression sample, which is the intended outcome: After still reports the undeleted browser-install step as a MISSING requirement and gap with the spec's Design sentence as origin, still reports the stale bin/label.mjs as a non-DELIVERED requirement and gap with the origin quoting \"regenerated bundles committed\" from the leg verification line, and both gaps keep recommended: fix with no waiver or rescoping. The only differences are cosmetic: G2 went from PARTIAL to MISSING and its evidence now cites bin/label.mjs:2 plus the complete diff rather than both src and bin lines; it still makes clear the bundle was not regenerated from the modified source. To keep these facts stable, retain the wording that distinguishes a workflow-file edit that is itself the requested change from a delivery-stage proof, and the wording that keeps a file-deliverable clause on a leg verification line in coverage with the spec clause as origin even when the prompt repeats it; consider keeping an explicit reference to the modified src/label.mjs in the bundle gap's evidence or remediation so the 'not regenerated from the changed source' link stays explicit.",
-      "wallMs": 5330,
+      "feedback": "No fact moved on this regression sample: both Before and After report the undeleted browser-install step as MISSING with the spec Design sentence quoted as origin, report the unchanged bin/label.mjs as MISSING with the leg verification line's \"regenerated bundles committed\" quoted as origin and evidence that the bundle still returns the untrimmed value, and mark both gaps recommended: fix with no waiver or rescoping. The After wording correctly keeps a workflow-file edit as an implementation requirement rather than an excluded delivery-stage clause, and keeps the file-deliverable half of the verification line in coverage while silently dropping the test-run half. To keep this stable, preserve the explicit distinction that a spec instruction to edit a CI file is a file deliverable (not a stage proof), and that the file clause on a leg verification line stays a requirement with the spec as its origin even when the prompt repeats it; the differences between the outputs (wider line ranges, slightly more specific remediation text) are cosmetic.",
+      "wallMs": 4540,
       "verdict": "unchanged"
     }
   },
-  "repoSha": "007dd146fd531bbde883e8912904c3a4bf53bdaf"
+  "repoSha": "1289b2135789d49b9a550da647b1a54a4905e8ad"
 }

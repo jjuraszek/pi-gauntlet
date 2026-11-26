@@ -1,3 +1,5 @@
+bundle+: skills/shape-ticket/reference/ac-classes.md
+
 Audit this change against the complete spec and verbatim prompt below. A pull request exists and is open; its title is "Clean up", its body is empty, and it has no reviews. No CI, merge or full-suite result is supplied. No tools are available. The diff, tracked-file list, numbered current file and local check output are the complete delivered evidence.
 
 ## Verbatim original prompt
@@ -24,7 +26,7 @@ The pull request is approved by a reviewer.
 ## Acceptance criteria
 - [ ] `git ls-files legacy/` returns nothing, and the PR description lists every file the folder held.
   in-scope
-- [ ] `node --test test/no-legacy.test.mjs` passes over the full tracked tree, in its venue: the `slow` job on the PR head.
+- [ ] `test/no-legacy.test.mjs` rejects tracked paths starting with `legacy/` on the full tracked tree, and the `slow` job passes on the PR head.
   in-scope
 
 ## Errors and edge cases

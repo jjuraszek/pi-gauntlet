@@ -531,8 +531,7 @@ test('report.md renders three unlabeled parts and delegates the recommendation',
   assert.match(report, /Only with `--rebase`, explain the sync outcome, including resolved files on success and the actual reason on a skip, decline or failure/);
   assert.match(report, /Translate the digest's status into prose; keep its exact value in the evidence record/);
   assert.match(report, /Do not invent a sync result on loop re-entry/);
-  assert.match(report, /covered and deferred behavior, its references, deliberate deviations and their reasons, behavior handled elsewhere and its repositories, and observations checked after merge/);
-  assert.match(report, /Count a covered mechanism as covered even when its observation waits/);
+  assert.match(report, /covered and deferred behavior, its references, deliberate deviations and their reasons, and behavior handled elsewhere and its repositories/);
   assert.match(report, /Explain replyable PR comments and the drafted reply's meaning/);
   assert.doesNotMatch(report, /```|captured tail|^Verdict:|^Delivers:|^Evidence:/m);
   assert.match(findings, /Compose a posted review body at post time from the blockers being addressed through \.\.\/SKILL\.md `## Wording rules`/);

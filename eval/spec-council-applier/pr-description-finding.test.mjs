@@ -63,6 +63,7 @@ test("council edits restore ticket rows to their sections without adding deploym
     assert.deepEqual(criteria.match(/^- \[ \] .+$/gm)?.sort(), [
       "- [ ] the importer rejects a row without an id", "- [ ] the status report lists the rejected row's line number",
     ]);
+    assert.match(criteria, /^- \[ \] the status report lists the rejected row's line number\n +in-scope$/m);
     const entries = spec.match(/^## Integration\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1];
     assert.match(entries, /^- the cutover steps are posted as a comment on the ticket\n +ticket row, not an acceptance criterion: tracker update$/m);
     assert.match(entries, /^- Before merging, a repository admin creates the DEPLOY_TOKEN secret\.$/m);

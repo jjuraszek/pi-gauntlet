@@ -1,6 +1,7 @@
-for: aa463f94cd7a0a80fa1d97d8cac56c122bf0661a505800f0c050c772ea02f2c5
+for: 10ff9e3c41e88f0da44627885819a821802f2b52d6c860ba2a991f76f5a50799
 
 ## Change
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality.
 
 Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
 

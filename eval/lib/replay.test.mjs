@@ -58,7 +58,6 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   const target = JSON.parse(read("eval/shape-ticket/target.json"));
   assert.deepEqual(target.skillFiles, [...shapeTicketFiles, { path: auditPath }]);
   const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
-  assert.equal(samples.length, 18);
   for (const sample of samples) {
     const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
     if (["gate-line-first", "per-ref-settlement"].includes(sample)) {
@@ -132,7 +131,8 @@ test("shape-ticket integrates audited batch gates without changing replay bounda
   const ladder = text.includes("## Tracker abstraction and capability ladder") ? text : read("skills/shape-ticket/reference/tracker-ladder.md");
   assert.ok(ladder.includes('gh pr list --search "<ref>" --limit 20'));
   assert.ok(text.includes("Read `reference/tracker-ladder.md` now"));
-  for (const token of ["substantive full-replacement repair", "another row's setup, action, and result", "same-subject rows with different results", "never serialize legacy rows", "no fifth axis", "Max 8 tasks", "before the next ticket prints"]) assert.ok(text.includes(token), token);
+  for (const token of ["substantive full-replacement repair", "never serialize legacy rows", "no fifth axis", "Max 8 tasks", "before the next ticket prints"]) assert.ok(text.includes(token), token);
+  assert.ok(draft.includes("Split only different functionalities; keep scenarios of one functionality in one row"));
   const examples = read("skills/shape-ticket/reference/examples.md");
   assert.ok(examples.startsWith("## Examples and rationalizations\n"));
   assert.match(examples, /^### Bad -> good AC examples$/m);

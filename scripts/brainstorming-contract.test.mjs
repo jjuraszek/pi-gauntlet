@@ -139,7 +139,8 @@ test('drafted requirements are protected in each actual critique task and the ap
   assert.ok(worker, 'actual worker dispatch task');
   tasks.push(worker[1]);
   for (const task of tasks) {
-    for (const marker of ['Drafted rows are spec requirements', 'integrity', 'Design commitment', "user's scope-decision procedure", 'quoting the row alone', 'never replace the section with `none`', 'Never draft new rows']) assert.ok(task.includes(marker), marker);
+    assert.match(task, /Drafted rows are spec requirements|Treat drafted rows as spec requirements/);
+    for (const marker of ['integrity', 'Design commitment', "user's scope-decision procedure", 'quoting the row alone', 'never replace the section with `none`', 'Never draft new rows']) assert.ok(task.includes(marker), marker);
   }
   for (const marker of ['pre-approval rewrites only for integrity', 'Delete a drafted row only after its Design commitment is cut', 'Preserve every committed outcome', 'clarification', 'never invent']) assert.ok(worker[1].includes(marker), `worker: ${marker}`);
 });
@@ -1152,12 +1153,13 @@ test('scope grammar pins original AC ownership independently of design and dispo
   assert.equal(template.match(/^scope:/gm)?.length, 1);
   assert.match(template, /^scope: AC 1, AC 3$/m);
   for (const clause of [
-    'exactly one `scope:` line', 'one-based original AC indices, including cut rows',
+    'exactly one `scope:` line', 'one-based indices of checkbox',
+    'Include cut rows and exclude `## Integration` entries.',
     'Repeat shared indices in each owning leg', 'unlisted across all legs default home',
     'all legs say `scope: none`', 'Never infer ownership from `design:` prose or paths',
     'Before committing home or companion artifacts, validate',
     'missing or duplicate scope lines', 'duplicate indices within one leg',
-    'nonexistent original indices', 'same index in different legs is valid',
+    'nonexistent indices', 'same index in different legs is valid',
     'scope: AC 0', 'scope: AC 1.5', 'scope: AC 1-3', 'scope: 1',
     'scope: AC 1,', 'scope: none, AC 1', 'scope: AC 1, AC 1',
     'design: implements AC 2',

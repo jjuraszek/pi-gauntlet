@@ -1,4 +1,4 @@
 - f1: judged: The drafted Acceptance Criteria omit the row The PR description lists every deleted test file and add no equivalent PR-description proof row.
-- f2: judged: The fenced Proposed Reporter note retains The PR description lists every deleted test file verbatim under retired workflow-stage proof:.
+- f2: judged: The fenced Proposed Reporter note retains the original row The PR description lists every deleted test file verbatim.
 - f3: judged: The drafted Acceptance Criteria preserve this row byte-identically: `- [ ] The release script writes the changelog section into the pull request body`.
 - f4: judged: The drafted Acceptance Criteria preserve this row byte-identically: `- [ ] The retired parser's test directory is empty after its obsolete tests are removed`.

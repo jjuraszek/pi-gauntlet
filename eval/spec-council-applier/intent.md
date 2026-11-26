@@ -1,4 +1,4 @@
-for: 9f17000509d054c5ea27f8e5ac3c4424a799a26b913fcbe465946ea40d45c1d9
+for: 6f18ebc26d74cbe1e37c1dde7863bad80ceb7c7f1c827a7d701decc3c9b36ec5
 
 ## Change
 For grounded-hypothesis-over-spec, judge corrected default, unresolved artifact question, wrapper/dependent removals, and protected grant from the resulting spec tree; judge audit syntax, citation, cut counts, dispositions, and coverage only from the reserved council-audit.md artifact. Other fixture inputs remain unchanged. The audit contract stays unchanged; output capture alone receives a fixture write-scope exception. Supplied search evidence tests routing, not actual shell-probe enforcement. No behavior movement is expected for that sample.

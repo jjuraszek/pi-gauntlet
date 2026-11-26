@@ -1,8 +1,8 @@
 {
   "sample": "mixed-row",
   "arm": "baseline",
-  "skillSha": "ad8feb5bc153b5e094b26bb88ce0243bcd052405ab2ea222b93640591ea2a3d7",
-  "inputSha": "39eb589f107fe16dd53e2acfef6a93a33ba8c9809c9013b57a481f92fe52ab33",
+  "skillSha": "8957672fbd11faf4528247fb5da4352821e45106a51e43dc26a8b00072632e17",
+  "inputSha": "685a7957775eebc426354008770d8b02ef8b9fc6fb90e52f5292432f35d45172",
   "kind": "text",
   "assembly": "headed",
   "thinking": "medium",
@@ -17,22 +17,22 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high (the diff, the full tracked-file list and the supplied local check output all confirm every requirement)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Delete every tracked file under `legacy/`. — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: the diff deletes `legacy/old.mjs:1` (`deleted file mode 100644`); `git ls-files` lists only `README.md`, `package.json` and `test/no-legacy.test.mjs`. Supplied output: `$ git ls-files legacy/` printed nothing.\n  - [DELIVERED]    R2: Add `test/no-legacy.test.mjs`, which checks the full tracked file list for paths under `legacy/`. — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: `test/no-legacy.test.mjs:6` reads `git ls-files -z` with no path exclusions; `test/no-legacy.test.mjs:7` asserts that no path starts with `legacy/`.\n  - [DELIVERED]    R3: `git ls-files legacy/` returns nothing. — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing, [...]\" — evidence: supplied output `$ git ls-files legacy/` with an empty result; `legacy/old.mjs:1` is deleted in the diff.\n  - [DELIVERED]    R4: `node --test test/no-legacy.test.mjs` passes over the full tracked tree. — origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree, [...]\" — evidence: `test/no-legacy.test.mjs:5-8`. Supplied output: `ok 1 - no tracked legacy files` / `# tests 1` / `# pass 1` / `# fail 0`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none. The prompt asks to \"Remove the tracked legacy directory\" and to \"add a test that checks the full tracked file list for legacy files\", and the spec states both as R1 and R2.\n\nParallel-safe: none\n",
-      "words": 226,
-      "wallMs": 15355,
+      "text": "```\nConformance verdict: CONFORMS\nConfidence: high   (one-file deletion plus one new 8-line test; tracked tree and local check output supplied)\n\nRequirement coverage:\n  - [DELIVERED]    R1: Remove the tracked legacy directory and prevent tracked legacy files from returning — origin: spec \"Goal\" - \"Remove the tracked legacy directory and prevent tracked legacy files from returning.\" — evidence: diff deletes legacy/old.mjs (`deleted file mode 100644`); supplied `git ls-files` lists only README.md, package.json, test/no-legacy.test.mjs; regression guard at test/no-legacy.test.mjs:5-8\n  - [DELIVERED]    R2: Delete every tracked file under `legacy/` — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: diff `legacy/old.mjs` → /dev/null (the only tracked file under legacy/); local check `$ git ls-files legacy/` returned no output\n  - [DELIVERED]    R3: Add `test/no-legacy.test.mjs` checking the full tracked file list for paths under `legacy/` — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:6 (`git ls-files -z` with no pathspec = full tracked tree), test/no-legacy.test.mjs:7 (filters `startsWith(\"legacy/\")`, asserts empty); file is new in diff and appears in tracked tree\n  - [DELIVERED]    R4: `git ls-files legacy/` returns nothing — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing[...]\" — evidence: supplied check output `$ git ls-files legacy/` (empty); diff deletion of legacy/old.mjs\n  - [DELIVERED]    R5: The test rejects tracked paths starting with `legacy/` on the full tracked tree — origin: spec \"Acceptance criteria\" - \"`test/no-legacy.test.mjs` rejects tracked paths starting with `legacy/` on the full tracked tree[...]\" — evidence: test/no-legacy.test.mjs:6-7; supplied output `ok 1 - no tracked legacy files`, `# pass 1`, `# fail 0`\n\nOrigin drift (spec vs prompt/ticket):\n  none\n\nParallel-safe: none\n```\n",
+      "words": 242,
+      "wallMs": 18894,
       "mechanical": {
         "f3": "holds"
       }
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Remove every tracked legacy file — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: legacy/old.mjs:1 (deleted in diff); supplied complete tracked-file list contains no `legacy/` paths.\n  - [DELIVERED] R2: Prevent tracked legacy files from returning through a full-tree test — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:5–7 invokes unrestricted `git ls-files -z` and asserts that no tracked path starts with `legacy/`.\n  - [DELIVERED] R3: No legacy files remain tracked — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing, [...]\" — evidence: legacy/old.mjs:1 (deleted in diff); supplied complete tracked-file list and local check output confirm no matching paths.\n  - [DELIVERED] R4: The targeted test passes over the full tracked tree — origin: spec \"Acceptance criteria\" - \"`node --test test/no-legacy.test.mjs` passes over the full tracked tree, [...]\" — evidence: test/no-legacy.test.mjs:6–7; supplied local output reports `ok 1 - no tracked legacy files`, `# pass 1`, and `# fail 0`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
-      "words": 162,
-      "wallMs": 13450,
+      "text": "Conformance verdict: CONFORMS\nConfidence: high\n\nRequirement coverage:\n  - [DELIVERED] R1: Delete every tracked legacy file — origin: spec \"Design\" - \"Delete every tracked file under `legacy/`.\" — evidence: legacy/old.mjs:1 (deleted); supplied complete tracked-file list contains no `legacy/` paths.\n  - [DELIVERED] R2: Add a regression test scanning the full tracked file list — origin: spec \"Design\" - \"Add `test/no-legacy.test.mjs` to check the full tracked file list for paths under `legacy/`.\" — evidence: test/no-legacy.test.mjs:5–7; `git ls-files -z` has no path exclusions, and the assertion rejects every matching prefix.\n  - [DELIVERED] R3: No legacy files remain tracked — origin: spec \"Acceptance criteria\" - \"`git ls-files legacy/` returns nothing [...]\" — evidence: legacy/old.mjs:1 (deleted); supplied local output shows `$ git ls-files legacy/` followed immediately by the next command, with no paths returned.\n  - [DELIVERED] R4: The test rejects tracked legacy paths across the full tree — origin: spec \"Acceptance criteria\" - \"`test/no-legacy.test.mjs` rejects tracked paths starting with `legacy/` on the full tracked tree [...]\" — evidence: test/no-legacy.test.mjs:6–7. Supplied local test output confirms `ok 1 - no tracked legacy files`, `# pass 1`, and `# fail 0`.\n\nOrigin drift (spec vs prompt/ticket):\n  - none\n\nParallel-safe: none\n",
+      "words": 168,
+      "wallMs": 13438,
       "mechanical": {
         "f3": "holds"
       }
     }
   },
-  "repoSha": "43b5c7b1a38cbb773808bc23fecac5694582da0a"
+  "repoSha": "1289b2135789d49b9a550da647b1a54a4905e8ad"
 }

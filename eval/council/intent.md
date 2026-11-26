@@ -1,4 +1,4 @@
-for: 4b2e4a4947d290997f99abd2a2def90ca7fa25c0056e2058c333d3608f15afe4
+for: a41defc20b029291516f06507d103996ade7019b95648b3414bcefd8e615adde
 
 ## Change
 Preserve review and approval gates while finalization adds the Legs section and companion-file contract.
