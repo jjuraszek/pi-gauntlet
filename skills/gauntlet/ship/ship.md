@@ -293,14 +293,14 @@ On `1`, re-fetch state/head immediately before each `gh pr close <N> --comment "
 Rows 2-6, withheld/failed ancestry, withheld/rejected push, and failed body fetch/edit never offer closure; name untouched members with `Member PRs #13, #14 left open.` Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above.
 #### Option 1: Push and Create PR
 
-Read [commit-message.md](../commit-message.md) for the Landed message subject and resolve its ticket rule. Set `LANDED_SUBJECT` to that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
+Read [commit-message.md](../commit-message.md) for the Landed message subject and resolve its ticket rule. Use that subject for the PR title; keep the PR body's project style. Run its Squash-default note read once for Options 1-2, printing only the prescribed outcome. Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then:
 
 ```bash
 # Push branch
 git -C "$WORKTREE" push -u origin "$FEATURE"
 ```
 
-Resolve `SCRATCH` for `$WORKTREE` through [scratch folder](../return-file.md#scratch-folder) and run `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the file writer to write this Markdown to the absolute path it prints. In the create call, substitute the same printed path as one shell-quoted argument for `<scratch-file>`: `(cd "$WORKTREE" && gh pr create --title "$LANDED_SUBJECT" --body-file <scratch-file>)`.
+Resolve `SCRATCH` for the observed worktree through [scratch folder](../return-file.md#scratch-folder) in the call that runs `mktemp "$SCRATCH/pr-body.XXXXXX"`. Use the file writer to write the Markdown below to the printed absolute path and the one-line landed subject to that path with `.title` appended. In the separate create call, substitute the observed worktree and printed body path as shell-quoted literals: `(cd <worktree> && LANDED_SUBJECT=$(cat <scratch-file>.title) && gh pr create --title "$LANDED_SUBJECT" --body-file <scratch-file>)`.
 
 ```markdown
 ## Summary
@@ -330,7 +330,7 @@ When the spec's `## Acceptance criteria` has `deferred:` or `elsewhere:` rows, a
 
 #### Option 2: Push and Create Draft PR
 
-Run the strip-and-seal block above first (plan stripped, telemetry record sealed), then Option 1's push and `gh pr create` commands with `--draft` added. The PR body is unchanged. Do not clean up the worktree.
+Follow Option 1, adding `--draft` only to `gh pr create`. The PR body is unchanged. Do not clean up the worktree.
 
 #### Option 3: Squash-merge to base
 
