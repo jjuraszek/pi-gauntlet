@@ -1,6 +1,8 @@
-for: 9792f40c5e710241c5f6af7b1370c1f9dc686de0ba6e475d6bd67a0c422839f9
+for: fe8ab5d3633579fb62f48545a418b76c7055fa570612db93b67e74caf30e7b97
 
 ## Change
+
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows, and give Integration entries no outcome or blocker.
 
 Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
 
@@ -14,6 +16,8 @@ Render the single post menu after approve or merge, execute the validated select
 
 ## Expected to move
 
+- cross-check-all-rows-moved/matched: fails -> holds - Marked Integration entries account for both ticket rows; design-drafted acceptance rows do not create drift.
+- cross-check-all-rows-moved/no-drift: fails -> holds - Neither original ticket row is missing or changed.
 - integration-names-spec-path/contract: fails -> holds - The PR names the assessed contract outside Integration.
 - integration-names-spec-path/no-blocker-or-stop: fails -> holds - An absent spec named only within Integration cannot trigger the missing-contract blocker or a selection stop.
 - integration-not-judged/cross-check: fails -> holds - Account for the moved tracker update; report only the drifted line-number row.
@@ -31,7 +35,7 @@ The cleanup owner requires each unrun cleanup sub-step's command in the closing 
 
 ## Conformance repair coverage
 
-cleanup-merged-at-step-1 and cleanup-no-section are edited only in case.md to start from the one post menu and select actual numbered member rows. Their expected.md files are unchanged. Both samples are edited, not rerun, under D8 and Tests; their saved results and report remain earlier evidence, not validation of these corrected premises. No scope sample runs in this round. Coverage remains sample-scoped, not a target-wide pass.
+cleanup-merged-at-step-1 and cleanup-no-section are edited only in case.md to start from the one post menu and select actual numbered member rows. Their expected.md files are unchanged. Both samples are edited, not rerun, under D8 and Tests; their saved results and report remain earlier evidence, not validation of these corrected premises. No scope sample ran in that earlier repair round. Coverage remains sample-scoped, not a target-wide pass.
 
 ## Validation boundary
 

@@ -1,0 +1,3 @@
+- matched: judged: Under show evidence the ticket cross-check reads matched even though both spec acceptance rows were drafted from the design.
+- no-drift: judged: Neither original ticket row is reported missing or drifted.
+- entries: judged: Neither Integration entry gets a coverage outcome or raises a blocker.

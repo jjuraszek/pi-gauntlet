@@ -1,6 +1,8 @@
-for: e79b74cfe324e8bf6862879d634dbdb5923cfc76d856f7bb351d2d46623ff502
+for: 2099f36cb63122afd71e9e395178bbf2bb68072f9ddcaf4e587c54ce49f4d4ca
 
 ## Change
+
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows; neither result changes the judgment.
 
 Report functionality-only coverage in plain-report, both in the opening and in the evidence mapping. Omit external observations and do not assign them an outcome. A spec path named inside the PR body's Integration block is not a contract candidate for the merge gate.
 

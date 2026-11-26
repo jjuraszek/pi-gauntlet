@@ -1,0 +1,90 @@
+{
+  "sample": "cross-check-all-rows-moved",
+  "arm": "candidate",
+  "skillSha": "fe8ab5d3633579fb62f48545a418b76c7055fa570612db93b67e74caf30e7b97",
+  "inputSha": "72f782a07174f7386f17073f7712ff2f64144b3f78188fe244f16bc8a58f642d",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the app refuse to save a blank label and answer with the message \"Label is required.\" You are the author, and the change covers both behaviors its spec asks for: a blank label is refused before anything is saved, and the refusal returns that message.\n\nNothing blocks merging. The CI test check passed on the commit being reviewed and exercises the new test for a blank label. The description's claim matches the code. The ticket's two remaining items are a label count comparison after the staging deploy and a rollout-date comment on the ticket. Both happen after merge, so this gate does not judge them. Approve is not offered because you cannot approve your own PR.\n\nI recommend merge because both requirements are covered and the checks passed on this commit.\n\nPick one:\n1. merge - squash-merge the PR into its base branch with a commit message composed from the spec. [recommended]\n2. stop - leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n\n---\n\nshow evidence\n\nstate: path not supplied in this fixture\ncourse: not set\ntarget: sample/labels#12, base branch as gathered\nscope baseline: source spec, doc/specs/blank-labels.md at the assessed head; rows 1-2 in-scope; design \"Reject a blank label before saving and return `Label is required`.\"\nrepair usage: rounds 0, syncs 0; caps not yet set; watch deadline none; no wave checkpoint; no failed prerequisites\nprior review: none\nsync: not requested (no --rebase)\nevidence source: ci\n- test: completed, success, assessed head, run URL unavailable in fixture\nclaim dispositions:\n- \"Reject blank labels before saving.\" - matched (src/labels.mjs rejects before save; test/labels.test.mjs asserts no save)\nAC outcomes:\n- row 1 \"A blank label is rejected before saving.\" - covered (src/labels.mjs; test/labels.test.mjs asserts no save)\n- row 2 \"Rejecting a blank label returns `Label is required`.\" - covered (src/labels.mjs; test/labels.test.mjs asserts the returned error)\n- Design clause \"Reject a blank label before saving and return `Label is required`.\" - covered\n- Integration entries (staging label count, rollout-date ticket comment) - no outcome; not requirements of this PR\ncross-check: matched - sample/labels#11 rows 1-2 match the spec's Integration entries word for word; no ticket row is missing or changed\ncheck dispositions: none\ndrafted payloads: none\ndrafted replies: none\nmerge policy: squash (default)\n\n---\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR makes the app refuse to save a blank label and answer with the message \"Label is required.\" You are the author, and the change covers both behaviors its spec asks for: a blank label is refused before anything is saved, and the refusal returns that message.\n\nNothing blocks merging. The CI test check passed on the commit being reviewed and exercises the new test for a blank label. The description's claim matches the code. The ticket's two remaining items are a label count comparison after the staging deploy and a rollout-date comment on the ticket. Both happen after merge, so this gate does not judge them. Approve is not offered because you cannot approve your own PR.\n\nI recommend merge because both requirements are covered and the checks passed on this commit.\n\nPick one:\n1. merge - squash-merge the PR into its base branch with a commit message composed from the spec. [recommended]\n2. stop - leave the PR open and the checkout as it is.\n\nType a number; show evidence prints the full record.\n",
+      "words": 550,
+      "wallMs": 28752,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR rejects blank labels before saving; you are its author. The spec covers both preventing the save and returning `Label is required`, and the test exercises both behaviors.\n\nNothing blocks merging: the test check passed in CI, and the code and test support the promised behavior. The ticket's staging-count observation and rollout-date comment are accounted for in the spec's Integration section, not treated as merge requirements; neither was performed by this gate. You cannot approve your own PR.\n\nI recommend merge because both promised behaviors are covered and no problems remain.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR open and keep the checkout as found.\n\nType a number; show evidence prints the full record.\n\nshow evidence\n\nNo external command runs for this selection.\n\n- State path: not supplied in the fixture.\n- Course: unset.\n- Target: sample/labels#12. The base branch was not supplied.\n- Scope: doc/specs/blank-labels.md at the commit being reviewed.\n- Repair attempts used: 0; cap not initialized.\n- Sync attempts used: 0; cap not initialized.\n- Watch deadline: none.\n- Repair checkpoint: none.\n- Prior review: not supplied.\n- Entry sync: none.\n- Verification: CI; the test check succeeded and exercised test/labels.test.mjs. The commit SHA and run URL were not supplied.\n- Local verification: no local run was reported.\n- Claims:\n  - Reject blank labels before saving: matched by src/labels.mjs and test/labels.test.mjs.\n  - The named spec exists: matched by the added doc/specs/blank-labels.md.\n- Per-row coverage:\n  - Row 1, `A blank label is rejected before saving.`: covered. The implementation rejects the blank label, and the test asserts that no save occurs.\n  - Row 2, `Rejecting a blank label returns `Label is required`.`: covered. The implementation returns that error, and the test asserts it.\n- Design: covered by the same implementation and test.\n- Cross-check: matched. Each fetched ticket row matches one Integration entry word for word; both occurrences are accounted for. Neither becomes an acceptance criterion or a blocker.\n- Staging label-count observation: not performed.\n- Rollout-date ticket comment: not posted.\n- Reviewer findings: none.\n- Approach conflicts: none.\n- Failing or pending checks: none reported.\n- GitHub merge status: CLEAN; mergeability: MERGEABLE.\n- Permissions: WRITE; own PR; head pushable.\n- Merge policy: squash, the skill default.\n- Drafted repairs, replies, and coverage posts: none supplied.\n- After-merge steps assigned to the merger: none.\n\nI recommend merge because both promised behaviors are covered and no problems remain.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. stop - leave the PR open and keep the checkout as found.\n\nType a number; show evidence prints the full record.\n",
+      "words": 407,
+      "wallMs": 21932,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "664e24881736b28e267bde3eee74c78b8325d9dc7d882eb536b19a93f8c2ef31",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2dd3adf9057b1e03a057b31deab6aecf741b9da63000d31c256fd90d3e54ee14",
+      "baselineOutputSha": "ae1aa2ac7bca3221e96f48b97aee0c69d8bcf355011988fed80f85a1feb2c553",
+      "candidateOutputSha": "485ab409eca017b4a63fc683918169c63a6d5ba69a8e5e551f4b32388d00563a",
+      "facts": {
+        "matched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-drift": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved both targeted facts: its show evidence cross-check line now reads \"matched\" and states that ticket rows 1-2 match the spec's Integration entries word for word with no row missing or changed, where Before reported \"differs on rows 1, 2\" and so implied drift on both ticket rows. The entries fact held in both: Before listed the two Integration items as not judged by the gate, and After gives them \"no outcome; not requirements of this PR\" and raises no blocker. To keep this stable, keep the rule that marked Integration entries count toward accounting for live ticket rows regardless of where the acceptance criteria were drafted from, keep `differs` reserved for a ticket row that is actually missing or reworded, and keep the explicit instruction that Integration entries get no coverage outcome and no blocker. One thing to watch: After's summary says the two ticket items \"happen after merge, so this gate does not judge them\"; that is fine here, but make sure the wording does not drift into assigning them a disposition such as deferred or pending, which would break the entries fact.",
+      "wallMs": 5838,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "664e24881736b28e267bde3eee74c78b8325d9dc7d882eb536b19a93f8c2ef31",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "2dd3adf9057b1e03a057b31deab6aecf741b9da63000d31c256fd90d3e54ee14",
+      "baselineOutputSha": "98cff225af9f7daa44fdbd65daab37e02ae076dcd8fd24ee0683e70e1ef1248b",
+      "candidateOutputSha": "f694e9ccd752d17ed4dec8bf3e644a2709d1197f79639620e76262a6ef02139c",
+      "facts": {
+        "matched": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-drift": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "entries": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved `matched` and `no-drift` as intended: the cross-check line now reads \"matched\" and explains that each fetched ticket row matches one Integration entry word for word, where Before reported \"differs on rows 1, 2\" because the acceptance rows were drafted from the design. `entries` holds in both: After gives the two Integration entries no covered/uncovered outcome and says neither becomes an acceptance criterion or a blocker. The one risk is the standalone bullets \"Staging label-count observation: not performed\" and \"Rollout-date ticket comment: not posted\", which sit right after the cross-check and per-row coverage in a flat list and could be read as per-entry outcomes. Before kept the same statements under a Verification heading, where they read as plain facts about what was run. To keep `entries` safe while still delivering the Change, tell the skill to report unperformed Integration observations only as verification facts (grouped with the verification lines, or in one sentence such as \"this gate ran no Integration entry\"), and never as per-entry status lines next to coverage. Keep the explicit \"no outcome, no blocker\" sentence and the word-for-word accounting explanation that makes `matched` unambiguous.",
+      "wallMs": 9098,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+}

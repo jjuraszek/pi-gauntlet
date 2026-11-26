@@ -1,10 +1,12 @@
 # eval report: gatekeep-pr-scope (partial run: integration-names-spec-path)
 
-for: 9792f40c5e710241c5f6af7b1370c1f9dc686de0ba6e475d6bd67a0c422839f9
+for: fe8ab5d3633579fb62f48545a418b76c7055fa570612db93b67e74caf30e7b97
 
-wall: 11s
+wall: 18s
 
 ## Change
+
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows, and give Integration entries no outcome or blocker.
 
 Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
 
@@ -20,12 +22,12 @@ Render the single post menu after approve or merge, execute the validated select
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| integration-names-spec-path | anthropic/claude-opus-5-5 | unchanged | 3793 | contract: holds -> holds (intended but unchanged); no-blocker-or-stop: holds -> holds (intended but unchanged) |
-| integration-names-spec-path | github-copilot/gpt-6.1-sol | improved | 4233 | contract: fails -> holds (intended change); no-blocker-or-stop: fails -> holds (intended change) |
+| integration-names-spec-path | anthropic/claude-opus-5-5 | improved | 4898 | contract: fails -> holds (intended change); no-blocker-or-stop: fails -> holds (intended change) |
+| integration-names-spec-path | github-copilot/gpt-6.1-sol | improved | 5238 | contract: fails -> holds (intended change); no-blocker-or-stop: fails -> holds (intended change) |
 
 ## Feedback
 
-- integration-names-spec-path / anthropic/claude-opus-5-5: Neither fact moved between the two outputs: both Before and After select `doc/specs/import-validation.md` at the head as the contract, treat the Integration-nested `doc/specs/staging-import-totals.md` as a non-candidate, and report no blocker, stop, or request to choose a spec. This means the expected fails -> holds movement is not visible in this pair, since Before already satisfied both facts. After's wording states the exclusion more directly (the Integration block, including its nested Reference line, is excluded from contract-path selection; the path's absence creates no blocker; the two-candidate stop does not apply), which delivers the Change; keep those explicit statements, and keep the explicit 'None' under blockers or stops so the no-blocker fact stays unambiguous.
-- integration-names-spec-path / github-copilot/gpt-6.1-sol: Both facts moved as intended and neither was held by Before, so nothing regressed. Before selected the first spec-directory path in the PR body (`doc/specs/staging-import-totals.md` under Integration) and raised a blocker for its absence at the assessed head; After selects `doc/specs/import-validation.md` from the Contract section, fills in the row and design from the head spec, and states explicitly that the Integration-nested reference is excluded from selection and its missing file does not block. The wording that excludes spec paths inside the PR body's Integration block from contract selection is what moved both facts; keep that exclusion phrased so it covers nested lines under Integration entries (as here) and keep the explicit statement that an absent Integration-only path raises neither a blocker nor a selection stop, so the output continues to say so plainly rather than leaving it implied.
+- integration-names-spec-path / anthropic/claude-opus-5-5: Both facts moved as intended. Before treated the Integration-nested path `doc/specs/staging-import-totals.md` as a second contract candidate, so it stopped to ask the human to choose between two specs, left the scope source unresolved, and held open a conditional blocker for the missing file; After excludes the path inside the Integration block from contract selection, selects `doc/specs/import-validation.md` from the Contract section with its row and design populated, and states explicitly that selection produced no blockers, no stops and no spec-choice question. Before held neither fact, so there is nothing to preserve from it here; to keep After's result stable, keep the wording that spec paths inside the PR body's Integration block (including nested Reference lines) are never contract candidates and that their absence at head neither mints a blocker nor triggers a selection stop, and keep the missing-contract blocker tied only to paths named outside Integration.
+- integration-names-spec-path / github-copilot/gpt-6.1-sol: Both facts moved from fails to holds as intended. In Before, the output selected `doc/specs/staging-import-totals.md` (the path nested in the Integration block) as the contract, explicitly stated that the first spec-directory path governs selection even inside Integration, and raised a blocker for its absence at the assessed head. In After, the wording that restricts contract selection to spec paths outside the PR body's Integration block led the output to select `doc/specs/import-validation.md`, populate its acceptance row and design from the head spec, and state explicitly that the absent staging reference creates no selection blocker and that no blockers or stops arise. No fact that Before held was lost, since Before held neither. To keep this stable, retain the explicit statement that Integration-nested paths neither select a contract nor trigger the missing-contract blocker, and keep the exclusion phrased as applying to any line under the Integration heading (including nested Reference lines) so that the 'first spec path named in the body' rule cannot be read as overriding it; the `cross_check: not run: no reference found` result is consistent with no ticket reference being found and need not change.
 
 exit: 0
