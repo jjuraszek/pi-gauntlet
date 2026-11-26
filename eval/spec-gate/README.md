@@ -8,7 +8,7 @@ This target tests the user review gate's verbatim briefing, council counts, appr
 
 | Sample | Must hold |
 |---|---|
-| scope-cuts-listed | The Scope cuts line lists only deferred and venue rows, between the committed-to and Council lines. |
+| scope-cuts-listed | Scope cuts lists only deferred and deviating rows. The next line names each marked Integration row once with its kind; moving a row prompts no question. |
 | scope-cuts-none | The briefing renders `Scope cuts: none`. |
 
 Process, commands, and record schema: eval/README.md.

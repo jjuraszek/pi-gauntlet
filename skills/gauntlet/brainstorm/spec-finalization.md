@@ -149,7 +149,9 @@ Before the summary `Read` below, resolve `gauntlet_setting({ key: "loopEngine" }
 
 Either way - summary rendered or degraded - then `rm "$SUMMARY_PATH"` (unconditional cleanup of this checkout's scratch file).
 
-Follow the [first-line rule](../menu-layout.md). Paste the summary verbatim, unedited in the template below; use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry; render the `Scope cuts:` line yourself from the spec's `## Acceptance criteria` section - every `deferred:`, `deviates:`, and `venue:` row, `none` when there is none - never from the summary; the audit itself is shown only on row 3:
+Follow the [first-line rule](../menu-layout.md). Paste the summary verbatim. Use adjacent lines for the `Council:` counts, unresolved ambiguities, and every `Missing from the spec` entry. Show the audit only on row 3.
+
+Render `Scope cuts:` from the committed spec's `## Acceptance criteria`: list every `deferred:` and `deviates:` row, or `none`. Directly below it, render `Not acceptance criteria:` from `## Integration`: for each `ticket row, not an acceptance criterion: <kind>` marker, list its parent row once with that kind, without asking about the move. Omit the line when there are no markers.
 
 Choose exactly one rendered row from 1, 2, or 4 as the recommendation. Append `[recommended]` at the end of that row's sentence, never to a flag line or row 3. Set `<recommended-row>` in the first-line marker and the `Recommended:` line to that same number; give a concrete reason after the dash.
 
@@ -165,6 +167,7 @@ gauntlet: gate=brainstorm/user-review-gate recommended=<recommended-row>
 
 Spec written and committed to <project>/doc/specs/<filename>.md (worktree: <path>).
 Scope cuts: <row text, first 60 chars> - <disposition>; ... | none
+Not acceptance criteria: <row text, first 60 chars> - <kind>; ...
 
 Drafted acceptance criteria (approval ratifies):
 - [ ] <row text verbatim>

@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
-returned: 20 | home | 1c6cfb9d6c71d86b854043064e93e4b080e5aa83
+returned: 21 | home | a8156106b4ea198b0508fb3a5fdaf940591f7bdf
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -29,7 +29,7 @@ returned: 20 | home | 1c6cfb9d6c71d86b854043064e93e4b080e5aa83
 | 18 | cut | 0 | deviates: the row moves to `Integration` like every tracker update; the gate carries no sentence about comments |
 | 19 | cut | 0 | deviates: no sample-data requirement and no not-ready filing for it |
 | 20 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays kept the file requirements and moved seven external rows to Integration without asking; all six facts held |
-| 21 | open | 0 | |
+| 21 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs spec-gate scope-cuts-listed; 2 passed; both gate replays listed the four moved rows once with their kinds and asked no placement question; both cached workflow-stage-ticket-row replays passed |
 | 22 | open | 0 | |
 | 23 | cut | 0 | deviates: the ticket row stays word for word as the in-scope row with no environment tag and is proved by a check in the checkout; the row is also copied to `Integration` as a live check |
 | 24 | cut | 0 | deviates: brainstorming asks no data question |
@@ -78,3 +78,4 @@ row 14 done | Both merge-menu replays offered the release tag from Integration a
 row 20 done | Both spec-writing replays moved operational rows to Integration and kept the whole mixed row as a criterion, copying only its staging clause. | Reuse the workflow-stage-ticket-row fixture and its six cached facts to check extraction from an unrepaired ticket.
 row 27 done | Both spec-writing replays kept the ticket's queue-drain entry and its nested instruction word for word. | nothing new to build on
 row 38 done | Of the six Integration entries, both replays offered only tagging, ran it once when selected, and ran no post step when the merger chose stop. | nothing new to build on
+row 21 done | The approval gate lists each moved ticket row once with its kind, separate from scope cuts, without asking about the move. | Reuse the scope-cuts-listed fixture to check that the gate lists marked Integration entries and omits unmarked ones.
