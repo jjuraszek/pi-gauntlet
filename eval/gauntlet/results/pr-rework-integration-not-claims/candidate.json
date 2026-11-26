@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
       "baselineOutputSha": "fc1813026174aa0216f055c9a5ce4ec6dcd85ff6afe4fa35a2c66f042df4214c",
       "candidateOutputSha": "e513b0ebeeb80289b20d7dee9e6ca69e89f22ab0f7ceebb41f48851e4d875c33",
       "facts": {
@@ -46,7 +46,7 @@
         "provenance-only": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
         },
         "no-question": {
           "before": "holds",
@@ -54,14 +54,14 @@
           "label": "held"
         }
       },
-      "feedback": "After moved provenance-only from fails to holds. Before listed the operator-card update and its nested shift-log line under `keeps:` and judged them (\"the diff cannot verify them\", \"the limit written on the operator card must be three\"), whereas After leaves the Integration block out of keeps, changes and dropped claims entirely. Both outputs state that the three-attempt claim is contradicted by the four attempts `attempt < 4` allows, and neither asks a question about the Integration block, so those two facts are unchanged. One point to tighten: After reports the contradiction only inside `changes:` (\"does not meet the stated claim\") and says `dropped claims: none` without explanation, so wording that tells the scout to name a contradicted body claim explicitly, even when a repair keeps it, would make that fact sturdier. After also drops the Integration block silently rather than carrying it; if the Change intends it to travel verbatim as provenance, say so explicitly: Integration entries are copied verbatim with nested lines intact into a separate provenance spot, never under keeps, changes or dropped claims, never checked against the diff, and never the subject of a question.",
-      "wallMs": 9101,
+      "feedback": "The provenance-only instruction moved the intended fact: Before listed the operator-card step and its nested shift-log line under keeps and judged them against the diff (\"the diff cannot verify them\", \"the limit written on the operator card must be three\"), while After leaves both lines out of keeps, changes, and dropped claims and raises no question about them. The contradicted-claim fact survives in After, but more weakly: After says the diff \"does not meet the stated claim or the base rule\" and shows that `attempt < 4` yields four attempts, whereas Before explicitly said this \"contradicts the PR's stated limit\" and called the claim false against the diff. To keep that fact robust, add wording that the provenance-only rule covers only the `## Integration` block and that every other PR-body claim must still be checked against the diff and, when the diff disagrees, be named explicitly as contradicted with the observed versus claimed value. Also note that After omits the Integration block entirely; if the scout is meant to carry it forward as provenance, say where it should appear verbatim (outside the claim dispositions, nested lines intact) so that omission is not read as dropping it.",
+      "wallMs": 5467,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "64d53b431c8f8cf44d7b76dc3f41ce0f147dafc48225d36664e63ddcfc435205",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "1002037cb2949ab4123a3b1b2e908561facbd895e6ff0f40a0043a662fa358a9",
+      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
       "baselineOutputSha": "0d9d08aef9aac2d5ace7695fbb9283ef90d3710be6bd875916632e5a35c8fa72",
       "candidateOutputSha": "75c42a1c5091793b6f8059f463df3208f339a615d1551e051cfa072c754ee162",
       "facts": {
@@ -73,7 +73,7 @@
         "provenance-only": {
           "before": "fails",
           "after": "holds",
-          "label": "unplanned improvement"
+          "label": "intended change"
         },
         "no-question": {
           "before": "holds",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved provenance-only from fails to holds: Before rendered the operator-card update and its nested shift-log step under `keeps:` and judged them against the diff (\"Neither operational action is implemented by the supplied diff\"), whereas After leaves the Integration block out of keeps, changes, and dropped claims entirely and raises no question about it. Contradicted-claim holds in both, since each quotes the three-attempt claim under dropped claims and states the diff permits four attempts; After places the explicit \"four attempts\" in the `changes:` line and only says the diff \"does not yet satisfy this claim\" in the dropped-claims line, which is slightly weaker than Before's direct \"The supplied diff permits four attempts.\" To keep that fact robust, the wording should require the dropped-claim line itself to state the observed count from the diff next to the quoted claim. After also dropped Before's carried-specs, base-sync, and scoped-tests lines; if those are still wanted in the scout output, say so explicitly, while keeping the instruction that Integration entries are carried verbatim as provenance and never sorted into keeps, changes, or dropped claims or judged against the diff.",
-      "wallMs": 6033,
+      "feedback": "The provenance-only wording moved the intended fact: Before rendered the operator-card update and its nested shift-log step under keeps and judged them against the diff (\"Neither operational action is implemented by the supplied diff\"), while After leaves the Integration block out of keeps, changes, and dropped claims entirely and asks nothing about it. The contradicted-claim fact still holds in After because the changes line says the diff permits four attempts and the dropped-claims line says the diff does not satisfy the three-attempt claim, but the contradiction is now split across two lines; Before stated it directly in the dropped claim (\"The supplied diff permits four attempts\"). To keep that fact robust, have the wording require the dropped-claim entry itself to state the observed count against the claimed one. After also dropped the base-sync, scoped-tests and carried-specs lines that Before reported; no fact here keys on them, but if the scout output is meant to carry them, say that treating Integration as provenance only removes nothing else from the record. Consider stating whether the scout should carry the Integration block forward verbatim as provenance, since After omits it silently rather than noting it as carried.",
+      "wallMs": 5504,
       "verdict": "improved"
     }
   },
-  "repoSha": "51fcb979d05138cd8e6d4de44446b6aa5c6c990e"
+  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
 }
