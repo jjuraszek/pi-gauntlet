@@ -1,6 +1,8 @@
-for: ab67e05c73e809eb74281562655c037ab4a70315b54c9407e4a04bfb70db2ae0
+for: a090e019ad9bd2e5539d679572854018f538edd635b970bdee136868dfb5e9fd
 
 ## Change
+
+Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
 
 The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
 

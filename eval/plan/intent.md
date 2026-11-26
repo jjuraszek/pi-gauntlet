@@ -1,6 +1,8 @@
-for: 78c0807e9bda1851fed5087f5d934b76277862b13c9aacd9ef2a90384e4688fe
+for: 66520522b2d861d6a1e1778fbf2acd87719c2bdc406afbba760f4ff38b9d8ee0
 
 ## Change
+
+Select post-action-no-task to check that an unrecognized disposition neither removes the scanner requirement from the plan nor adds a sandbox task. The replay checks the writer's assignment, not just the coverage grammar.
 
 Partition planning by reader. Keep only the planning flow in SKILL.md and move the authoring rules into the complete plan contract. Send four paths, not a skill path, to the child. Load open-questions.md only on substantive questions or the second identical parent FAIL, and stop when that reference is unreadable. Preserve stamping, one finished-plan read and execution handoff.
 

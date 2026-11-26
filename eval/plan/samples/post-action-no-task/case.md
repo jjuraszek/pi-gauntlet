@@ -8,7 +8,7 @@ Observed state:
 - src/scan.mjs currently counts every line in records.txt, including blank lines. scripts/release.mjs currently writes only the release title into a pull-request body. CHANGELOG.md has a Release notes section that the script can read; no changelog edit is needed.
 - tests/scan.test.mjs and tests/release.test.mjs exist. Extend these tests for the specified behaviors. The commands node --test tests/scan.test.mjs and node --test tests/release.test.mjs each exit 0 at abc1234 with 2 passing tests, 0 failures, no artifacts and no working-tree or HEAD changes. The scan test reads local fixtures without using an external service.
 - Source inspection confirms these facts. Use the supplied measured baselines. The parent owns stamping and task initialization.
-- Use the plan header's --- separator before the first wave. Use the same exact anchors in the coverage table and the owning task's Spec line: Design L4 and Acceptance criteria L8-L9 for the scanner, Design L5 for the release script. Line numbers are citation aids, not file content.
+- Use the plan header's --- separator before the first wave. Use the same exact anchors in the coverage table and the owning task's Spec line: cite the requirement through its indented disposition line, when present. Line numbers are citation aids, not file content.
 
 Approved spec:
 ```text
@@ -20,7 +20,7 @@ Approved spec:
 6
 7 ## Acceptance criteria
 8 - [ ] The scanner reports `EMPTY` for an input with no records, after which the operator runs `release-audit --live` on staging.
-9   in-scope
+9   venue: import sandbox
 10
 11 ## Integration
 12 - before merge - requester: confirm the vendor shipped the fix; done when the vendor's release notes list it

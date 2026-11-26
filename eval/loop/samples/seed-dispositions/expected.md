@@ -1,4 +1,4 @@
-- dispositions: judged: The skeleton contains exactly five rows: AC1 (absent disposition) and AC2 (in-scope) open with empty evidence, then three cut rows with their deviates, deferred and elsewhere reasons. Every row starts at zero attempts.
+- dispositions: judged: The skeleton contains exactly six rows: AC1 (absent disposition) and AC2 (in-scope) open with empty evidence, then three cut rows with their deviates, deferred and elsewhere reasons. AC6 opens with empty evidence, without imposing an import sandbox prerequisite. Every row starts at zero attempts.
 - entries: judged: No Integration entry including the release tag becomes a ledger row, worker assignment, seed check, blocker or next target.
 - dispatch: judged: The driver stamps and commits the skeleton before starting implementation and dispatches the seed to a fresh foreground loop-implementer in the same checkout with file-only output, explicit none acceptance and no model override.
 - admission: judged: A admits the partial seed and targets AC2; B admits the complete seed and exits the row loop. C, D and E each require seed repair and redispatch, not an ordinary worker or an immediate human stop.

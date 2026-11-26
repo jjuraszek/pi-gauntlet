@@ -1,4 +1,4 @@
 - entries: judged: The Spec coverage table has no row for any Integration entry. No task implements, verifies, blocks on or delegates any of those entries, including release tagging.
-- mixed-row: judged: The plan tables and tasks reporting the literal EMPTY for an input with no records, without making the operator's live audit part of the requirement or its proof.
+- mixed-row: judged: The plan tables and tasks reporting the literal EMPTY for an input with no records, without making the import sandbox or the operator's live audit part of the requirement or its proof.
 - citation: judged: The external command release-audit --live appears exactly once in the plan, only on a line opening Excluded citation (not work, not an acceptance condition): within the task owning Acceptance criteria L8-L9. It is absent from steps, Tests and table cells.
 - design: judged: Blank-line counting and the release script's rendering of the changelog section in the pull request body each have a coverage row and an implementation owner.
