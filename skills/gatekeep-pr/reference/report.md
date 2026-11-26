@@ -47,6 +47,8 @@ Explain standing with true evidence: distinguish CI from local runs and never tu
 
 ## What stays out
 
+Omit `## Integration` entries and their statuses from the report, evidence, and menus, retaining only the informational `cross-check:` result and after-merge actions offered in the post-merge menu.
+
 Verbatim command output stays in its `log_path` file and never prints; `show evidence` prints its `show evidence: <log_path>` line instead. Keep full drafted file edits, description bodies and replies, matched claims, per-row AC outcomes, internal IDs and check classifications behind that command. The rejection note is the one drafted body printed outside `show evidence`, through `## Rejection note`. An author assertion the gate cannot verify is non-blocking uncertainty, not a fabricated finding.
 
 Under `show evidence`, print `state: <absolute-path>`, then the run record's course, immutable target, stored scope baseline, cumulative round/sync usage and caps, deadline, wave checkpoints and failed-prerequisite history. Follow with the prior-review and sync records, retaining their SHAs, and the evidence record (CI: each satisfying check's name, conclusion, SHA and run URL; local: each run's command, `result`, `exit_code` and `show evidence: <log_path>`); claim dispositions; AC outcomes and `cross-check:` from `assessment.md` `## Select the scope contract`; check dispositions; drafted payloads keyed by blocker or nit; drafted replies keyed by comment. Keep these records inspectable without copying them into the report.

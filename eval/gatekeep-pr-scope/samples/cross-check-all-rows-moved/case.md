@@ -1,4 +1,4 @@
-Start at the scope cross-check with the fetched ticket, selected spec, and fixed helper evidence below. Render the report through show evidence and stop at the re-rendered menu.
+Start at the scope cross-check with the fetched ticket, selected spec, and fixed helper evidence below. For A, render the report through show evidence and stop at the re-rendered menu. Then answer B independently.
 
 ## PR
 sample/labels#12 "Reject blank labels" (you own the PR; viewer_permission WRITE; state OPEN; not draft; head_pushable true; mergeable MERGEABLE; merge_state_status CLEAN).
@@ -42,3 +42,6 @@ No independent code-quality finding. Approach conflicts: none.
 
 ## Pick
 show evidence (include the cross-check and per-row coverage, then re-render the menu).
+
+## After the gate
+B: Use the same input but remove the rollout-date entry and its marker from the spec's Integration section. Keep the ticket and the design-drafted acceptance rows unchanged. Print only B's show evidence cross-check line.

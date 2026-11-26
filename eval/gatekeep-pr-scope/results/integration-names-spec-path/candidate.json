@@ -1,7 +1,7 @@
 {
   "sample": "integration-names-spec-path",
   "arm": "candidate",
-  "skillSha": "fe8ab5d3633579fb62f48545a418b76c7055fa570612db93b67e74caf30e7b97",
+  "skillSha": "02ffb799ff2ffd5a86fcafc25504d8ac87ec8f895789c331a7885606773325d4",
   "inputSha": "73b6ef715c3bc764b10a34fe67f6d8db458505ebdad7b62b7ce37b0b5bf5a5fe",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "The PR body names two paths under the spec directory. The one inside `## Integration`, `doc/specs/staging-import-totals.md`, does not count when choosing the contract, so its absence at the commit being reviewed adds no blocker. That leaves the spec the body names under `## Contract`, `doc/specs/import-validation.md`. That file exists at the commit being reviewed, so rule 1 selects it as the contract.\n\n```text\n- scope: { source: spec, path: doc/specs/import-validation.md,\n    rows: [ { n: 1, text: \"the importer rejects a record without an id\", disposition: in-scope, ref: \"\" } ],\n    design: \"Reject records without an id before writing them.\",\n    cross_check: not run: no reference found }\n- issue: null\n- issue_note: no reference found\n```\n\nSelection produced no blockers and no stops:\n- The named contract spec is present at the commit being reviewed.\n- Only one candidate was found, so no question about which spec to use was needed.\n- No ticket was found, so the comparison against a ticket did not run. That comparison is informational only and never blocks.\n\nThe replay stops here, before verification, review and menus.\n",
-      "words": 164,
-      "wallMs": 6720,
+      "text": "## Scope contract selection\n\nThe PR body names one spec outside its Integration section: `doc/specs/import-validation.md` under `## Contract`. That file exists at the commit being reviewed, so it becomes the contract.\n\nThe other spec path, `doc/specs/staging-import-totals.md`, appears only inside the `## Integration` block, including its nested Reference line. Integration text is excluded from contract selection, so that file's absence at the head creates no blocker and is not a candidate.\n\nNo later selection rule applies. The diff adds only `src/importer.mjs` and changes no spec files, so there is no second candidate to resolve.\n\nSelected `scope` record:\n\n- source: spec\n- path: doc/specs/import-validation.md\n- rows:\n  - n: 1\n  - text: the importer rejects a record without an id\n  - disposition: in-scope\n  - ref: (empty)\n- design: Reject records without an id before writing them.\n- cross_check: not run: no reference found\n\nTicket record:\n\n- issue: null\n- issue_note: no reference found\n\n## Blockers and stops from selection\n\nNone. The named spec exists at the head, and there is only one candidate. The PR does not offer coverage posting to a ticket because no ticket was found.\n\nThe replay stops here, before verification, review, the report and menus.\n",
+      "words": 181,
+      "wallMs": 7027,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "Selected scope:\n- source: spec\n- path: doc/specs/import-validation.md\n- rows:\n  - n: 1\n  - text: the importer rejects a record without an id\n  - disposition: in-scope\n  - ref: \"\"\n- design: Reject records without an id before writing them.\n- cross_check: \"not run: no reference found\"\n\nThe staging reference is inside the PR body's Integration section, so it is excluded from scope selection. Its absence at the commit being reviewed creates no selection blocker.\n\nNo blockers or stops arise from scope selection. Replay stops here, before verification, review, or menus.\n",
-      "words": 80,
-      "wallMs": 6774,
+      "text": "scope:\n  source: spec\n  path: doc/specs/import-validation.md\n  rows:\n    - n: 1\n      text: the importer rejects a record without an id\n      disposition: in-scope\n      ref: \"\"\n  design: Reject records without an id before writing them.\n  cross_check: \"not run: no reference found\"\n\nThe staging-totals reference is inside the excluded Integration section, so its missing file does not block scope selection. No blockers or stops arise from selection.\n\nReplay stopped before verification, review, or menus.\n",
+      "words": 67,
+      "wallMs": 6435,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "130526b899f0227cab0b561b2c66edd36b848de53ff0ca4cab076f2e4e3a95b7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2dd3adf9057b1e03a057b31deab6aecf741b9da63000d31c256fd90d3e54ee14",
+      "intentSha": "246265db1ab32695c9399ace35544d57e9d314bb4409191f00df5fbe40844147",
       "baselineOutputSha": "ee67a622da7baca26a6ea65ad0b66d2c84d214387298093aa452f6e080612199",
-      "candidateOutputSha": "d54cf520a37f24a1a07f20f88c04bcb0981543953edaa494b7c98ce56b71cd14",
+      "candidateOutputSha": "622ca29536a0aa1d1445e1eb58d9269eeb030a6ee3142cc90806b988466a0c71",
       "facts": {
         "contract": {
           "before": "fails",
@@ -49,16 +49,16 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both facts moved as intended. Before treated the Integration-nested path `doc/specs/staging-import-totals.md` as a second contract candidate, so it stopped to ask the human to choose between two specs, left the scope source unresolved, and held open a conditional blocker for the missing file; After excludes the path inside the Integration block from contract selection, selects `doc/specs/import-validation.md` from the Contract section with its row and design populated, and states explicitly that selection produced no blockers, no stops and no spec-choice question. Before held neither fact, so there is nothing to preserve from it here; to keep After's result stable, keep the wording that spec paths inside the PR body's Integration block (including nested Reference lines) are never contract candidates and that their absence at head neither mints a blocker nor triggers a selection stop, and keep the missing-contract blocker tied only to paths named outside Integration.",
-      "wallMs": 4898,
+      "feedback": "Both facts moved in the intended direction and nothing Before held was lost. Before treated the Integration-nested `doc/specs/staging-import-totals.md` as a second candidate, left the scope source unresolved, stopped to ask the human to pick between two specs, and held a conditional missing-spec blocker in reserve; After selects `doc/specs/import-validation.md` from the `## Contract` section, explicitly excludes the Integration block (including the nested Reference line) from contract selection, and reports no blockers or stops. The wording that restricts selection to spec paths outside the PR body's Integration block is what delivered this; keep that rule stated as covering nested lines under Integration entries and as applying to both candidacy and the missing-contract blocker, so an absent Integration-only path can neither select nor block. The trailing remark about not offering coverage posting to a ticket strays slightly past the selection boundary but does not affect either fact; if you want the replay output tighter, limit the selection step's output to the scope record plus blockers and stops.",
+      "wallMs": 5677,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "130526b899f0227cab0b561b2c66edd36b848de53ff0ca4cab076f2e4e3a95b7",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "2dd3adf9057b1e03a057b31deab6aecf741b9da63000d31c256fd90d3e54ee14",
+      "intentSha": "246265db1ab32695c9399ace35544d57e9d314bb4409191f00df5fbe40844147",
       "baselineOutputSha": "e3b5c53581b553ca4654e06809c8d05cebe3eec8dc5455cd7d4a27ca02fb600d",
-      "candidateOutputSha": "82780690e59c7d31bce7354d10fe2e7ec0e7814699e958a0d4e8ce0893046f6f",
+      "candidateOutputSha": "c7ec25396bc33d5da3b8d0b5edceafa12a1dfe52060f97a97a9a943b6b4abf03",
       "facts": {
         "contract": {
           "before": "fails",
@@ -71,10 +71,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "Both facts moved from fails to holds as intended. In Before, the output selected `doc/specs/staging-import-totals.md` (the path nested in the Integration block) as the contract, explicitly stated that the first spec-directory path governs selection even inside Integration, and raised a blocker for its absence at the assessed head. In After, the wording that restricts contract selection to spec paths outside the PR body's Integration block led the output to select `doc/specs/import-validation.md`, populate its acceptance row and design from the head spec, and state explicitly that the absent staging reference creates no selection blocker and that no blockers or stops arise. No fact that Before held was lost, since Before held neither. To keep this stable, retain the explicit statement that Integration-nested paths neither select a contract nor trigger the missing-contract blocker, and keep the exclusion phrased as applying to any line under the Integration heading (including nested Reference lines) so that the 'first spec path named in the body' rule cannot be read as overriding it; the `cross_check: not run: no reference found` result is consistent with no ticket reference being found and need not change.",
-      "wallMs": 5238,
+      "feedback": "Both facts moved as intended. Before selected the missing `doc/specs/staging-import-totals.md` because it treated the first spec-directory path in the body as governing, including one nested under Integration, and raised a blocker for the absent file. After selects `doc/specs/import-validation.md` from the Contract section, populates its row and design from the head spec, and states explicitly that the missing staging-totals file does not block selection, with no blockers, stops, or request to choose a spec. The wording that produced this is the rule to select the contract only from spec paths outside the PR body's Integration block; keep that phrasing explicit (an Integration path neither selects a contract nor triggers the missing-contract blocker) so the old 'first path named in the body governs' reading cannot return. No fact that Before held was lost in this case, since Before held neither. One minor note: After's `cross_check: \"not run: no reference found\"` is consistent with the no-ticket input and does not affect either fact.",
+      "wallMs": 4823,
       "verdict": "improved"
     }
   },
-  "repoSha": "936432d534fce10220d8227c81187cf0cfd80a6e"
+  "repoSha": "5a17bd119f30bc9a355e19a1fba1e7d82cd4b4b6"
 }

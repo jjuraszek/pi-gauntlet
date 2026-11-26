@@ -1,8 +1,8 @@
-for: fe8ab5d3633579fb62f48545a418b76c7055fa570612db93b67e74caf30e7b97
+for: 02ffb799ff2ffd5a86fcafc25504d8ac87ec8f895789c331a7885606773325d4
 
 ## Change
 
-Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows, and give Integration entries no outcome or blocker.
+Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. With one ticket row absent from both spec sections, report `differs` for that original ticket row only. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and actions already offered by the post-merge menu.
 
 Select the contract from spec paths outside the PR body's Integration block. `integration-names-spec-path` checks that an absent path in a nested Integration line neither selects a contract nor blocks the gate. Rerun `integration-not-judged` and `post-merge-menu` to check that scope accounting and explicitly picked actions remain unchanged.
 
@@ -17,7 +17,9 @@ Render the single post menu after approve or merge, execute the validated select
 ## Expected to move
 
 - cross-check-all-rows-moved/matched: fails -> holds - Marked Integration entries account for both ticket rows; design-drafted acceptance rows do not create drift.
-- cross-check-all-rows-moved/no-drift: fails -> holds - Neither original ticket row is missing or changed.
+- cross-check-all-rows-moved/no-drift: fails -> holds - Neither original ticket row is missing or changed in A.
+- cross-check-all-rows-moved/differs: fails -> holds - B identifies original ticket row 2 only because row 1 is still accounted for in Integration.
+- cross-check-all-rows-moved/report-omits-entries: fails -> holds - Report ticket-row accounting without naming entries or statuses in the report, evidence, or menus.
 - integration-names-spec-path/contract: fails -> holds - The PR names the assessed contract outside Integration.
 - integration-names-spec-path/no-blocker-or-stop: fails -> holds - An absent spec named only within Integration cannot trigger the missing-contract blocker or a selection stop.
 - integration-not-judged/cross-check: fails -> holds - Account for the moved tracker update; report only the drifted line-number row.
