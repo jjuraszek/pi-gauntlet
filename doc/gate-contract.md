@@ -89,7 +89,7 @@ The line precedes the existing report body. `gauntlet: stuck` below is the fixed
 | ship | Option 3: squash-merged and verified | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done merged |
 | ship | Option 4: Keeping branch <name>. Worktree preserved at <path>. | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done kept |
 | ship | Option 5: authorized discard completed | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done discarded |
-| ship | PR-subject push and body edit; close-member gate answered or no qualifying members | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done pushed |
+| ship | PR-subject push and body edit; close-member gate answered or no qualifying members; a reported Integration-only sync failure does not change the outcome | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: done pushed |
 | ship | Executed option fails after the gate | skills/gauntlet/ship/ship.md § ## Completion | gauntlet: stuck |
 | gatekeep-pr | post pick or stop on approved | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done approved |
 | gatekeep-pr | post pick or stop on own-merge | skills/gatekeep-pr/reference/post-selection-loop.md § ### Teardown | gauntlet: done merged |
