@@ -6,7 +6,7 @@ Read current ledger pending recovery from restore-loop.md before verification or
 
 For a deferred spec, print the numbered gauntlet command before starting delivery so the user can open the PR in a fresh session.
 
-Carry the spec's Integration section into a new PR and reconcile only that block on an existing PR. Keep the offer independent of its entries. The pr-body-integration replay checks the menu and rendered bodies, not live publication. On a failed Integration body copy, report the unsynchronized block and its source without claiming success, then continue the selected readiness action. The spec-pr-integration-sync-failed replay checks the response to a supplied edit failure, not live publication.
+Carry the spec's Integration section into a new PR and reconcile only that block on an existing PR. Keep the offer independent of its entries. The pr-body-integration replay checks the menu and rendered bodies, not live publication. Apply the shared Integration body rule to an isolated copy failure: report the unsynchronized block and its source once without claiming success, then continue readiness, push reporting or companion reconciliation. Keep push and mandatory Rework failures distinct. The spec-pr-integration-sync-failed replay loads the shared rule and checks the response through readiness after a supplied edit failure; it does not exercise live publication, push reporting or companion reconciliation.
 
 ## Expected to move
 
