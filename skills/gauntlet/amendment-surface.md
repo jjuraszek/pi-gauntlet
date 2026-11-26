@@ -159,9 +159,8 @@ Apply accepted items only: reviewer clears, `accept`, `alt-n`, and state-changin
 
 Preserve scope indices on disposition-only amendments, including cuts; validate
 all blocks using [legs.md](legs.md)'s scope grammar before committing.
-Apply [legs.md](legs.md)'s companion aftermath in this same amendment: changes
-to Problem, shared Design/Errors/Out-of-scope, repo-binding clauses, or a leg
-block rewrite each affected companion artifact. Commit home, then the affected
+Apply the [carried-part rewrite rule](legs.md#home-block-and-companion-files)
+in this same amendment. Commit home, then the affected
 files through their own `git -C`; preserve the amendment audit in those commits.
 Do not complete the amendment while any carried text disagrees. For specs with
 `## Legs`, recorded contracts are authoritative, replacing finish Step 6's

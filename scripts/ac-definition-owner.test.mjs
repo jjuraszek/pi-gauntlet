@@ -61,4 +61,6 @@ test('sorters, council and conformance use the shared definition', () => {
 
 test('companion spec grammar carries Integration between Problem and Decisions', () => {
   assert.match(read('skills/gauntlet/legs.md'), /^```markdown\n# <home spec title>\n[^`]*^## Problem\n[^`]*^## Integration\n[^`]*^## Decisions\n/m);
+  assert.match(read('skills/gauntlet/amendment-surface.md'), /^Apply the \[carried-part rewrite rule\]\(legs\.md#home-block-and-companion-files\)\nin this same amendment\. Commit home,/m);
+  assert.match(read('skills/gauntlet/brainstorm/spec-pr.md'), /\)\. Apply the \[carried-part rewrite rule\]\(\.\.\/legs\.md#home-block-and-companion-files\) before re-dispatching/);
 });

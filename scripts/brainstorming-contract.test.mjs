@@ -121,7 +121,7 @@ test('ticket shaping and spec writing share the boundary without copying the int
   const classes = read('skills/shape-ticket/reference/ac-classes.md').split('## Acceptance criteria classes')[1];
   const names = Array.from(classes.matchAll(/^\| ([^|\n]+) \|/gm), ([, name]) => name);
   assert.deepEqual(names, ['Class', 'Wishful', 'Tautological', 'Unspecified-but-binding', 'External-input dependency']);
-  assert.match(brainstorming, /on a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
+  assert.match(brainstorming, /refresh both gather draft blocks from that fetch before re-extracting: `## Ticket acceptance criteria \(verbatim\)` and `## Ticket Integration entries \(verbatim\)`\. Remove the latter when neither Integration source heading below is present\. On a cancel at that gate or an initial ticket-read abort, return to this question with the row unchanged and report no repair/);
   assert.match(ticket, /If no criterion remains, recover a real criterion or park the ticket/);
 });
 
