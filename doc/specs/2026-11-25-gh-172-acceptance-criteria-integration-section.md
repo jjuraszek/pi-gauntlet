@@ -338,7 +338,7 @@ The caller passes one line `AC definition: <absolute path of ac-classes.md>` in 
 
 - Remove: the operator-step and stage-proof paragraph (`:47`).
 - Add: read the definition at the passed path. Write an entry a cluster asks for into `## Integration`; never write an acceptance row or Design clause that is an entry by the definition; never add a ticket row that is an entry and sits under `## Integration` to `## Acceptance criteria`.
-- Add: before approval, correct a placement a cluster flags, from the `Human input` snapshot and with no question. A pure entry left under `## Acceptance criteria` moves verbatim to `## Integration`, a ticket row with the marker line `ticket row, not an acceptance criterion: <kind>` so that the gate's `Not acceptance criteria:` line lists it. A file-checkable ticket row found only under `## Integration` returns verbatim to `## Acceptance criteria` with the disposition the repo-group rule gives it, and its entry and marker line are removed. The applier never edits a ticket row's text and never grades or runs an entry.
+- Add: before approval, correct a placement a cluster flags, from the `Human input` snapshot and with no question. A pure entry left under `## Acceptance criteria` moves verbatim to `## Integration`, a ticket row with the marker line `ticket row, not an acceptance criterion: <kind>` so that the gate's `Not acceptance criteria:` line lists it. A file-checkable ticket row found only under `## Integration` returns verbatim to `## Acceptance criteria` with the disposition the repo-group rule gives it, and its entry and marker line are removed. A correction that adds or removes an acceptance row changes the row positions the `## Legs` `scope:` lines count: in the same edit the applier rewrites every `scope:` line so each leg owns the same rows in the new order, a removed row leaves every list, and a returned row joins no list (unlisted rows default home). The applier never edits a ticket row's text and never grades or runs an entry.
 
 `agents/conformance-reviewer.md`:
 
@@ -434,6 +434,7 @@ Each target gets its `intent.md` per `eval/README.md`. Samples, one decision eac
 | `spec-gate/recommended-row` | rework | no check depends on a `venue:` row: the `bundle-venue` check is replaced by one whose first bundled qualifying row follows rows excluded by the three remaining dispositions |
 | `spec-council-member/venue-production`, renamed `non-criterion-row-flagged` | rework | a pure live-check row left under `## Acceptance criteria` is a `[blocker] scope` finding; a mixed row that names an environment is no finding; a file-checkable ticket row placed only under `## Integration` is a finding; a ticket row that is an entry and sits under `## Integration` is not reported missing |
 | `spec-council-applier/pr-description-finding` | rework | the entry is written under `## Integration`; no ticket row that is an entry is added to the acceptance rows; a flagged pure-entry acceptance row moves to `## Integration` with its marker line and a flagged file-checkable row returns to the acceptance rows, both word for word and with no question |
+| `spec-council-applier/placement-keeps-leg-scope` | new | a two-leg spec whose first acceptance row is a flagged pure entry: after the row moves to `## Integration`, each leg's `scope:` line names the same rows it owned before, at their new positions |
 | `conformance-reviewer/post-merge-action` | rework | with the seven-row sample ticket, none of the non-criterion rows is reported missing and no entry gets a verdict |
 | `conformance-reviewer/mixed-row` | rework | the row is judged on its functionality alone; a literal that defines the functionality stays part of the requirement |
 | `conformance-reviewer/legs-verification-line` | rework | a `## Legs` `verification:` line gets no `Rn` and is never `MISSING`; the leg's file clauses keep theirs |
@@ -513,6 +514,7 @@ Update `scripts/delivery-stage-authoring.test.mjs`, `eval/conformance-reviewer/*
 - D3 design-found entry written under `## Integration` (row 29 as adopted) - `eval/gauntlet` `post-action-sorted`
 - D4 placement is checked in both directions and a mixed row is no finding - `eval/spec-council-member` `non-criterion-row-flagged`
 - D4 the applier corrects a flagged placement with no question - `eval/spec-council-applier` `pr-description-finding`
+- D4 a placement correction keeps each leg's rows - `eval/spec-council-applier` `placement-keeps-leg-scope`
 - D4 a procedural run or a `## Legs` contract line gets no `Rn` - `eval/conformance-reviewer` `legs-verification-line`, `prompt-stage-sentence`, `stage-only-sentences`
 - D4 a mixed row is judged on its functionality - `eval/conformance-reviewer` `mixed-row`
 - D5 every unreachable row takes the cut - `scripts/loop-unreachable-cut.test.mjs`, `eval/loop` `unreachable-cut`
