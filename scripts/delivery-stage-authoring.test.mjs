@@ -29,6 +29,7 @@ const cases = targetName ? selected : [
   ['spec-council-member', 'non-criterion-row-flagged'],
   ['shape-ticket', 'venue-stripped'],
   ['shape-ticket', 'integration-sort'],
+  ['shape-ticket', 'bug-repro-in-evidence'],
   ['shape-ticket', 'pr-body-proof'],
   ['shape-ticket', 'workflow-stage-proof'],
   ['shape-ticket', 'workflow-stage-proof-create'],

@@ -60,6 +60,12 @@ test("shape-ticket baseline preserves slices and excludes only audit from all ex
   const samples = readdirSync(join(root, "eval/shape-ticket/samples")).filter((name) => !auditSamples.includes(name));
   for (const sample of samples) {
     const raw = read(`eval/shape-ticket/samples/${sample}/case.md`);
+    if (sample === "bug-repro-in-evidence") {
+      assert.deepEqual(parseCase(raw).drop, []);
+      assert.deepEqual(parseCase(raw).bundle, []);
+      assert.ok(assemble(target, read).includes("# Repository audit"));
+      continue;
+    }
     if (["gate-line-first", "per-ref-settlement"].includes(sample)) {
       assert.deepEqual(parseCase(raw).bundle, sample === "per-ref-settlement"
         ? ["skills/shape-ticket/SKILL.md"]

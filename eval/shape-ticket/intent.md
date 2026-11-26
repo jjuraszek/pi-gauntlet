@@ -1,4 +1,4 @@
-for: bf5ecb56f43d15c27b757b4e41d3b83cb8f9c7c94e4cf8987ae8a187eda97fe7
+for: 078317a2ef061a971550814d0e61517412f9f6c6f5f7205a57b703e252fdfc8e
 
 ## Change
 Sort ticket rows by the shared definition. Keep the file-delivered functionality under Acceptance Criteria, including environment names that define it and scenarios of the same constraint. Carry external clauses and pipeline results under Integration and retain every displaced original verbatim in the Reporter note, without a retirement label. On repair, carry existing housekeeping entries under Integration. The text replays inspect the proposed body and note, not tracker writes.
@@ -18,11 +18,13 @@ Bound Context, examples and Idea for a product-aware repo stranger; preserve com
 
 Clarify the overlap reference's repeated-defect rule: completion plus compatible same-concern additions does not justify a duplicate without evidence distinguishing a new regression. The closed-concern-additions sample alone bundles that reference and checks supplied-evidence recommendations, allowing useful existing-ticket additions or no write while retaining create-anyway as an override. The member-file-only sample alone bundles the complete skill and selects Roast item 2: add file-only transport on initial/retry member tasks while retaining cheap effort, inline chair, structural quorum and parent split-axis ownership. Retain the Draft behavior and existing sample bundles; Git retains prior intent and historical replay evidence. Apply the shared menu contract at the confirmation gate so options stay separately numbered after concerns and legacy numeric replies name the resolved subset approval before simulated creation.
 
-Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-vs-expected in the gate's Evidence list and AC rows, leaving each Problem example at rule 5's one sentence or one number followed by its source footer. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
+Carry source provenance in Problem, surface named gaps at the existing gate, require create acknowledgment, and accept repair's displayed missing-at-filing constant with plain yes. Retain baseline facts already holding as guards. Keep bug repro steps and observed-versus-expected in the gate's Evidence list. Retain the expected result in the reporter's plain acceptance row without converting it to setup/action/result. Leave each Problem example at rule 5's one sentence or one number followed by its source footer. Take the roast's permitted reference paths from its dispatch shape. Name cwd = repo root on Roast item 2's inline chair Call 2, as on Call 1, preserving the existing chair working-directory requirement.
 
 Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
 
 ## Expected to move
+- bug-repro-in-evidence/expected-result: fails -> holds - Keep the reporter's plain expected result as the acceptance row.
+- bug-repro-in-evidence/no-repro-in-criteria: fails -> holds - Both baseline replies rewrite the acceptance row into Given/When/Then; keep the reproduction details in Evidence instead.
 - pr-body-proof/f1: fails -> holds - Exclude a PR-description checklist as delivery-stage proof.
 - venue-stripped/original: fails -> holds - Keep the whole original latency row in the Reporter note after removing the observation environment.
 - pr-body-proof/f3: holds -> holds - Keep the release script's generated PR text as a behavior.
