@@ -94,3 +94,4 @@ repair verification | home 83ade1d | iteration 17
 repair verification | home 6c281f7 | iteration 18
 amended | 1 item(s) | Ledger exemption in the retired-tag check
 amended | 1 item(s) | Leg ownership kept through a placement correction
+amended | 1 item(s) | Bug repro steps stay in the Evidence list

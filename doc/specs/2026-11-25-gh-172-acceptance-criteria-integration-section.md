@@ -280,11 +280,12 @@ In `skills/shape-ticket/SKILL.md`:
 - Add: `Integration` in the body template and the heading-scaffolding list in place of the old name.
 - Replace, in AC uniqueness (`:157`), "Split independent bundled observations into one row per observation; keep nested detail attached to its row and same-subject rows with different results separate" with: split a row only when it bundles different functionalities; scenarios of one functionality stay one row, and nested detail stays attached to its row. The implied-row test in the same paragraph compares an observable with another row's text, not with its "setup, action, and result text".
 - Replace, in the behavioral-AC bullet (`:160`), "must name setup, action, and observable expected result, verifiable pre-prod" with: states a functionality or a constraint whose result is observable; no setup/action/result format is required and one row may cover several scenarios.
+- Replace, in the evidence gate's bug-ticket sentence, "Require bug repro steps + observed-vs-expected in the gate's Evidence list and the AC rows' setup/action/result" with: require bug repro steps and observed-versus-expected in the gate's Evidence list; the acceptance row states the expected result and takes no setup/action/result format.
 - Keep: the no-AC failure. A ticket whose rows all sort out recovers a real acceptance row or is parked, as today.
 
 In `skills/shape-ticket/reference/examples.md`: replace the `Workflow-stage proof` example (`:22`) with one showing a pipeline-result row landing under `Integration`.
 
-In `skills/shape-ticket/reference/repo-audit.md:128` (the supported-scenario fold-in): replace "strip venue names and credentials from ACs" with: strip credentials from ACs; an environment, run or step clause is left to the sort above, which removes the external clause and keeps a literal that defines the functionality.
+In `skills/shape-ticket/reference/repo-audit.md:128` (the supported-scenario fold-in): replace "strip venue names and credentials from ACs" with: strip credentials from ACs; an environment, run or step clause is left to the sort above, which removes the external clause and keeps a literal that defines the functionality. In the same row, replace "Fill setup/action gaps in rows stating the failure" with: record the scenario's setup and action in the gate's Evidence list; the row keeps the expected result. In the scenario-footer paragraph of the same file, scenario setup/action and observed-versus-expected lines go in the gate's Evidence list only, with the expected result retained in the acceptance rows. In its roast-input sentence, replace "exactly the draft, snapshot, and two reference paths" with a pointer to the reference paths the main file's roast dispatch shape names, so the definition file reaches the reviewers and the count lives in one place.
 
 The main file stays under the 50,000-byte instruction-size limit: the definition lives only in the reference file.
 
@@ -422,6 +423,7 @@ Each target gets its `intent.md` per `eval/README.md`. Samples, one decision eac
 | `shape-ticket/venue-stripped` | rework | the row states the functionality without the environment; the original row is in the Reporter note |
 | `shape-ticket/workflow-stage-proof`, `workflow-stage-proof-create` | rework | the pipeline-result row is listed under `Integration`; no `retired` label |
 | `shape-ticket/pr-body-proof` | rerun | a row whose functionality writes pull-request text stays an acceptance row |
+| `shape-ticket/bug-repro-in-evidence` | new | a bug ask with repro steps: the steps and observed-versus-expected are in the Evidence list; the acceptance row states the expected result in the author's words and is not rewritten into setup/action/result |
 | `shape-ticket/integration-sort` | new | the five kinds land under `Integration`; a mixed row splits; an environment-handling row reads as written, its `production` literal kept; an old heading is renamed; a row covering three scenarios of one functionality stays one row; a constraint row with no setup/action/result format is kept as written |
 | `gauntlet/workflow-stage-ticket-row` | rework | an unrepaired ticket's non-criterion rows land under `## Integration` with marker lines, a ticket `Integration` entry is carried word for word with its nested lines, a mixed row stays under `## Acceptance criteria` word for word with only its external clause copied to `## Integration`, and no question is asked |
 | `gauntlet/legs-integration-sorted` | new | on a grouped multi-repo ticket: an earlier pure-entry row moves to `## Integration`; a later surviving row under a companion heading is `in-scope` with `scope: AC <n>` counted in the spec's acceptance section; a mixed row under a known nonmember heading is `elsewhere: <repo>`; the companion file carries `## Integration` verbatim |
@@ -509,6 +511,7 @@ Update `scripts/delivery-stage-authoring.test.mjs`, `eval/conformance-reviewer/*
 - Row 47: the report names the configured target - `eval/check-delivery` `non-ac-row-listed`
 - D1 definition and pointers (row 1 as adopted) - `scripts/ac-definition-owner.test.mjs`
 - D2 a multi-scenario row stays one row - `eval/shape-ticket` `integration-sort`
+- D2 a bug ticket's repro steps stay in the Evidence list - `eval/shape-ticket` `bug-repro-in-evidence`
 - D3 mixed ticket row stays word for word and only its external clause is copied (row 23 as adopted) - `eval/gauntlet` `workflow-stage-ticket-row`
 - D3 a free-text constraint covering several scenarios drafts one row; the `Tree-wide` split is unchanged - `eval/gauntlet` `drafted-row-scenarios`, `tree-wide-drafted-row`
 - D3 design-found entry written under `## Integration` (row 29 as adopted) - `eval/gauntlet` `post-action-sorted`
