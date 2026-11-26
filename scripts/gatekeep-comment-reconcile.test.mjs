@@ -466,8 +466,6 @@ test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and th
   assert.ok(!findings.includes('An undispositioned failing check is never a target of `fix`'), 'failing checks are fixable');
   assert.ok(!findings.includes('reports it as not fixable'), 'not-fixable clause deleted');
   assert.match(findings, /A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module\./);
-  assert.match(findings, /observation half[^\n]*is checked after merge, not here/);
-  assert.match(findings, /observation half[^\n]*blocks nothing|blocks nothing[^\n]*observation half/);
   assert.match(findings, /`gap`[^\n]*is a blocker/);
   assert.match(findings, /applied only under a delivery course or a terminal `fix nits` pick/);
   assert.match(findings, /Draft nit payloads under `deliver-nits` or a terminal `fix nits` pick/);

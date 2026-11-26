@@ -146,11 +146,18 @@ at all, on harnesses without `plan_tracker`; absence is never a hard stop.
 current tracker status first: if it is already in a terminal/done state,
 report that and stop cleanly - no write; a terminal ticket is never
 downgraded to the configured non-terminal target state. Extract ACs
-from the AC section, reading a `### <repo>` heading inside it as a repo group;
-a row under a group naming a repo other than this one gets the non-blocking
-verdict `elsewhere: <repo>` and no evidence check. If no AC section exists,
-synthesize candidate ACs from the body, label them synthesized. Their blocking power follows the `synthesized AC
-gaps` slot: under `soft` (the default) a synthesized AC never produces a
+from the AC section, retaining `### <repo>` group headings. Read
+[`ac-classes.md`](../shape-ticket/reference/ac-classes.md) and sort before
+attributing rows to repos. List each sorted-out row once with its kind under
+`Not acceptance criteria:` in the report and evidence comment. List the ticket's
+`Integration` entries once under `Integration (not checked):`. Give neither
+list AC tasks, verdicts or writes; never execute an entry or block on it.
+If no criterion remains, synthesize candidates once from the rest of the body,
+excluding both lists. Label candidates synthesized and sort them the same way.
+A surviving row under another repo's group gets the non-blocking verdict
+`elsewhere: <repo>` and no evidence check. Judge a mixed row on its functionality;
+an environment name in the row never selects a target. A synthesized criterion's
+blocking power follows the `synthesized AC gaps` slot: under `soft` (the default) a synthesized AC never produces a
 blocking `unexplained gap` - unmet ones surface as non-blocking proposals
 at the gate; under `block` the cap is removed - synthesized ACs run the
 same stage 3 verdict matrix as authored ACs, so an unmet one with no
@@ -159,7 +166,7 @@ sanctioned explanation is a blocking `unexplained gap` (`allowed gap` and
 If a comment amends or contradicts a
 body AC, surface the conflict to the operator and get an explicit
 resolution before proceeding - never silently pick a reading. If
-extraction and synthesis together yield zero candidate ACs, STOP:
+no AC survives extraction, synthesis and sorting, list the entries without verdicts and STOP:
 "cannot verify a ticket that asserts nothing" - never continue with zero
 criteria. Scan comments for `Delivered: <sha>`
 markers (resolved against stage 1's SHA below); if a marker for the

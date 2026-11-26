@@ -75,7 +75,6 @@ These bind every rendered report, menu, and external payload (review bodies, rep
 | stuck blocker | a problem the repair could not fix |
 | nit | a smaller point that does not block merging |
 | contradicted claim | the description says one thing and the code does another |
-| observable half | the part that can only be seen after merge |
 | deferred / deviates / elsewhere | the spec defers it, deliberately differs, or assigns it to another repo |
 | pending reviewer placeholder | an automated review is still running |
 

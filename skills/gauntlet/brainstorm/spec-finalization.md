@@ -10,8 +10,8 @@ Spec-writing replaces the context draft, in this exact order:
 2. Write the spec with the `write` tool (**full replacement**) at the spec path.
    After the mandatory draft read and before the full replacement, apply
    `ticket-acceptance.md`'s row-production branch to the approved two-round design plus the original prompt.
-   Keep `## Acceptance criteria` after Problem; draft one observable outcome per row,
-   default `in-scope`, retaining environment-bound pre-production proof as `venue:`.
+   Keep `## Acceptance criteria` after Problem; draft one functionality or constraint per row,
+   default `in-scope`.
    Apply the inline integrity recovery and cut question there before writing.
    Using `edit` at this step is a red flag. The header block (between the H1 and the
    first `##`) carries `**Amend-grant:** none` directly below `**Goal:**`; a redraw's

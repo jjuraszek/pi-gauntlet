@@ -215,7 +215,7 @@ Set `PR_NUMBER`, `BASE_REPO` and `ASSESSED_SHA` from the assessed PR and recorde
 
 On a nonzero exit, print gh's error verbatim, consume the selection without retry (no second attempt with or without `--admin`), and re-run `### Pre-menu refresh`. Render from the refreshed prerequisites: final while all merge preconditions hold; obstacle explaining that GitHub still blocks this actor from merging when `BLOCKED` remains and `bypass_eligible` is no longer `true`; otherwise use the refreshed withhold resolver. Do not treat refusal as a queued merge or `stuck` by itself.
 
-On a zero exit, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> write the returned `state` into `pr.state` and `mergeCommit.oid` into `pr.merge_commit` (the same two writes when a queued merge's `wait` re-read returns `MERGED`), save the `AC coverage` block as a payload file and render the own-merge post menu once (`menus.md` `## post`); any other state (a merge queue) -> render the queued-merge wait through `report.md` and the merge queued template (wait re-runs the read; show evidence stays hint-only). The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `elsewhere per spec: <repo>`, `venue: <env> - <observation>, checked before prod deploy`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`. An `in-scope` row whose observation half is `not judged here` renders `covered; observable half checked after merge`.
+On a zero exit, read `gh pr view <N> --json state,mergeCommit`. `state: MERGED` -> write the returned `state` into `pr.state` and `mergeCommit.oid` into `pr.merge_commit` (the same two writes when a queued merge's `wait` re-read returns `MERGED`), save the `AC coverage` block as a payload file and render the own-merge post menu once (`menus.md` `## post`); any other state (a merge queue) -> render the queued-merge wait through `report.md` and the merge queued template (wait re-runs the read; show evidence stays hint-only). The block, `<sha>` = `mergeCommit.oid`, one row per `scope.rows` entry in row order with its outcome (`covered`, `deferred per spec to <ref>`, `deviates per spec: <why>`, `elsewhere per spec: <repo>`); with no rows (`source: pr`, or an empty `scope.rows`) the block has no row lines and `post coverage to ticket` is not offered. With `source: pr` the header line drops `, spec <path>`.
 
 Read and apply [menu-layout](../../gauntlet/menu-layout.md) before presenting these options and before acting on a numeric reply.
 
@@ -224,7 +224,6 @@ Informational - the ticket's rows are unchanged. PR <url>, merged <sha>, spec <p
 - [ ] <row 1 text verbatim> - covered
 - [ ] <row 3 text verbatim> - deferred per spec to <ref>
 - [ ] <row 2 text verbatim> - deviates per spec: <why>
-- [ ] <row 4 text verbatim> - venue: <env> - <observation>, checked before prod deploy
 - [ ] <row 5 text verbatim> - elsewhere per spec: <repo>
 
 Apply `reject.md` `## Overrule` to coverage for overruled gap L# rows.

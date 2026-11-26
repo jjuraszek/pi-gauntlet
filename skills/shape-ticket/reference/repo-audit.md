@@ -125,7 +125,7 @@ Apply the following table per ticket. Preserve every displaced fact, sketch, row
 | Grounded sibling leg | Use the parent's found absolute `PATH`; read `git -C <PATH> config --get remote.origin.url` and the shared parser above to derive tracker owner/name from the final two path segments, or use a repo-documented name. Move only the already-stated grounded observable under `### <repo>` and name the repo in Idea. Keep ACs unchanged for unresolved names or unstated observables | `sibling: <repo or path> - <what> (<citation>)` |
 | Report-only sibling outcome | Leave the draft unchanged; read only the parent's retained lines, never their copies in audit.md | `sibling: <line body after Sibling:>` |
 | In-motion match or unavailable | Report only | `in-motion: <ref>` or `in-motion: unavailable (<what>)` |
-| Supported scenario | Fill setup/action gaps in rows stating the failure; strip venue names and credentials from ACs and preserve the expected result, not the current observation. Keep fresh-feature ACs unchanged | `scenario: present` |
+| Supported scenario | Fill setup/action gaps in rows stating the failure; strip credentials and preserve the expected result, not the current observation. Leave environment, run and step clauses to the AC integrity gate so literals that define the functionality survive. Keep fresh-feature ACs unchanged | `scenario: present` |
 | Scenario none | Add the none footer only to a body already being drafted | `scenario: none (<reason>)` |
 | Unusable audit | Continue the ordinary path without invented edits or blocks; still render every parent-retained sibling line | `audit unavailable (<reason>)` plus parent `sibling:` lines |
 

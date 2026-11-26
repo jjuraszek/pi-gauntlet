@@ -3,16 +3,16 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 3
+iterations: 4
 allowance: 10
-returned: 3 | home | a22e03217252c01c8444754891e4685eea0d5232
+returned: 4 | home | c535a1a256cba4d6671221540788d0591a2e6daf
 
 | row | status | attempts | evidence |
 |---|---|---|---|
 | 1 | cut | 0 | deviates: the shared definition ships in other words - no ticket-comment clause, no required entry details, no merge-gate exception sentence; the four named places point to the one file that holds it |
 | 2 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; the selected eval covered only importer rejection on both models |
 | 3 | done | 1 | timeout -k 30 30 node --import ./eval/spec-council-applier/pr-description-finding.test.mjs scripts/delivery-stage-authoring.test.mjs spec-council-member non-criterion-row-flagged; 3 passed; both selected council evals kept Integration entries out of acceptance criteria on both models |
-| 4 | open | 0 | timeout -k 30 30 node --test scripts/ac-definition-owner.test.mjs; no shipped file contains the definition; 11 files use retired sorting terms; the delivery check does not reference ac-classes.md |
+| 4 | done | 1 | timeout -k 30 30 node --test scripts/ac-definition-owner.test.mjs; 3 passed; one shipped definition, no retired sorting terms, and all three sorters reference the owner |
 | 5 | open | 0 | |
 | 6 | open | 0 | |
 | 7 | open | 0 | |
@@ -68,3 +68,4 @@ row 0 done | seeded 1 rows, closed 0 on baseline | row 4
 row 2 done | Both conformance replays judged only the importer's missing-id rejection and reported no missing ticket rows. | Pass the absolute path of skills/shape-ticket/reference/ac-classes.md as AC definition: to reuse the shared sorting rule.
 row 36 done | Both conformance replays gave none of the six Integration entries a verdict or a blocker. | Reuse the six entries in eval/conformance-reviewer/samples/post-merge-action/case.md to check other readers.
 row 3 done | Council review and edits corrected misplaced ticket rows without adding Integration entries to acceptance criteria or reporting them missing. | Reuse the pr-description-finding fixture to check verbatim moves, ticket markers, and in-scope dispositions.
+row 4 done | Ticket shaping, brainstorming and delivery use one definition; planning and merge review judge only file-delivered functionality. | Run scripts/ac-definition-owner.test.mjs to check the definition's owner, its callers and retired sorting terms.
