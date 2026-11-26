@@ -1,0 +1,90 @@
+{
+  "sample": "spec-pr-integration-sync-failed",
+  "arm": "candidate",
+  "skillSha": "0abbdebe6fe22d00cb5b035360701cdee66295ee481f291650c4b180ccd63cef",
+  "inputSha": "0759d2a1406e87cd8194af68c04346f8807b21847df102fd74ffd33bb7a4a940",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Edit result (the `gh pr edit` call returned `HTTP 503`, so the body is unchanged):\n\n```text\nPR #42's Integration block is not in sync with the spec (gh pr edit failed: HTTP 503); repair it from the `## Integration` section of doc/specs/export.md.\n```\n\nNext command (row 1, readiness action; the push itself succeeded):\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nResult once ready succeeds:\n\n```text\nPushed to PR #42 (acme/widget) and marked it ready for review.\nWorktree kept at $WORKTREE for the Integration-block repair.\n```\n\nShip is complete. The body copy failure doesn't block it, and I'm not claiming the copy happened. The PR body outside the Integration block is untouched, and no Rework block was added. No cleanup runs for row 1, so the worktree and branch stay in place.\n",
+      "words": 128,
+      "wallMs": 4696,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "PR body's Integration block is not in sync (HTTP 503); repair it from `doc/specs/export.md`, section `## Integration`. Checkout preserved for repair.\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nPush completed; PR acme/widget#42 is now ready for review.\n",
+      "words": 36,
+      "wallMs": 4674,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "7f7e0b208a136803eae7c2e40ac3c1f1e51d0c6e94c14fb20727705da96449f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "94f9d0115c33a82c427105d061c1b93edd3a69659050d2989d7fe8bd79cca514",
+      "baselineOutputSha": "c06c37497dd0e9d06d0aa3c10d701946cbc74e38acb2633c0a1a7e0e06f8bd25",
+      "candidateOutputSha": "b1bc6f2d132076428d7183797e195147efd3253b5706430b903c55df9ffae189",
+      "facts": {
+        "unsynchronized": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-copy-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved `unsynchronized` from fails to holds by replacing Before's multi-line explanation (which spread the failure across several lines, said the edit should never have been attempted, and never named `## Integration` in `doc/specs/export.md` as a repair source in a single statement) with one line that states PR #42's Integration block is not in sync and points to the `## Integration` section of doc/specs/export.md for repair. `no-copy-claim` and `ready` hold in both: neither output claims the block was copied, and both issue `gh pr ready 42 -R acme/widget` directly after the failed edit without retrying or asking. To keep all three, retain the single-line unsynchronized report as the only statement of the sync state; the trailing prose in After ('I'm not claiming the copy happened', 'The body copy failure doesn't block it') restates the failure and risks reading as a second report, so drop or trim it, and avoid the unexpanded `$WORKTREE` placeholder in user-visible output. Do not reintroduce Before's wording that the edit 'should not have been attempted' or that the unchanged body is the required state, since that contradicts the Change's intent of reporting the block as unsynchronized and repairable.",
+      "wallMs": 5957,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "7f7e0b208a136803eae7c2e40ac3c1f1e51d0c6e94c14fb20727705da96449f6",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "94f9d0115c33a82c427105d061c1b93edd3a69659050d2989d7fe8bd79cca514",
+      "baselineOutputSha": "b15549d3ebaf17ba7fad60175c2c004f3b3b522b473774b1348a74401a166eb8",
+      "candidateOutputSha": "751a0177fe4274f3181ab08ee201317b65604959be843c560a4c82b5e32c40f5",
+      "facts": {
+        "unsynchronized": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "no-copy-claim": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "ready": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved `unsynchronized` from fails to holds: Before only said the PR body edit failed with HTTP 503 and never mentioned the Integration block or the spec section, while After states once, in one line, that the PR body's Integration block is not in sync and names `## Integration` in `doc/specs/export.md` as the repair source. Both outputs avoid claiming the block was copied or updated, and both go straight to `gh pr ready 42 -R acme/widget` without stopping, asking, or retrying, so `no-copy-claim` and `ready` hold in both. To keep this, retain the instruction to report the unsynchronized block and its spec source in a single line without a success claim, and keep the explicit direction to continue the selected readiness action after the failed edit; avoid adding wording that could prompt a retry of the edit, a confirmation question, or a second restatement of the out-of-sync notice after the ready command.",
+      "wallMs": 4171,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "9a21ed59c9601968d3cacd5df9b761d7e6c2a51c"
+}
