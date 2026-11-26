@@ -2,9 +2,11 @@ for: 95f907b8b9de977f3729b7bec0ee83d2f670d851b1a4eaeb1980e0646882d493
 
 ## Change
 
-The recommended-row replay checks that the gate selects the first bundled in-scope row after three cut rows and a single-observation row. Wording pins alone do not show which row the recommendation quotes. Only this sample is in scope.
+The option-6-handoff replay checks draft PR creation: the title comes from the committed H1 with Markdown backticks intact, and the summary and Integration section reach gh through a file even when a body line reads EOF. Only this narrated publication sample is in scope; it does not open a PR.
 
 ## Earlier comparisons
+
+The recommended-row replay checks that the gate selects the first bundled in-scope row after three cut rows and a single-observation row. Wording pins alone do not show which row the recommendation quotes.
 
 Select scope-cuts-listed to check the approval message for an unrepaired ticket. The rendered gate, not the prompt text, shows whether all four marked rows appear once with their kind, apart from the cuts, without a new question. This replay stops after the gate reply; it does not write a spec or start implementation.
 
@@ -19,6 +21,7 @@ Refresh only spec-gate/recommended-row for Design 7: align the single-outcome re
 Accept row-free approval prose with no amendment, grant, or budget wording through the same recommended-row mapping and literal echo as bare approve. Extend flag-replies with "approved, go ahead" and the contrasting "approved, apply every amend" rejection. Run only spec-gate/flag-replies against base c94a93b6aafb72f059dbd4870cfde2de4f42fc38; preserve the other sample records and partial-report evidence. This tool-free replay checks narrated default approval and rejected worded intent, not live persistence.
 
 ## Expected to move
+- option-6-handoff/publication: fails -> holds - Pass the committed title and body as data rather than shell source.
 - scope-cuts-listed/moved: fails -> holds - Read the four marked rows and their kinds from Integration rather than treating them as scope cuts.
 - flag-replies/plain-prose: fails -> holds - Plain approval prose takes the just-rendered recommendation with the literal approve echo and default grant.
 - all-none/f5: fails -> holds - Bare approve follows recommended loop with an echo and the default grant rather than granting nothing.

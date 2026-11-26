@@ -24,11 +24,13 @@ git -C <worktree> diff --name-status origin/$DEFAULT...HEAD
 
 Prove the shared predicate against `origin/$DEFAULT` before pushing. Stop on command errors. On invalid shape print the offending name-status lines and `origin/$DEFAULT`, retain the amended spec and checkout, and redraw with `Withheld: draft PR - diff against origin/$DEFAULT is not spec-only (<paths>)` replacing 4. Keep implementation approvals available.
 
-Resolve `SCRATCH` for the worktree through [scratch folder](../return-file.md#scratch-folder) and set `BODY=$(mktemp "$SCRATCH/pr-body.XXXXXX")`. Use the file writer to write the gate summary verbatim (the `**Goal:**` line on the degraded-summary path), then the committed home spec's `## Integration` section when present per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr). Pass only the file path to gh in the worktree repository:
+Resolve `SCRATCH` for the worktree through [scratch folder](../return-file.md#scratch-folder) and set `BODY=$(mktemp "$SCRATCH/pr-body.XXXXXX")`. Use the file writer to write the gate summary verbatim (the `**Goal:**` line on the degraded-summary path), then the committed home spec's `## Integration` section when present per the [PR body Integration block](../ship/ship.md#option-1-push-and-create-pr). Read the committed H1 into `TITLE` as data, including in narrated commands. Pass the quoted title and the body file path to gh in the worktree repository:
 
 ```bash
+TITLE=$(git -C <worktree> show "HEAD:<spec path>" | sed -n '/^# /{s/^# //;p;q;}')
+test -n "$TITLE" || exit 1
 git -C <worktree> push -u origin <branch>
-gh pr create --draft --head <branch> --base "$DEFAULT" --title "<spec H1 text>" --body-file "$BODY"
+gh pr create --draft --head <branch> --base "$DEFAULT" --title "$TITLE" --body-file "$BODY"
 ```
 
 | Observation | Action |

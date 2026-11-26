@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { sha256 } from '../eval/lib/checks.mjs';
 import { replayFactsSha } from './replay-facts.mjs';
@@ -33,6 +34,20 @@ test('draft PR row 4 persists deferred headers before spec-only publication and 
     assert.match(recipe, /gh pr create [^\n]+--body-file "\$BODY"/);
     assert.doesNotMatch(recipe, /<</);
   }
+  const heading = 'Export `pwd` receipts';
+  const create = publish.split('```bash\n').map(block => block.split('\n```')[0]).find(block => block.includes('gh pr create --draft'))
+    .replaceAll('<worktree>', 'work').replaceAll('<branch>', 'topic').replaceAll('<spec path>', 'spec.md').replaceAll('<spec H1 text>', heading);
+  const args = execFileSync('bash', ['-ec', `
+    git() {
+      case "$*" in
+        '-C work push -u origin topic') return 0 ;;
+        '-C work show HEAD:spec.md') printf '# %s\\n\\n## Integration\\n' "$HEADING" ;;
+        *) return 1 ;;
+      esac
+    }
+    gh() { printf '%s\\0' "$@"; }
+    ${create}`], { encoding: 'utf8', env: { ...process.env, HEADING: heading, DEFAULT: 'main', BODY: 'body file' } });
+  assert.deepEqual(args.split('\0'), ['pr', 'create', '--draft', '--head', 'topic', '--base', 'main', '--title', heading, '--body-file', 'body file', '']);
   assert.match(ship, /```markdown\n## Summary[^`]*## Test Plan[^`]*<[^>]*Integration[^>]*>\s+<[^>]*disposition appendix[^>]*>\n```/);
   assert.doesNotMatch(publish, /(?:option|row|Retry|clean|hidden|retryable)\s+`?6\b/);
   assert.ok(publish.indexOf('show HEAD:<spec path>') < publish.indexOf('push -u origin'));
