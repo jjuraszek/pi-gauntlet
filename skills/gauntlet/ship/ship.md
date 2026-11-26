@@ -330,7 +330,7 @@ When the spec's `## Acceptance criteria` has `deferred:` or `elsewhere:` rows, a
 
 #### Option 2: Push and Create Draft PR
 
-Follow Option 1, adding `--draft` only to `gh pr create`. The PR body is unchanged. Do not clean up the worktree.
+Option 1's strip-and-seal step seals the telemetry record before the push. Follow Option 1, adding `--draft` only to `gh pr create`. The PR body is unchanged. Do not clean up the worktree.
 
 #### Option 3: Squash-merge to base
 
