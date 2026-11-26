@@ -1,7 +1,7 @@
 {
   "sample": "spec-pr-integration-sync-failed",
   "arm": "candidate",
-  "skillSha": "b3f2fd69140082d95b57e13d267de7f549e9893f620dbf128bdc566ce02813fe",
+  "skillSha": "9efdd4d6f7d265ddca9a01d614d43c49f2eee79a739d29569759e5217b6f05eb",
   "inputSha": "dfdd239a879d23804cdf5b780d6e39d3c65109bc5b4d87b34d58c87870617b10",
   "kind": "text",
   "assembly": "concat",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Edit result (one-line report):**\n\n```\nPR #42 body's Integration block is not in sync (gh pr edit failed: HTTP 503); repair source: `doc/specs/export.md`, section `## Integration`.\n```\n\nThe push to PR #42 succeeded, and the existing PR body is unchanged. I'm not claiming the Integration copy landed, and I'm keeping the checkout for repair. An Integration-only sync failure doesn't stop delivery, so the selected row 1 readiness step goes ahead.\n\n**Next command (row 1: mark ready for review):**\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\n**After it succeeds:**\n\n```\nPR #42 marked ready for review.\n```\n",
-      "words": 91,
-      "wallMs": 5746,
+      "text": "**1. Warning line, printed once:**\n\n```\nPR body Integration block for acme/widget#42 is not in sync (gh pr edit failed: HTTP 503); repair it from the `## Integration` section of doc/specs/export.md.\n```\n\nThe existing PR body stays unchanged. I make no claim that the copy succeeded. I don't retry the edit. The worktree and spec stay intact for repair.\n\n**2. Next command (row 1 readiness action):**\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nThe Integration sync failure does not stop the flow. Execution continues to the row 1 ready step, which marks the draft ready for review. The warning is not repeated in any later closing summary.\n",
+      "words": 104,
+      "wallMs": 7075,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "PR #42’s Integration block is not in sync (HTTP 503); repair it from `doc/specs/export.md` → `## Integration`. Checkout preserved for repair.\n\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nPR acme/widget#42 is now ready for review. The push succeeded; the existing PR body remains unchanged.\n",
-      "words": 42,
-      "wallMs": 8764,
+      "text": "PR #42's Integration block is not in sync (HTTP 503); repair it from `doc/specs/export.md`, section `## Integration`. The existing body is unchanged.\n\nNext command:\n```bash\ngh pr ready 42 -R acme/widget\n```\n\nAfter the readiness command succeeds:\n```text\ngauntlet: done pushed\nPushed to acme/widget#42 and marked it ready for review. Worktree preserved.\n```\n",
+      "words": 50,
+      "wallMs": 7294,
       "mechanical": {}
     }
   },
@@ -36,7 +36,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "e5759f16f05c0e965a4e214a71a2535ce9891da8400a1d034f7f37c8b48111e9",
       "baselineOutputSha": "28732579337c95510409cc0ed77ffd929cb29e8423110bf20ac9ae75b52a7a97",
-      "candidateOutputSha": "bb57825b2930bd3afbed7171e81d1c42c0c654dacac45cbed87e26e99cdabf93",
+      "candidateOutputSha": "451b166494694ae31e1a9760269fde66b7469fe1b1bb5b0bfe090c6a41b6e3c3",
       "facts": {
         "unsynchronized": {
           "before": "fails",
@@ -54,8 +54,8 @@
           "label": "held"
         }
       },
-      "feedback": "After moved `unsynchronized` by producing a single report line that says PR #42's Integration block is not in sync and names `doc/specs/export.md`, section `## Integration`, as the repair source. Before instead called the edit a misstep, said the body should stay unchanged, and only mentioned in the final message that the section 'was not synced', with the spec path on a separate line and no repair framing. Both outputs avoid claiming the copy landed, and both go straight to `gh pr ready 42 -R acme/widget` without retrying or asking, so nothing Before held was lost. The one risk in After is the follow-up prose ('I'm not claiming the Integration copy landed, and I'm keeping the checkout for repair'), which partly restates the unsynchronized state and could read as a second report. To keep 'once, in one line' robust, the wording should say the single report line is the only mention of the sync failure, and that later narration is limited to the push result and the readiness step.",
-      "wallMs": 7418,
+      "feedback": "The After wording moved `unsynchronized` from fails to holds: it prints a single warning line that says the Integration block on acme/widget#42 is not in sync and names the `## Integration` section of doc/specs/export.md as the repair source. Before treated the edit as a misstep and the unchanged body as the intended state for the route; it mentioned the unsynced section only in passing in the closing summary, split from the spec path and never framed as a repair source. Both outputs make no claim that the block was copied and both go straight to `gh pr ready 42 -R acme/widget` without retrying or asking, so no fact that Before kept was lost. To keep this stable, keep the rule's wording explicit on three points: the failure is reported in exactly one line that carries both the unsynchronized block and the spec section and path; that line is not repeated in the closing summary; and the failure is non-blocking, so the selected readiness action still runs. One risk remains: After's surrounding prose restates the sync failure outside the warning line (\"The Integration sync failure does not stop the flow\"), so the rule could say that explanatory commentary should not restate the warning, to protect the \"once\" reading.",
+      "wallMs": 9258,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
@@ -63,7 +63,7 @@
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
       "intentSha": "e5759f16f05c0e965a4e214a71a2535ce9891da8400a1d034f7f37c8b48111e9",
       "baselineOutputSha": "accac8dcf8810db292886714db72948ed857bc8d1fc2a4898657410b6c1e8181",
-      "candidateOutputSha": "a3bd77894e4dada938652117fec2d9dbaa4bb8b5b4a0b4e8e9eda4cdccbbe650",
+      "candidateOutputSha": "5fde8d57dd262da02113a9ce3011beb9b07ba9b2e2e20505f48b11c4d47115df",
       "facts": {
         "unsynchronized": {
           "before": "fails",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "After moved `unsynchronized` from fails to holds: it now opens with a single line saying PR #42's Integration block is not in sync and pointing to `doc/specs/export.md` → `## Integration` as the repair source. Before only said it would not synchronize the section and never named the spec file or section as the source. Both outputs avoid any claim that the block was copied or updated, and both go straight to `gh pr ready 42 -R acme/widget` without retrying, asking or stopping, so nothing Before kept was lost. To keep this stable, keep the wording that requires exactly one line naming the unsynchronized block and its spec path and section, followed by continuing to readiness. Also consider stating that the closing summary may say the body is unchanged but must not restate the out-of-sync report, because After's trailing \"existing PR body remains unchanged\" comes close to a second report and could be read as a duplicate under the \"once\" requirement.",
-      "wallMs": 6674,
+      "feedback": "After moved `unsynchronized` from fails to holds by opening with a single line that states PR #42's Integration block is not in sync and names `## Integration` in `doc/specs/export.md` as the repair source; Before only said the edit failed and that it would not synchronize the section, never naming the spec file as the source and framing the body as intentionally preserved. Both outputs avoid any claim that the block was copied or updated, and both issue `gh pr ready 42 -R acme/widget` without retrying or asking, so `no-copy-claim` and `ready` are kept. To keep all three stable, keep the wording that requires exactly one report line containing the unsynchronized block, the spec path and section heading, and no success language, followed immediately by continuing to readiness; guard against the final summary repeating the unsynchronized notice (which would break the 'once' requirement) or saying anything like 'body updated'. After's closing summary correctly omits a second mention, so no change is needed there.",
+      "wallMs": 5495,
       "verdict": "improved"
     }
   },
-  "repoSha": "51fcb979d05138cd8e6d4de44446b6aa5c6c990e"
+  "repoSha": "c0affaedd7df8059006892af033c778102c3d946"
 }

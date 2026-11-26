@@ -2,7 +2,7 @@
 
 for: 7ebcf0ef9a82a98e5ef879e0062d7f249acab95738f8b56d22877668b4065adf
 
-wall: 20s
+wall: 17s
 
 ## Change
 
@@ -16,12 +16,12 @@ Carry the spec's Integration section into a new PR and reconcile only that block
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| pr-body-integration | anthropic/claude-opus-5-5 | improved | 9793 | offer: holds -> holds (held); create: fails -> holds (intended change); update: fails -> holds (intended change) |
+| pr-body-integration | anthropic/claude-opus-5-5 | improved | 8477 | offer: holds -> holds (held); create: fails -> holds (intended change); update: fails -> holds (intended change) |
 | pr-body-integration | github-copilot/gpt-6.1-sol | improved | 7059 | offer: holds -> holds (held); create: fails -> holds (intended change); update: fails -> holds (intended change) |
 
 ## Feedback
 
-- pr-body-integration / anthropic/claude-opus-5-5: The After wording moved create and update in the intended direction and left offer intact. In create, the new PR body now carries the spec's Integration section verbatim once after Test Plan, with all six lines and the indented instruction, where Before omitted it entirely. In update, the existing draft's stale screenshot entry is replaced by the spec's full current block once, with the 'Importer handoff:  keep  spacing.' line (double spaces included), the Notes section and the order unchanged, and no Rework block added; Before left the stale block in place. The menu is identical in both outputs: five ordinary options in order, with no Integration question or item, so unchecked conditions do not gate the choice. One caution: I read the create fact's 'claims none were checked' as 'asserts no entry as checked or done', which After satisfies by copying the entries with no checkboxes or completion marks. If the fact means the body must state explicitly that none were checked, After would fail it, because it contains no such statement. To keep all three facts, keep the wording that copies the block verbatim with no added status annotations, keep the reconcile-only-that-block rule for existing PRs, and keep the offer explicitly independent of Integration entries.
+- pr-body-integration / anthropic/claude-opus-5-5: The After wording moved both expected facts and lost none. For create, the new PR body now carries the spec's Integration section verbatim once after Test Plan, with all six entries and the indented instruction, and it does not mark or describe any condition as checked; Before omitted the section entirely. For update, the existing draft now has the stale screenshot entry replaced by the full current block, with the intro line's double spacing, the Notes section and the order untouched and no Rework block; Before left the stale entry in place. The offer held in both: the five options appear in order, with no Integration question or item and nothing withheld for the unchecked conditions. The only difference in the After menu is a dropped blank line before 'Implementation complete', which does not affect the fact. I read 'It claims none were checked' as 'the body makes no claim that any condition was checked'; if you instead want an explicit statement that none were checked, After does not have one and the wording would need to ask for it. To keep these results, keep the rule phrased as copying the block verbatim after Test Plan on a new PR, replacing only that block on an existing PR, and keeping the offer independent of the section's entries.
 - pr-body-integration / github-copilot/gpt-6.1-sol: The After wording moved both body facts as intended and kept the offer fact. The new PR body now carries the spec's Integration section verbatim once after Test Plan, with all six entries and the indented instruction, and adds no checkmarks or completion claims. The existing draft body swaps the stale screenshot entry for the complete current block, leaving the opening line (including its double spaces), the Notes section and the order untouched, with no Rework block. The offer is identical in both outputs: the five-option named-branch menu in order, with no Integration question or item, so unchecked conditions do not gate the choice. To keep this, preserve the wording that makes the offer independent of Integration entries, the instruction to copy the section verbatim without asserting any condition was checked, and the scope limit that reconciles only the Integration block on an existing PR. I read 'claims none were checked' as 'does not claim any were checked'; if you want an explicit statement that none are checked, the After body does not contain one, and the fact should say so.
 
 exit: 0
