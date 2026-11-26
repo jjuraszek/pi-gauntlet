@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
-returned: 21 | home | a8156106b4ea198b0508fb3a5fdaf940591f7bdf
+returned: 22 | home | df20c4a3d0f276b59eb43a53cdc3afd61778d8be
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -30,7 +30,7 @@ returned: 21 | home | a8156106b4ea198b0508fb3a5fdaf940591f7bdf
 | 19 | cut | 0 | deviates: no sample-data requirement and no not-ready filing for it |
 | 20 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs gauntlet workflow-stage-ticket-row; both replays kept the file requirements and moved seven external rows to Integration without asking; all six facts held |
 | 21 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs spec-gate scope-cuts-listed; 2 passed; both gate replays listed the four moved rows once with their kinds and asked no placement question; both cached workflow-stage-ticket-row replays passed |
-| 22 | open | 0 | |
+| 22 | done | 1 | timeout -k 30 60 node scripts/delivery-stage-authoring.test.mjs gauntlet ticket-all-rows-sorted; 2 passed; selected eval improved on both models: design-drafted diagnostic, cutover kept as a marked person step |
 | 23 | cut | 0 | deviates: the ticket row stays word for word as the in-scope row with no environment tag and is proved by a check in the checkout; the row is also copied to `Integration` as a live check |
 | 24 | cut | 0 | deviates: brainstorming asks no data question |
 | 25 | cut | 0 | deviates: the row is a tracker update and moves to `Integration` |
@@ -79,3 +79,4 @@ row 20 done | Both spec-writing replays moved operational rows to Integration an
 row 27 done | Both spec-writing replays kept the ticket's queue-drain entry and its nested instruction word for word. | nothing new to build on
 row 38 done | Of the six Integration entries, both replays offered only tagging, ran it once when selected, and ran no post step when the merger chose stop. | nothing new to build on
 row 21 done | The approval gate lists each moved ticket row once with its kind, separate from scope cuts, without asking about the move. | Reuse the scope-cuts-listed fixture to check that the gate lists marked Integration entries and omits unmarked ones.
+row 22 done | Both spec writers drafted the import diagnostic from the design when the ticket's only row was an operator cutover, and kept that step under Integration. | Reuse the ticket-all-rows-sorted fixture to check the drafted header, diagnostic and marked person step.

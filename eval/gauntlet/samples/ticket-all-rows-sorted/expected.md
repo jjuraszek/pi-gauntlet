@@ -1,0 +1,3 @@
+- provenance: mechanical: contains "Drafted from the design, ticket #58 has no acceptance criteria:"
+- drafted: judged: Acceptance criteria drafts the design's observable diagnostic as an unchecked in-scope row: the importer names the missing required header. The section has no cutover row and no ticket-rows-verbatim header.
+- moved: mechanical: matches /^## Integration\s*\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step$/m
