@@ -460,6 +460,8 @@ A replay reads only its bundle, so the selected samples add the changed instruct
 
 Update `scripts/delivery-stage-authoring.test.mjs`, `eval/conformance-reviewer/*.test.mjs` and `eval/spec-council-applier/pr-description-finding.test.mjs` to the reworked samples' committed outputs.
 
+Remove the two tests that pin the layout of the saved `gatekeep-pr/plain-report` replies: "saved plain-report candidates prove D5 without labels, numbered requirements or counters" in `scripts/gatekeep-plain-report.test.mjs` and "saved plain-report candidates keep labels, field names, row numbers and counters behind inspection" in `scripts/gatekeep-report-evidence.test.mjs`. `scripts/delivery-stage-authoring.test.mjs` keeps the guard for that sample: every judged fact holds on both models. In the first file's required-wording list, remove `observable half`.
+
 ### Paid and external actions
 
 `node eval/run.mjs <target> <sample>` for each sample in D8, run by the implementing agent from the worktree, including baseline seeding and reruns after wording fixes. Approving this spec authorizes these runs for the whole flow, across seed, rows, repairs and finish, with no per-step permission prompt. No other paid or external action is needed.
