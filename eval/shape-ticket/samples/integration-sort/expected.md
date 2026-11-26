@@ -1,0 +1,6 @@
+- target: judged: The proposed Acceptance Criteria contain the original deploy-script row as written, including the literal `production` and the confirm flag.
+- entries: judged: All five externally fulfilled source rows (operator cutover, vendor confirmation, empty staging queue, production-order status, and deployed login) appear as separate source-worded items under Integration, not Acceptance Criteria; the proposed Reporter note quotes all five original rows verbatim.
+- mixed: judged: Acceptance Criteria require the migration script to convert legacy status to reviewed status, but not its run on live orders. Integration carries the operator's run on live orders and the Reporter note retains the whole original mixed row verbatim.
+- heading: judged: The proposed body uses Integration instead of the old Post-deployment housekeeping heading and retains both Archive the cutover log and Notify the support desk as entries there.
+- scenarios: judged: Missing, blank and unknown status remain scenarios of one rejection criterion, not three separate criteria.
+- constraint: judged: The proposed Acceptance Criteria include `Already reviewed orders remain unchanged.` as written, without converting it to setup/action/result prose.

@@ -1,2 +1,3 @@
 - f1: judged: The repaired latency row keeps the 2s target and the baseline and names no environment.
 - f3: judged: No AC row names production, staging, UAT, or experimental.
+- original: judged: The proposed Reporter note includes the verbatim original text `p95 export latency <= 2s in staging (baseline 5s)`.

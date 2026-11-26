@@ -3,9 +3,9 @@
 base: 5c70b98905dc9d0bbd84b43e8f41208ab8525490
 verification: npm test
 checks: commands
-iterations: 4
+iterations: 5
 allowance: 10
-returned: 4 | home | c535a1a256cba4d6671221540788d0591a2e6daf
+returned: 5 | home | f36eee452e3c34674a6d9b008d77b0199102812a
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -13,9 +13,9 @@ returned: 4 | home | c535a1a256cba4d6671221540788d0591a2e6daf
 | 2 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs conformance-reviewer post-merge-action; 2 passed; the selected eval covered only importer rejection on both models |
 | 3 | done | 1 | timeout -k 30 30 node --import ./eval/spec-council-applier/pr-description-finding.test.mjs scripts/delivery-stage-authoring.test.mjs spec-council-member non-criterion-row-flagged; 3 passed; both selected council evals kept Integration entries out of acceptance criteria on both models |
 | 4 | done | 1 | timeout -k 30 30 node --test scripts/ac-definition-owner.test.mjs; 3 passed; one shipped definition, no retired sorting terms, and all three sorters reference the owner |
-| 5 | open | 0 | |
-| 6 | open | 0 | |
-| 7 | open | 0 | |
+| 5 | done | 1 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket venue-stripped; 2 passed; both selected replays kept the 2s target and 5s baseline without staging and quoted the original in the Reporter note |
+| 6 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays kept the deploy script's production rejection row word for word |
+| 7 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays placed all five external obligations only in Integration and quoted each original in the Reporter note |
 | 8 | cut | 0 | deviates: an entry is one list item in its source's words with no required details |
 | 9 | cut | 0 | deviates: entries keep their source order; no timing sort |
 | 10 | cut | 0 | deviates: no `not stated` placeholder; the entry reads as the source wrote it |
@@ -23,8 +23,8 @@ returned: 4 | home | c535a1a256cba4d6671221540788d0591a2e6daf
 | 12 | cut | 0 | deviates: no step reads the old heading as a second section name; an old-heading ticket section is raw input whose entries the first ticket check carries to the spec's `Integration` |
 | 13 | cut | 0 | deviates: neither the pull request offer nor the merge-gate report lists entries |
 | 14 | open | 0 | |
-| 15 | open | 0 | |
-| 16 | open | 0 | |
+| 15 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays replaced the housekeeping heading with Integration and preserved both entries |
+| 16 | done | 0 | timeout -k 30 30 node scripts/delivery-stage-authoring.test.mjs shape-ticket integration-sort; 2 passed; both replays kept the migration script's behavior under Acceptance Criteria and its run on live orders under Integration |
 | 17 | cut | 0 | deviates: a note in the repository stays an acceptance row; a comment on the ticket is a tracker update and moves to `Integration` |
 | 18 | cut | 0 | deviates: the row moves to `Integration` like every tracker update; the gate carries no sentence about comments |
 | 19 | cut | 0 | deviates: no sample-data requirement and no not-ready filing for it |
@@ -69,3 +69,8 @@ row 2 done | Both conformance replays judged only the importer's missing-id reje
 row 36 done | Both conformance replays gave none of the six Integration entries a verdict or a blocker. | Reuse the six entries in eval/conformance-reviewer/samples/post-merge-action/case.md to check other readers.
 row 3 done | Council review and edits corrected misplaced ticket rows without adding Integration entries to acceptance criteria or reporting them missing. | Reuse the pr-description-finding fixture to check verbatim moves, ticket markers, and in-scope dispositions.
 row 4 done | Ticket shaping, brainstorming and delivery use one definition; planning and merge review judge only file-delivered functionality. | Run scripts/ac-definition-owner.test.mjs to check the definition's owner, its callers and retired sorting terms.
+row 5 done | Ticket repair removed staging from the latency limit and kept the original row verbatim in the Reporter note on both replay models. | Reuse the venue-stripped sample to check that removing the measurement environment preserves the target and baseline.
+row 6 done | Both repair drafts kept the deploy script's production target and confirmation requirement word for word. | Reuse eval/shape-ticket/samples/integration-sort to check which environment names belong to a requirement.
+row 7 done | Both drafts moved the five external obligations to Integration and quoted their original rows in the Reporter note. | nothing new to build on
+row 15 done | Both drafts replaced the old housekeeping heading with Integration and kept its archive and notification entries. | nothing new to build on
+row 16 done | Both drafts kept the script's status conversion as a criterion and moved the operator's run on live orders to Integration. | nothing new to build on

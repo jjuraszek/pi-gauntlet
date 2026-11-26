@@ -1,41 +1,42 @@
 {
   "sample": "venue-stripped",
   "arm": "candidate",
-  "skillSha": "f90e3595c8cfe82f1cede9cf70df01f9659da67ac23e25730d37fe0b8ef693e3",
-  "inputSha": "ba2883dcf2799a472143200ededf7d4715bb7a3705de0da88d22c7d031e9031d",
+  "skillSha": "2c030166b680522d8996399adda4d0a502cfa2bf3a9b8fb307e1fb5cb65d1289",
+  "inputSha": "3f6ffcfb50496f64788fd0316ad52a636032867c5dec0324759708eac64b29b6",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
   "models": {
     "replay": [
+      "anthropic/claude-opus-5-5",
       "github-copilot/gpt-6.1-sol"
     ],
-    "judge": "github-copilot/gpt-6.1-sol",
+    "judge": "anthropic-fable/claude-fable-5-2",
     "thinking": "medium"
   },
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "## Draft (repair, full replacement body)\n\n```markdown\n## Context\nRequesters export reports as CSV from the widgets app. The current p95 export latency is 5s for the representative 100-row report, measured in the recorded request-timing run.\n\n## Problem\nRequesters wait 5s at p95 for a 100-row CSV export instead of the required maximum of 2s.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] Given the representative 100-row report, when CSV exports are requested and timed with the same request-to-file-ready method as the recorded baseline run, p95 export latency is <= 2s (baseline 5s).\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n```\n\n**Draft notes**\n- **Baseline, target and measurement:** These are preserved. The 5s baseline and 2s target stay unchanged. The method from `## Measurement clarification` now sits in the AC row. That section is not part of the body template, so the draft removes it. None of its content is lost.\n- **Environment wording:** \"in staging\" is removed from the AC row. Under the deploy-window rule, an AC row never names an environment, and the spec picks the venue. A pre-prod run with the representative report satisfies the row.\n- **Housekeeping:** The post-deployment item is kept as written. It is non-blocking and is not an AC.\n- **Repos:** Only acme/widgets is involved, so the AC list stays flat.\n- **Comment:** None is proposed. The draft displaced no overflow, there is no overlap evidence, and there was no in-session ask.\n\n## AC integrity gate (assembled draft)\n\n| AC | Class test | Outcome |\n|---|---|---|\n| p95 export latency <= 2s for the 100-row report (baseline 5s) | Comparative. The baseline (5s, recorded run), the target (<= 2s) and the measurement method (request-to-file-ready, same as baseline) are all present. These are supplied values, not guesses. | **Pass.** It can be verified before production. |\n\n- **Normalization:** There was one criterion. It is already a `- [ ]` item.\n- **Uniqueness:** There is one observation, and nothing was removed or split.\n- **Hard stops:** None.\n- **Parks:** None.\n- **Relocations:** None. Monitoring stays in Post-deployment housekeeping.\n\n**Carried to step 8 (source gap):** The Problem example has no `source:` footer, and no URL or attachment was gathered. The title is not a discovery title. At the gate, this will appear as `source missing: Requesters wait 5s at p95 for a 100-row CSV export`. Because this is repair mode, the slot will be prefilled with `source: none (not recorded at filing)`. The write remains on offer despite the gap.\n\nNext step: step 5 deterministic gates, then roast, then the confirmation gate.\n",
-      "words": 400,
-      "wallMs": 19370,
+      "text": "## Proposed body (repair, full replacement)\n\n```markdown\n## Context\nRequesters export reports as CSV from the widgets app. The current p95 export latency is 5s for the representative 100-row report, measured in the recorded request-timing run. The requester supplied the 5s baseline and the 2s target; neither is an estimate.\n\n## Problem\nRequesters wait 5s at p95 for a 100-row CSV export instead of the required maximum of 2s.\n\nsource: none (not recorded at filing)\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] p95 request-to-file-ready latency for CSV exports of the representative 100-row report is <= 2s, measured with the same request-timing method as the recorded baseline (baseline 5s)\n\n## Integration\n- Non-blocking: monitor export latency after release.\n- in staging (the environment where the p95 export latency criterion is measured)\n```\n\n## Proposed Reporter note\n\n```text\nReporter note:\n<untrusted-data>\nOriginal acceptance criterion (environment clause moved to Integration; measurement method folded in):\n- [ ] p95 export latency <= 2s in staging (baseline 5s)\n\nOriginal section \"Measurement clarification\" (folded into Acceptance Criteria and Context):\nUse the same request-timing method as the baseline: request CSV exports of the representative 100-row report and measure request-to-file-ready latency. The recorded baseline and target are supplied values, not estimates.\n</untrusted-data>\n```\n\n## Change summary for the gate\n\n**Section rename**\n- `Post-deployment housekeeping` becomes `Integration`.\n- Its entry is kept verbatim as a list item.\n\n**AC integrity gate: comparative AC**\n- The criterion has a baseline of 5s and a target of 2s, both supplied.\n- It has a stated measurement: request-to-file-ready latency with the recorded request-timing method on the representative 100-row report.\n- It therefore passes. There is no hard stop and no park.\n\n**AC classes: mixed row**\n- `in staging` says where the check is measured, not what the software does.\n- The criterion keeps only the latency functionality. The environment clause moves to `## Integration` as a `live check` entry.\n- The original row is kept verbatim in the Reporter note.\n\n**Measurement clarification**\n- This is not an allowed section, so it was removed.\n- Its method is folded into the criterion, and its supplied-values statement is folded into Context.\n- The original section is kept verbatim in the Reporter note.\n\n**Uniqueness**\n- There is one criterion, so no rows were removed or split.\n\n**Evidence gate**\n- The Problem example has no gathered URL, attachment or screenshot.\n- In repair mode the footer is prefilled as `source: none (not recorded at filing)`.\n- At the gate this shows as the row `source missing: Requesters wait 5s at p95 for a 100-row CSV export`, placed after Evidence. The write is still offered.\n\nStopping here, before step 5 gates, roast, the confirmation gate and any tracker write.\n",
+      "words": 424,
+      "wallMs": 23426,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: done drafted\n\n## Proposed replacement body\n\n```markdown\n## Context\nRequesters export reports as CSV from the widgets app. The recorded request-timing run measured p95 request-to-file-ready latency of 5s for the representative 100-row report. The baseline and required 2s target are supplied values, not estimates.\n\n## Problem\nRequesters wait 5s at p95 for a 100-row CSV export instead of the required maximum of 2s.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] Given the representative 100-row report, when CSV exports are requested and request-to-file-ready latency is measured using the same request-timing method as the recorded 5s baseline, p95 latency is ≤ 2s.\n\n## Post-deployment housekeeping\nNon-blocking: monitor export latency after release.\n```\n\n**AC integrity gate: passed.**\n- Comparative criterion retains the supplied baseline (5s), target (≤ 2s), representative input, and measurement method.\n- Setup, action, and observable result are explicit and verifiable before production deployment. The environment restriction was removed from the AC.\n- Post-release monitoring remains explicitly non-blocking housekeeping.\n\nNo Reporter note is proposed: the measurement clarification is incorporated into the body, with no overflow. No tracker changes have been made.\n",
-      "words": 175,
-      "wallMs": 18247,
+      "text": "gauntlet: done drafted\n\n## Context\nRequesters export reports as CSV from the widgets app. The current p95 export latency is 5s for the representative 100-row report, measured in the recorded request-timing run.\n\nUse the same request-timing method as the baseline: request CSV exports of the representative 100-row report and measure request-to-file-ready latency. The recorded baseline and target are supplied values, not estimates.\n\n## Problem\nRequesters wait 5s at p95 for a 100-row CSV export instead of the required maximum of 2s.\n\n## Idea\nThe reporter proposes improving CSV export in acme/widgets.\n\n## Acceptance Criteria\n- [ ] p95 export latency <= 2s (baseline 5s)\n\n## Integration\n- in staging\n- Non-blocking: monitor export latency after release.\n\n## Proposed Reporter note\n```untrusted_text\nReporter note:\n- [ ] p95 export latency <= 2s in staging (baseline 5s)\n```\n",
+      "words": 119,
+      "wallMs": 15984,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
+      "factsSha": "d2c8291dbbcee0c1bf1ca11b86afe9ffa2673a37b6626c13f3eeebcc88010f19",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
-      "baselineOutputSha": "a3e43f198b69766b76b59556a222298322d2a7e28f68ea41e6f1251718ec98a4",
-      "candidateOutputSha": "f8ece54aabd3e0e3472e914c601effff9768310d5c03bc7ae27960e7f909a51f",
+      "intentSha": "848aa2b050998f5baec927b2d85c3f1fd0fa790bcf5783728ecbe46c43ca5b05",
+      "baselineOutputSha": "b6ce7d55b4d4c8d13da77f05cb5a695b44b30cb258c20a74a45a4e99c7579f1d",
+      "candidateOutputSha": "25b7d4731a7f631eb9a8c7424dd844b8c236c70f3eaa6b6953d30fffda395676",
       "facts": {
         "f1": {
           "before": "holds",
@@ -46,18 +47,23 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "original": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
         }
       },
-      "feedback": "Neither fact moved: both outputs rewrite the AC row as a Given/when/then comparative criterion that keeps the 2s target and the 5s baseline and strips \"in staging\", and no AC row in either output names production, staging, UAT or experimental (the only mentions of staging/production are in draft notes and the gate table, not AC rows). Two side effects of the After wording are worth noting even though they fall outside these facts: After proposes no Reporter note comment and asserts \"none of its content is lost\" after deleting the Measurement clarification section, whereas Before preserved that section and the original AC row verbatim in a Reporter note — if the displaced-detail accumulation rule is meant to apply here, keep the sentence that displaced sections are carried verbatim into the draft artifact's Reporter note rather than letting the comment rule's \"no overflow\" branch swallow a removed section. After also drops the prefilled `source: none (not recorded at filing)` footer from the Problem body and only describes it in prose; if repair-source/accepted expects the displayed constant to be in the body, say explicitly that the repair constant is rendered in the draft Problem section rather than only announced for step 8.",
-      "wallMs": 10830,
+      "feedback": "On this case no fact moved: both outputs keep the 2s target and 5s baseline in an environment-free latency row, neither has an AC row naming staging/production/UAT/experimental, and both Reporter notes carry the original `p95 export latency <= 2s in staging (baseline 5s)` verbatim, so the expected fails -> holds move for `original` is not visible here because Before already held. What After changed is around those facts: it renamed Post-deployment housekeeping to Integration and added an `in staging (...)` entry there, which is fine for f3 only because that row sits outside Acceptance Criteria; keep the wording explicit that displaced environment clauses land under Integration and never back in an AC row. After also added an explanatory label line inside the Reporter note ('Original acceptance criterion (environment clause moved to Integration; ...)') and an `<untrusted-data>` wrapper; the verbatim row survives, but the Change says no retirement label, so state that the note carries the displaced original bytes only, without annotations describing where each piece went. Also note the summary calls the Integration entry a `live check` while the body does not render that label; pick one so the output is self-consistent.",
+      "wallMs": 6219,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "448351d40c9d682ff29e24f421ef519ec9b1455ddb4e39760068708be93aadf8",
+      "factsSha": "d2c8291dbbcee0c1bf1ca11b86afe9ffa2673a37b6626c13f3eeebcc88010f19",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "c0c2580170b0013d4d1bb5f8e916b24fa5b37b9e2723110417dc9c31ffcfb227",
-      "baselineOutputSha": "d69986ae2245ab5152e538507d123f14a425a16832b0ba934bf6aabdae36c0f7",
-      "candidateOutputSha": "814c262d54402d559a1b24b4efc72f18afffc9b46c46efead9814567180c5c13",
+      "intentSha": "848aa2b050998f5baec927b2d85c3f1fd0fa790bcf5783728ecbe46c43ca5b05",
+      "baselineOutputSha": "146ba13cb64a103d836375823103ec71314e9a3546ce5b096066c3d056762e7f",
+      "candidateOutputSha": "842eba0c9e189dc1393f5a3c8e634d13bf70bed0563fcf30e678d66ed156c2a1",
       "facts": {
         "f1": {
           "before": "holds",
@@ -68,12 +74,17 @@
           "before": "holds",
           "after": "holds",
           "label": "held"
+        },
+        "original": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
         }
       },
-      "feedback": "Nothing moved on this case: both Before and After keep the single AC row with the 2s target and the recorded 5s baseline, and neither row names an environment (the only mentions of staging/production sit in the gate commentary, not in an AC row). After's wording is slightly tighter in placing the baseline inside the when-clause (\"measured using the same request-timing method as the recorded 5s baseline\") and the target in the result clause, which keeps the comparative shape intact; the status header \"gauntlet: done drafted\" and the renamed heading \"Proposed replacement body\" are cosmetic and did not affect either fact. To keep this stable while delivering the Change, continue to strip any venue name from AC rows and keep the removed-environment note in the gate text rather than the criterion.",
-      "wallMs": 7539,
-      "verdict": "unchanged"
+      "feedback": "The After wording moved `original` from fails to holds: the Reporter note now carries the displaced row verbatim (`p95 export latency <= 2s in staging (baseline 5s)`), where Before proposed no note at all. f1 and f3 hold in both outputs, since each latency row keeps the 2s target and 5s baseline and names no environment. In After the environment survives only as an `in staging` bullet under Integration, which is not an AC row, so f3 still holds; that bare fragment is the fragile spot, because a reader could not tell what it qualifies and a future run that folded it back into the AC row would break f1 and f3. To keep all three facts, keep the instruction that the displaced original goes verbatim into the Reporter note, and say explicitly that an observation-environment clause moved to Integration must be written as a self-contained line (for example, naming the latency check it applies to) and must never be re-attached to the AC row.",
+      "wallMs": 6938,
+      "verdict": "improved"
     }
   },
-  "repoSha": "03b700159d3e93209e89a28f2f3a032bd72cfdd9"
+  "repoSha": "f36eee452e3c34674a6d9b008d77b0199102812a"
 }

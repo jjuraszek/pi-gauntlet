@@ -1,6 +1,6 @@
 bundle-: skills/shape-ticket/reference/repo-audit.md
 
-Workflow stage: step 4 Draft followed by the AC integrity gate.
+Start at step 4 Draft and apply the AC integrity gate. Return the proposed ticket body and any Reporter note as they would appear for confirmation; stop before roast, approval or tracker writes.
 ## Mode
 Repair. The complete ticket body is below. Preserve its target, baseline, and non-blocking housekeeping. Gathering is complete; no links, tracker fields, or comments need preservation.
 

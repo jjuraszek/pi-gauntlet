@@ -26,6 +26,8 @@ for (const name of targetName ? [targetName] : ['gauntlet', 'gatekeep-pr', 'loop
 for (const [name, sample] of targetName ? samples.map((sample) => [targetName, sample]) : [
   ['conformance-reviewer', 'post-merge-action'],
   ['spec-council-member', 'non-criterion-row-flagged'],
+  ['shape-ticket', 'venue-stripped'],
+  ['shape-ticket', 'integration-sort'],
   ['shape-ticket', 'pr-body-proof'],
   ['gauntlet', 'pr-body-drafted-row'],
   ['gauntlet', 'post-action-sorted'],

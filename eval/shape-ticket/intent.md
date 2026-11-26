@@ -1,13 +1,9 @@
-for: cb8995629cb7d872d67730a17f301f67b622b48fcb1e3354dba52065ce926eff
+for: bf5ecb56f43d15c27b757b4e41d3b83cb8f9c7c94e4cf8987ae8a187eda97fe7
 
 ## Change
-Check the shared class table at step 4 in create and repair mode. Preserve surviving behavior wording and retain dropped stage proof in the Reporter note in workflow-stage-proof-create, workflow-stage-proof and pr-body-proof. The `"new": true` marker on `ac-classes.md` is for the pre-move comparison only; remove it from both manifests and the replay test at the first comparison whose baseline contains the file.
-
-Drop ticket rows whose sole observable is a pull request's title or body while preserving behavior that produces pull-request text. Run only pr-body-proof against base 3171d0e124e361836d163217ff976af02c86cf2f for this edit. Require the retired-proof Reporter note and byte-identical surviving behavior rows. The first comparison dropped the release-script row on both candidate models, so add an explicit file-produced-text example beside the unchanged class row; retain every must-hold fact and the original baseline. Preserve all prior records; this tool-free checkpoint proves drafted text, not live tracker writes or target-wide coverage. The deterministic cached check is scripts/delivery-stage-authoring.test.mjs.
+Sort ticket rows by the shared definition. Keep the file-delivered functionality under Acceptance Criteria, including environment names that define it and scenarios of the same constraint. Carry external clauses and pipeline results under Integration and retain every displaced original verbatim in the Reporter note, without a retirement label. On repair, carry existing housekeeping entries under Integration. The text replays inspect the proposed body and note, not tracker writes.
 
 Require plain per-ref settlement rows after selected writes, including singleton creates; use the actual returned ticket ref rather than the drafted title on successful creation. Run only per-ref-settlement for this edit, with historical results preserved; this is sample-scoped coverage, not a target-wide pass.
-
-Label every retained original containing a retired stage clause, including AC uniqueness's verbatim bundled-row copy, so no unmarked duplicate can carry the suite obligation downstream. Strengthen workflow-stage-proof/f4 to check every retained copy; preserve prior result records and run only that selected sample.
 
 Resolve configured sibling clone URLs beside the primary checkout, with shared stored-origin identity parsing and parent-owned nonblocking report lines. Keep home cwd at the current checkout; cover linked worktrees, external Git directories, submodules and successful worktree-list output without a primary entry. Reject legacy paths with a migration line. Preserve report-only outcomes through missing, empty or malformed scout artifacts and quiet no-op reports without opening a gate. Fold grounded legs from found absolute paths using stored origin names; keep existing grounding and dispatch guards.
 
@@ -26,16 +22,13 @@ Carry source provenance in Problem, surface named gaps at the existing gate, req
 
 Mark active clarification and integrity questions, the exact-diff gate, and ended batch settlement. Use fixed-order nonzero counters and stuck only for unfetched, close-failed or close-by-hand outcomes. Keep per-ref reports and exact-diff write authority intact; never reopen an ended stopped item.
 
-Drop workflow-stage proof at the AC integrity gate after uniqueness splits bundled observations, preserve surviving behavioral text and untouched rows byte-for-byte during that drop, retain displaced text in the fenced Reporter note with the retired workflow-stage proof label, and route an emptied AC list to recovery or park. The workflow-stage-proof sample checks repair of mixed behavior/stage rows and a second ticket with only stage proof; coverage is sample-scoped, not a target-wide pass.
-
 ## Expected to move
 - pr-body-proof/f1: fails -> holds - Exclude a PR-description checklist as delivery-stage proof.
-- pr-body-proof/f2: fails -> holds - Retain the dropped row under its retired-proof label.
+- venue-stripped/original: fails -> holds - Keep the whole original latency row in the Reporter note after removing the observation environment.
 - pr-body-proof/f3: holds -> holds - Keep the release script's generated PR text as a behavior.
 - pr-body-proof/f4: holds -> holds - Keep the file-removal behavior verbatim.
 - per-ref-settlement/identity: fails -> holds - Both baseline replies identify the create by title rather than the returned #83.
 - per-ref-settlement/no-title-key: fails -> holds - One baseline reply uses the drafted title as its row key; the other omits a plain row.
-- workflow-stage-proof/f4: fails -> holds - Both baseline replies retain the removed text but omit the retired workflow-stage proof label.
 - gate-line-first/settlement: fails -> holds - Render exact fixed-order nonzero counters on the first stuck line.
 - gate-line-first/per-ref: holds -> holds - Preserve the six lines and keep ended stops settled.
 - obsolete-premise-contradicted/verdict: fails -> holds - Both pre-edit replies omit the obsolete line; require confirmed premise contradiction before not reproduced.
