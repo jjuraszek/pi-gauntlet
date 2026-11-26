@@ -11,7 +11,7 @@ const menus = read("skills/gatekeep-pr/reference/menus.md");
 test("reports keep facts and evidence provenance without field scaffolding", () => {
   assert.doesNotMatch(report, /^```/m, "report has no fenced template or examples");
   assert.doesNotMatch(report, /(?:Evidence|Role|Prior review|Sync|Verdict|Delivers):/);
-  for (const phrase of ["whole sentences", "standing sentence", "show evidence", "also requested", "no commits since", "not an ancestor", "after merge"]) {
+  for (const phrase of ["whole sentences", "standing sentence", "show evidence", "also requested", "no commits since", "not an ancestor", "PR-named after-merge steps"]) {
     assert.ok(report.includes(phrase), phrase);
   }
   assert.match(report, /CI.*local|local.*CI/s);
@@ -22,7 +22,7 @@ test("reports keep facts and evidence provenance without field scaffolding", () 
   assert.match(report, /name the behavior, never a row number/);
   assert.match(report, /Start the second part with the standing sentence/);
   assert.match(report, /part three's recommendation sentence and reason immediately above `Pick one:`; follow `menus\.md`\./);
-  assert.match(report, /^> This PR /m, 'ship the unfenced report example');
+  assert.match(report, /^> This PR adds an on-demand CSV export button\. The spec defers scheduled exports to acme\/widgets#46; you and robin are requested reviewers\.$/m, 'ship the unfenced report example with functionality-only scope');
   assert.doesNotMatch(read('skills/gatekeep-pr/reference/batch.md'), /Not offered:/);
   const wording = skill.split("## Wording rules\n")[1].split("## Red flags")[0];
   for (const phrase of ["binding pending check", "merge_state_status BLOCKED", "assessed head", "durable run record", "PR-named action", "coverage post", "withhold", "terminal pick", "post set", "disposition", "cap reached", "nit", "contradicted claim", "observable half", "conflicting / behind", "deferred / deviates / elsewhere", "pending reviewer placeholder", "Output done-check"]) {

@@ -1,8 +1,8 @@
 # eval report: gatekeep-pr (partial run: overrides-own-block-only)
 
-for: 86ce8f841905b943733cd3646c98f214d90f5a291d8910b74c8a4a5a47797e56
+for: 2f7cca332ee570eebafc1e9e71a0660673e4b7e4f02158c0673ebffb8db5d328
 
-wall: 6s
+wall: 5s
 
 ## Change
 
@@ -18,12 +18,12 @@ Unselected samples, including `merge-landed-message` and `fix-row-return-file`, 
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| overrides-own-block-only | anthropic/claude-opus-5-5 | improved | 5434 | verify: fails -> holds (intended change); foreign: holds -> holds (held) |
-| overrides-own-block-only | github-copilot/gpt-6.1-sol | improved | 4644 | verify: fails -> holds (intended change); foreign: holds -> holds (held) |
+| overrides-own-block-only | anthropic/claude-opus-5-5 | improved | 4766 | verify: fails -> holds (intended change); foreign: holds -> holds (held) |
+| overrides-own-block-only | github-copilot/gpt-6.1-sol | improved | 4934 | verify: fails -> holds (intended change); foreign: holds -> holds (held) |
 
 ## Feedback
 
-- overrides-own-block-only / anthropic/claude-opus-5-5: The After wording moved `verify` as intended: the output now treats the merge-base `# gatekeep-pr` block's `local verification: always` as trusted, combines it with the shared `verification command`, and narrates actually running `node checks/amber-receipt.mjs` from the worktree at the assessed head (exit 0, log captured, cleanliness and HEAD re-checked) despite green exact-head CI. Before explicitly said the policy was not set because it looked for a `## PR gate` section, reused CI, and stated it did not invoke the command. No fact that Before kept was lost, since this was the only fact. The After output also correctly left the shape-ticket suffix out and rendered no menu. To keep this stable, keep the wording that names the skill's own block plus the shared block as the recognized configuration source and that the opt-out row is evaluated first, ahead of the CI-sufficient row; one small thing to watch is that After says the PR body has no material claims, whereas the digest says no claims need a separate command, so wording that distinguishes 'no claims' from 'claims needing no extra command' would avoid drift there.
-- overrides-own-block-only / github-copilot/gpt-6.1-sol: After moved the verify fact: it narrates the verifier actually running `timeout 900 node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head, states explicitly that green exact-head CI is kept only as supporting evidence and does not skip the local run, and cites `local verification: always` as the reason; Before reused CI and reported `Local commands run: none`, so the fact failed there. Nothing Before held was lost, since this was the only fact and Before failed it. To keep this result, preserve the wording that combines the shared verification command with the gatekeep-pr local-verification policy and that says CI green does not substitute for the local run; keep the command shown as an executed step rather than only in a configuration recap. The shape-ticket suffix correctly does not appear in either output, and that should stay scoped out.
+- overrides-own-block-only / anthropic/claude-opus-5-5: The After wording moved `verify` as intended: the output now reads the merge-base `# gatekeep-pr` block as trusted, matches `local verification: always` on the first evidence row, and narrates actually running `node checks/amber-receipt.mjs` from the worktree root on the assessed head (exit 0, with HEAD and tracked-tree checks before and after), explicitly despite exact-head CI being green. Before looked only for a `## PR gate` section, declared the policy unset, and explicitly did not invoke the command, relying on CI alone. No fact that Before held was lost. To keep this stable, retain the wording that ties the shared verification command to the gate's own block policy and that the opt-out row is evaluated before the CI-sufficient row; also note the After output did not append the shape-ticket suffix, which is consistent with the Change, so keep the statement that other skills' blocks have no effect.
+- overrides-own-block-only / github-copilot/gpt-6.1-sol: After moved the verify fact as intended: the verifier now narrates actually running `node checks/amber-receipt.mjs` in `.worktrees/pr-62` on the assessed head (wrapped in a timeout, bracketed by `git rev-parse HEAD` and a tracked-file status check), and it explicitly says green exact-head CI is kept as supporting evidence but not used to skip the local run because the gate's `local verification: always` policy applies; Before instead reused CI and stated it ran no local command. Before held no facts on this case, so nothing regressed. To keep this result stable, retain the wording that ties the shared verification command to the gatekeep-pr local-verification policy and that states CI green does not waive the local run; also keep the shape-ticket suffix inert (After correctly omits "Ivory seal attached."). One minor point: the evidence line cites `$log_path` as a literal unexpanded variable, which you may want the wording to resolve to a concrete path or describe in words.
 
 exit: 0

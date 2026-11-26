@@ -53,7 +53,7 @@ Under `show evidence`, print `state: <absolute-path>`, then the run record's cou
 
 ## Example
 
-> This PR adds an on-demand CSV export button. The spec defers scheduled exports to acme/widgets#46, and the speed target needs checking after merge; you and robin are requested reviewers.
+> This PR adds an on-demand CSV export button. The spec defers scheduled exports to acme/widgets#46; you and robin are requested reviewers.
 >
 > One problem blocks merging: the description says "Exports run nightly", but the button exports on demand. The correction is "Exports run when you click Download." One smaller point does not block merging: the export repeats a shared helper's paging code.
 >
