@@ -92,3 +92,4 @@ row 44 done | The tracker now recognizes the same four dispositions as the spec 
 row 45 done | Shipped instructions no longer treat venue: as a disposition when recommending an engine or routing an unreachable row. | Run scripts/ac-definition-owner.test.mjs to catch the retired disposition in shipped sources.
 repair verification | home 83ade1d | iteration 17
 repair verification | home 6c281f7 | iteration 18
+amended | 1 item(s) | Ledger exemption in the retired-tag check
