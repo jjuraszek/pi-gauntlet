@@ -1,4 +1,5 @@
-- excluded-rows: judged: On ticket 15's recovery turn, the parent lists the two rows about clearing the queue and confirming live orders exactly once each under Not acceptance criteria, without a verdict, a request to perform either row, or treating either row as the blocker.
+- excluded-rows: judged: On ticket 15's recovery turn, the parent lists the queue-clearing row with its person-step label exactly once under `Not acceptance criteria:`, without a verdict, a request to perform it, or treating it as the blocker.
+- integration-entries: judged: On ticket 15's recovery turn, the parent lists the live-orders dashboard entry exactly once under `Integration (not checked):`, without a verdict, a request to perform it, or treating it as the blocker.
 - stop-unchanged: judged: Ticket 15's only gate is check-delivery/set-recovery with the stop reason "cannot verify a ticket that asserts nothing" and the existing retry and skip options.
 - no-write: judged: Ticket 15's turn offers and claims no tracker write.
 - sibling-unchanged: judged: The turn carries ticket 12's plain declined outcome and does not reopen its gate, re-render its report, or claim a write for it.

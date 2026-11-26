@@ -11,7 +11,8 @@ body edit: none
 ## Report
 Not acceptance criteria:
 - The operator clears the queue. (person step)
-- After deploy, confirm that live orders appear in the dashboard. (live check)
+Integration (not checked):
+- After deploy, confirm that live orders appear in the dashboard.
 STOPPED - cannot verify a ticket that asserts nothing
 
 Show the next user-facing message only.
