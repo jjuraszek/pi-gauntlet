@@ -98,3 +98,4 @@ amended | 1 item(s) | Bug repro steps stay in the Evidence list
 amended | 1 item(s) | Merge-gate report example without the after-merge observation
 amended | 1 item(s) | Saved-reply layout tests removed
 amended | 4 item(s) | Failed Integration body copy does not hold back readiness
+amended | 3 item(s) | Discovery rows sorted by the owner definition

@@ -458,6 +458,9 @@ Each target gets its `intent.md` per `eval/README.md`. Samples, one decision eac
 | `gauntlet/pr-rework-integration-not-claims` | new | a reworked pull request whose body carries `## Integration`: no entry appears under keeps, changes or dropped claims |
 | `gauntlet/group-all-rows-sorted` | new | a grouped ticket where one unmatched group's rows all sort to `## Integration`: the unmatched-group question is not asked for it |
 | `gauntlet/handoff-follows-pointer`, `ordinary-request-no-run` | rerun only | no fact changes; `scripts/entry-phase-evals.test.mjs` requires their saved replies to be fresh, and the `ticket-acceptance.md` edit makes them stale |
+| `shape-ticket/discovery-row-sorted` | new | a discovery ticket whose rows are a findings document committed to the repository and a baseline recorded only in an external system: the document row stays an acceptance row, the external baseline is an `Integration` entry |
+| `check-delivery-batch/zero-criteria-entries-listed` | new | a batch in which one ticket is left with no acceptance criterion: that ticket's recovery turn lists the rows that are not acceptance criteria once, without verdicts; the stop is unchanged and nothing is written |
+| `gatekeep-pr-scope/cross-check-all-rows-moved` | new | a ticket whose rows all sit under the spec's `## Integration` with their marker lines, acceptance rows drafted from the design: the cross-check reads `matched`; a ticket row missing from both sections still reads `differs` |
 
 In rows 2-4 and in every sample that uses the seven-row ticket, "the definition" is D1's: "the cutover steps are posted as a comment on the ticket" is a `tracker update` entry and is treated like the other five non-criterion rows. The quoted ticket rows are unchanged.
 
@@ -494,6 +497,9 @@ Remove the two tests that pin the layout of the saved `gatekeep-pr/plain-report`
 - The merge gate picks its contract path from the pull request body outside the `## Integration` block; a spec path named inside an entry is never a candidate. Add this to `skills/gatekeep-pr/reference/assessment.md`.
 - On pull request rework, the body's `## Integration` block is provenance, not a stated claim: the rework scout judges no entry against the diff. Add this to `skills/gauntlet/brainstorm/pr-subject.md` and the scout block in `skills/gauntlet/brainstorm/gatherer.md`.
 - The unmatched-repo-group question is asked only for a group that keeps at least one acceptance row after the sort; a group whose rows all moved to `## Integration` is not asked about. Add this to `skills/gauntlet/brainstorm/ticket-acceptance.md`.
+- Ticket shaping sorts a discovery ticket's rows by the owner definition like any other ticket's: an artifact the change commits to the repository is an acceptance row, one recorded only in an external system is an `Integration` entry. Point `skills/shape-ticket/SKILL.md`'s Discovery rule and its example in `skills/shape-ticket/reference/examples.md` at the owner file; state no second rule.
+- In a delivery check over several tickets, a ticket left with no acceptance criterion shows its rows that are not acceptance criteria on its recovery turn, once and without verdicts; the stop and the no-write rule are unchanged. Add this to `skills/check-delivery/reference/batch.md`.
+- The merge gate's ticket cross-check reads `matched` when every ticket row is accounted for by an `## Integration` marker line or an acceptance row, also when the acceptance rows were drafted from the design; `differs` stays for a ticket row that is missing or changed. Add this to `skills/gatekeep-pr/reference/assessment.md`.
 
 ## Tests
 
@@ -549,6 +555,9 @@ Remove the two tests that pin the layout of the saved `gatekeep-pr/plain-report`
 - Edge: a spec path inside an entry is not the contract - `eval/gatekeep-pr-scope` `integration-names-spec-path`
 - Edge: rework judges no entry as a claim - `eval/gauntlet` `pr-rework-integration-not-claims`
 - Edge: an emptied repo group is not asked about - `eval/gauntlet` `group-all-rows-sorted`
+- Edge: a discovery ticket's rows are sorted by the owner definition - `eval/shape-ticket` `discovery-row-sorted`
+- Edge: a batch ticket left with no criterion lists its set-aside rows - `eval/check-delivery-batch` `zero-criteria-entries-listed`
+- Edge: the cross-check matches a fully sorted ticket - `eval/gatekeep-pr-scope` `cross-check-all-rows-moved`
 - Whole suite - `npm test`
 
 ## Documentation impact
