@@ -700,6 +700,8 @@ test('stalled stops name the input that unblocks delivery without offering choic
   }
   const loop = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   assert.match(stop, /Apply \[menu-layout\]\(\.\.\/\.\.\/menu-layout\.md\) only to a question with choices/);
+  assert.match(stop, /For row stops, quote the evidence cell and last decision line verbatim under `Problem:`/);
+  assert.match(stop, /For a stalled whole-diff review, use `Stopped on whole-diff review\.` and quote the final review report's residual findings under `Problem:`/);
   assert.match(stop, /After `Problem:` print `Needs: <the input that unblocks delivery>`/);
   assert.match(stop, /At stalled and no-way-forward stops print no options or recommendation/);
   assert.doesNotMatch(stop, /^\| Stop \||End every stop with `Recommendation:/m);
