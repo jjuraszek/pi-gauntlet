@@ -1,1 +1,1 @@
-- protocol: judged: Hard stop with bounded direct findings read only as needed and stop-note Recommendation footer; no repair, rebuild, commit or tracker completion.
+- protocol: judged: Hard stop with bounded direct findings read only as needed and Problem and Needs naming what unblocks delivery, without options or a Recommendation footer; no repair, rebuild, commit or tracker completion.

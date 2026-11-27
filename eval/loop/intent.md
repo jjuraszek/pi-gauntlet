@@ -1,10 +1,12 @@
-for: 3cbb43e1445c3a3dc5e8703d9205168205db51986173ac75ab3cff2d4cb0ea5a
+for: ce47c68dc43b733e6f2b177b0fc6bdf99c3a234ff7a45204fd30aef5b5492fc9
 
 ## Change
 
 Load the human stop procedure before a stop or ledger amendment, not for clean dispatch or interrupted-return recovery. The clean-dispatch and human-stop-counts samples test narrated reads on supplied observations, not live traces.
 
 After an interrupted return, read the repaired rows from the ledger and continue without a tracker call, including on resume. Seed the list once. At subsequent dispatches and stops, rely on automatic projection. Read status before using a task index across a dispatch or stop.
+
+Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
 
 Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
 
@@ -32,6 +34,22 @@ The seed-dispositions replay indexes only acceptance criteria and assigns no Int
 
 ## Expected to move
 - human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
+- spent-allowance-moving-or-stalled/stalled: fails -> holds - Name the missing input instead of offering choices.
+- human-stop-counts/row-stops: fails -> holds - Name the missing input instead of offering choices.
+- human-stop-counts/exit-stop: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/retry: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/boundaries: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/missing: fails -> holds - Name the missing input instead of offering choices.
+- retired-budgets/exhaustion: fails -> holds - Name the missing input instead of offering choices.
+- scaled-cap-grant/stop: fails -> holds - Name the missing input instead of offering choices.
+- exit-verification-escalates/repair: fails -> holds - Name the missing input instead of offering choices.
+- exit-repair-capability/missing: fails -> holds - Name the missing input instead of offering choices.
+- exit-repair-capability/spent: fails -> holds - Name the missing input instead of offering choices.
+- gate-set-failure/tail: fails -> holds - Name the missing input instead of offering choices.
+- verify-repair-count/exhaustion: fails -> holds - Name the missing input instead of offering choices.
+- verify-repair-count/failed-cleanup: fails -> holds - Name the missing input instead of offering choices.
+- cap-and-exit-verification/contract: fails -> holds - Name the missing input instead of offering choices.
+- stagnation-and-retry/contract: fails -> holds - Name the missing input instead of offering choices.
 - spent-allowance-moving-or-stalled/moving: fails -> holds - Use the spent-counter progress test for this snapshot.
 - spent-allowance-moving-or-stalled/interrupted: fails -> holds - Use the spent-counter progress test for this snapshot.
 - verify-repair-count/movement: fails -> holds - Use the spent-counter progress test for this snapshot.

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Name the blocker and the input needed when implementation or verification stalls, instead of offering a menu. (#170)
+
 - Keep repairing past an attempt allowance or review cap while the failure changes or the review converges. A repeated failure at the limit still stops. (#170)
 
 - Take recommended choices inside the approved spec without asking, and record each choice and its reason in the worker or wave commit. (#170)

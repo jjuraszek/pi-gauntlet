@@ -1,0 +1,2 @@
+- stalled: judged: Starts with gauntlet: question, quotes the remaining length finding in Problem or the findings, and names the required maximum in Needs. No options, Stop offer or Recommendation footer.
+- fact: judged: Stops with Problem, both Searched lines in order and Needs naming the signed receipt, not a question about where to find it, options or a Recommendation footer.

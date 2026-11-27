@@ -1,0 +1,34 @@
+{
+  "sample": "stop-needs-no-menu",
+  "arm": "baseline",
+  "skillSha": "5bcdd1815a231604757db957513ecca36e3d0dfcb356fcca5d59d345bc2b8791",
+  "inputSha": "0daad4f9869886982cc5fe50177c2a176861bf1b6e9d96005a29a21429a6ca09",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "Each stop note follows `stop-note.md`. Task 3 and task 7 both stay `in_progress`, the phase stays `implement`, and no further tasks start. Neither note gets a `budget:` line because there is no budget token. No shell command or dispatch follows either note.\n\n**Reply for the task 3 stop.** The escalated round's re-review returned STAGNANT. With no budget token there are no funded rounds, so the run stops here. The scenario does not give the model string, so it stays as the `implModel` placeholder.\n\n```\ngauntlet: question\nStopped on task 3 (validate frame lengths); escalated round on <implModel> did not resolve it.\n\nProblem: Task 3 must validate frame lengths, but the approved spec sets no maximum frame length, so there is no limit to check against.\n  frame.ts:21 - \"No approved maximum frame length\"\n\nFix options:\n  a) amend the spec to state an approved maximum frame length (you name the value), and task 3 rejects frames longer than it\n  b) amend the spec and plan task 3 to drop the maximum-length check from frame-length validation\n\nPick one, or give another fix.\nRecommendation: a - the task cannot finish without an approved limit, and only you can set that value.\n```\n\n**Reply for the task 7 stop.** This is a fact ask that checked every documented location without finding the receipt, so no escalated round ran.\n\n```\ngauntlet: question\nStopped on task 7 (compare the export to a signed acceptance receipt).\n\nProblem: Task 7 needs the signed acceptance receipt itself, and no documented location holds it, so the comparison cannot run.\nSearched: plan attachments - receipt not found\nSearched: ticket attachments - receipt not found\n\nFix options:\n  a) supply the signed acceptance receipt, or access to wherever it is kept, so task 7 can compare the export against it\n  b) amend the spec and plan task 7 to drop the signed-receipt comparison requirement\n\nPick one, or give another fix.\nRecommendation: a - the task requires the signed receipt itself, and no other source is documented.\n```\n",
+      "words": 324,
+      "wallMs": 18118,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nStopped on task 3 (frame-length validation); the escalated round did not resolve it.\n\nProblem: Frame-length validation remains blocked because no maximum frame length has been approved.\n  frame.ts:21 - \"No approved maximum frame length\"\n\nFix options:\n  a) Amend the spec to define the maximum frame length, then enforce it and test the boundary.\n  b) Amend the spec to explicitly permit unbounded frame lengths and define the remaining length-validity checks.\n\nPick one, or give another fix.\nRecommendation: a - supplies the missing contract needed to implement and verify an upper limit.\n\n---\n\ngauntlet: question\nStopped on task 7 (export comparison against a signed acceptance receipt).\n\nProblem: The task requires the signed receipt itself, but the delegated lookup exhausted all documented sources without finding it.\nSearched: plan attachments - signed acceptance receipt not found\nSearched: ticket attachments - signed acceptance receipt not found\n\nFix options:\n  a) Supply the signed acceptance receipt so the export can be compared against it.\n  b) Amend the spec and plan task 7 to remove the signed-receipt comparison requirement and revise the affected verification obligations.\n\nPick one, or give another fix.\nRecommendation: a - preserves the approved comparison requirement and supplies the artifact it needs.\n",
+      "words": 192,
+      "wallMs": 16305,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "feb6f53f988b518d3fc00470e2fe2fa9c54b4d13"
+}
