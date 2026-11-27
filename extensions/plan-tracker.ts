@@ -304,11 +304,13 @@ function wavesStart(input: DispatchInput, tasks: Task[], cwd: string): Task[] | 
   const starts = [...resolved.keys()].filter(index => tasks[index].status === "pending");
   if (!starts.length) return;
   const starting = new Set(starts);
-  const lastStart = Math.max(...starts);
-  const offenders = tasks.flatMap((task, index) => index < lastStart && task.status === "pending" && !starting.has(index)
-    ? [`${index}: ${task.name} (pending)`] : []);
-  if (offenders.length) return `Start order: ${offenders.join(", ")}.\n${RULE_LINE}\n${ORDER_FIX}\n${KEEP_TASKS}`;
-  return tasks.map((task, index) => starting.has(index) ? { ...task, status: "in_progress" } : task);
+  const candidate: Task[] = tasks.map((task, index) => starting.has(index) ? { ...task, status: "in_progress" } : task);
+  const offenders = validateSnapshot(candidate);
+  if (offenders.length) {
+    const pending = offenders.map(index => `${index}: ${candidate[index].name} (pending)`);
+    return `Start order: ${pending.join(", ")}.\n${RULE_LINE}\n${ORDER_FIX}\n${KEEP_TASKS}`;
+  }
+  return candidate;
 }
 
 const snapshotLine = (tasks: Task[]): string => tasks.map((t, i) => `${i} ${t.name}=${t.status}`).join(", ");

@@ -496,7 +496,7 @@ test("loop redraw rejects oversized UTF-8 lists without limiting explicit calls"
 function wavesFixture(t: TestContext) {
   mainSession(t);
   const dir = mkdtempSync(join(tmpdir(), "plan-waves-"));
-  writeFileSync(join(dir, "plan.md"), "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n## Wave 2\n### Task 9: Later\n");
+  writeFileSync(join(dir, "plan.md"), "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n### Task 5: Third\n## Wave 2\n### Task 9: Later\n");
   return dir;
 }
 
@@ -561,6 +561,10 @@ test("waves dispatch refuses atomically in resolution, wave, then list order", a
   const first = waveItem("anchor: ### Task 40:");
   const added = waveItem("anchor: ### Task 4:");
   const restored = [{ name: "W1: First", status: "in_progress" }, { name: "W2: Later", status: "in_progress" }];
+  const restoredOutOfOrder = [
+    { name: "W1: First", status: "pending" }, { name: "W1: Added", status: "pending" },
+    { name: "W1: Third", status: "in_progress" },
+  ];
   for (const [name, tasks, input, reason, fix] of [
     ["missing entry before wave check", ["W1: First", "W2: Later"], { tasks: [later, added] }, /### Task 4: expected "W1: Added", found 0/, /add.*re-init/s],
     ["ambiguous entry without partial start", ["W1: First", "W1: Added", "W1: Added"], { tasks: [first, added] }, /### Task 4: expected "W1: Added", found 2/, /add.*re-init/s],
@@ -569,12 +573,13 @@ test("waves dispatch refuses atomically in resolution, wave, then list order", a
     ["earlier pending wave before list order", ["W1: First", "W2: Later"], later, /0: W1: First \(pending\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
     ["earlier wave still running after restore", restored, later, /0: W1: First \(in_progress\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
     ["split wave list order", ["W1: First", "W1: Added"], added, /0: W1: First \(pending\)/, /update each listed task.*re-init/s],
+    ["pending gap before an already-started task after restore", restoredOutOfOrder, first, /^Start order: 1: W1: Added \(pending\)\.\nRule: pending tasks must trail every started or finished task\./, /update each listed task.*re-init/s],
   ] as const) await t.test(name, async () => {
-    const branch: unknown[] = tasks === restored
+    const branch: unknown[] = tasks === restored || tasks === restoredOutOfOrder
       ? [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]
       : [];
     const h = harness(branch, dir);
-    if (tasks === restored) await h.fire("session_start");
+    if (branch.length) await h.fire("session_start");
     else await h.call({ action: "init", tasks });
     const initial = await h.call({ action: "status" });
     const entries = branch.slice();
