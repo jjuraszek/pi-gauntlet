@@ -1,6 +1,7 @@
 import type { SessionEntry } from "@earendil-works/pi-coding-agent";
 
 export const PLAN_TRACKER_SNAPSHOT = "plan-tracker-snapshot";
+export const MAX_STORED_LIST_BYTES = 32768;
 export const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "skipped"] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 export interface Task { name: string; status: TaskStatus; label?: string; }

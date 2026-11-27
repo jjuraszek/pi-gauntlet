@@ -6,6 +6,7 @@
  * Shows a persistent TUI widget above the editor.
  */
 
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
@@ -13,7 +14,7 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import { checkoutOfSync } from "./lib/checkout.ts";
-import { latestPlanSnapshot, planSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
+import { latestPlanSnapshot, MAX_STORED_LIST_BYTES, planSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
 import { planSpecHeader } from "./lib/telemetry-paths.ts";
 
 interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
@@ -365,23 +366,35 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
+  const batched = new Set<string>();
+  const warned = new Set<string>();
+  const warn = (error: unknown, ctx: ExtensionContext, key?: string) => {
+    const reason = error instanceof Error ? error.message : String(error);
+    key ??= reason;
+    if (ctx.hasUI && !warned.has(key)) {
+      ctx.ui.notify(reason, "warning");
+      warned.add(key);
+    }
+    return reason;
+  };
+
   const store = (next: Task[], ctx: ExtensionContext) => {
     if (tasks.length === next.length && next.every((t, i) => t.name === tasks[i].name && t.label === tasks[i].label && t.status === tasks[i].status)) return;
-    pi.appendEntry(PLAN_TRACKER_SNAPSHOT, { tasks: next });
+    const payload = { tasks: next };
+    const serialized = JSON.stringify(payload);
+    const bytes = Buffer.byteLength(serialized, "utf8");
+    if (bytes > MAX_STORED_LIST_BYTES) {
+      if (ctx.hasUI) {
+        const digest = createHash("sha256").update(serialized).digest("hex");
+        warn(`Plan tracker: automatic list update skipped (${bytes} bytes exceeds the ${MAX_STORED_LIST_BYTES}-byte limit).`, ctx, `overflow:${digest}`);
+      }
+      return;
+    }
+    pi.appendEntry(PLAN_TRACKER_SNAPSHOT, payload);
     tasks = next;
     updateWidget(ctx);
   };
 
-  const batched = new Set<string>();
-  const warned = new Set<string>();
-  const warn = (error: unknown, ctx: ExtensionContext) => {
-    const reason = error instanceof Error ? error.message : String(error);
-    if (ctx.hasUI && !warned.has(reason)) {
-      ctx.ui.notify(reason, "warning");
-      warned.add(reason);
-    }
-    return reason;
-  };
   const reconcile = (ctx: ExtensionContext, point: "stop" | "activation") => {
     if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
     try {

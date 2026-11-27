@@ -36,11 +36,15 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   };
   registerPlanTracker(pi as any);
   let widgetText: string | undefined;
+  const notifications: { message: string; level: string }[] = [];
   const theme = { fg: (_c: string, s: string) => s, bold: (s: string) => s };
   const ctx = {
     cwd,
     hasUI: true,
     ui: {
+      notify(message: string, level: string) {
+        notifications.push({ message, level });
+      },
       setWidget(_id: string, cb?: (tui: unknown, theme: unknown) => { text: string }) {
         widgetText = cb ? cb(undefined, theme).text : undefined;
       },
@@ -59,6 +63,7 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
     call,
     fire,
     tool: () => tools[0],
+    notifications,
     theme,
     widget: () => widgetText,
     parameters: () => tools[0].parameters,
@@ -456,6 +461,38 @@ test("a lone worker dispatch shows the bound ledger row in progress before the w
   assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
 });
 
+test("loop redraw rejects oversized UTF-8 lists without limiting explicit calls", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-overflow-");
+  const path = join(dir, "ledger.md");
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  const name = "\u00e9".repeat(16_384);
+  const carried = { name, status: "pending" };
+  assert.deepEqual((await h.call({ action: "init", tasks: [name] })).details.tasks, [carried]);
+  const widget = h.widget();
+  const dispatch = () => h.fire("tool_call", { toolName: "subagent", input: {} });
+
+  for (const [index, [row, status]] of [["open", "pending"], ["cut", "skipped"]].entries()) {
+    writeFileSync(path, ledger([`1 | ${row} | 0 |`], "", "returned: none"));
+    const projected = [{ name: "row 1", status, label: descriptions[0] }, carried];
+    assert.equal(await dispatch(), undefined);
+    assert.equal(await dispatch(), undefined);
+    assert.equal(branch.length, 1);
+    assert.equal(h.widget(), widget);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, [carried]);
+    assert.equal(h.notifications.length, index + 1);
+    const notice = h.notifications[index];
+    assert.equal(notice.level, "warning");
+    assert.match(notice.message, new RegExp(String(Buffer.byteLength(JSON.stringify({ tasks: projected })))));
+    assert.match(notice.message, /32768/);
+  }
+  assert.deepEqual((await h.call({ action: "refresh", path })).details.tasks, [
+    { name: "row 1", status: "skipped", label: descriptions[0] }, carried,
+  ]);
+  assert.equal(h.notifications.length, 2);
+});
+
 function wavesFixture(t: TestContext) {
   mainSession(t);
   const dir = mkdtempSync(join(tmpdir(), "plan-waves-"));
@@ -487,6 +524,24 @@ test("waves dispatch starts exact plan tasks across supported carriers", async (
     assert.deepEqual(branch, [stamp, { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected } }]);
     assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
   });
+});
+
+test("waves dispatch rejects an aggregate overflow without starting the task", async (t) => {
+  const branch: unknown[] = [];
+  const h = harness(branch, wavesFixture(t));
+  const { details: { tasks } } = await h.call({ action: "init", tasks: ["W1: First", "a".repeat(16_384), "b".repeat(16_384)] });
+  const widget = h.widget();
+  const dispatch = () => waveDispatch(h, waveItem("anchor: ### Task 40:"));
+  assert.equal(await dispatch(), undefined);
+  assert.equal(await dispatch(), undefined);
+  assert.equal(branch.length, 0);
+  assert.equal(h.widget(), widget);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, tasks);
+  const next = [{ ...tasks[0], status: "in_progress" }, ...tasks.slice(1)];
+  assert.equal(h.notifications.length, 1);
+  assert.equal(h.notifications[0].level, "warning");
+  assert.match(h.notifications[0].message, new RegExp(String(Buffer.byteLength(JSON.stringify({ tasks: next })))));
+  assert.match(h.notifications[0].message, /32768/);
 });
 
 test("waves dispatch resolves a task appended by an amendment by name", async (t) => {
