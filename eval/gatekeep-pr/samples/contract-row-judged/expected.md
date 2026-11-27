@@ -1,0 +1,7 @@
+- ticket: judged: In A the narrated reread uses tracker show BILL-12 --comments, and row 1 recommends accept contract change because the reread asks for downloads, despite the stale email request and the working email route.
+- necessary: judged: In B row 1 recommends accept contract change because offline search cannot use the hosted index.
+- viable: judged: In C row 1 recommends preserve contract because the index delivers faster lookup without expiring receipts early.
+- unknown: judged: In D row 1 recommends preserve contract and the last recommendation sentence names the uncertainty: no ticket or separate outcome establishes why green is needed.
+- fallback: judged: In E the reread fails but row 1 recommends accept contract change based on the retained ticket asking for flagged duplicates.
+- veto: judged: In F row 1 recommends preserve contract despite the offline goal; the second sentence above the prompt names the ticket's live-check requirement.
+- message: judged: Each message shows current and proposed wording, then exactly three plain sentences directly above Pick one: today's obligation, the gain or cost for the goal (naming a deciding ticket), and the pick with its reason. No other prose argues for a row. Only row 1 is recommended, the other contract row is second and stop is last.
