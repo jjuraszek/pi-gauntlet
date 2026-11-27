@@ -1,8 +1,8 @@
 # eval report: gauntlet (partial run: pr-body-drafted-row)
 
-for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
+for: ddcbb009f7f1e1c9d3bb8b1185445141ea426e3415665e4d69479a9a0be23470
 
-wall: 28s
+wall: 25s
 
 ## Change
 
@@ -14,12 +14,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| pr-body-drafted-row | anthropic/claude-opus-5-5 | unchanged | 6959 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
-| pr-body-drafted-row | github-copilot/gpt-6.1-sol | unchanged | 4343 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
+| pr-body-drafted-row | anthropic/claude-opus-5-5 | unchanged | 5049 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
+| pr-body-drafted-row | github-copilot/gpt-6.1-sol | unchanged | 6426 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- pr-body-drafted-row / anthropic/claude-opus-5-5: No fact moved: After, like Before, drafts exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:`, keeps the release-script PR-body behavior as a criterion, leaves the PR-description listing out of the rows as proof only, and asks no cut or scope question with no none fallback. The one drift to watch is row 1, where After says the directory "contains no test files" while Before said "contains no files"; the Design commitment is that the directory is empty, so the narrower phrasing could be read as a weaker observable and put f2 at risk. Wording that tells the writer to state the drafted row's observable in the Design's own terms (directory is empty) would keep f2 safe, and keeping the explicit statement that a proof sketch is neither an acceptance row nor an Integration entry, and that rewriting a proof needs no scope question, protects f1 and f3 while still delivering the Integration-sorting change.
-- pr-body-drafted-row / github-copilot/gpt-6.1-sol: Both outputs satisfy all three facts: each writes exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` (empty retired-parser test directory; release script writes the changelog section into the pull request body), each replaces the PR-description proof sketch with a checkout inspection rather than making it a row's observable, and neither asks a cut or scope question or falls back to `none`. Nothing in After moved a fact; f1 was expected to go fails -> holds but Before already holds on this sample, so the wording change shows no observable difference here. After adds the explicit statements that the release script's PR text is functionality rather than an external pipeline result and that the discarded proof sketch creates no Integration entry; keep those, since they make the f1 reasoning explicit without disturbing the two drafted rows or prompting a question.
+- pr-body-drafted-row / anthropic/claude-opus-5-5: Nothing in After moved a fact relative to Before: both outputs render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:` (retired parser test directory empty; release script puts the changelog section in the PR body), both demote the PR-description listing of deleted files from row observable to a non-row proof note while keeping the release-script PR-text behavior as a criterion under sorting rule 1, and neither asks a cut or scope question nor falls back to `none`. Note that f1 was expected to move fails -> holds but Before already holds on this sample, so the change shows no observable improvement here. To keep all three facts, retain the wording that a proof sketch attached to a commitment is neither an acceptance row nor an Integration entry, that functionality handling pull-request text remains a criterion, and that rewriting a proof never triggers a cut question; After's row 2 phrasing ('produces a pull request body that contains') is slightly weaker than the Design's 'writes ... into the pull request body', so prefer the Design's verb to avoid drift on f2.
+- pr-body-drafted-row / github-copilot/gpt-6.1-sol: No fact moved between Before and After, so the expected f1 fails -> holds improvement does not show here: Before already replaced the PR-description deletion list with a checkout inspection and kept the release-script row as functionality. Both outputs render exactly two unchecked in-scope rows under `Drafted from the design, no ticket rows:`, ask no cut or scope question, and emit no `none` fallback. The one drift in After is that the first row shortens to "The retired parser's test directory is empty." and drops the "after the obsolete parser test files are removed" clause that Before carried. It still names the committed behavior, since the removal is stated in the surrounding step, but a stricter reader could say the row no longer names the removal itself. To keep f2 safe, the wording should tell the writer to state the Design behavior's action and its observable in the drafted row (for example "obsolete parser test files are removed; the retired parser's test directory is empty") when it swaps out a stage-only proof sketch, rather than reducing the row to the end state alone.
 
 exit: 0
