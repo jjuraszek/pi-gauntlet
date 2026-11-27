@@ -32,3 +32,4 @@ row 8 done | Both engines test against a stand-in when the named input is missin
 row 9 done | The ship menu names each missing input, its stand-in and what remains unproven; each affected pull request repeats its own disclosure verbatim. | Reuse choices-list-legs and stand-in-linked-and-rework-body to check disclosure placement across new and existing pull requests.
 amended | 1 item(s) | Per-gap trail eval sample
 amended | 1 item(s) | Replayed stand-in controls
+amended | 2 item(s) | Stale eval result replays
