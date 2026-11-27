@@ -1,8 +1,8 @@
 {
   "sample": "choices-list-legs",
   "arm": "candidate",
-  "skillSha": "85053274750802e79316c04ff6956597bb7271e5bcee64ef4ca38299af2b3bba",
-  "inputSha": "61c33df8cea3481cb5e1ab81041950ef6331eb7e1162dd659868c15f63fa6bf3",
+  "skillSha": "656a1ed469b95c1593b5177e8a0eec3dd7c296f3526d0084370fd291ad2574df",
+  "inputSha": "ba538007c0f7f3347b592a62874df110d21264d80d8e59e6bc6868dc15144405",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,27 +17,32 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "```\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\n\nWhat the run decided on its own (3):\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n- Receipts now show the shop's name above the total - customers could not tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n---\n\n**printer** (companion PR)\n\n```markdown\n## Summary\n- <what changed in the printer, from its acceptance rows>\n- Receipts print the shop's name above the total, so customers can tell which shop issued them\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n```\n\n**till** (home PR)\n\n```markdown\n## Summary\n- <what changed in the till, from its acceptance rows>\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n```\n",
-      "words": 212,
-      "wallMs": 13337,
+      "text": "**Printer command.** The printer has no worktree, so I read its validated receipt's `attempted-head` against its confirmed PR base:\n\n```bash\ngit -C \"/work/printer\" log \"trunk..1111111111111111111111111111111111111111\" --format=%b --reverse\n```\n\nI do not use `trunk..HEAD`. The primary's `HEAD` is on `trunk`, so that range is empty and would lose the printer's records.\n\n**Above the ship options:**\n\n```\ngauntlet: gate=ship/step-4\nWhat the run decided on its own (3):\n- Cashiers now see a running total on screen as they ring up a sale - they need it without printing a receipt.\n- Receipts now print the shop name above the total - customers could not tell which shop gave them the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n```\n\nThe ordinary Step 4 menu for this route follows in the same message. I stop here.\n\n**Stand-in bullets for each PR Summary, if its body is written or reconciled:**\n\n- **Till (home):** none. The till's range has no stand-in line.\n- **Printer:** this bullet goes in the existing open PR's body, not a new PR.\n  - The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n",
+      "words": 202,
+      "wallMs": 11712,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=ship/step-4\n\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nWhat the run decided on its own (3):\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n- Receipts show the shop name above the total - customers could not tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n\n---\n\n**Till PR**\n\n## Summary\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n\n**Printer PR**\n\n## Summary\n- Show the shop name above the total so customers can tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n",
-      "words": 146,
-      "wallMs": 13141,
+      "text": "gauntlet: gate=ship/step-4\n\n**Printer command**\n```bash\ngit -C \"/work/printer\" log \"trunk..1111111111111111111111111111111111111111\" --format=%b --reverse\n```\n\n**Above the ordinary ship options:**\n\nWhat the run decided on its own (3):\n- Cashiers can see the running total on screen - they need to check it without printing.\n- Receipts show the shop name above the total - customers could not tell which shop issued them.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n\n**PR Summary stand-in preview** — if a body is written or reconciled:\n\n**Till:** No stand-in bullets.\n\n**Printer’s existing PR:**\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n",
+      "words": 120,
+      "wallMs": 17020,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "5e51560c27a1b63cd5c16f95259ddae1bdf400c44b1ed54e820d0bd959ba2cfb",
+      "factsSha": "01cfc49e716c9e5d6c0d5e823905fc88672235e6989596ba6dc1cb8b91622c97",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
-      "baselineOutputSha": "f921c583bcc86c759e55164f8f7c3a04673091677d4c61d890f749f045caa650",
-      "candidateOutputSha": "b7c43dd039caf20afcb9969e4ac1a63f5bf5646ca5d68d97580992b3143c9660",
+      "intentSha": "fdebfef259b9b2841ab10c9e12b3741e0cdfecae89e4fdee18038111295a1c6e",
+      "baselineOutputSha": "307a4f1b3ee089e882dc83601c4e1647ff673442fe0b532706592864be3dd10d",
+      "candidateOutputSha": "76bb905b5572ba7a3639bba4f1b64251fa20d71c12bc56639f644b8b1ccb9835",
       "facts": {
+        "receipt-range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
         "home-list": {
           "before": "fails",
           "after": "holds",
@@ -49,17 +54,22 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved home-list by adding a single three-entry list above the menu: the till stand-in comes first, then the printer's shop-name choice with its reason, then the printer's paper-receipt stand-in, and each stand-in line names the missing input, its replacement and the lack of proof on the intended data. Before showed no list at all, arguing that the records lacked amendment-audit fields. After moved bodies because each Summary now carries its own repository's disclosure sentence word for word from the home list and nothing from the other repository; Before only paraphrased the stand-ins and had no list to copy from. Before kept neither fact, so nothing regressed. Two points in After are still worth tightening. Each Summary opens with an unfilled placeholder bullet (\"<what changed in the till, from its acceptance rows>\"), so the wording should tell the model to write a concrete bullet from the material it has, or omit the bullet, rather than emit a template slot. The list header \"What the run decided on its own\" also sits awkwardly over stand-in disclosures, which are not decisions; a header that covers both choices and stand-ins would read better while still keeping the stand-in sentences copied verbatim into only the receiving repository's Summary.",
-      "wallMs": 8904,
+      "feedback": "All three facts moved from fails to holds as intended, and Before held none, so nothing was lost. The After wording added --reverse to the printer log at /work/printer over trunk..1111111111111111111111111111111111111111 and explicitly rejected trunk..HEAD, which satisfies receipt-range; Before omitted --reverse. After shows a single three-entry list above the menu (till choice with reason, printer choice with reason, then the stand-in naming the missing paper receipt, the typed replacement and the lack of proof on the intended data), where Before treated the lines as non-matching audit rows and omitted the list. After's printer Summary preview repeats the disclosure word for word in the existing open PR and the till preview has none, where Before produced no Summary bullet. To keep these results stable, keep the wording that requires --reverse and the attempted-head SHA from the primary, that the stand-in sentence be copied verbatim from the menu into only the owning repository's Summary, and that the existing PR is reconciled rather than re-created. One soft spot: the list does not label which repository each entry comes from, and the menu itself is described rather than printed; if attribution in the shared list or the rendered menu matters, state it explicitly in the wording.",
+      "wallMs": 6162,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "5e51560c27a1b63cd5c16f95259ddae1bdf400c44b1ed54e820d0bd959ba2cfb",
+      "factsSha": "01cfc49e716c9e5d6c0d5e823905fc88672235e6989596ba6dc1cb8b91622c97",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
-      "baselineOutputSha": "a3281b942848bf15d47e555ee920f5f6d547de4149bfa5056f2ff6521b62b2cc",
-      "candidateOutputSha": "4c6610790a06d18174130d04aff189b9938fd3e5bb52db7b262749704435f1b1",
+      "intentSha": "fdebfef259b9b2841ab10c9e12b3741e0cdfecae89e4fdee18038111295a1c6e",
+      "baselineOutputSha": "35717d2366dbae659077d439d6770eec1bc54d7ef532570fef5f27ef92c2b30b",
+      "candidateOutputSha": "b557784dc8a0512cda791536d83dd087fb1e1e522bcdb32dac34fd8c9ffb45c7",
       "facts": {
+        "receipt-range": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
         "home-list": {
           "before": "fails",
           "after": "holds",
@@ -71,10 +81,10 @@
           "label": "intended change"
         }
       },
-      "feedback": "After moved both facts in the intended direction: it emits a single pre-menu list of three entries in the right order (till stand-in, printer choice with reason, printer stand-in), each stand-in naming the missing input, its replacement and the lack of proof, and each Summary repeats only its own repository's disclosure word-for-word with no cross-leak; Before had no list at all and refused to draft either Summary. Two things to tighten so these facts stay held: After dropped the 'Implementation complete. What would you like to do?' line and the ordinary options that Before showed, so the list is only implicitly 'above the menu' - keep wording that requires the list to be placed directly above the ship prompt/options rather than replacing them; and the heading 'What the run decided on its own' sits oddly over stand-in disclosures, so consider wording that labels the list as covering both choices and stand-ins. Also keep the instruction that the Summary disclosure bullet be copied verbatim from the home list and restricted to the receiving repository's own feature range, since that is exactly what makes 'bodies' hold here.",
-      "wallMs": 5852,
+      "feedback": "All three facts moved from fails to holds, and Before held none of them, so nothing was lost. For receipt-range, After added `--reverse` to the log in `/work/printer` over `trunk..1111111111111111111111111111111111111111` with `--format=%b`; Before had the right range and path but no oldest-first ordering. For home-list, After printed one three-entry list above the options: the till's choice and reason first, then the printer's choice and reason, then its stand-in naming the missing paper receipt, the typed replacement and the lack of proof on the intended data. Before showed no list at all, because it treated the body lines as incomplete amendment rows. For bodies, After repeated the menu's disclosure word for word under the printer's existing PR and gave the till no stand-in bullet; Before paraphrased it into a shorter 'Stand-in:' bullet that dropped the not-proven clause and had no menu line to match. To keep these gains, keep the wording explicit on four points: the range is read from the companion primary at the attempted head with `--reverse`, never `HEAD`; plain three-field choice and stand-in lines qualify for the list; home entries come first; and the Summary bullet is copied verbatim from the menu disclosure into the owning repository's existing PR only.",
+      "wallMs": 9635,
       "verdict": "improved"
     }
   },
-  "repoSha": "e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1"
+  "repoSha": "375dfc24b4020ced1f0765187c64fafc713251c6"
 }

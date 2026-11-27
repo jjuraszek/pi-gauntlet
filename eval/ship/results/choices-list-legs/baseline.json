@@ -1,8 +1,8 @@
 {
   "sample": "choices-list-legs",
   "arm": "baseline",
-  "skillSha": "f62ad2d8f76e508e33d8292ac855ae211c33b92b9c741b1e67e122ee1cc47826",
-  "inputSha": "61c33df8cea3481cb5e1ab81041950ef6331eb7e1162dd659868c15f63fa6bf3",
+  "skillSha": "01fe0ff9bd0cd7a056e0775ae9e5ef87791fcabc3f382a137502af7d098f9f1b",
+  "inputSha": "ba538007c0f7f3347b592a62874df110d21264d80d8e59e6bc6868dc15144405",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "**Step 4: what appears above the options**\n\n```\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\nThere is no `Amendments auto-applied` block above the options. The digest only includes complete amendment audit rows: `handle | title | what | kind | reviewer | evidence`, with the kind set to `auto-apply` or `granted`. None of the matching lines in either range has those fields, so the count is 0 and the block is left out. This one menu covers both the till and the printer.\n\n---\n\n**Proposed PR summaries (create PR chosen)**\n\n**printer**\n\n```markdown\n## Summary\n- Print the shop's name above the total on each receipt, so customers can tell which shop issued it.\n- The receipt layout was checked against a typed stand-in receipt, not the shop's real paper receipt.\n```\n\n**till**\n\n```markdown\n## Summary\n- Bring the till's totals in line with the coordinated receipt change; the printer side ships in its companion PR.\n- The totals were checked against two handwritten stand-in totals, not Monday's real till totals.\n```\n",
-      "words": 201,
-      "wallMs": 14317,
+      "text": "# Step 4 for the coordinated till and printer retry\n\n**Printer command.** The printer has no worktree, and its primary's `HEAD` is on `trunk`, so `trunk..HEAD` is empty. That empty range says nothing about the feature commits. Read the delivered feature range at the receipt's validated attempted head instead:\n\n```bash\ngit -C /work/printer log trunk..1111111111111111111111111111111111111111 --format=%b\n```\n\nUse `--format=%b`, not `%B`, so only commit bodies are read, never subjects. The till's range comes from its live feature worktree as usual.\n\n**What appears above the options.** The Step 4 digest takes only amendment audit rows. These have six pipe-separated fields, `handle | title | what | kind | reviewer | evidence`, with kind `auto-apply` or `granted`. None of the supplied body lines fit that shape:\n\n- The till's line, `choice | keep a running total on screen | …`, has three fields.\n- The printer's `choice` line also has three fields.\n- The printer's `stand-in` line also has three fields.\n\nSo N = 0 for both repositories, and the amendment digest block is omitted. The message opens like this:\n\n```\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\nThe closure line assumes the current closure is clean. Any informational lines recorded in the closure block (`happy-path:`, `Deferred/deviates per spec:`, `whole-diff minors:`) would sit under it. I have not invented those lines because they were not supplied.\n\n**Stand-in bullets in each PR Summary.** This skill does not define a stand-in bullet for `## Summary`, so none would be added:\n\n- **Till:** its range has no `stand-in` line, so there is nothing to preview.\n- **Printer:** its PR already exists, is open against `trunk`, and has a validated receipt. For a PR, draft or keep choice, the printer is a validated skip with no new create. Reconciling an existing body touches only the `## Integration` block, read from the printer's spec file at `1111111…` in `/work/printer`. The Summary is not rewritten, so the `stand-in | the shop's paper receipt | a typed receipt` line produces no Summary bullet under this skill.\n\nI stopped here without running tools, delivering anything, or creating a second printer PR.\n",
+      "words": 375,
+      "wallMs": 19903,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n```\n\n### Till — proposed PR\n\n## Summary\nCannot draft from the supplied context: the spec’s Goal, acceptance criteria, and implementation changes are missing.\n\n### Printer — proposed PR\n\n## Summary\nCannot draft from the supplied context: the spec’s Goal, acceptance criteria, and implementation changes are missing.\n\nThe supplied body lines are not complete amendment audit rows, so no amendment digest appears. They also do not establish shipped outcomes for either PR summary.\n",
-      "words": 84,
-      "wallMs": 16010,
+      "text": "Printer command—use the validated delivered head, not its primary’s `HEAD`:\n\n```bash\ngit -C \"/work/printer\" log trunk..1111111111111111111111111111111111111111 --format=%b\n```\n\nAbove the ordinary ship options:\n\n```text\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nImplementation complete. What would you like to do?\n```\n\nNo **Amendments auto-applied** block appears: the supplied three-field `choice` and `stand-in` lines are not complete amendment audit rows with an `auto-apply` or `granted` kind.\n\n**PR Summary stand-in preview**\n\n- **Till:** no stand-in bullet.\n- **Printer’s existing PR**, if its body is reconciled:\n  ```markdown\n  - Stand-in: a typed receipt in place of the shop's paper receipt.\n  ```\n",
+      "words": 92,
+      "wallMs": 16911,
       "mechanical": {}
     }
   },
-  "repoSha": "e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1"
+  "repoSha": "375dfc24b4020ced1f0765187c64fafc713251c6"
 }
