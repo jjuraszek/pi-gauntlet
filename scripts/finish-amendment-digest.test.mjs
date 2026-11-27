@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -8,8 +8,9 @@ import test from 'node:test';
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const skill = read('skills/gauntlet/ship/ship.md');
 const step = skill.split('### Step 4: Present Options')[1].split('**Rework PR subject')[0];
-const listFile = step.match(/\[decision list\]\(([^)]+)\)/)[1];
-const digest = `${step}\n${read('skills/gauntlet/ship/' + listFile)}`;
+const legs = read('skills/gauntlet/ship/legs.md');
+const rendering = legs.split('## Decisions above the ship menu')[1]?.split('## Activation and authority')[0] ?? '';
+const digest = `${step}\n${rendering}`;
 const command = digest.match(/`(git -C "\$WORKTREE" log [^`]+)`/)?.[1];
 const choice = '- choice | Keep the old cache key | Existing readers still need it';
 const cache = '- cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds';
@@ -93,7 +94,10 @@ test('the decision list shortens wording rather than dropping reasons or stand-i
 });
 
 test('one list maps audit evidence and recommendations without merging equal lines', () => {
-  assert.match(digest, /What the run decided on its own \(N\):\n- <what> - <why>/);
+  assert.match(step, /\[decision list\]\(legs\.md#decisions-above-the-ship-menu\)/);
+  assert.equal(existsSync(new URL('../skills/gauntlet/ship/decisions.md', import.meta.url)), false);
+  assert.match(rendering, /What the run decided on its own \(N\):\n- <what> - <why>/);
+  assert.match(rendering, /- <missing data> was not available, so <what stood in> stood in; this is not proven on the data the ticket meant\./);
   assert.match(digest, /<title>: <what changed>/);
   assert.match(digest, /evidence.*`none`.*fifth cell/);
   assert.match(digest, /one entry per matching line, including repeats/i);

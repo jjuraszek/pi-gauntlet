@@ -1,5 +1,19 @@
 # Coordinated finish
 
+## Decisions above the ship menu
+
+At Step 4, print one list at home above the options, including on the home-only path. Use one entry per matching line, including repeats, in the order read. Leave out recovered steps and extra attempts. Omit the block when N = 0.
+
+```
+What the run decided on its own (N):
+- <what> - <why>
+- <missing data> was not available, so <what stood in> stood in; this is not proven on the data the ticket meant.
+```
+
+For an amendment, render `<title>: <what changed>` and use the evidence cell as the reason; for `none`, use the fifth cell instead. For a choice, use its two cells as facts, not as copy. Render a stand-in even when it is the only entry.
+
+Use [everyday words](../../chase-bug/reference/verdict-report.md#register). Write both halves for the person who reported the problem: say what they can now do and why it mattered. Replace implementation terms with that effect: "open the same order on a second click", not "deduplicate requests". Restate entries without commit hashes or row, task or finding numbers. Aim for under 180 words, heading included. Shorten wording, keeping each choice and reason and each disclosure's missing data, replacement and lack of proof. Never drop or combine entries. When stand-in lines alone exceed the cap, print them all.
+
 ## Activation and authority
 
 Read the home spec's `## Legs` once at Step 1. Use the membership, portable identifiers, scope validation and [Locate a leg tree](../legs.md#locate-a-leg-tree) rules in the leg grammar. Resolve selected primaries from home's declared siblings; keep the session's home worktree and locate companions by recorded branch, regardless of a brief path or `home:`. Validate branch, repository identity and each companion's full `**Home:**` tuple before acting. Admit a missing delivered worktree only through a validated receipt below.

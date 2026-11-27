@@ -1,6 +1,8 @@
-for: ff2e92f4a5c40777a56035422a72cf3057ce9581fcff19f6b39593531a33a4e4
+for: 443f6c393c9728dbfa954f2d0c084168f36ae3e12b49db012e2c50dd1242b073
 
 ## Change
+
+The existing coordinated finish instructions now hold the decision list rendering rule for all ship menus. The rule keeps its meaning. Replay choices-list to check how the model explains choices and prints every disclosure when the stand-ins alone exceed the word limit.
 
 Check stand-in disclosures in proposed PR bodies. The choices-list-legs sample compares the shared menu to each repository's Summary. The stand-in-linked-and-rework-body sample follows one disclosure into an existing draft and a reworked PR. These are text replays, not live PR edits.
 
