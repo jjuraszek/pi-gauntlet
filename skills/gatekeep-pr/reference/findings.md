@@ -8,7 +8,7 @@ Local evidence: `worktree_root` matches the provisioned path, every `run_cwd` si
 
 ## AC outcomes
 
-Inputs: the digest's `scope` block (step 2: the spec's rows with dispositions and its `design`, or the PR's stated intent), the source behind the diff at the assessed `headRefOid`, tests in the diff and existing tests the diff reaches, docs in the diff and docs the diff makes stale, CI per the brief's Evidence resolution table. Use PR text and the live ticket as leads, not proof of delivery. The spec at the assessed head is the contract; use the ticket in `## Contract judgment` to decide which side of a mismatch to back.
+Use the stored scope baseline (the spec's rows with dispositions and its `design`, or the PR's stated intent) as the contract. When a selected spec edit fails the [adoption rule](#drafted-payloads), judge against the retained baseline, not the candidate scope in the digest. Check delivery against the source at the assessed `headRefOid`, tests in the diff and existing tests the diff reaches, docs in the diff and docs the diff makes stale, and CI per the brief's Evidence resolution table. Use PR text and the live ticket as leads, not proof of delivery. Use the ticket in `## Contract judgment` to decide which side of a mismatch to back.
 
 Judge each `in-scope` row and Design clause on its file-delivered functionality alone. Keep literals that define it. An external observation or obligation, including a purely operational Design clause, is not evidence and not a gap. `## Integration` entries are not work or requirements: give them no outcome and never block on them.
 
