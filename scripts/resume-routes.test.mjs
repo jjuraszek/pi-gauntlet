@@ -217,7 +217,7 @@ test('task-plan restore keeps each stage call sequence', () => {
 test('saved runs continue at the linked step, never the reset-bearing entry', () => {
   const table = section(skill, '## Post-restore continuation');
   const sample = name => read(`eval/gauntlet-resume/samples/${name}/case.md`);
-  const check = (condition, stepFile, boundary) => {
+  const check = (condition, stepFile, boundary, expectedAnchor) => {
     const row = table.split('\n').find(line => line.startsWith(`| ${condition} |`));
     assert.ok(row, condition);
     const [, target, entry] = row.split(' | ');
@@ -225,19 +225,20 @@ test('saved runs continue at the linked step, never the reset-bearing entry', ()
     assert.ok(link, `${condition}: missing file link`);
     const [path, anchor] = link.split('#');
     assert.equal(path, `../gauntlet/${stepFile}`, condition);
-    const headings = read(`${resume}/${path}`).match(/^## .+$/gm);
-    if (anchor) assert.ok(headings.some(h => h.slice(3).toLowerCase().replaceAll(' ', '-') === anchor), link);
+    if (expectedAnchor) assert.equal(anchor, expectedAnchor, link);
+    const headings = read(`${resume}/${path}`).matchAll(/^#{2,3} (.+)$/gm);
+    if (anchor) assert.ok([...headings].some(([, h]) => h.toLowerCase().replaceAll(' ', '-') === anchor), link);
     assert.match(entry, boundary, condition);
   };
-  for (const [name, qualifier, path, boundary] of [
+  for (const [name, qualifier, path, boundary, anchor] of [
     ['current-brainstorm-brief', '', 'SKILL.md', /^on-disk state decides the step: draft marker on line 1 of the spec file -> step 4; spec title -> step 8\. Never `\/skill:gauntlet` entry/],
     ['current-plan-brief', ' with task engine', 'plan/plan.md', /skip its `start plan`/],
-    ['clean-pass-unchanged', ' with task plan', 'implement/waves/waves.md', /re-run its `Tests:`/],
+    ['clean-pass-unchanged', ' with task plan', 'implement/waves/waves.md', /re-run `<task>`'s `Tests:`; follow Recovery; start the task loop at the first non-complete task/, 'recovery'],
     ['baseline-upgrade-preserves-statuses', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
     ['current-ship-brief', ' without `Ledger:`', 'verify/verify.md', /full conformance gate/],
   ]) {
     const [, active] = sample(name).match(/^  → (\w+)/m);
-    check((active === 'ship' ? 'verify' : active) + qualifier, path, boundary);
+    check((active === 'ship' ? 'verify' : active) + qualifier, path, boundary, anchor);
   }
   const ledger = read('eval/gauntlet-resume/tool-traces/results/ledger-brief.md');
   assert.match(ledger, /^Ledger: .+$/m);
