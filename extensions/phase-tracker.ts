@@ -1176,13 +1176,19 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
+          let unfinished: string[] = [];
+          if (params.phase === "verify" && phases.implement.status === "in_progress") {
+            const tasks = latestPlanSnapshot(ctx.sessionManager.getBranch());
+            applyPlanActivity(tasks);
+            unfinished = unfinishedTaskLines(tasks);
+          }
           const blocked = PHASES.find((p) => p !== params.phase && phases[p].status === "in_progress");
           if (blocked) {
             return {
               content: [
                 {
                   type: "text",
-                  text: `Error: phase "${blocked}" is already in_progress. Complete or skip it first.`,
+                  text: [`Error: phase "${blocked}" is already in_progress. Complete or skip it first.`, ...(unfinished.length ? ["unfinished tasks:", ...unfinished] : [])].join("\n"),
                 },
               ],
               details: {

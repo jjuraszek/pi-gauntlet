@@ -13,7 +13,7 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import { checkoutOfSync } from "./lib/checkout.ts";
-import { latestPlanSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
+import { latestPlanSnapshot, planSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
 import { planSpecHeader } from "./lib/telemetry-paths.ts";
 
 interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
@@ -181,6 +181,22 @@ function boundLedger(ctx: ExtensionContext): { path: string; text: string } | un
   }
 }
 
+function implementing(ctx: ExtensionContext): boolean {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message" || entry.message.role !== "toolResult" || entry.message.isError) continue;
+    if (entry.message.toolName === "phase_tracker") {
+      const d = entry.message.details as { error?: string; phases?: { implement: { status: string } } } | undefined;
+      if (d?.phases && !d.error) return d.phases.implement.status === "in_progress";
+    } else if (entry.message.toolName === "plan_tracker") {
+      const tasks = planSnapshot(entry);
+      if (tasks?.length && tasks.every(t => t.status === "complete" || t.status === "skipped")) return false;
+    }
+  }
+  return false;
+}
+
 function latestDispatchBlocked(ctx: ExtensionContext): boolean {
   const branch = ctx.sessionManager.getBranch();
   for (let i = branch.length - 1; i >= 0; i--) {
@@ -309,10 +325,16 @@ export default function (pi: ExtensionAPI) {
     if (calls.length > 1) for (const call of calls) batched.add(call.id);
   });
   pi.on("tool_call", (event, ctx) => {
-    if (event.toolName !== "subagent" || Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    const verifyStart = event.toolName === "phase_tracker" && event.input?.action === "start" && event.input?.phase === "verify";
+    if (event.toolName !== "subagent" && !verifyStart) return;
     try {
       const ledger = boundLedger(ctx);
       if (!ledger) return;
+      if (verifyStart) {
+        if (settledLedger(ledger.text) || implementing(ctx)) store(projectLedger(ledger.text, ledger.path, tasks), ctx);
+        return;
+      }
       if (batched.has(event.toolCallId)) return { block: true, reason: "The ledger write must finish first. Issue the dispatch again, alone in its own message." };
       const started = projectLedger(ledger.text, ledger.path, tasks);
       const withoutTuple = ledger.text.replace(/^pending: .*\n/m, "");

@@ -1039,6 +1039,39 @@ test("an unjudged worker return never appears at a stop, reload or abort", async
   }
 });
 
+test("verify start draws the admitted final ledger and completes implement without a tracker call", async () => {
+  const cwd = tempCwd();
+  execFileSync("git", ["init", "-q", cwd]);
+  writeFileSync(join(cwd, "spec.md"), "## Acceptance criteria\n- [ ] Finish work\n");
+  const path = join(cwd, "ledger.md");
+  writeFileSync(path, ["# Ledger - loop engine", "**Spec:** `spec.md`", "returned: 1 | home | abc1234",
+    "| row | status | attempts | evidence |", "|---|---|---|---|", "| 1 | done | 1 | pass |", "", "## Decisions", "row 1 done | pass | none"].join("\n"));
+  const branch = implementBranch([{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status: "in_progress" }] } }]);
+  const h = harness({ cwd, branch });
+  registerPlanTracker(h.pi as any);
+  await h.emit("session_start");
+  const length = branch.length;
+  await h.emitEvent("tool_call", { toolName: "phase_tracker", input: { action: "start", phase: "verify" } });
+  assert.equal(branch.length, length + 1);
+  assert.equal((await phaseCall(h, "status")).details.phases.implement.status, "in_progress");
+  const result = await phaseCall(h, "start", "verify");
+  assert.equal(result.details.phases.implement.status, "complete");
+  assert.equal(result.details.phases.verify.status, "in_progress");
+});
+
+test("verify start refuses an empty or unfinished stored list", async () => {
+  for (const statuses of [[], ["failed"], ["in_progress", "pending"]]) {
+    const tasks = statuses.map((status, i) => ({ name: `task ${i}`, status }));
+    const h = harness({ branch: implementBranch([{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]) });
+    await h.emit("session_start");
+    const result = await phaseCall(h, "start", "verify");
+    const reason = 'Error: phase "implement" is already in_progress. Complete or skip it first.';
+    assert.equal(result.content[0].text, reason + (statuses.includes("pending") ? "\nunfinished tasks:\n0: task 0 (in_progress)\n1: task 1 (pending)" : ""));
+    assert.equal(result.details.phases.implement.status, "in_progress");
+  }
+});
+
 test("cold implement and verify completions ignore unfinished snapshots", async () => {
   for (const phase of ["implement", "verify"] as const) {
     const h = harness({
