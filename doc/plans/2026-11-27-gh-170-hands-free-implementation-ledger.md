@@ -3,9 +3,9 @@
 base: a734d890b0228aacb2ab38a18278394bf77d89b1
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 5 | home | 67ebca17d23568667b966b95954341b118280e49
+returned: 6 | home | b58c20c2ecb2cf7a70633dd2422e994b7a505125
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -14,7 +14,7 @@ returned: 5 | home | 67ebca17d23568667b966b95954341b118280e49
 | 3 | done | 1 | timeout -k 30 30 node --test scripts/loop-conformance-grant.test.mjs; 2 passed, 0 failed; selected loop, resume and waves replays distinguished progress from a stall at spent counters; verify-repair-count, scaled-cap-grant and exit-repair-capability were inconclusive on marker wording, reply parsing and blocking-call details |
 | 4 | done | 1 | timeout -k 30 60 node --test scripts/loop-engine-contract.test.mjs; 54 passed, 0 failed; both models named the missing input without a menu in stop-needs-no-menu and human-stop-counts; retired-budgets and scaled-cap-grant were inconclusive on legacy wording and reply parsing |
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs scripts/loop-implementer-actions.test.mjs scripts/loop-unreachable-cut.test.mjs; 14 passed, 0 failed; both models asked before buying a proof print or cutting the row in unnamed-action-asks |
-| 6 | open | 0 | |
+| 6 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 9 passed, 0 failed; both digest-from-record-lines replies listed two corrections and both identical recommendations with reasons before the options |
 | 7 | open | 0 | |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
@@ -26,3 +26,4 @@ row 2 done | Both engines take and record recommended in-spec choices, and loop 
 row 3 done | Both engines now grant one more attempt at a spent counter when the failure changes or the review converges, and stop when progress stalls. | Reuse the moving and stalled snapshots in spent-allowance-moving-or-stalled and extra-round-while-converging to check what the stop tells the user.
 row 4 done | When delivery stalls, both engines name the blocker and the input that would clear it without offering choices. | Reuse stop-needs-no-menu for a missing artifact and human-stop-counts to distinguish a stalled stop from a discard question.
 row 5 done | An unnamed paid or outside-repository action now ends the turn with a question about naming the action or cutting the row, even under amend permission. | Reuse unnamed-action-asks to distinguish the human decision from an automatic missing-prerequisite cut.
+row 6 done | The ship menu lists each recommendation and applied spec correction with its reason, keeping repeated choices separate and leaving out recovery and retries. | Extend the Step 4 decision list in ship.md and its finish-amendment-digest test to include stand-ins.

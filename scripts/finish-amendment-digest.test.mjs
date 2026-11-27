@@ -7,8 +7,9 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const skill = read('skills/gauntlet/ship/ship.md');
-const digest = skill.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
+const digest = skill.split('### Step 4: Present Options')[1].split('**Rework PR subject')[0];
 const command = digest.match(/`(git -C "\$WORKTREE" log [^`]+)`/)?.[1];
+const choice = '- choice | Keep the old cache key | Existing readers still need it';
 const cache = '- cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds';
 const bytes = '- bytes | Fixture byte count | The fixture contains 43117 bytes | auto-apply | measured correction | wc returned 43117';
 const accepted = '- scope | Keep offline cache deferred | Offline cache stays outside this change | accepted | human pick | approved disposition';
@@ -35,16 +36,19 @@ function fixture(messages, baseBody = '') {
 }
 
 test('the extracted log recipe and selector keep every applied body row and exclude unrelated records', async t => {
-  assert.equal(command, 'git -C "$WORKTREE" log <base-branch>..HEAD --format=%b');
+  assert.equal(command, 'git -C "$WORKTREE" log <base-branch>..HEAD --format=%b --reverse');
   const selector = digest.match(/lines matching `([^`]+)`/)?.[1];
   assert.equal(selector, '^- [^|]+ \\| [^|]+ \\| [^|]+ \\| (auto-apply|granted) \\| ');
-  const pattern = new RegExp(selector);
+  const selectors = [selector, digest.match(/`(\^- choice [^`]+)`/)?.[1]];
+  assert.equal(selectors[1], '^- choice \\| [^|]+ \\| .+$');
+  const patterns = selectors.map(s => new RegExp(s));
   const cases = [
     ['plain-subject amendments and citation repair', [
       `Amend the spec for Fixture byte count\n\n${bytes}`,
       `Amend the spec for Cache lifetime and 1 more\n\n${cache}\n${accepted}\n"auto-apply amends"`,
       repair,
-    ], '', [cache, bytes]],
+    ], '', [bytes, cache]],
+    ['repeated recommendations stay separate', [`Keep the cache key\n\n${choice}`, `Retain old readers\n\n${choice}`], '', [choice, choice]],
     ['multiple applied rows in one body', [`Amend the spec for two facts\n\n${cache}\n${bytes}\n${accepted}`], '', [cache, bytes]],
     ['citation repair only', [repair], '', []],
     ['base records are outside the branch range', [repair], cache, []],
@@ -62,27 +66,24 @@ test('the extracted log recipe and selector keep every applied body row and excl
     const f = fixture(messages, baseBody);
     const head = f.git('rev-parse', 'HEAD');
     const bodies = f.run('bash', ['-c', command.replace('<base-branch>', 'fixture-base')]);
-    assert.deepEqual(bodies.split('\n').filter(line => pattern.test(line)), expected);
+    assert.deepEqual(bodies.split('\n').filter(line => patterns.some(pattern => pattern.test(line))), expected);
     assert.equal(f.git('rev-parse', 'HEAD'), head);
     assert.equal(f.git('status', '--porcelain'), '');
   });
 });
 
-test('saved digest examples render the selected title and change fields, not current model execution', async t => {
-  const saved = JSON.parse(read('eval/ship/results/digest-from-record-lines/candidate.json'));
-  const outputs = Object.entries(saved.outputs);
-  assert.ok(outputs.length > 0, 'reuse at least one saved rendering');
-  const expected = [cache, bytes].map(line => {
-    const [, title, what] = line.split(' | ');
-    return `- ${title} - ${what}`;
-  }).join('\n');
-  for (const [model, output] of outputs) await t.test(model, () => {
-    assert.equal(output.status, 'ok');
-    assert.ok(output.text.includes(`Amendments auto-applied (2):\n${expected}`));
-    assert.match(output.text, /(?:block is omitted|block is omitted entirely)/);
-  });
-  assert.match(digest, /Select by these body records, never by subject/);
-  assert.match(digest, /commits without matching rows contribute nothing/);
-  assert.match(digest, /Amendments auto-applied \(N\):\n- <title> - <what changed>/);
+test('one list maps audit evidence and recommendations without merging equal lines', () => {
+  assert.match(digest, /What the run decided on its own \(N\):\n- <what> - <why>/);
+  assert.match(digest, /<title>: <what changed>/);
+  assert.match(digest, /evidence.*`none`.*fifth cell/);
+  assert.match(digest, /one entry per matching line, including repeats/i);
   assert.match(digest, /Omit the block when N = 0/);
+  assert.doesNotMatch(digest, /Amendments auto-applied/);
+  const { outputs } = JSON.parse(read('eval/ship/results/digest-from-record-lines/candidate.json'));
+  assert.ok(Object.keys(outputs).length > 0);
+  for (const { status, text } of Object.values(outputs)) {
+    assert.equal(status, 'ok');
+    const list = text.split('What the run decided on its own (4):\n')[1]?.split('\n\n')[0];
+    assert.match(list, /^- .*43117.*measured again\n- .*one hour.*3600 seconds(\n- .*old cache key.*readers.*){2}$/i);
+  }
 });

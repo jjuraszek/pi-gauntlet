@@ -1,8 +1,8 @@
 {
   "sample": "digest-from-record-lines",
   "arm": "candidate",
-  "skillSha": "1b1c0d4281b66cd7fd7efc66228363ed84ad4028d96460ac47a37fc4bf803801",
-  "inputSha": "2eff03e26828aadbdc2d5f2703be865aa6e68fec44ab4ffe129bcdf1e5f75a27",
+  "skillSha": "30f23df3e29fbdf686a347acc3ae72dd872323c88218cb7d617b19cae5056868",
+  "inputSha": "f801455ac981426bde8f8085d5ad372630ddea19193cbd6a48148a96fdea3fec",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,26 +17,26 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=finishing-a-development-branch/step-4\nLog read: `git -C \"/workspace/app-tree\" log main..HEAD --format=%B`\n\nThe digest includes complete audit rows of kind `auto-apply` or `granted` only, selected by body record, never by subject. The `accepted` scope row, the quoted `\"auto-apply amends\"` text, and the citation-repair commit are excluded.\n\n```\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n```\n\n```\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n---\n\nNo-amendment variant: the log contains only `Repair 2 plan citations` with a body that has no audit rows. N = 0, so the `Amendments auto-applied` block is omitted entirely. No digest line is printed, and the message goes from the marker and log read directly to the same menu.\n",
-      "words": 158,
-      "wallMs": 9118,
+      "text": "gauntlet: gate=ship/step-4\nLog read: `git -C \"/workspace/app-tree\" log main..HEAD --format=%b --reverse`\n\nWhat the run decided on its own (4):\n- Fixture byte count: The fixture contains 43117 bytes - the sample file was measured again\n- Cache lifetime: Cache entries expire after one hour - a fixture run measured 3600 seconds\n- Keep the old cache key - Existing readers still need it\n- Keep the old cache key - Existing readers still need it\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\nHow the decision list was built:\n\n- **Fixture byte count** was an `auto-apply` record with evidence `none`, so its reason comes from the fifth cell.\n- **Cache lifetime** was a `granted` record, so its reason comes from the evidence cell.\n- The `accepted` scope line and the quoted `\"auto-apply amends\"` line do not match either record shape, so they are left out.\n- Both identical `choice` lines are kept, because repeats count.\n- The citation-repair commit has no matching body record.\n\nThe other two variants:\n\n- **No-amendment variant:** the only body is \"The section offsets now match the spec.\", so N = 0. The decision block is omitted entirely.\n- **Single-commit variant:** the pipe-shaped line is only the subject, and records are selected from bodies only. Its body, \"No amendment applied.\", matches nothing, so N = 0 and the decision block is omitted.\n",
+      "words": 248,
+      "wallMs": 11876,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=finishing-a-development-branch/step-4\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --format=%B\n```\n\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n**Independent no-amendment variant:** No amendment digest is printed; the block is omitted because there are no qualifying audit rows.\n",
-      "words": 94,
-      "wallMs": 7281,
+      "text": "gauntlet: gate=ship/step-4\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --format=%b --reverse\n```\n\nIndependent variants:\n- **Only the citation repair:** No decision list is printed; its body contains no matching records.\n- **Amendment-shaped subject only:** No decision list is printed; subjects are not inspected, and its body contains no matching records.\n\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nWhat the run decided on its own (4):\n- Fixture byte count: The fixture contains 43117 bytes - The sample file was measured again\n- Cache lifetime: Cache entries expire after one hour - The fixture measured 3600 seconds\n- Keep the old cache key - Existing readers still need it\n- Keep the old cache key - Existing readers still need it\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
+      "words": 154,
+      "wallMs": 13500,
       "mechanical": {}
     }
   },
   "judge": {
     "anthropic/claude-opus-5-5": {
-      "factsSha": "ab5d5d1b78a8f771bc0ddb811819a37dc13e328315e5698af142ecfd4ccc5be4",
+      "factsSha": "cad0bc3fe1fb130cc47242bbb5225083510c2ddf5d703e77d1f059c48d642e5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
-      "baselineOutputSha": "20e49a2c0ab3622d58a49fa8cf9d09905c8480b137da5edaa1275690e05a7b6d",
-      "candidateOutputSha": "604755110fd0a4013e3633cf3c2aff57f329a9d19e24e2f56b73dad09cfb8122",
+      "intentSha": "870f1597bfdf833927dd556cc8027c01d8491274f8447f54176a4cff5525660b",
+      "baselineOutputSha": "16df9423a8b0e59e51c6a550c2978146068c5b81a64798373c8a8c047d7ead16",
+      "candidateOutputSha": "1e8736f25310baddb82765bfad5e4ebf81d2b599f588a3a6dfdb88f2104602e7",
       "facts": {
         "source": {
           "before": "fails",
@@ -54,16 +54,16 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved both targeted facts as intended: replacing the anchored `--grep '^(amend:|loop: ...)'` selection with an unfiltered `git -C \"/workspace/app-tree\" log main..HEAD --format=%B` read satisfies source, and selecting by body record kind (`granted` or `auto-apply`) rather than subject label produces `Amendments auto-applied (2):` with the Cache lifetime and Fixture byte count rows, while excluding the accepted scope row, the quoted `\"auto-apply amends\"` text and the citation repair, and omitting the block in the repair-only variant. Before failed both because its subject-prefix grep matched nothing and yielded N = 0. The menu fact held in both: marker line first, the five ordinary options after the digest, no recommended suffix, no extra approval and no automatic shipping. To keep this stable, retain the explicit instructions that the marker line stays first, that the log read is stated with `--format=%B` and no `--grep` or subject filter, that only complete audit rows of kind `granted` or `auto-apply` count, and that the block is omitted entirely when N = 0; consider also stating that the digest sits between the marker and the menu so the added log-read line never displaces the marker or pushes anything after the options.",
-      "wallMs": 6083,
+      "feedback": "The After wording moved both targeted facts and lost none. On source, After adds `--reverse` to the body-only `git -C \"/workspace/app-tree\" log main..HEAD --format=%b` read, so it is oldest first, whereas Before read newest first. On digest, After prints a single `What the run decided on its own (4):` list in oldest-first order, with the 43117-byte correction and its re-measurement reason, the one-hour expiry and its 3600-second evidence, and the two identical keep-the-old-cache-key choices as separate rows; the accepted scope row, the quoted line and the citation repair are left out, and both variants get no list. Before instead printed `Amendments auto-applied (2):` with no reasons and dropped the choices. The menu fact holds in both: the gate marker is first, the five ordinary options follow the list, and there is no recommended suffix, extra approval or automatic shipping. Two things to tighten: After appends a 'How the decision list was built' section and the variant notes after the menu, although the case says to stop at the menu, so the wording should say that any derivation notes and variant statements go before the menu or are left out, in case a later fact checks that the menu is last. After also paraphrased the evidence cell as 'a fixture run measured 3600 seconds' rather than 'fixture measured 3600 seconds'; if reasons are meant to be verbatim, say so.",
+      "wallMs": 10538,
       "verdict": "improved"
     },
     "github-copilot/gpt-6.1-sol": {
-      "factsSha": "ab5d5d1b78a8f771bc0ddb811819a37dc13e328315e5698af142ecfd4ccc5be4",
+      "factsSha": "cad0bc3fe1fb130cc47242bbb5225083510c2ddf5d703e77d1f059c48d642e5d",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "d25cead92be8ef79a9ce54ca44c8950dfe585ca0324ba1f7dfffdf8a49c622b6",
-      "baselineOutputSha": "df1dd79ab8c44e26576f4f97561e74f5442f0914ecd8e18386c0b183b7ea3bb7",
-      "candidateOutputSha": "85bcfb1dc281a664d4263f51427a3c2778c705c6ba600d3130ab4557eb5b700d",
+      "intentSha": "870f1597bfdf833927dd556cc8027c01d8491274f8447f54176a4cff5525660b",
+      "baselineOutputSha": "bd7f677018413ece9af4c892b295e4085319adc1dc2886ba50d27da35ff876b6",
+      "candidateOutputSha": "d6f22d160f2c8d370f1ca7d9e9cdb855db00e5cf4abbd9774acae449b6e54f9c",
       "facts": {
         "source": {
           "before": "fails",
@@ -81,10 +81,10 @@
           "label": "held"
         }
       },
-      "feedback": "The After wording moved both digest facts in the intended direction and cost nothing that Before held. Replacing the subject-prefix `--grep` filter with an unfiltered `git -C \"/workspace/app-tree\" log main..HEAD --format=%B` body read satisfied `source`. Reading the pipe-delimited record lines from those bodies satisfied `digest`: it printed `Amendments auto-applied (2):` with the granted Cache lifetime row and the auto-apply Fixture byte count row, left out the accepted human-pick row and the plan-citation repair, and omitted the block in the repair-only variant. Before failed both because its filter matched none of the plain subjects, so it selected no records and dropped the digest. The `menu` fact held in both: the gate line comes first, followed by the ordinary five options with no recommended suffix, no extra approval and no automatic shipping. To keep this, the wording should continue to say explicitly that rows are selected by their disposition field (granted or auto-apply) from all commit bodies and never by subject, that the digest is omitted entirely when no rows qualify, and that the digest sits between the log command and the unchanged five-row menu under the gate line.",
-      "wallMs": 8121,
+      "feedback": "After moved `source` by adding `--reverse` to the body-only `git -C /workspace/app-tree log main..HEAD --format=%b` command, so the bodies are read oldest first with no subject filter; Before read them newest first. After moved `digest` by replacing the `Amendments auto-applied (2):` list (two entries, newest first, no reasons, no choices) with a single `What the run decided on its own (4):` list that gives the 43117-byte correction, the one-hour cache expiry and the two separate keep-the-old-cache-key choices in oldest-first order, each with its reason, while leaving out the accepted row and the repair and printing no list for either variant. `menu` held in both: the gate marker comes first and the five ordinary options follow the list with no recommended suffix, extra approval or automatic shipping. To keep all three, keep the wording that says to read bodies only, oldest first, emit one entry per body record even when two are identical, and include only granted or auto-applied corrections and choices. Two things in After are not covered by any fact but could be pinned down: it adds `Closure / conformance: CONFORMS` and `whole-diff minors: none` lines above the list, and it places the variant statements between the command and the user-visible text. If the status lines are unintended, say explicitly whether they belong above the menu when no gaps remain; and say that the decision list sits directly above `Implementation complete.` so nothing drifts between the list and the menu.",
+      "wallMs": 10044,
       "verdict": "improved"
     }
   },
-  "repoSha": "8899bf733b281e7df57d1efaf639009994ec21d3"
+  "repoSha": "b58c20c2ecb2cf7a70633dd2422e994b7a505125"
 }

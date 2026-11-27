@@ -144,7 +144,7 @@ test('amendment batches and chosen spec dispositions use the shared message reci
 
 test('finish composes landed messages and reads amendment records without subject filters', () => {
   const finish = read('skills/gauntlet/ship/ship.md');
-  const digest = finish.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
+  const digest = finish.split('**Decisions above every menu.**')[1].split('**Rework PR subject')[0];
   assert.match(digest, /--format=%b/);
   assert.doesNotMatch(digest, /--grep|--extended-regexp/);
   assert.match(finish, /--title "\$LANDED_SUBJECT"/);

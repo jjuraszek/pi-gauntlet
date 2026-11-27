@@ -149,10 +149,12 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-Start the message with `gauntlet: gate=ship/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b` for body-only output (`--format=%B` includes subjects). Take lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| ` from complete amendment audit rows (`handle | title | what | kind | reviewer | evidence`). Select by these body records, never by subject; commits without matching rows contribute nothing. Render, then the options:
+Start the message with `gauntlet: gate=ship/step-4` alone on the first output line, followed by a newline before any closure summary or list of decisions. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../menu-layout.md).
+
+**Decisions above every menu.** Read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b --reverse` in the home checkout, then in each companion checkout against its own base in `## Legs` order. Select by these body records, never by subject; commits without matching rows contribute nothing. For complete amendment audit lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| `, render `<title>: <what changed>` and use the evidence cell as the reason in everyday words; for `none`, use the fifth cell instead. For `^- choice \| [^|]+ \| .+$`, use its two cells as the choice and reason. Print one list at home, one entry per matching line, including repeats, in the order read. Leave out recovered steps and extra attempts. Render the block before the options:
 ```
-Amendments auto-applied (N):
-- <title> - <what changed>
+What the run decided on its own (N):
+- <what> - <why>
 ```
 
 Omit the block when N = 0.

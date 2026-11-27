@@ -1,4 +1,32 @@
-# eval report: ship (partial run: pr-body-integration)
+# eval report: ship (partial run: digest-from-record-lines)
+
+for: bb9750e7d2eef38a47117925f3284d138e2a96e38f1bca98c5c8e1f7042a4fb3
+
+wall: 24s
+
+## Change
+
+Use digest-from-record-lines to check the single list above the menu. Read a branch's commit bodies oldest first, explain applied corrections alongside choices and keep repeated choices separate. The sample replays supplied records, not a live delivery.
+
+The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no ship sample was rerun for it.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| digest-from-record-lines | anthropic/claude-opus-5-5 | improved | 10538 | source: fails -> holds (intended change); digest: fails -> holds (intended change); menu: holds -> holds (held) |
+| digest-from-record-lines | github-copilot/gpt-6.1-sol | improved | 10044 | source: fails -> holds (intended change); digest: fails -> holds (intended change); menu: holds -> holds (held) |
+
+## Feedback
+
+- digest-from-record-lines / anthropic/claude-opus-5-5: The After wording moved both targeted facts and lost none. On source, After adds `--reverse` to the body-only `git -C "/workspace/app-tree" log main..HEAD --format=%b` read, so it is oldest first, whereas Before read newest first. On digest, After prints a single `What the run decided on its own (4):` list in oldest-first order, with the 43117-byte correction and its re-measurement reason, the one-hour expiry and its 3600-second evidence, and the two identical keep-the-old-cache-key choices as separate rows; the accepted scope row, the quoted line and the citation repair are left out, and both variants get no list. Before instead printed `Amendments auto-applied (2):` with no reasons and dropped the choices. The menu fact holds in both: the gate marker is first, the five ordinary options follow the list, and there is no recommended suffix, extra approval or automatic shipping. Two things to tighten: After appends a 'How the decision list was built' section and the variant notes after the menu, although the case says to stop at the menu, so the wording should say that any derivation notes and variant statements go before the menu or are left out, in case a later fact checks that the menu is last. After also paraphrased the evidence cell as 'a fixture run measured 3600 seconds' rather than 'fixture measured 3600 seconds'; if reasons are meant to be verbatim, say so.
+- digest-from-record-lines / github-copilot/gpt-6.1-sol: After moved `source` by adding `--reverse` to the body-only `git -C /workspace/app-tree log main..HEAD --format=%b` command, so the bodies are read oldest first with no subject filter; Before read them newest first. After moved `digest` by replacing the `Amendments auto-applied (2):` list (two entries, newest first, no reasons, no choices) with a single `What the run decided on its own (4):` list that gives the 43117-byte correction, the one-hour cache expiry and the two separate keep-the-old-cache-key choices in oldest-first order, each with its reason, while leaving out the accepted row and the repair and printing no list for either variant. `menu` held in both: the gate marker comes first and the five ordinary options follow the list with no recommended suffix, extra approval or automatic shipping. To keep all three, keep the wording that says to read bodies only, oldest first, emit one entry per body record even when two are identical, and include only granted or auto-applied corrections and choices. Two things in After are not covered by any fact but could be pinned down: it adds `Closure / conformance: CONFORMS` and `whole-diff minors: none` lines above the list, and it places the variant statements between the command and the user-visible text. If the status lines are unintended, say explicitly whether they belong above the menu when no gaps remain; and say that the decision list sits directly above `Implementation complete.` so nothing drifts between the list and the menu.
+
+exit: 0
+
+---
+
+# eval report: ship (earlier partial run: pr-body-integration)
 
 for: 84d61c63f50c04d8174332f540e50a0986f96253526150f694c4d76309bd1b36
 

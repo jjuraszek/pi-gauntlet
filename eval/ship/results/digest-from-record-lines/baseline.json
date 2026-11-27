@@ -1,8 +1,8 @@
 {
   "sample": "digest-from-record-lines",
   "arm": "baseline",
-  "skillSha": "2f0a3f99db6c320726873fdc9634b1691da7aec737387c54776105d2df816ce4",
-  "inputSha": "2eff03e26828aadbdc2d5f2703be865aa6e68fec44ab4ffe129bcdf1e5f75a27",
+  "skillSha": "59505a7981717e3bc840b16f496276521b0016b1b42bf62238a68f5370ede3f6",
+  "inputSha": "f801455ac981426bde8f8085d5ad372630ddea19193cbd6a48148a96fdea3fec",
   "kind": "text",
   "assembly": "concat",
   "thinking": "medium",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: gate=finishing-a-development-branch/step-4\n\nAmendment digest source, run before the options:\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'\n```\n\nThe command selects no commits from the three supplied messages:\n\n- **`Repair 2 plan citations`**: no subject or body line starts with `amend:`, `loop: cut row <n>` or `loop: amend`.\n- **`Amend the spec for Cache lifetime and 1 more`**: the subject starts with `Amend the`, not the framework label `amend:`. The grep is case-sensitive and anchored per line, so this subject does not match. The body lines start with `- cache |`, `- scope |` and `\"auto-apply amends\"`. None of them starts with a recognized label. The words `granted` and `auto-apply` therefore come from a non-matching commit and do not count.\n- **`Amend the spec for Fixture byte count`**: this does not match for the same reason. Its `auto-apply` record sits in a commit the grep never returns.\n\nThe result is N = 0, so the `Amendments auto-applied (N):` block is omitted.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n**No-amendment variant:** this variant contains only `Repair 2 plan citations` with the same body. The same command against `/workspace/app-tree` and `main..HEAD` returns no commits, so N = 0. It prints no amendment digest, and the block is omitted entirely. Its Step 4 output is the same marker line followed directly by the same five-row menu.\n",
-      "words": 258,
-      "wallMs": 10828,
+      "text": "gauntlet: gate=ship/step-4\n\nLog command (body-only, so subjects are never matched):\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --format=%b\n```\n\nFrom those bodies I keep only lines matching `^- [^|]+ \\| [^|]+ \\| [^|]+ \\| (auto-apply|granted) \\| `.\n\n- The `choice` lines have only three fields and no kind, so they are dropped.\n- The `scope` row has kind `accepted`, so it is dropped.\n- The quoted `\"auto-apply amends\"` text is not a row.\n- The `Repair 2 plan citations` body has no row.\n- Two rows qualify.\n\nWhat the user sees:\n\n```\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\nNo `fix minors` line appears because there are no whole-diff minors.\n\n**Variants (same menu, different decision list):**\n\n- **No-amendment variant** (`Repair 2 plan citations` only): its body, \"The section offsets now match the spec.\", has no matching row. N = 0, so the `Amendments auto-applied` block is omitted and the menu follows directly.\n- **Single-subject variant:** the `- subject | Not an amendment | … | granted | …` line is the commit subject. `--format=%b` excludes subjects. The body, `No amendment applied.`, has no matching row, so N = 0 and the block is omitted. Selection uses body records only, never subjects.\n",
+      "words": 232,
+      "wallMs": 11071,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: gate=finishing-a-development-branch/step-4\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --extended-regexp --grep '^(amend:|loop: cut row [0-9]+|loop: amend)'\n```\n\nNone of the supplied commit messages matches that filter. No amendment records are selected, so N = 0 and the amendment digest is omitted.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n**Independent no-amendment variant:** N = 0; the amendment digest is likewise omitted.\n",
-      "words": 96,
-      "wallMs": 7862,
+      "text": "gauntlet: gate=ship/step-4\n\n```bash\ngit -C \"/workspace/app-tree\" log main..HEAD --format=%b\n```\n\n**Independent variants:**\n- **No-amendment variant:** Prints no amendment digest.\n- **Subject-only variant:** Prints no amendment digest. Subjects are excluded by `--format=%b`; its body contains no qualifying audit row.\n\n**For the supplied four-message log:**\n\nAmendments auto-applied (2):\n- Cache lifetime - Cache entries expire after one hour\n- Fixture byte count - The fixture contains 43117 bytes\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n",
+      "words": 106,
+      "wallMs": 10669,
       "mechanical": {}
     }
   },
-  "repoSha": "8899bf733b281e7df57d1efaf639009994ec21d3"
+  "repoSha": "b58c20c2ecb2cf7a70633dd2422e994b7a505125"
 }

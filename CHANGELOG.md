@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Show what the run chose and why above the ship options, including spec corrections in the same list. (#170)
+
 - Ask whether to name an unapproved paid or outside-repository action in the spec or cut the affected row, even with permission to amend. (#170)
 
 - Name the blocker and the input needed when implementation or verification stalls, instead of offering a menu. (#170)

@@ -1,6 +1,8 @@
-for: 404144e254c544bd60eb70950eebb1da524af3206a0885014f388b5fb294e30d
+for: 756d620f6ef94f1d8de1f4104e43a60d13ae6c681898dd1b0f47d5c18de605d9
 
 ## Change
+
+The shared ship menu lists applied corrections alongside recommendations. The ship replay covers this change; no conformance sample was rerun.
 
 The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no sample of this target was rerun.
 

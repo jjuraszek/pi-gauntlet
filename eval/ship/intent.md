@@ -2,7 +2,12 @@ for: 90fd955da71efa00fac1c3548aed38f706122da1665425a1a4f90f3f1419652c
 
 ## Change
 
+Use digest-from-record-lines to check the single list above the menu. Read a branch's commit bodies oldest first, explain applied corrections alongside choices and keep repeated choices separate. The sample replays supplied records, not a live delivery.
+
 The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no ship sample was rerun for it.
+
+## Earlier comparisons
+
 Recover ledger returns without writing the task list. On a ship brief restore, show the allowance from disk before continuing verification. Read current ledger pending recovery from restore-loop.md before verification or stripping, and read coordinated recovery rules only for multi-leg delivery. Preserve once-only admission from ledger-held home attribution or a companion return file, consumed iterations, allowance accounting, rejected-boundary recovery and the stop on an unavailable before-image. Preserve post-strip verification ownership and receipt-validated recovery after the owner split. The selected ledger-pending-return fixture uses allowance: and returned: rather than an old cap header or commit-body decoder. Selected text replays inspect supplied recovery and delivery observations; they do not prove live Git or tracker execution. Coverage is sample-scoped, not a target-wide pass.
 
 For a deferred spec, print the numbered gauntlet command before starting delivery so the user can open the PR in a fresh session.
@@ -13,6 +18,8 @@ Read the push procedure on identifying a rework subject, before preflight or the
 
 ## Expected to move
 
+- digest-from-record-lines/digest: fails -> holds - Show each decision and its reason once per body record in the shared list.
+- digest-from-record-lines/source: fails -> holds - Read only feature-range bodies, oldest first.
 - pr-list-push-and-close/reads: fails -> holds - Load the extracted rules before the rework menu and close gate.
 
 - pr-body-integration/create: fails -> holds - Give the reader the current section after Test Plan.

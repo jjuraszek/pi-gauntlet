@@ -295,7 +295,7 @@ const tokenChecks = [
   ["skills/gauntlet/amendment-surface.md", "or: no plan yet", false],
   ["skills/gauntlet/ship/disposition-protocol.md", "Reviewer:", true],
   ["agents/spec-council-member.md", "Mode: amendment-review", true],
-  ["skills/gauntlet/ship/ship.md", "Amendments auto-applied", true],
+  ["skills/gauntlet/ship/ship.md", "What the run decided on its own (N):", true],
   // #41 ticket ACs carried verbatim into the spec
   ["skills/gauntlet/brainstorm/ticket-acceptance.md", "## Acceptance criteria", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "**Ticket contract present.**", true],
