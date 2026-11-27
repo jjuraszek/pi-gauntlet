@@ -1,10 +1,12 @@
-for: e4a9e1f1a6a35eca912a3ae2139583937d38b73336c2c1211591aa70cb392e8c
+for: d39e1fe15d2aef38be773f663c1a6d9d15bd9a15aeaa31b5216ef6a3a3e2f8a4
 
 ## Change
 
 Load the human stop procedure before a stop or ledger amendment, not for clean dispatch or interrupted-return recovery. The clean-dispatch and human-stop-counts samples test narrated reads on supplied observations, not live traces.
 
 After an interrupted return, read the repaired rows from the ledger and continue without a tracker call, including on resume. Seed the list once. At subsequent dispatches and stops, rely on automatic projection. Read status before using a task index across a dispatch or stop.
+
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
 
 Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
 
@@ -28,6 +30,7 @@ The seed-dispositions replay indexes only acceptance criteria and assigns no Int
 
 ## Expected to move
 - human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
+- spent-allowance-moving-or-stalled/contradiction: fails -> holds - Apply the authorized correction, or ask through the amendment menu without a grant.
 - spent-allowance-moving-or-stalled/below: fails -> holds - Do not turn a worker's requested spec call into a below-allowance stop.
 - verify-repair-count/reopened: fails -> holds - Approval of the amendment authorizes the reopened row's return.
 - unreachable-cut/default-row: fails -> holds - Route the defaulted row's unreachable marker through the same amendment as an explicitly in-scope row.

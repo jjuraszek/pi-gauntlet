@@ -60,7 +60,7 @@ Never stop on a failed row below its effective allowance. Read admitted failed-r
 | Order | Observed state | Action |
 |---|---|---|
 | 1 | No `open` or `failed` row | Continue at ## After the loop step 0. All-cut and baseline-complete ledgers exit here. |
-| 2 | Unresolved row attempts >= effective allowance | Human stop with or without amend permission. Exempt `done` and `cut`. |
+| 2 | Unresolved row attempts >= effective allowance | Take ## Human stop with or without amend permission. When the last admitted evidence states a spec-vs-code contradiction that no reading inside the approved spec resolves, follow ## Human stop's procedure and take the amendment surface instead of retrying: apply the named authorized correction in the same turn under amend permission, or show the amendment menu without it. Keep the repeated-evidence guard. Exempt `done` and `cut`. |
 | 3 | Last two child row commits for the same row changed no file outside the ledger and no row status, or two consecutive validation misses on that row | Set the hint for that row: `the last two attempts changed nothing outside the ledger` for empty-child stagnation, or `two returns broke the contract: <concrete miss from the last repair evidence>` for validation misses; continue to rule 4. |
 | 4 | Dispatch allowed | Select target by the priority below, then apply the escalation threshold check. |
 

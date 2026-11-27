@@ -23,7 +23,13 @@ For worker dispatches, resolve this file to an absolute path relative to the ins
 
 ## Body
 
-Leave the body empty or write whole sentences saying what changed and why. Keep `pending:` lines, `iteration:` lines, ledger rows and decision lines out of it. Preserve record lines only for the spec commit's council audit and the amendment commit's audit rows. Allow Git trailers such as `Co-authored-by:`.
+Leave the body empty or write whole sentences saying what changed and why. Keep `pending:` lines, `iteration:` lines, ledger rows and decision lines out of it. Preserve the spec commit's council audit and the amendment commit's audit rows. On worker, wave and repair commits, record each recommendation taken between in-spec alternatives once in the body:
+
+```text
+- choice | <what the run chose> | <why>
+```
+
+Follow the [Register rules](../chase-bug/reference/verdict-report.md#register): use everyday words, no commit hashes or row, task or finding numbers. Keep each cell on one physical line without a pipe. Record distinct choices even when their wording matches. Never duplicate an amendment audit or record a recovered step or extra attempt as a choice. Allow Git trailers such as `Co-authored-by:`.
 
 ## Landed message
 

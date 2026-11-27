@@ -1,4 +1,8 @@
-# eval report: waves (partial run: tracker-auto-start)
+# eval report: waves (selected samples only)
+
+No replay was run on the merged prompt.
+
+## Earlier main replay: tracker-auto-start
 
 for: 2377daf9ceaecac1832e69f11b615cd91d1807d2be16a373f03cf80fdea15758
 
@@ -32,15 +36,17 @@ Replace per-task spec and per-wave code review with one post-gate integrated wav
 
 exit: 0
 
-## Earlier PR replay: worker-decision-taken
+## Earlier PR replays: blocked-decision-auto-taken, worker-decision-taken
 
-This evidence predates the merged prompt; no replay was run for the merge.
+This evidence predates the merged prompt.
 
-for: fc995a19625ae3417395ad239a44309e3fb9ae8f802d543bf249cdd341197adb
+for: 78cc162c9ac91943c7350fdf13ce813c59943a74276499fd64ae32d700a6d093
 
-wall: 51s
+wall: 79s for blocked-decision-auto-taken; 43s for worker-decision-taken
 
 ## Change
+
+Use blocked-decision-auto-taken and worker-decision-taken to check that permission to change the spec does not gate an in-spec repair. Hold each recommendation and its reason for the accepted wave commit.
 
 Repeat an identified, unwritten interrupted dispatch in the same turn; take recommended in-spec worker decisions with or without amend permission. The selected replays check routing rather than real recovery or commit creation.
 
@@ -58,12 +64,14 @@ Replace per-task spec and per-wave code review with one post-gate integrated wav
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| worker-decision-taken | anthropic/claude-opus-5-5 | improved | 14244 | taken: fails -> holds (intended change); choice: fails -> holds (intended change); exceptions: holds -> holds (held) |
-| worker-decision-taken | github-copilot/gpt-6.1-sol | improved | 6090 | taken: fails -> holds (intended change); choice: holds -> holds (intended but unchanged); exceptions: holds -> holds (held) |
+| blocked-decision-auto-taken | anthropic/claude-opus-5-5 | improved | 12366 | taken: holds -> holds (held); attempts: holds -> holds (held); repeated: holds -> holds (held); controls: fails -> holds (intended change) |
+| blocked-decision-auto-taken | github-copilot/gpt-6.1-sol | improved | 17967 | taken: fails -> holds (unplanned improvement); attempts: holds -> holds (held); repeated: holds -> holds (held); controls: fails -> holds (intended change) |
+| worker-decision-taken | anthropic/claude-opus-5-5 | improved | 5595 | taken: fails -> holds (intended change); choice: fails -> holds (intended change); exceptions: fails -> holds (unplanned improvement) |
+| worker-decision-taken | github-copilot/gpt-6.1-sol | improved | 12280 | taken: fails -> holds (intended change); choice: fails -> holds (intended change); exceptions: holds -> holds (held) |
 
 ## Feedback
 
-- worker-decision-taken / anthropic/claude-opus-5-5: The 'with or without amend permission' wording moved `taken`: After prints `took recommendation: ... for task 3`, appends the existing-helper answer and re-dispatches the retained payload in the same turn with no question, and says the behaviour is identical with or without a grant. Before did this only under an auto-apply grant and otherwise ended the turn on a `gauntlet: question` menu. The held-choice wording moved `choice`: After keeps an explicit `- choice | existing parser helper (task 3) | already handles blank names` line for the wave commit, whereas Before kept only the transcript 'took recommendation' line with no reason and said the commit carries no decision. `exceptions` holds in both, but narrowly in Before, which never auto-takes the three fixes yet calls discard 'not available' and the purchase 'a human-decided scope change' instead of explicitly asking; After ends the turn on a question for all three. To keep all three facts, keep the unconditional take sentence, the held choice-plus-reason line, and an explicit carve-out that discard, redraw and unnamed paid or outside-spec actions always stop and ask regardless of grant. Also tighten After's 'the commit states the choice, if at all, as a whole sentence', because 'if at all' leaves room for the choice and its reason to be dropped at commit time; say plainly where the held choice and reason land.
-- worker-decision-taken / github-copilot/gpt-6.1-sol: After moved `taken` by stating up front that the helper choice is an in-spec implementation decision taken "without asking for permission", printing the `took recommendation` line for task 3 unconditionally, and repeating in the permission table that it is auto-taken "even with no amendment grant"; Before failed because its no-grant branch printed a `gauntlet: question` menu and dispatched no retry. `choice` holds in both: Before kept the decision and its blank-names reason in an audit record through the wave commit, and After keeps an explicit `choice | ... | reason` line as the wave's decision record, while both keep it out of the commit message. `exceptions` holds in both: Before stops for explicit approval or authorization on redraw and purchase and refuses to discard work, and After says stop and ask for discard and purchase and stop at the redraw gate. To keep these stable, retain the unconditional took-recommendation line and the retained-payload-plus-answer redispatch. Consider making the redraw row say explicitly that the human is asked (as the discard and purchase rows do) so `exceptions` does not rest on reading "stop at the redraw gate" as asking, and avoid conditionals such as "if the required tree or write-state observations are unavailable, stop" growing into something that reads as a question before the redispatch, since that would put `taken` at risk.
+- worker-decision-taken / anthropic/claude-opus-5-5: After moved all three facts in the intended direction. 'taken' now holds because After states the outcome is identical with or without a grant, prints `took recommendation: existing parser helper for task 3`, appends the helper answer and redispatches the retained payload in the same turn with no menu; Before gated this on the grant and ended the no-grant turn on a `gauntlet: question` stop with nothing dispatched. 'choice' now holds because After adds a `- choice | ... existing parser helper | It already handles blank names...` line to the wave commit body, whereas Before kept only the took-recommendation line in transcript/tracker, dropped the reason, and said the commit body carries no decision lines. 'exceptions' now holds because After routes discard, redraw and the unnamed purchase each to an explicit human question that ends the turn; Before only asked for the redraw, calling discard 'not available' and the purchase 'never takeable' without asking the human. Before kept none of these facts, so nothing was lost; to keep the gains stable, keep the literal 'with or without amend permission' phrasing next to the took-recommendation print, keep the choice line carrying both the selection and its reason tied explicitly to the accepted wave commit, and keep the three exceptions enumerated by name as ask-first stops so they are not read as mere refusals or as covered by a grant.
+- worker-decision-taken / github-copilot/gpt-6.1-sol: After moves `taken` because it prints `took recommendation: use the existing parser helper for task 3` unconditionally, says outright that no amendment grant is needed, and appends the helper answer to the retained payload for redispatch with no user question; Before only did this under standing amend permission and, with no grant, stopped on a `gauntlet: question` menu without dispatching. After moves `choice` because it holds an explicit `choice | helper | reason` line for the accepted wave commit; Before kept the decision and reason only as an audit record, told the reader not to put it in the commit message, and recorded no choice at all in its no-grant branch. `exceptions` holds in both: neither takes discard, redraw or the unnamed purchase automatically, and After is in fact clearer, since Before's discard row said "not authorized, preserve the work" without explicitly saying to ask (a borderline hold). To keep these, keep the wording that separates an in-spec worker decision from a spec edit, with the grant gating only the latter, and keep the three explicit stop-and-ask rows. One thing to tighten: After hedges that isolation mode and literal paths must be resolved "before issuing a concrete dispatch", which a stricter reader could take as not actually redispatching; wording that makes the redispatch the same-turn action using the retained payload as-is would make `taken` more robust.
 
 exit: 0

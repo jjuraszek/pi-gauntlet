@@ -1,6 +1,9 @@
-for: 89eb76aa7103050792694e76edabd1fbb4140659854ff32ffa54ad4bba43902d
+for: 948ef034af9551acd5bf41564f6f41114950c3f2e39d32c297391b61975fccd9
 
 ## Change
+Select reading-picked to check the choice between two permitted labels and what reaches the row commit. Design's recommendation takes precedence over the size of the change; with no preference, choose the smaller edit. This is a replay of the choice, not a live commit.
+
+## Earlier migration comparison
 Select mixed-migration-row only. Check whether the worker closes a mixed row on local proof instead of running the live migration or treating its missing credential as a blocker. A wording check cannot show how the worker interprets the live clause. This replay covers that decision, not a real migration.
 
 ## Earlier comparisons
@@ -9,6 +12,8 @@ Read dispatched wording and ticket inputs for loop worker messages. Keep home at
 The loop driver's seed-dispositions replay includes this persona and checks that no Integration entry becomes worker work. The standalone persona replies below are retained evidence from their earlier revision, not a replay of the new boundary.
 
 ## Expected to move
+- reading-picked/reading: fails -> holds - Choose a reading instead of asking the user.
+- reading-picked/choice: fails -> holds - Preserve the choice and its reason in the row commit.
 - mixed-migration-row/live-available: fails -> holds - Leave the live obligation outside the worker's actions even with credentials.
 - mixed-migration-row/live-unavailable: fails -> holds - Close on local proof without the release credential.
 - home-plain-commit/ordinary-message: fails -> holds - Use a plain outcome subject and the dispatched ticket.

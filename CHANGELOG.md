@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Take recommended choices inside the approved spec without asking, and record each choice and its reason in the worker or wave commit. (#170)
+
 - Resume recoverable wave interruptions and return rows reopened by approved amendments to implementation without a second question. (#170)
 
 ## v9.1.3 - 2026-11-27

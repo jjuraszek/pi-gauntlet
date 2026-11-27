@@ -1,1 +1,2 @@
 - below: judged: Dispatches row 2 again in the same turn; the worker asking for a human spec call in its failed evidence does not turn a below-allowance failure into a human stop.
+- contradiction: judged: At the spent allowance routes the named correction to the amendment surface rather than another attempt, applying it under amend permission and asking via the amendment menu without permission.

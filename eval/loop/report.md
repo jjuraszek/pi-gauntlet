@@ -1,6 +1,6 @@
 # eval report: loop (selected samples only)
 
-Both replay models met every candidate must-hold in the four selected samples. These are text replays of supplied observations, not live dispatch or tracker evidence.
+No replay was run on the merged prompt. Both replay models met every candidate must-hold in the four listed samples. These are text replays of supplied observations, not live dispatch or tracker evidence.
 
 | Sample | Observed behavior |
 |---|---|
@@ -9,15 +9,17 @@ Both replay models met every candidate must-hold in the four selected samples. T
 | [tracker-verify](results/tracker-verify/report.md) | Both replies handled repair, conformance and reopened rows without an extra ledger list call. |
 | [seed-dispositions](results/seed-dispositions/report.md) | Both replies seeded the acceptance rows without assigning Integration entries. |
 
-## Earlier PR replay: verify-repair-count
+## Earlier PR replay: spent-allowance-moving-or-stalled
 
-This evidence predates the merged prompt; no replay was run for the merge.
+This evidence predates the merged prompt.
 
-for: f31a47d0342cb5b63d795cd11149958442665fca461837b49e87c48f2fde47db
+for: 9d7fc1bb98dfbcf1cc36033c7fb72979c27265533fe21f2637b49671cfed7ac3
 
-wall: 121s
+wall: 61s
 
 ## Change
+
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
 
 Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
 
@@ -29,12 +31,12 @@ The worker's action boundary is covered by loop-implementer/mixed-migration-row.
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| verify-repair-count | anthropic/claude-opus-5-5 | improved | 24542 | budget: holds -> holds (held); reservation: holds -> holds (held); exhaustion: holds -> holds (held); interruptions: holds -> holds (held); resume: holds -> holds (held); gate: holds -> holds (held); reopened: fails -> holds (intended change); failed-cleanup: holds -> holds (held) |
-| verify-repair-count | github-copilot/gpt-6.1-sol | improved | 28750 | budget: holds -> holds (held); reservation: holds -> holds (held); exhaustion: holds -> holds (held); interruptions: holds -> holds (held); resume: holds -> holds (held); gate: holds -> holds (held); reopened: fails -> holds (intended change); failed-cleanup: holds -> holds (held) |
+| spent-allowance-moving-or-stalled | anthropic/claude-opus-5-5 | unchanged | 16055 | below: holds -> holds (intended but unchanged); contradiction: holds -> holds (intended but unchanged) |
+| spent-allowance-moving-or-stalled | github-copilot/gpt-6.1-sol | improved | 11168 | below: holds -> holds (intended but unchanged); contradiction: fails -> holds (intended change) |
 
 ## Feedback
 
-- verify-repair-count / anthropic/claude-opus-5-5: Only `reopened` moved, and it moved in the intended direction. Before paused option 4 on a `gauntlet: question` with an `authorize row 2's return to ledger implementation` / `stop` menu ahead of the dispatch. After treats options 4 and 5 as identical up to dispatch and goes straight from refresh and the Before-each-dispatch rules to the one-task `tasks` call, then ledger-return closure and a rerun of the full gate set, with attempts 3 stopping under rule 2 and no tracker-only close. The other seven facts held in both outputs: the shared count across legs, the pre-reservation no-model stop, reservation and marker shape, the exhaustion stop with amend/stop only, interrupted recovery with same-turn continuation, resume at count 3 without a second bump or dispatch, the gate rerun order, and held-count failure passes. To keep this stable, keep the wording that says approval of the amendment already authorizes the reopened row's return, and that rule 2 is the only thing that stops it. Two spots in After are loose and worth tightening: the snapshot 5 aside `3, or 5 if both old retries are row 2's` hedges the effective allowance and could erode the attempts-3-at-allowance-3 stop, and the `S-MODEL` stop borrows the exhaustion layout with a new header, so state explicitly that it happens before any bump or reservation and offers amend/stop only. It would also help to say outright that the interrupted-repair marker commit has no body records, since both outputs satisfy that only by omission.
-- verify-repair-count / github-copilot/gpt-6.1-sol: The only fact that moved is `reopened`, and it moved the intended way. Before made option 4 stop at an 'Authorize row 2's return' menu, while After has both options treat the approved re-bound as authorization and dispatch the row-2 `tasks` call in the same turn, with normal boundaries, verify still active, closure on disk and a full A/B/C rerun. Every fact Before held still holds in After, but several now hold by implication rather than by statement, and tighter wording would protect them. The repair task no longer says the log is passed by path 'not pasted output'. The interrupted marker commit no longer names its subject `Record a verification repair` or says it is parented on the saved home HEAD. Snapshot 5 no longer says the `tasks` call carries exactly one task, and it names the pre-dispatch boundaries only loosely as 'normal checks/allowance/target/escalation' without calling out the rule-2 allowance check, pending-tuple recovery and clean boundary. The attempts-3 stop is phrased as conditional ('exhausted only if effective allowance is 3') instead of plainly saying both options stop without dispatching. Restoring those explicit phrases would keep `reservation`, `interruptions`, `failed-cleanup` and `reopened` robust while still delivering the no-second-authorization change.
+- spent-allowance-moving-or-stalled / anthropic/claude-opus-5-5: Neither fact moved on this case: both outputs redispatch row 2 in the same turn at attempt 1 of 4 and explicitly refuse to treat the worker's request for a human spec call as a stop, and both handle the spent row by applying the named label correction through amendment-surface section 5 under amend permission and by asking the human with an Amend option and an amend recommendation when no permission is held. The Before output already did this, so the expected fails -> holds movement is not visible here. What After did add is clearer framing: it says outright that the driver takes the amendment surface instead of retrying, and in the no-permission stop it lists the correction as an explicit amendment item, puts Amend first and calls it the amendment menu, where Before showed the generic rule-2 stop with retry listed first and the correction only in the recommendation line. That makes the contradiction fact hold more plainly, and is worth keeping. To protect both facts, keep the explicit statement that a failed row below its effective allowance never stops and that evidence is read only for the unreachable marker, and keep the no-free-retry and repeat-guard wording after the auto-applied amendment, so the amendment route is never read as licence for another attempt.
+- spent-allowance-moving-or-stalled / github-copilot/gpt-6.1-sol: Only `contradiction` moved, and only on the no-permission branch. Before made no writes and presented the correction at the ordinary allowance stop (Retry, `rows +N`, Amend, Stop, with an Amend recommendation), which is not asking through the amendment menu; After says to prepare the named amendment through the amendment surface and show its approval menu, with no edit, commit, attempt grant or dispatch. Both outputs already apply the correction through the amendment surface under auto-apply permission and then stop again without funding another attempt. `below` did not move as expected: Before already dispatched row 2 in the same turn and said the worker's request for a human spec call creates no stop, so the wording change is not what produces that behaviour here. To keep both facts, keep the explicit statement that a spent row with a named, unapplied correction goes to the amendment surface in both permission modes (apply when granted, amendment approval menu when not), and keep the plain statement that a worker's request for a spec call below allowance is not a stop. One thing to tighten: After's no-permission branch says to retain the applicable exhausted-row offers alongside the amendment menu; say the amendment surface's menu is the primary ask, so it cannot drift back to Before's allowance-stop menu with Amend as one option.
 
 exit: 0

@@ -1,0 +1,80 @@
+{
+  "sample": "reading-picked",
+  "arm": "candidate",
+  "skillSha": "40f5043ed3d05146195a5ee1ee70e24330aa5e154dcb333a2604e420d792805a",
+  "inputSha": "cbd0870039b437bb0d07f87114f94821bb1f1cb52613c8abb3ad7113b8f06318",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Row 1 replay: blank-name label\n\n## Snapshot A: Design recommends the kind-specific label\n\n**Simulated trace**\n\n1. Read the spec, the ledger, the wording file and the Rules files in that order.\n   - The `pending:` tuple and the bumped `iterations:` count are saved verbatim.\n   - Row 1 is `open` with `attempts` 0 and has no earlier decision lines.\n   - `previous decision: none`, `hint: none`.\n   - The task gives `ticket: none`, so the commit gets no reference.\n2. `timeout -k 30 60 git diff --stat <base>` shows no changes yet to `src/format.ts` or `test/format.test.ts`.\n3. Read `src/format.ts` (the `formatName` function) and `test/format.test.ts`.\n4. Step 4 decision:\n   - Two readings fit row 1: the generic \"Unnamed\" and the kind-specific \"Unnamed plant\".\n   - Design explicitly recommends the kind-specific label so readers can tell plants from pots.\n   - A reading that Design states wins over the smaller change.\n   - **Reading implemented: kind-specific.** `formatName(name, kind)` returns `` `Unnamed ${kind}` `` when the name is blank, and the call sites now pass the kind.\n5. RED: added table cases `\"\"` with `plant` expecting \"Unnamed plant\", and `\"  \"` with `pot` expecting \"Unnamed pot\".\n   - Ran `timeout -k 30 120 node --test test/format.test.ts`.\n   - It failed on the empty string: expected \"Unnamed plant\", got \"\".\n6. GREEN: implemented the change above and reran the same command. Result: 1 passed, 0 failed.\n7. Updated the row 1 ledger cells:\n   - `status`: `done`\n   - `attempts`: `1`\n   - `evidence`: `timeout -k 30 120 node --test test/format.test.ts; 1 passed; 0 failed`\n8. Planned commit message (the commit runs after the decision line is appended and `returned:` replaces `pending:`):\n\n```text\nShow a readable label when a plant or pot name is blank\n\n- choice | Show the kind-specific label such as \"Unnamed plant\" for a blank name | The design asks for it so readers can tell plants from pots\n```\n\nFinal reply:\nrow 1 done | formatName now returns a kind-specific \"Unnamed <kind>\" label for blank names, and callers pass the kind. | Reuse formatName(name, kind) in src/format.ts and extend the table cases in test/format.test.ts for new kinds.\n\n## Snapshot B: Design states no preference\n\n**Simulated trace**\n\n1. Read the spec, the ledger, the wording file and the Rules files in that order.\n   - The `pending:` tuple and the bumped `iterations:` count are saved verbatim.\n   - Row 1 is `open` with `attempts` 0 and has no earlier decision lines.\n   - `ticket: none`.\n2. `timeout -k 30 60 git diff --stat <base>` shows no changes to the row's files.\n3. Read `src/format.ts` and `test/format.test.ts`.\n4. Step 4 decision:\n   - Both readings fit row 1, and Design states no preference.\n   - With no Design guidance, the rule is to pick the smaller change.\n   - **Reading implemented: generic constant \"Unnamed\".** The formatter signature stays the same.\n5. RED: added table cases `\"\"` and `\"  \"`, both expecting \"Unnamed\".\n   - Ran `timeout -k 30 120 node --test test/format.test.ts`.\n   - It failed on the empty string: expected \"Unnamed\", got \"\".\n6. GREEN: `formatName` now returns the constant `UNNAMED_LABEL = \"Unnamed\"` for a blank name. Reran the same command. Result: 1 passed, 0 failed.\n7. Updated the row 1 ledger cells:\n   - `status`: `done`\n   - `attempts`: `1`\n   - `evidence`: `timeout -k 30 120 node --test test/format.test.ts; 1 passed; 0 failed`\n8. Planned commit message:\n\n```text\nShow a readable label when a name is blank\n\n- choice | Show the generic label \"Unnamed\" for a blank name | The design states no preference, so the run took the smaller change that needs no kind passed in\n```\n\nFinal reply:\nrow 1 done | formatName now returns the constant \"Unnamed\" label when a name is blank or whitespace. | Reuse UNNAMED_LABEL and formatName in src/format.ts, and add cases to the table in test/format.test.ts.\n",
+      "words": 574,
+      "wallMs": 18371,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "## Snapshot A — simulated trace\n\n1. Resume at step 4 after the required reads. Design recommends a kind-specific label so readers can distinguish plants from pots.\n2. Select **“Unnamed plant”**, despite the additional argument plumbing: Design’s recommendation takes precedence over the smaller change.\n3. Focused test, RED: the blank-name case expects `\"Unnamed plant\"` but receives `\"\"`.\n4. Edit the formatter to accept the kind and return `\"Unnamed \" + kind` when the name is blank. Update its caller to pass the kind.\n5. Focused test, GREEN: the blank plant name produces `\"Unnamed plant\"`.\n6. Resulting commit body:\n   ```text\n   - choice | Use kind-specific labels for blank names | Design recommends distinguishing plants from pots.\n   ```\n7. Stop at the requested boundary. Ledger cells remain unchanged; no commit is executed. File paths and exact test commands were not supplied, so none are invented.\n\nFinal reply:\nrow 1 done | Implemented the kind-specific blank-name label recommended by Design. | Reuse the formatter's kind argument to produce readable labels that distinguish item kinds.\n\n## Snapshot B — simulated trace\n\n1. Resume at step 4 after the required reads. Design states no preference between the two labels.\n2. Select **“Unnamed”**: both readings satisfy the requirement, and the constant avoids changing the formatter’s interface.\n3. Focused test, RED: the blank-name case expects `\"Unnamed\"` but receives `\"\"`.\n4. Edit the formatter to return `\"Unnamed\"` when the name is blank, retaining its existing arguments.\n5. Focused test, GREEN: the blank name produces `\"Unnamed\"`.\n6. Resulting commit body:\n   ```text\n   - choice | Use a generic label for blank names | Both labels fit the spec and a constant requires the smaller change.\n   ```\n7. Stop at the requested boundary. Ledger cells remain unchanged; no commit is executed. File paths and exact test commands were not supplied, so none are invented.\n\nFinal reply:\nrow 1 done | Implemented the generic blank-name label as the smaller in-spec change. | Reuse the existing formatter interface to display Unnamed for blank names.\n",
+      "words": 311,
+      "wallMs": 37169,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "32cdf80d7a201a259f9ae3c1ce71cf3179b51f16d16e0865cddbb83fe4762e60",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "948f60036f86dcb51ab942bacb48f342628aa7d1e5c5275cd06e92f127ce672f",
+      "baselineOutputSha": "a19879fc5eeb350ea1a339260a218ad5d77caa5060d0d3985037454bcd006eb3",
+      "candidateOutputSha": "01744c5921f6b21cd795d55359703c720b30b955bdcd9ffd80ea5242367f73d3",
+      "facts": {
+        "reading": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "choice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The 'reading' fact already held in Before: both snapshots picked the kind-specific label when Design recommended it and the generic constant otherwise, without asking or failing the row, so the expected fails -> holds movement did not occur there; After keeps it, now with the precedence rule stated explicitly ('A reading that Design states wins over the smaller change'). The 'choice' fact moved as intended: Before's commit bodies were plain prose with no `- choice | what | why` line, while After's bodies each contain exactly one such line naming the selected label and its reason, with no row or task numbers. To keep this stable, keep the wording that requires a single `- choice | what | why` line in the row commit body whenever a reading was picked among permitted ones, and that states Design's recommendation outranks edit size with the smaller edit as fallback. Two side effects to watch: After's commit body dropped the prose outcome description entirely and the trace became vaguer (commit described as 'planned', no decision-line/returned/status steps shown), so if you want the outcome paragraph and the full closing steps preserved, say that the choice line is added to the body rather than replacing it, and that the replay should still show the commit sequence as in a live run.",
+      "wallMs": 5445,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "32cdf80d7a201a259f9ae3c1ce71cf3179b51f16d16e0865cddbb83fe4762e60",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "948f60036f86dcb51ab942bacb48f342628aa7d1e5c5275cd06e92f127ce672f",
+      "baselineOutputSha": "aa1e95de4e8ba182a1d6a9d224341911a3f65e202d182df96b08c8a6f369dd4a",
+      "candidateOutputSha": "58f09bc66a164e5540b4cbc25e2165980f221ba091d1a7cd807688e25c423a09",
+      "facts": {
+        "reading": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "choice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "In both Before and After the output picks the kind-specific label in snapshot A because Design recommends it and the generic constant in snapshot B, without asking the user or failing the row, so the reading fact held already and did not move. What moved is the choice fact: Before wrote the commit bodies as free prose with the selection and rationale embedded in sentences, while After emits exactly one '- choice | what | why' line per commit body, naming the selected label and its reason (Design's recommendation in A, smaller in-spec change in B) with no row or task numbers. To keep both facts, retain the wording that tells the worker to record the selected reading as a single '- choice | what | why' line in the row commit body and to let Design's recommendation outrank change size, falling back to the smaller edit when Design is silent; consider also stating that the line should name the concrete label (e.g. 'Unnamed plant' or 'Unnamed') and that row or task numbers stay out of the body, since After satisfies those only implicitly and a future rewording could let them slip.",
+      "wallMs": 10001,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "6dc412588af09cb1874a693fc5d2d1a70cd45d1d"
+}
