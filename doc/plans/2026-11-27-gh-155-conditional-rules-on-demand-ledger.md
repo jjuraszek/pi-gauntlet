@@ -30,3 +30,4 @@ row 6 done | Wave failures, resumes, ladder decisions, escalations, hard stops a
 row 7 done | Verified that ordinary loop and wave runs retain all five rules they need outside conditional procedures. | nothing new to build on
 row 8 done | Updated the compaction, funded-round and decision-ladder links and checked the gate owners for moved rules. | Use the gate and procedure references test to detect retired paths and anchors.
 row 9 done | Verified that the finish, loop and wave tests still check the moved rules in their new files. | nothing new to build on
+amended | 1 item(s) | Pinned eval samples
