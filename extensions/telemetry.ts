@@ -155,6 +155,8 @@
     gauntletEntered: boolean;
     bindings: BindingInput[];
     lastPlanTasks?: Task[];
+    planCursor: number;
+    consumedPlanTasks?: Task[];
   }
 
   function bindingInput(tool: string | undefined, input: unknown, details: unknown, brainstorming: boolean, specDirs: readonly string[], planDirs: readonly string[], cwd?: string): BindingInput | undefined {
@@ -185,18 +187,25 @@
   // map and the flow-entry marker; bind candidates are taken only while armed
   // and dropped on reset. Silent: no events are emitted.
   export function replayBranch(entries: Iterable<unknown>, specDirs: readonly string[], planDirs = planDirsFor(specDirs), cwd?: string): ReplayResult {
-    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false, bindings: [] };
+    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false, bindings: [], planCursor: 0 };
     const calls = new Map<string, { name: string; args: unknown }>();
+    let nextIndex = 0;
     for (const raw of entries) {
+      nextIndex++;
       const entry = raw as { type?: string; message?: { role?: string; content?: unknown; toolName?: string; toolCallId?: string; isError?: boolean; details?: unknown } };
       const tasks = planSnapshot(raw as SessionEntry);
+      const msg = entry.type === "message" ? entry.message : undefined;
+      // Tracker results mark the stored-list prefix consumed before Pi persisted the result.
+      if (msg?.role === "toolResult" && (msg.toolName === "plan_tracker" || msg.toolName === "phase_tracker")) {
+        out.planCursor = nextIndex;
+        out.consumedPlanTasks = tasks ?? out.lastPlanTasks;
+      }
       if (tasks) {
         out.lastPlanTasks = tasks;
         if (entry.type === "message") out.phases = afterPlanActivity(out.phases, tasks);
         continue;
       }
-      if (entry.type !== "message" || !entry.message) continue;
-      const msg = entry.message;
+      if (!msg) continue;
       if (msg.role === "assistant" && Array.isArray(msg.content)) {
         for (const c of msg.content as { type?: string; id?: string; name?: string; arguments?: unknown }[])
           if (c?.type === "toolCall" && c.id && c.name) calls.set(c.id, { name: c.name, args: c.arguments });
@@ -210,7 +219,7 @@
         out.gauntletEntered = nextGauntletEntered(out.gauntletEntered, d.action ?? "", d.phases.brainstorm.status);
         if (d.action === "reset") {
           out.bindings = [];
-          out.lastPlanTasks = undefined;
+          out.lastPlanTasks = out.consumedPlanTasks = undefined;
         }
         const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs, cwd) : undefined;
         if (out.gauntletEntered && resumed) out.bindings.push({ tool: "resume", path: resumed });
@@ -784,8 +793,8 @@
       const branch = ctx.sessionManager.getBranch();
       if (!sameSession) resumedClose = snap ? lastReadCheckpoint(branch, sessionId) : undefined;
       const replay = replayBranch(branch, settings.specDirs, settings.planDirs, ctx.cwd);
-      planCursor = branch.length;
-      lastPlanTasks = replay.lastPlanTasks;
+      planCursor = replay.planCursor;
+      lastPlanTasks = replay.consumedPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
       readGap = gauntletEntered && sameSession && lostPending;
@@ -1086,7 +1095,8 @@
       return undefined;
     });
     pi.on("tool_execution_end", async (event, ctx) => {
-      if (event.toolName === "plan_tracker") {
+      // A refused phase call can reach execution end without a tool_result hook.
+      if (event.toolName === "plan_tracker" || (event.toolName === "phase_tracker" && event.isError)) {
         if (isSubagentChild()) return;
         lastCtx = ctx;
         const settings = deps.settings(ctx.cwd);

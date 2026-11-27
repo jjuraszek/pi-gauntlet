@@ -350,6 +350,41 @@
     assert.equal(replay.phases.implement.status, "in_progress");
   });
 
+  for (const boundary of ["phase status", "refused phase call"]) test(`reload counts an unconsumed stored reopen once across ${boundary}`, async () => {
+    const branch: unknown[] = [];
+    const h = harness({ branch });
+    const phase = async (recorder: typeof h, action: string, phases: ReturnType<typeof P>) => {
+      await recorder.phaseResult(action, phases);
+      branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action, phases } } });
+    };
+    const store = (status: string) => branch.push({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status }] } });
+    await phase(h, "start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } });
+    const implementing = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
+    await phase(h, "start", implementing);
+    store("complete");
+    await phase(h, "status", implementing);
+    store("failed");
+    await h.emit("session_shutdown", {});
+
+    for (const activation of ["before consumption", "after consumption"]) {
+      const reloaded = harness({ branch });
+      reloaded.ctx.cwd = h.root;
+      await reloaded.emit("session_start", { reason: "resume" });
+      if (activation === "before consumption" && boundary === "refused phase call") {
+        await reloaded.emit("tool_execution_end", { toolName: "phase_tracker", isError: true, result: { content: [], details: {} } });
+        branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", isError: true, details: {} } });
+      } else {
+        await phase(reloaded, "status", implementing);
+      }
+      const rec = reloaded.readRecord();
+      assert.equal(rec.derived.gates.task_reopens, 1, activation);
+      assert.equal(rec.events.filter(e => e.kind === "gate" && e.gate === "task_reopen").length, 1, activation);
+      await reloaded.emit("session_shutdown", {});
+    }
+  });
+
   test("replayBranch honors a custom spec dir list", () => {
     const branch = [
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
