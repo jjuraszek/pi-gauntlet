@@ -1,4 +1,4 @@
-for: 7ebcf0ef9a82a98e5ef879e0062d7f249acab95738f8b56d22877668b4065adf
+for: eb890dacf34ce816cc9f517d92448d3aa626cc97f1709c07338f6512e9eafbd3
 
 ## Change
 
@@ -8,7 +8,11 @@ For a deferred spec, print the numbered gauntlet command before starting deliver
 
 Carry the spec's Integration section into a new PR and reconcile only that block on an existing PR. Keep the offer independent of its entries. The pr-body-integration replay checks the menu, rendered bodies and create command, not live publication. Write the body as data in a scratch file so a literal EOF line survives publication; pass the path to the command. The spec-gate/option-6-handoff replay checks the same transport for draft publication. Apply the shared Integration body rule to an isolated copy failure: report the unsynchronized block and its source once without claiming success, then continue readiness, push reporting or companion reconciliation. Keep push and mandatory Rework failures distinct. The spec-pr-integration-sync-failed replay loads the shared rule and checks the response through readiness after a supplied edit failure; it does not exercise live publication, push reporting or companion reconciliation.
 
+Read the push procedure on identifying a rework subject, before preflight or the menu. The ordinary named-branch menu renders without reading it. The two selected replays check narrated reads, not a live file-read trace.
+
 ## Expected to move
+
+- pr-list-push-and-close/reads: fails -> holds - Load the extracted rules before the rework menu and close gate.
 
 - pr-body-integration/create: fails -> holds - Give the reader the current section after Test Plan.
 - pr-body-integration/update: fails -> holds - Replace the outdated block without changing the rest of the draft.

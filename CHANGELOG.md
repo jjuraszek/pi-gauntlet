@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Load `ship/pr-branch-push.md` only for PR rework; ordinary ship menus skip the push rules (#155)
+
 ## v9.1.0 - 2026-11-26
 
 - Breaking for specs and overrides: remove the `venue:` disposition and rename the ticket's `Post-deployment housekeeping` section to `Integration`. Use `Integration` for checks that need a deployed environment. (#172)

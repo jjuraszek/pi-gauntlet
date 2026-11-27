@@ -10,7 +10,7 @@ const { STAGE_FILES, lintStageFiles, lintStageSkill } = stageSkillLint;
 const fenced = (...lines) => ["```bash", ...lines, "```"].join("\n");
 const msgs = (text) => lintStageSkill(text).map((f) => `${f.line}:${f.rule}`);
 
-assert.equal(new Set(STAGE_FILES).size, 38);
+assert.equal(new Set(STAGE_FILES).size, 39);
 
 // prohibited: cd at statement start (bare, after separator, in $(...))
 assert.deepEqual(msgs(fenced('cd "$WT"')), ["2:cd"]);

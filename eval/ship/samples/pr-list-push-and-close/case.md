@@ -4,6 +4,7 @@ bundle+: skills/gauntlet/ship/ship.md
 bundle+: skills/gauntlet/pr-head.md
 The verify completion reply points to `skills/gauntlet/ship/ship.md`. The worktree to finish is `/work/widget/.worktrees/retry`.
 Simulate independent checkpoints; execute no commands or live writes. Use at most 600 words; target 450. Print shared preparation/body/commands once, then compact variant rows without repeating it; use SHA aliases except full body Before provenance. Gates passed and scoped test-retry passed on a known clean commit; telemetry-excluding tree checks are clean. Choose PR-subject row 1 unless a variant says otherwise.
+Narrate the procedure reads in order, starting when the subject is identified.
 The spec Rework record has top-level groups in this order:
 PR: acme/widget#12 - Retry
 Pre-rework head: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa

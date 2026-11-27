@@ -39,7 +39,7 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | ship/step-4 | gate | skills/gauntlet/ship/ship.md | ### Step 4: Present Options | N. rows; templates=3 |
 | ship/carried-open | gate | skills/gauntlet/ship/disposition-protocol.md | # Carried-open disposition protocol | item-letter |
 | ship/carried-open | gate | skills/gauntlet/ship/ship.md | ### Step 3.5: Closure / Conformance Disposition Gate | item-letter |
-| ship/pr-subject-row-1 | gate | skills/gauntlet/ship/ship.md | #### PR-subject row 1: Push to the PR branch | 1 - rows |
+| ship/pr-subject-row-1 | gate | skills/gauntlet/ship/pr-branch-push.md | # PR-subject row 1: Push to the PR branch | 1 - rows |
 | ship/option-5 | question | skills/gauntlet/ship/ship.md | #### Option 5: Discard | free |
 | gauntlet/step-3 | question | skills/gauntlet/worktrees.md | ## Step 3 | free |
 | gauntlet/detached-head | question | skills/gauntlet/worktrees.md | ## Detached HEAD | free |

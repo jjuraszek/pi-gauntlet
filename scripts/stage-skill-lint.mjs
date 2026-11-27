@@ -9,7 +9,7 @@ export const STAGE_FILES = runFiles(
   "plan/open-questions", "plan/plan-contract", "plan/plan",
   "implement/happy-path-run", "implement/loop/coordinated-legs", "implement/loop/driver-holds", "implement/loop/empty-child-stagnation", "implement/loop/interrupted-recovery", "implement/loop/loop", "implement/loop/unreachable-returns",
   "implement/waves/dispatch-contract", "implement/waves/implement-amendments", "implement/waves/implementer-prompt", "implement/waves/prerequisites", "implement/waves/stop-note", "implement/waves/wave-reviewer-prompt", "implement/waves/waves",
-  "ship/disposition-protocol", "ship/legs", "ship/ship", "ship/spec-pr", "ship/verification-set",
+  "ship/disposition-protocol", "ship/legs", "ship/pr-branch-push", "ship/ship", "ship/spec-pr", "ship/verification-set",
 );
 
 const FENCE_OPEN = /^\s*(`{3,}|~{3,})/;

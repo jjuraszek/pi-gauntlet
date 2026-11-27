@@ -7,6 +7,7 @@ import { test } from "node:test";
 import { runInNewContext } from "node:vm";
 
 const skill = readFileSync(new URL("../skills/gauntlet/ship/ship.md", import.meta.url), "utf8");
+const pushRules = readFileSync(new URL("../skills/gauntlet/ship/pr-branch-push.md", import.meta.url), "utf8");
 const verificationPath = new URL("../skills/gauntlet/ship/verification-set.md", import.meta.url);
 const verification = readFileSync(verificationPath, "utf8");
 const rule = verification.match(/\*\*Skip rule\.\*\*[^\n]+/)[0];
@@ -227,9 +228,9 @@ test("finish routes coordinated mechanics once and retains legacy cleanup", () =
   assert.equal((skill.match(/\]\(legs\.md\)/g) ?? []).length, 1);
   assert.match(skill, /recorded `contract:` lines[\s\S]*legacy spec without `## Legs`/);
 });
-for (const [name, pattern] of [
-  ["ordered record pairs", /every top-level `PR:`\/`Pre-rework head:` pair, home first/],
-  ["all original heads", /\| Merge \| For every recorded original head, home first, `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD`/],
+for (const [name, pattern, owner = pushRules] of [
+  ["ordered record pairs", /every top-level `PR:`\/`Pre-rework head:` pair, home first/, skill],
+  ["all original heads", /\| Merge \| For every recorded original head, home first, `git merge-base --is-ancestor <PRE_REWORK_HEAD> HEAD`/, skill],
   ["per-PR refs", /Then probe each recorded PR with its own number using `git -C "\$WORKTREE" rev-parse -q --verify refs\/gauntlet\/pre-rework\/pr-<N>`; only when absent, run `git -C "\$WORKTREE" update-ref refs\/gauntlet\/pre-rework\/pr-<N> <PRE_REWORK_HEAD>` with that PR's original SHA/],
   ["home-only push", /Push only home/],
   ["body prerequisite", /Only after a successful push and successful home body edit/],
@@ -241,11 +242,11 @@ for (const [name, pattern] of [
   ["failure no retry", /failed close once, never retry/],
   ["final closing rule", /Post no review-thread replies, merge no PR, change no ticket state, and close no PR other than the absorbed members through the question above\./],
 ]) {
-  test(`PR-list finish: ${name}`, () => assert.match(skill, pattern));
+  test(`PR-list finish: ${name}`, () => assert.match(owner, pattern));
 }
 
 test("PR absorption prose uses recorded thread-fix evidence without message searches", () => {
-  const row = skill.split('| Recorded `fix`,')[1]?.split('Run the existing strip-and-seal block')[0];
+  const row = pushRules.split('| Recorded `fix`,')[1]?.split('strip-and-seal block')[0];
   assert.ok(row, 'row-1 close-comment contract remains present');
   assert.ok(row.includes('fixed in <sha7>'));
   assert.ok(row.includes('actually recorded that fix SHA'));
@@ -258,10 +259,10 @@ test("finish preserves rendered template whitespace and the skill line budget", 
     "Tests failing (<N> failures). Must fix before completing:\n\n[Show failures]\n\nCannot proceed until tests pass.",
     "Implementation complete. What would you like to do?\n\n1. Push to the PR branch",
     "6. Discard this work (removes the worktree and local branch; the PR branch on origin is untouched)\n\nWhich option?",
-    "```markdown\n## Rework\n\nBefore:",
   ]) {
     assert.ok(skill.includes(fragment), `missing preserved template: ${fragment}`);
   }
+  assert.ok(pushRules.includes("```markdown\n## Rework\n\nBefore:"));
   assert.ok(skill.trimEnd().split("\n").length < 500);
 });
 
@@ -279,10 +280,12 @@ test("ship loads push rules at rework preflight and row selection, not on ordina
 });
 
 test("PR-list close question follows body edit and precedes completion", () => {
-  const row = skill.slice(skill.indexOf("#### PR-subject row 1:"), skill.indexOf("#### Option 1:"));
+  const row = pushRules;
   assert.ok(row.indexOf("gh pr edit") < row.indexOf("Close the absorbed PRs with these comments?"));
   assert.match(row, /#13: "Reworked into #12/);
   assert.match(row, /#14: "Reworked into #12/);
-  assert.match(row, /1 - yes, close #13, #14/);
+  assert.match(row, /Ask nothing when none qualify or N=1/);
+  assert.match(row, /gauntlet: gate=ship\/pr-subject-row-1\nClose the absorbed PRs with these comments\?/);
+  assert.match(row, /1 - yes, close #13, #14\n2 - no, leave them open/);
   assert.match(row, /Rows 2-6[\s\S]*never offer/);
 });
