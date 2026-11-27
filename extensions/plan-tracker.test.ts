@@ -474,6 +474,79 @@ test("dispatch records the admitted return before starting an immediate retry", 
   ]);
 });
 
+test("a repair stop shows the repaired target without publishing the rejected extra", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-repair-");
+  const path = join(dir, "ledger.md");
+  const open = ["1 | open | 0 |", "2 | open | 0 |"];
+  for (const target of ["1", "seed"]) {
+    const tuple = `${target} | home | abc1234`;
+    const branch: any[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    const h = harness(branch, dir);
+    writeFileSync(path, ledger(open, "", `pending: ${tuple}`));
+    await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
+    const before = branch.length;
+    writeFileSync(path, ledger(["1 | done | 1 |", "2 | done | 0 |"], "row 2 done | rejected extra | none", `returned: ${tuple}`));
+    await h.fire("agent_settled", { aborted: false });
+    assert.equal(branch.length, before);
+    const numbered = target === "1";
+    const repair = numbered ? "repair row 1" : "repair seed";
+    writeFileSync(path, ledger(numbered ? ["1 | failed | 1 | repair", open[1]] : open, `${repair} | rejected return | iteration 1`, `returned: ${tuple}`));
+    await h.fire("agent_settled", { aborted: false });
+    assert.deepEqual(branch.at(-1).data.tasks.map((task: { status: string }) => task.status), [numbered ? "failed" : "pending", "pending"]);
+    assert.equal(branch.length, before + Number(numbered));
+  }
+});
+
+test("a human stop redraws on parent evidence, not on an older blocked dispatch", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-stop-");
+  const path = join(dir, "ledger.md");
+  const blocked = { type: "message", message: { role: "toolResult", toolName: "subagent", isError: true, details: {} } };
+  for (const [decision, results, expected] of [
+    ["row 1 failed | worker result | retry", [blocked], "failed"],
+    ["row 1 failed | worker result | retry", [blocked, { ...blocked, message: { ...blocked.message, isError: false } }], undefined],
+    ["rows +5 |", [], "failed"],
+    ["row 1 retry | new input | allowed attempts 2", [], "failed"],
+    ["row 1 escalated | implModel round | allowed attempts 2", [], "failed"],
+    ["amended | 1 item(s) | Clarify check", [], "failed"],
+    ["repair verification | home abc1234 | iteration 2", [], "failed"],
+    ["amended | 1 item(s) | Old amendment\nrow 1 failed | worker result | retry", [], undefined],
+  ] as const) {
+    const branch: any[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }, ...results];
+    const before = branch.length;
+    const h = harness(branch, dir);
+    writeFileSync(path, ledger(["1 | failed | 1 |"], decision, "returned: 1 | home | abc1234"));
+    await h.fire("agent_settled", { aborted: true });
+    assert.equal(branch.length, before);
+    await h.fire("agent_settled", { aborted: false });
+    assert.equal(branch.at(-1)?.data?.tasks[0].status, expected, decision);
+  }
+});
+
+test("branch activation reconciles a stale list against that branch's settled ledger", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-activate-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | failed | 1 |"], "repair row 1 | rejected return | iteration 1", "returned: 1 | home | abc1234"));
+  const gate = { name: "G1: check", status: "in_progress" };
+  for (const event of ["session_start", "session_switch", "session_fork", "session_tree"]) {
+    const branch: any[] = [
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+      { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status: "in_progress" }, gate] } },
+    ];
+    const h = harness(branch, dir);
+    await h.fire(event);
+    assert.deepEqual(branch.at(-1).data.tasks, [{ name: "row 1", status: "failed", label: descriptions[0] }, gate], event);
+    await h.fire(event);
+    assert.equal(branch.length, 3, event);
+    branch.length = 0;
+    await h.fire(event);
+    assert.equal(branch.length, 0, event);
+    assert.equal(h.widget(), undefined, event);
+  }
+});
+
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
   const dir = ledgerFixture("plan-refresh-");
   const path = join(dir, "ledger.md");

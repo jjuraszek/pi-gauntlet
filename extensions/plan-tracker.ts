@@ -181,6 +181,27 @@ function boundLedger(ctx: ExtensionContext): { path: string; text: string } | un
   }
 }
 
+function latestDispatchBlocked(ctx: ExtensionContext): boolean {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role !== "toolResult" || msg.toolName !== "subagent") continue;
+    return msg.isError === true && msg.details !== null && typeof msg.details === "object" && Object.keys(msg.details).length === 0;
+  }
+  return false;
+}
+
+function settledLedger(text: string): boolean {
+  const headers = text.split(/^\|/m, 1)[0];
+  if (/^pending:/m.test(headers)) return false;
+  if (/^returned: none$/m.test(headers)) return true;
+  const decisions = text.split(/^## Decisions$/m)[1]?.split(/^#{1,2} /m, 1)[0].trimEnd();
+  const last = decisions?.split("\n").at(-1) ?? "";
+  return /^(?:repair (?:row \d+|seed|verification)|amended|row \d+ (?:retry|escalated)|rows \+[1-9]\d*) \|/.test(last);
+}
+
 function projectLedger(text: string, path: string, tasks: Task[]): Task[] {
   const projected = ledgerTasks(text, path);
   const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
@@ -259,6 +280,28 @@ export default function (pi: ExtensionAPI) {
 
   const batched = new Set<string>();
   const warned = new Set<string>();
+  const warn = (error: unknown, ctx: ExtensionContext) => {
+    const reason = error instanceof Error ? error.message : String(error);
+    if (ctx.hasUI && !warned.has(reason)) {
+      ctx.ui.notify(reason, "warning");
+      warned.add(reason);
+    }
+    return reason;
+  };
+  const reconcile = (ctx: ExtensionContext, point: "stop" | "activation") => {
+    if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    try {
+      const ledger = boundLedger(ctx);
+      if (ledger && (settledLedger(ledger.text) || (point === "stop" && latestDispatchBlocked(ctx)))) {
+        store(projectLedger(ledger.text, ledger.path, tasks), ctx);
+      }
+    } catch (error) {
+      warn(error, ctx);
+    }
+  };
+  pi.on("agent_settled", (event, ctx) => {
+    if (!event.aborted) reconcile(ctx, "stop");
+  });
   pi.on("message_end", ({ message }) => {
     if (message.role !== "assistant") return;
     batched.clear();
@@ -276,12 +319,7 @@ export default function (pi: ExtensionAPI) {
       if (withoutTuple !== ledger.text) store(projectLedger(withoutTuple, ledger.path, tasks), ctx);
       store(started, ctx);
     } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      if (ctx.hasUI && !warned.has(reason)) {
-        ctx.ui.notify(reason, "warning");
-        warned.add(reason);
-      }
-      return { block: true, reason };
+      return { block: true, reason: warn(error, ctx) };
     }
   });
 
@@ -289,7 +327,9 @@ export default function (pi: ExtensionAPI) {
   for (const event of ["session_start", "session_switch", "session_fork", "session_tree"] as const) {
     pi.on(event, async (_event, ctx) => {
       reconstructState(ctx);
-      updateWidget(ctx);
+      const restored = tasks;
+      reconcile(ctx, "activation");
+      if (tasks === restored) updateWidget(ctx);
     });
   }
 
