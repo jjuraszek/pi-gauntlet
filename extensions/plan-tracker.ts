@@ -252,7 +252,7 @@ function wavePlan(path: string) {
   let text: string;
   try { text = readFileSync(path, "utf8"); }
   catch { return; }
-  let wave: string | undefined;
+  let wave: number | undefined;
   let fence: string | undefined;
   for (const line of text.split(/\r?\n/)) {
     const delimiter = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
@@ -262,9 +262,9 @@ function wavePlan(path: string) {
     }
     if (delimiter) { fence = delimiter; continue; }
     const waveHeading = /^## Wave (\d+)(?:\s|$)/.exec(line);
-    if (waveHeading) wave = waveHeading[1];
-    const task = /^(### Task \d+:) (.+)$/.exec(line);
-    if (task && wave !== undefined) headings.set(task[1], { wave: Number(wave), name: `W${wave}: ${task[2].trimEnd()}` });
+    if (waveHeading) wave = Number(waveHeading[1]);
+    const task = /^(### Task \d+:) (.*)$/.exec(line);
+    if (task && wave !== undefined) headings.set(task[1], { wave, name: `W${wave}: ${task[2]}` });
   }
   return headings;
 }

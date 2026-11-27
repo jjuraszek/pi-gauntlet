@@ -500,10 +500,10 @@ test("loop redraw rejects oversized UTF-8 lists without limiting explicit calls"
   assert.equal(h.notifications.length, 2);
 });
 
-function wavesFixture(t: TestContext) {
+function wavesFixture(t: TestContext, plan = "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n### Task 5: Third\n## Wave 2\n### Task 9: Later\n") {
   mainSession(t);
   const dir = mkdtempSync(join(tmpdir(), "plan-waves-"));
-  writeFileSync(join(dir, "plan.md"), "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n### Task 5: Third\n## Wave 2\n### Task 9: Later\n");
+  writeFileSync(join(dir, "plan.md"), plan);
   return dir;
 }
 
@@ -531,6 +531,14 @@ test("waves dispatch starts exact plan tasks across supported carriers", async (
     assert.deepEqual(branch, [stamp, { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected } }]);
     assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
   });
+});
+
+test("waves dispatch resolves a zero-padded wave and preserves the manifest title", async (t) => {
+  const dir = wavesFixture(t, "## Wave 01 - Foundation\n### Task 1: Build  \n");
+  const h = harness([], dir);
+  await h.call({ action: "init", tasks: ["W1: Build  "] });
+  assert.equal(await waveDispatch(h, waveItem("anchor: ### Task 1:")), undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, [{ name: "W1: Build  ", status: "in_progress" }]);
 });
 
 test("waves dispatch rejects an aggregate overflow without starting the task", async (t) => {
