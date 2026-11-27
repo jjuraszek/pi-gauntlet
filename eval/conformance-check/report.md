@@ -4,6 +4,10 @@ for: b67d186f2fb4f82968f75b08ea8cc0639940ab6c34623d06e39d931097013453
 
 wall: 18s
 
+## Integrated coverage
+
+The `for:` above records the bundle-free assembly at run time. The later decision-list link correction in `skills/gauntlet/ship/ship.md` changes that assembly but not this sample's prompt: `stalled-per-gap-trail` excludes `ship.md` and `disposition-protocol.md`. Both saved replay pairs and judgments remain current. The other conformance samples have stale records and were not rerun. This is not a target-wide pass.
+
 ## Change
 
 At a stalled conformance cap, report every gap's verdict in every round under `Problem:`. Keep the first-line gate marker, name the unblocking input under `Needs:` without a funding menu, and leave verification incomplete. The stalled-per-gap-trail sample covers only this response.
