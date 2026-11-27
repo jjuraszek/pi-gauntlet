@@ -32,9 +32,10 @@ Sites are real ATX heading prefixes, excluding headings inside fenced examples. 
 | plan/step-6-baseline-failure | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
 | plan/step-6-baseline-dirty | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
 | plan/step-6-contract-questions | question | skills/gauntlet/plan/open-questions.md | ## Ask the human | X) options |
-| implement/stop-note | question | skills/gauntlet/implement/waves/stop-note.md | ## Template | free |
+| implement/stop-note | question | skills/gauntlet/implement/waves/stop-note.md | ### Template | free |
 | implement/human-stop | question | skills/gauntlet/implement/loop/human-stop.md | # Human stop | free |
 | implement/discard-authorization | question | skills/gauntlet/implement/loop/human-stop.md | # Human stop | free |
+| verify/whole-diff-review | question | skills/gauntlet/implement/waves/stop-note.md | ## Whole-diff review | free |
 | verify/step-6 | gate | skills/gauntlet/conformance-check.md | ### Fix loop - SDD wave-loop mirror, per round | free |
 | ship/step-4 | gate | skills/gauntlet/ship/ship.md | ### Step 4: Present Options | N. rows; templates=3 |
 | ship/carried-open | gate | skills/gauntlet/ship/disposition-protocol.md | # Carried-open disposition protocol | item-letter |

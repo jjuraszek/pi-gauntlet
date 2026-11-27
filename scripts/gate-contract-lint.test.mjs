@@ -38,7 +38,7 @@ test("run gate, question and ending inventory matches the renderers and their ca
     brainstorm: "understand-the-idea understand-the-idea present-the-design cut-question relatedness-before-provisioning user-review-gate user-review-gate human-batch human-batch",
     plan: "step-6-baseline-failure step-6-baseline-dirty step-6-contract-questions",
     implement: "stop-note human-stop discard-authorization",
-    verify: "step-6",
+    verify: "whole-diff-review step-6",
     ship: "step-4 carried-open carried-open pr-subject-row-1 option-5",
     gauntlet: "step-3 detached-head",
   }).flatMap(([owner, labels]) => labels.split(" ").map((label) => `${owner}/${label}`)));

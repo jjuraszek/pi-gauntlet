@@ -2,7 +2,7 @@
 
 ## Whole-diff review
 
-Keep `verify` active and leave task states unchanged. Print `gauntlet: question` alone on the first line and `Stopped on whole-diff review.` on the next. Quote the final report's residual findings under `Problem:`. End with the unblocking input under `Needs:` in everyday words, with no options.
+Keep `verify` active and leave task states unchanged. Start the message with `gauntlet: question` alone on the first line and `Stopped on whole-diff review.` on the next. Quote the final report's residual findings under `Problem:`. End with the unblocking input under `Needs:` in everyday words, with no options.
 
 ## Implementation task
 
