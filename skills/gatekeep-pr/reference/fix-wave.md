@@ -41,14 +41,14 @@ Write the derived spec in this shape:
 # Findings spec - gatekeep-pr <owner/repo>#<N>
 
 ## Scope
-<PR title and body verbatim; scope.original_intent; for scope.source: spec, the carried spec path at the assessed head as the authoritative scope contract>
+<PR title and body verbatim. For the authoritative scope contract, copy scope.original_intent for source: pr; for source: spec, copy the stored scope.rows and scope.design verbatim and label the current spec path as the edit target only.>
 
 ## Acceptance criteria
 - [ ] <P#/L# ids>: <finding evidence pack>
 - [ ] fix nits: <id>: <nit text>; <id>: <nit text>; ...
 ```
 
-Create one AC per selected file blocker finding, in review order, carrying every contributor P#/L# id and the evidence pack: symptom, location, failing test or `no scoped test`. For each approach blocker use its `instead:` remedy as the derived AC, retaining `builds:`, base evidence or smaller alternative, all contributor IDs and tests exercising the replaced mechanism; no drafted edit is required. Pass that same finding text to Claude Code: copy the derived AC text verbatim, including contributor IDs, `builds:`, `instead:`/`replaces:`, base evidence or smaller alternative and the resolved scoped test command. Keep the common finding/evidence block identical on both harnesses; append only the harness-specific tail, not a separately paraphrased finding. Follow those ACs with one final `fix nits` AC holding every selected nit id and text; omit it when no nit work is selected. Keep deduplicated contributors together in their finding's AC, not separate rows. For a terminal `fix nits` pick, create exactly that one batch row, never one per nit. Description-target and reply payloads never become ACs or ledger rows; route description targets through `post-selection-loop.md` `### Description repair`: compare fresh head/body against the selected proposal before writing, then require readback and a fresh claim-recheck helper before closing only the affected claim contribution. Keep replies unposted until their explicit reply pick. Use the original PR spec or body for scope; use derived ACs only as work items.
+Create one AC per selected file blocker finding, in review order, carrying every contributor P#/L# id and the evidence pack: symptom, location, failing test or `no scoped test`. For each approach blocker use its `instead:` remedy as the derived AC, retaining `builds:`, base evidence or smaller alternative, all contributor IDs and tests exercising the replaced mechanism; no drafted edit is required. Pass that same finding text to Claude Code: copy the derived AC text verbatim, including contributor IDs, `builds:`, `instead:`/`replaces:`, base evidence or smaller alternative and the resolved scoped test command. Keep the common finding/evidence block identical on both harnesses; append only the harness-specific tail, not a separately paraphrased finding. Follow those ACs with one final `fix nits` AC holding every selected nit id and text; omit it when no nit work is selected. Keep deduplicated contributors together in their finding's AC, not separate rows. For a terminal `fix nits` pick, create exactly that one batch row, never one per nit. Description-target and reply payloads never become ACs or ledger rows; route description targets through `post-selection-loop.md` `### Description repair`: compare fresh head/body against the selected proposal before writing, then require readback and a fresh claim-recheck helper before closing only the affected claim contribution. Keep replies unposted until their explicit reply pick. On reuse, refresh the derived Scope from the stored baseline before dispatch. Use derived ACs only as work items.
 
 Write one ledger row per AC in the same order; row n indexes AC n. Expand the placeholder row and mapping below for every AC, keeping attempts zero and evidence empty:
 
@@ -88,7 +88,7 @@ Fill this shared block per dispatch on both harnesses, substituting the finding'
 Worktree: <absolute PR worktree>. Run every command as git -C <worktree> ... or (cd <worktree> && ...).
 Before work, check git -C <worktree> rev-parse HEAD equals <HEAD_BEFORE>.
 Finding evidence: <symptom, location, failing test or no scoped test, P#/L# ids>.
-Scope baseline: <stored scope.original_intent and authoritative spec path when present>.
+Scope baseline: <for source: pr, copy scope.original_intent; for source: spec, copy the stored scope.rows and scope.design verbatim as the contract and label the current spec path as the edit target only>.
 Authorized spec edit: <from the spec-edit pick snapshots whose IDs match findings assigned to this worker, copy each path and exact old-to-new wording; use none for no match, including an ordinary blocker>.
 SCOPED_TEST_COMMANDS: <resolved commands or none>
 wording: <absolute shared reference path>
