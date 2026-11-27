@@ -2,7 +2,7 @@
  * Plan Tracker Extension
  *
  * A native pi tool for tracking plan progress.
- * Explicit calls keep state in result details; dispatches store a branch entry.
+ * Explicit calls keep state in result details; automatic changes store branch snapshots.
  * Shows a persistent TUI widget above the editor.
  */
 
@@ -210,41 +210,18 @@ function latestDispatchBlocked(ctx: ExtensionContext): boolean {
   return false;
 }
 
-const LOOP_DISPATCH = "plan-tracker-loop-dispatch";
-interface DispatchBaseline { path: string; count: number; digest: string; }
-
-function decisionLines(text: string): string[] {
-  const decisions = text.split(/^## Decisions$/m)[1]?.split(/^#{1,2} /m, 1)[0].trim();
-  return decisions ? decisions.split("\n") : [];
-}
-
-const decisionDigest = (lines: string[]) => createHash("sha256").update(lines.join("\n")).digest("hex");
-
-function dispatchBaseline(ctx: ExtensionContext, path: string): DispatchBaseline | undefined {
+function markedStop(ctx: ExtensionContext): boolean {
   const branch = ctx.sessionManager.getBranch();
   for (let i = branch.length - 1; i >= 0; i--) {
     const entry = branch[i];
-    if (entry.type === "custom" && entry.customType === LOOP_DISPATCH) {
-      const baseline = entry.data as DispatchBaseline;
-      if (baseline.path === path) return baseline;
-    } else if (entry.type === "message" && entry.message.role === "toolResult" &&
-      entry.message.toolName === "plan_tracker" && !entry.message.isError) {
-      const details = entry.message.details as PlanTrackerDetails | undefined;
-      if (!details?.error && (details?.action === "init" || details?.action === "clear")) return;
-    }
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role === "toolResult" && msg.toolName === "subagent") return false;
+    if (msg.role !== "assistant") continue;
+    const line = msg.content.find(part => part.type === "text")?.text.split(/\r?\n/, 1)[0] ?? "";
+    return /^gauntlet: (?:question|gate=[A-Za-z0-9.-]+\/[A-Za-z0-9.-]+(?: recommended=[0-9]+)?)$/.test(line);
   }
-}
-
-function settledLedger(ledger: { path: string; text: string }, ctx: ExtensionContext): boolean {
-  const headers = ledger.text.split(/^\|/m, 1)[0];
-  if (/^pending:/m.test(headers)) return false;
-  const baseline = dispatchBaseline(ctx, ledger.path);
-  if (!baseline && /^returned: none$/m.test(headers)) return true;
-  const decisions = decisionLines(ledger.text);
-  const last = decisions.at(-1) ?? "";
-  if (!/^(?:repair (?:row \d+|seed|verification)|amended|row \d+ (?:retry|escalated)|rows \+[1-9]\d*) \|/.test(last)) return false;
-  // A retry or repair already present at dispatch says nothing about this return.
-  return !baseline || (decisions.length > baseline.count && decisionDigest(decisions.slice(0, baseline.count)) === baseline.digest);
+  return false;
 }
 
 function projectLedger(text: string, path: string, tasks: Task[]): Task[] {
@@ -429,9 +406,9 @@ export default function (pi: ExtensionAPI) {
     if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
     try {
       const ledger = boundLedger(ctx);
-      if (ledger && (settledLedger(ledger, ctx) || (point === "stop" && latestDispatchBlocked(ctx)))) {
-        store(projectLedger(ledger.text, ledger.path, tasks), ctx);
-      }
+      if (!ledger) return;
+      const projected = projectLedger(ledger.text, ledger.path, tasks);
+      if (markedStop(ctx) || (point === "stop" && latestDispatchBlocked(ctx))) store(projected, ctx);
     } catch (error) {
       warn(error, ctx);
     }
@@ -459,18 +436,14 @@ export default function (pi: ExtensionAPI) {
         return;
       }
       if (verifyStart) {
-        if (implementing(ctx) || settledLedger(ledger, ctx)) store(projectLedger(ledger.text, ledger.path, tasks), ctx);
+        const projected = projectLedger(ledger.text, ledger.path, tasks);
+        if (implementing(ctx)) store(projected, ctx);
         return;
       }
       if (batched.has(event.toolCallId)) return { block: true, reason: "The ledger write must finish first. Issue the dispatch again, alone in its own message." };
       const started = projectLedger(ledger.text, ledger.path, tasks);
       const withoutTuple = ledger.text.replace(/^pending: .*\n/m, "");
-      if (withoutTuple !== ledger.text) {
-        const returned = projectLedger(withoutTuple, ledger.path, tasks);
-        const decisions = decisionLines(ledger.text);
-        pi.appendEntry(LOOP_DISPATCH, { path: ledger.path, count: decisions.length, digest: decisionDigest(decisions) } satisfies DispatchBaseline);
-        store(returned, ctx);
-      }
+      if (withoutTuple !== ledger.text) store(projectLedger(withoutTuple, ledger.path, tasks), ctx);
       store(started, ctx);
     } catch (error) {
       return { block: true, reason: warn(error, ctx) };
