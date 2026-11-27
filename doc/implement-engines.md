@@ -44,7 +44,7 @@ Seed records evidence for at least one non-cut row and may leave other rows `ope
 
 ## Ledger task projection
 
-The tracker resolves the ledger's Spec reference against its repository root and reads the original indexed acceptance criteria. Single-repo rows use their row number; coordinated rows use the original AC index in `## Leg mapping`. Each row's display label contains the full criterion text, flattened to one line without checkbox markup or disposition metadata. Missing or unreadable specs, missing criteria and empty descriptions reject projection atomically; row numbers alone never substitute for descriptions.
+The tracker resolves the ledger's Spec reference against its repository root and reads the original indexed acceptance criteria. Single-repo rows use their row number; coordinated rows use the original AC index in `## Leg mapping`. Each row's display label uses the criterion text flattened to one line without checkbox markup or disposition metadata and compacted to at most 80 characters before adding the attempts prefix or owner. Missing or unreadable specs, missing criteria and empty descriptions reject projection atomically; row numbers alone never substitute for descriptions.
 
 For allowance ledgers, unresolved rows and done rows with attempts above zero display `<attempts>/<effective allowance>: <description>`. Cut rows, zero-attempt done rows (baseline closures and child-closed extras alike) and legacy cap-only ledgers display only the description. Coordinated labels append the owning repo. Task names stay `row N` or `row N (repo)` for matching and telemetry; `label` is projection-only, absent from the `init`/`add` input schema. The widget shows the label, while status separates identity from display text: `row 3 | 2/5: Verify loop behavior and recovery`.
 
@@ -52,7 +52,7 @@ Handoff copies status verbatim. Resume strips the recognized description suffix 
 
 ## Task-plan orchestration
 
-A main-session dispatch starts each pending task whose `Task <n>:` name matches a dispatched implementer task heading. Dispatches that would violate the pending suffix are refused without starting any task. Mark tasks complete after the wave commit.
+For automatic start in the main session, dispatch `implementer` with `planPath:` and `anchor:` or `anchors:` in its task text. The `### Task <n>:` anchor selects a plan heading, not a tracker name: `### Task <n>: <title>` under `## Wave <k>` resolves to the unique list entry named `W<k>: <title>`, regardless of list position. The tracker moves only matching `pending` entries to `in_progress`; see the [operations reference](configuration.md#plan-tracker) for refusal conditions and the snapshot size limit. Mark tasks complete with `plan_tracker update` after the wave commit.
 
 A passing task-plan `plan_check` also returns a compact manifest: an absolute plan/spec header and one JSON line per task with its wave, heading, owned files, scoped test commands, and optional mode, leg, and orchestrator instruction. The [configuration reference](configuration.md#phase-tracker) defines its fields and inclusive 32,768-character rejection boundary. Loop ledgers return no manifest.
 
