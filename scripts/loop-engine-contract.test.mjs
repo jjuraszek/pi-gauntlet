@@ -272,7 +272,7 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
 test('loop stop sites route through the human stop pointer; automatic recovery does not', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const lines = driver.split('\n');
-  for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed', 'stop with `Stopped: row <n> reopened']) {
+  for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed']) {
     assert.match(lines.find(line => line.includes(site)), /human stop/i, site);
   }
   for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', "take the reference's step-6 stop"]) {
@@ -383,11 +383,11 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
   assert.match(expected, /^- contract: judged: .*verify step 1/m);
   assert.match(after, /Gn tasks.*same tracker/);
-  assert.match(after, /Without amend permission, stop with `Stopped: row <n> reopened by amendment during verify`/);
-  assert.match(after, /Under amend permission, continue without a second authorization/);
+  const reopened = after.split('`reopened by amendment`')[1];
+  assert.match(reopened, /with or without amend permission/i, 'an approved amendment authorizes returning the reopened row to implementation');
   assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
   assert.match(after, /including exhausted-row rule 2/);
-  assert.match(after, /authorize the row's return to ledger implementation or stop/);
+  assert.doesNotMatch(reopened, /Stopped: row <n> reopened|authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
   assert.doesNotMatch(driver + reference, /## Exit verification|Reuse the passing exit run|without plan_tracker initialization or lifecycle updates/);
