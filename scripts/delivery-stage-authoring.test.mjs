@@ -9,6 +9,7 @@ import { intentBody } from '../eval/lib/intent.mjs';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 import { MODELS } from '../eval/lib/models.mjs';
+import { isAssessedCandidate } from './replay-facts.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
@@ -39,15 +40,8 @@ const cases = targetName ? selected : [
   ['gauntlet', 'tree-wide-drafted-row'],
   ['gauntlet', 'workflow-stage-drafted-row'],
   ['gauntlet', 'ticket-all-rows-sorted'],
-  // These unselected replies and judgments belong to the assembly before the contract-judgment edit.
-  ['gatekeep-pr-scope', 'integration-not-judged', {
-    skillSha: 'c90090ed9730dbe5d97f89090389b8e2b559be8a964d9db3b458a37f6445a02d',
-    intentSha: '17edc5b71300bb1090d61a4484ce5a1170cd7e532bf302eed6975878a10a7d7b',
-  }],
-  ['gatekeep-pr', 'plain-report', {
-    skillSha: 'c2742e76c74da7545a1e8d72267d9f0dc7b36b5a4ddee124a4bb0a104a98ba2f',
-    intentSha: 'd32eec97ae2d6458855d0af46f0e147a197af03b616401e50c76d9005212c345',
-  }],
+  ['gatekeep-pr-scope', 'integration-not-judged'],
+  ['gatekeep-pr', 'plain-report'],
   ['spec-gate', 'scope-cuts-listed'],
   ['gauntlet', 'pr-body-drafted-row'],
   ['gauntlet', 'post-action-sorted'],
@@ -63,8 +57,8 @@ for (const name of new Set(cases.map(([name]) => name))) {
   });
 }
 
-for (const [name, sample, historical] of cases) {
-  test(`${name}/${sample}: ${historical ? 'historical' : 'cached'} authoring facts hold on both models`, async () => {
+for (const [name, sample] of cases) {
+  test(`${name}/${sample}: cached authoring facts hold on both models`, async () => {
     const dir = `eval/${name}`;
     const target = JSON.parse(read(`${dir}/target.json`));
     const { text, bundle, drop } = parseCase(read(`${dir}/samples/${sample}/case.md`));
@@ -75,16 +69,19 @@ for (const [name, sample, historical] of cases) {
     assert.deepEqual(candidate.models, MODELS);
     assert.deepEqual(baseline.models, MODELS);
     assert.deepEqual(Object.keys(candidate.judge).sort(), [...MODELS.replay].sort());
+    const skillSha = sha256(assemble({ ...target, skillFiles: target.skillFiles.filter((file) => !drop.includes(file.path)) }, read, bundle));
+    const intentSha = sha256(intentBody(read(`${dir}/intent.md`)));
+    const historical = isAssessedCandidate(name, sample, candidate, skillSha, intentSha);
     const identity = {
       kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
       inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
-      skillSha: historical?.skillSha ?? sha256(assemble({ ...target, skillFiles: target.skillFiles.filter((file) => !drop.includes(file.path)) }, read, bundle)),
+      skillSha: historical ? candidate.skillSha : skillSha,
     };
     for (const model of MODELS.replay) {
       const judged = candidate.judge[model];
       assert.ok(judgmentCurrent(judged, {
         factsSha: sha256(expected), judgePromptSha: sha256(read('eval/judge.md')),
-        intentSha: historical?.intentSha ?? sha256(intentBody(read(`${dir}/intent.md`))),
+        intentSha: historical ? judged.intentSha : intentSha,
         baselineOutputSha: sha256(baseline.outputs[model].text),
         candidateOutputSha: sha256(candidate.outputs[model].text),
       }), `${model}: stale judgment`);

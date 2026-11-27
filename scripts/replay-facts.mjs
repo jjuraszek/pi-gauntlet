@@ -1,4 +1,17 @@
 import { sha256 } from '../eval/lib/checks.mjs';
+import { payloadSha } from '../eval/lib/records.mjs';
+
+// Each pin covers the complete saved candidate together with the assessed sample assembly and intent.
+const assessed = new Map([
+  ['gatekeep-pr/plain-report', 'da0690d8f0d99e9c7979b353d7a4dc39a29c8eb979c58259cda3c6295a21ef7f'],
+  ['gatekeep-pr-scope/integration-not-judged', '98a15855a056d0e212ae55d5106b6265c14c2cc2136ff75cfcc08c75c1905605'],
+  ['gatekeep-pr/overrides-own-block-only', '30fc2dd365eef27fe9d5299cc8f9b2a7951fb9f85cc3d79cd9a646d448fbf455'],
+]);
+
+export function isAssessedCandidate(target, sample, candidate, skillSha, intentSha) {
+  const pin = assessed.get(`${target}/${sample}`);
+  return pin !== undefined && pin === payloadSha({ candidate, skillSha, intentSha });
+}
 
 // Pre-move replies were judged against command-based handoffs. Never attribute those judgments to the new file-based handoffs.
 const archived = new Map([
