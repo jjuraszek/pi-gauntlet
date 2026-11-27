@@ -1,6 +1,8 @@
-for: c9fe93ee16f55b2e2f890d286f2c9cb2ce9ca3352af56f94341821a97c852d24
+for: 1cb8ef56889e5d8f559d29d98b97c038e6a980f89de750f4bef11a18ffe80ca3
 
 ## Change
+
+Use the wave transition table to route an escalated dispatch error. The `budget-exhausted` replay checks that one remaining funded round runs without a human question, while a stalled round still emits the stop note. The deterministic contract test checks the routing text but cannot show which instruction the driver follows.
 
 Check the delegated amendment path for unavailable row input after lookup fails and no format supports a stand-in. Replay both grant states, not live amendments.
 
@@ -23,6 +25,7 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- budget-exhausted/dispatch-error: fails -> holds - Dispatch the remaining funded round instead of treating the escalated dispatch error as an independent stop.
 - stand-in-not-buildable/disposition: fails -> holds - Route the cut by amend permission.
 - stand-in-not-buildable/route: fails -> holds - Bypass ordinary decisions and stalled stop notes.
 - stop-needs-no-menu/stalled: fails -> holds - Name the missing input instead of offering choices.

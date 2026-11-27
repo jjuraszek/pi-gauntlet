@@ -4,7 +4,7 @@ For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence c
 
 When lookup exhausts the sources for missing row input with no buildable stand-in, take the delegated amendment route in Implementer Status instead of emitting this note.
 
-Emit when no escalation model resolves, the escalated dispatch errors, a round stalls under the progress test (see `waves.md` "The Wave Loop"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
+Emit when no escalation model resolves, the [transition table](./waves.md#the-wave-loop) reaches a stop, or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template
 

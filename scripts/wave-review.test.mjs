@@ -126,6 +126,15 @@ test('subagent failure guidance retains the two-attempt ladder', () => {
   for (const token of ['1. **Attempt 1:**', '2. **Attempt 2:**', "3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round."]) assert.ok(failure.includes(token), token);
 });
 
+test('an escalated dispatch error takes a remaining funded round before the stop note', () => {
+  assert.match(wave, /^\| Escalated round fails \(dispatch error,[^\n]*\| spent \| funded round while the task's ledger has one left, else apply the spent-counter test/m);
+  const stopNote = loadReference('stop-note');
+  const trigger = stopNote.match(/^Emit when .+$/m)?.[0];
+  assert.match(trigger, /\[transition table\]\(\.\/waves\.md#the-wave-loop\)/);
+  assert.doesNotMatch(trigger, /dispatch error/);
+  assert.match(stopNote, /`Problem:`[^\n]*dispatch error/);
+});
+
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 
