@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v9.1.1 - 2026-11-27
 
 - Load `ship/pr-branch-push.md` only for PR rework and `implement/loop/human-stop.md` only at a stop or ledger amendment. Read `implement/waves/chain-recovery.md` on a chain failure, missing result or recovery, and `implement/waves/escalation.md` at escalation, a ladder decision, a hard stop or rebuild. Fold `driver-holds.md` and `empty-child-stagnation.md` into the loop driver and `prerequisites.md` into the waves driver (#155)
 
