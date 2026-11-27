@@ -3,9 +3,9 @@
 base: 0aa921924709a632214d4050c42fe7464899862d
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | 294561650a1b09085fadc4a73a24d9eee15ed122
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -18,6 +18,8 @@ returned: none
 | 7 | open | 0 | |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
-| 10 | open | 0 | |
+| 10 | open | 0 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; 2 passed, 1 failed; menus.md still pins the contract-exception recommendation to preserve contract |
 
 ## Decisions
+
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1
