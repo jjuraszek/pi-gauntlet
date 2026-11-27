@@ -272,7 +272,7 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
 test('loop stop sites route through the human stop pointer; automatic recovery does not', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const lines = driver.split('\n');
-  for (const site of ['With dirty status', 'Unresolved row attempts >=', 'refresh leaves implement active', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed', 'refresh and stop with `Stopped: row <n> reopened']) {
+  for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed', 'stop with `Stopped: row <n> reopened']) {
     assert.match(lines.find(line => line.includes(site)), /human stop/i, site);
   }
   for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', "take the reference's step-6 stop"]) {

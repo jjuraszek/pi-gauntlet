@@ -8,7 +8,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const loop = 'skills/gauntlet/implement/loop/';
 const driver = loop + 'loop.md';
 const allow = new Map([
-  [driver, ['refresh the held row dispositions']],
+  [loop + 'human-stop.md', ['refresh the held row dispositions']],
   [loop + 'unreachable-returns.md', ['Refresh held state']],
   ['skills/gauntlet/amendment-surface.md', ['repeated baseline refreshes', 'a refresh trigger']],
   ['skills/gauntlet-resume/reference/restore-loop.md', ['never refresh it inside the loop']],
