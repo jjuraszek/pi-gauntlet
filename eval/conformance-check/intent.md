@@ -1,6 +1,8 @@
-for: 756d620f6ef94f1d8de1f4104e43a60d13ae6c681898dd1b0f47d5c18de605d9
+for: 496f13a983dcbb4935500690b4353629e165bb14d306eb55193ae83bcdd7e646
 
 ## Change
+
+At a stalled conformance cap, report every gap's verdict in every round under `Problem:`. Keep the first-line gate marker, name the unblocking input under `Needs:` without a funding menu, and leave verification incomplete. The stalled-per-gap-trail sample covers only this response.
 
 The shared ship menu lists applied corrections alongside recommendations. The ship replay covers this change; no conformance sample was rerun.
 
@@ -16,6 +18,9 @@ All existing samples (deferred-with-ref, deviates, directional-dependency, elsew
 Retain fresh conformance before the coordinated finish menu and preserve existing disposition facts.
 
 ## Expected to move
+- stalled-per-gap-trail/per-gap-rounds: fails -> holds - The stalled stop puts the complete gap-by-round trail under Problem, not just the overall audit verdicts.
+- stalled-per-gap-trail/needs-no-menu: fails -> holds - The stalled stop names the required input under Needs instead of rendering funding options.
+
 - gate-line-first/gate-first: fails -> holds - Cap exhaustion opens the funding gate independently of runtime errors.
 
 - deferred-with-ref/f1: holds -> holds - Settled deferrals still produce no decisions under the new assembly.

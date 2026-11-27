@@ -27,6 +27,7 @@ test('both engines buy one more conformance round only on progress at the cap', 
     'when the block is live', 'phase_tracker({ action: "grant_fix_rounds", rounds: 1, reason: "<what the last round closed>" })',
     'closureReview.enforce` is false', 'continue without a call', 'an error reply',
     'gauntlet: gate=verify/step-6', 'human explicitly approves N more rounds']) assert.ok(step6.includes(token), token);
+  assert.match(step6, /Give each gap's verdict for each round under `Problem:` and the input needed to proceed under `Needs:`; no menu\./);
   assert.doesNotMatch(driver, /rounds: <allowance - used>|funds conformance rounds from the allowance/);
   assert.match(conformance, /\*\*`maxFixRounds: 0`\*\*: skip this loop entirely/);
   assert.ok(Buffer.byteLength(driver) < 45_000, 'extract the driver before crossing 45 KB');
