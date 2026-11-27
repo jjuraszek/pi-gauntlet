@@ -198,11 +198,7 @@ Keep a Convergence repair out of the `auto-applied fix commits` index: it is not
 
 **`maxFixRounds: 0`**: skip this loop entirely; every `recommended: fix` gap is
 carried OPEN to the finish gate per the precondition-unavailable
-carry-OPEN rule in the partition step above. The load-bearing distinction here
-is opted-out vs. exhausted: `maxFixRounds: 0` means the user opted out of
-auto-fix, so treat `fix` gaps like any other deferred gap — unlike a cap > 0
-that is *exhausted*, which escalates mid-verify because the loop tried and
-could not converge.
+carry-OPEN rule in the partition step above. For a positive cap, follow step 6.
 
 ## Concern decomposition
 
@@ -329,10 +325,9 @@ Emit this block in the verify completion summary. It is the durable handoff
 context was pruned. Verify completes when every gap is either fixed
 (`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`,
 or a `recommended: fix` gap carried OPEN per the precondition-unavailable
-carry-OPEN rule in the partition step above (the loop never started). Escalation - a started
-positive-cap loop that exhausted its rounds or blocked/failed with an open `fix`
-gap - is the one non-completing terminal state; the precondition-unavailable
-carried-open `fix` state is valid closure inventory, not escalation.
+carry-OPEN rule in the partition step above (the loop never started). Route open
+fix gaps at the cap through step 6. Keep verify incomplete on a step 6 stop or
+when a started fix loop blocks or fails.
 
 ### Handoff sentinel and freshness anchor - every handoff
 

@@ -1,6 +1,8 @@
-for: ceb3510c3f7b21bdd1b43023bd901aa236650e27569b96957aa357bfc4de6275
+for: 4163922d4c22d464f9409f9a720608a725cc2b3c8655f765ecc194c918882c6c
 
 ## Change
+
+Defer closure at the conformance cap to step 6. The stalled-per-gap-trail replay checks the stalled stop, not the moving grant or caller routing.
 
 At a stalled conformance cap, report every gap's verdict in every round under `Problem:`. Keep the first-line gate marker, name the unblocking input under `Needs:` without a funding menu, and leave verification incomplete. The stalled-per-gap-trail sample covers only this response.
 

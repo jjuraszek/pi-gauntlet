@@ -1,6 +1,8 @@
-for: 0719c960dd9555e3345edc7993616e9c765833d8a1b8724d32b79f9a05b79551
+for: cf4e7ee6e414c1bd9f1eebcba9873f1c19e94b56c3e85f30f2b1923bb738d4df
 
 ## Change
+
+Defer closure at the conformance cap to step 6. The conformance-grant replay checks that closing one gap at the cap earns another round while a stalled round leaves verify incomplete.
 
 Capture the bounded failure excerpt before a verification repair and reuse it at the stalled stop, without reading logs for diagnosis. Select verify-repair-count to check whether the driver continues when the failing assertion changes at the same gate and exit code. The replay supplies the before and after observations; it does not read or overwrite live logs.
 

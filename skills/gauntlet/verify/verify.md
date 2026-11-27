@@ -54,7 +54,7 @@ Evidence is proportionate to the claim: a task or wave claim is proven by the co
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
 | Requirements met | Line-by-line checklist | Tests passing |
-| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes only on a current `CONFORMS` result or a current durable carried-open closure inventory permitted by `../conformance-check.md` (including declared-precondition-unavailable `recommended: fix` gaps). A started positive-cap fix loop that blocks, fails, or exhausts rounds with an open `fix` gap is escalation, not completion. | Plan-vs-code review, tests passing |
+| Intent delivered (loop closed) | Fresh reviewer audits code+doc vs origin spec + prompt; verify completes only on a current `CONFORMS` result or a current durable carried-open closure inventory permitted by `../conformance-check.md` (including declared-precondition-unavailable `recommended: fix` gaps). Apply step 6 of that reference at the cap. Keep verify incomplete on a step 6 stop or a blocked or failed fix loop. | Plan-vs-code review, tests passing |
 
 ## Rationalization Prevention
 

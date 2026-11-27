@@ -227,6 +227,10 @@ for: 16d08b6bbaa5dd65196f43162774e13d12dffc63b71656e81fc784a0dab24d7e
 
 wall: 76s
 
+## Integrated coverage
+
+The `for:` above records the assembly at run time. The later edit to the after-all-tasks pointer defers closure at the conformance cap to step 6. No waves replay covers that edit; the rows below record the earlier comparison only.
+
 ## Change
 
 Use the wave transition table to route an escalated dispatch error. The `budget-exhausted` replay checks that one remaining funded round runs without a human question, while a stalled round still emits the stop note. The deterministic contract test checks the routing text but cannot show which instruction the driver follows.

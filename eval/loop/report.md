@@ -317,3 +317,47 @@ The worker's action boundary is covered by loop-implementer/mixed-migration-row.
 - verify-repair-count / github-copilot/gpt-6.1-sol: After moved four facts from fails to holds and lost none that Before kept. The Needs line with no options or recommendation replaced Before's Amend/Stop menu, which moved exhaustion and failed-cleanup. Comparing the captured pre-repair excerpt with the rerun's failing assertion at a spent counter moved movement: snapshot 7 now dispatches another repair instead of stopping on the same gate and exit code. Treating the applied amendment as the authorization moved reopened: options 4 and 5 both return row 2 in the same turn through a one-task tasks call, and attempts 3 in a fresh window takes one round instead of an exhaustion stop. Three places sit close to the edge and are worth tightening. First, the 'otherwise take another repair, including when comparison is unavailable' rule lets snapshot 1's different-leg branch and snapshot 3's clean-companion branch run to repair 4; say explicitly that the count carries across legs and is never reset, and that the interrupted-marker resume always stops at repairs 3 of 3, so budget and resume stay safe. Second, the no-model stop reuses the 'verification failed with every row closed' header; a distinct Stopped line would be clearer, while keeping the statement that no bump, reservation or marker precedes it. Third, Stop V says only 'bounded failing excerpt'; state the at-most-20-lines bound and the verify-active/implement-complete line inside the template itself, and say once that the marker commit body carries no machine records.
 
 exit: 0
+
+## Earlier PR replay: conformance-grant
+
+This evidence predates the merged prompt. The verify-repair-count cells carried into this replay are recorded above.
+
+for: fe7ceb0ded6181fc7492f17c068dfbb6219e9dc09a8b2ef056e282e1e174444a
+
+wall: 52s
+
+## Change
+
+Defer closure at the conformance cap to step 6. The conformance-grant replay checks that closing one gap at the cap earns another round while a stalled round leaves verify incomplete.
+
+Capture the bounded failure excerpt before a verification repair and reuse it at the stalled stop, without reading logs for diagnosis. Select verify-repair-count to check whether the driver continues when the failing assertion changes at the same gate and exit code. The replay supplies the before and after observations; it does not read or overwrite live logs.
+
+The worker builds a stand-in when it knows the missing input's format. The loop-implementer samples cover the distinction; this driver was not replayed.
+
+Select unnamed-action-asks to test whether the driver mistakes permission to amend the spec for permission to cut a row that needs an unnamed purchase. The replay stops at the user's question, without a live order or edit.
+
+Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
+
+Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.
+
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
+
+Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
+
+Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
+
+The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| conformance-grant | anthropic/claude-opus-5-5 | improved | 12294 | funding: fails -> holds (intended change); stalled: fails -> holds (intended change); controls: fails -> holds (intended change) |
+| conformance-grant | github-copilot/gpt-6.1-sol | improved | 6405 | funding: fails -> holds (intended change); stalled: fails -> holds (intended change); controls: fails -> holds (intended change) |
+
+## Feedback
+
+- conformance-grant / anthropic/claude-opus-5-5: All three facts moved from fails to holds, and Before held none, so nothing was lost. Funding moved because After decides the cap at step 6 with a moving/stalled progress test instead of comparing <used> against the ledger allowance: both permission states now call grant_fix_rounds for one round with a reason naming G2's MISSING -> DELIVERED change and then continue to the G1 round, and After states the allowance is never read, raised or charged. Before made no grant call and stopped in both states because 5 was not below 4. Stalled moved because After's stop gives the three-part no-progress test, then renders gate=verify/step-6 with Problem: and a Needs: line naming the missing boundary contract, no menu, and verify incomplete; Before's stop had no Needs: line and ended with a 'reply with the number of rounds to fund ... or stop' prompt plus a Recommendation line. Controls moved because After lets enforcement-off run the G1 round with no grant call, stops on a grant error, spends remaining credits on resume before any new grant, records the later human grant of two with the human's words, and keeps maxFixRounds:0 as no fix loop and no grant; Before failed this on enforcement-off alone, since it stopped there. To keep these holding, keep the explicit sentence that the ledger allowance neither funds nor limits conformance rounds, keep the grant reason tied to the gap that closed, and keep the stalled stop free of any funding prompt or recommendation line. One fragile spot: the grant-error stop reuses the Snapshot 2 template and its Needs: says 'or explicit approval of more rounds', which reads close to an option; wording it as the single input required would be safer.
+- conformance-grant / github-copilot/gpt-6.1-sol: After moved all three facts in the intended direction. Funding now holds because After treats G2's MISSING to DELIVERED change at the live cap of 5 as progress, proposes grant_fix_rounds for exactly one round with a reason naming G2, continues to G1 under either amend permission, and says outright that ledger allowance 4 neither funds nor limits the grant; Before instead stopped under both permissions on a `used < allowance` test and declared no grant eligible. Stalled now holds because the stop is rendered at gauntlet: gate=verify/step-6 with explicit Problem: and Needs: lines naming the boundary contract, no menu, and verify incomplete; Before had no Needs: line and ended with an authorize-or-stop choice plus a Recommendation line. Controls now holds because enforcement off continues the moving round with no grant call, a grant error stops, resume spends unused credits before any new grant, the human grant of two passes the human's actual words, and maxFixRounds:0 stays audit-only; Before failed this by stopping the moving round with enforcement off in snapshot 1. To keep these, preserve the explicit 'ledger allowance does not fund or limit' sentence, the literal Problem:/Needs: labels with 'No menu', and the 'do not grant again while credits remain' wording. One soft spot: the grant-error stop's Needs: line asks for 'a successful authorization', which reads close to an authorization question; wording it as the specific input that clears the tool error would keep it clearly distinct from the stalled stop.
+
+exit: 0

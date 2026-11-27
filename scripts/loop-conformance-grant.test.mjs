@@ -34,3 +34,17 @@ test('both engines buy one more conformance round only on progress at the cap', 
   assert.ok(Buffer.byteLength(conformance) < 50_000);
   assert.ok(conformance.split('\n').length <= 500);
 });
+
+test('conformance closure and its callers do not treat exhaustion alone as a stop', () => {
+  const read = path => readFileSync(new URL(`skills/gauntlet/${path}`, root), 'utf8');
+  for (const [path, text] of [
+    ['implement/loop/loop.md', driver.split('\n4. Complete verify only')[1].split('\n')[0]],
+    ['implement/waves/waves.md', read('implement/waves/waves.md').split('## After All Tasks Complete\n')[1].split('## Red Flags')[0]],
+    ['verify/verify.md', read('verify/verify.md').split('| Intent delivered (loop closed) |')[1].split('\n')[0]],
+    ['conformance-check.md (opt-out)', conformance.split('**`maxFixRounds: 0`**:')[1].split('\n\n')[0]],
+    ['conformance-check.md (closure)', conformance.split('\n## Closure / conformance\n')[1].split('\n### ')[0]],
+  ]) {
+    assert.doesNotMatch(text, /exhaust\w*/i, path);
+    assert.match(text, /step 6/i, path);
+  }
+});
