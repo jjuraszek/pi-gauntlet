@@ -31,3 +31,4 @@ row 7 done | The ship menu explains choices in everyday words and shortens the l
 row 8 done | Both engines test against a stand-in when the named input is missing and the repository shows its format; without a format they take the amendment route. | Read the stand-in lines from row and wave commits to disclose which input each stand-in replaced.
 row 9 done | The ship menu names each missing input, its stand-in and what remains unproven; each affected pull request repeats its own disclosure verbatim. | Reuse choices-list-legs and stand-in-linked-and-rework-body to check disclosure placement across new and existing pull requests.
 amended | 1 item(s) | Per-gap trail eval sample
+amended | 1 item(s) | Replayed stand-in controls
