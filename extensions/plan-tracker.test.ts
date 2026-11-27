@@ -742,22 +742,31 @@ test("a human stop redraws on parent evidence, not on an older blocked dispatch"
   const dir = ledgerFixture("plan-stop-");
   const path = join(dir, "ledger.md");
   const blocked = { type: "message", message: { role: "toolResult", toolName: "subagent", isError: true, details: {} } };
-  writeFileSync(path, ledger(["1 | failed | 1 | check failed"], "row 1 failed | worker result | retry", "returned: 1 | home | abc1234"));
-  for (const [name, results, text, admitted] of [
-    ["question after admitted failed return", [workerResult], "gauntlet: question\nRetry?", true],
-    ["gate after admitted failed return", [workerResult], "gauntlet: gate=verify/step-6 recommended=1\r\nChoose.", true],
-    ["marker mentioned after the first line", [workerResult], "Check failed.\ngauntlet: question", false],
-    ["blocked dispatch", [blocked], "Dispatch blocked.", true],
-    ["older blocked dispatch", [blocked, workerResult], "Check failed.", false],
+  const row = { name: "row 1", label: descriptions[0] };
+  const returned = "returned: 1 | home | abc1234";
+  const failedLedger = ledger(["1 | failed | 1 | check failed"], "row 1 failed | worker result | retry", returned);
+  for (const [name, results, text, status] of [
+    ["question after admitted failed return", [workerResult], "gauntlet: question\nRetry?", "failed"],
+    ["gate after admitted failed return", [workerResult], "gauntlet: gate=verify/step-6 recommended=1\r\nChoose.", "failed"],
+    ["marker mentioned after the first line", [workerResult], "Check failed.\ngauntlet: question", undefined],
+    ["blocked dispatch publishes a reopened row", [blocked], "Dispatch blocked.", "pending"],
+    ["older blocked dispatch", [blocked, workerResult], "Check failed.", undefined],
   ] as const) await t.test(name, async () => {
-    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }, ...results, assistantText(text)];
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    if (status === "pending") {
+      branch.push(storedPlan([{ ...row, status: "complete" }]));
+      writeFileSync(path, ledger(["1 | open | 1 | reopened by amendment"], "amended | 1 item(s) | Re-bound row", returned));
+    } else {
+      writeFileSync(path, failedLedger);
+    }
+    branch.push(...results, assistantText(text));
     const before = branch.length;
     const h = harness(branch, dir);
     await h.fire("agent_settled", { aborted: true });
     assert.equal(branch.length, before);
     await h.fire("agent_settled", { aborted: false });
-    const expected = admitted ? [{ name: "row 1", status: "failed", label: descriptions[0] }] : [];
-    assert.deepEqual(branch.slice(before), admitted ? [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected } }] : []);
+    const expected = status ? [{ ...row, status }] : [];
+    assert.deepEqual(branch.slice(before), status ? [storedPlan(expected)] : []);
     assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
   });
 });
