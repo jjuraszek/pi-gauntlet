@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle+: skills/gauntlet-resume/SKILL.md
 bundle+: skills/gauntlet-resume/reference/brief-contract.md
 

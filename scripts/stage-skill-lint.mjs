@@ -7,7 +7,7 @@ export const STAGE_FILES = runFiles(
   "SKILL", "amendment-surface", "commit-message", "documentation-impact", "legs", "menu-layout", "pr-head", "return-file", "worktrees",
   "brainstorm/gatherer", "brainstorm/opening-message", "brainstorm/pr-subject", "brainstorm/spec-finalization", "brainstorm/spec-pr", "brainstorm/superseding", "brainstorm/ticket-acceptance",
   "plan/open-questions", "plan/plan-contract", "plan/plan",
-  "implement/happy-path-run", "implement/loop/coordinated-legs", "implement/loop/driver-holds", "implement/loop/empty-child-stagnation", "implement/loop/interrupted-recovery", "implement/loop/loop", "implement/loop/unreachable-returns",
+  "implement/happy-path-run", "implement/loop/coordinated-legs", "implement/loop/human-stop", "implement/loop/interrupted-recovery", "implement/loop/loop", "implement/loop/unreachable-returns",
   "implement/waves/dispatch-contract", "implement/waves/implement-amendments", "implement/waves/implementer-prompt", "implement/waves/prerequisites", "implement/waves/stop-note", "implement/waves/wave-reviewer-prompt", "implement/waves/waves",
   "ship/disposition-protocol", "ship/legs", "ship/pr-branch-push", "ship/ship", "ship/spec-pr", "ship/verification-set",
 );

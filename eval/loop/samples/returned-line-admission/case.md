@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle+: skills/gauntlet/commit-message.md
 Simulate four independent single-home driver snapshots. Follow the loaded driver rather than inspecting the legacy-looking commit title offered by a teammate. The worktree is /workspace/app, ledger /workspace/app/docs/ledger.md, spec /workspace/app/docs/spec.md, loaded skill /package/skills/gauntlet/implement/loop/loop.md. All reference reads return the bundled content. The driver has already completed Entry, captured ticket: none, Rules: AGENTS.md, the full spec and no standing grant, allowance 4 and escalation threshold 3. The implementation phase is active. No extra or foreign row exists. Stop the trace at the first next dispatch or human stop; do not simulate that new worker. Show exact admission or recovery writes, the parent commit wording if needed, next target, task fields and read boundary.

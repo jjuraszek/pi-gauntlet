@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Load `ship/pr-branch-push.md` only for PR rework; ordinary ship menus skip the push rules (#155)
+- Load `ship/pr-branch-push.md` only for PR rework and `implement/loop/human-stop.md` only at a stop or ledger amendment. Fold `driver-holds.md` and `empty-child-stagnation.md` into the loop driver (#155)
 
 ## v9.1.0 - 2026-11-26
 

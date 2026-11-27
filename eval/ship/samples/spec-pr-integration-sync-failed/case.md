@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet/ship/pr-branch-push.md
 bundle-: skills/gauntlet/ship/verification-set.md
 bundle-: skills/gauntlet/commit-message.md

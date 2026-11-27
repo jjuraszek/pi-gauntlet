@@ -8,6 +8,7 @@ import { lintTarget } from '../eval/lib/lint.mjs';
 import { STAGE_FILES, lintStageFiles } from './stage-skill-lint.mjs';
 import './loop-home-admission.test.mjs';
 const root = new URL('../', import.meta.url);
+const stop = readFileSync(new URL('skills/gauntlet/implement/loop/human-stop.md', root), 'utf8');
 
 test('the loop uses the shared verification command or discovers the project test entrypoint', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
@@ -18,7 +19,6 @@ test('the loop uses the shared verification command or discovers the project tes
 });
 test('driver dispatch matches fresh persona and durable ledger contract', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
-  const stagnation = readFileSync(new URL('skills/gauntlet/implement/loop/empty-child-stagnation.md', root), 'utf8');
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const field of ['iteration', 'spec', 'ledger', 'base', 'target', 'previous decision', 'hint']) {
     assert.ok(driver.includes(`${field}:`), field);
@@ -43,7 +43,7 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
     'a cut row or a different selected target carries none',
     'Apply rule 2 before rule 3; a rule-3 hint dispatches through rule 4',
     'Two consecutive validation misses on a row set its rule-3 hint',
-  ]) assert.ok((driver + '\n' + stagnation).includes(token), token);
+  ]) assert.ok(driver.includes(token), token);
   assert.doesNotMatch(driver, /Only retry starts new windows|stagnation stops without dispatch|validation misses stop because/);
   const rule3 = driver.split('\n| 3 |')[1].split('\n')[0];
   assert.doesNotMatch(rule3, /Human stop/);
@@ -198,7 +198,8 @@ test('automatic exit verification repair uses the ledger allowance with or witho
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const gate = driver.split('\n## After the loop\n')[1].split('\n1. ')[1].split('\n2. ')[0];
   for (const token of ['repair verification | <repo> <child sha7> | iteration <consumed>', 'exactly one commit', 'all ledger rows, attempts, mapping, allowance, `returned:` and prior decisions unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'repairs < allowance']) assert.ok(gate.includes(token), token);
-  for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>', 'budget-only']) assert.ok(driver.includes(token), token);
+  for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>']) assert.ok(stop.includes(token), token);
+  assert.ok(driver.includes('budget-only'));
   for (const token of [
     'with or without amend permission', 'never consult amend permission or gate on iterations',
     'gauntlet_setting({ key: "escalationLoop" })', "resolver's main-loop fallback",
@@ -251,9 +252,7 @@ test('coordinated loop owns stable mappings, attributed returns and pending reco
 test('driver holds capture grant and leg paths outside the dispatch loop', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
-  const pointer = driver.split('\n## Driver holds\n')[1]?.split('\n## Before each dispatch\n')[0];
-  assert.equal(pointer?.trim(), 'Read [driver holds](driver-holds.md) in full now at its absolute path; stop if unreadable.');
-  const holds = readFileSync(new URL('skills/gauntlet/implement/loop/driver-holds.md', root), 'utf8');
+  const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
   for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
   assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
   assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);
@@ -261,14 +260,30 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
   const before = driver.split('\n## Before each dispatch\n')[1].split('\n## Dispatch\n')[0];
   assert.match(before, /Use the held decoded amendment grant/);
   assert.doesNotMatch(before, /Decode the current|spec whose `## Legs`/);
-  const human = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
-  assert.match(human, /Outside the dispatch loop.*amendment.*re-decode.*refresh.*held.*checkout paths/);
-  assert.doesNotMatch(human, /Stopped on row <n> \(<row text>\)/);
+  assert.match(stop, /Outside the dispatch loop.*amendment.*re-decode.*refresh.*held.*checkout paths/);
+  assert.doesNotMatch(stop, /Stopped on row <n> \(<row text>\)/);
   const reference = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
   assert.match(reference, /At seed, read `## Legs`/);
   assert.match(reference, /Use the held membership and checkout paths/);
   assert.match(reference, /Pass absolute home spec and ledger paths for the child to read/);
   assert.doesNotMatch(reference, /Read spec and ledger by absolute home paths/);
+});
+
+test('loop stop sites route through the human stop pointer; automatic recovery does not', () => {
+  const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+  const lines = driver.split('\n');
+  for (const site of ['With dirty status', 'Unresolved row attempts >=', 'refresh leaves implement active', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed', 'refresh and stop with `Stopped: row <n> reopened']) {
+    assert.match(lines.find(line => line.includes(site)), /human stop/i, site);
+  }
+  for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', "take the reference's step-6 stop"]) {
+    const matches = lines.filter(line => line.includes(site));
+    assert.ok(matches.length, site);
+    for (const line of matches) assert.doesNotMatch(line, /Human stop|human-stop\.md/, site);
+  }
+  const recovery = driver.split('\n## Interrupted recovery\n')[1].split('\n## Human stop\n')[0].trim();
+  assert.equal(recovery, 'Read [interrupted recovery](interrupted-recovery.md) in full now; apply its numbered procedure before redispatch.');
+  const kept = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+  for (const rule of ["Recover interrupted returns through ## Interrupted recovery before dispatch, without a human turn. Preserve spent escalation and the consumed dispatch count through recovery: iterations = restored HEAD's value +1, before the next normal bump. Recover from disk/branch, never repeat iteration 0.", 'Retry, cut, amend, raise-allowance and escalate commits never clear the tuple.', "Never invent a stop, a menu, an option or an approval the spec's gate did not ask for, and never write a ruling on what the spec authorizes into a task's `hint:` field."]) assert.ok(kept.includes(rule), rule);
 });
 
 test('ledger resume delegates gate execution to the loop skill', () => {
@@ -362,9 +377,9 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const after = driver.split('\n## After the loop\n')[1];
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
   for (const token of ['gate set', 'Commit verification-produced tracked changes', 'with or without amend permission', 'escalationLoop.implModel', 'repair verification | <repo> <child sha7> | iteration <consumed>', 'exactly one commit', 'all ledger rows, attempts, mapping, allowance, `returned:` and prior decisions unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `rows +N`']) assert.ok(gate.includes(token), token);
-  assert.match(driver, /Implement-phase stops only: leave implement active/);
-  assert.match(driver, /Offer retry and `rows \+N` only at row stops.*alongside Amend and Stop/);
-  assert.match(driver, /verification-failure stop keeps amend\/stop only/);
+  assert.match(stop, /Implement-phase stops only: leave implement active/);
+  assert.match(stop, /Offer retry and `rows \+N` only at row stops.*alongside Amend and Stop/);
+  assert.match(stop, /verification-failure stop keeps amend\/stop only/);
   const expected = readFileSync(new URL('eval/loop/samples/cap-and-exit-verification/expected.md', root), 'utf8');
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
   assert.match(expected, /^- contract: judged: .*verify step 1/m);
@@ -623,7 +638,6 @@ test('fresh ledger seeds one allowance without row or leg scaling', () => {
 
 test('row budget replies preserve counters and reject malformed grants without writes', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
-  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   const retry = stop.split('\n').find(line => line.startsWith('| Retry ('));
   for (const token of [
     'retry <n> \\| <hint>', 'Parse the row number and hint',
@@ -649,7 +663,7 @@ test('row budget replies preserve counters and reject malformed grants without w
   assert.match(stop, /The dirty-tree stop with no dispatch pending keeps discard authorization only/);
   assert.match(stop, /verification-failure stop keeps amend\/stop only/);
   assert.match(stop, /Raising allowance resets neither window/);
-  assert.match(stop, /Use Before each dispatch's window rule for retry and admitted amendments/);
+  assert.match(stop, /Use \[Before each dispatch\]\(loop\.md#before-each-dispatch\)'s window rule for retry and admitted amendments/);
   assert.match(stop, /Retry, `rows \+N` and redraw wait for the human/);
   const replies = readFileSync(new URL('doc/gate-contract.md', root), 'utf8').split('\n').find(line => line.startsWith('| free / question'));
   assert.ok(replies.includes('`retry <n> \\| <hint>` or `rows +N` for loop row stops'));
@@ -658,12 +672,11 @@ test('row budget replies preserve counters and reject malformed grants without w
 
 test('human stop counts cover every boundary without widening its menu', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
-  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
   for (const token of [
     'At every human stop, including allowance, missing-model, dirty-tree and exit-verification stops',
     'list every `open` or `failed` row after the header as `row <n>: <attempts> of <effective allowance>`',
     "then print `Preserve every row's attempts.`",
-    'Compute each denominator from the ledger using Before each dispatch',
+    'Compute each denominator from the ledger using [Before each dispatch](loop.md#before-each-dispatch)',
     'keep retry increments in `## Decisions`, never a new table column',
     'Render repaired row cells after recovery, never unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
@@ -672,7 +685,7 @@ test('human stop counts cover every boundary without widening its menu', () => {
     'verification-failure stop keeps amend/stop only',
   ]) assert.ok(stop.includes(token), token);
   assert.match(stop, /Start the message with `gauntlet: question` at every human stop/);
-  assert.match(stop, /For verify stops use the menus in After the loop, retaining verify active/);
+  assert.match(stop, /For verify stops use the menus in \[After the loop\]\(loop\.md#after-the-loop\), retaining verify active/);
   assert.match(driver, /\| row \| status \| attempts \| evidence \|/);
 });
 
@@ -690,10 +703,9 @@ test('retired loop budgets yield to durable shared allowance and keep waves deco
   assert.match(before, /\| 3 \| .*two consecutive validation misses/);
   assert.match(before, /\| 4 \| Dispatch allowed/);
   assert.doesNotMatch(before, /\| 5 \|/);
-  for (const fact of ['shared Allowance raise sentence', 'including allowance', 'including the saved allowance', 'Preserve attempts, iterations and allowance']) assert.ok(driver.includes(fact), fact);
+  for (const fact of ['including allowance', 'including the saved allowance']) assert.ok(driver.includes(fact), fact);
   for (const fact of ['saved allowance', 'without resetting attempts, iterations or allowance']) assert.ok(reference.includes(fact), fact);
-  const stop = driver.split('\n## Human stop\n')[1].split('\n## After the loop\n')[0];
-  for (const fact of ['rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', "Use Before each dispatch's window rule for retry and admitted amendments"]) assert.ok(stop.includes(fact), fact);
+  for (const fact of ['shared Allowance raise sentence', 'Preserve attempts, iterations and allowance', 'rows +50 |', '[1-9][0-9]*', 'rows +50x', 'rows +0', 'rows +x', 'rows -1', 'Raise the shared header allowance by N for every row and leg', 'leaving iterations and all attempts unchanged', 'Raising allowance resets neither window', "Use [Before each dispatch](loop.md#before-each-dispatch)'s window rule for retry and admitted amendments"]) assert.ok(stop.includes(fact), fact);
   assert.match(stop, /every human stop.*then print `Preserve every row's attempts\.`/);
   assert.match(stop, /The dirty-tree stop with no dispatch pending keeps discard authorization only/);
   assert.match(amendment, /Apply the budget to the waves engine only; loop ignores the budget token and keeps only the decoded amendment permission \(none for a budget-only value\)/);

@@ -20,4 +20,4 @@ E. Interrupted two-commit return: the saved original rows preceded a dispatch of
 F. Interrupted dispatch: same saved rows and consumed count/tuple as E, but no child commit and an uncommitted src/parser.ts edit. Describe recovery and the next ordered action without seeking discard authorization.
 G. Exit verification: independently change rows 2 and 3 to done, preserve attempts, and remove pending. Implement is complete, verify active. Seven verification failures received seven repairs and the last rerun still failed `verification check; expected 2 got 1`. Seven loop: repair verification markers are durable. Render the terminal stop.
 
-Keep historical decisions and all four table columns unchanged. After the messages briefly name the durable source of retry increments and whether any stop itself writes a new column or changes attempts.
+Keep historical decisions and all four table columns unchanged. Narrate which files you read before each stop, dispatch or recovery. After the messages briefly name the durable source of retry increments and whether any stop itself writes a new column or changes attempts.

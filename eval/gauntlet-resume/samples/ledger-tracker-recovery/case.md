@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle+: skills/gauntlet/implement/loop/loop.md
 bundle+: skills/gauntlet/implement/loop/interrupted-recovery.md
 bundle+: skills/gauntlet/amendment-surface.md

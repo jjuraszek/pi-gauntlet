@@ -3,6 +3,15 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
+test('only ledger consent edits and batch preparation load the loop stop procedure', () => {
+  const text = read('skills/gauntlet/amendment-surface.md');
+  const pointer = text.split('\n').find(line => line.includes('`implement/loop/human-stop.md`'));
+  assert.match(pointer, /At .*consent edit or batch preparation.*resolved plan directory.*`# Ledger - loop engine`.*reuse the full procedure of `implement\/loop\/human-stop\.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting\. Stop on an unreadable file naming its path; never reconstruct it\./);
+  assert.match(pointer, /Decoding the grant at seed or restore triggers no read/);
+  for (const site of ['**Writers.**', '## 1. Prepare']) assert.ok(text.indexOf(pointer) < text.indexOf(site));
+  assert.match(read('skills/gauntlet/implement/loop/unreachable-returns.md'), /\[Human stop\]\(human-stop\.md\).*Form one amend item/);
+});
+
 test('Amend-prepare contracts require the completion guard no-edit sentence', () => {
   for (const path of [
     'skills/gauntlet/implement/waves/implement-amendments.md',

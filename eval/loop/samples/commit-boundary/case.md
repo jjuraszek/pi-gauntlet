@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/gauntlet/implement/loop/coordinated-legs.md
 All continuing ledgers below carry checks: commands and allowance:4, except the explicit allowance:1 alternative. Exercise missing ownership and launch history without a human reply; describe cleanup attempts without inventing process ownership.

@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/reconstruction.md
 bundle+: skills/gauntlet/legs.md
 bundle+: skills/gauntlet/ship/legs.md

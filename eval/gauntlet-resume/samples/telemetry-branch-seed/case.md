@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle+: skills/gauntlet-resume/reference/seed.md
 
 Exercise the seed route's Step 3 (Not shipped) in isolation for each captured metadata lookup below. Earlier admission checks are outside this scenario. The seed is `/tmp/widget/doc/specs/2026-01-02-widget.md`, with `<primary>` `/tmp/widget` and `<rel>` `doc/specs/2026-01-02-widget.md`. Telemetry is enabled, `telemetry.remote` is `https://example.test/metrics.git`, and the product repo is `acme/widget`. No checkout YAML file exists. Do not execute tools: state the metadata lookup and ref fetch/read operations you would request and the resulting user reply for each row.
