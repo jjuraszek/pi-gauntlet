@@ -543,10 +543,10 @@ try {
 
 // ---- executable skill examples --------------------------------------------
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/finish-verification.test.mjs")], { stdio: "pipe" });
-  ok("finish verification skip checks pass real Git fixtures");
+  execFileSync(process.execPath, ["--test", R("scripts/finish-verification.test.mjs"), R("scripts/finish-amendment-digest.test.mjs"), R("scripts/finish-landed-message.test.mjs")], { stdio: "pipe" });
+  ok("finish verification, ship menu and landed message checks pass");
 } catch (e) {
-  fail(`finish verification skip checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`finish verification, ship menu or landed message checks failed:\n    ${String(e.stdout || e.stderr || e).trimEnd().replaceAll("\n", "\n    ")}`);
 }
 
 try {
