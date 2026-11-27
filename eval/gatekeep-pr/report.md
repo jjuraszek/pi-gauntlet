@@ -51,3 +51,23 @@ The replay checked a functionality-only opening and evidence mapping, with Integ
 - github-copilot/gpt-6.1-sol: Before already kept the report and evidence functionality-only. After named empty categories in prose, which the judge counted as a findings regression even without empty headings. Omit absent categories entirely while retaining the standing, CI evidence, and recommendation.
 
 exit: 1
+
+## Fresh PR replay: plain-report
+
+This evidence predates the merged prompt. Only `plain-report` ran again, after the earlier GitHub Copilot judgment was inconclusive on findings: the fact failed in the primary judgment and held on confirmation.
+
+for: 9e6ad04224898cc7f016554533b44f8bb47a83cb5388ec32695a223e99146ee7
+
+wall: 61s
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| plain-report | anthropic/claude-opus-5-5 | unchanged | 29613 | prose: holds -> holds (held); role: holds -> holds (held); sync: holds -> holds (held); scope: holds -> holds (intended but unchanged); findings: holds -> holds (held); standing: holds -> holds (held); language: holds -> holds (held); choices: holds -> holds (held) |
+| plain-report | github-copilot/gpt-6.1-sol | unchanged | 26512 | prose: holds -> holds (held); role: holds -> holds (held); sync: holds -> holds (held); scope: holds -> holds (intended but unchanged); findings: holds -> holds (held); standing: holds -> holds (held); language: holds -> holds (held); choices: holds -> holds (held) |
+
+## Feedback
+
+- plain-report / anthropic/claude-opus-5-5: No fact moved on this case, including scope, which was expected to go from fails to holds: Before already described the behaviors in the opening without row numbers, printed the 1-5 row mapping, P1/L1/P2/C1 and the 1 of 4 counters only in the show evidence reply, and named no Integration entry, latency observation or `not judged` outcome. After keeps all of that, so the functionality-only wording is delivered, but this case does not show a gain. The weakest point in After is standing in snapshot A: the second part now opens with only "Two problems block merging:", and the still-running required unit check has moved two paragraphs down, after the comment sentence, where it no longer reads as something that must finish before merge. I counted it as holding because the check is still called required and still running, but it is borderline; restore Before's shape, e.g. "Two problems block merging, and a required unit check is still running in CI." After's sync sentence is slightly better than Before's, since it drops the unsupplied "and pushed" and keeps "no commits were dropped". Its C report states the block twice ("GitHub reports the merge as blocked for you" and "Merge is not offered because GitHub blocks this actor"); one sentence is enough, but keep it in prose so it never becomes a "Not offered:" line. Keep comment-73, export_header and the file locators as they are, and keep SHAs, run IDs, the log path and usage counters behind show evidence, as both outputs do.
+- plain-report / github-copilot/gpt-6.1-sol: No fact moved in this case: both outputs satisfy all eight as written, so the expected plain-report/scope fails -> holds is not visible here. Before already described the behaviours in a two-sentence opening without row numbers, named no Integration entry or status, had no `not judged` or post-merge observation, and printed the 1-5 mapping, P1/L1/P2/C1 and 1 of 4 counters only after `show evidence`. After does improve two things worth keeping: it states coverage as outcomes ("CSV download and header format are covered") where Before's "The spec covers..." could be read as describing the spec rather than the PR, and its standing sentence joins the fixes and the running required unit check as things that precede merge, where Before put the check in a later paragraph. One risk to tighten: "your team acme/reviewers" asserts a membership the snapshot never supplies (it lists Team acme/reviewers only as a requested reviewer); the role fact still holds because robin and acme/reviewers are preserved and alex is excluded, but "robin and the team acme/reviewers are requested reviewers" delivers the same thing without the invented relationship. Keep the raw values (SHAs, run 7001, the log path, "binding", "assessed head") confined to the evidence response as both outputs do, and keep the evidence mapping free of Integration entries so the scope fact stays held.
+
+exit: 0
