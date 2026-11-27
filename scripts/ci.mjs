@@ -325,7 +325,7 @@ const tokenChecks = [
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`1 --amends-stop` | approve; persist `none`; engine `waves`", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`2 --amends-stop` | approve; persist `none`; engine `loop`", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round", true],
-  ["skills/gauntlet/brainstorm/spec-finalization.md", "`--allowance=N`: attempts per row before the loop stops and asks (default: <n>)", true],
+  ["skills/gauntlet/brainstorm/spec-finalization.md", "`--allowance=N`: attempts per row before the loop stops a row that has stopped making progress (default: <n>)", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "Approve to proceed", false],
   ["skills/gauntlet/amendment-surface.md", "The gate grants on a `1` or `2` approval without `--amends-stop`", true],
   ["skills/gauntlet/amendment-surface.md", "is an invalid reply and never a grant", true],

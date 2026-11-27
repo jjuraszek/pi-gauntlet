@@ -131,7 +131,7 @@ test('effective allowance counts retries rather than historical ceilings or othe
     'Ignore every other decision and grant',
     'every coordinated entry, regardless of leg', 'allowance 4 and two retries',
     'raising the shared header to 7 makes it 9', 'an unretried row gets 7',
-    'already at or above its effective allowance is exhausted', 'Never reset or reduce attempts',
+    'attempts keep counting past allowance', 'Never reset or reduce attempts',
   ]) assert.ok(before.includes(token), token);
   assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
 });
@@ -139,7 +139,7 @@ test('effective allowance counts retries rather than historical ceilings or othe
 test('threshold escalation uses the held setting and resolved model with or without amend permission', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
-  assert.match(before, /attempts >= effective allowance \| Human stop with or without amend permission/);
+  assert.match(before, /attempts >= effective allowance \| [^\n]+Stop only when the row stalled/);
   assert.match(before, /Select target by the priority below, then apply the escalation threshold check/);
   for (const token of [
     'For a numbered target with no durable `row <n> escalated` decision',
@@ -159,7 +159,7 @@ test('threshold escalation uses the held setting and resolved model with or with
     'row <n> escalated | implModel round | allowed attempts <effective allowance>',
     'commit with the shared Escalation sentence', 'escalated round for row <n>', 'model: <implModel>',
     'normal loop-implementer target, bump and validation path',
-    'At allowance 1, escalate the first and only allowed attempt',
+    'At allowance 1, escalate the first attempt',
     'within the effective allowance, never an extra attempt',
     'starts no new empty-child or validation-miss window',
   ]) assert.ok(before.includes(token), token);
@@ -189,7 +189,7 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'including spent escalation', 'attempts = saved attempts +1',
     'repair row <n> | interrupted - <reason> | iteration <consumed>',
     'commit with the shared Row repair sentence and return to the ordered table in the same turn',
-    'rule 2 stops a repaired row at allowance', 'Recovery itself is unconditional',
+    'rule 2 tests the repaired row for a stall at allowance', 'Recovery itself is unconditional',
   ]) assert.ok(recovery.includes(token), token);
   assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
 });
@@ -275,7 +275,7 @@ test('loop stop sites route through the human stop pointer; automatic recovery d
   for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed']) {
     assert.match(lines.find(line => line.includes(site)), /human stop/i, site);
   }
-  for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', "take the reference's step-6 stop"]) {
+  for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', 'At a conformance cap follow the shared step 6']) {
     const matches = lines.filter(line => line.includes(site));
     assert.ok(matches.length, site);
     for (const line of matches) assert.doesNotMatch(line, /Human stop|human-stop\.md/, site);
@@ -386,7 +386,7 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const reopened = after.split('`reopened by amendment`')[1];
   assert.match(reopened, /with or without amend permission/i, 'an approved amendment authorizes returning the reopened row to implementation');
   assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
-  assert.match(after, /including exhausted-row rule 2/);
+  assert.match(after, /including rule 2/);
   assert.doesNotMatch(reopened, /Stopped: row <n> reopened|authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
@@ -437,9 +437,9 @@ test('gate output stays in session logs through repair, conformance and finish',
   const gate = driver.split('\n## Gate set\n')[1].split('\n## After the loop\n')[0];
   const after = driver.split('\n## After the loop\n')[1];
   assert.match(gate, /Use the executing checkout's `LOG_DIR` for every run and rerun: retain one session directory per checkout minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
-  assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
+  assert.match(gate, /Print `gate <i> exit <code> <log path>`\. Keep no other output except the bounded failure excerpt/);
   assert.match(after, /mint `LOG_DIR=\$\(mktemp -d "\$SCRATCH\/gates\.XXXXXX"\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
-  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines with `tail -n 20`; this bounded excerpt is the driver's only log read/);
   assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
   assert.match(after, /absolute spec path, failing command, checkout, exit code and log path, never pasted output/);
   assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);
@@ -812,7 +812,7 @@ test('configuration-allowance: documented gate and entry behavior matches instru
   const loopRow = gate.split('\n2 - loop engine:')[1]?.split('\n3 - council explanation:')[0];
   assert.ok(loopRow, 'approval row 2 renders the loop engine');
   assert.ok(loopRow.includes('`--amends-stop`'), 'loop row offers amendment review opt-out');
-  assert.ok(loopRow.includes('`--allowance=N`: attempts per row before the loop stops and asks (default: <n>)'), 'loop row renders its resolved allowance');
+  assert.ok(loopRow.includes('`--allowance=N`: attempts per row before the loop stops a row that has stopped making progress (default: <n>)'), 'loop row renders its resolved allowance');
   assert.doesNotMatch(loopRow, /--fund-rounds/);
   for (const [name, text] of [['approval gate', gate], ['loop entry', driver]]) {
     if (!text.includes('run allowance: <n>')) missing.push(`${name} omits the literal run allowance carrier`);

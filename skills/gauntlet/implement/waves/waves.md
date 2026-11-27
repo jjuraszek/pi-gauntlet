@@ -164,10 +164,13 @@ The redirected `diff --binary --cached` writes a file and loads nothing into the
 | Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`, or a missing/malformed line | sets `failed[n] = 2` for each attributed task | escalation now (ordinary rounds), no convergence exception; never re-dispatch the review merely to obtain the line; [stop immediately](#escalation-and-funding) on a funded re-review |
 | `failed[n] == 2` reached by a `CONVERGING` re-review whose line lacks `max severity Critical`, `converged[n]` unset | sets `converged[n]` | one extra ordinary repair, then re-review; a further `FIX_FIRST` escalates whatever the trajectory |
 | `failed[n] == 2` (or `> 2` after the convergence exception), `escalated[n]` unset | sets `escalated[n]` | escalated round with `model: <implModel>` |
-| Escalated round fails (dispatch error, non-`DONE`, red gate, empty delta, or attributed `FIX_FIRST`) | spent | funded round while the task's ledger has one left, else stop note |
-| Funded round fails the same way | spends one | next funded round while one remains, else stop note; [`STAGNANT`](#escalation-and-funding) stops regardless |
+| Escalated round fails (dispatch error, non-`DONE`, red gate, empty delta, or attributed `FIX_FIRST`) | spent | funded round while the task's ledger has one left, else apply the spent-counter test |
+| Funded round fails the same way | spends one | next funded round while one remains, else apply the spent-counter test; [`STAGNANT`](#escalation-and-funding) stops regardless |
 | Gate green and review or re-review `SHIP` | - | step 7 |
-| `REJECT`, `anchorUnreadable` on a reviewer, or the round cap: more than `4 + N` re-reviews in one wave (`N` = the largest funded grant among the wave's tasks, 0 without a token) | - | [hard stop](#escalation-and-funding) with the stop note |
+| `REJECT` or `anchorUnreadable` on a reviewer | - | [hard stop](#escalation-and-funding) with the stop note |
+| Wave reaches `4 + N` re-reviews (`N` = the largest funded grant among the wave's tasks, 0 without a token) | spent | apply the same spent-counter test before another round |
+
+**Spent-counter test.** At this spent counter take one more round when the last round moved, and stop when it stalled; when the round before is not recoverable, take one round. For a completed re-review, only `TRAJECTORY: CONVERGING` moves, even with one finding at the same location; missing or malformed trajectory stalls. Without a re-review (dispatch error, non-`DONE`, red gate or empty delta), stall on an empty delta or the same whitespace-normalized failing command plus assertion as the prior round. Otherwise print `extra round for task <n>: <what moved>` and repeat the funded-round payload (`model: <implModel>`, same tree, same anchors). Recheck after every extra round; never add funding or another escalation.
 
 Execution escalation to `implModel` is available whenever `failed[n]` reaches 2, independently of any `**Amend-grant:**` value; funding only adds rounds after the escalated round. Follow this table after two failed attempts, without requiring amend permission.
 
@@ -179,7 +182,7 @@ At the start of a rebuild, reuse the full procedure of `escalation.md` only if i
 
 ### Escalation and funding
 
-At the first escalated or funded round before dispatch, the takeable-decision branch of `## Implementer Status` for a `BLOCKED` or `NEEDS_CONTEXT` return, or a hard stop before the stop action (malformed grants, missing `implModel`, unavailable settings tools, dirty-tree or commit-boundary returns, empty-commit stagnation, the round cap in the table, funded re-review `STAGNANT`, `REJECT`, an initial-patch or rebuild-patch apply failure, an oversized compact report, redraws), reuse the full procedure of `escalation.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it.
+At the first escalated or funded round before dispatch, the takeable-decision branch of `## Implementer Status` for a `BLOCKED` or `NEEDS_CONTEXT` return, or a hard stop before the stop action (malformed grants, missing `implModel`, unavailable settings tools, dirty-tree or commit-boundary returns, empty-commit stagnation, a stalled spent counter in the table, funded re-review `STAGNANT`, `REJECT`, an initial-patch or rebuild-patch apply failure, an oversized compact report, redraws), reuse the full procedure of `escalation.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it.
 
 ### Initial dispatch carrier
 
@@ -262,7 +265,7 @@ Use the transition table as the only attempt counter; count each failed operatio
 
 1. **Attempt 1:** dispatch a NEW fix subagent on the same tree with error-output paths, the original task anchors, and specific instructions about what went wrong.
 2. **Attempt 2:** if attempt 1 also fails, dispatch one more on the same tree with a simplified scope or different approach.
-3. after 2 failed attempts the transition table's escalated round runs; STOP only when that round and any funded round are spent. Keep `in_progress` pending the human decision; completion requires the wave commit. See [Escalation and funding](#escalation-and-funding).
+3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round. Keep `in_progress` pending the human decision; completion requires the wave commit. See [Escalation and funding](#escalation-and-funding).
 
 **NEVER:**
 
@@ -282,23 +285,23 @@ For a coordinated run, execute verification and the following reviews for every 
 
    **Happy-path run:** When the plan header carries a `**Happy path:**` line or the diff selects a row, `read` `../happy-path-run.md` at its absolute path beside this skill and follow its instructions. On an unreadable reference, stop with a blocking error; never reconstruct the runner.
 
-   Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** - its **own** dispatch, never fused into the step-2 review - to confront the deliverable (code **and** docs) against the *origin* - the spec **and** the original prompt - per `../../conformance-check.md`. Pass the spec path, the verbatim original prompt, the full diff, and - when a run happened - `Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)` (`<outcome>` = the outcome line without its `happy-path: ` prefix). Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop reuses durable `Gn` gap indices as defined in ../../conformance-check.md; it never calls `phase_tracker`. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
+   Before marking verify complete, dispatch a fresh-context **`conformance-reviewer`** - its **own** dispatch, never fused into the step-2 review - to confront the deliverable (code **and** docs) against the *origin* - the spec **and** the original prompt - per `../../conformance-check.md`. Pass the spec path, the verbatim original prompt, the full diff, and - when a run happened - `Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)` (`<outcome>` = the outcome line without its `happy-path: ` prefix). Follow that reference for the partition rule, concern decomposition, and fix-loop mechanics; do not reimplement them here. The fix loop reuses durable `Gn` gap indices as defined in ../../conformance-check.md; only step 6 of the reference calls `phase_tracker` to grant more rounds. Call `phase_tracker({ action: "complete", phase: "verify" })` only when the reference says the handoff is durably complete: either a current `CONFORMS` result, or a current `## Closure / conformance` inventory whose carried-open concerns all come from valid deferred gaps, including `recommended: fix` gaps carried open because a declared precondition made the fix loop unavailable (`maxFixRounds: 0`, or no eligible named-branch worktree). A started positive-cap fix loop that blocks, fails, or exhausts its rounds with an open `fix` gap is escalation, not completion; on escalation, do not complete verify, stop and report.
 4. Summarize what was implemented (tasks completed, files changed, test counts, code-review verdict). Emit the `## Closure / conformance` block exactly as defined in `../../conformance-check.md`: it must open with the sentinel (`status: CONFORMS (0 open)` or `status: GAPS (N open)`, then `audited-base: <full HEAD SHA>`, then - exactly when a happy-path run happened - `happy-path: <value of the reviewer's Happy path: line from the final audit, the text after Happy path: >`), then carry the exact durable concern schema by reference with no renamed or reformatted fields.
 5. **Proceed to finishing - no confirmation prompt.** Once verify is complete per step 3's criterion, retain the same absolute worktree path every dispatch carried as `cwd`; finishing stops without it. Its Step 4 menu (PR / draft PR / squash / keep / discard) is the human gate; a separate "ready to finish?" prompt only stacks a second stop in front of it. Carried-open concerns are resolved there per concern via the `## Closure / conformance` block from step 4. Manual testing is a follow-up after the finishing choice (on `<base-branch>` after a squash-merge, or on the PR branch), never a reason to hold this gate.
 
 ## Red Flags - STOP
 
-- Writing code yourself instead of dispatching.
-- Pausing between tasks for anything outside the takeable-decision ladder or transition table except for a workflow warning, a redraw, or an amend with no standing grant.
-- Dispatching parallel implementers on overlapping files, on a shared mutable runtime resource, or without `worktree: true`.
-- Pasting task text, spec excerpts, or report contents into a dispatch, or opening plan/spec/source files in the primary or reading a report beyond its bound
-- Dispatching wave review before a green gate, or per task inside a wave.
-- Moving to the next task with the wave verdict still showing blocking issues, or skipping the `Implementer Status` parse.
-- Repeating the initial wave chain after a stop or error instead of retaining accepted siblings and using one-step repair/re-review carriers.
-- Dispatching a third ordinary repair without a reviewer-emitted `CONVERGING` verdict, or continuing past `STAGNANT` instead of escalating (or, on a funded re-review, stopping).
-- Running the full verification entrypoint, or any test command outside `SCOPED_TEST_COMMANDS`, during the implement phase.
-- Dispatching a repair before reopening the plan-task indices that own its files, whole-diff CR before parent verification passes, or conformance before the CR result is accepted.
-- Polling, joining, or relaunching an unexpectedly asynchronous dispatch, or starting on main without explicit user consent.
+- Coding instead of dispatching.
+- Pausing outside the ladder or transition table except on a workflow warning, redraw or ungranted amend.
+- Parallel implementers sharing files or mutable runtime resources, or lacking `worktree: true`.
+- Pasting task, spec or report text into dispatches; primary plan/spec/source reads or over-bound report reads.
+- Per-task review or wave review before a green gate.
+- Advancing past a blocking verdict or skipping the `Implementer Status` parse.
+- Repeating the initial chain instead of retaining accepted siblings and using one-step repair/re-review carriers.
+- A third ordinary repair without reviewer-emitted `CONVERGING`; ignoring `STAGNANT` instead of escalating (stopping on a funded re-review).
+- Full verification or tests outside `SCOPED_TEST_COMMANDS` during implement.
+- Repair before reopening owning indices, whole-diff CR before parent verification passes, or conformance before CR acceptance.
+- Polling, joining or relaunching an unexpected async dispatch; starting on main without explicit consent.
 
 ## Integration
 

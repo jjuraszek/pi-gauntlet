@@ -7,3 +7,5 @@ A: The ledger has allowance: 4, iterations: 900, and row 2 failed at attempts 1.
 B: Same ledger but row 2 has attempts 4 and already spent its escalated round. Describe the budget stop and available budget actions; do not make a human choice.
 C: A coordinated ledger has allowance: 6, iterations: 901 (the consumed count already persisted before the pending dispatch), row 2 in repo-b failed at attempts 2, and row 3 in repo-a open at attempts 0. A valid ordinary companion return reports only row 2 done at attempts 3 with passing evidence and one bounded decision. Attribution, result validation, one-commit and clean-tree boundaries all pass. State which result cells and headers the parent records or preserves; do not write an admission recipe.
 D: A clean completed ledger has cap: 49 but no allowance header. State the next route, without carrying out migration or running verification.
+
+At each supplied row stop the last two child commits in the current window have identical evidence.

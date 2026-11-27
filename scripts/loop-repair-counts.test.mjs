@@ -40,7 +40,7 @@ test('repair counts are ledger instructions, not commit-message counters', () =>
   for (const token of [
     '`repair seed` lines in the home ledger', 'including interrupted and validation-miss repairs',
     'never count commit messages', 'count is below the ledger allowance',
-    'At allowance render `Stopped on seed` with `seed: <k> of <allowance>`',
+    'second cells of the last two `repair seed` lines', 'Only when they match render `Stopped on seed` with `seed: <k> of <allowance>`',
     'Keep row attempts at 0',
   ]) assert.ok(seed.includes(token), token);
   const verify = driver.split('Count `repairs` as ')[1].split('\n')[0];

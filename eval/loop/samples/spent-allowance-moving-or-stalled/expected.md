@@ -1,2 +1,4 @@
 - below: judged: Dispatches row 2 again in the same turn; the worker asking for a human spec call in its failed evidence does not turn a below-allowance failure into a human stop.
 - contradiction: judged: At the spent allowance routes the named correction to the amendment surface rather than another attempt, applying it under amend permission and asking via the amendment menu without permission.
+- moving: judged: In snapshot 2 prints extra attempt for row 2 naming changed evidence and dispatches with no new grant, escalation or reset.
+- interrupted: judged: Two consecutive interrupted attempts in the current window stall even with different reasons; a single interruption without a prior comparison gets one more attempt.

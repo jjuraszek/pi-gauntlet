@@ -5,27 +5,29 @@ import test from 'node:test';
 const root = new URL('../', import.meta.url);
 const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
 const conformance = readFileSync(new URL('skills/gauntlet/conformance-check.md', root), 'utf8');
-const step3 = driver.split('\n3. Run happy path')[1].split('\n4. Complete verify')[0];
 const step6 = conformance.split('6. **Converge or continue**')[1].split('**Convergence**')[0];
 
-test('loop conformance funding uses the observed cap count and the verbatim standing grant', () => {
-  for (const token of [
-    '<used> fix round(s) used against a cap of <cap>',
-    'read `<used>` from that text', 'Under amend permission',
-    '`<used>` below the ledger allowance', 'when the block is live',
-    'phase_tracker({ action: "grant_fix_rounds", rounds: <allowance - used>, reason: "<Amend-grant sentence verbatim>" })',
-    'funded <allowance - used> conformance rounds under the grant',
-    'closureReview.enforce` is false', 'continue without a call',
-    '`<used>` at or above the allowance', 'an error reply', 'no amend permission',
-    'Never call the tool as a probe', 'never count rounds yourself',
-    'a resumed run with unspent credits',
-  ]) assert.ok(step3.includes(token), token);
-  assert.doesNotMatch(driver, /Preserve `STAGNANT`, `REJECT`, closureReview and grant_fix_rounds boundaries/);
+test('a spent counter with no prior comparison permits one more round at every progress check', () => {
+  const fallback = 'when the round before is not recoverable, take one round';
+  const read = path => readFileSync(new URL(`skills/gauntlet/${path}`, root), 'utf8');
+  const wave = read('implement/waves/waves.md');
+  for (const [label, section] of [
+    ['row', driver.split('| 2 | Unresolved row attempts')[1].split('\n')[0]],
+    ['seed', driver.split('\nCount seed attempts as ')[1].split('\n')[0]],
+    ['verification repair', driver.split('\n   Rerun the failing checkout')[1].split('\n')[0]],
+    ['wave task and re-review', wave.split('**Spent-counter test.**')[1].split('\n')[0]],
+    ['whole-diff review', read('requesting-review.md').split('**Fix rounds.**')[1]],
+    ['conformance', step6],
+  ]) assert.ok(section.includes(fallback), label);
+  assert.match(wave, /Wave reaches `4 \+ N` re-reviews[^\n]+apply the same spent-counter test/);
 });
 
-test('shared conformance step 6 routes loop funding before the human ask without changing other engines', () => {
-  assert.match(step6, /Under the loop engine with amend permission,.*After the loop step 3.*before this ask; ask the human only when it declines/);
-  assert.match(step6, /If the human explicitly\s+approves N more rounds/);
+test('both engines buy one more conformance round only on progress at the cap', () => {
+  for (const token of ['newly `DELIVERED`', 'newly passing', 'Critical or Moderate finding gone',
+    'when the block is live', 'phase_tracker({ action: "grant_fix_rounds", rounds: 1, reason: "<what the last round closed>" })',
+    'closureReview.enforce` is false', 'continue without a call', 'an error reply',
+    'gauntlet: gate=verify/step-6', 'human explicitly approves N more rounds']) assert.ok(step6.includes(token), token);
+  assert.doesNotMatch(driver, /rounds: <allowance - used>|funds conformance rounds from the allowance/);
   assert.match(conformance, /\*\*`maxFixRounds: 0`\*\*: skip this loop entirely/);
   assert.ok(Buffer.byteLength(driver) < 45_000, 'extract the driver before crossing 45 KB');
   assert.ok(Buffer.byteLength(conformance) < 50_000);

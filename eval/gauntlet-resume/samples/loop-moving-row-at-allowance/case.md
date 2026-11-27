@@ -1,0 +1,3 @@
+bundle+: skills/gauntlet/implement/loop/loop.md
+
+Resume after entry confirmation and successful ledger restoration. Single clean home worktree; implement active, admitted seed, no pending tuple. Row 2 is the only unresolved row and failed at attempts 4 of effective allowance 4. Its escalated attempt is spent. In the current window its last two child commits both changed parser code. Their evidence changed from expected header FF to expected length 3, the latest failed decision recommends checking length. No interrupted repair, validation miss or spec contradiction. Name the next action, including model, output and counter handling.

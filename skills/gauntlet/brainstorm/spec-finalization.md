@@ -181,11 +181,11 @@ New predecessor candidates at spec-writing: <path> (<title>), ... - index rows a
 Pick one:
 1 - plan engine: write a task plan, then implement it in reviewed waves.
 - `--amends-stop`: stop for my review before a blocked task changes the spec's scope, acceptance criteria, or contracts (default: apply it and list it at the finish gate; a redraw always stops).
-- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).
+- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: none; past the escalated round the run continues only while the review reports progress).
 
 2 - loop engine: skip the plan and iterate a fresh implementer over the acceptance criteria.
 - `--amends-stop`: stop for my review before the loop rewords or cuts a row it is stuck on (default: apply it and list it at the finish gate; a redraw always stops).
-- `--allowance=N`: attempts per row before the loop stops and asks (default: <n>).
+- `--allowance=N`: attempts per row before the loop stops a row that has stopped making progress (default: <n>).
 
 3 - council explanation: show the council audit, then return to this gate without approving.
 

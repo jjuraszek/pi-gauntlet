@@ -1,0 +1,34 @@
+{
+  "sample": "extra-round-while-converging",
+  "arm": "baseline",
+  "skillSha": "5bcdd1815a231604757db957513ecca36e3d0dfcb356fcca5d59d345bc2b8791",
+  "inputSha": "d785d3691b87631cda7f59ab01da94854e745a5b476f1611aa4671d6d792d2ec",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Task 3 (Validate frame): escalation exhausted at the wave cap\n\n## What the driver dispatches\n\nNothing. No repair, re-review, funded round, amendment worker or relay child, and no shell command.\n\nThe transition table settles this:\n\n- **Ordinary rounds are spent.** `failed[3]` already reached 2 and fired the escalated round, so `escalated[3]` is set.\n- **The CONVERGING line does not help.** The convergence exception is checked only when `failed[n] == 2` is first reached, before escalation. After that, \"a further `FIX_FIRST` escalates whatever the trajectory\". An attributed `FIX_FIRST` on the escalated round marks it \"spent\".\n- **No funded round exists.** There is no `**Amend-grant:**` token, so the funding ledger is empty. The next step is \"funded round while the task's ledger has one left, else stop note\".\n- **The wave hit the round cap.** It allows at most `4 + N` re-reviews with N = 0, which is a hard stop on its own.\n- **No amend permission.** The takeable-decision ladder cannot apply an amendment or a recommendation. It emits the stop note and waits.\n\nThe tree stays uncommitted with no `reset --soft` and no wave commit. Task 3 stays `in_progress` and the phase stays `implement`. No further waves start.\n\n## What the driver prints\n\nThe review observation was already printed when the re-review returned. I don't hold the wave number, review count, report path or tree SHA, so I leave those as placeholders:\n\n```text\nwave <w> review <k> verdict FIX_FIRST report <REPORT_DIR>/wave<w>-review<k>.md tree <sha>\n```\n\nTo quote the residual finding, I allow one direct `read` of that report path with `limit: 300` and no offset. If that read does not reach the footer, I do not re-dispatch for a compact report. An exhausted-escalation stop note gets no further dispatch, so I quote what the bounded read and the structured fields show.\n\nThe stop note follows. Bracketed values come from that read; I do not invent them.\n\n```text\ngauntlet: question\nStopped on task 3 (Validate frame); escalated round on <implModel> did not resolve it.\n\nProblem: after two ordinary repairs and the escalated round, the final review still finds a Moderate defect in frame validation, and no funded round or amend permission remains.\n  frame.ts:21 - <quoted residual finding from the final review>\n\nFix options:\n  a) <concrete code change at frame.ts:21 named by the finding's Fix line>\n  b) amend spec section <cited clause> / plan task 3 so the validated condition matches what frame.ts implements\n  c) grant funded rounds (Amend-grant) so a funded round on <implModel> can retry\n\nPick one, or give another fix.\nRecommendation: a - the reviewer reports the trajectory converging (4 -> 2) with only Moderate left, so a targeted fix at frame.ts:21 is likely enough without changing the approved spec.\n```\n\nThere is no `budget:` line because there is no grant token. Per the template, the note omits trajectory history, review counts and report paths.\n\n## Alternative: the escalated repair goes red at the gate\n\nNo, it does not get another round.\n\nThe row \"Escalated round fails (... red gate ...)\" marks the round spent and goes to a funded round if one is left, else the stop note. A red gate means \"no review until green\", so no re-review is dispatched and no `TRAJECTORY:` line exists.\n\nThe changed assertion (expected length 3 instead of expected header FF) does not change this:\n\n- It is not a convergence signal.\n- It is not an empty-delta case, because the delta was nonempty and applied.\n\nThe driver prints these observations as each step returns (status, paths, index and exit code are placeholders):\n\n```text\nwave <w> repair <k> task 3 <status> report <path> delta <Artifacts>/worktree-diffs/step-0/task-0-implementer.patch applied yes\nwave <w> gate <i> exit <nonzero>\n```\n\nFor an isolated wave, the repair step itself then runs `git -C <worktree> worktree remove --force <RP_TREE>` right after applying the delta. That is part of the round, not a new dispatch. After that, the driver runs no further commands or dispatches.\n\nIt then emits the same kind of stop note. The `Problem:` line says the escalated repair changed the failure without passing. The note quotes the held gate log `<REPORT_DIR>/wave<w>-gate-<i>.log` as the failing command plus a 1-3 line snippet, for example `expected length 3`. It notes that the previous failure was the expected header FF.\n\nThe note ends with fix options and a `Recommendation:` line. Task 3 stays `in_progress` and nothing is committed.\n",
+      "words": 704,
+      "wallMs": 27550,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\nStopped on task 3 (Validate frame).\n\nProblem: Frame validation still has a blocking finding after the escalated repair, and no funded attempt remains.\n  frame.ts:21 - a Moderate finding remains; its exact text was not supplied.\n\nFix options:\n  a) authorize a funded repair attempt for the remaining frame-validation findings\n  b) explicitly authorize a spec/plan amendment if the remaining requirement is incorrect\n\nPick one, or give another fix.\nRecommendation: a - preserve the approved validation contract and fund the remaining repair.\n\n**Driver action:** Dispatch nothing and run no further shell command. Keep task 3 `in_progress`, leave the integrated work uncommitted, and leave the implement phase open. `CONVERGING` does not renew the ordinary convergence exception after the escalated round, supply funding, or override the wave cap. No implementer or reviewer carrier is admissible here.\n\n**Independent scoped-gate failure:** It gets **no additional round**. A red scoped gate means the escalated round failed, even with a nonempty delta. The different assertion—expected length `3` instead of expected header `FF`—does not reset the attempt counter or create a new allowance. Do not dispatch a review on the red gate. Stop with the failed command and supplied assertion evidence in the stop note; retain the integrated changes and task state pending the human’s decision.\n",
+      "words": 206,
+      "wallMs": 22275,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "c06b07493d236894bf32dc40f8362437e124ccf6"
+}

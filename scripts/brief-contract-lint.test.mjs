@@ -116,7 +116,7 @@ for (const token of [
   'retain `escalateAfter` in driver memory',
   'cannot resolve escalation threshold: settings tool unavailable (loopEngine.escalateAfter)',
   'header plus one per matching retry decision', "ignore the retry's audit ceiling",
-  'at or above its effective allowance stops under rule 2 without an attempt',
+  'at or above its effective allowance uses rule 2: dispatch a moving row',
 ]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /ledger has no cap:|loop: raise cap|legacy `cap \+N` grant|funding and retry allowances/);
 

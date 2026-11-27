@@ -123,7 +123,7 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
 
 test('subagent failure guidance retains the two-attempt ladder', () => {
   const failure = skill.split('## When a Subagent Fails')[1].split('## After All Tasks Complete')[0];
-  for (const token of ['1. **Attempt 1:**', '2. **Attempt 2:**', "3. after 2 failed attempts the transition table's escalated round runs; STOP only when that round and any funded round are spent."]) assert.ok(failure.includes(token), token);
+  for (const token of ['1. **Attempt 1:**', '2. **Attempt 2:**', "3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round."]) assert.ok(failure.includes(token), token);
 });
 
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;

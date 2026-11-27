@@ -1,0 +1,2 @@
+- moving: judged: Takes another fix round for CONVERGING, tests, then re-reviews the same whole diff in the foreground with ## Previous review report (re-review trigger) and the prior report path.
+- stalled: judged: Stops on STAGNANT, states the residual finding under Problem: and the required length input under Needs: rather than offering options.

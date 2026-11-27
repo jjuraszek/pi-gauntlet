@@ -343,7 +343,7 @@ test('gate flags stay under their engine with one sentence ending in the resolve
   assert.equal(rows.length, 4, 'each row group ends with a blank line');
   const amendDefault = 'apply it and list it at the finish gate; a redraw always stops';
   const expected = [
-    [['--amends-stop', amendDefault], ['--fund-rounds=N', 'stop and ask there']],
+    [['--amends-stop', amendDefault], ['--fund-rounds=N', 'none; past the escalated round the run continues only while the review reports progress']],
     [['--amends-stop', amendDefault], ['--allowance=N', '<n>']],
     [], [],
   ];
@@ -550,7 +550,7 @@ test('spec-finalization writes the grant line and persists approval-time grants 
   for (const marker of ['**Amend-grant:** none', 'The `**Amend-grant:**` header line is flow machinery owned by the brainstorming gate; never cut, shrink, flag, or edit it.', 'commit --amend --no-edit -q', 'git -C <abs worktree path> add -- <spec path>', 'show HEAD:<spec path>']) assert.ok(text.includes(marker), marker);
   assert.ok(text.indexOf('On every implementation approval') < text.indexOf('commit --amend --no-edit -q'), 'amend after On every implementation approval');
   for (const marker of ['1 --fund-rounds=N', '1 --amends-stop --fund-rounds=N', 'G; fund N fix rounds', 'fund N fix rounds', '; fund N fix rounds', ', fund N fix rounds', 'Decode before', 'budget token alone', 'missing `=N`']) assert.ok(text.includes(marker), marker);
-  const hint = '- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: stop and ask there).';
+  const hint = '- `--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round (default: none; past the escalated round the run continues only while the review reports progress).';
   assert.match(text, /Decode before `edit` or `--amend`/);
   assert.ok(text.indexOf('run Value decoding') < text.indexOf('On every implementation approval'), 'decode before approval persistence');
   assert.ok(text.indexOf(hint) > text.indexOf('1 - plan engine:'));

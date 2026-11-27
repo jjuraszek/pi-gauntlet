@@ -291,9 +291,9 @@ const openTaskNudge = (rows: string[]): string =>
 
 const fixRoundCapBlockReason = (used: number, cap: number, settingsPath: string): string =>
   `Conformance fix loop: ${used} fix round(s) used against a cap of ${cap} (granted rounds included); ` +
-  "escalate to the human with the verdict trail instead of re-looping.\n" +
-  "If the human explicitly approves more rounds, record it and retry as a tasks wave: " +
-  'phase_tracker({ action: "grant_fix_rounds", rounds: <N>, reason: "<their words>" }).\n' +
+  "apply the step-6 progress test before another wave.\n" +
+  "Grant one round for progress or N with explicit human approval, then retry as a tasks wave: " +
+  'phase_tracker({ action: "grant_fix_rounds", rounds: <N>, reason: "<what the last round closed or the human\'s words>" }).\n' +
   `Last resort: set piGauntlet.closureReview.enforce: false in ${settingsPath} (disables all closure guards; ` +
   "applies on the next tool call, no restart - a gauntlet_setting read in the same message sees the write; " +
   "a repo closureReview block replaces the preset's whole block, so restate model and maxFixRounds alongside). " +
@@ -353,7 +353,7 @@ const PhaseTrackerParams = Type.Object({
   ),
   reason: Type.Optional(
     Type.String({
-      description: "Reason (required for skip and grant_fix_rounds; for grant, the human's approval quoted)",
+      description: "Reason (required for skip and grant_fix_rounds; for grant, what the last round closed or the human's words)",
     }),
   ),
   engine: Type.Optional(StringEnum(ENGINES, { description: "Selected engine (complete or skip brainstorm only)" })),
@@ -361,7 +361,7 @@ const PhaseTrackerParams = Type.Object({
     Type.Integer({
       minimum: 1,
       maximum: Number.MAX_SAFE_INTEGER,
-      description: "Extra fix rounds the human explicitly approved (grant_fix_rounds only)",
+      description: "One round for progress or the number the human explicitly approved (grant_fix_rounds only)",
     }),
   ),
   force: Type.Optional(
@@ -1419,7 +1419,7 @@ export default function (pi: ExtensionAPI) {
         case "grant_fix_rounds": {
           if (params.rounds === undefined) return reject("grant_fix_rounds requires rounds: a positive integer");
           const reason = params.reason?.trim() ?? "";
-          if (reason.length === 0) return reject("grant_fix_rounds requires reason: the human's approval, quoted");
+          if (reason.length === 0) return reject("grant_fix_rounds requires reason: what the last round closed or the human's words");
           const closure = resolveClosureReview(loadGauntletSettings(ctx.cwd).gauntlet);
           const capLive =
             !isSubagentChild &&

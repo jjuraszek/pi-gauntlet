@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep repairing past an attempt allowance or review cap while the failure changes or the review converges. A repeated failure at the limit still stops. (#170)
+
 - Take recommended choices inside the approved spec without asking, and record each choice and its reason in the worker or wave commit. (#170)
 
 - Resume recoverable wave interruptions and return rows reopened by approved amendments to implementation without a second question. (#170)

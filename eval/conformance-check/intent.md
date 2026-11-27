@@ -1,6 +1,10 @@
-for: 51f540d937ae7fbc7a472bc28cfa802d1eab23610f3c93fcd6766ab2bc84503a
+for: 404144e254c544bd60eb70950eebb1da524af3206a0885014f388b5fb294e30d
 
 ## Change
+
+The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no sample of this target was rerun.
+
+## Earlier comparisons
 Start proactive cap-exhaustion escalation with the step-6 gate marker and ask for additional funding, including Convergence exhaustion; keep verification incomplete. Carried-open menus put their marker before item 1; clean closure uses the Step 4 marker before summaries.
 
 Replace carried-open token menus with numbered decision briefs: place the unresolved problem immediately after the gate marker, letter available named options with consequences, and show either a lettered recommendation or No recommendation - pick one. Bare 1 applies recommendations and re-asks unanswered no-recommendation items by number. Continuation cases replay only the next response: no-recommendation-reask stops at the focused re-ask, and no-recommendation-execute continues after the custom answer through execution scheduling and the re-audit barrier. Follow-up wording fixes keep the Custom line numberless, pluralize the count, include the re-ask clause in the reply instruction, echo custom free text verbatim in Recorded, and make the zero-gap CONFORMS fall-through render Step 4's menu in full, options included, without stopping at Step 4's question line. In in-scope-gap, f4 now pins the clarify-before-execute and decide-everything-first properties. The re-audit barrier's render-level mention left the menu because Custom shows a one-line consequence by design; its behavior coverage moves to no-recommendation-execute, which requires re-auditing the updated state before any CONFORMS claim or Step 4 menu. The execute-order barrier remains required. The lettered-pick fix preserves named dispositions on recommended: none items: a letter selects the shown option, while only free text records custom(<text>).

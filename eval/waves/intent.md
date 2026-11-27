@@ -1,8 +1,8 @@
-for: 3edbd02f5cf86ae7c945cfa6cb9440440e4911e47cdeffd4bd3f3294f2a4e95d
+for: 8f8bce726771c9a63b30555f5c00d745688c7adc436bce78eb6497a99b7dedec
 
 ## Change
 
-Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces.
+Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces. At a spent counter, distinguish a converging re-review or a changed assertion from a stalled round; these snapshots replay instructions, not live repairs.
 
 Use blocked-decision-auto-taken and worker-decision-taken to check that permission to change the spec does not gate an in-spec repair. Hold each recommendation and its reason for the accepted wave commit.
 
@@ -19,6 +19,10 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- extra-round-while-converging/review: fails -> holds - Use the spent-counter progress test for this snapshot.
+- extra-round-while-converging/gate: fails -> holds - Use the spent-counter progress test for this snapshot.
+- review-third-fix-round/moving: fails -> holds - Use the spent-counter progress test for this snapshot.
+- review-third-fix-round/stalled: fails -> holds - Use the spent-counter progress test for this snapshot.
 - blocked-decision-auto-taken/controls: fails -> holds - Take the in-spec choice even with no amendment grant.
 
 - chain-stop-blocked/reads: fails -> holds - Read recovery before reconciling a missing result, escalation before the ladder, and neither for lookup alone.

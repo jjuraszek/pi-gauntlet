@@ -1,0 +1,1 @@
+- moving: judged: Applies the loop driver's rule 2 after restore, prints extra attempt for row 2 with the changed failure and dispatches without another grant or human stop. Does not reset attempts, increase allowance or repeat the spent model escalation.

@@ -2236,7 +2236,7 @@ test(`cap guard: default 5 ${agent} waves pass, the sixth is blocked with the es
   }
   const blocked = await firstCallResult(h, "c6", implementerWave(1, agent));
   assert.equal(blocked?.block, true);
-  assert.match(blocked?.reason ?? "", /^Conformance fix loop: 5 fix round\(s\) used against a cap of 5 \(granted rounds included\); escalate to the human/);
+  assert.match(blocked?.reason ?? "", /^Conformance fix loop: 5 fix round\(s\) used against a cap of 5 \(granted rounds included\); apply the step-6 progress test/);
   assert.ok((blocked?.reason ?? "").includes("Start the escalation message with the line: gauntlet: gate=verify/step-6"));
   assert.doesNotMatch(blocked?.reason ?? "", /^gauntlet:/);
 });
@@ -2439,7 +2439,7 @@ test("grant: schema declares rounds as integer 1..MAX_SAFE_INTEGER; missing roun
   assert.equal(noRounds.details.error, "grant_fix_rounds requires rounds: a positive integer");
   assert.equal(noRounds.details.rounds, undefined);
   const noReason = await grant(h, "g2", { rounds: 1, reason: "   " });
-  assert.equal(noReason.details.error, "grant_fix_rounds requires reason: the human's approval, quoted");
+  assert.equal(noReason.details.error, "grant_fix_rounds requires reason: what the last round closed or the human's words");
   assert.equal(noReason.details.rounds, undefined);
   assert.equal((await firstCallResult(h, "c1", implementerWave(1)))?.block, true, "no credit was granted");
 });

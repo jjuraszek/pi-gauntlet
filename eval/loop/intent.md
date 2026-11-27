@@ -1,4 +1,4 @@
-for: d39e1fe15d2aef38be773f663c1a6d9d15bd9a15aeaa31b5216ef6a3a3e2f8a4
+for: 3cbb43e1445c3a3dc5e8703d9205168205db51986173ac75ab3cff2d4cb0ea5a
 
 ## Change
 
@@ -15,6 +15,8 @@ Select seed-dispositions to check the initial state of an approved row with an u
 
 The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
 
+Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.
+
 ## Earlier comparisons
 
 Select unreachable-cut to check whether a valid marker on an admitted failed target leads to an amendment, including when an older spec has no recognized disposition. A wording pin cannot show whether the driver instead redispatches the failed row. This replay narrates routing; it does not run a worker.
@@ -30,6 +32,14 @@ The seed-dispositions replay indexes only acceptance criteria and assigns no Int
 
 ## Expected to move
 - human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
+- spent-allowance-moving-or-stalled/moving: fails -> holds - Use the spent-counter progress test for this snapshot.
+- spent-allowance-moving-or-stalled/interrupted: fails -> holds - Use the spent-counter progress test for this snapshot.
+- verify-repair-count/movement: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/funding: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/controls: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/stalled: fails -> holds - Use the spent-counter progress test for this snapshot.
+- seed-interrupted-count/one: fails -> holds - Use the spent-counter progress test for this snapshot.
+- seed-interrupted-count/exhaustion: fails -> holds - Use the spent-counter progress test for this snapshot.
 - spent-allowance-moving-or-stalled/contradiction: fails -> holds - Apply the authorized correction, or ask through the amendment menu without a grant.
 - spent-allowance-moving-or-stalled/below: fails -> holds - Do not turn a worker's requested spec call into a below-allowance stop.
 - verify-repair-count/reopened: fails -> holds - Approval of the amendment authorizes the reopened row's return.

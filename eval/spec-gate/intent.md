@@ -1,6 +1,10 @@
-for: 95f907b8b9de977f3729b7bec0ee83d2f670d851b1a4eaeb1980e0646882d493
+for: 183b17dcb3e6fee49fc43676f091aa3cb1d0376fe6219952fb4e376c87537757
 
 ## Change
+
+The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no sample of this target was rerun.
+
+## Earlier comparisons
 
 The option-6-handoff replay checks draft PR creation: the title comes from the committed H1 with Markdown backticks intact, and the summary and Integration section reach gh through a file even when a body line reads EOF. Only this narrated publication sample is in scope; it does not open a PR.
 
