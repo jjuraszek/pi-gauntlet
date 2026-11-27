@@ -3,9 +3,9 @@
 base: 0aa921924709a632214d4050c42fe7464899862d
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 9 | home | 8c7c662fc12fa8d9ad24eceefed8acc88fcf5fd9
+returned: 10 | home | 84d61ac3af60b2d32c45dcfd1f3e8b34b8494845
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -18,7 +18,7 @@ returned: 9 | home | 8c7c662fc12fa8d9ad24eceefed8acc88fcf5fd9
 | 7 | done | 0 | timeout -k 30 15 jq -e '[.judge[].facts.keep.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; both replays blocked departures when title sorting met the goal or the reason for changing it was unknown |
 | 8 | done | 0 | timeout -k 30 15 jq -e '[.judge[].facts.independent.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; both replays blocked the untested branch independently of the stale spec |
 | 9 | done | 1 | timeout -k 30 15 jq -e '[.judge[].facts.handoff.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; spec-stale-nit ran 2 candidate replays and 2 judgments; both adopted the displayed wording only after confirming the pushed edit |
-| 10 | open | 0 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; 2 passed, 1 failed; menus.md still pins the contract-exception recommendation to preserve contract |
+| 10 | done | 1 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; 4 passed, 0 failed; the menu and product docs no longer pin preserve contract |
 
 ## Decisions
 
@@ -32,3 +32,4 @@ row 6 done | Both replays offered merge for ticket-backed recipe sorting and pro
 row 7 done | Both replays blocked the sort change when title sorting met the goal or the reason for switching was unknown. | nothing new to build on
 row 8 done | Both replays kept the untested branch for never-opened recipes as a blocker while listing the stale spec as a smaller point. | nothing new to build on
 row 9 done | Both replays applied the displayed spec edit without another menu and adopted it only after confirming the pushed wording. | Reuse spec-stale-nit case E for the handoff and the worker-tail assertions for both harnesses.
+row 10 done | The product docs now explain when the ticket or PR goal warrants changing the contract instead of always recommending preservation. | Use README.md for the first-report behavior and doc/gate-contract.md for the row 1 rule.
