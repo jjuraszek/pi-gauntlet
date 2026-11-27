@@ -141,11 +141,10 @@ assert.doesNotMatch(ledgerGrammar, /carrying task rows with a ledger|Never initi
 const ledgerStatus = "Plan: 0/1 done (1 in progress)\n\n  → [0] row 1\n";
 assert.deepEqual(rules(files({ [CONTRACT_FILE]: contract.replace("Ledger: ", "```\n```text\n" + ledgerStatus + "Ledger: ") })), []);
 for (const [name, pattern] of [
-  ["implement", /`start implement`\. Restore tasks through refresh, never `init`[\s\S]*Apply `## Pending recovery` before refresh[\s\S]*plan_tracker\(\{ action: "refresh"/],
-  ["verify and ship", /verify or ship brief: `skip implement R`; `start verify`[^\n]*`plan_tracker init`[^\n]*saved task list[\s\S]*plan_tracker\(\{ action: "refresh"/],
+  ["implement", /implement brief or worktree: `start implement`\.[\s\S]*Apply `## Pending recovery` before any dispatch/],
+  ["verify and ship", /verify or ship brief, first `plan_tracker init` with only its non-ledger tasks[\s\S]*Then `plan_check[\s\S]*verify or ship brief: `skip implement R`; `start verify`[\s\S]*Apply `## Pending recovery` before any dispatch/],
 ]) assert.match(ledgerRestore, pattern, `${name}: phase and ledger task restoration order`);
-assert.match(ledgerRestore, /pending recovery.*before.*refresh/i);
-assert.match(ledgerRestore, /refresh[^\n]*before[^\n]*dirty-tree stop/);
+assert.doesNotMatch(ledgerRestore, /plan_tracker\(\{ action: "refresh"|plan_tracker refresh/i);
 for (const token of ["pre-dispatch", "## Interrupted recovery", "without a human turn", "already-consumed iteration"]) assert.ok(ledgerRestore.includes(token), token);
 assert.doesNotMatch(ledgerRestore, /exclusive checkout|ownership-fenced|recovery incomplete|recovery-incomplete|owned-job exit|verified process identity\/exit|discard-authorization/);
 const interrupted = readFileSync(join(root, 'skills/gauntlet/implement/loop/interrupted-recovery.md'), 'utf8');
@@ -171,7 +170,7 @@ assert.match(heldRecovery, /Was home return <sha> admitted before the later comm
 assert.match(heldRecovery, /Keep bytes, counters and tasks unchanged until answered/);
 assert.match(ledgerRestore, /Only at a missing-history stop, render a row whose `pending:` tuple stays on disk as `row <n> in_progress \(pending tuple restored\)`/);
 assert.match(ledgerRestore, /verify or ship:[^\n]*fresh home conformance review/);
-assert.match(ledgerRestore, /Stop before refresh only when the tuple or before-image is unrecoverable/);
+assert.match(ledgerRestore, /Stop for missing history only when the tuple or before-image is unrecoverable/);
 assert.match(ledgerRestore, /wrong attribution, unexpected home dirt and home movement as interrupted boundaries/);
 assert.match(ledgerRestore, /Never send a ledger task list through task-plan repair/);
 
@@ -196,7 +195,7 @@ assert.ok(realHandoff.includes("every top-level PR identity"));
 assert.match(realHandoff, /Never refresh or mutate either tracker/);
 const amendment = real("skills/gauntlet/amendment-surface.md");
 assert.match(amendment, /skip `plan-writer` and `plan_check`/);
-assert.match(amendment, /commit[^\n]*refresh/i);
+assert.match(amendment, /Commit spec \+ ledger together/);
 assert.match(amendment, /Stopped: row <n> reopened by amendment during verify/);
 assert.match(amendment, /## Dispatch[^\n]*## Validate the return/);
 assert.match(realHandoff, /copy the optional top-level rework base after the pairs as the contract specifies/);

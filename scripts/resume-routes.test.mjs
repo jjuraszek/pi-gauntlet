@@ -174,9 +174,9 @@ test('ledger admission accepts only the current ledger format', () => {
     '6. A duplicate `allowance:` or `returned:`, or an `allowance:` value that is not a positive safe integer: `ledger header malformed: <observed header lines>`',
     '`recovery: doc/configuration.md "Loop engine operations"`',
   ]);
-  ordered(loop, ['\n## Ledger admission\n', '\n## Spec with ledger\n', 'Ask the human to confirm the approved spec and continuation', '`start brainstorm`', '`plan_check({ planPath: <absolute ledger path> })`', '`start implement`', 'Apply `## Pending recovery` before refresh', 'plan_tracker({ action: "refresh"', '\n## Pending recovery\n']);
+  ordered(loop, ['\n## Ledger admission\n', '\n## Spec with ledger\n', 'Ask the human to confirm the approved spec and continuation', '`start brainstorm`', '`plan_tracker init` with only its non-ledger tasks', '`plan_check({ planPath: <absolute ledger path> })`', '`start implement`', 'Apply `## Pending recovery` before any dispatch', '\n## Pending recovery\n']);
   ordered(section(loop, '## Spec with ledger'), ['`start brainstorm`', '`skip brainstorm`', '`engine: "loop"`', '`start plan`']);
-  assert.match(section(loop, '## Spec with ledger'), /verify or ship brief: `skip implement R`; `start verify`[^\n]*SKILL\.md "Restore rules"[^\n]*Never call `start implement` on this route/);
+  assert.match(section(loop, '## Spec with ledger'), /verify or ship brief: `skip implement R`; `start verify`[^\n]*Never call `start implement` on this route/);
 });
 
 test('restore rules live in SKILL.md and plan repair is read only on FAIL', () => {

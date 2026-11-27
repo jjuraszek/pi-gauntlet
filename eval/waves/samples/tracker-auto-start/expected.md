@@ -1,0 +1,2 @@
+- dispatch: judged: Dispatches both plan tasks without first marking either in progress and without reinitializing the tracker.
+- commit: judged: Marks both existing task indices complete after the successful wave commit, not at worker return or before the commit.

@@ -565,6 +565,7 @@ try {
 try {
   execFileSync(process.execPath, [R("scripts/stage-skill-lint.test.mjs")], { stdio: "pipe" });
   execFileSync(process.execPath, ["--test",
+    R("scripts/tracker-refresh-instructions.test.mjs"),
     R("scripts/loop-engine-contract.test.mjs"),
     R("scripts/loop-boundary-integration.test.mjs"),
     R("scripts/loop-conformance-grant.test.mjs"),

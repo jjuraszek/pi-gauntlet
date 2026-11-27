@@ -75,7 +75,7 @@ test('home admission written contract limits attribution and all header deltas',
     'recheck identity, command and group leader before each signal',
     'skip that job and continue recovery', 'absent or empty jobs file means no jobs to terminate',
     'Print `terminated <k> child jobs`', 'delete the jobs file',
-    'refresh and return to the ordered table in the same turn',
+    'return to the ordered table in the same turn',
   ]) assert.ok(recovery.includes(token), token);
   assert.match(recovery.split('3. Write')[1], /`wrong attribution`.*as the concrete reason/);
   assert.match(recovery, /still alive after KILL.*do not block recovery/);

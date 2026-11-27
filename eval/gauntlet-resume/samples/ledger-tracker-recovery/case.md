@@ -26,6 +26,6 @@ For A-D, show phase restoration, recovery, task projection and continuation/stop
 
 E: A worktree-only implement restore has No plan active. The admitted ledger has returned:none, no pending, iterations4, allowance4; row1 failed attempts1, row2 done attempts1. Its latest ledger diff proves a parent repair: it appends repair row 1 | interrupted - dirty tree | iteration 4, preserving the pre-dispatch returned:none. Show restore without init or replaying that settled repair and the observed task statuses. Resolve the escalation setting once at the authorized restore boundary; do not reseed.
 
-L: Same committed returned: tuple and child ledger as A, but git show at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa cannot read the pre-dispatch ledger. No saved before-image exists. Explain the unavailable-before-image stop before refresh or mutation; do not infer a boundary from HEAD^ or completed rows.
+L: Same committed returned: tuple and child ledger as A, but git show at aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa cannot read the pre-dispatch ledger. No saved before-image exists. Explain the unavailable-before-image stop before dispatch or mutation; do not infer a boundary from HEAD^ or completed rows.
 
 Keep the whole reply under 1500 words.

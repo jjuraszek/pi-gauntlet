@@ -3,7 +3,7 @@ bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 bundle-: skills/gauntlet/implement/loop/coordinated-legs.md
 
-Act only at the home driver's Validate the return boundary. Do not execute Entry, seed or companion admission. All snapshots are independent. The driver already captured membership and Rules at restore; no further spec read is needed. Stop each trace after admission/repair, refresh and identifying the next ordinary target; do not dispatch or enter verify.
+Act only at the home driver's Validate the return boundary. Do not execute Entry, seed or companion admission. All snapshots are independent. The driver already captured membership and Rules at restore; no further spec read is needed. Stop each trace after admission/repair and identifying the next ordinary target; do not dispatch or enter verify.
 
 Saved ledger: checks: commands, iterations: 6, allowance: 4, verification: npm test. Validated seeds survive for both legs. Leg mapping assigns rows 1-4 and 6 to repo-a (home), row 5 to repo-b. Row 1 is open attempts 0 evidence empty; row 2 is open attempts 0 evidence empty; row 3 is done attempts 1 evidence `node --test existing.test.mjs; 1 passed`; row 4 is cut attempts 0 evidence `deferred: separate work`; row 5 is open attempts 0 evidence empty; row 6 is open attempts 0 evidence empty. Prior decisions contain the seed lines and the existing row 3 done line.
 
@@ -12,7 +12,7 @@ Target is row 1 in home repo-a. HEAD_BEFORE is aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 1. Two-row return: row 1 done attempts 1 evidence `node --test primary.test.mjs; 1 passed`; row 2 done attempts 0 evidence `node --test extra.test.mjs; 1 passed`. Appended decisions, in order:
 row 1 done | Added parser | lib/parser.mjs supplies the parser
 row 2 done | Reused parser | extra.test.mjs covers the shared path
-Show admitted cells, refresh, next target and previous decision. Also state whether a target-only return (row 2 unchanged and its new line omitted) is valid.
+Show admitted cells, next target and previous decision. Also state whether a target-only return (row 2 unchanged and its new line omitted) is valid.
 
 2. Same extra as snapshot 1, but target row 1 failed attempts 1 evidence `node --test primary.test.mjs; assertion mismatch`, first decision `row 1 failed | Assertion still fails | Try the boundary fixture next`. The extra's evidence is supplied; do not infer worker order. Show admission and the operational previous decision and next target.
 

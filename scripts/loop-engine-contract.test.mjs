@@ -188,7 +188,7 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
   for (const token of [
     'including spent escalation', 'attempts = saved attempts +1',
     'repair row <n> | interrupted - <reason> | iteration <consumed>',
-    'commit with the shared Row repair sentence, refresh and return to the ordered table in the same turn',
+    'commit with the shared Row repair sentence and return to the ordered table in the same turn',
     'rule 2 stops a repaired row at allowance', 'Recovery itself is unconditional',
   ]) assert.ok(recovery.includes(token), token);
   assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
@@ -332,21 +332,20 @@ test('coordinated reference reads use held membership before dispatch decisions'
   assert.doesNotMatch(driver, /companion-return-shell/);
 });
 
-test('ledger refresh owns entry, dispatch and implement completion', () => {
+test('seed the ledger view at entry and persist dispatch identity before launching', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Before each dispatch\n')[0];
   const seed = entry.slice(entry.indexOf('5. Call `plan_check'));
   const refresh = 'plan_tracker({ action: "refresh", path: <absolute ledger path> })';
   const sequence = ['plan_check', 'Commit the stamped skeleton with the shared Ledger skeleton sentence', 'action: "start", phase: "implement"', refresh];
   for (let i = 1; i < sequence.length; i++) assert.ok(seed.indexOf(sequence[i]) > seed.indexOf(sequence[i - 1]), sequence[i]);
-  assert.match(driver, /No `open` or `failed` row \| Refresh; require implement complete; continue at ## After the loop step 0/);
-  assert.match(driver, /refresh leaves implement active.*never start verify/i);
-  assert.match(driver, /After every admitted ledger commit \(child or parent\), refresh once/);
+  assert.match(driver, /No `open` or `failed` row \| Continue at ## After the loop step 0/);
+  assert.match(driver, /When `start verify` is refused at rule 1, take the matching human stop/);
   const dispatch = driver.split('\n## Dispatch\n')[1].split('\n## Validate the return\n')[0];
   assert.match(dispatch, /save the ledger before the iterations bump and tuple write/);
   assert.match(dispatch, /`home` for zero or one.*actual member identifier for coordinated/);
-  assert.match(dispatch, /Persist the consumed count and tuple before every home or companion dispatch; then refresh/);
-  assert.match(dispatch, /Commit nothing extra/);
+  assert.match(dispatch, /Persist the consumed count and tuple before every home or companion dispatch\. Commit nothing extra[\s\S]*Dispatch exactly one foreground child/);
+  assert.match(driver.split('## After the loop\n').at(-1), /Before an index-based `plan_tracker update`, read `plan_tracker status` if a dispatch or human stop occurred since you read the index/);
   assert.match(dispatch, /Send `iteration: i`.*write `iterations: i \+ 1` before dispatch.*admission requires the committed ledger's `iterations:` to carry `i \+ 1`/);
   assert.match(dispatch, /the task carries the pre-bump count, while the ledger and an outside-ledger return's `iteration:` carry the consumed count; never compare them to the task's count/);
   const reference = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
@@ -384,12 +383,12 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
   assert.match(expected, /^- contract: judged: .*verify step 1/m);
   assert.match(after, /Gn tasks.*same tracker/);
-  assert.match(after, /Without amend permission, refresh and stop with `Stopped: row <n> reopened by amendment during verify`/);
+  assert.match(after, /Without amend permission, stop with `Stopped: row <n> reopened by amendment during verify`/);
   assert.match(after, /Under amend permission, continue without a second authorization/);
   assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
   assert.match(after, /including exhausted-row rule 2/);
   assert.match(after, /authorize the row's return to ledger implementation or stop/);
-  assert.match(after, /Dispatch.*Validate the return.*refresh.*verify still active.*no phase reset/);
+  assert.match(after, /Dispatch.*Validate the return.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
   assert.doesNotMatch(driver + reference, /## Exit verification|Reuse the passing exit run|without plan_tracker initialization or lifecycle updates/);
 });

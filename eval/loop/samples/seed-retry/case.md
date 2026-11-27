@@ -5,7 +5,7 @@ Act as the loop driver at seed return admission. Tools are unavailable; describe
 
 Home saved ledger: checks: commands, iterations: 0, allowance: 4. Rows 1, 2 and 3 are open attempts 0 evidence empty; row 4 is cut attempts 0 evidence deferred: later. No decisions exist. The driver persisted iterations: 1 and pending: seed | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. The child returns a clean tree and exactly one commit after that SHA, subject loop: seed evidence. Its first body lines match the pending tuple and iteration: 1. It clears pending, preserves headers and the cut row, but writes row 2 failed attempts 1 evidence check-state; assertion mismatch and appends row 0 done | seeded 1 rows, closed 0 on baseline | row 1. All other rows are unchanged. This is the first validation miss.
 
-A. Validate the returned home seed. State the repair commit, restored rows, attempts, allowance, iterations, pending state, decisions and refresh. Describe the next dispatch's target, task iteration versus consumed iteration and hint. State whether the invalid row or seed decision survives, and whether a human is asked before this retry.
+A. Validate the returned home seed. State the repair commit, restored rows, attempts, allowance, iterations, pending state and decisions. Describe the next dispatch's target, task iteration versus consumed iteration and hint. State whether the invalid row or seed decision survives, and whether a human is asked before this retry.
 
 B. Start after A's repair and retry, now with consumed iterations 2. The retry returns clean/exactly one attributed commit with the same invalid row and seed decision. Describe repair, ledger state and the next action. State whether a third seed dispatch or ordinary row dispatch happens.
 

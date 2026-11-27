@@ -4,6 +4,8 @@ for: ad98f24df975b9e6e57d10c70ba7f0148def251e2985d8695bff3297247db4e2
 
 Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces.
 
+Dispatch a wave without marking each task in progress. Keep task completion after the wave commit.
+
 Compose committed-originals and accepted-wave messages through the shared commit-message reference using held spec metadata and manifest headings. Preserve scoped entry staging, delegated source reads, isolated reset semantics and completion after the wave commit. Keep wave-commit-wording/boundary passing.
 Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
 Recover suppressed apply JSON from exactly one bounded success capture satisfying unchanged APPLY_SCHEMA. Stop without retry only on the exact baseline-read marker, quoting command/stderr; preserve the ordinary one-retry gate. Establish committed plan/spec originals through path-scoped entry commits before dispatch. The missing-baseline and uncommitted-entry samples cover these changes; delegated-amendment and local-amend-revalidation now use committed originals while retaining failure history and parent gates. Model evidence remains verification-owned.
@@ -17,6 +19,7 @@ Replace per-task spec and per-wave code review with one post-gate integrated wav
 - chain-stop-blocked/reads: fails -> holds - Read recovery before reconciling a missing result, escalation before the ladder, and neither for lookup alone.
 - third-attempt-escalated/reads: fails -> holds - Read escalation before starting the escalated round.
 - clean-wave-skips-failure-rules/reads: fails -> holds - Complete an ordinary repair and wave commit without reading either conditional file.
+- tracker-auto-start/dispatch: fails -> holds - Starting the workers needs no tracker writes.
 
 - wave-commit-wording/plan: fails -> holds - Compose the initial commit from the shared plan recipe.
 - wave-commit-wording/wave: fails -> holds - Compose the accepted wave subject from its task headings.

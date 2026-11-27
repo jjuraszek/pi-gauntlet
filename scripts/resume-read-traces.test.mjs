@@ -86,8 +86,16 @@ for (const [kind, ceiling] of [['ledger', 42000], ['plan', 37000]]) {
     assert.equal(mutations[0].toolName, 'phase_tracker');
     assert.equal(mutations[0].args.action, 'start');
     assert.equal(mutations[0].args.phase, 'brainstorm');
-    const restored = mutations.find(event => event.toolName === 'plan_tracker' && event.args.action === (kind === 'ledger' ? 'refresh' : 'init'));
-    assert.ok(restored, 'restore reached its engine-specific task projection');
-    completed(restored);
+    if (kind === 'ledger') {
+      assert.ok(!mutations.some(event => event.toolName === 'plan_tracker' && event.args.action === 'refresh'));
+      const ledger = /^Ledger: (.+)$/m.exec(brief)[1];
+      const check = starts.find(event => event.toolName === 'plan_check' && event.args.planPath?.endsWith('/' + ledger));
+      assert.ok(check, 'restore checked the ledger named in the brief');
+      assert.equal(completed(check).result.details.status, 'pass');
+    } else {
+      const init = mutations.find(event => event.toolName === 'plan_tracker' && event.args.action === 'init');
+      assert.ok(init, 'restore reached plan initialization');
+      completed(init);
+    }
   });
 }

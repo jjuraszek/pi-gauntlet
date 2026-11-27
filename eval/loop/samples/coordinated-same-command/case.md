@@ -2,7 +2,7 @@ bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
-Coordinated ledger at /work/home/doc/plans/change-ledger.md, checks: commands, verification: make ci, iterations: 4, allowance: 4. Held checkouts: repo-a /work/home, repo-b /work/companion. Both seeds validated, trees clean, implement complete through refresh. Spec contracts use make ci and make check, respectively. All recorded checks pass. No gate run yet.
+Coordinated ledger at /work/home/doc/plans/change-ledger.md, checks: commands, verification: make ci, iterations: 4, allowance: 4. Held checkouts: repo-a /work/home, repo-b /work/companion. Both seeds validated, trees clean, both rows complete and verify ready to start. Spec contracts use make ci and make check, respectively. All recorded checks pass. No gate run yet.
 
 | row | status | attempts | evidence |
 |---|---|---|---|

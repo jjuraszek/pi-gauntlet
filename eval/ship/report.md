@@ -1,5 +1,7 @@
 # eval report: ship (partial run: pr-body-integration)
 
+The ledger admission fixture `ledger-pending-return` now continues without a tracker call. This sample was not replayed; the results below cover `pr-body-integration` only.
+
 for: e8263e2b1f9ade31618e1f4d2129689e183b3dbc29781bbe82e37d661f7b295a
 
 wall: 29s

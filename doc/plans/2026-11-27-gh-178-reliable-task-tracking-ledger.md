@@ -3,9 +3,9 @@
 base: 7f1bae1e1b90ead0da5bd18083cb83690c72cdf2
 verification: npm test
 checks: commands
-iterations: 6
+iterations: 7
 allowance: 10
-returned: 11 | home | c43170215867147777e3413e04b6810547eba0f7
+returned: 12 | home | a2c93978245df20b7c48526b17f0f96f6d93a723
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -20,7 +20,7 @@ returned: 11 | home | c43170215867147777e3413e04b6810547eba0f7
 | 9 | done | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; status returned the dispatched row exactly once with its new status and label; 39 passed |
 | 10 | done | 0 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; implement and verify both refused completion with row 1 in_progress despite an older empty explicit list |
 | 11 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts; sealed loop recorded two complete tasks and one skipped without a tracker call after init; one reopen and one implement completion; 165 passed |
-| 12 | open | 0 | |
+| 12 | done | 1 | timeout -k 30 30 node --test scripts/tracker-refresh-instructions.test.mjs; only the seed call remains across skills and personas; nine named model samples replayed with partial coverage |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
@@ -35,3 +35,4 @@ row 5 done | Human stops show the settled ledger or the ledger after a blocked d
 row 7 done | Session start, switch, fork and tree restore the branch's newest list and reconcile it with a settled ledger without a tracker call. | Use the branch-activation fixture in plan-tracker.test.ts to test replay with ledger and non-ledger tasks together.
 row 6 done | Starting verify redraws the admitted ledger and completes implement only when the newest list is nonempty and every task is complete or skipped. | Use the verify-start fixture in phase-tracker.test.ts to exercise both trackers without an explicit list update.
 row 11 done | Sealed loop telemetry reports the final task totals at implement completion without a tracker call after the seed. | Reuse the sealed loop fixture in telemetry.test.ts to check stored list transitions, reopen counts and phase event order.
+row 12 done | The loop driver seeds the task list once, and neither dispatch, amendment nor restore asks the main session to refresh it. | Run scripts/tracker-refresh-instructions.test.mjs to catch another ledger refresh instruction in skills or personas.
