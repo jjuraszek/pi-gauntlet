@@ -32,4 +32,4 @@ Author robin; viewer mira is a requested reviewer with READ and cannot push sour
 
 ### Case G: draft contract proposal
 
-Own PR; checks are green and mergeability is MERGEABLE. The approved spec requires the build version at /health; the PR deliberately returns it at /status, so that requirement is deviates and blocks normal merge. A source-checked contract proposal is drafted at /tmp/gate-contract.md to change the endpoint to /status. No source or body fix, no permission to auto-change the approved spec. The proposal is pending in the retained record. Render contract-exception with preserve contract recommended, plus accept contract change and stop; execute nothing yet.
+Own PR; no linked ticket. Checks are green and mergeability is MERGEABLE. The goal is to serve the build version. The approved spec requires the build version at /health; the PR serves it at /status instead. A source-checked proposal would change the required endpoint to /status. The existing /health handler can return the same build version without changing the spec. The proposal is pending in the retained record. Render the contract-exception menu and wait for a pick.
