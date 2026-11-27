@@ -622,59 +622,119 @@ test("waves dispatch leaves repairs, reviewers, unanchored tasks, other lists an
   });
 });
 
-test("dispatch records the admitted return before starting an immediate retry", async (t) => {
-  mainSession(t);
-  const dir = ledgerFixture("plan-retry-");
-  const path = join(dir, "ledger.md");
-  const branch: any[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "ledger.md" } } }];
-  const h = harness(branch, dir);
-  const tuple = "pending: 1 | home | abc1234";
-  writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |"], "", tuple));
-  const dispatch = () => h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
-  await dispatch();
-  const before = branch.length;
-  writeFileSync(path, ledger(["1 | failed | 1 | check failed", "2 | done | 0 | check passed"], "row 1 failed | check failed | retry\nrow 2 done | check passed | none", tuple));
-  await dispatch();
-  assert.deepEqual(branch.slice(before).map(entry => [entry.customType, ...(entry.data.tasks?.map((task: { status: string }) => task.status) ?? [])]), [
-    ["plan-tracker-snapshot", "failed", "complete"], ["plan-tracker-snapshot", "in_progress", "complete"],
-  ]);
-});
-
 const assistantText = (text: string) => ({
   type: "message", message: { role: "assistant", content: [{ type: "text", text }], stopReason: "stop" },
 });
 const workerResult = { type: "message", message: { role: "toolResult", toolName: "subagent", isError: false, details: { results: [] } } };
+const storedPlan = (tasks: ToolResult["details"]["tasks"]) => ({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } });
+
+async function dispatchLoopWorker(h: ReturnType<typeof harness>, branch: unknown[], target: string, id: string) {
+  const input = { agent: "loop-implementer", task: `target: ${target}` };
+  const message = { role: "assistant", content: [{ type: "toolCall", id, name: "subagent", arguments: input }] };
+  branch.push({ type: "message", message });
+  await h.fire("message_end", { message });
+  const before = branch.length;
+  assert.equal(await h.fire("tool_call", { toolCallId: id, toolName: "subagent", input }), undefined);
+  return branch.slice(before);
+}
+
+test("dispatch records the judged return before starting an immediate retry", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-retry-");
+  const path = join(dir, "ledger.md");
+  const first = "1 | home | abc1234";
+  const next = "1 | home | def5678";
+  const failedReturn = ["1 | failed | 1 | check failed", "2 | done | 0 | check passed"];
+  const targetDecision = "row 1 failed | check failed | retry";
+  const returnDecisions = `${targetDecision}\nrow 2 done | check passed | none`;
+  const firstRow = { name: "row 1", label: descriptions[0] };
+  const otherRow = { name: "row 2", label: descriptions[1] };
+  for (const [name, rows, decisions, otherStatus] of [
+    ["admitted failure", failedReturn, returnDecisions, "complete"],
+    ["numbered repair", ["1 | failed | 1 | iteration 1: duplicate decision", "2 | open | 0 |"], "repair row 1 | duplicate decision | iteration 1", "pending"],
+  ] as const) await t.test(name, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "ledger.md" } } }];
+    const h = harness(branch, dir);
+    writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |"], "", `pending: ${first}\nreturned: none`));
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "dispatch"), [
+      storedPlan([{ ...firstRow, status: "pending" }, { ...otherRow, status: "pending" }]),
+      storedPlan([{ ...firstRow, status: "in_progress" }, { ...otherRow, status: "pending" }]),
+    ]);
+    const returned = `returned: ${first}`;
+    const rejected = name === "numbered repair";
+    writeFileSync(path, ledger(failedReturn, rejected ? `${returnDecisions}\n${targetDecision}` : returnDecisions, returned));
+    branch.push(workerResult);
+    if (rejected) writeFileSync(path, ledger([...rows], decisions, returned));
+    writeFileSync(path, ledger([...rows], decisions, `pending: ${next}\n${returned}`));
+    const other = { ...otherRow, status: otherStatus };
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "redispatch"), [
+      storedPlan([{ ...firstRow, status: "failed" }, other]),
+      storedPlan([{ ...firstRow, status: "in_progress" }, other]),
+    ]);
+  });
+});
 
 test("only a marked parent repair can publish statuses after a worker duplicates a decision", async (t) => {
   mainSession(t);
   const dir = ledgerFixture("plan-repair-");
   const path = join(dir, "ledger.md");
   const tuple = "1 | home | abc1234";
-  const previous = "row 1 retry | new input | allowed attempts 2";
-  for (const [name, event] of [
-    ["unmarked stop after duplicate retry", "agent_settled"],
-    ["reload after duplicate retry", "session_start"],
+  for (const [name, previous] of [
+    ["duplicate retry", "row 1 retry | new input | allowed attempts 2"],
+    ["duplicate repair", "repair row 1 | rejected return | iteration 1"],
   ]) await t.test(name, async () => {
     const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
     const h = harness(branch, dir);
+    const first = { name: "row 1", status: "failed", label: descriptions[0] };
+    const other = { name: "row 2", status: "pending", label: descriptions[1] };
+    const dispatched = [{ ...first, status: "in_progress" }, other];
     writeFileSync(path, ledger(["1 | failed | 1 | old miss", "2 | open | 0 |"], previous, `pending: ${tuple}`));
-    await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
-    const dispatched = (await h.call({ action: "status" })).details.tasks;
-    assert.deepEqual(dispatched.map(task => task.status), ["in_progress", "pending"]);
-    branch.push(workerResult, assistantText("I have the worker's result."));
-    const before = branch.length;
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "dispatch"), [storedPlan([first, other]), storedPlan(dispatched)]);
     writeFileSync(path, ledger(["1 | done | 2 | check passed", "2 | done | 0 | check passed"], `${previous}\n${previous}`, `returned: ${tuple}`));
-    const active = event === "session_start" ? harness(branch, dir) : h;
-    await active.fire(event, { aborted: false });
-    assert.equal(branch.length, before, "stored an unjudged list");
-    assert.deepEqual((await active.call({ action: "status" })).details.tasks, dispatched);
+    branch.push(workerResult);
+    const read = { role: "assistant", content: [{ type: "toolCall", id: "read-ledger", name: "read", arguments: { path } }] };
+    branch.push({ type: "message", message: read });
+    await h.fire("message_end", { message: read });
+    await h.fire("tool_call", { toolCallId: "read-ledger", toolName: "read", input: { path } });
+    branch.push(
+      { type: "message", message: { role: "toolResult", toolName: "read", content: [{ type: "text", text: readFileSync(path, "utf8") }] } },
+      assistantText("I have the worker's result."),
+    );
+    const before = branch.length;
+    await h.fire("agent_settled", { aborted: false });
+    assert.deepEqual(branch.slice(before), [], "unmarked stop stored an unjudged list");
+    const reloaded = harness(branch, dir);
+    await reloaded.fire("session_start");
+    assert.deepEqual(branch.slice(before), [], "reload stored an unjudged list");
+    if (name === "duplicate retry") assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, dispatched);
 
     writeFileSync(path, ledger(["1 | failed | 2 | repair", "2 | open | 0 |"], `${previous}\nrepair row 1 | rejected return | iteration 2`, `returned: ${tuple}`));
     branch.push(assistantText("gauntlet: question\nRetry the repaired row?"));
-    await active.fire("agent_settled", { aborted: false });
-    assert.deepEqual((await active.call({ action: "status" })).details.tasks.map(task => task.status), ["failed", "pending"]);
-    assert.equal(branch.length, before + 2);
+    await reloaded.fire("agent_settled", { aborted: false });
+    assert.deepEqual(branch.slice(before + 1), [storedPlan([first, other])]);
   });
+});
+
+test("a marked stop after a rejected seed stores no row changes", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-seed-repair-");
+  const path = join(dir, "ledger.md");
+  const rows = ["1 | open | 0 |"];
+  const tuple = "seed | home | abc1234";
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  writeFileSync(path, ledger(rows, "", `pending: ${tuple}\nreturned: none`));
+  const initial = storedPlan([{ name: "row 1", status: "pending", label: descriptions[0] }]);
+  assert.deepEqual(await dispatchLoopWorker(h, branch, "seed", "seed-dispatch"), [initial]);
+
+  const returned = `returned: ${tuple}`;
+  writeFileSync(path, ledger(["1 | done | 0 | baseline"], "", returned));
+  branch.push(workerResult);
+  writeFileSync(path, ledger(rows, "repair seed | seed miss: missing decision | iteration 1", returned));
+  branch.push(assistantText("gauntlet: question\nRetry the seed?"));
+  const before = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  assert.deepEqual(branch.slice(before), []);
 });
 
 test("a human stop redraws on parent evidence, not on an older blocked dispatch", async (t) => {
