@@ -160,7 +160,7 @@ test('gate and procedure references point to the current owners', () => {
   const retired = ['driver-holds', 'empty-child-stagnation', 'prerequisites'].map(n => n + '.md').concat([
     ['waves.md', 'escalation-and-funding'], ['loop.md', 'human-stop'], ['ship.md', 'pr-subject-row-1-push-to-the-pr-branch'],
   ].map(parts => parts.join('#')));
-  const hits = spawnSync('git', ['grep', '-IlF', ...retired.flatMap(token => ['-e', token]), '--', '.', ':!CHANGELOG.md', ':!doc/specs', ':!eval/*/results/*', ':!eval/*/report.md'], { cwd: root, encoding: 'utf8' });
+  const hits = spawnSync('git', ['grep', '-IlF', ...retired.flatMap(token => ['-e', token]), '--', '.', ':!CHANGELOG.md', ':!doc/specs', ':(exclude,glob)eval/*/results/**', ':(exclude,glob)eval/*/tool-traces/results/**', ':(exclude,glob)eval/*/report.md'], { cwd: root, encoding: 'utf8' });
   assert.equal(hits.status, 1, hits.stdout + hits.stderr);
 });
 
