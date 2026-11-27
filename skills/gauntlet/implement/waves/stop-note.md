@@ -1,12 +1,18 @@
 # Stop note (`waves.md` companion)
 
+## Whole-diff review
+
+Keep `verify` active and leave task states unchanged. Print `gauntlet: question` alone on the first line and `Stopped on whole-diff review.` on the next. Quote the final report's residual findings under `Problem:`. End with the unblocking input under `Needs:` in everyday words, with no options.
+
+## Implementation task
+
 For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Keep source reads delegated; use the bounded direct-report read rule in waves.md for child reports. On an interruption before the result, use [Recovery](./waves.md#recovery) to repeat an identified read-only lookup once with its retained payload; stop on an unsafe retry, a second failure or another delegated failure.
 
 When lookup exhausts the sources for missing row input with no buildable stand-in, take the delegated amendment route in Implementer Status instead of emitting this note.
 
 Emit when no escalation model resolves, the [transition table](./waves.md#the-wave-loop) reaches a stop, or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
-## Template
+### Template
 
 Write the note from structured fields, bounded report findings and lookup observations. Never dispatch a child to relay a report. While a budget token exists, put `budget: <spent> of <N> spent` after `Problem:` and any `Searched:` lines and before findings, including zero-spent stops. On unrecoverable resume use `budget: <N> of <N> spent (not recovered on resume)`. Omit budget without a token.
 
@@ -24,7 +30,7 @@ Searched: <where> - <result> [fact asks only; repeat in lookup order]
 Needs: <the input that unblocks delivery, in everyday words>
 ```
 
-## Rules
+### Rules
 
 - Apply the [takeable-decision ladder](./escalation.md#escalation-and-funding) before emitting an execution decision note. Put repeated evidence in `Problem:`. For a stalled task or a task with no way forward, end with `Needs:` and no menu. Only a question about discard, redraw, a correction requiring review, or an unnamed paid or outside-repository action keeps its options and final `Recommendation:` line. For those questions apply [menu-layout](../../menu-layout.md).
 - Bracketed header clause only when an escalated round actually ran; omit it when no model was resolvable or the dispatch errored.
@@ -35,7 +41,7 @@ Needs: <the input that unblocks delivery, in everyday words>
 - No trajectory verdicts, round history, review counts, or paths to spec/plan/review reports.
 - Plain words, ASCII, no headings. One screen.
 
-## Example
+### Example
 
 ```
 gauntlet: question

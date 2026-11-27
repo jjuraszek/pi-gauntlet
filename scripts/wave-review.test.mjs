@@ -135,6 +135,20 @@ test('an escalated dispatch error takes a remaining funded round before the stop
   assert.match(stopNote, /`Problem:`[^\n]*dispatch error/);
 });
 
+test('a stalled whole-diff review stops in verify without a task header', () => {
+  const request = readFileSync(new URL('../skills/gauntlet/requesting-review.md', import.meta.url), 'utf8');
+  const note = loadReference('stop-note');
+  assert.match(request, /implement\/waves\/stop-note\.md#whole-diff-review/);
+  const review = note.split('## Whole-diff review\n')[1]?.split('\n## ')[0] ?? '';
+  assert.match(review, /keep `verify` active/i);
+  assert.match(review, /`gauntlet: question`.*`Stopped on whole-diff review\.`/);
+  assert.match(review, /residual findings under `Problem:`.*input under `Needs:`.*no options/i);
+  assert.doesNotMatch(review, /Stopped on task|`in_progress`/);
+  const implementation = note.split('## Implementation task\n')[1] ?? '';
+  assert.match(implementation, /phase stays `implement`, the task stays `in_progress`/);
+  assert.match(implementation, /Stopped on task <n> \(<title>\)/);
+});
+
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;
 const git = (cwd, ...args) => execFileSync('git', ['-C', cwd, ...args], { encoding: 'utf8' }).trim();
 

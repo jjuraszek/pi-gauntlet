@@ -1,4 +1,4 @@
-for: 3a978ad9547ec0070f153d7f0925ace738b2b20666baf05ed2f65d4fdad4fe2f
+for: 3253b80e334626eb1d3edd5650a5e9cfe55aae013476844382c7a513ddae3ef3
 
 ## Change
 
@@ -8,7 +8,7 @@ Check the delegated amendment path for unavailable row input after lookup fails 
 
 Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces. At a spent counter, distinguish a converging re-review or a changed assertion from a stalled round; these snapshots replay instructions, not live repairs.
 
-Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
+Render the blocker and the input that would clear it. A stalled whole-diff review names the review, not a task, and keeps verification active. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
 
 Use blocked-decision-auto-taken and worker-decision-taken to check that permission to change the spec does not gate an in-spec repair. Hold each recommendation and its reason for the accepted wave commit.
 

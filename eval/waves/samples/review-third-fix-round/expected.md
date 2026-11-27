@@ -1,2 +1,2 @@
 - moving: judged: Takes another fix round for CONVERGING, tests, then re-reviews the same whole diff in the foreground with ## Previous review report (re-review trigger) and the prior report path.
-- stalled: judged: Stops on STAGNANT, states the residual finding under Problem: and the required length input under Needs: rather than offering options.
+- stalled: judged: Stops on STAGNANT with verify active and a whole-diff review header, not a task header. Quotes the unchecked-length finding under Problem: and asks for the approved maximum length under Needs:, without options.
