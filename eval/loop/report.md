@@ -1,10 +1,10 @@
 # eval report: loop (selected samples only)
 
-Each linked report covers both replay models. No other samples were run.
+Both replay models met every candidate must-hold in the four selected samples. These are text replays of supplied observations, not live dispatch or tracker evidence.
 
-| Sample | Candidate must-holds |
+| Sample | Observed behavior |
 |---|---|
-| [seed-dispositions](results/seed-dispositions/report.md) | All must-holds passed. |
-| [tracker-boundary](results/tracker-boundary/report.md) | resume failed on anthropic/claude-opus-5-5. |
-| [tracker-refresh](results/tracker-refresh/report.md) | All must-holds passed. |
-| [tracker-verify](results/tracker-verify/report.md) | All must-holds passed. |
+| [tracker-boundary](results/tracker-boundary/report.md) | Both replies repaired rejected returns without a tracker call, including on resume. |
+| [tracker-refresh](results/tracker-refresh/report.md) | Both replies kept the one seed call and projected the returned row before retry. |
+| [tracker-verify](results/tracker-verify/report.md) | Both replies handled repair, conformance and reopened rows without an extra ledger list call. |
+| [seed-dispositions](results/seed-dispositions/report.md) | Both replies seeded the acceptance rows without assigning Integration entries. |

@@ -34,7 +34,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9489977ba0c7e2c5d15c80d7ba8afbd31fa490d9b606f1c9b46d8458943a0601",
+      "intentSha": "068d08c294a71f6928a633b7478195441418a3bf653f63705e5e72e15586e209",
       "baselineOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
       "candidateOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
       "facts": {
@@ -54,14 +54,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical for this case, so the wording change moved nothing here: the expected fails -> holds moves on create and update do not show up, because Before already satisfies both. The offer keeps the five-option menu in order with no Integration question. The new PR body carries the Integration block verbatim once after Test Plan, including the indented instruction and the EOF and End of receipt lines, and makes no claim that any condition was checked. The draft update swaps only the stale Integration block and leaves the lead line's spacing and the Notes section untouched. The create command runs in a subshell that cds into '/work/import queue', passes the minted path as one quoted --body-file argument, and uses no variables from earlier calls. The weakest point is the title: it is read from an invented `pr-body.B72pL3.title` sibling that the mint never printed, through `$(cat ...)` into a double-quoted variable. That does keep the backticks and `$(import)` out of shell source and passes them as one argument, so I counted it as holding, but a stricter reader could object to the un-minted path, and the output never shows the title text itself. To make this robust, have the wording say where the title data file comes from (a second mint, or a stated sibling rule) and require the output to state that the file holds the exact landed subject, while keeping the --body-file transport and the worktree-anchored, state-free create call as they are.",
-      "wallMs": 14009,
-      "verdict": "unchanged"
+      "feedback": "Before and After are identical on this case, so the After wording moved no fact: create and update already hold in Before rather than moving from fails to holds as expected. Both show the five-option menu in order with no Integration question, both carry the Integration block verbatim once after Test Plan with the indented instruction and the literal EOF and End of receipt lines and no checked claims, and both replace only the stale Integration block in the draft while keeping the intro spacing and Notes. The one judgement call is the title: both outputs read it from an unminted `.title` sibling of the body file via `$(cat ...)` into a quoted variable. I counted that as one literal --title argument kept outside shell source, but the rendered command never shows the subject and the sibling path is invented rather than printed by the mint. To make create robust, the wording could say where the landed subject is written (its own minted scratch file, or an explicitly named sibling) and that the create call reads it from there as a single quoted argument, while keeping the current rules: body as data in the minted file, the same printed path passed via --body-file, an explicit cd into the observed worktree, and no reliance on variables from earlier calls.",
+      "wallMs": 13297,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "9489977ba0c7e2c5d15c80d7ba8afbd31fa490d9b606f1c9b46d8458943a0601",
+      "intentSha": "068d08c294a71f6928a633b7478195441418a3bf653f63705e5e72e15586e209",
       "baselineOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
       "candidateOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
       "facts": {
@@ -81,10 +83,176 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are byte-identical for this case, so the After wording moved nothing here: the expected fails -> holds moves for create and update do not appear because Before already satisfies both. In both outputs the menu is the plain five-option named-branch offer with no Integration question. The new PR body carries Summary, Test Plan and then the Integration block verbatim once, including the indented instruction and the literal EOF and End of receipt lines, with no claim that any condition was checked. The existing draft body has only its stale Integration block replaced, with the lead line's spacing and the Notes section untouched. The create command changes into '/work/import queue' in the same call, passes the minted path as one quoted --body-file argument, and passes the title as one quoted expansion read from a file, so neither title nor body text sits in shell source. The one fragile point is the title transport: it relies on an invented '.title' sidecar next to the minted path, which the case never says was minted or written, and a stricter reader could fail create on that. To keep every fact safely, have the wording name how the literal subject reaches --title (for example, a second minted scratch file whose writing is explicitly stated, read in the create call itself), while keeping the body-file-as-data rule and the offer's independence from Integration entries as they are.",
-      "wallMs": 12614,
-      "verdict": "unchanged"
+      "feedback": "Before and After are identical for this case, so no fact moved: the expected fails -> holds on create and update does not show, because Before already satisfies both. In both outputs the offer is the plain five-option named-branch menu with no mention of Integration. The new PR body carries Summary, Test Plan, then the Integration section verbatim once, including the indented instruction and the literal EOF and End of receipt lines, with no claim that any condition was checked. The existing draft has only its stale Integration block replaced, with the opening line's double spaces, the Notes section and the order intact, and no screenshot entry or Rework block. The create command runs in a subshell that cds into '/work/import queue', passes the minted path as one quoted --body-file argument, and passes the title as one quoted variable expansion read from a file, so the backticks and $(import) never appear in shell source and nothing depends on earlier calls. One thing to tighten: the title comes from an invented `pr-body.B72pL3.title` sidecar that the scratch-file mint never printed. If the After wording is meant to deliver this transport, state explicitly where the landed subject is stored (a separately minted file, or a named sidecar of the body file) so the output stops improvising that path; keep the wording that the body and title are written as data and only paths appear in the command, since that is what holds create in both outputs.",
+      "wallMs": 12014,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     }
   },
-  "repoSha": "b5cd0a612cf4644808c22873199bc23477af6f6c"
+  "repoSha": "495a29c28191ecb3559dea41da1ebfdbaf8779c5",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "pr-body-integration",
+      "kind": "text",
+      "assembly": "concat",
+      "baselineSkillSha": "1ad255d142dee7b8851cca861bae43ed6084bce5ce0caae75e7d5012d1222ae7",
+      "candidateSkillSha": "1ad255d142dee7b8851cca861bae43ed6084bce5ce0caae75e7d5012d1222ae7",
+      "inputSha": "68809f52d7abd480783fb3366d54e3986a84a0c3c86e12ae53f15b92a9639509",
+      "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "068d08c294a71f6928a633b7478195441418a3bf653f63705e5e72e15586e209",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-2"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+            "payloadSha": "585a9abb1dc67c25b2581b5fd7db74c191ee73c15af7301e6b8f7d65f05885bf"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+            "payloadSha": "ebc8b01128f388249637ee974a5adea6f483084f5983b06f713d7c25e4cc7eee"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+            "payloadSha": "585a9abb1dc67c25b2581b5fd7db74c191ee73c15af7301e6b8f7d65f05885bf"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+            "payloadSha": "ebc8b01128f388249637ee974a5adea6f483084f5983b06f713d7c25e4cc7eee"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "9489977ba0c7e2c5d15c80d7ba8afbd31fa490d9b606f1c9b46d8458943a0601",
+        "baselineOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+        "candidateOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+        "facts": {
+          "offer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "create": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "update": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are byte-identical for this case, so the wording change moved nothing here: the expected fails -> holds moves on create and update do not show up, because Before already satisfies both. The offer keeps the five-option menu in order with no Integration question. The new PR body carries the Integration block verbatim once after Test Plan, including the indented instruction and the EOF and End of receipt lines, and makes no claim that any condition was checked. The draft update swaps only the stale Integration block and leaves the lead line's spacing and the Notes section untouched. The create command runs in a subshell that cds into '/work/import queue', passes the minted path as one quoted --body-file argument, and uses no variables from earlier calls. The weakest point is the title: it is read from an invented `pr-body.B72pL3.title` sibling that the mint never printed, through `$(cat ...)` into a double-quoted variable. That does keep the backticks and `$(import)` out of shell source and passes them as one argument, so I counted it as holding, but a stricter reader could object to the un-minted path, and the output never shows the title text itself. To make this robust, have the wording say where the title data file comes from (a second mint, or a stated sibling rule) and require the output to state that the file holds the exact landed subject, while keeping the --body-file transport and the worktree-anchored, state-free create call as they are.",
+        "wallMs": 14009,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "9489977ba0c7e2c5d15c80d7ba8afbd31fa490d9b606f1c9b46d8458943a0601",
+        "baselineOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+        "candidateOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+        "facts": {
+          "offer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "create": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "update": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are byte-identical for this case, so the After wording moved nothing here: the expected fails -> holds moves for create and update do not appear because Before already satisfies both. In both outputs the menu is the plain five-option named-branch offer with no Integration question. The new PR body carries Summary, Test Plan and then the Integration block verbatim once, including the indented instruction and the literal EOF and End of receipt lines, with no claim that any condition was checked. The existing draft body has only its stale Integration block replaced, with the lead line's spacing and the Notes section untouched. The create command changes into '/work/import queue' in the same call, passes the minted path as one quoted --body-file argument, and passes the title as one quoted expansion read from a file, so neither title nor body text sits in shell source. The one fragile point is the title transport: it relies on an invented '.title' sidecar next to the minted path, which the case never says was minted or written, and a stricter reader could fail create on that. To keep every fact safely, have the wording name how the literal subject reaches --title (for example, a second minted scratch file whose writing is explicitly stated, read in the create call itself), while keeping the body-file-as-data rule and the offer's independence from Integration entries as they are.",
+        "wallMs": 12614,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "068d08c294a71f6928a633b7478195441418a3bf653f63705e5e72e15586e209",
+        "baselineOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+        "candidateOutputSha": "c56c4c036441ee3d9852abf936908d68bdd5519111875ca272e5a35357c997d4",
+        "facts": {
+          "offer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "create": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "update": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are identical on this case, so the After wording moved no fact: create and update already hold in Before rather than moving from fails to holds as expected. Both show the five-option menu in order with no Integration question, both carry the Integration block verbatim once after Test Plan with the indented instruction and the literal EOF and End of receipt lines and no checked claims, and both replace only the stale Integration block in the draft while keeping the intro spacing and Notes. The one judgement call is the title: both outputs read it from an unminted `.title` sibling of the body file via `$(cat ...)` into a quoted variable. I counted that as one literal --title argument kept outside shell source, but the rendered command never shows the subject and the sibling path is invented rather than printed by the mint. To make create robust, the wording could say where the landed subject is written (its own minted scratch file, or an explicitly named sibling) and that the create call reads it from there as a single quoted argument, while keeping the current rules: body as data in the minted file, the same printed path passed via --body-file, an explicit cd into the observed worktree, and no reliance on variables from earlier calls.",
+        "wallMs": 13297,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "3be9dff1954d4326e4dee889921f8fd9bebfa007aafa1ebdd5fb6aaa6c5d767a",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "068d08c294a71f6928a633b7478195441418a3bf653f63705e5e72e15586e209",
+        "baselineOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+        "candidateOutputSha": "f1a863c29cde3d8d073297dba8789453f8beb0a6937fe64caf363ce549413cfc",
+        "facts": {
+          "offer": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "create": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "update": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are identical for this case, so no fact moved: the expected fails -> holds on create and update does not show, because Before already satisfies both. In both outputs the offer is the plain five-option named-branch menu with no mention of Integration. The new PR body carries Summary, Test Plan, then the Integration section verbatim once, including the indented instruction and the literal EOF and End of receipt lines, with no claim that any condition was checked. The existing draft has only its stale Integration block replaced, with the opening line's double spaces, the Notes section and the order intact, and no screenshot entry or Rework block. The create command runs in a subshell that cds into '/work/import queue', passes the minted path as one quoted --body-file argument, and passes the title as one quoted variable expansion read from a file, so the backticks and $(import) never appear in shell source and nothing depends on earlier calls. One thing to tighten: the title comes from an invented `pr-body.B72pL3.title` sidecar that the scratch-file mint never printed. If the After wording is meant to deliver this transport, state explicitly where the landed subject is stored (a separately minted file, or a named sidecar of the body file) so the output stops improvising that path; keep the wording that the body and title are written as data and only paths appear in the command, since that is what holds create in both outputs.",
+        "wallMs": 12014,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    }
+  }
 }
