@@ -4,6 +4,8 @@ for: 593c1b3eb72622cc1ee1fd85a4f570a350708bf9553a5730620c2558d3dc1459
 
 wall: 34s
 
+The `post-action-no-task` run predates the rebase onto main. No replay tested the merged instructions.
+
 Saved rows for other samples predate the commit-body wording change and were not rerun.
 
 ## Change

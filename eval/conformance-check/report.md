@@ -4,6 +4,8 @@ for: 9bfad9d75c9bfd21e7922643af956515aadff6be8781055fa6e47c8cf223bfad
 
 wall: 14s
 
+The `stalled-per-gap-trail` run predates the rebase onto main. No replay tested the merged instructions.
+
 ## Integrated coverage
 
 Only `stalled-per-gap-trail` was replayed. It excludes `ship.md` and `disposition-protocol.md`; it does not exercise a moving round or any caller. The other conformance samples were not rerun. This is not a target-wide pass.

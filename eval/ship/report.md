@@ -4,6 +4,8 @@ for: e595950727e209737ec58945ba1953ef387fa0e75d2acc9835d5eb5ce58d4a3d
 
 wall: 30s
 
+The `pr-body-integration` run predates the rebase onto main. No replay tested the merged instructions.
+
 Saved rows for other samples predate the commit-body wording change and were not rerun.
 
 ## Change
