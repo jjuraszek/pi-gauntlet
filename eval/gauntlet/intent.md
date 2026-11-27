@@ -1,4 +1,4 @@
-for: 26d1c1f3e56ec9aa53ab90ddeed921b06ff3c19296da7ff12b5341e3cd1f9b91
+for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
 
 ## Change
 Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
@@ -208,7 +208,7 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
 - design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.
 - design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
-- loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
+- loop-ledger-amend/reconcile: holds -> holds - Reconcile cuts and re-bounds while preserving attempts, iterations and allowance.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
@@ -288,7 +288,6 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
 - loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.
 - loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
-- loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
 - loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
 - grant-budget-reply/funded-value: fails -> holds - Reply 1 --fund-rounds=3 persists the full default grant and funding suffix with waves, then checks HEAD before planning.

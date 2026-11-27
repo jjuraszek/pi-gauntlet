@@ -1,7 +1,7 @@
 {
   "sample": "workflow-stage-ticket-row",
   "arm": "candidate",
-  "skillSha": "5b49c25e233533509635f2a4a04bc8eed9d5eb76b3d052d2f5a7f4e715713eb6",
+  "skillSha": "c6e0619393e2457bd93872a34e2df685090cae4776f724eceae0edfd4830dd85",
   "inputSha": "8a6caec7814e9d8db0bee8f14aef7a87c7bd5e1e06573388592beead9bf32dcf",
   "kind": "text",
   "assembly": "headed",
@@ -17,16 +17,16 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "No question is needed before writing the rows. No row's sort is in doubt, the reporter raised no drops or changes, and the checkout contradicts no row.\n\n```markdown\n## Acceptance criteria\n\nTicket acme/widgets#77, Acceptance criteria, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n```\n\nThis section goes directly before `## Errors and edge cases`:\n\n```markdown\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n```\n\nHow the rows were sorted:\n- **Moved rows are not scope cuts.** The seven rows moved to Integration get no disposition, no `## Out of scope` entry and no cut question. The ticket's `Scope cuts:` line at the gate stays empty.\n- **The staging row is mixed.** \"on staging, the importer names the offending row in its error\" stays whole as an acceptance criterion. Only its external clause, `on staging`, goes to Integration, with no marker.\n- **The complexity row stays a criterion.** \"make ci rejects a function of complexity 21\" is delivered by the files: the existing complexity check is extended.\n- **The CI row is an entry.** \"GitHub CI is green\" is a pipeline result, so it moves to Integration.\n- **The design adds no Integration entries.** Its commitments (keeping the public importer entry point, rejecting missing ids, naming the offending row, extending the complexity check) are all delivered by files. The entry-point requirement stays a Design clause.\n\nI stop here, before the approval summary and before any file or tracker write.\n",
-      "words": 392,
-      "wallMs": 14478,
+      "text": "No cut question is needed: all rows belong to this repo, the reporter cut nothing, and the checkout contradicts no row. Under the class reference, three rows stay as acceptance criteria. Row 8 is mixed: its staging clause also goes to Integration. The other seven rows are Integration entries.\n\n```markdown\n## Acceptance criteria\n\nTicket acme/widgets#77, Acceptance criteria, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n```\n\n```markdown\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n```\n\n`## Integration` goes directly before `## Errors and edge cases`. None of the design's commitments adds an entry: the public importer entry point, rejecting missing ids, naming the offending row and the extended complexity check are all delivered by files in the change. Moving rows to Integration is not a scope cut, so `Scope cuts:` stays empty.\n",
+      "words": 292,
+      "wallMs": 13141,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "## Acceptance criteria\n\nTicket acme/widgets#77, Acceptance criteria, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n",
+      "text": "## Acceptance criteria\n\nTicket acme/widgets#77, checkbox list, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n",
       "words": 186,
-      "wallMs": 8637,
+      "wallMs": 8455,
       "mechanical": {}
     }
   },
@@ -34,9 +34,9 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "5e81f42940956603018d379a76a0b731a5701060967fbc7376b52fe127919e01",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
-      "baselineOutputSha": "e7014d751a19e8d68557f67ee4b21e67abc75e0734dca14e652ef8fbb817c7ec",
-      "candidateOutputSha": "96de9b113704e1bd4d7c0d58c99763a3c73ead08235650cc692f55fbded67d35",
+      "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
+      "baselineOutputSha": "96de9b113704e1bd4d7c0d58c99763a3c73ead08235650cc692f55fbded67d35",
+      "candidateOutputSha": "feb9d70d5aedfae85f6767a2d55a639305edbb4a0a9b74dc765c96bdc314b1fe",
       "facts": {
         "criteria": {
           "before": "holds",
@@ -69,16 +69,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this sample: the Acceptance criteria and Integration sections in After are identical, line for line, to those in Before, so the expected fails -> holds movement is not visible here because Before already satisfied every fact. Both outputs keep only the three file-checkable rows verbatim with `in-scope`, including the whole mixed staging row. Both carry the existing drain-the-queue entry first with its nested line and no marker, list the seven moved rows as separate items in ticket order with the correct kind markers, copy the bare `on staging` entry without a marker, and ask no question. The only differences in After are presentational: an opening sentence saying no question is needed, code fences around the sections, a placement note, and a trailing rationale list. None of that breaks a fact, but the continuation asked only for the sections, so the rationale adds risk (a paraphrase of a row there could be misread as section content) without adding value. To keep every fact while delivering the Change, keep the sorting wording as it is and consider telling the writer to emit the authored sections alone, with no explanatory recap, when it stops before the approval summary. If you need this sample to demonstrate the Change, it needs a baseline that actually fails, since the Before wording already sorts this ticket correctly.",
-      "wallMs": 10754,
+      "feedback": "No fact moved on this sample: the After wording produces the same Acceptance criteria and Integration blocks as Before, so the expected fails -> holds movement does not show here because Before already holds all six facts. In both, the three file-checkable rows stay verbatim with `in-scope`, including the whole mixed staging row. The carried operator entry comes first with its nested line and no marker. The seven moved rows follow in ticket order, each with its own indented `ticket row, not an acceptance criterion: <kind>` line and the right kind. `on staging` appears as a bare entry without a marker, and neither output asks a question. The only difference in After is the surrounding prose: a shorter lead-in that numbers the mixed row as \"Row 8\" and a condensed closing note. That is harmless here. To keep every fact, the wording should keep stating that moved entries carry no AC index or disposition, that a mixed row stays whole under Acceptance criteria with only its external clause copied unmarked, and that existing Integration entries are carried verbatim with their nested lines ahead of the moved rows.",
+      "wallMs": 8906,
       "verdict": "unchanged"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "5e81f42940956603018d379a76a0b731a5701060967fbc7376b52fe127919e01",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
-      "baselineOutputSha": "25dfb69718bd6bbdb22394b33685176275bc552d203c128c82548d99ff476a37",
-      "candidateOutputSha": "e7014d751a19e8d68557f67ee4b21e67abc75e0734dca14e652ef8fbb817c7ec",
+      "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
+      "baselineOutputSha": "e7014d751a19e8d68557f67ee4b21e67abc75e0734dca14e652ef8fbb817c7ec",
+      "candidateOutputSha": "25dfb69718bd6bbdb22394b33685176275bc552d203c128c82548d99ff476a37",
       "facts": {
         "criteria": {
           "before": "holds",
@@ -111,8 +111,8 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "No fact moved on this sample: the two outputs are identical except for the provenance line above the criteria (\"checkbox list\" in Before, \"Acceptance criteria\" in After), which no fact keys on. Both keep exactly the three file-checkable rows verbatim with an in-scope disposition, including the whole mixed staging/error row. Both open Integration with the carried drain-the-queue entry and its nested line, unmarked, then list the seven moved rows in ticket order, each with its own indented kind marker of the correct kind, and a bare `on staging` entry without a marker. Neither asks a question. The expected fails -> holds movement for workflow-stage-ticket-row therefore does not show here, because Before already satisfies every fact as written; the After wording delivers the Change without losing anything Before kept. To keep that, leave untouched the wording that sorts rows without a question, moves only the external clause of a mixed row, and carries existing Integration entries first with their nested lines.",
-      "wallMs": 8797,
+      "feedback": "Before and After are identical in every respect the facts test; the only textual difference is the Acceptance criteria lead-in (\"Acceptance criteria, rows verbatim\" became \"checkbox list, rows verbatim\"), which moves no fact. Both keep exactly the three file-checkable rows word for word with an in-scope disposition (the mixed staging/error row kept whole), both open Integration with the carried drain-the-queue entry and its nested line with no marker, both move the seven externally fulfilled rows as separate plain items in ticket order, each with its own indented `ticket row, not an acceptance criterion: <kind>` line and the correct kind, both copy only `on staging` as an unmarked plain entry, and neither asks a question. So the expected fails -> holds movement is not visible on this sample: Before already satisfied all six facts, and the After wording neither gained nor lost anything. To keep it that way, retain the wording that drives verbatim rows with dispositions, the carried-entry-first ordering with nested lines intact, the per-row kind marker, and the external-clause-only copy for mixed rows; if the lead-in label change from the ticket's section name to \"checkbox list\" was unintended, restore the original label source.",
+      "wallMs": 6280,
       "verdict": "unchanged"
     }
   },
@@ -400,5 +400,5 @@
       }
     }
   },
-  "repoSha": "d54be15c207fe6bd80e8079973f424e9ff0d748f"
+  "repoSha": "b5cd0a612cf4644808c22873199bc23477af6f6c"
 }

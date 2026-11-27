@@ -1,27 +1,10 @@
-# eval report: gauntlet-resume (partial run: loop-ledger-worktree)
+# eval report: gauntlet-resume (selected samples only)
 
-Selected replays: [ledger-tracker-recovery](results/ledger-tracker-recovery/candidate.json), [ledger-tracker-verify](results/ledger-tracker-verify/candidate.json), [loop-ledger-brief](results/loop-ledger-brief/candidate.json) and [loop-ledger-worktree](results/loop-ledger-worktree/candidate.json). The recovery sample retains a pre-existing rejected-return miss on one model. No other resume samples or tool-enabled captures ran. After replay, the closing line became its own numbered step to preserve the step 9 link; the restore instructions are otherwise identical.
+Each linked report covers both replay models. No other samples were run.
 
-for: 5b430495654b110592b79c94c7dcfef9aa37b0b5062241306e91c9fd29e9eea0
-
-wall: 81s
-
-## Change
-
-Accept only current-format briefs and ledgers through the single gauntlet-resume entry point. Load loop restoration, plan restoration and plan repair from their owning references, and load coordinated rules only for multi-leg briefs. Preserve the continuation skill, phase, exact task snapshot and fresh-gate boundary for current-format brainstorm, plan, implement, verify and ship briefs. Recover current ledger returns from ledger-held attribution before dispatch, without a tracker call for the ledger list and with only non-ledger tasks initialized before plan_check on verify or ship restore, without counting a consumed attempt twice; preserve mixed verification/conformance tasks and plan baseline upgrades. Stop old ledgers at admission with the unsupported-format sentence and recovery pointer, without conversion or tracker mutation. Selected text replays compare supplied observations against 09c9f4e1; they do not prove live reads or tracker execution. Coverage is sample-scoped, not a target-wide pass.
-
-Stop before restoring either tracker: name the numbered gauntlet command only for an identified spec PR, point a recorded create failure to the create-only retry, and otherwise ask for the draft PR.
-
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| loop-ledger-worktree | anthropic/claude-opus-5-5 | improved | 14768 | pairing: holds -> holds (held); restore: fails -> holds (unplanned improvement); durable: holds -> holds (held); stops: holds -> holds (held) |
-| loop-ledger-worktree | github-copilot/gpt-6.1-sol | improved | 12502 | pairing: holds -> holds (held); restore: fails -> holds (unplanned improvement); durable: holds -> holds (held); stops: holds -> holds (held) |
-
-## Feedback
-
-- loop-ledger-worktree / anthropic/claude-opus-5-5: Only `restore` moved, and it moved in the right direction, although it is not on your expected-to-move list. Before followed `start implement` with `plan_tracker refresh` and `plan_tracker status` on the ledger, which breaks the "no task tracker call" clause; After drops both and goes from pending recovery straight to rendering from disk, so the ledger-list rule in the Change is doing its job. I read that clause as covering the whole restoration, not just the pending-recovery step; under the narrower reading Before would also hold. `pairing`, `durable` and `stops` hold in both outputs: After still pairs by the `**Spec:**` header over basename and ranks the ledger above the task plan, still continues at loop step 5 `## Before each dispatch` with allowance 4, iterations 7, attempts 3 and effective allowance 5 (header 4 plus one retry, the stored ceiling 4 shown but ignored), and still stops on FAIL without plan repair and stops a dirty tree before dispatch. Two things would make these less fragile. First, After's "Render from disk" step shortens row 1 to "done (exempt)" and leaves the attempts and evidence to the confirmation question; keep wording that renders every row's status, attempts and evidence at the restore boundary so `durable` does not depend on the earlier question. Second, After says "no `plan_tracker init`" but never states that refresh and status are also skipped; say outright that the loop restore makes no task-tracker call of any kind for the ledger list. The four expected-to-move facts (deferred-spec-stop and old-ledger-stops) are not exercised by this case, so nothing here confirms or refutes them.
-- loop-ledger-worktree / github-copilot/gpt-6.1-sol: Only `restore` moved, and it is not on your expected-to-move list. Before followed `start implement` with `plan_tracker refresh` and `plan_tracker status`, so it failed the 'no task tracker call' clause. After drops both calls and settles pending recovery from ledger-held state, which matches the Change's 'without a tracker call for the ledger list', so it now holds. The other three facts hold in both outputs: After still pairs by the `**Spec:**` header ahead of the basename task plan, and it still renders the rows and last decision and continues at loop step 5 — `Before each dispatch` with allowance 4, iterations 7, attempts 3, the historical `allowed attempts 4` and effective allowance 5. It also still stops on FAIL with findings and no plan repair, and stops a dirty tree before dispatch. To keep this, retain the wording that makes ledger restore explicitly free of tracker calls (no `plan_tracker init`, refresh or status for the ledger list). Also retain the exact plan-skip reason `resume: <resolved spec path> (loop engine)`, the check 6 Grant field naming, and the step-number-plus-heading continuation. One fragility: After says a recovery transcript 'cannot be invented' because `pending:`/`returned:` were not supplied; make sure that hedge never displaces the explicit statement that pending recovery runs after `start implement` and before dispatch. None of the four expected-to-move facts (deferred-spec-stop, old-ledger-stops) appear under this case's Facts, so this case shows nothing about them.
-
-exit: 0
+| Sample | Candidate must-holds |
+|---|---|
+| [ledger-tracker-recovery](results/ledger-tracker-recovery/report.md) | Inconclusive on github-copilot/gpt-6.1-sol; implement-order, home-return, rejected-return and settled-repair failed. |
+| [ledger-tracker-verify](results/ledger-tracker-verify/report.md) | All must-holds passed. |
+| [loop-ledger-brief](results/loop-ledger-brief/report.md) | verify-ledger failed on anthropic/claude-opus-5-5. |
+| [loop-ledger-worktree](results/loop-ledger-worktree/report.md) | All must-holds passed. |

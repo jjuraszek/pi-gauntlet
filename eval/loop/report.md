@@ -1,35 +1,10 @@
-# eval report: loop (partial runs: clean-dispatch-skips-stop-rules, tracker-verify)
+# eval report: loop (selected samples only)
 
-for: af8ffbdf2772799f1fc3fc20c005dc66195cd7bbd672ec627c4ce4c371d51449
+Each linked report covers both replay models. No other samples were run.
 
-Wall times: 39s (clean-dispatch-skips-stop-rules); 199s (tracker-verify).
-
-The tracker-change run replayed [tracker-refresh](results/tracker-refresh/candidate.json), [tracker-boundary](results/tracker-boundary/candidate.json) and [tracker-verify](results/tracker-verify/candidate.json). All three improved on both models. After that replay, the restore reference split the closing line into its own numbered step to preserve the step 9 link; the instructions were otherwise identical.
-
-## Change
-
-Load the human stop procedure before a stop or ledger amendment, not for clean dispatch or interrupted-return recovery. The clean-dispatch and human-stop-counts samples test narrated reads on supplied observations, not live traces.
-
-Seed the list once. At subsequent dispatches and stops, rely on automatic projection. Read status before using a task index across a dispatch or stop.
-
-Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
-
-The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
-
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| clean-dispatch-skips-stop-rules | anthropic/claude-opus-5-5 | unchanged | 5338 | dispatch: holds -> holds (held); reads: holds -> holds (held) |
-| clean-dispatch-skips-stop-rules | github-copilot/gpt-6.1-sol | unchanged | 5190 | dispatch: holds -> holds (held); reads: holds -> holds (held) |
-| tracker-verify | anthropic/claude-opus-5-5 | improved | 28366 | per-leg: holds -> holds (held); repair: fails -> holds (unplanned improvement); failure: holds -> holds (held); conformance: holds -> holds (held); rebound: fails -> holds (unplanned improvement) |
-| tracker-verify | github-copilot/gpt-6.1-sol | improved | 22204 | per-leg: holds -> holds (held); repair: fails -> holds (unplanned improvement); failure: holds -> holds (held); conformance: fails -> holds (unplanned improvement); rebound: fails -> holds (unplanned improvement) |
-
-## Feedback
-
-- clean-dispatch-skips-stop-rules / anthropic/claude-opus-5-5: Neither fact moved on this case. Both outputs dispatch row 1 with no model override, task iteration 1, ledger iterations bumped to 2 and pending set to `1 | home | aaaa…`, and both reach the dispatch without reading human-stop.md, asking the human or reporting a missing rule. After's wording delivers the Change here: the narrated reads are limited to the ledger and the scratch-folder section of return-file.md, and it explicitly states there is no stop header. One difference worth noting, though it does not affect these facts: After no longer narrates reading `driver-holds.md` or `empty-child-stagnation.md`, which Before read before the ordered table. If those reads are still intended on a clean dispatch, state explicitly that only the human-stop procedure is deferred to a stop or amendment and that the other pre-dispatch reads remain unconditional. Also keep the full 40-character HEAD in the pending line, as After does in the ledger edit; the abbreviated `aaaaaaa` in the status line is harmless only because the full value appears above it.
-- clean-dispatch-skips-stop-rules / github-copilot/gpt-6.1-sol: Neither fact moved on this case: both outputs dispatch row 1 with no model override, task iteration 1, ledger iterations bumped to 2 and pending set to `1 | home | aaaa…`, and both reach the dispatch with no read of human-stop.md, no human ask and no missing-rule report. That matches the intent of the Change (no human-stop load on clean dispatch). Minor drift worth noting, though it does not affect the listed facts: After no longer narrates the reads of driver-holds.md, empty-child-stagnation.md, unreachable-returns.md and interrupted-recovery.md that Before listed, adds a conditional `git log -G'^returned: '` history inspection and a `git status --porcelain` check, and reports "attempt 1 of 4" where Before said attempts remain 0 of 4 until return admission. If those pre-dispatch reference reads are still required, keep wording that states them explicitly as held-before-dispatch while restricting only human-stop.md to stops and ledger amendments, and keep the attempt-count phrasing tied to return admission so the report cannot be read as an attempt increment at dispatch.
-- tracker-verify / anthropic/claude-opus-5-5: No fact that Before kept was lost in After; the two that moved both went from fails to holds, and both turn on reading an explicit `plan_tracker` refresh as a tracker write. Before issued that refresh after the verification-repair marker commit, after writing the row-return tuple, and after the companion row record commit, so it did not satisfy "parent commits the repair marker without a tracker write" (repair) or "records accepted return and clears pending without a tracker write" (rebound). After drops those refreshes and relies on automatic projection, so both facts now hold. If you intend a refresh not to count as a write, say so in the wording, because the facts as written do not distinguish them. After also makes the conformance fact firmer: it names `plan_tracker({ action: "status" })` and gives the reason (a dispatch and a stop since the index was read), where Before only said "re-read the tracker" after a refresh. To keep all of this stable, keep the wording explicit that the list is seeded once, that no refresh or update follows a marker or return commit, and that a status read precedes any index-based Gn update across a dispatch or stop. Keep the sentences After still carries that the other facts depend on: gate commands come from row evidence and never `make check` or `make ci`, pending reservations count toward repairs on resume, the exhaustion menu is amend or stop only, and a tracker close never substitutes for the on-disk row return. One point to tighten: After's snapshot 3 assumes `iterations: 4` and hedges on whether the repair happened; telling the driver to read the live count would remove that ambiguity.
-- tracker-verify / github-copilot/gpt-6.1-sol: The After wording moved three facts from fails to holds and lost none. For repair and rebound, Before called plan_tracker refresh after the repair-marker commit, after the row-return dispatch-state write and after the companion row record, so the parent did not record those commits 'without a tracker write'; After makes no tracker call at those points and relies on projection. For conformance, Before only said to 'obtain a fresh tracker view' and find G1 by identity, and it paired amendments with explicit refreshes; After names plan_tracker({ action: "status" }) before the index-based update and says the pre-dispatch index is stale. Per-leg and failure read the same in both: verify starts with no explicit implement completion, only the evidence commands run with log redirection, neither CI command runs, the stop shows 'repairs: 4 of 4' with Amend or Stop only, and option 5 does not change eligibility. To keep all five, keep the explicit 'seed once, then no refresh or tracker write at dispatches, stops, marker commits or row records' sentence next to the 'read status before using an index across a dispatch or stop' sentence, so that the removal of refresh is not read as removal of the status read. The After output's 'Refresh the held amendment grant, dispositions, membership, checkout paths and Rules' could be misread as a tracker refresh, so wording such as 're-read held state' would be safer. It would also help to state at the exhaustion stop that implement stays complete and verify stays active, and that a pending Gn task survives automatic redraws, since After leaves those partly implicit.
-
-exit: 0
+| Sample | Candidate must-holds |
+|---|---|
+| [seed-dispositions](results/seed-dispositions/report.md) | All must-holds passed. |
+| [tracker-boundary](results/tracker-boundary/report.md) | resume failed on anthropic/claude-opus-5-5. |
+| [tracker-refresh](results/tracker-refresh/report.md) | All must-holds passed. |
+| [tracker-verify](results/tracker-verify/report.md) | All must-holds passed. |

@@ -1,0 +1,25 @@
+# eval report: gauntlet-resume (partial run: ledger-tracker-verify)
+
+for: eaef17c9d2176b859e0b1f2449be4fbf2f8b48340b3aae3ce10253ffe88ac91d
+
+wall: 103s
+
+## Change
+
+Accept only current-format briefs and ledgers through the single gauntlet-resume entry point. Load loop restoration, plan restoration and plan repair from their owning references, and load coordinated rules only for multi-leg briefs. Preserve the continuation skill, phase, exact task snapshot and fresh-gate boundary for current-format brainstorm, plan, implement, verify and ship briefs. Recover current ledger returns from ledger-held attribution before dispatch, without a tracker call for the ledger list and with only non-ledger tasks initialized before plan_check on verify or ship restore, without counting a consumed attempt twice; preserve mixed verification/conformance tasks and plan baseline upgrades. Stop old ledgers at admission with the unsupported-format sentence and recovery pointer, without conversion or tracker mutation. Selected text replays compare supplied observations with the pre-tracker driver; they do not prove live reads or tracker execution. Coverage is sample-scoped, not a target-wide pass.
+
+Stop before restoring either tracker: name the numbered gauntlet command only for an identified spec PR, point a recorded create failure to the create-only retry, and otherwise ask for the draft PR.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| ledger-tracker-verify | anthropic/claude-opus-5-5 | improved | 21479 | labels: fails -> holds (unplanned improvement); mixed-verify: fails -> holds (unplanned improvement); verification-pending: holds -> holds (held); rebound: fails -> holds (unplanned improvement); settled-home-verify: fails -> holds (unplanned improvement); ambiguous-home-history: holds -> holds (held) |
+| ledger-tracker-verify | github-copilot/gpt-6.1-sol | improved | 22422 | labels: fails -> holds (unplanned improvement); mixed-verify: fails -> holds (unplanned improvement); verification-pending: holds -> holds (held); rebound: fails -> holds (unplanned improvement); settled-home-verify: fails -> holds (unplanned improvement); ambiguous-home-history: holds -> holds (held) |
+
+## Feedback
+
+- ledger-tracker-verify / anthropic/claude-opus-5-5: No fact that Before kept was lost in After, and four moved from fails to holds. Three of them (labels, mixed-verify, settled-home-verify) moved because After inits only the non-ledger tasks, verbatim and in observed order, before plan_check, and lets row statuses project from the ledger; Before put row 1/row 2 (or row 3/row 2) into the init and ran it after plan_check. The rebound fact moved because After narrates G's reopen, dispatch and on-disk close with no plan_tracker refresh, where Before called refresh at each of those points; I read refresh as a tracker write, which is the one judgement call here. The wording doing the work is 'init: non-ledger tasks only, verbatim' placed ahead of plan_check, plus the statement that rows are excluded from init and project automatically, so keep both explicit. Three things in After are thinner than they could be and worth firming up: say outright in F that make ci is not run and that Gn or conformance completion is never synthesized (Before said the latter); keep 'verify stays active' as a statement about the stop itself in G, not only as a parenthetical on the Stop option; and in I, name the saved brief's 'dirty: clean' and the preserved iterations 4, attempts and absent pending line, which After currently covers only through 'byte-identical'. J's explicit 'row 2 done, unchanged' and 'no commit message is read' are good additions to keep.
+- ledger-tracker-verify / github-copilot/gpt-6.1-sol: No fact that Before kept was lost in After; the four that moved all went from fails to holds. Three of them (labels, mixed-verify, settled-home-verify) moved because After excludes ledger rows from `plan_tracker init`, initializes only the non-ledger tasks in observed order, and places that init before `plan_check`, whereas Before initialized `row N` tasks after `plan_check`. The fourth (rebound) moved because After drops the `plan_tracker refresh` calls around the amendment and the dispatch, states the complete-to-pending projection before the stop, and says explicitly that there is no phase reset or `start implement`; I read Before's refreshes as tracker writes, which is a judgement call on that fact's wording. Three places in After are thinner than they could be and worth making explicit. In F, After prints `verification command: make ci (ledger)` and then runs only `node --test check.mjs`, so a plain "do not run make ci" would remove the reliance on inference. In J, the disclosure says only "reset to a…a"; it should say `reset --hard` at the tuple SHA there, not just in the interrupted branch, and the interrupted branch should say prior decisions are preserved and no second iteration or attempt is consumed. In F-repair, say that the settled `returned:` value is preserved and `pending:` is cleared exactly once before any further dispatch or stop.
+
+exit: 0

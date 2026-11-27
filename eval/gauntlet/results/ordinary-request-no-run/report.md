@@ -1,8 +1,11 @@
 # eval report: gauntlet (partial run: ordinary-request-no-run)
 
-for: 78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3
+for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
 
 wall: 8s
+
+refresh: complete; sample: ordinary-request-no-run; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
+audit: [candidate.json](candidate.json)
 
 ## Change
 
@@ -14,12 +17,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 7065 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
-| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 6696 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | anthropic/claude-opus-5-5 | unchanged | 7370 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
+| ordinary-request-no-run | github-copilot/gpt-6.1-sol | unchanged | 7547 | tracker: holds -> holds (held); worktree: holds -> holds (held); step-read: holds -> holds (held); request: holds -> holds (held) |
 
 ## Feedback
 
-- ordinary-request-no-run / anthropic/claude-opus-5-5: None of the four facts moved: both outputs treat the CSV request as a direct fix, explicitly decline to reset trackers, start brainstorm or create a worktree, list only repo-level grep/read/bash actions (the After's added read of the root AGENTS.md is project configuration, not a file under skills/gauntlet/), and offer the workflow only as an opt-in the user must ask for rather than treating the request as entry consent. The After wording's changes to ticket-row sorting, Integration provenance and ownership questions did not leak into this first-turn entry behaviour. To keep it that way, leave the entry rule's wording intact so that an ordinary fix request does not start a phase, read step files or provision a worktree, and keep the new sorting and Integration rules scoped to the spec-writing and rework-scouting steps so they are not read as actions to take at session start.
-- ordinary-request-no-run / github-copilot/gpt-6.1-sol: No fact moved on this sample: both outputs treat the CSV export request as a direct implementation task, list only checkout, AGENTS.md, exporter/label source and test reads before the first edit, and take no tracker action, create no worktree, and read nothing under skills/gauntlet/. The only visible difference is cosmetic: Before explicitly says it will not create a worktree, while After instead says it will not reset the gauntlet trackers and drops the worktree mention; After still holds because it arranges no worktree, but the fact is now satisfied by omission rather than by statement. To keep all four facts robustly while delivering the ticket-row sorting and Integration-provenance changes, keep those new rules scoped to the spec-writing and rework-scouting steps so they are not read as applying at session entry, and leave the entry wording that says a plain implementation request does not start a phase, reset trackers, create a worktree, or load workflow step files unchanged.
+- ordinary-request-no-run / anthropic/claude-opus-5-5: Neither output moved a fact: both Before and After decline to reset trackers, start a brainstorm phase, or create a worktree, both list only repo-level grep/read/bash actions aimed at the exporter, its label source, and its tests (After's added read of the root AGENTS.md is project configuration, not a file under skills/gauntlet/), and both address the CSV request directly while offering the workflow only as an explicit opt-in rather than treating the request as entry consent. To keep these four facts stable while delivering the Change, leave the entry wording that says an ordinary fix request does not start the flow untouched, keep the workflow mention as an offer the user must choose (naming a skill command is fine, invoking it is not), and avoid any wording that would prompt a pre-edit read of a skills/gauntlet/ step file or a tracker action on a first-turn fix request.
+- ordinary-request-no-run / github-copilot/gpt-6.1-sol: Neither output moved a fact: both treat the CSV export request as a direct implementation task, plan to locate the exporter, on-screen column definitions and tests, and take no tracker action, create no worktree, and read nothing under skills/gauntlet/ (only AGENTS.md files and project source/tests). The one small difference is that Before explicitly says it will not create a worktree while After says it will not start the gauntlet or reset its trackers and is silent on worktrees; After still holds because it lists no worktree action, but keeping an explicit statement such as 'I won't start the gauntlet, reset its trackers, or create a worktree' would make all three negative facts robust. The ticket-row sorting and Integration provenance wording in the Change does not appear to leak into this direct-request path, so no further wording adjustment is needed for this case.
 
 exit: 0
