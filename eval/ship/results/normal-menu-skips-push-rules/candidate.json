@@ -1,0 +1,80 @@
+{
+  "sample": "normal-menu-skips-push-rules",
+  "arm": "candidate",
+  "skillSha": "4d1eed8e52ff94d4a4b6e4ae33e9eef771a6d658ebf3cd3559f7e6a41aa3db03",
+  "inputSha": "51933cf69ad26323c3e478531d0e4cc564bdb427a4823deeaeb89472e8117ac8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n**Trace: procedures read to reach this menu**\n\n1. **Input: header-linked PR finishing (`spec-pr.md`).** I read this to resolve the selected run spec and check its header. There is no `**Engine:** deferred` and no `**PR:**` line, so this is not the header-linked route.\n2. **Project overrides (`gauntlet.md`).** I read the first file found in this order: `.pi/gauntlet.md`, then `<repo root>/gauntlet.md`, then `<repo root>/doc/gauntlet.md`. I applied its `# shared` sections and its `# gauntlet` / `## ship` sections.\n3. **Step 1: coordinated finish (`legs.md`).** I read this once. It confirmed there is no multi-member `## Legs` section, so the ordinary single-repo path applies.\n4. **Step 1: verification set (`verification-set.md`).** I read this to resolve the verification set and the skip rule. Verification passed, and I retained the set through delivery.\n5. **Step 1: rework check.** The spec has no `## Rework record`, so the rework route and `pr-branch-push.md` are not needed.\n6. **Step 2: environment detection.** `git symbolic-ref -q HEAD` returned a branch, so this is a named-branch worktree. That gives the standard 5-option menu.\n7. **Step 3: base branch.** `git merge-base HEAD main` confirmed the base is `main`.\n8. **Step 3.5: conformance gate (`../conformance-check.md`).** I used its freshness rule and sentinel format. The handoff was `status: CONFORMS (0 open)` with a matching `audited-base`, so the zero-gap fast path applied.\n   - This path needs no `disposition-protocol.md` and no `amendment-surface.md`.\n   - No auto-applied fixes, `happy-path:` line, or deferred/deviates line was present, so none of those were printed.\n9. **Step 4: amendment digest.** `git log main..HEAD --format=%b` showed no amendment audit rows, so the digest block is omitted.\n   - The minors section reads `none`, so there is no `fix minors` hint line.\n10. **Step 4: menu layout (`../menu-layout.md`).** I read and applied this for the layout, the `gauntlet: gate=ship/step-4` marker, and numeric-reply handling.\n\nStopped here. No option is selected, so `commit-message.md`, the strip-and-seal block, and Step 6 cleanup have not been read or run.\n",
+      "words": 366,
+      "wallMs": 12296,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=ship/step-4\n\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n**Procedure trace — starting at Step 4**\n\n1. Read `../menu-layout.md` for menu rendering and numeric-reply rules.\n2. Read Step 4’s **Amendment digest** procedure. Inspect body-only commit records using `git log main..HEAD --format=%b`; with no amendments, omit the digest.\n3. Read Step 4’s **Normal repo and named-branch worktree** procedure. Use its five-option menu because neither PR route nor detached HEAD applies.\n\nNo tools were used, and no option is selected.\n",
+      "words": 123,
+      "wallMs": 11866,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "eda3e6d49c5bacf977c47118be2e1fe6db13daf4509bd440c4eba2dc39cab5c9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "46774d7e4d744a9c927c8434889a3587472d3e92d9badcef094dfe4814803810",
+      "baselineOutputSha": "341fb9f8c89469c417f388ce8f6caa2dd569094cd806a170d92ba03996c39c02",
+      "candidateOutputSha": "b1bcd6f42869dab242cb9ebf7307fe3fe367bccb15b355a2a9d14115405b1214",
+      "facts": {
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved. Both outputs render the Step 4 gate marker and the five ordinary choices in the same order (PR, draft PR, squash to main, keep, discard), and both traces reach the menu without reporting a missing rule or reading the rework push procedure. After actually states the intended behavior more explicitly than Before: its Step 1 rework check names `pr-branch-push.md` as not needed because the spec has no `## Rework record`, which matches the Change's rule that the push procedure is read only on identifying a rework subject. One difference worth noting: After reads `spec-pr.md` at Input to check the header, whereas Before skipped it because no `**PR:**` or deferred header was present; this does not affect either fact, but if you want the ordinary path to stay minimal, word the Input step so `spec-pr.md` is read only once a `**PR:**` or `**Engine:** deferred` header is found. Keep the explicit conditional on the rework record ahead of preflight and the menu so the ordinary named-branch menu continues to render without the push procedure.",
+      "wallMs": 5409,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "eda3e6d49c5bacf977c47118be2e1fe6db13daf4509bd440c4eba2dc39cab5c9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "46774d7e4d744a9c927c8434889a3587472d3e92d9badcef094dfe4814803810",
+      "baselineOutputSha": "b88183881b641857c597b96b747f5dc34aa575f01eac55852451c164c2a6b0fb",
+      "candidateOutputSha": "967582f0520c2f55197dc5371aea2a2115013776af4c5142d1e7ee442d93db52",
+      "facts": {
+        "menu": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved: both outputs render the Step 4 gate line, the CONFORMS closure, and the five ordinary choices in the required order (PR, draft PR, squash to main, keep, discard), and both traces reach the menu via menu-layout.md, the amendment digest and the named-branch menu procedure without reporting a missing rule or reading the rework push procedure. The After wording's instruction to read the push procedure only on identifying a rework subject is working as intended for this ordinary case; the After trace even notes that the PR route does not apply. To keep it that way, retain the explicit condition that the push procedure is read only once a rework subject (PR header or Rework record) is identified, and keep the statement that the ordinary named-branch menu renders without reading it, so the model does not preemptively load it or flag it as missing.",
+      "wallMs": 4338,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "d54be15c207fe6bd80e8079973f424e9ff0d748f"
+}

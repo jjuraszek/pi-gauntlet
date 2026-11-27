@@ -1,7 +1,7 @@
 {
   "sample": "workflow-stage-ticket-row",
   "arm": "baseline",
-  "skillSha": "c6afaaf4c0d59e0b1389199ce9fc1370998bc445cb674afe97a6a612e558fa3a",
+  "skillSha": "89c155da3772c1dc4016d13e99a8fa2005eb782c4de780f0ec341f8090f28400",
   "inputSha": "8a6caec7814e9d8db0bee8f14aef7a87c7bd5e1e06573388592beead9bf32dcf",
   "kind": "text",
   "assembly": "headed",
@@ -17,18 +17,18 @@
   "outputs": {
     "anthropic/claude-opus-5-5": {
       "status": "ok",
-      "text": "gauntlet: question\nOne ticket row must be settled before I write the acceptance criteria. Its only observable is a delivery-pipeline result, not something the importer does:\n\n> - [ ] GitHub CI is green on the head of the pull request\n\nA green CI run proves a delivery stage passed. It does not show that the importer rejects rows without an id or that the complexity check catches complexity 21; separate rows already cover those behaviors. I will not edit or split the row. How should the spec treat it?\n\nA) in-scope - read as \"the change's own checks pass on the pull request head\", kept as written\nB) deviates: <why this row does not ship as written>\nC) deferred: <where it goes - a tracker ref, spec path, or URL>\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77 \"GitHub CI is green on the head of the pull request\" - its only observable is a CI run result, a workflow-stage proof under the class reference`\nRecommendation: D - a stage proof is not an outcome, so the ticket should drop it and keep its text as a retired note.\n",
-      "words": 180,
-      "wallMs": 12810,
+      "text": "## Acceptance criteria\n\nTicket acme/widgets#77, Acceptance criteria, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n",
+      "words": 186,
+      "wallMs": 11706,
       "mechanical": {}
     },
     "github-copilot/gpt-6.1-sol": {
       "status": "ok",
-      "text": "gauntlet: question\n\nThis ticket row gates a merge rather than describing the change’s behavior, so it needs a scope decision before I write the spec:\n\n> - [ ] the change merges only after the vendor confirms the fix\n\nHow should this row be handled?\nA) in-scope - retain the requirement that merging waits for vendor confirmation\nB) deviates: remove the merge condition from this change’s scope\nC) deferred: name a tracker reference, spec path, or URL that will own this condition\nD) repair the ticket - `/skill:shape-ticket acme/widgets#77` with the quoted row and evidence that its observable is a merge condition, not product behavior\nRecommendation: D - repair the workflow-stage criterion in the ticket before carrying its contract into the spec.\n",
-      "words": 115,
-      "wallMs": 16718,
+      "text": "## Acceptance criteria\n\nTicket acme/widgets#77, checkbox list, rows verbatim:\n\n- [ ] the importer rejects a row without an id\n  in-scope\n- [ ] on staging, the importer names the offending row in its error\n  in-scope\n- [ ] make ci rejects a function of complexity 21\n  in-scope\n\n## Integration\n\n- before deploy to staging - operator: drain the queue; done when the queue length reads 0\n  - Read the queue length again after the final batch.\n- the cutover steps are posted as a comment on the ticket\n  ticket row, not an acceptance criterion: tracker update\n- the operator runs the cutover\n  ticket row, not an acceptance criterion: person step\n- the change merges only after the vendor confirms the fix\n  ticket row, not an acceptance criterion: merge or deploy condition\n- the staging queue is empty before the deploy\n  ticket row, not an acceptance criterion: environment state\n- after deploy to staging, login succeeds against the real identity provider\n  ticket row, not an acceptance criterion: live check\n- the ticket is moved to In Review\n  ticket row, not an acceptance criterion: tracker update\n- on staging\n- GitHub CI is green on the head of the pull request\n  ticket row, not an acceptance criterion: pipeline result\n",
+      "words": 186,
+      "wallMs": 10022,
       "mechanical": {}
     }
   },
-  "repoSha": "1c6cfb9d6c71d86b854043064e93e4b080e5aa83"
+  "repoSha": "d54be15c207fe6bd80e8079973f424e9ff0d748f"
 }
