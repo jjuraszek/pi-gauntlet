@@ -1,4 +1,10 @@
-# eval report: gatekeep-pr (partial run: spec-stale-nit)
+# eval report: gatekeep-pr (selected samples only)
+
+No replay was run on the merged prompt.
+
+## Earlier main replay: spec-stale-nit
+
+This evidence predates the merged prompt.
 
 for: 275bcbb5dfe1702db8f7018cd7da28be88aeda55445f5179f7cf2995b9ab13ef
 
@@ -25,3 +31,23 @@ Judge a proposed contract change from the reread ticket, or from whether the PR 
 - spec-stale-nit / github-copilot/gpt-6.1-sol: After moves almost every fact by letting the reread ticket, or the goal's deliverability, decide whether a departure from the Design is a blocker or a stale-spec nit. A and D now show the current and proposed wording with the ticket reason and the stale-spec warning, and D still blocks on the untested never-opened branch. F drafts a Design clause without inventing a current one. E and G authorize the exact wording pair for the nit worker only, and E adopts the baseline only after review, push and readback at the rebound head. H refuses adoption because of the unselected sign-in change, keeps the sort point open and calls signed-out search a blocker against the retained row. On `keep`, Before blocked in B and C but for a different reason (the spec governs regardless of the ticket), so I marked it failing as written; After gives the stated reasons: title sorting still delivers lookup in B, and nothing shows the required order cannot deliver the goal in C. Keep those two sentences. On `worker`, Before already handed the repair task the prior row and Design wording as stored scope, so that fact did not move; After's explicit line 'Its current contents do not replace the stored contract' makes it unambiguous and is worth keeping. One loose end: After prints the `gauntlet: gate=... recommended=1` line above the A heading rather than inside A's report, so place it within the case if other checks read A's report as a unit.
 
 exit: 0
+
+## Earlier PR replay: plain-report
+
+This evidence predates the merged prompt. Only `plain-report` ran; unselected samples were not coverage for the change.
+
+for: 9e6ad04224898cc7f016554533b44f8bb47a83cb5388ec32695a223e99146ee7
+
+wall: 122s
+
+The replay checked a functionality-only opening and evidence mapping, with Integration entries omitted from the report, evidence, and menus. The informational ticket cross-check and PR-named steps remain; a spec path named inside the PR body's Integration block is not a contract candidate.
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| plain-report | anthropic/claude-opus-5-5 | unchanged | 29613 | prose: holds -> holds (held); role: holds -> holds (held); sync: holds -> holds (held); scope: holds -> holds (intended but unchanged); findings: holds -> holds (held); standing: holds -> holds (held); language: holds -> holds (held); choices: holds -> holds (held) |
+| plain-report | github-copilot/gpt-6.1-sol | inconclusive | 26729 | prose: holds -> holds (held); role: holds -> holds (held); sync: holds -> holds (held); scope: holds -> holds (intended but unchanged); findings: holds -> fails (regression); standing: holds -> holds (held); language: holds -> holds (held); choices: holds -> holds (held) |
+
+- anthropic/claude-opus-5-5: Before already constrained row mapping, finding IDs, and counters to the evidence reply and omitted Integration entries. After still holds, but its standing puts the running required check after the comment sentence; keep that check beside the blockers and mention the actor's merge restriction only once.
+- github-copilot/gpt-6.1-sol: Before already kept the report and evidence functionality-only. After named empty categories in prose, which the judge counted as a findings regression even without empty headings. Omit absent categories entirely while retaining the standing, CI evidence, and recommendation.
+
+exit: 1

@@ -4,6 +4,8 @@ No replay was run on the merged prompt.
 
 ## Earlier main replay: tracker boundaries and seed dispositions
 
+This evidence predates the merged prompt.
+
 Both replay models met every candidate must-hold in the four listed samples. These are text replays of supplied observations, not live dispatch or tracker evidence.
 
 | Sample | Observed behavior |
@@ -315,6 +317,26 @@ The worker's action boundary is covered by loop-implementer/mixed-migration-row.
 
 - verify-repair-count / anthropic/claude-opus-5-5: After moved four facts from fails to holds and lost none. Replacing the `Options: amend | stop` / `Recommendation: none` lines with a `Needs:` line and a reused bounded excerpt moved exhaustion and failed-cleanup. The stalled-versus-moved comparison at a spent counter moved movement, so snapshot 7 now dispatches another repair. Letting both approval options return the reopened row in the same turn through a one-task `tasks` call moved reopened, including the single extra attempt at attempts 3 in a fresh window. Budget, reservation, interruptions, resume and gate still hold, but the new "one more round" rule comes close to two of them. In snapshot 1 a different failing leg at repairs 3 now takes a round at iteration 43, and in snapshot 3 the clean-commit resume does the same because "the excerpt was lost with the session". To keep budget and resume safe, state that an extra round never resets or re-funds the count, and treat an unavailable pre-repair excerpt on resume as stalled (stop at 3 of 3 with `Needs`) rather than as movement. Also fix the held-count arithmetic in snapshot 6, where pass 2 already holds 3 yet pass 3 still runs, so it is unambiguous which pass exhausts the allowance. The snapshot 1 final stop should say explicitly that it carries the at-most-20-line excerpt and the `Needs` line, rather than relying on the SP-7 template.
 - verify-repair-count / github-copilot/gpt-6.1-sol: After moved four facts from fails to holds and lost none that Before kept. The Needs line with no options or recommendation replaced Before's Amend/Stop menu, which moved exhaustion and failed-cleanup. Comparing the captured pre-repair excerpt with the rerun's failing assertion at a spent counter moved movement: snapshot 7 now dispatches another repair instead of stopping on the same gate and exit code. Treating the applied amendment as the authorization moved reopened: options 4 and 5 both return row 2 in the same turn through a one-task tasks call, and attempts 3 in a fresh window takes one round instead of an exhaustion stop. Three places sit close to the edge and are worth tightening. First, the 'otherwise take another repair, including when comparison is unavailable' rule lets snapshot 1's different-leg branch and snapshot 3's clean-companion branch run to repair 4; say explicitly that the count carries across legs and is never reset, and that the interrupted-marker resume always stops at repairs 3 of 3, so budget and resume stay safe. Second, the no-model stop reuses the 'verification failed with every row closed' header; a distinct Stopped line would be clearer, while keeping the statement that no bump, reservation or marker precedes it. Third, Stop V says only 'bounded failing excerpt'; state the at-most-20-lines bound and the verify-active/implement-complete line inside the template itself, and say once that the marker commit body carries no machine records.
+
+exit: 0
+
+## Earlier PR replay: seed-dispositions
+
+This evidence predates the merged prompt. Only `seed-dispositions` ran; the earlier `conformance-grant` and `verify-repair-count` cells are recorded separately.
+
+for: fe7ceb0ded6181fc7492f17c068dfbb6219e9dc09a8b2ef056e282e1e174444a
+
+wall: 61s
+
+The replay checked that an unrecognized disposition leaves the approved criterion open, and that Integration entries create neither implementation rows nor worker assignments.
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| seed-dispositions | anthropic/claude-opus-5-5 | unchanged | 10191 | dispositions: holds -> holds (held); entries: holds -> holds (intended but unchanged); dispatch: holds -> holds (held); admission: holds -> holds (held) |
+| seed-dispositions | github-copilot/gpt-6.1-sol | unchanged | 10365 | dispositions: holds -> holds (held); entries: holds -> holds (intended but unchanged); dispatch: holds -> holds (held); admission: holds -> holds (held) |
+
+- anthropic/claude-opus-5-5: Both outputs keep the six-row skeleton, commit it before implement, and route A to row 2, B to exit, and C-E to repair and redispatch. After makes the stamp and non-cut `venue:` explicit, but no longer spells out the unmarked-row default. Keep that default, the full exclusion of Integration entries from implementation, and stamp-then-commit ordering explicit.
+- github-copilot/gpt-6.1-sol: After keeps the skeleton, foreground seed dispatch, and admission paths. It explicitly rules out a first-miss stop below allowance. Its A decision uses `<first row to take>` instead of `2`, and its C-E repair restores non-cut cells and preserves cut rows instead of saying to restore all row cells.
 
 exit: 0
 
