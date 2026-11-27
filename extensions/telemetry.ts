@@ -22,6 +22,7 @@
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
+  import { planSnapshot, snapshotTasks, type Task } from "./lib/plan-snapshot.ts";
   import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, skillReadPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
   import { computeJjDiff } from "./lib/telemetry-diff.ts";
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
@@ -153,7 +154,7 @@
     phases: PhaseMap;
     gauntletEntered: boolean;
     bindings: BindingInput[];
-    lastPlanTasks?: { name?: string; status: string }[];
+    lastPlanTasks?: Task[];
   }
 
   function bindingInput(tool: string | undefined, input: unknown, details: unknown, brainstorming: boolean, specDirs: readonly string[], planDirs: readonly string[], cwd?: string): BindingInput | undefined {
@@ -188,6 +189,12 @@
     const calls = new Map<string, { name: string; args: unknown }>();
     for (const raw of entries) {
       const entry = raw as { type?: string; message?: { role?: string; content?: unknown; toolName?: string; toolCallId?: string; isError?: boolean; details?: unknown } };
+      const tasks = planSnapshot(raw as SessionEntry);
+      if (tasks) {
+        out.lastPlanTasks = tasks;
+        if (entry.type === "message") out.phases = afterPlanActivity(out.phases, tasks);
+        continue;
+      }
       if (entry.type !== "message" || !entry.message) continue;
       const msg = entry.message;
       if (msg.role === "assistant" && Array.isArray(msg.content)) {
@@ -207,12 +214,6 @@
         }
         const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs, cwd) : undefined;
         if (out.gauntletEntered && resumed) out.bindings.push({ tool: "resume", path: resumed });
-      } else if (msg.toolName === "plan_tracker") {
-        const d = msg.details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
-        if (d && !d.error && Array.isArray(d.tasks)) {
-          out.lastPlanTasks = d.tasks;
-          out.phases = afterPlanActivity(out.phases, d.tasks);
-        }
       } else if (out.gauntletEntered && out.phases.ship.status !== "complete") {
         const call = msg.toolCallId ? calls.get(msg.toolCallId) : undefined;
         const input = bindingInput(msg.toolName, call?.name === msg.toolName ? call?.args : undefined, msg.details, out.phases.brainstorm.status === "in_progress", specDirs, planDirs, cwd);
@@ -712,12 +713,15 @@
         return;
       }
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
+      const completesImplement = !replay && phases.implement.status === "in_progress" && details.phases.implement.status === "complete";
+      if (record && completesImplement && lastPlanTasks) record.derived.plan = planTotals(lastPlanTasks);
       if (action === "grant_fix_rounds") {
         live().gates.fix_round_grants += 1;
         pushEvent({ kind: "gate", gate: "fix_round_grant", rounds: typeof details.rounds === "number" ? details.rounds : undefined });
         flush();
       }
       for (const t of transitions) {
+        if (completesImplement && t.name === "implement" && t.action === "start") t.action = "complete";
         const model = ctxModel();
         const e = replay ? undefined : pushEvent(
           t.action === "start"
@@ -780,6 +784,7 @@
       const branch = ctx.sessionManager.getBranch();
       if (!sameSession) resumedClose = snap ? lastReadCheckpoint(branch, sessionId) : undefined;
       const replay = replayBranch(branch, settings.specDirs, settings.planDirs, ctx.cwd);
+      planCursor = branch.length;
       lastPlanTasks = replay.lastPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
@@ -823,8 +828,9 @@
       const settings = deps.settings(ctx.cwd);
       const snap = await enabledSettings(ctx, settings);
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
-      if (event.toolName === "phase_tracker" && !event.isError) {
-        await applyPhaseDetails(event.details as never, settings);
+      if (event.toolName === "phase_tracker") {
+        consumeStoredLists(ctx, settings);
+        if (!event.isError) await applyPhaseDetails(event.details as never, settings);
         return undefined;
       }
       if (!snap) {
@@ -902,7 +908,8 @@
     let onOtherSpecEdit: (rel: string, event: { input: unknown }, specDirs: string[]) => void;
 
     let amendmentOpen = false;
-    let lastPlanTasks: { name?: string; status: string }[] | undefined;
+    let lastPlanTasks: Task[] | undefined;
+    let planCursor = 0;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
     const pendingWarnings = createPendingWarnings();
 
@@ -992,23 +999,41 @@
       flush();
     };
 
-    const onPlanTracker = async (details: unknown, settings: SettingsSnapshot) => {
-      const d = details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
-      if (!d || d.error || !Array.isArray(d.tasks)) return;
+    const observePlan = (tasks: Task[], settings: SettingsSnapshot) => {
       const previous = lastPlanTasks;
-      lastPlanTasks = d.tasks;
-      const next = afterPlanActivity(phases, d.tasks);
-      if (!settings.telemetry.enabled || (!record && !canBind())) {
-        phases = next;
-        return;
-      }
-      const reopens = countReopens(previous, d.tasks);
+      lastPlanTasks = tasks;
+      if (!settings.telemetry.enabled || (!record && !canBind())) return;
+      const reopens = countReopens(previous, tasks);
       if (reopens) {
         live().gates.task_reopens += reopens;
         pushEvent({ kind: "gate", gate: "task_reopen" });
       }
+      return reopens;
+    };
+
+    const consumeStoredLists = (ctx: ExtensionContext, settings: SettingsSnapshot) => {
+      const branch = ctx.sessionManager.getBranch();
+      let reopened = false;
+      for (; planCursor < branch.length; planCursor++) {
+        const entry = branch[planCursor];
+        // Explicit lists were consumed at tool_execution_end, before Pi persisted their result.
+        if (entry.type !== "custom") continue;
+        const tasks = planSnapshot(entry);
+        if (tasks && observePlan(tasks, settings)) reopened = true;
+      }
+      if (record && reopened) flush();
+    };
+
+    const onPlanTracker = async (details: unknown, settings: SettingsSnapshot) => {
+      const tasks = snapshotTasks(details);
+      if (!tasks) return;
+      observePlan(tasks, settings);
+      const next = afterPlanActivity(phases, tasks);
+      if (!settings.telemetry.enabled || (!record && !canBind())) {
+        phases = next;
+        return;
+      }
       if (next !== phases) {
-        if (record) record.derived.plan = planTotals(d.tasks);
         await applyPhaseDetails({ action: "complete", phases: next }, settings);
         return;
       }
@@ -1067,6 +1092,7 @@
         const settings = deps.settings(ctx.cwd);
         await enabledSettings(ctx, settings);
         if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
+        consumeStoredLists(ctx, settings);
         if (!event.isError) await onPlanTracker(event.result?.details, settings);
         return;
       }

@@ -336,7 +336,8 @@
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: join(first.root, "doc/specs/a.md") } } },
       planResult([{ name: "a", status: "pending" }]),
-      planResult(closed),
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }) } } },
+      { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: closed } },
       planResult([{ name: "a", status: "failed" }], "failed"),
     ];
     const second = harness({ sessionId: "s2", branch });
@@ -344,7 +345,9 @@
     await second.emit("session_start", { type: "session_start", reason: "resume" });
     await second.planResult("update", [{ name: "a", status: "in_progress" }]);
     assert.equal(second.readRecord().derived.gates.task_reopens, 1);
-    assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
+    const replay = replayBranch(branch, ["doc/specs"]);
+    assert.deepEqual(replay.lastPlanTasks, closed);
+    assert.equal(replay.phases.implement.status, "in_progress");
   });
 
   test("replayBranch honors a custom spec dir list", () => {
@@ -2290,9 +2293,18 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     await h.writeSpec("doc/specs/a.md", "# Spec\n\n**Engine:** loop\n\n## Scope\nSynthetic run.\n");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
-    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
+    const branch = h.ctx.sessionManager.getBranch();
+    const store = (second: string, third: string) => branch.push({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [
+      { name: "row 1", status: "skipped" }, { name: "row 2", status: second }, { name: "row 3", status: third },
+    ] } });
+    await h.planResult("init", [{ name: "row 2", status: "pending" }]);
+    store("complete", "complete");
+    store("failed", "pending");
+    store("in_progress", "in_progress");
     await h.emit("tool_result", { toolName: "subagent", input: {}, details: { results: [{ agent: "loop-implementer", exitCode: 0 }] }, content: [], isError: false });
-    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
+    store("complete", "complete");
+    await h.phaseResult("status", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
+    assert.equal(h.readRecord().derived.plan, undefined);
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "in_progress" }));
     await h.bash("verify", "npm test");
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "in_progress" }));
@@ -2303,6 +2315,9 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     assert.equal(rec.derived.iterations, 1);
     assert.equal(rec.events.filter((e) => e.kind === "dispatch" && e.agent === "loop-implementer").length, 1);
     assert.deepEqual(rec.derived.plan, { tasks: 3, complete: 2, failed: 0, skipped: 1 });
+    assert.equal(rec.derived.gates.task_reopens, 1);
+    assert.deepEqual(rec.events.filter(e => e.kind === "phase" && (e.name === "implement" || e.name === "verify")).slice(0, 3).map(e => [e.action, e.name]),
+      [["start", "implement"], ["complete", "implement"], ["start", "verify"]]);
     assert.equal(rec.derived.verification_runs, 1);
     assert.equal(rec.derived.events_dropped, 0);
   });

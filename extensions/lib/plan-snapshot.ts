@@ -5,16 +5,18 @@ export const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "s
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 export interface Task { name: string; status: TaskStatus; label?: string; }
 
-export function planSnapshot(entry: SessionEntry): Task[] | undefined {
-  let payload: unknown;
-  if (entry.type === "custom" && entry.customType === PLAN_TRACKER_SNAPSHOT) {
-    payload = entry.data;
-  } else if (entry.type === "message" && entry.message.role === "toolResult" &&
-      entry.message.toolName === "plan_tracker" && !entry.message.isError) {
-    payload = entry.message.details;
-  }
+export function snapshotTasks(payload: unknown): Task[] | undefined {
   const details = payload as { tasks?: Task[]; error?: string } | undefined;
   if (!details?.error && Array.isArray(details?.tasks)) return details.tasks;
+}
+
+export function planSnapshot(entry: SessionEntry): Task[] | undefined {
+  if (entry.type === "custom" && entry.customType === PLAN_TRACKER_SNAPSHOT) {
+    return snapshotTasks(entry.data);
+  } else if (entry.type === "message" && entry.message.role === "toolResult" &&
+      entry.message.toolName === "plan_tracker" && !entry.message.isError) {
+    return snapshotTasks(entry.message.details);
+  }
 }
 
 export function latestPlanSnapshot(branch: readonly SessionEntry[]): Task[] {

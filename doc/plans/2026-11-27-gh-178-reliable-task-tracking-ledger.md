@@ -3,9 +3,9 @@
 base: 7f1bae1e1b90ead0da5bd18083cb83690c72cdf2
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 6 | home | b15d25aff2d4b3e246be3d4597c3a0d092bbda5a
+returned: 11 | home | c43170215867147777e3413e04b6810547eba0f7
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -19,7 +19,7 @@ returned: 6 | home | b15d25aff2d4b3e246be3d4597c3a0d092bbda5a
 | 8 | done | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; all six explicit actions retained their task lists; 39 passed |
 | 9 | done | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; status returned the dispatched row exactly once with its new status and label; 39 passed |
 | 10 | done | 0 | timeout -k 30 180 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/phase-tracker.test.ts; implement and verify both refused completion with row 1 in_progress despite an older empty explicit list |
-| 11 | open | 0 | |
+| 11 | done | 1 | timeout -k 30 90 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/telemetry.test.ts; sealed loop recorded two complete tasks and one skipped without a tracker call after init; one reopen and one implement completion; 165 passed |
 | 12 | open | 0 | |
 
 ## Decisions
@@ -34,3 +34,4 @@ row 4 done | A repair stop shows the numbered target as failed without showing t
 row 5 done | Human stops show the settled ledger or the ledger after a blocked dispatch; without evidence of judgment the prior list stands. | Use the human-stop cases in plan-tracker.test.ts to distinguish parent decisions from unjudged worker returns.
 row 7 done | Session start, switch, fork and tree restore the branch's newest list and reconcile it with a settled ledger without a tracker call. | Use the branch-activation fixture in plan-tracker.test.ts to test replay with ledger and non-ledger tasks together.
 row 6 done | Starting verify redraws the admitted ledger and completes implement only when the newest list is nonempty and every task is complete or skipped. | Use the verify-start fixture in phase-tracker.test.ts to exercise both trackers without an explicit list update.
+row 11 done | Sealed loop telemetry reports the final task totals at implement completion without a tracker call after the seed. | Reuse the sealed loop fixture in telemetry.test.ts to check stored list transitions, reopen counts and phase event order.
