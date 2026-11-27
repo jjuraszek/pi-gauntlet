@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Ask whether to name an unapproved paid or outside-repository action in the spec or cut the affected row, even with permission to amend. (#170)
+
 - Name the blocker and the input needed when implementation or verification stalls, instead of offering a menu. (#170)
 
 - Keep repairing past an attempt allowance or review cap while the failure changes or the review converges. A repeated failure at the limit still stops. (#170)

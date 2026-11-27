@@ -237,3 +237,41 @@ The worker's action boundary is covered by loop-implementer/mixed-migration-row.
 
 - stagnation-and-retry / anthropic/claude-opus-5-5: The After wording moved `contract` from fails to holds, and no fact that Before kept was lost. Before explicitly denied that snapshot 1 was an evidence-repeats case and rendered an Options menu containing `stop` plus a recommendation. After ties the rule-2 stop to the identical whitespace-normalized evidence ("the row stalled"), says rule 2 fires before the escalation check, quotes the assertion and last decision, and replaces the menu with a single `Needs:` line, so no Stop offer appears and implement stays active. The retry (`allowed attempts 4`, counts unchanged), the amendment-surface cut, snapshot 3's `allowed attempts 9` with pre-retry empties excluded, the fixed hints, the row-local pairing and the implModel escalations all survived. Two things are thinner in After and worth protecting in the wording: snapshot 3 no longer states outright that attempts stay 3 and `iterations: 12` is unchanged after the retry (it only implies it through "attempts are 3" and 8 + 1 = 9), and its pending-retry escalation is now conditional ("if no marker exists"). Keep the instruction that a stalled stop names the missing input with no options, but also require the output to restate preserved header allowance, attempts and iterations for every retry, and to keep the below-allowance paths (rule 3 hint, rule 4 target, unspent threshold escalation with resolved implModel) stated explicitly.
 - stagnation-and-retry / github-copilot/gpt-6.1-sol: The After wording moved `contract` from fails to holds, and the snapshot 1 stop is the whole reason. Before stopped on bare allowance exhaustion, explicitly discounted the repeated evidence, and rendered a `Choose:` menu with `Stop` plus a recommendation. After attributes the stop to the two matching evidence cells at a spent allowance, quotes the assertion and the decision, and ends with a single `Needs:` line and no options. The retry (allowed attempts 4, with attempts 3 and iterations 12 unchanged), the cut through the amendment surface, and snapshot 3's ceiling of 9 over header 8 with old empties excluded were already right in Before and are preserved. `hints`, `retry` and `row-local` hold in both outputs, so the change cost nothing here. The one soft spot is that After never says outright that implement stays active while waiting; it is only implied by the absence of any write, commit, dispatch or phase call. To make this robust, have the wording require the stalled stop to state that the phase stays active awaiting the named input. Also keep the ordering explicit: the stalled-versus-moving comparison applies only at a spent counter, and below allowance the fixed stagnation hints and the unspent threshold escalation proceed without a human stop.
+
+## Earlier PR replay: unnamed-action-asks
+
+This evidence predates the merged prompt.
+
+for: 647c7c5a8c5ffecae81b893ba7347a37ad1ea906d413b993f57e9c5182e25b4d
+
+wall: 37s
+
+## Change
+
+Select unnamed-action-asks to test whether the driver mistakes permission to amend the spec for permission to cut a row that needs an unnamed purchase. The replay stops at the user's question, without a live order or edit.
+
+Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
+
+Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.
+
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
+
+Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
+
+Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
+
+The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| unnamed-action-asks | anthropic/claude-opus-5-5 | improved | 6233 | asks: fails -> holds (intended change); waits: fails -> holds (intended change) |
+| unnamed-action-asks | github-copilot/gpt-6.1-sol | improved | 8065 | asks: fails -> holds (intended change); waits: fails -> holds (intended change) |
+
+## Feedback
+
+- unnamed-action-asks / anthropic/claude-opus-5-5: Both facts moved in the intended direction. Before treated the standing amend grant as covering the cut: it skipped the human batch, wrote a spec and ledger amendment commit that cut the preview row, refreshed the tracker and would dispatch the next worker without waiting, so it neither asked nor waited (it only correctly withheld the print order). After routes the `unreachable: unnamed action ...` marker to the amendment surface's human batch regardless of amend permission, ends the turn on a `gauntlet: question` offering A) name the proof-print purchase in the spec or B) cut the row, and explicitly states no spec edit, ledger write, commit, print order or worker dispatch occurs before the reply. What carried this was the wording that the unnamed-action route applies 'with or without amend permission' and that an unnamed paid action always waits for the human; keep that explicit carve-out. To stay safe, keep the question as the last thing rendered and keep the explicit 'nothing written, ordered or dispatched until the user replies' statement. One small risk: the reply-A/reply-B narration of post-answer steps sits before the question and could be read as planned actions; keep it clearly conditional on the reply (as it is now) or move it after the rendered question, and avoid letting the 'Recommended: A' line or 'Bare `1` takes every recommendation' read as a default that proceeds without an answer.
+- unnamed-action-asks / github-copilot/gpt-6.1-sol: Both facts moved as intended. Before read the standing amendment grant as permission to cut the preview row: it planned a spec-and-ledger amendment, commit and tracker refresh with 'no question or approval menu', so it neither asked nor waited. After routes the admitted `unreachable: unnamed action buy a proof print` result to the amendment surface's human batch, offers name-the-purchase versus cut-the-row, says an unnamed paid action needs the user's answer even with standing amendment permission, and reports no purchase, dispatch, edit, commit or tracker mutation before the reply, with the row still failed at 1 of 4. Keep the wording that says an unnamed action is never covered by the amend grant and that the row stays untouched until the user answers; that sentence is what carries both facts. Two soft spots to tighten: the trailing 'Replay accounting' block follows the reply prompt, so mark it clearly as replay narration outside the user-visible turn (or put it before the question) so the turn visibly ends at the question; and the 'Recommended: A' line plus the generic stop header ('Preserve every row's attempts', 'No phase change') add material around the question that could drift toward the driver choosing for the user, so keep the recommendation advisory and never let it be applied by default under the grant.
+
+exit: 0

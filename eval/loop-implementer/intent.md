@@ -1,6 +1,9 @@
-for: 948ef034af9551acd5bf41564f6f41114950c3f2e39d32c297391b61975fccd9
+for: fa5593883523d7e95e7b8949870ffd57612d68cf58f6543251f76adc6fef4263
 
 ## Change
+
+The worker marks an unnamed paid or outside-repository action separately from a missing prerequisite. The loop's unnamed-action-asks replay covers the driver response; the worker's marker is checked by the local action contract test.
+
 Select reading-picked to check the choice between two permitted labels and what reaches the row commit. Design's recommendation takes precedence over the size of the change; with no preference, choose the smaller edit. This is a replay of the choice, not a live commit.
 
 ## Earlier migration comparison

@@ -42,7 +42,7 @@ test('action fixtures cover reruns, approval deferrals and local seed evidence',
 for (const [name, required] of [
   ['named proof action', ['acceptance row or Design names to prove the row\'s file-delivered functionality', "authorized for the whole flow by the spec's approval", 'without asking on every attempt that needs it', 'Reuse its output for local rechecks rather than spending it again']],
   ['counts and approval deferrals do not withhold named actions', ['a count, or wording that defers it to a later approval', 'does not withhold it']],
-  ['unreachable prerequisite', ['Exclude external observations and obligations from prerequisites', 'unreachable: <what is missing> - <where it can run>', 'credential, environment or data not present', 'action the spec does not name', 'no further attempt in this session']],
+  ['unreachable prerequisite', ['Exclude external observations and obligations from prerequisites', 'unreachable: <what is missing> - <where it can run>', 'credential, environment or data not present', 'action the spec does not name', 'unreachable: unnamed action <the action> - <where it can run>', 'no further attempt in this session']],
   ['replay evidence', ['Never record a paid or external action as the evidence\'s first segment', 'local replay or fixture check', 'action in a result line']],
 ]) {
   test(name, () => {
