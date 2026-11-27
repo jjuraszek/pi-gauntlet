@@ -1,0 +1,110 @@
+{
+  "sample": "spec-stale-nit",
+  "arm": "candidate",
+  "skillSha": "18b5979ebdbc887a75665710de8030a64411409c6f0f0149ba49e9911936d995",
+  "inputSha": "c2b9e7921eab3ae2ce3477c48897d63a5643e41ecd7e2a17d181a6d08f909829",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## A. Ticket asks for most-recent-use order\n\ngauntlet: gate=gatekeep-pr/final recommended=1\n\nThis PR changes how saved recipes are listed so readers can find them quickly, sorting them by most recent use with a test; you are the author. Sorting by most recent use is not covered because the spec was not updated: its design still says to sort by title.\n\nNothing blocks merging, and every check passed in CI. One smaller point does not block merging: the spec was not updated. It says \"Sort saved recipes by title.\" and should say \"Sort saved recipes by most recent use.\" because the ticket asks for that order. Merging without this edit leaves the spec out of date; fix nits can make the edit. You cannot approve your own PR.\n\nI recommend merge because nothing blocks it and every check passed.\n\nPick one:\n1. merge - squash-merge the PR into the base branch. [recommended]\n2. fix nits - update the spec's sort wording, push it, and return here.\n3. stop - leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n## B. Ticket silent on sorting\n\nOne problem blocks merging. The spec's design says to sort saved recipes by title, but the PR sorts them by most recent use. For example, \"Apple pie\" opened last month would now appear after \"Zucchini bread\" opened today. The ticket asks only for quick lookup, and title order already provides that, so the spec's title order still applies and the code must follow it.\n\n## C. Ticket unreadable, goal is only \"change the sort order\"\n\nOne problem blocks merging. The spec's design says to sort saved recipes by title, but the PR sorts them by most recent use. The ticket could not be read, and the spec and PR say only \"Change the sort order.\" No reason to give up title order could be established, so the design's title order still applies.\n\n## D. A's ticket plus an untested branch\n\nOne problem blocks merging. Recipes that have never been opened now go through new sorting code, and no test runs that code, because the existing sort test uses only recipes opened before. A saved but never-opened recipe could land in the wrong place without any check failing.\n\nOne smaller point does not block merging: the spec was not updated. It says \"Sort saved recipes by title.\" and should say \"Sort saved recipes by most recent use.\" because the ticket asks for that order. Merging without the edit leaves the spec out of date.\n\n## E. fix nits at final, on pi\n\n1. **Before dispatch.** I set work_started to true and persist it. I record a fix-nits wave with the spec edit as its selected payload. Accounting starts at twice maxFixRounds, with usage at zero. Exit check passes.\n2. **Work files.** I write the derived spec and its ledger beside the run record. They hold one \"fix nits\" row.\n3. **Worker dispatch.** I dispatch a fresh loop-implementer in the PR worktree. Its task carries:\n   - the shared worker context and the payload limit\n   - the wording reference and the ticket\n   - the scratch directory\n   - `SCOPED_TEST_COMMANDS: none`, which calls for a runnable assertion\n   - the pending tuple and the return file\n4. **Admission.** It checks for a clean tree, exactly one commit, a valid return file and a real file change.\n5. **Pre-push review.** A wave-reviewer checks the fix delta and returns a resolved closure line.\n6. **Push and rebind.** I push once with an ordinary push and rebind to the pushed head. The readback confirms the delta.\n7. **Baseline decision.** The nit closes from the reviewer's resolved line. The stored scope baseline stays unchanged, because only the contract-decision path replaces it.\n\n## F. Trail map offline index\n\nNothing blocks merging. One smaller point does not block merging: the spec was not updated. The spec has no clause for the local trail index the PR adds. Without that index, trail search needs a network connection, which defeats the goal of letting hikers look up trail names offline. The proposed design clause is \"Keep a local index of trail names so hikers can search them without a connection.\" Merging without it leaves the spec out of date.\n",
+      "words": 691,
+      "wallMs": 47568,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\nThe PR changes saved recipes to sort by most recent use, and you are its author. The tested sorting behavior matches the ticket, but it is not covered by the spec because the spec was not updated.\n\nNothing blocks merging. One smaller point does not block merging: the spec still requires alphabetical sorting, while the ticket explicitly requests most recent use. The drafted correction is \"Sort saved recipes by title.\" -> \"Sort saved recipes by most recent use.\"; merging without it leaves the spec out of date.\n\nYou cannot approve your own PR.\n\nI recommend merge because the tested behavior matches the ticket and the remaining spec correction does not block merging.\n\nPick one:\n1. merge - squash-merge the PR, leaving the spec correction untaken. [recommended]\n2. fix nits - apply the drafted spec correction, review and push it, and check readiness again.\n3. stop - leave the PR unchanged and end this run.\n\nType a number; show evidence prints the full record.\n\n---\n\n**B**\n\nOne problem blocks merging: the spec requires saved recipes to sort by title, but the code sorts them by most recent use. For example, a recently opened recipe appears before an alphabetically earlier recipe.\n\nThe ticket's quick-lookup goal does not require changing that requirement: alphabetical sorting still meets the goal. Keep the requirement and draft a repair to the implementation and its test.\n\n**C**\n\nOne problem blocks merging: the spec requires saved recipes to sort by title, but the code sorts them by most recent use. For example, a recently opened recipe appears before an alphabetically earlier recipe.\n\nThe ticket could not be read, and no earlier copy is available. \"Change the sort order\" provides no separate outcome establishing why the existing requirement must change, so the judgment is undecided and the title-sorting requirement remains in force.\n\n**D**\n\nOne problem blocks merging: the new branch for recipes that have never been opened has no test. The existing sorting test exercises previously opened recipes only, so it does not demonstrate how an unopened recipe is placed.\n\nOne smaller point does not block merging: the spec was not updated. The ticket supports the tested most-recent-use ordering, so draft \"Sort saved recipes by title.\" -> \"Sort saved recipes by most recent use.\"; merging without that edit leaves the spec out of date. This judgment does not clear the independently untested branch.\n\n**E**\n\nThe selected `fix nits` pick authorizes one iteration, not a standing delivery course. Persist that selection, its exact payload, and that work has started.\n\nResolve closure-review limits, row budgets, escalation settings, and scoped testing. Create the external findings spec and ledger with one nit-batch row, preserving the stored scope contract.\n\nDispatch a fresh `loop-implementer` in the PR worktree, with a unique output and return file. Its task carries the selected edit, stored scope, exact starting-head check, smallest-edit restriction, scoped-test rules, commit wording, ticket binding, scratch location, and attributed-return contract.\n\nAdmit its clean, single-commit result. Dispatch a fresh read-only `wave-reviewer` in that worktree over the selected delta, requiring explicit closure of the selected point. It passes; push once.\n\nRebind to the pushed head and confirm the exact selected edit by readback. The selected correction is delivered, but retain the stored scope baseline: a successful commit, review, push, and readback do not themselves replace it. The continuation rule reserves baseline replacement for a completed contract-decision amendment.\n\n**F**\n\nNothing blocks merging. One smaller point does not block merging: the spec was not updated to describe the local trail index.\n\nThere is no current clause for that behavior. Draft this Design addition: \"Keep a local trail index so hikers can look up trail names without connectivity.\" The tested index is necessary for the agreed offline-search goal: disabling it makes trail-name searches depend on a network connection. Back the addition rather than remove it; merging without the edit leaves the spec out of date.\n",
+      "words": 640,
+      "wallMs": 33693,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "37451d66be513c14bfad58c667a48ece5fdb6fcdd97b54de4f85545b16673db4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9f4a4ad8038a9ef35e1d0d6760eb0d50bd604e8816c9f32f451ee484b22f4e81",
+      "baselineOutputSha": "b67f67bacf4884a7c3f15870692778226279d760287f17c874758b6fdb532203",
+      "candidateOutputSha": "cc1278b0978698a6aa434b80d3ca3059fccb1b39591778cffffc0e0e61ae9a5b",
+      "facts": {
+        "backed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "keep": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "handoff": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "addition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved backed, independent and addition: A now reports the stale spec as a smaller point with both wordings quoted, the ticket as the reason, the stale-spec warning and merge offered; D separates the nonblocking spec point from the blocking untested never-opened branch; F proposes a Design clause for the local trail index, explains that offline lookup fails without it, and quotes no invented current clause. Keep held in both: B blocks because title order still delivers quick lookup, and C blocks because no reason to give up title order could be established. Handoff still fails in After. No second contract-choice menu appears, but the worker task lists only generic items (payload limit, wording reference, ticket) and never states that it authorizes and requires the exact displayed edit `Sort saved recipes by title.` -> `Sort saved recipes by most recent use.`, and the baseline decision says the stored scope baseline stays unchanged because only the contract-decision path replaces it, which is the opposite of adopting the new baseline after review, push and readback at the rebound head. To fix this while keeping the rest, say that picking fix nits for a displayed spec-wording edit is itself the contract consent, that the worker task must carry the exact old-to-new wording as both permitted and required (rather than a rule to return a contract exception or leave the scope alone), and that the gate replaces the stored scope baseline with the new wording only once the pre-push reviewer has passed, the push has succeeded and the readback at the rebound head confirms that sole delta, explicitly not at admission.",
+      "wallMs": 7007,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "37451d66be513c14bfad58c667a48ece5fdb6fcdd97b54de4f85545b16673db4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9f4a4ad8038a9ef35e1d0d6760eb0d50bd604e8816c9f32f451ee484b22f4e81",
+      "baselineOutputSha": "0f291e324b638a1b7538f010fe607ef9c7f55b28d60a754005a7662e87a868e0",
+      "candidateOutputSha": "ec9a2c95e0dfa98a6583b722b4f833471fe0ead0de144e95a9638dabe6d3dfbc",
+      "facts": {
+        "backed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "keep": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "handoff": {
+          "before": "fails",
+          "after": "fails",
+          "label": "pre-existing"
+        },
+        "addition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved four facts and lost none that Before held. In A the ticket-backed sort change became a non-blocking smaller point with both wordings quoted, a stale-spec warning and a merge offer. In B the block now rests on title sorting still meeting the lookup goal, where Before argued only that the explicit requirement stands regardless of the goal; C still blocks because nothing establishes the change is needed. In D the stale spec is a smaller point while the untested never-opened branch still blocks on its own. In F the report drafts a new Design clause for the local trail index without inventing a current clause. The handoff fact still fails in E: the handoff carries the selected edit and shows no second menu, but after review, push, rebind and readback it says to 'retain the stored scope baseline' and reserves replacement for 'a completed contract-decision amendment'. That means the gate never adopts the new baseline, and it implies a further contract decision is needed. To fix this, state that picking the displayed fix-nits number for a judged, ticket-backed spec edit is itself the consent for that exact old-to-new wording. Then state that the baseline stays unchanged through admission and is replaced only once the pre-push review has passed, the push has succeeded, and the readback at the rebound head confirms the selected delta is the sole scope change. Keep the existing 'not on admission' language so the baseline is never adopted early, and keep the current rules for B, C and D so unbacked departures and independent defects still block.",
+      "wallMs": 13482,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "755e480a712d44a964f20ae5d6471271d868fdf6"
+}
