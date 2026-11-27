@@ -65,7 +65,7 @@ Ticket #170, checkbox list, rows verbatim:
 - [ ] The ship menu of a run that took its own recommendation between two or more ways forward, or auto-applied a spec correction, shows above its options one list with one line per such choice: what the run chose and why. Auto-applied spec corrections appear in that list, not in a second one; recovered steps and extra attempts are not listed.
   in-scope
 - [ ] That list follows the "Register" rules of `skills/chase-bug/reference/verdict-report.md` - everyday words, no commit hashes, no row, task or finding numbers - and is under 180 words, the cap that file sets for a report.
-  in-scope
+  deviates: when shortened ordinary choices and their reasons still exceed 180 words the cap yields; every choice keeps its line and its reason
 - [ ] Given an approved spec that lists a row as in scope (for example "the importer accepts the file the customer sent on Monday" with no file, in a repository whose fixtures show the format the importer reads), when a run under either implementation engine (task plan or loop) reaches that row and its worker finds that it cannot obtain the input data the row names from the checkout or from material supplied with the spec or the source ticket, that finding alone triggers this row, whether or not the spec says the data is missing: if the worker can build a stand-in input from the row and the format the repository shows, it writes the row's code test-first against that stand-in, the row closes or fails on that check's result as any other row does, and the run neither stops for the human nor cuts the row from scope because that data is missing. If the worker cannot build a stand-in (for example, nothing in the row or the repository shows the format the importer reads), the missing data is handled as it is today: the run stops to ask, or cuts the row when the human allowed spec corrections at approval. A missing prerequisite that is not the row's input data (a credential, a tool, a deployed environment) is handled as it is today.
   in-scope
 - [ ] The ship menu of a run that closed a row on a stand-in (previous row) shows above its options, in the same list as the run's choices and also when it is that list's only line, one line for that row that names the missing data and the stand-in and says the row is not proven on the data the ticket meant; the pull request body the run proposes carries the same line.
@@ -118,7 +118,7 @@ Three rules, used below by name:
 
 Chosen reading of ticket rows 3 and 4: "the engine's existing stagnation check" is the stall test of D2, built only from signals the engines already compute; "attempt allowance" covers all seven counters in D2, including the verify-phase ones.
 
-Chosen reading of ticket rows 7 and 9, approved in design round 2: a stand-in line is never dropped or collapsed to meet row 7's 180-word cap, and stand-in lines that alone pass the cap are all printed (D5); the conformance check reads row 7 with this precedence. Row 7 keeps its `in-scope` disposition; only the user's answer to the cut question changes it (Open questions).
+Chosen reading of ticket rows 7 and 9, approved in design round 2: a stand-in line is never dropped or collapsed to meet row 7's 180-word cap, and stand-in lines that alone pass the cap are all printed (D5); the conformance check reads row 7 with this precedence. Row 7 keeps its `in-scope` disposition; only the user's answer to the cut question changes it (Open questions). The user answered it at the ship gate: row 7 now carries `deviates:` for ordinary-choice overflow, and D5 states the rule.
 
 ### D1 - No ask inside the budget
 
@@ -241,7 +241,7 @@ What the run decided on its own (N):
 
 - Order: commit order within a checkout, oldest first. Omit the block when N = 0. A stand-in line renders even when it is the only line.
 - Register: ship restates a line that carries a commit hash or a row, task or finding number without it.
-- Cap: the block, heading included, targets under 180 words. Over the cap, ship shortens the wording of lines while each keeps its choice and its reason, and each stand-in line keeps its missing data, its stand-in and the not-proven clause. No line, reason or stand-in is dropped or collapsed. Stand-in lines that alone pass the cap are all printed (approved in design round 2). A block that ordinary choice lines keep over the cap after shortening has no rule here: that case is the user's scope decision (Open questions), and this spec claims no cap that holds for every run.
+- Cap: the block, heading included, targets under 180 words. When shortened ordinary choices and their reasons still exceed it, the cap yields: every choice keeps its line and its reason, and nothing is dropped or combined. Over the cap, ship shortens the wording of lines while each keeps its choice and its reason, and each stand-in line keeps its missing data, its stand-in and the not-proven clause. No line, reason or stand-in is dropped or collapsed. Stand-in lines that alone pass the cap are all printed (approved in design round 2). A block that ordinary choice lines keep over the cap after shortening has no rule here: that case is the user's scope decision (Open questions), and this spec claims no cap that holds for every run.
 - Add: each stand-in line, in the list's wording, in every pull request body the run proposes or edits, limited to the stand-ins recorded in that pull request's own range. Option 1 template and every body written from it, companion bodies included: a `## Summary` bullet. Header-linked route (`skills/gauntlet/ship/spec-pr.md`): written in the same reconcile edit as the Integration block, the one exception to "Preserve the home PR body byte-for-byte outside its Integration block". Rework route: inside the appended `## Rework` block.
 - Unchanged: Step 3.5, the menu rows, the first-line marker.
 
@@ -276,7 +276,7 @@ Paid action: `node eval/run.mjs <target> <sample>`, run by the implementing agen
 
 - Stall is recomputed from history at every spent counter; no grant, flag or counter is stored. A resumed loop decides the same way from the ledger's commits. A resumed waves run that cannot recover the previous round takes one round and lets the fresh review decide.
 - Accepted unbounded case: a loop row whose worker changes files and reports a different failure every round is never stalled and runs until the human interrupts. The ticket makes the stall test the only bound, and no bound on moving rounds is added. Two cases are not this one and stall at a spent allowance (D2 site 3): a row whose last two attempts were interrupted and changed nothing, and a row whose evidence states a spec-vs-code contradiction, which goes to the amendment surface.
-- A human `retry` at a stalled row stop starts a new window, so the row gets at least two attempts before it can stall again; `rows +N` resets no window.
+- A human `retry` at a stalled row stop starts a new window, so the row gets at least two attempts before it can stall on repeated results; a first new attempt that shows the spec contradicting the code is routed to the amendment surface at once, as D2 states; `rows +N` resets no window.
 - A waves interruption is recoverable when the printed observations establish the wave base, the dispatch identity and that the interrupted step wrote nothing to the checkout; it is repeated in the same turn (D1). An interruption that leaves any of those unknown, and a helper that fails a second time, take the existing stop, which carries `Needs:`.
 - No way forward and no stall signal (for example a delegated lookup that failed twice): the existing stop applies and carries `Needs:`.
 - A rebase onto #178 that conflicts in an edited paragraph: reapply that section's D1-D3 rule by section name and rerun the Tests entries that name the file.
@@ -336,8 +336,8 @@ Per `documentation-impact.md`:
 - Any check before work starts for data a row needs (#177, closed).
 - The restart of a quiet run from #169 and any logic change in `extensions/phase-tracker.ts`.
 - Gatekeep and hotfix loop drivers.
+- That list follows the "Register" rules of `skills/chase-bug/ - holding the 180-word cap when ordinary choices alone exceed it; the cap yields and no line or reason is dropped
 
 ## Open questions
 
-- Ordinary-choice overflow (scope decision, the user's at the gate). Ticket row 7 puts the list under 180 words; ticket row 6 requires one line per choice with its reason; design round 2 approved passing the cap for stand-in lines only. A run with enough ordinary choices stays over 180 words after D5's shortening, and no approved rule covers it. Probe: `rg 180 skills/chase-bug/reference/verdict-report.md` - "Keep the whole report under 180 words, headings included"; the cap is fixed and the count of choices is not. Settles: D5 "Cap", the row 7 disposition, the overflow facts of `eval/ship/samples/choices-list`. Settlement: the user answers the cut question on row 7 at the gate; until then no line or reason is dropped and the spec states no rule for the case.
 - Not blocking: the ticket's 133 question turns and 85 hours were not reproduced and are treated as a description of the input.

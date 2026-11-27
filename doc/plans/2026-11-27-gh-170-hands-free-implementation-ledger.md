@@ -15,7 +15,7 @@ returned: 9 | home | e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1
 | 4 | done | 1 | timeout -k 30 60 node --test scripts/loop-engine-contract.test.mjs; 54 passed, 0 failed; both models named the missing input without a menu in stop-needs-no-menu and human-stop-counts; retired-budgets and scaled-cap-grant were inconclusive on legacy wording and reply parsing |
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs scripts/loop-implementer-actions.test.mjs scripts/loop-unreachable-cut.test.mjs; 14 passed, 0 failed; both models asked before buying a proof print or cutting the row in unnamed-action-asks |
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 9 passed, 0 failed; both digest-from-record-lines replies listed two corrections and both identical recommendations with reasons before the options |
-| 7 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; both choices-list replies explained the help-page change without internal identifiers in under 180 words and printed all 20 stand-in disclosures in the overflow snapshot |
+| 7 | cut | 1 | deviates: when shortened ordinary choices and their reasons still exceed 180 words the cap yields; every choice keeps its line and its reason |
 | 8 | done | 1 | timeout -k 30 30 node --test scripts/loop-implementer-actions.test.mjs; 8 passed, 0 failed; both models built and reported the CSV, routed input without a format by permission and kept missing credentials unreachable; one control missed anchor identity and one missed the owned-session fact pinned by loop-implementer-process.test.mjs |
 | 9 | done | 1 | timeout -k 30 60 node --test scripts/finish-landed-message.test.mjs; 12 passed, 0 failed; both selected ship replays showed each PR's own disclosure in the menu's wording, including a stand-in listed alone |
 
@@ -34,3 +34,4 @@ amended | 1 item(s) | Per-gap trail eval sample
 amended | 1 item(s) | Replayed stand-in controls
 amended | 2 item(s) | Stale eval result replays
 amended | 1 item(s) | Stale sample replay count
+amended | 2 item(s) | Long decisions list
