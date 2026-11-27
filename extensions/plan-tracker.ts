@@ -13,12 +13,9 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import { checkoutOfSync } from "./lib/checkout.ts";
+import { latestPlanSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
 import { planSpecHeader } from "./lib/telemetry-paths.ts";
 
-const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "skipped"] as const;
-type TaskStatus = (typeof TASK_STATUSES)[number];
-
-interface Task { name: string; status: TaskStatus; label?: string; }
 interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
 
 const PlanTrackerParams = Type.Object({
@@ -239,16 +236,7 @@ export default function (pi: ExtensionAPI) {
   let tasks: Task[] = [];
 
   const reconstructState = (ctx: ExtensionContext) => {
-    tasks = [];
-    for (const entry of ctx.sessionManager.getBranch()) {
-      if (entry.type !== "message") continue;
-      const msg = entry.message;
-      if (msg.role !== "toolResult" || msg.toolName !== "plan_tracker") continue;
-      const details = msg.details as PlanTrackerDetails | undefined;
-      if (details && !details.error) {
-        tasks = details.tasks.map((t) => ({ ...t }));
-      }
-    }
+    tasks = latestPlanSnapshot(ctx.sessionManager.getBranch());
   };
 
   const updateWidget = (ctx: ExtensionContext) => {
@@ -264,7 +252,7 @@ export default function (pi: ExtensionAPI) {
 
   const store = (next: Task[], ctx: ExtensionContext) => {
     if (tasks.length === next.length && next.every((t, i) => t.name === tasks[i].name && t.label === tasks[i].label && t.status === tasks[i].status)) return;
-    pi.appendEntry("plan-tracker-snapshot", { tasks: next });
+    pi.appendEntry(PLAN_TRACKER_SNAPSHOT, { tasks: next });
     tasks = next;
     updateWidget(ctx);
   };
