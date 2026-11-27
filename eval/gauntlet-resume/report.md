@@ -2,6 +2,8 @@
 
 Both replay models met every candidate must-hold in the four selected samples. These are text replays of supplied observations, not live tracker evidence. The saved C1 ledger and plan read traces still bind to older resume instructions.
 
+This is sample-scoped coverage, not a target-wide pass. The unselected samples, including `returned-line-recovery`, keep historical saved replies that this run did not rerun; they are not current passes.
+
 | Sample | Observed behavior |
 |---|---|
 | [ledger-tracker-recovery](results/ledger-tracker-recovery/report.md) | Both replies used the supplied admission answer and read the recovered rows from disk without a tracker call. |
