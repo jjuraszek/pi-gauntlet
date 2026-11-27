@@ -232,6 +232,84 @@ function projectLedger(text: string, path: string, tasks: Task[]): Task[] {
 }
 
 const RULE_LINE = "Rule: pending tasks must trail every started or finished task.";
+const ORDER_FIX = "Fix first, then retry: update each listed task to in_progress (working on it now), complete, failed, or skipped (not applicable in this run); or, if the list order itself is wrong, re-init with {name, status}[] keeping every task and its true status so the untouched ones trail.";
+const KEEP_TASKS = "Never clear, drop tasks, or record a status the work has not actually reached.";
+
+interface DispatchItem { agent?: string; task?: string; }
+interface DispatchInput extends DispatchItem {
+  tasks?: DispatchItem[];
+  chain?: (DispatchItem & { parallel?: DispatchItem[] })[];
+}
+
+function wavePlan(path: string) {
+  const headings = new Map<string, { wave: number; name: string }>();
+  let text: string;
+  try { text = readFileSync(path, "utf8"); }
+  catch { return; }
+  let wave: string | undefined;
+  let fence: string | undefined;
+  for (const line of text.split(/\r?\n/)) {
+    const delimiter = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      if (delimiter?.[0] === fence[0] && delimiter.length >= fence.length) fence = undefined;
+      continue;
+    }
+    if (delimiter) { fence = delimiter; continue; }
+    const waveHeading = /^## Wave (\d+)(?:\s|$)/.exec(line);
+    if (waveHeading) wave = waveHeading[1];
+    const task = /^(### Task \d+:) (.+)$/.exec(line);
+    if (task && wave !== undefined) headings.set(task[1], { wave: Number(wave), name: `W${wave}: ${task[2].trimEnd()}` });
+  }
+  return headings;
+}
+
+function wavesStart(input: DispatchInput, tasks: Task[], cwd: string): Task[] | string | undefined {
+  const waveNumbers = tasks.map(task => /^W(\d+): .+/.exec(task.name)?.[1]);
+  if (!waveNumbers.some(wave => wave !== undefined)) return;
+
+  const items = [input, ...(input.tasks ?? []), ...(input.chain ?? []).flatMap(step => step.parallel ?? [step])];
+  const plans = new Map<string, ReturnType<typeof wavePlan>>();
+  const resolved = new Map<number, number>();
+  const unresolved: string[] = [];
+  for (const item of items) {
+    if (item.agent !== "implementer" || typeof item.task !== "string") continue;
+    const plan = /(?:^|[;\n])[ \t]*planPath:[ \t]*([^;\r\n]+)/.exec(item.task)?.[1].trim();
+    const field = /(?:^|[;\n])[ \t]*(?:anchor:[ \t]*([^;\r\n]+)|anchors:[ \t]*\[([^\]]*)\])/.exec(item.task);
+    if (!plan || !field) continue;
+    const prefixes = (field[1] ?? field[2]).match(/### Task \d+:/g);
+    if (!prefixes) continue;
+    const path = resolve(cwd, plan);
+    if (!plans.has(path)) plans.set(path, wavePlan(path));
+    const headings = plans.get(path);
+    for (const prefix of prefixes) {
+      const heading = headings?.get(prefix);
+      if (!heading) {
+        unresolved.push(`${prefix} expected a wave task in ${path}, found 0 (${headings ? "heading missing" : "plan unreadable"})`);
+        continue;
+      }
+      const matches = tasks.flatMap((task, index) => task.name === heading.name ? [index] : []);
+      if (matches.length === 1) resolved.set(matches[0], heading.wave);
+      else unresolved.push(`${prefix} expected ${JSON.stringify(heading.name)}, found ${matches.length}`);
+    }
+  }
+  if (unresolved.length) return `Unresolved wave tasks: ${unresolved.join("; ")}. Add the missing task with add, or re-init with {name, status}[] keeping every task and its true status.`;
+  if (!resolved.size) return;
+
+  const latestWave = Math.max(...resolved.values());
+  const earlier = tasks.flatMap((task, index) => Number(waveNumbers[index]) < latestWave && (task.status === "pending" || task.status === "in_progress")
+    ? [`${index}: ${task.name} (${task.status})`] : []);
+  if (earlier.length) return `Earlier wave open: ${earlier.join(", ")}. Use plan_tracker({ action: "update", index, status }) with each task's true status, then retry.`;
+
+  const starts = [...resolved.keys()].filter(index => tasks[index].status === "pending");
+  if (!starts.length) return;
+  const starting = new Set(starts);
+  const lastStart = Math.max(...starts);
+  const offenders = tasks.flatMap((task, index) => index < lastStart && task.status === "pending" && !starting.has(index)
+    ? [`${index}: ${task.name} (pending)`] : []);
+  if (offenders.length) return `Start order: ${offenders.join(", ")}.\n${RULE_LINE}\n${ORDER_FIX}\n${KEEP_TASKS}`;
+  return tasks.map((task, index) => starting.has(index) ? { ...task, status: "in_progress" } : task);
+}
+
 const snapshotLine = (tasks: Task[]): string => tasks.map((t, i) => `${i} ${t.name}=${t.status}`).join(", ");
 const offenderList = (tasks: Task[], indices: number[]): string => indices.map((i) => `${i} "${tasks[i].name}"`).join(", ");
 const normalizeTask = (t: string | { name: string; status: TaskStatus }): Task => typeof t === "string" ? { name: t, status: "pending" } : { name: t.name, status: t.status };
@@ -330,7 +408,13 @@ export default function (pi: ExtensionAPI) {
     if (event.toolName !== "subagent" && !verifyStart) return;
     try {
       const ledger = boundLedger(ctx);
-      if (!ledger) return;
+      if (!ledger) {
+        if (event.toolName !== "subagent") return;
+        const next = wavesStart(event.input as DispatchInput, tasks, ctx.cwd);
+        if (typeof next === "string") return { block: true, reason: next };
+        if (next) store(next, ctx);
+        return;
+      }
       if (verifyStart) {
         if (settledLedger(ledger.text) || implementing(ctx)) store(projectLedger(ledger.text, ledger.path, tasks), ctx);
         return;
@@ -508,8 +592,8 @@ export default function (pi: ExtensionAPI) {
               content: [{ type: "text", text: [
                 `Error: cannot set task ${params.index} "${target.name}" to ${params.status}: pending tasks precede it: ${offenderList(tasks, offenders)}.`,
                 RULE_LINE,
-                "Fix first, then retry: update each listed task to in_progress (working on it now), complete, failed, or skipped (not applicable in this run); or, if the list order itself is wrong, re-init with {name, status}[] keeping every task and its true status so the untouched ones trail.",
-                "Never clear, drop tasks, or record a status the work has not actually reached.",
+                ORDER_FIX,
+                KEEP_TASKS,
                 `Current: ${snapshotLine(tasks)}`,
               ].join("\n") }],
               details: { action: "update", tasks: tasks.map((t) => ({ ...t })), error: `pending-suffix violation: ${offenders.join(",")}` } as PlanTrackerDetails,

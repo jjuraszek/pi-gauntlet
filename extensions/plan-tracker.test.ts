@@ -456,6 +456,105 @@ test("a lone worker dispatch shows the bound ledger row in progress before the w
   assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
 });
 
+function wavesFixture(t: TestContext) {
+  mainSession(t);
+  const dir = mkdtempSync(join(tmpdir(), "plan-waves-"));
+  writeFileSync(join(dir, "plan.md"), "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n## Wave 2\n### Task 9: Later\n");
+  return dir;
+}
+
+const waveItem = (field: string, plan = "plan.md") => ({ agent: "implementer", task: `planPath: ${plan}; ${field}; Spec: spec.md` });
+const waveDispatch = (h: ReturnType<typeof harness>, input: unknown) => h.fire("tool_call", { toolName: "subagent", input });
+
+test("waves dispatch starts exact plan tasks across supported carriers", async (t) => {
+  const dir = wavesFixture(t);
+  const first = waveItem("anchor: ### Task 40:");
+  const added = waveItem('anchor: "### Task 4:"');
+  for (const [name, input] of [
+    ["single item with anchor array", waveItem('anchors: ["### Task 40:", "### Task 4:"]')],
+    ["task batch", { tasks: [first, added] }],
+    ["chain", { chain: [first, { parallel: [added] }] }],
+  ] as const) await t.test(name, async () => {
+    const stamp = { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "plan.md" } } };
+    const branch: unknown[] = [stamp];
+    const h = harness(branch, dir);
+    await h.call({ action: "init", tasks: ["W1: First", "W1: Added", "W2: Later"] });
+    assert.equal(await waveDispatch(h, input), undefined);
+    const expected = [
+      { name: "W1: First", status: "in_progress" }, { name: "W1: Added", status: "in_progress" },
+      { name: "W2: Later", status: "pending" },
+    ];
+    assert.deepEqual(branch, [stamp, { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected } }]);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
+  });
+});
+
+test("waves dispatch resolves a task appended by an amendment by name", async (t) => {
+  const branch: unknown[] = [];
+  const h = harness(branch, wavesFixture(t));
+  const original = [{ name: "W1: First", status: "complete" }, { name: "W2: Later", status: "complete" }];
+  await h.call({ action: "init", tasks: original });
+  await h.call({ action: "add", tasks: ["W1: Added"] });
+  assert.equal(await waveDispatch(h, waveItem('anchor: "### Task 4:"')), undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, [...original, { name: "W1: Added", status: "in_progress" }]);
+  assert.equal(branch.length, 1);
+});
+
+test("waves dispatch refuses atomically in resolution, wave, then list order", async (t) => {
+  const dir = wavesFixture(t);
+  const later = waveItem("anchor: ### Task 9:");
+  const first = waveItem("anchor: ### Task 40:");
+  const added = waveItem("anchor: ### Task 4:");
+  const restored = [{ name: "W1: First", status: "in_progress" }, { name: "W2: Later", status: "in_progress" }];
+  for (const [name, tasks, input, reason, fix] of [
+    ["missing entry before wave check", ["W1: First", "W2: Later"], { tasks: [later, added] }, /### Task 4: expected "W1: Added", found 0/, /add.*re-init/s],
+    ["ambiguous entry without partial start", ["W1: First", "W1: Added", "W1: Added"], { tasks: [first, added] }, /### Task 4: expected "W1: Added", found 2/, /add.*re-init/s],
+    ["missing exact heading", ["W1: First"], waveItem("anchor: ### Task 0:"), /### Task 0:.*found 0/, /re-init/],
+    ["unreadable plan", ["W1: First"], waveItem("anchor: ### Task 40:", "missing.md"), /### Task 40:.*found 0/, /re-init/],
+    ["earlier pending wave before list order", ["W1: First", "W2: Later"], later, /0: W1: First \(pending\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
+    ["earlier wave still running after restore", restored, later, /0: W1: First \(in_progress\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
+    ["split wave list order", ["W1: First", "W1: Added"], added, /0: W1: First \(pending\)/, /update each listed task.*re-init/s],
+  ] as const) await t.test(name, async () => {
+    const branch: unknown[] = tasks === restored
+      ? [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]
+      : [];
+    const h = harness(branch, dir);
+    if (tasks === restored) await h.fire("session_start");
+    else await h.call({ action: "init", tasks });
+    const initial = await h.call({ action: "status" });
+    const entries = branch.slice();
+    const blocked = await waveDispatch(h, input);
+    assert.equal(blocked?.block, true);
+    assert.match(blocked?.reason ?? "", reason);
+    assert.match(blocked?.reason ?? "", fix);
+    assert.deepEqual(branch, entries);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+  });
+});
+
+test("waves dispatch leaves repairs, reviewers, unanchored tasks, other lists and worker sessions alone", async (t) => {
+  const dir = wavesFixture(t);
+  const first = waveItem("anchor: ### Task 40:");
+  const later = waveItem("anchor: ### Task 9:");
+  const started = [{ name: "W1: First", status: "in_progress" }, "W2: Later"];
+  for (const [name, tasks, input, depth] of [
+    ["same-wave repair", started, first, "0"],
+    ["reviewer", started, { ...later, agent: "wave-reviewer" }, "0"],
+    ["unanchored", started, waveItem("Repair the task"), "0"],
+    ["no plan path", started, { ...later, task: "anchor: ### Task 9:" }, "0"],
+    ["not a waves list", ["G1: First"], later, "0"],
+    ["worker session", ["W1: First", "W2: Later"], later, "1"],
+  ] as const) await t.test(name, async () => {
+    process.env.PI_SUBAGENT_DEPTH = depth;
+    const branch: unknown[] = [];
+    const h = harness(branch, dir);
+    const initial = await h.call({ action: "init", tasks });
+    assert.equal(await waveDispatch(h, input), undefined);
+    assert.deepEqual(branch, []);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+  });
+});
+
 test("dispatch records the admitted return before starting an immediate retry", async (t) => {
   mainSession(t);
   const dir = ledgerFixture("plan-retry-");
