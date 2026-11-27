@@ -35,7 +35,7 @@ function fixture(messages, baseBody = '') {
   git('commit', '--allow-empty', '-qm', `Create fixture base\n\n${baseBody}`);
   git('checkout', '-qb', 'fixture-change');
   for (const message of messages) git('commit', '--allow-empty', '-qm', message);
-  return { run, git };
+  return { cwd, run, git };
 }
 
 test('the extracted log recipe and selector keep every applied body row and exclude unrelated records', async t => {
@@ -73,6 +73,27 @@ test('the extracted log recipe and selector keep every applied body row and excl
     assert.equal(f.git('rev-parse', 'HEAD'), head);
     assert.equal(f.git('status', '--porcelain'), '');
   });
+});
+
+test('a receipt-proven companion without a worktree reads the attempted feature range', () => {
+  const retry = rendering.match(/`(git -C "<companion primary>" log [^`]+)`/)?.[1];
+  assert.ok(retry, 'the decision list defines a log recipe for a missing companion worktree');
+  assert.match(step, /read companion ranges per the \[decision list\]/);
+  assert.match(rendering, /validated receipt.*`attempted-head`/);
+  assert.match(rendering, /On failure, stop before the menu and name the companion and unreadable range/);
+
+  const standIn = '- stand-in | paper receipt | typed receipt';
+  const f = fixture([`Test receipt printing\n\n${standIn}`]);
+  const attemptedHead = f.git('rev-parse', 'HEAD').trim();
+  f.git('checkout', '-q', 'fixture-base');
+  f.git('commit', '--allow-empty', '-qm', 'Squash delivery');
+  f.git('commit', '--allow-empty', '-qm', 'Unrelated primary update');
+  assert.equal(f.git('worktree', 'list', '--porcelain').match(/^worktree /gm).length, 1);
+
+  const readRange = head => f.run('bash', ['-c', retry.replace('<companion primary>', f.cwd)
+    .replace('<base-branch>', 'fixture-base').replace('<attempted-head>', head)]);
+  assert.deepEqual(readRange(attemptedHead).trim().split('\n'), [standIn]);
+  assert.throws(() => readRange('0'.repeat(attemptedHead.length)), /bad revision|unknown revision|Invalid revision range|ambiguous argument/);
 });
 
 test('the decision list shortens wording rather than dropping reasons or stand-ins', () => {

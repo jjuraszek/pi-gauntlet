@@ -2,6 +2,8 @@
 
 ## Decisions above the ship menu
 
+After the home range, read companions in `## Legs` order. For each present worktree, use the Step 4 log recipe with that worktree and its own base. For a missing worktree with a validated receipt, use the receipt's `attempted-head` (the feature SHA, not the primary's `HEAD` or the squash SHA): `git -C "<companion primary>" log "<base-branch>..<attempted-head>" --format=%b --reverse`. Use that companion's confirmed PR base or the branch it squashed into. On failure, stop before the menu and name the companion and unreadable range as the blocker. Keep the recovered records attributed to that companion for its PR body.
+
 At Step 4, print one list at home above the options, including on the home-only path. Use one entry per matching line, including repeats, in the order read. Leave out recovered steps and extra attempts. Omit the block when N = 0.
 
 ```

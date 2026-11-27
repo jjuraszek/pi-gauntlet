@@ -1,2 +1,3 @@
-- home-list: judged: One list at home contains three entries before the menu, home's missing till totals first, then the printer's choice and reason and its missing paper receipt. Each disclosure names the missing input, its replacement and the lack of proof on the intended input.
-- bodies: judged: The till Summary repeats its till disclosure verbatim and contains no printer disclosure. The printer Summary repeats its paper receipt disclosure verbatim and contains no till disclosure.
+- receipt-range: judged: The log targets /work/printer and reads trunk..1111111111111111111111111111111111111111 with --format=%b and --reverse, without substituting HEAD or a worktree path.
+- home-list: judged: One list at home contains three entries before the menu: the till's choice and reason first, then the printer's choice and reason and its only stand-in disclosure, naming the missing paper receipt, the typed replacement and the lack of proof on the intended input.
+- bodies: judged: The printer Summary preview repeats the paper receipt disclosure verbatim without proposing a duplicate PR. The till Summary preview contains no printer disclosure.

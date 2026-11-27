@@ -1,6 +1,8 @@
-for: 443f6c393c9728dbfa954f2d0c084168f36ae3e12b49db012e2c50dd1242b073
+for: bdcaff1cb06eddd67272575e8bdfda443b2be6a4c7a206f8949a37078147d142
 
 ## Change
+
+On a retry with a validated receipt and no companion worktree, read the companion's feature range from its primary using the attempted feature SHA. The choices-list-legs replay checks that range selection, the stand-in in the shared menu and its attribution in the PR Summary preview. The deterministic recipe test covers an unreadable range; neither check edits a live PR.
 
 The existing coordinated finish instructions now hold the decision list rendering rule for all ship menus. The rule keeps its meaning. Replay choices-list to check how the model explains choices and prints every disclosure when the stand-ins alone exceed the word limit.
 
@@ -24,6 +26,7 @@ Read the push procedure on identifying a rework subject, before preflight or the
 
 ## Expected to move
 
+- choices-list-legs/receipt-range: fails -> holds - Recover the feature range in the companion primary at the receipt's attempted head.
 - choices-list-legs/home-list: fails -> holds - Collect every feature range into one home list.
 - choices-list-legs/bodies: fails -> holds - Copy only the receiving PR's own disclosures.
 - stand-in-linked-and-rework-body/sole-entry: fails -> holds - Show the disclosure even without another decision.
