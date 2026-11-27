@@ -1,6 +1,7 @@
 # Respect the amend grant and fund fix rounds in implement
 
 > **Superseded by:** [doc/specs/2026-11-14-spec-gate-four-row-menu.md](./2026-11-14-spec-gate-four-row-menu.md) - the gate hint line and reply table in "Gate option 2 and the written value" only (the written `**Amend-grant:**` value and its decoding stay)
+> **Superseded by:** [doc/specs/2026-11-27-gh-170-hands-free-implementation.md](./2026-11-27-gh-170-hands-free-implementation.md) - the stop outcome "an escalated-round failure with no funded round left" in Design "Funded rounds (phase 2)" and "`stop-note.md` stays byte-identical" in Design "Stop note" only
 
 **Goal:** The implement orchestrator stops only for approvals the human has not already given: an amend-class question under an active `**Amend-grant:**` applies its recommended edit in the same turn, and a fix-round budget on the same grant line continues a stalled loop past the escalated round until the budget is spent. The header line stays the single grant carrier; a phase-tracker mirror ships in this gauntlet only if the eval shows the prose fix is not followed.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
