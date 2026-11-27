@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -132,6 +132,11 @@ test('each exceptional wave entry reaches its procedure before acting', () => {
     ['`REJECT` ->', 'escalation-and-funding'], ['**Spent-counter test.**', 'escalation-and-funding'],
     ['Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`', 'escalation-and-funding'], ['Funded round fails the same way', 'escalation-and-funding'],
   ]) assert.ok(line(site).includes(`](#${anchor})`), site);
+  const wavesDir = 'skills/gauntlet/implement/waves';
+  for (const file of readdirSync(join(root, wavesDir)).filter(name => name.endsWith('.md'))) {
+    assert.doesNotMatch(read(join(wavesDir, file)), /pending the human(?:'s)? decision/i, file);
+  }
+  assert.match(line('**Lifecycle per task:**'), /`in_progress`.*#when-a-subagent-fails/);
   for (const event of ['Escalated round fails', 'Wave reaches `4 + N`']) assert.match(line(event), /spent-counter test/);
   assert.match(read('skills/gauntlet/implement/waves/implement-amendments.md'), /nonempty `redraws` array \[stops\]\(\.\/escalation\.md#escalation-and-funding\)/);
   assert.match(recovery, /Use Recovery for an interrupted diagnosis; stop on other delegated failures/);
