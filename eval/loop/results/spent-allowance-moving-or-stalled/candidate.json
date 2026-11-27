@@ -1,0 +1,70 @@
+{
+  "sample": "spent-allowance-moving-or-stalled",
+  "arm": "candidate",
+  "skillSha": "f31a47d0342cb5b63d795cd11149958442665fca461837b49e87c48f2fde47db",
+  "inputSha": "bddb856560f943a3b40cfe186e65adb0fd231d0ff5ba6f9cc6e51823b7d27304",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot 1: next driver action is to redispatch row 2\n\n**Decision: no human stop. Dispatch row 2 again with an ordinary loop-implementer attempt.**\n\n## Why there is no stop\n\n- **Row attempts stop:** Rule 2 of Before each dispatch owns this stop. Row 2 has 1 attempt against an effective allowance of 4, so it is not exhausted.\n- **Worker's request for a spec call:** Human stop says to never stop on a failed row below its effective allowance. The driver reads the evidence cell only for an `unreachable:` marker, never to decide whether a human must rule. There is no marker, so Unreachable returns sends it straight back to the ordered table.\n- **No amendment:** I cannot invent a stop, menu or approval the spec's gate did not ask for. No amendment is pending.\n\n## Ordered table\n\n| Rule | Check | Result |\n|---|---|---|\n| 1 | No open or failed row? | No. Row 2 is failed. |\n| 2 | Attempts ≥ effective allowance? | No. 1 < 4. |\n| 3 | Two empty-child or validation-miss returns? | No. There is only one attempt, so no rule-3 hint. |\n| 4 | Dispatch allowed | Yes. |\n\n**Target:** seed is already admitted, and there is no pending human retry. The rule is \"still-failed row named by the previous decision\", so the target is **row 2**.\n\n**Escalation check:** threshold = min(`escalateAfter`, 4 − 1). With the default `escalateAfter` of 3, that is min(3, 3) = 3. Pre-dispatch attempts are 1, and 1 < 3, so:\n- this is not an escalated round,\n- I do not resolve `escalationLoop`,\n- I omit the model override,\n- I write no `row 2 escalated` decision.\n\n## Durable changes before dispatch (no commit)\n\n1. Run `git -C \"<worktree>\" rev-parse HEAD`, keep the result as `HEAD_BEFORE`, and save a copy of the ledger.\n2. Read the current `iterations: <i>`. In the ledger on disk:\n   - set `iterations: <i+1>`;\n   - add `pending: 2 | home | <HEAD_BEFORE sha>`.\n3. Call `plan_tracker({ action: \"refresh\", path: \"<absolute ledger path>\" })`.\n4. Resolve the scratch folder:\n   - `SCRATCH=\"$(git -C \"<worktree>\" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp\"`\n   - `mktemp \"$SCRATCH/loop-out.XXXXXX\"` to get the output path.\n\n## Dispatch call (foreground)\n\n```text\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"<absolute worktree>\", output: \"<SCRATCH>/loop-out.XXXXXX\",\n  outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: <i>\\nspec: <abs spec>\\nledger: <abs ledger>\\nbase: <base SHA>\\ntarget: 2\\nprevious decision: <row 2's admitted failed line, verbatim>\\nhint: none\\nwording: <abs commit-message.md>\\nticket: <held ticket or none>\\nscratch: <abs SCRATCH>\" })\n```\n\n- **`hint: none`:** the worker's wish for a spec ruling is not written into the hint. Its own failed decision line already carries the retry guidance, and the next worker reads it.\n- **`iteration: <i>`:** this is the pre-bump count. The ledger and admission expect `<i+1>`.\n\n## Human-facing output\n\nThere is no `gauntlet: question` or stop header. There is only a short intermediate line, such as `dispatching row 2 (attempt 2 of 4)`, and the turn continues in the same turn into Validate the return when the child returns. That step checks for:\n- a DONE return,\n- a clean tree,\n- exactly one commit,\n- `returned: 2 | home | <sha>`,\n- `iterations: <i+1>`,\n- row 2 at attempts 2 with evidence and a conforming decision line.\n\nAfter that check, the driver refreshes and returns to the ordered table.\n",
+      "words": 507,
+      "wallMs": 16912,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Snapshot 1 — next action: dispatch row 2 again\n\nRow 2 has **1 of 4 attempts** consumed. A failing test and the worker’s request for a human spec call do **not** authorize a human stop. There is no `unreachable:` marker or pending amendment. Do not investigate the blank-label failure, amend the spec, or ask the human to rule on it.\n\n**Next target:** `2`.\n\n#### Calls and durable changes — described, not executed\n\nUse the retained absolute worktree, ledger, spec, wording, and scratch paths.\n\n1. Read the ledger and perform the prescribed pre-dispatch checks and git boundary reads. Preserve the existing failed evidence and decision history. One failed attempt alone establishes neither stagnation nor two consecutive validation misses.\n2. Apply the escalation predicate using the **held** threshold:\n   - With the default threshold, this second attempt is **not escalated**.\n   - If the held threshold instead makes escalation due and row 2 has no spent marker, resolve `gauntlet_setting({ key: \"escalationLoop\" })`, append and commit the prescribed escalation decision, then refresh once. Pass its resolved model on this dispatch only. Availability alone does not establish that escalation is due.\n3. Save the pre-dispatch ledger and record:\n   ```text\n   HEAD_BEFORE = git -C \"<worktree>\" rev-parse HEAD\n   i = current ledger iterations\n   ```\n4. Write, without a separate dispatch-state commit:\n   ```text\n   iterations: <i + 1>\n   pending: 2 | home | <HEAD_BEFORE>\n   ```\n   Preserve `returned:`, allowance, all row cells, and prior decisions. Then call:\n   ```text\n   plan_tracker({ action: \"refresh\", path: \"<absolute ledger path>\" })\n   ```\n5. Resolve scratch through the prescribed checkout-local recipe and create the output file:\n   ```sh\n   (cd \"<worktree>\" && mktemp \"$SCRATCH/loop-out.XXXXXX\")\n   ```\n6. Dispatch exactly one foreground child:\n   ```text\n   subagent({\n     agent: \"loop-implementer\",\n     context: \"fresh\",\n     async: false,\n     cwd: \"<absolute worktree>\",\n     output: \"<unique absolute output path>\",\n     outputMode: \"file-only\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent validates the ledger and the commit\"\n     },\n     task: \"iteration: <i>\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <ledger base SHA>\\ntarget: 2\\nprevious decision: <latest admitted target decision, or none after a repair>\\nhint: none\\nwording: <absolute wording path>\\nticket: <held reference or none>\\nscratch: <absolute SCRATCH>\"\n   })\n   ```\n   Add `model` only if step 2 establishes that this is the escalated round. Do not turn the worker’s human-spec-call request into a driver ruling in `hint:`.\n\nThe dispatch consumes an iteration immediately; **attempts remains 1 until the return is admitted or repaired**. Do not fabricate a completed return or its commit.\n\n#### Human-facing output\n\nA dispatch report, **not** a question or stop menu:\n\n```text\nDispatching row 2: 1 of 4 attempts consumed.\nTask iteration: <i> (pre-bump); ledger iteration: <i + 1> (consumed).\n```\n\nIf escalation was actually triggered, also print:\n\n```text\nescalated round for row 2\n```\n\nAfter the child returns, validate its boundary and ledger result, refresh after admission or repair, and continue through the ordered table in the same turn.\n",
+      "words": 436,
+      "wallMs": 23373,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "bbbc4baa4e513254f7399d02e142c36694fd65cd60e0db09d97cb0131abefab9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "adf142128ea487fbfba34ed9623649643621c63aed6cf18ba63b504b896c19a9",
+      "baselineOutputSha": "77cfe9d171aac0700e49fa8749b096c07c15b18e916a7c4137cd7d5a38cceebd",
+      "candidateOutputSha": "d2e1c0b6056b6ef7193b1291f6806e28d65a28db9fe4d02fca5255518f5c94d6",
+      "facts": {
+        "below": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "The fact holds in both outputs, so the After wording did not move it: Before already redispatches row 2 in the same turn (attempt 2 of 4, 'no stop, no gauntlet: question and no menu', worker's spec-call wish treated as 'evidence only'), and After does the same with a more explicit lead ('Decision: no human stop. Dispatch row 2 again') and a direct citation that a failed row below its effective allowance never stops and that the evidence cell is read only for an `unreachable:` marker. The expected fails -> holds movement is therefore not visible on this sample, because Before did not fail here; if the earlier wording did produce a stop on other runs, this pair does not show it. To keep the fact, retain the After wording's explicit statements that the driver never stops on a below-allowance failed row, reads worker evidence only for the unreachable marker, does not write the worker's request into `hint:`, and continues into validation in the same turn; none of the Change's additions (reopened-row dispatch without a second authorization, seed-disposition handling) conflicted with those here.",
+      "wallMs": 5073,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "bbbc4baa4e513254f7399d02e142c36694fd65cd60e0db09d97cb0131abefab9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "adf142128ea487fbfba34ed9623649643621c63aed6cf18ba63b504b896c19a9",
+      "baselineOutputSha": "9563cee25d35a10792cfcf4ff90cc6bd1b65b40b58dac4025777e1dc4b1c05db",
+      "candidateOutputSha": "d834aef4f840c6fe933b85b6ef8856683cd216fe0e2865f44060aa093fe3d644",
+      "facts": {
+        "below": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "Both outputs name dispatching row 2 as the next action, state that the worker's request for a human spec call does not create a human stop at 1 of 4 attempts, and place the dispatch in the same turn rather than behind a question or stop menu, so the fact did not move between Before and After; the expected fails -> holds shift is not visible on this case because Before already satisfied it. After makes the retry more explicit ('dispatch row 2 again', 'A dispatch report, not a question or stop menu') and adds 'continue through the ordered table in the same turn', but it dropped Before's direct statement that the report must be followed by the dispatch in the same turn; its heading 'described, not executed' plus the absence of that sentence leaves the same-turn dispatch slightly more implicit than in Before. To keep the fact robust while delivering the Change, retain an explicit sentence such as 'in a live session the dispatch follows this report in the same turn, with no second authorization', alongside the wording that the worker's requested spec call does not turn a below-allowance failure into a human stop.",
+      "wallMs": 4903,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "563117584d4f3d11f905638907b61b87a5064417"
+}

@@ -20,14 +20,13 @@ For a dispatched task missing structured result text, also admit capture reads f
 
 Read [dispatch-contract.md](./dispatch-contract.md) now for schemas, anchored payloads and one-step carriers. Read [implement-amendments.md](./implement-amendments.md) now for delegated amendments.
 
-Use primary shell coordination only: `rev-parse`, `status --porcelain`, `diff --stat`, `apply`, `reset --soft`, `add -A`, path-scoped `add -- <plan> <spec>` for committed-original entry, `commit`, `update-ref`, `ls <Artifacts>/structured-output/*/output.json` only for missing-result recovery and `test -s <patch>` only for patch admission, plus the marked preflight, repair-base and scratch-index recipes and scoped-command redirection. Prohibit content-loading `cat`, `sed -n`, `git show <path>`, `git diff` without `--stat`, and contextual `grep`/`rg` over source. Route source questions, provenance and human escalation wording through the answer/evidence carrier; stop on delegated failure; for an exhausted-escalation stop note, emit it in the parent turn from held observations with no further dispatch or shell command.
+Use primary shell coordination only: `rev-parse`, `status --porcelain`, `diff --stat`, `apply`, `reset --soft`, `add -A`, path-scoped `add -- <plan> <spec>` for committed-original entry, `commit`, `update-ref`, `ls <Artifacts>/structured-output/*/output.json` only for missing-result recovery and `test -s <patch>` only for patch admission, plus the marked preflight, repair-base and scratch-index recipes and scoped-command redirection. Prohibit content-loading `cat`, `sed -n`, `git show <path>`, `git diff` without `--stat`, and contextual `grep`/`rg` over source. Route source questions, provenance and human escalation wording through the answer/evidence carrier; route an interrupted delegate through [Recovery](#recovery); stop on other delegated failures; for an exhausted-escalation stop note, emit it in the parent turn from held observations with no further dispatch or shell command.
 
 ## Continuous Execution
 
 **Do not pause to check in with the user between tasks.** The plan is already approved. Pause only when:
 
-- A subagent returns `NEEDS_CONTEXT` or `BLOCKED` (see [Implementer Status](#implementer-status))
-- An escalated round fails with no funded round left (stop note per [Escalation and funding](#escalation-and-funding))
+- [Implementer Status](#implementer-status) routes a decision through the takeable-decision ladder to a stop, or [The Wave Loop](#the-wave-loop) reaches its [stop note](#escalation-and-funding).
 - A ⚠️ workflow warning fires
 
 Reaching the end of the plan is not a pause: continue through verification as defined in [After All Tasks](#after-all-tasks-complete).
@@ -73,10 +72,10 @@ Every implementer dispatch returns one of:
 |---|---|---|
 | `DONE` | Implemented + tests pass + self-reviewed; work present in the worker's tree; the wave commit follows SHIP | Proceed to integration and gate |
 | `DONE_WITH_CONCERNS` | Implemented + tests pass, but flagged a deviation or risk | Read concerns. If acceptable, proceed. If not, dispatch fix subagent. |
-| `NEEDS_CONTEXT` | Implementer needs information you have | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions under amend permission, follow [takeable-decision ladder](#escalation-and-funding); otherwise answer and re-dispatch or escalate to the user. |
-| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions under amend permission, follow [takeable-decision ladder](#escalation-and-funding); otherwise diagnose and re-dispatch or escalate to the user. |
+| `NEEDS_CONTEXT` | Implementer needs information you have | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions follow the [takeable-decision ladder](#escalation-and-funding). |
+| `BLOCKED` | Cannot proceed (missing dependency, spec contradicts code, environment broken) | For a spec-defect citation, take the amendment route below first. Resolve fact asks per [lookup handling](./stop-note.md). For decisions follow the [takeable-decision ladder](#escalation-and-funding). |
 
-Classify each question: treat a question whose candidate answers are each edits to the spec, plan, or an approved rule as an amendment batch per [amendment-surface.md](../../amendment-surface.md), never a decision. Treat a drafted AC row text correction backed by quoted implementer evidence (test, assertion, or code line) as an amend through the delegated amendment route; record it in the granted `amend:` audit body. [Stop for redraws](#escalation-and-funding): ticket rows, row add/remove, reviewer-only or taste objections, problem changes, or component boundary changes. Execute the delegated amendment reference above before other routing, preserving Standing grants decoding, recommended-choice application without reviewer, menu or confirmation turns under amend permission, and the same-turn plan-writer apply, parent `plan_check`, tracker update, printed amendment and single `amend:` commit; without permission retain the surface's menu and escalation/redraw routing. For remaining questions, delegate artifact location, value or existence as a fact ask; treat scope and option choices as decisions, and another-round approval as a decision only with no funded round left.
+Classify each question: treat a question whose candidate answers are each edits to the spec, plan, or an approved rule as an amendment batch per [amendment-surface.md](../../amendment-surface.md), never a decision. Treat a drafted AC row text correction backed by quoted implementer evidence (test, assertion, or code line) as an amend through the delegated amendment route; record it in the granted `amend:` audit body. [Stop for redraws](#escalation-and-funding): ticket rows, row add/remove, reviewer-only or taste objections, problem changes, or component boundary changes. Execute the delegated amendment reference above before other routing, preserving Standing grants decoding, recommended-choice application without reviewer, menu or confirmation turns under amend permission, and the same-turn plan-writer apply, parent `plan_check`, tracker update, printed amendment and single `amend:` commit; without permission retain the surface's menu and escalation/redraw routing. For remaining questions, delegate artifact location, value or existence as a fact ask; treat scope and option choices as decisions. Use the transition table for another round.
 
 Implementer prompt templates must instruct subagents to return one of these statuses explicitly.
 
@@ -253,7 +252,7 @@ At a chain failure (a dispatch error or a failed task), or when a dispatched tas
 
 ### Recovery
 
-At session resume before any dispatch, or when a re-review finds no prior review-tree transcript line, reuse the full procedure of `chain-recovery.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it.
+At session resume before any dispatch, after an interrupted delegate, or when a re-review finds no prior review-tree transcript line, reuse the full procedure of `chain-recovery.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it.
 
 ## When a Subagent Fails
 
@@ -290,7 +289,7 @@ For a coordinated run, execute verification and the following reviews for every 
 ## Red Flags - STOP
 
 - Writing code yourself instead of dispatching.
-- Pausing between tasks for anything other than `NEEDS_CONTEXT`, `BLOCKED`, a fix-loop escalation, a workflow warning, a redraw, or an amend with no standing grant.
+- Pausing between tasks for anything outside the takeable-decision ladder or transition table except for a workflow warning, a redraw, or an amend with no standing grant.
 - Dispatching parallel implementers on overlapping files, on a shared mutable runtime resource, or without `worktree: true`.
 - Pasting task text, spec excerpts, or report contents into a dispatch, or opening plan/spec/source files in the primary or reading a report beyond its bound
 - Dispatching wave review before a green gate, or per task inside a wave.

@@ -196,7 +196,7 @@ assert.match(realHandoff, /Never refresh or mutate either tracker/);
 const amendment = real("skills/gauntlet/amendment-surface.md");
 assert.match(amendment, /skip `plan-writer` and `plan_check`/);
 assert.match(amendment, /Commit spec \+ ledger together/);
-assert.match(amendment, /Stopped: row <n> reopened by amendment during verify/);
+assert.match(amendment, /During verify, return a row re-bound by an approved amendment to ledger implementation without a second authorization, with or without amend permission/);
 assert.match(amendment, /## Dispatch[^\n]*## Validate the return/);
 assert.match(realHandoff, /copy the optional top-level rework base after the pairs as the contract specifies/);
 assert.match(candidateRules, /use its full `Rework base:` SHA as `<base>` when present, else the first pair's full `Pre-rework head:` SHA/);

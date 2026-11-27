@@ -179,13 +179,13 @@ These are the stops this recovery and authorization contract keeps or touches, n
 | Verification repairs reach allowance; escalation model unavailable for a verification repair | Amend, stop | Same |
 | Conformance fix-round cap | Stops at cap | Funds up to allowance, then stops |
 | Spec amendment, including an `unreachable:` cut | Reviewer applies evidence-backed factual corrections; other amendments stop for review | Applies with no human turn |
-| Row reopened by an applied amendment during verify | Authorize the row's return, or stop | Runs within remaining row allowance, with verify active, then reruns step 1 |
+| Row reopened by an applied amendment during verify | Runs within remaining row allowance, with verify active, then reruns step 1 | Same |
 | A redraw | Stops | Stops |
 | Run cannot start: missing `checks:`, `allowance:` or `returned:`, a `cap:` line, unavailable settings tool, or seed `plan_check` findings | Stops | Stops |
 | Dirty tree with no dispatch pending; on resume, admission question or missing-history stops (unrecoverable pre-dispatch ledger/tuple, or unreadable child attribution with no tuple) | Stops | Stops |
 | Dispatch returns an async handle despite `async: false` | Stops | Stops |
 
-A budget reply does not supply a missing escalation model. A reopened row already at allowance takes the row stop with or without amend permission. Without amend permission, verify keeps `Stopped: row <n> reopened by amendment during verify`; under amend permission, the driver dispatches without a second authorization, with verify active and no phase reset, then reruns step 1 after closure. See [Loop engine operations](configuration.md#loop-stop-boundaries).
+A budget reply does not supply a missing escalation model. A reopened row already at allowance takes the row stop with or without amend permission. Once an amendment is approved, the driver dispatches without a second authorization, with verify active and no phase reset, then reruns step 1 after closure. See [Loop engine operations](configuration.md#loop-stop-boundaries).
 
 Ordinary answers outside skill-owned turns, invented gates, tracker/ticket/PR payloads, and private child results are not marker surfaces. Evidence comments still begin with `Delivered: <sha>`; response drafts, close comments, and handoff brief contents keep their own formats. The marker belongs to the surrounding assistant message.
 

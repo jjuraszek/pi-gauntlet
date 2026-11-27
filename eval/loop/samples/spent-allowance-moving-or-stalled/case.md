@@ -1,0 +1,1 @@
+Replay snapshot 1 and name the next driver action. Row 2 is the only unresolved row, failed once at effective allowance 4. Its selective parser test still fails on a blank label. The worker's evidence says it wants a human spec call. There is no unreachable marker. All ordinary dispatch prerequisites and the escalation setting are available; no amendment is pending.

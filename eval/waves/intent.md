@@ -1,10 +1,12 @@
-for: 2377daf9ceaecac1832e69f11b615cd91d1807d2be16a373f03cf80fdea15758
+for: 2d8c424ecce518f537d2fc6256af2f64248e86f46daf6bb14ea99b207ca01db6
 
 ## Change
 
 Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces.
 
 Dispatch a wave without marking each task in progress. Keep task completion after the wave commit.
+
+Repeat an identified, unwritten interrupted dispatch in the same turn; take recommended in-spec worker decisions with or without amend permission. The selected replays check routing rather than real recovery or commit creation.
 
 Compose committed-originals and accepted-wave messages through the shared commit-message reference using held spec metadata and manifest headings. Preserve scoped entry staging, delegated source reads, isolated reset semantics and completion after the wave commit. Keep wave-commit-wording/boundary passing.
 Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
@@ -20,6 +22,10 @@ Replace per-task spec and per-wave code review with one post-gate integrated wav
 - third-attempt-escalated/reads: fails -> holds - Read escalation before starting the escalated round.
 - clean-wave-skips-failure-rules/reads: fails -> holds - Complete an ordinary repair and wave commit without reading either conditional file.
 - tracker-auto-start/dispatch: fails -> holds - Starting the workers needs no tracker writes.
+- helper-interrupted-redispatch/helper: fails -> holds - Re-dispatch the read-only helper once.
+- helper-interrupted-redispatch/worker: fails -> holds - Charge the interrupted isolated task and retain accepted siblings.
+- worker-decision-taken/taken: fails -> holds - Take the in-spec recommendation without waiting for permission.
+- worker-decision-taken/choice: fails -> holds - Hold the choice for the wave commit.
 
 - wave-commit-wording/plan: fails -> holds - Compose the initial commit from the shared plan recipe.
 - wave-commit-wording/wave: fails -> holds - Compose the accepted wave subject from its task headings.

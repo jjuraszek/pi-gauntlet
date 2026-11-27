@@ -1,0 +1,1 @@
+- below: judged: Dispatches row 2 again in the same turn; the worker asking for a human spec call in its failed evidence does not turn a below-allowance failure into a human stop.

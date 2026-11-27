@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Resume recoverable wave interruptions and return rows reopened by approved amendments to implementation without a second question. (#170)
+
 ## v9.1.3 - 2026-11-27
 
 - Gatekeep recommends preserving the requirement when a change would drop the intended outcome, even if the ticket asks for the change. Otherwise, the ticket decides, or if it is absent or silent, the PR's goal determines whether the change is necessary. When that judgment backs the code, the first report lists "the spec was not updated" as a smaller point instead of blocking merge on the mismatch.

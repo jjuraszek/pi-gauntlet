@@ -1,0 +1,90 @@
+{
+  "sample": "worker-decision-taken",
+  "arm": "candidate",
+  "skillSha": "fc995a19625ae3417395ad239a44309e3fb9ae8f802d543bf249cdd341197adb",
+  "inputSha": "92565723f1edb5457e0969f690ca55b2556c0260cb97da2ca1bd00711516d7cc",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next turn: answer task 3's BLOCKED question and re-dispatch its last ordinary attempt\n\n## 1. Classify the question\n\n- **Not an amendment.** Neither candidate answer edits the spec, the plan or an approved rule. Both are implementation choices that meet the approved trim rule.\n- **Not a fact ask.** No location, value or artifact needs to be looked up.\n- **A takeable decision.** Every option fits the approved spec, and there is a recommendation: the existing helper, because it already handles blank names.\n- **Repeat check.** I compare the whitespace-normalized blocking evidence against decisions already auto-taken on task 3. None is held, so there is no repeat and no `Recommendation: none - evidence repeats task 3`.\n- **No report read.** The structured `question` is enough to act on, so I spend no bounded `read` on the report.\n\n## 2. Same turn: print, answer, re-dispatch\n\nPrinted observation:\n\n```\ntook recommendation: reuse the existing parser helper to trim names for task 3\n```\n\n**Counter.** Under the transition table, an answered BLOCKED counts `+1` for task 3. This re-dispatch is task 3's last ordinary attempt under the two-attempt limit.\n\n**What gets sent.** The retained repair payload goes out verbatim, with the answer appended. The human is asked nothing.\n\n**Which tree.** It runs in the tree the blocked attempt ran in:\n- the same owning checkout for an in-place wave, or\n- the already-registered `RP_TREE` (with `worktree: true`) for an isolated wave.\n\nThere is no rebuild and no re-snapshot.\n\n**Carrier settings.** This is a repair, so the one-step carrier omits `context`, and it sets no `model`.\n\n```ts\nsubagent({ async: false, cwd: \"<retained owning checkout | registered RP_TREE>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_3\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave<w>-repair<k>-task3.md\", outputMode: \"file-only\",\n      task: `<retained task 3 repair payload verbatim: planPath: <abs plan>; anchor: ### Task 3:; Spec: <abs home spec>; Leg: <leg>; Rules: <combined Rules>; SCOPED_TEST_COMMANDS: <retained scoped command>; wording: <abs commit-message.md>; ticket: <held ticket or none>; ## Previous review report (re-review trigger) <prior report path>>\n\n## Answer to your BLOCKED question\nTrim names with the existing parser helper; do not add a local implementation. It already handles blank names, and both options meet the approved rule.` }\n  ] /* isolated only: , worktree: true */,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n## 3. After it returns\n\nI print the actual result first. For an in-place wave the line ends `delta none applied n/a`:\n\n```\nwave <w> repair <k> task 3 <status> report <path> delta <path> applied <yes|no>\n```\n\nThen I run these commands, all in the owning checkout:\n\n```bash\ngit -C <worktree> apply --index <Artifacts>/worktree-diffs/step-0/task-0-implementer.patch   # isolated only\ngit -C <worktree> worktree remove --force <RP_TREE>                                           # isolated only\ngit -C <worktree> add -A\ngit -C <worktree> diff --stat --cached <pre-repair tree>\n(cd <worktree> && <task 3 test command>) > <REPORT_DIR>/wave<w>-gate-<i>.log 2>&1; echo \"exit $?\"\n```\n\nNext steps depend on the result:\n\n- **Green gate and non-empty delta:** run the fix-delta tree block, then dispatch one `wave-reviewer` re-review. It carries the `## Previous review report (re-review trigger)` path, the `## Fix delta` tree pair, and the same `BASE_SHA` with `HEAD_SHA: WORKTREE`.\n- **Failure** (non-DONE status, red gate, empty delta or `FIX_FIRST`): `failed[3]` reaches 2. The escalated round on `implModel` follows; it is not a stop.\n\nI stop here and invent no results.\n\n## 4. Record held for the wave commit\n\n```\n- choice | trim names with the existing parser helper (task 3) | already handles blank names; both options meet the approved rule\n```\n\nThis line is held for the wave commit. When I compose the commit, the Body rules keep decision lines out of the message body. So the commit states the choice, if at all, as a whole sentence, and the commit message itself is built from the wave's task headings and the ticket.\n\n## 5. Auto-apply amend grant versus no grant\n\nThe behaviour is identical either way.\n\n- **Why the grant doesn't matter:** the ladder takes an in-spec recommendation \"with or without amend permission\".\n- **What is skipped either way:** no grant decoding, no `Amend-prepare:`, no menu, no `amend:` commit.\n\nA grant would only matter if a candidate answer were a spec or plan edit.\n\n## 6. Contrast: three proposed fixes that are not takeable\n\n| Proposed fix | Route | With grant | No grant |\n|---|---|---|---|\n| Discard uncommitted work | Stop and ask the human | End the turn on the question | Same |\n| Redraw the approved parser boundary | Redraw stop (component re-bounded) | Grant does not cover it; stop | Stop |\n| Buy access to a data service the spec never named | Paid, outside-repository action the spec doesn't name: stop and ask | End the turn on the question | Same |\n\nNone of these is taken or auto-applied. For any of them, the turn ends with a note like this, and task 3 stays `in_progress`:\n\n```\ngauntlet: question\nStopped on task 3 (<title>).\n\nProblem: <the proposed fix would discard uncommitted work | redraw the approved parser boundary | buy access to a data service the spec never names>, which needs your decision.\n\nFix options:\n  a) <in-spec alternative, e.g. trim with the existing parser helper>\n  b) <the proposed action, explicitly approved>\n\nPick one, or give another fix.\nRecommendation: a - stays inside the approved spec with no loss, redraw or paid action.\n```\n",
+      "words": 820,
+      "wallMs": 36285,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Next turn\n\nThis is an implementation choice, not an amendment: both options satisfy the approved rule. Take the recommendation without asking for permission.\n\nPrint:\n\n```text\ntook recommendation: reuse the existing parser helper for task 3\n```\n\nCount the answered `BLOCKED` attempt once. Use the one remaining ordinary attempt for the retry; do not escalate yet.\n\nThe bindings below refer to retained values, not newly discovered paths. Before dispatch, inspect the owning checkout without changing it:\n\n```bash\ngit -C \"$OWNING_CHECKOUT\" status --porcelain\n```\n\nDo not infer from this command that the prior worker made no edits. Preserve existing work. Reuse the retained dispatch tree and isolation mode; do not rebuild or discard anything. If the required tree or write-state observations are unavailable, stop rather than inventing them.\n\nRetry with the retained original payload **verbatim**, appending only the answer:\n\n```ts\nsubagent({\n  async: false,\n  cwd: retainedDispatchCwd,\n  chain: [{\n    parallel: [{\n      agent: \"implementer\",\n      output: retryReportPath, // allocated under the existing REPORT_DIR\n      outputMode: \"file-only\",\n      outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      task: retainedWorkerPayload + `\n\n## Answer to your BLOCKED question\n\nReuse the existing parser helper to trim the name. Both approaches meet\nthe approved rule; the reviewer recommends the existing helper because\nit already handles blank names. Preserve unrelated uncommitted work.\nReturn the dispatched task identity and an explicit implementer status.\n`\n    }],\n    // Preserve worktree: true for an isolated retry; omit for in-place.\n    ...retainedIsolationFields,\n    stopOn: {\n      path: \"/status\",\n      in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"]\n    }\n  }]\n})\n```\n\n`IMPLEMENTER_STATUS_SCHEMA` is the supplied contract, including the exact dispatched `anchor` or `anchors`. The retained payload must keep its checkout, parser-task anchor, absolute spec path, scoped command, `wording:` and `ticket:` values. Omit a fresh-context override for this repair.\n\nFor an isolated retry, reuse a registered repair tree when applicable; if integration changed and a new repair base is required, run the prescribed repair-base recipe first. Do not silently substitute the owning checkout for that dispatch root.\n\n### Record held for the wave commit\n\n```text\n- choice | Reuse the existing parser helper to trim names | Both options satisfy the approved rule; the existing helper already handles blank names.\n```\n\nKeep this as the wave’s decision/audit record. Do **not** paste the decision line into the Git commit body; commit wording follows the commit-message reference.\n\n### Permission distinctions\n\n| Proposed action | Routing |\n|---|---|\n| Choose the existing helper within approved scope | Auto-take the recommendation, even with no amendment grant. |\n| Amend an approved rule with valid amend permission | Delegated prepare, grant decoding, recommended-choice apply, parent `plan_check`, tracker reconciliation and the single amendment audit commit—no confirmation menu. |\n| Amend an approved rule without permission | Present the amendment menu and obtain the required human choice; do not auto-apply. |\n| Discard uncommitted work | Stop and ask the human before discarding it. |\n| Redraw the approved parser boundary | Stop at the redraw gate; amendment permission does not authorize the redraw. |\n| Buy access to a data service the spec never named | Stop and ask before taking the paid, outside-repository action. |\n\nNo retry outcome, test result, review verdict or commit is asserted here.\n",
+      "words": 474,
+      "wallMs": 33866,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "c82f5c765e675ea44ee405d79d24fc7c4cd669d29ae5595069260b28317f8f2a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "550f22f47d8e66138447fc4c44abd66d3f4a30ee0e85afd42a75ebc3580f0366",
+      "baselineOutputSha": "30f67320026bf9bc9f581aaf4e5e0efee1dae83fbef69d328b3082a4e86e7b01",
+      "candidateOutputSha": "0b22d7089d8dd21adcf354189746b08e97d7d26451330ae1cd76c66f82e05632",
+      "facts": {
+        "taken": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choice": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "exceptions": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The 'with or without amend permission' wording moved `taken`: After prints `took recommendation: ... for task 3`, appends the existing-helper answer and re-dispatches the retained payload in the same turn with no question, and says the behaviour is identical with or without a grant. Before did this only under an auto-apply grant and otherwise ended the turn on a `gauntlet: question` menu. The held-choice wording moved `choice`: After keeps an explicit `- choice | existing parser helper (task 3) | already handles blank names` line for the wave commit, whereas Before kept only the transcript 'took recommendation' line with no reason and said the commit carries no decision. `exceptions` holds in both, but narrowly in Before, which never auto-takes the three fixes yet calls discard 'not available' and the purchase 'a human-decided scope change' instead of explicitly asking; After ends the turn on a question for all three. To keep all three facts, keep the unconditional take sentence, the held choice-plus-reason line, and an explicit carve-out that discard, redraw and unnamed paid or outside-spec actions always stop and ask regardless of grant. Also tighten After's 'the commit states the choice, if at all, as a whole sentence', because 'if at all' leaves room for the choice and its reason to be dropped at commit time; say plainly where the held choice and reason land.",
+      "wallMs": 14244,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "c82f5c765e675ea44ee405d79d24fc7c4cd669d29ae5595069260b28317f8f2a",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "550f22f47d8e66138447fc4c44abd66d3f4a30ee0e85afd42a75ebc3580f0366",
+      "baselineOutputSha": "e4e230e5cc14c4a9f86f4edd9ec00e811999aa5593f9b19746d9d256e6d2bc8f",
+      "candidateOutputSha": "fc14f7966be61e8f89234620139bdd9ce72a9e64a391a684300ae4cae0b78462",
+      "facts": {
+        "taken": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "choice": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "exceptions": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved `taken` by stating up front that the helper choice is an in-spec implementation decision taken \"without asking for permission\", printing the `took recommendation` line for task 3 unconditionally, and repeating in the permission table that it is auto-taken \"even with no amendment grant\"; Before failed because its no-grant branch printed a `gauntlet: question` menu and dispatched no retry. `choice` holds in both: Before kept the decision and its blank-names reason in an audit record through the wave commit, and After keeps an explicit `choice | ... | reason` line as the wave's decision record, while both keep it out of the commit message. `exceptions` holds in both: Before stops for explicit approval or authorization on redraw and purchase and refuses to discard work, and After says stop and ask for discard and purchase and stop at the redraw gate. To keep these stable, retain the unconditional took-recommendation line and the retained-payload-plus-answer redispatch. Consider making the redraw row say explicitly that the human is asked (as the discard and purchase rows do) so `exceptions` does not rest on reading \"stop at the redraw gate\" as asking, and avoid conditionals such as \"if the required tree or write-state observations are unavailable, stop\" growing into something that reads as a question before the redispatch, since that would put `taken` at risk.",
+      "wallMs": 6090,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "563117584d4f3d11f905638907b61b87a5064417"
+}
