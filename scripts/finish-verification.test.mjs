@@ -265,6 +265,19 @@ test("finish preserves rendered template whitespace and the skill line budget", 
   assert.ok(skill.trimEnd().split("\n").length < 500);
 });
 
+test("ship loads push rules at rework preflight and row selection, not on ordinary menus", () => {
+  const rework = skill.split("**Rework PR subject - preflight and six-row menu.**")[1];
+  const preflight = rework.split("Read the record form:")[0];
+  const row = skill.split("#### PR-subject row 1: Push to the PR branch")[1].split("#### Option 1:")[0];
+  const normalAndDetached = rework.split("**Normal repo and named-branch worktree")[1].split("### Step 5:")[0];
+  for (const [site, trigger] of [[preflight, /PR-rework subject/i], [row, /row 1/i]]) {
+    assert.match(site, trigger);
+    assert.match(site, /reuse the full procedure of [^\n]*pr-branch-push\.md[^\n]* only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting\. Stop on an unreadable file naming its path; never reconstruct it\./);
+  }
+  assert.doesNotMatch(normalAndDetached, /pr-branch-push\.md/);
+  assert.ok(!skill.includes("Close the absorbed PRs with these comments?"), "the push gate lives outside the main ship file");
+});
+
 test("PR-list close question follows body edit and precedes completion", () => {
   const row = skill.slice(skill.indexOf("#### PR-subject row 1:"), skill.indexOf("#### Option 1:"));
   assert.ok(row.indexOf("gh pr edit") < row.indexOf("Close the absorbed PRs with these comments?"));
