@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle+: skills/gauntlet-handoff/SKILL.md
 bundle+: skills/gauntlet/implement/loop/loop.md
 # Input

@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
+bundle-: skills/gauntlet/ship/pr-branch-push.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: skills/gauntlet-resume/reference/coordinated.md
 bundle+: skills/gauntlet/ship/ship.md

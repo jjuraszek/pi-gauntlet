@@ -1,4 +1,5 @@
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 
 No tools: compute budget state only at Before each dispatch, before choosing escalation or a human-stop menu. Each independent observation is an already-admitted clean ledger with allowance: 4, iterations: 30, no pending, unresolved rows 1 and 2, and Amend-grant: fund 9 fix rounds. Row 1 has attempts 6; row 2 has attempts 3. Decisions contains exactly:

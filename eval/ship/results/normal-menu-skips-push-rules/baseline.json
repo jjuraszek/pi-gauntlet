@@ -1,0 +1,34 @@
+{
+  "sample": "normal-menu-skips-push-rules",
+  "arm": "baseline",
+  "skillSha": "59505a7981717e3bc840b16f496276521b0016b1b42bf62238a68f5370ede3f6",
+  "inputSha": "51933cf69ad26323c3e478531d0e4cc564bdb427a4823deeaeb89472e8117ac8",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n---\n\n**Trace: procedures read to reach this menu**\n\n1. **Input (this skill).** I derived `$WORKTREE`, `$PRIMARY` and `$FEATURE`. The spec header has no `**Engine:** deferred` and no `**PR:**`, so I did not read `spec-pr.md`.\n2. **Project overrides (`gauntlet.md` ladder).** I applied the `# shared` sections and `# gauntlet` / `## ship`.\n3. **Step 1: `legs.md`.** I read it once to check for `## Legs`. The spec has no section or only one member, so the ordinary path applies.\n4. **Step 1: `verification-set.md`.** I resolved the verification set and the skip rule. Verification passed.\n5. **Step 1: Rework check.** The spec has no `## Rework record`, so this is not a rework PR subject.\n6. **Step 2: environment.** `symbolic-ref` resolves to a named branch, so the standard 5-option menu applies.\n7. **Step 3: base branch.** `merge-base HEAD main` succeeded, so `<base-branch>` is `main`.\n8. **Step 3.5: `../conformance-check.md`.** This is the canonical source for the freshness rule. The sentinel is a valid `status: CONFORMS (0 open)` with a matching `audited-base`, so I took the zero-gap fast path.\n   - I did not read `amendment-surface.md` or `disposition-protocol.md`; they apply to GAPS only.\n   - There is no `happy-path:`, `Deferred/deviates per spec:` or auto-applied-fixes line to print.\n   - The minors line renders as `none`.\n9. **Step 4: `../menu-layout.md`.** I applied it for the marker and numbered rendering.\n   - The amendment digest found zero audit rows in `git log main..HEAD --format=%b`, so it is omitted.\n   - The \"fix minors\" line is omitted because no minors are listed.\n\nI have not read `commit-message.md` yet. It is first needed in Step 5, once Option 1, 2 or 3 is selected. I stopped here, awaiting a reply.\n",
+      "words": 320,
+      "wallMs": 11757,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\nwhole-diff minors: none\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to main (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n\n---\n\n**Procedure trace — prescribed reads, not performed**\n\n1. **Step 4: Present Options** — select the normal named-branch five-option menu.\n2. **`../menu-layout.md`** — read and apply its menu-rendering rules.\n3. **Step 4: Amendment digest** — inspect `git -C \"$WORKTREE\" log main..HEAD --format=%b` for complete amendment audit rows. With no amendments, omit the digest.\n\nStop here, awaiting an option.\n",
+      "words": 108,
+      "wallMs": 12136,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "d54be15c207fe6bd80e8079973f424e9ff0d748f"
+}

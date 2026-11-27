@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
 bundle+: agents/plan-writer.md
 bundle+: skills/gauntlet/amendment-surface.md
 

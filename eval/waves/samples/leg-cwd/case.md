@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+bundle-: skills/gauntlet/implement/waves/escalation.md
 bundle-: skills/gauntlet/implement/waves/stop-note.md
 bundle+: skills/gauntlet/legs.md
 bundle+: skills/gauntlet/implement/waves/waves.md

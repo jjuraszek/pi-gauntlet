@@ -35,7 +35,7 @@ function historicalModels(candidate, baseline) {
 }
 
 const driver = read('skills/gauntlet/implement/loop/loop.md');
-const holds = read('skills/gauntlet/implement/loop/driver-holds.md');
+const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
 const recovery = read('skills/gauntlet/implement/loop/interrupted-recovery.md');
 const validation = driver.split('\n## Validate the return\n')[1].split('\n## Unreachable returns\n')[0];
 

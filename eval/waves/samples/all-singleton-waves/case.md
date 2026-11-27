@@ -1,1 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+bundle-: skills/gauntlet/implement/waves/escalation.md
+
 The owning checkout is /workspace/project, absolute planPath /workspace/project/doc/plans/feature.md, authoritative Spec /workspace/project/doc/specs/feature.md. Manifest anchors are ### Task 1: and ### Task 2:. WAVE_BASE_SHA is 1111111111111111111111111111111111111111; tracker indices are stable and in_progress during repair. All inputs are synthetic fixed observations. Three linear code tasks have disjoint files and each gets its own singleton wave. The scoped command and initial review for each wave pass with SHIP. Show next concrete commands and dispatches; invent no execution.

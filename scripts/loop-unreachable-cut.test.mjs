@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
+const stop = readFileSync(new URL('skills/gauntlet/implement/loop/human-stop.md', root), 'utf8');
 const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
 const section = readFileSync(new URL('skills/gauntlet/implement/loop/unreachable-returns.md', root), 'utf8');
 
@@ -25,7 +26,7 @@ test('admitted target evidence routes before budget and dispatch without driver 
   ]) assert.ok(section.includes(token), token);
   assert.doesNotMatch(section, /bound spent:|action counts|authorization bounds|raise an action's bound/);
   assert.match(driver, /Capture the decoded grant, row dispositions,/);
-  assert.match(driver, /refresh the held row dispositions, membership, checkout paths and Rules/);
+  assert.match(stop, /refresh the held row dispositions, membership, checkout paths and Rules/);
 });
 
 test('action accounting has no driver hook or eval resource', () => {

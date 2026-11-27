@@ -1,6 +1,8 @@
-for: a090e019ad9bd2e5539d679572854018f538edd635b970bdee136868dfb5e9fd
+for: af8ffbdf2772799f1fc3fc20c005dc66195cd7bbd672ec627c4ce4c371d51449
 
 ## Change
+
+Load the human stop procedure before a stop or ledger amendment, not for clean dispatch or interrupted-return recovery. The clean-dispatch and human-stop-counts samples test narrated reads on supplied observations, not live traces.
 
 Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
 
@@ -20,6 +22,7 @@ Rebind this intent to the combined assembly on the rebased tree without replayin
 The seed-dispositions replay indexes only acceptance criteria and assigns no Integration entry to the worker. Check the four dispositions, absent-disposition default, seed dispatch and partial-seed admission on this sample only.
 
 ## Expected to move
+- human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
 - unreachable-cut/default-row: fails -> holds - Route the defaulted row's unreachable marker through the same amendment as an explicitly in-scope row.
 - seed-dispositions/entries: fails -> holds - Leave all six Integration entries out of the ledger and worker assignments.
 

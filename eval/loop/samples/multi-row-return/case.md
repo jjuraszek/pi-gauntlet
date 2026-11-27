@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 bundle-: agents/loop-implementer.md
 bundle-: skills/gauntlet/implement/loop/coordinated-legs.md

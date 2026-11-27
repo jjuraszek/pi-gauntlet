@@ -1,1 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+bundle-: skills/gauntlet/implement/waves/escalation.md
+
 A task is in_progress in phase implement. The implementer returned NEEDS_CONTEXT for the required schema artifact. The spec documents two locations: docs/schema.json and the artifact registry. One bounded lookup at each found respectively no file and HTTP 404. There are no other documented locations. Render only the human stop note now; do not dispatch or change state.

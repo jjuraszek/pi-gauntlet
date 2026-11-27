@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const root = new URL('../', import.meta.url);
+const stop = readFileSync(new URL('skills/gauntlet/implement/loop/human-stop.md', root), 'utf8');
 const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
 const gate = driver.split('\n## After the loop\n')[1].split('\n2. Dispatch')[0];
 const wording = readFileSync(new URL('skills/gauntlet/commit-message.md', root), 'utf8');
@@ -13,8 +14,8 @@ const amendment = readFileSync(new URL('skills/gauntlet/amendment-surface.md', r
 
 const bookkeeping = [
   ['Ledger skeleton', 'Start the acceptance ledger', driver, 'shared Ledger skeleton sentence'],
-  ['Retry', 'Grant acceptance row <n> one more attempt', driver, 'shared Retry sentence'],
-  ['Allowance raise', 'Raise the attempt allowance by <n>', driver, 'shared Allowance raise sentence'],
+  ['Retry', 'Grant acceptance row <n> one more attempt', stop, 'shared Retry sentence'],
+  ['Allowance raise', 'Raise the attempt allowance by <n>', stop, 'shared Allowance raise sentence'],
   ['Escalation', 'Escalate acceptance row <n> to the stronger model', driver, 'shared Escalation sentence'],
   ['Row repair, validation miss or interrupted', 'Record a failed attempt on acceptance row <n>', driver + recovery + companion, 'shared Row repair sentence'],
   ['Seed repair', 'Record a failed baseline attempt', driver + recovery + companion, 'shared Seed repair sentence'],
@@ -87,7 +88,7 @@ test('verification repair markers append their ledger decisions for admitted and
 test('ledger amendments and cuts append one decision and use the patterned amendment subject', () => {
   assert.ok(wording.includes('| Amendment commit | `Amend the spec for <first item title, shortened to fit>`, adding ` and <N-1> more` for N > 1 within the subject limit |'));
   const decision = 'amended | <cut row n, or N item(s)> | <first item title>';
-  assert.ok(driver.includes(`Append \`${decision}\` and commit spec + ledger with the shared amendment source.`));
+  assert.ok(stop.includes(`Append \`${decision}\` and commit spec + ledger with the shared amendment source.`));
   assert.ok(amendment.includes(`Append one \`${decision}\` decision to the ledger, using \`cut row n\` only for a single-cut batch.`));
   assert.ok(amendment.includes('Commit spec + ledger together using the shared amendment message below'));
   assert.ok(amendment.includes('compose one commit per batch from its Amendment commit row, including ledger cuts and human-selected spec dispositions'));

@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/brief-contract.md
 ## Entry boundary
 Classify one unsuperseded home return during Pending recovery. Entry checks and confirmation have already passed; do not replay restoration.

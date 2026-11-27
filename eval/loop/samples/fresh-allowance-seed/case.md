@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/loop/human-stop.md
 bundle-: skills/gauntlet-resume/reference/restore-loop.md
 baseline-skipped: new sample, no pre-edit sample evidence
 

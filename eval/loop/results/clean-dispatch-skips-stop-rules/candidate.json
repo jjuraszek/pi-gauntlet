@@ -1,0 +1,80 @@
+{
+  "sample": "clean-dispatch-skips-stop-rules",
+  "arm": "candidate",
+  "skillSha": "92b8510c67ff134c4b835ab1e510d47c86848b0f812cfe779f4e42ba4a53766b",
+  "inputSha": "6c4fa7499a08edb43cf5fa9a046148666acc206d86d9430c9d386f1b060c6b39",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Snapshot 1: next dispatch for row 1\n\nNo tool calls have run. The steps below are the calls and edits the driver would make.\n\n## Reads before dispatch\n\n1. **Coordinated-legs reference: not read.** The run has a single leg, so `coordinated-legs.md` does not apply.\n2. **Ledger read.** The driver reads the ledger and checks the required header lines:\n   - `checks: commands` is present.\n   - There is exactly one `returned:` line, so the format is supported.\n   - `allowance: 4` is present and there is no `cap:` line.\n   - There is no `pending:` line.\n3. **Unreachable routing: nothing to do.** No failed row has been admitted, so there is nothing to route.\n4. **Ordered table**, evaluated in order:\n   - **Rule 1 does not apply.** Row 1 is `open`.\n   - **Rule 2 does not apply.**\n     - Row 1's effective allowance is 4, plus 0 retry lines, so 4.\n     - Its attempts are 0, which is below 4.\n   - **Rule 3 does not apply.**\n     - Row 1's window starts at ledger base, because there is no `row 1 retry` and no `amended` decision.\n     - The window check runs `git -C \"<worktree>\" log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>`.\n     - It finds only the seed return, and seed returns are excluded from row windows.\n     - So there are no child commits for row 1 and no `repair row 1` lines, which means no hint.\n   - **Rule 4 applies.** A dispatch is allowed.\n     - Seeding is complete: the ledger at HEAD holds the admitted `row 0 done | seeded …` decision.\n     - There is no human retry target and no failed row.\n     - The first open row is **row 1**, so that is the target.\n5. **Escalation check: this is a normal round.**\n   - No `row 1 escalated` marker exists.\n   - The threshold is `min(escalateAfter 3, 4 − 1) = 3`.\n   - Pre-dispatch attempts are 0, which is below 3.\n   - So no `escalationLoop` lookup happens, no marker is written, and the dispatch has no `model` override.\n\n## Durable changes (ledger only, nothing committed)\n\n- Record `HEAD_BEFORE` with `git -C \"<worktree>\" rev-parse HEAD`, which returns `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- Save a copy of the ledger and keep `i = 1`.\n- Edit the ledger header:\n  - Change `iterations: 1` to `iterations: 2`.\n  - Add `pending: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`.\n- Refresh with `plan_tracker({ action: \"refresh\", path: \"<absolute ledger path>\" })`.\n- Read the scratch-folder section of `return-file.md`, with `CHECKOUT` set to the worktree.\n  - This resolves `SCRATCH` as `$(git -C \"<worktree>\" rev-parse --path-format=absolute --git-dir)/gauntlet/tmp`.\n- Create the output file with `OUT=$(mktemp \"$SCRATCH/loop-out.XXXXXX\")`.\n\n## Dispatch\n\n```text\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"<absolute implementation worktree>\", output: \"<OUT>\",\n  outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: 1\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <base SHA from ledger header>\\ntarget: 1\\nprevious decision: <the admitted row 0 done | seeded … decision line, verbatim>\\nhint: none\\nwording: <absolute commit-message.md path>\\nticket: <held ticket or none>\\nscratch: <absolute SCRATCH>\" })\n```\n\nThe two counts differ on purpose:\n- The task carries `iteration: 1`, which is the count before the bump.\n- The ledger now reads `iterations: 2`. When the return comes back, the committed ledger must carry 2 and `returned: 1 | home | aaaa…`.\n\n## Human-facing output\n\nThe driver prints one line and continues straight into the dispatch in the same turn, with no stop header:\n\n```\ndispatching row 1 (task iteration 1; ledger iterations 1 → 2; pending 1 | home | aaaaaaa)\n```\n\nI stop here, at the dispatch, without simulating the child.\n",
+      "words": 533,
+      "wallMs": 22298,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Hypothetical procedure only:** no calls have run and no files have changed. This snapshot starts after successful entry, so I would use the held settings and resolved paths rather than repeat entry.\n\nBelow, `WORKTREE` is `<scratch>`. `LEDGER`, `SPEC`, `WORDING`, `BASE`, and `TICKET` denote the previously resolved absolute paths and retained values; the snapshot does not supply their literals.\n\n### 1. Read and select\n\nI would read `LEDGER`, retaining its complete before-image, and confirm:\n\n- Exactly one `returned:` line, holding the admitted seed tuple.\n- `checks: commands`, `allowance: 4`, and no `cap:`.\n- The admitted `row 0 done | seeded ...` decision.\n- Row 1 is `open`, with attempts `0`; no retries or escalation marker.\n\nI would not reread the spec, code, tests, or logs. A single-leg run requires no coordinated-legs read.\n\nThe ordered-table result is:\n\n- Work remains.\n- Row 1’s effective allowance is `4 + 0 = 4`; it is not exhausted.\n- There are no ordinary row returns establishing stagnation or validation misses.\n- The seed is already admitted, so **the next target is row 1**, not `seed`.\n- Escalation threshold is `min(3, 4 − 1) = 3`. Pre-dispatch attempts are `0`, so **this is not an escalated round**. There is no `escalationLoop` lookup or escalation commit.\n\nAny required return-history boundary inspection uses only the permitted git commands and ledger snapshots, not commit messages or source files:\n\n```sh\ngit -C \"$WORKTREE\" log -G'^returned: ' --format=%H \"$BASE\"..HEAD -- \"$LEDGER_REL\"\n```\n\nThe seed return does not count as an ordinary row attempt.\n\n### 2. Capture the boundary and persist dispatch identity\n\nI would confirm the clean boundary and capture `HEAD_BEFORE`:\n\n```sh\ngit -C \"$WORKTREE\" status --porcelain\ngit -C \"$WORKTREE\" rev-parse HEAD\n```\n\nThe supplied snapshot establishes the expected results: empty status and:\n\n```text\naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\nAfter saving the ledger before-image, I would make only these dispatch-state changes:\n\n```text\niterations: 2\npending: 1 | home | aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n```\n\nThe existing `returned:` value stays unchanged. Row 1 remains `open`, attempts `0`; allowance remains `4`. **No parent commit is made.**\n\nThen:\n\n```text\nplan_tracker({\n  action: \"refresh\",\n  path: LEDGER\n})\n```\n\n### 3. Read the scratch recipe and prepare output\n\nI would read the installed `return-file.md` scratch-folder reference at its resolved absolute path, using this worktree as `CHECKOUT`, then follow that recipe:\n\n```sh\ngit -C \"$WORKTREE\" rev-parse --path-format=absolute --git-dir\n```\n\nSet `SCRATCH` to that absolute Git-directory path plus `/gauntlet/tmp`, create it, and obtain a unique absolute output path:\n\n```sh\n(cd \"$WORKTREE\" && mkdir -p \"$SCRATCH\")\n(cd \"$WORKTREE\" && mktemp \"$SCRATCH/loop-out.XXXXXX\")\n```\n\nA lookup or creation failure would stop preparation rather than trigger an OS-temp fallback.\n\n### 4. Human-facing dispatch report and call\n\nThe report would be:\n\n```text\nDispatching row 1: attempt 1 of 4.\nTask iteration: 1; consumed ledger iteration: 2.\n```\n\nThe foreground dispatch would be:\n\n```text\nsubagent({\n  agent: \"loop-implementer\",\n  context: \"fresh\",\n  async: false,\n  cwd: WORKTREE,\n  output: OUTPUT,\n  outputMode: \"file-only\",\n  acceptance: {\n    level: \"none\",\n    reason: \"the parent validates the ledger and the commit\"\n  },\n  task: \"iteration: 1\\nspec: SPEC\\nledger: LEDGER\\nbase: BASE\\ntarget: 1\\nprevious decision: SEED_DECISION\\nhint: none\\nwording: WORDING\\nticket: TICKET\\nscratch: SCRATCH\"\n})\n```\n\nHere `SEED_DECISION` is the exact latest admitted seed decision retained from the ledger. All symbolic values would be expanded before calling. Any held applicable Rules would also be carried into the task. **The `model` field is omitted.**\n\nThis stops at the dispatch request: no child result, commit, evidence, attempt increment, or admission is simulated.\n",
+      "words": 521,
+      "wallMs": 33190,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "58fb3979523c65bc4b9d4cda2b1bb1ddd86ad5c95cf2dbc04cb6fda96c0ed7f9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "94d91610f410f82d1213dddda159f72c5d9d5c23c39d12a714bec790397284fd",
+      "baselineOutputSha": "3ec2535852719932327d5215560ec5006dfc348c570433763377c270a8e8bd8f",
+      "candidateOutputSha": "8c8ad0107ffb5529206498fc6a804aa4d75fe69a8aee45114a11804d900f0311",
+      "facts": {
+        "dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved on this case. Both outputs dispatch row 1 with no model override, task iteration 1, ledger iterations bumped to 2 and pending set to `1 | home | aaaa…`, and both reach the dispatch without reading human-stop.md, asking the human or reporting a missing rule. After's wording delivers the Change here: the narrated reads are limited to the ledger and the scratch-folder section of return-file.md, and it explicitly states there is no stop header. One difference worth noting, though it does not affect these facts: After no longer narrates reading `driver-holds.md` or `empty-child-stagnation.md`, which Before read before the ordered table. If those reads are still intended on a clean dispatch, state explicitly that only the human-stop procedure is deferred to a stop or amendment and that the other pre-dispatch reads remain unconditional. Also keep the full 40-character HEAD in the pending line, as After does in the ledger edit; the abbreviated `aaaaaaa` in the status line is harmless only because the full value appears above it.",
+      "wallMs": 5338,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "58fb3979523c65bc4b9d4cda2b1bb1ddd86ad5c95cf2dbc04cb6fda96c0ed7f9",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "94d91610f410f82d1213dddda159f72c5d9d5c23c39d12a714bec790397284fd",
+      "baselineOutputSha": "b000f38dd90a6eae413776cdd6163c997c391b2f22a7c72d92dcc7bae53fcc3e",
+      "candidateOutputSha": "28bbcef0dc5660750c82c1bfab0b1bea6eda239260772bf6075ba423584d84dc",
+      "facts": {
+        "dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "reads": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "Neither fact moved on this case: both outputs dispatch row 1 with no model override, task iteration 1, ledger iterations bumped to 2 and pending set to `1 | home | aaaa…`, and both reach the dispatch with no read of human-stop.md, no human ask and no missing-rule report. That matches the intent of the Change (no human-stop load on clean dispatch). Minor drift worth noting, though it does not affect the listed facts: After no longer narrates the reads of driver-holds.md, empty-child-stagnation.md, unreachable-returns.md and interrupted-recovery.md that Before listed, adds a conditional `git log -G'^returned: '` history inspection and a `git status --porcelain` check, and reports \"attempt 1 of 4\" where Before said attempts remain 0 of 4 until return admission. If those pre-dispatch reference reads are still required, keep wording that states them explicitly as held-before-dispatch while restricting only human-stop.md to stops and ledger amendments, and keep the attempt-count phrasing tied to return admission so the report cannot be read as an attempt increment at dispatch.",
+      "wallMs": 5190,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "cb34804a0df3f9e346eea1deadbf4176dc4f9ae4"
+}

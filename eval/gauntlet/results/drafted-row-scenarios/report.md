@@ -1,8 +1,8 @@
 # eval report: gauntlet (partial run: drafted-row-scenarios)
 
-for: 78d6495fe00532298d08db1802023491cfe23cb11c3b680486ab49c25ef339d3
+for: 26d1c1f3e56ec9aa53ab90ddeed921b06ff3c19296da7ff12b5341e3cd1f9b91
 
-wall: 4s
+wall: 10s
 
 ## Change
 
@@ -14,12 +14,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| drafted-row-scenarios | anthropic/claude-opus-5-5 | improved | 3863 | one-constraint: fails -> holds (unplanned improvement) |
-| drafted-row-scenarios | github-copilot/gpt-6.1-sol | unchanged | 3704 | one-constraint: holds -> holds (held) |
+| drafted-row-scenarios | anthropic/claude-opus-5-5 | unchanged | 3975 | one-constraint: holds -> holds (held) |
+| drafted-row-scenarios | github-copilot/gpt-6.1-sol | unchanged | 4157 | one-constraint: holds -> holds (held) |
 
 ## Feedback
 
-- drafted-row-scenarios / anthropic/claude-opus-5-5: After moved one-constraint from fails to holds: it drafts a single checkbox row covering the empty, spaces-only and slash IDs with the same invalid-ID error, and says the three inputs are scenarios of one row, where Before split them into three separate rows with the stated rationale that each case should be checked separately. Before held no fact that After lost, so nothing needs restoring; to keep this result stable, keep the instruction that several malformed-input scenarios of the same functionality stay one drafted constraint row, and keep it explicit that the row must still name every scenario and the shared error so merging rows never drops a case.
-- drafted-row-scenarios / github-copilot/gpt-6.1-sol: Both outputs draft exactly one checkbox row covering the empty, spaces-only and slash IDs with the same invalid-ID error, so the fact holds in Before and After and the wording change did not move it. After names the importer as the subject of the row, which matches the fact's phrasing more directly than Before's 'Importing with...', and adds a 'Stopped before writing the spec.' line that does not affect the row count. To keep this stable, retain the explicit instruction to keep one drafted constraint row for several malformed-input scenarios of the same functionality, and avoid any wording that could be read as one row per scenario or per input case.
+- drafted-row-scenarios / anthropic/claude-opus-5-5: Nothing moved: both Before and After draft exactly one checkbox row in which the importer rejects an empty ID, a spaces-only ID, or an ID with a slash with the same invalid-ID error, and neither splits the three inputs into separate rows. The After wording's instruction to keep one drafted constraint row for several malformed-input scenarios of the same functionality is reflected directly in the output, which even explains that the three forms are scenarios of one constraint. To keep this fact safe, retain that explicit sentence about one row per constraint for multiple malformed-input scenarios; the extra explanatory bullets in After (disposition, header, no Integration section) are harmless to this fact but are not required by it, so trim them if brevity matters.
+- drafted-row-scenarios / github-copilot/gpt-6.1-sol: Nothing in After moved the fact: both outputs draft exactly one checkbox row in which the importer rejects an empty ID, a spaces-only ID, or an ID with a slash with the same invalid-ID error, and neither splits the three malformed inputs into separate rows. After's row tracks the request wording slightly more closely ("with a slash,") and drops Before's trailing "Stopped before writing the spec." line, neither of which bears on the fact. To keep this stable while delivering the Change, retain the explicit wording that several malformed-input scenarios of the same functionality stay as one drafted constraint row, and that all-design drafting proceeds without an ownership question; if the stop-before-write confirmation matters elsewhere, say explicitly whether the output should state it, since After omitted it.
 
 exit: 0

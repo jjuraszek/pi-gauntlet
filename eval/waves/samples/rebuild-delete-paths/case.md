@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+
 The owning checkout is /workspace/project, absolute planPath /workspace/project/doc/plans/feature.md, authoritative Spec /workspace/project/doc/specs/feature.md. WAVE_BASE_SHA is 1111111111111111111111111111111111111111. Treat all observations below as fixed synthetic input, not commands you ran.
 
 Task 1's repair delta failed git apply --index after its first FIX_FIRST review. Task 2's accepted changes remain staged. The parent is about to rebuild Task 1. Its manifest files are:

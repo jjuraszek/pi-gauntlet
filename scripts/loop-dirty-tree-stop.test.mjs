@@ -5,13 +5,22 @@ import test from 'node:test';
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const driver = read('skills/gauntlet/implement/loop/loop.md');
 const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
-const stop = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+const pointer = driver.split('\n## Human stop\n')[1].split('\n## Gate set\n')[0];
+const stop = read('skills/gauntlet/implement/loop/human-stop.md');
+
+test('only stop and amendment triggers load the human stop rules', () => {
+  assert.match(pointer, /At .*implement or verify.*discard authorization.*spec amendment.*auto-applied.*reuse the full procedure of `human-stop\.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting\. Stop on an unreadable file naming its path; never reconstruct it\./);
+  assert.equal(driver.split('human-stop.md').length, 2);
+  assert.doesNotMatch(driver, /\| Human choice \| Durable action \||Start the message with `gauntlet: question`/);
+  assert.match(stop, /^# Human stop\n/);
+  assert.match(stop, /\| Human choice \| Durable action \|/);
+});
 
 test('entry and restore stop for dirt only with no pending dispatch', () => {
   assert.match(entry, /4\. Require a clean named-branch implementation worktree\. With dirty status and no `pending:` tuple, take ## Human stop before writing the ledger/);
   for (const token of [
     'non-empty `status --porcelain` with no `pending:` tuple',
-    'entry step 4 or on resume',
+    '[entry step 4](loop.md#entry) or on resume',
     '`Stopped: dirty tree with no dispatch pending`',
     'list the dirty paths',
     'offer `discard` or Stop only, never budget offers',
@@ -27,10 +36,10 @@ test('only typed discard resets dirt and resumes the suspended entry or restore 
     'On a typed `discard`',
     'git -C "<checkout>" reset --hard HEAD',
     'git -C "<checkout>" clean -fd',
-    "at fresh entry continue Entry step 4's ledger write and step 5",
+    "at fresh entry continue [Entry](loop.md#entry) step 4's ledger write and step 5",
     '`plan_check`, skeleton commit, implement start, refresh',
     'on a restore finish eligible migration, final allowance validation and the refresh',
-    '## Before each dispatch` in implement or `## After the loop` step 1 in verify',
+    '[Before each dispatch](loop.md#before-each-dispatch) in implement or [After the loop](loop.md#after-the-loop) step 1 in verify',
     'Never jump to the ordered table before a ledger is seeded and admitted',
     'Any other reply preserves the tree and keeps the stop open',
     'Before typed discard, make no tree or ledger writes, reset, clean or dispatch',

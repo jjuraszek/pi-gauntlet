@@ -1,3 +1,6 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+bundle-: skills/gauntlet/implement/waves/escalation.md
+
 # Missing presentation template
 
 Sequential task 2, "Render a summary", is in_progress in /workspace/project. The implementer returned exit 0 with Status: NEEDS_CONTEXT, no edits: "Where is the summary-frame.tpl template required by the task?"
