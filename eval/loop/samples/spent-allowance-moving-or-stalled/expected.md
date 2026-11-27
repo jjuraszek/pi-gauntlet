@@ -2,4 +2,4 @@
 - contradiction: judged: At the spent allowance routes the named correction to the amendment surface rather than another attempt, applying it under amend permission and asking via the amendment menu without permission.
 - moving: judged: In snapshot 2 prints extra attempt for row 2 naming changed evidence and dispatches with no new grant, escalation or reset.
 - interrupted: judged: Two consecutive interrupted attempts in the current window stall even with different reasons; a single interruption without a prior comparison gets one more attempt.
-- stalled: judged: Snapshot 3 starts gauntlet: question and stops at row 2: 4 of 4. Problem names the repeated blank-label failure and Needs names the missing replacement label, without a menu or Stop offer.
+- stalled: judged: Snapshot 3 starts gauntlet: question and stops at row 2: 4 of 4, with no third dispatch. Only the parent's companion SHA changed, not the worker's evidence. Problem names the repeated blank-label failure and Needs names the missing replacement label, without a menu or Stop offer.

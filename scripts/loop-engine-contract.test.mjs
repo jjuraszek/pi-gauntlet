@@ -66,6 +66,23 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.deepEqual(lintStageFiles(root.pathname, [file]), []);
 });
 
+test('two file-changing companion failures with the same evidence stop at allowance', () => {
+  const loop = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+  const admission = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
+  const rule = loop.split('\n| 2 |')[1].split('\n')[0];
+  assert.match(rule, /attempts >= effective allowance.*admitted worker evidence matches.*exclude only the parent-added `; companion <sha>` suffix.*On a stall take ## Human stop/);
+  assert.match(admission, /append `; companion <sha>` to each nonempty evidence cell/);
+
+  const sample = new URL('eval/loop/samples/spent-allowance-moving-or-stalled/', root);
+  const scenario = readFileSync(new URL('case.md', sample), 'utf8').split('Independent snapshot 3:')[1];
+  const records = [...scenario.matchAll(/`([^`]+); companion ([a-f0-9]+)`/g)];
+  assert.equal(records.length, 2);
+  assert.equal(records[0][1], records[1][1]);
+  assert.notEqual(records[0][2], records[1][2]);
+  assert.match(scenario, /both changed parser code/i);
+  assert.match(readFileSync(new URL('expected.md', sample), 'utf8'), /Snapshot 3.*stops at row 2: 4 of 4.*no third dispatch/);
+});
+
 test('worker records selective commands and keeps row-scoped TDD evidence valid', () => {
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const token of [

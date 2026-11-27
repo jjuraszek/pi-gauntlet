@@ -1,4 +1,4 @@
-for: b5996db288feff88aa86cc2e605d624cb939777734dfd7eb68961e23f6400e1f
+for: d16a07266587e17b46db434cbdd46218335e76219fee607fc07fd7ca9ec8d0c3
 
 ## Change
 
@@ -44,7 +44,7 @@ The seed-dispositions replay indexes only acceptance criteria and assigns no Int
 - human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
 - unnamed-action-asks/asks: fails -> holds - Ask whether to name the purchase or cut the row.
 - unnamed-action-asks/waits: fails -> holds - Leave the action and the row untouched until the user answers.
-- spent-allowance-moving-or-stalled/stalled: fails -> holds - Name the missing input instead of offering choices.
+- spent-allowance-moving-or-stalled/stalled: fails -> holds - Stop on repeated worker evidence despite differing companion SHAs and name the missing input instead of offering choices.
 - human-stop-counts/row-stops: fails -> holds - Name the missing input instead of offering choices.
 - human-stop-counts/exit-stop: fails -> holds - Name the missing input instead of offering choices.
 - row-budget-actions/retry: fails -> holds - Name the missing input instead of offering choices.
