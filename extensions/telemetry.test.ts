@@ -5,7 +5,7 @@
   import { after, test } from "node:test";
   import registerTelemetry, { realFs, replayBranch, type Deps, type GitResult } from "./telemetry.ts";
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
-  import { emptyAccumulators, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
+  import { capEvents, emptyAccumulators, EVENT_CAP, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
   import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 
@@ -336,7 +336,8 @@
       { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "in_progress" }) } } },
       { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: join(first.root, "doc/specs/a.md") } } },
       planResult([{ name: "a", status: "pending" }]),
-      planResult(closed),
+      { type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action: "start", phases: P({ brainstorm: "complete", plan: "complete", implement: "in_progress" }) } } },
+      { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: closed } },
       planResult([{ name: "a", status: "failed" }], "failed"),
     ];
     const second = harness({ sessionId: "s2", branch });
@@ -344,7 +345,54 @@
     await second.emit("session_start", { type: "session_start", reason: "resume" });
     await second.planResult("update", [{ name: "a", status: "in_progress" }]);
     assert.equal(second.readRecord().derived.gates.task_reopens, 1);
-    assert.deepEqual(replayBranch(branch, ["doc/specs"]).lastPlanTasks, closed);
+    const replay = replayBranch(branch, ["doc/specs"]);
+    assert.deepEqual(replay.lastPlanTasks, closed);
+    assert.equal(replay.phases.implement.status, "in_progress");
+  });
+
+  for (const boundary of ["phase status", "refused phase call"]) test(`reload counts a stored reopen once across ${boundary} and sibling branches`, async () => {
+    const branch: unknown[] = [];
+    const h = harness({ branch });
+    const phase = async (recorder: typeof h, action: string, phases: ReturnType<typeof P>) => {
+      await recorder.phaseResult(action, phases);
+      branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action, phases } } });
+    };
+    const store = (id: string, status: string) => branch.push({ id, timestamp: "2026-09-17T10:00:00Z", type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status }] } });
+    await phase(h, "start", P({ brainstorm: "in_progress" }));
+    await h.writeSpec("doc/specs/a.md");
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } });
+    const implementing = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
+    await phase(h, "start", implementing);
+    store("closed", "complete");
+    await phase(h, "status", implementing);
+    store("reopened", "failed");
+    const sharedPrefixLength = branch.length;
+    await h.emit("session_shutdown", {});
+
+    for (const activation of ["before consumption", "after consumption", "on a sibling branch"]) {
+      if (activation === "on a sibling branch") branch.splice(sharedPrefixLength);
+      const reloaded = harness({ branch });
+      reloaded.ctx.cwd = h.root;
+      await reloaded.emit("session_start", { reason: "resume" });
+      const expectedEvents = activation === "on a sibling branch" ? 0 : 1;
+      if (activation === "before consumption" && boundary === "refused phase call") {
+        await reloaded.emit("tool_execution_end", { toolName: "phase_tracker", isError: true, result: { content: [], details: {} } });
+        branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", isError: true, details: {} } });
+      } else {
+        await phase(reloaded, "status", implementing);
+      }
+      const rec = reloaded.readRecord();
+      assert.equal(rec.derived.gates.task_reopens, 1, activation);
+      assert.equal(rec.events.filter(e => e.kind === "gate" && e.gate === "task_reopen").length, expectedEvents, activation);
+      await reloaded.emit("session_shutdown", {});
+      if (activation === "after consumption") {
+        const capped = reloaded.readRecord();
+        const filler = { kind: "config_change" as const, phase: "implement" as const, session: "s1", ts: "2026-09-17T10:01:00Z" };
+        capped.events = capEvents([...capped.events, ...Array(EVENT_CAP).fill(filler)]).events;
+        assert.ok(!capped.events.some(e => e.kind === "gate" && e.gate === "task_reopen"));
+        writeFileSync(reloaded.recordPath(), serializeRecord(capped));
+      }
+    }
   });
 
   test("replayBranch honors a custom spec dir list", () => {
@@ -2290,9 +2338,18 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     await h.writeSpec("doc/specs/a.md", "# Spec\n\n**Engine:** loop\n\n## Scope\nSynthetic run.\n");
     await h.phaseResult("complete", P({ brainstorm: "complete" }));
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
-    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "in_progress" }]);
+    const branch = h.ctx.sessionManager.getBranch();
+    const store = (second: string, third: string) => branch.push({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [
+      { name: "row 1", status: "skipped" }, { name: "row 2", status: second }, { name: "row 3", status: third },
+    ] } });
+    await h.planResult("init", [{ name: "row 2", status: "pending" }]);
+    store("complete", "complete");
+    store("failed", "pending");
+    store("in_progress", "in_progress");
     await h.emit("tool_result", { toolName: "subagent", input: {}, details: { results: [{ agent: "loop-implementer", exitCode: 0 }] }, content: [], isError: false });
-    await h.planResult("refresh", [{ name: "row 1", status: "skipped" }, { name: "row 2", status: "complete" }, { name: "row 3", status: "complete" }]);
+    store("complete", "complete");
+    await h.phaseResult("status", P({ brainstorm: "complete", plan: "skipped", implement: "in_progress" }));
+    assert.equal(h.readRecord().derived.plan, undefined);
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "in_progress" }));
     await h.bash("verify", "npm test");
     await h.phaseResult("start", P({ brainstorm: "complete", plan: "skipped", implement: "complete", verify: "complete", ship: "in_progress" }));
@@ -2303,6 +2360,9 @@ test("resume skip reads engine from bound spec live and on branch replay", async
     assert.equal(rec.derived.iterations, 1);
     assert.equal(rec.events.filter((e) => e.kind === "dispatch" && e.agent === "loop-implementer").length, 1);
     assert.deepEqual(rec.derived.plan, { tasks: 3, complete: 2, failed: 0, skipped: 1 });
+    assert.equal(rec.derived.gates.task_reopens, 1);
+    assert.deepEqual(rec.events.filter(e => e.kind === "phase" && (e.name === "implement" || e.name === "verify")).slice(0, 3).map(e => [e.action, e.name]),
+      [["start", "implement"], ["complete", "implement"], ["start", "verify"]]);
     assert.equal(rec.derived.verification_runs, 1);
     assert.equal(rec.derived.events_dropped, 0);
   });

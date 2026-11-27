@@ -56,6 +56,7 @@ export interface Gates { spec_rounds: number; plan_rounds: number; fix_round_gra
 export interface Accumulators {
   phases: Partial<Record<PhaseKey, PhaseAcc>>; personas: Record<string, PersonaAcc>; reviews: Record<string, ReviewAcc>;
   spec_writes: Partial<Record<PhaseKey, { count: number; last_sha256: string }>>; gates: Gates;
+  stored_reopens?: Record<string, number>;
   conformance_loops: number; conformance_open_gaps?: number; amendments: number; spec_edits_after_ship: number; events_dropped: number;
 }
 export const emptyAccumulators = (): Accumulators => ({ phases: {}, personas: {}, reviews: {}, spec_writes: {}, gates: { spec_rounds: 0, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 }, conformance_loops: 0, amendments: 0, spec_edits_after_ship: 0, events_dropped: 0 });
@@ -84,6 +85,13 @@ export function foldAccumulators(a: Accumulators, b: Accumulators): Accumulators
     const x = a.spec_writes[k], y = b.spec_writes[k]; out.spec_writes[k] = { count: (x?.count ?? 0) + (y?.count ?? 0), last_sha256: y?.last_sha256 ?? x?.last_sha256 ?? "" };
   }
   for (const g of Object.keys(out.gates) as (keyof Gates)[]) out.gates[g] = a.gates[g] + b.gates[g];
+  if (a.stored_reopens || b.stored_reopens) {
+    // Pending observations can be folded into a record that already counted the snapshot.
+    out.stored_reopens = { ...b.stored_reopens, ...a.stored_reopens };
+    for (const [id, count] of Object.entries(b.stored_reopens ?? {})) {
+      if (a.stored_reopens?.[id]) out.gates.task_reopens -= count;
+    }
+  }
   out.conformance_loops = a.conformance_loops + b.conformance_loops; out.conformance_open_gaps = b.conformance_open_gaps ?? a.conformance_open_gaps; out.amendments = a.amendments + b.amendments;
   out.spec_edits_after_ship = a.spec_edits_after_ship + b.spec_edits_after_ship; out.events_dropped = a.events_dropped + b.events_dropped;
   return out;

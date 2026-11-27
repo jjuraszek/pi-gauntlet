@@ -2,10 +2,11 @@
  * Plan Tracker Extension
  *
  * A native pi tool for tracking plan progress.
- * State is stored in tool result details for proper branching support.
+ * Explicit calls keep state in result details; automatic changes store branch snapshots.
  * Shows a persistent TUI widget above the editor.
  */
 
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { StringEnum } from "@earendil-works/pi-ai";
@@ -13,12 +14,9 @@ import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-c
 import { Text } from "@earendil-works/pi-tui";
 import { type Static, Type } from "@sinclair/typebox";
 import { checkoutOfSync } from "./lib/checkout.ts";
+import { latestPlanSnapshot, MAX_STORED_LIST_BYTES, planSnapshot, PLAN_TRACKER_SNAPSHOT, TASK_STATUSES, type Task, type TaskStatus } from "./lib/plan-snapshot.ts";
 import { planSpecHeader } from "./lib/telemetry-paths.ts";
 
-const TASK_STATUSES = ["pending", "in_progress", "complete", "failed", "skipped"] as const;
-type TaskStatus = (typeof TASK_STATUSES)[number];
-
-interface Task { name: string; status: TaskStatus; label?: string; }
 interface PlanTrackerDetails { action: "init" | "add" | "update" | "status" | "clear" | "refresh"; tasks: Task[]; error?: string; }
 
 const PlanTrackerParams = Type.Object({
@@ -162,7 +160,164 @@ function ledgerTasks(text: string, path: string): Task[] {
   });
 }
 
+function boundLedger(ctx: ExtensionContext): { path: string; text: string } | undefined {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role !== "toolResult" || msg.isError) continue;
+    const details = msg.details as { action?: string; error?: string; status?: string; planPath?: string } | undefined;
+    if (!details || details.error) continue;
+    if (msg.toolName === "plan_tracker" && (details.action === "init" || details.action === "clear")) return;
+    if (msg.toolName !== "plan_check" || details.status !== "pass" || !details.planPath) continue;
+    const path = resolve(ctx.cwd, details.planPath);
+    try {
+      const text = readFileSync(path, "utf8");
+      if (text.split("\n", 1)[0] === "# Ledger - loop engine") return { text, path };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    return;
+  }
+}
+
+function implementing(ctx: ExtensionContext): boolean {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message" || entry.message.role !== "toolResult" || entry.message.isError) continue;
+    if (entry.message.toolName === "phase_tracker") {
+      const d = entry.message.details as { error?: string; phases?: { implement: { status: string } } } | undefined;
+      if (d?.phases && !d.error) return d.phases.implement.status === "in_progress";
+    } else if (entry.message.toolName === "plan_tracker") {
+      const tasks = planSnapshot(entry);
+      if (tasks?.length && tasks.every(t => t.status === "complete" || t.status === "skipped")) return false;
+    }
+  }
+  return false;
+}
+
+function latestDispatchBlocked(ctx: ExtensionContext): boolean {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role !== "toolResult" || msg.toolName !== "subagent") continue;
+    return msg.isError === true && msg.details !== null && typeof msg.details === "object" && Object.keys(msg.details).length === 0;
+  }
+  return false;
+}
+
+function markedStop(ctx: ExtensionContext): boolean {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role === "toolResult" && msg.toolName === "subagent") return false;
+    if (msg.role !== "assistant") continue;
+    const line = msg.content.find(part => part.type === "text")?.text.split(/\r?\n/, 1)[0] ?? "";
+    return /^gauntlet: (?:question|gate=[A-Za-z0-9.-]+\/[A-Za-z0-9.-]+(?: recommended=[0-9]+)?)$/.test(line);
+  }
+  return false;
+}
+
+function projectLedger(text: string, path: string, tasks: Task[]): Task[] {
+  const projected = ledgerTasks(text, path);
+  const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
+  const merged = [
+    ...projected.filter(task => task.status !== "pending"),
+    ...kept.filter(task => task.status !== "pending"),
+    ...projected.filter(task => task.status === "pending"),
+    ...kept.filter(task => task.status === "pending"),
+  ];
+  if (validateSnapshot(merged).length) throw new Error(`refresh: ${path}: ${RULE_LINE}`);
+  return merged;
+}
+
 const RULE_LINE = "Rule: pending tasks must trail every started or finished task.";
+const ORDER_FIX = "Fix first, then retry: update each listed task to in_progress (working on it now), complete, failed, or skipped (not applicable in this run); or, if the list order itself is wrong, re-init with {name, status}[] keeping every task and its true status so the untouched ones trail.";
+const KEEP_TASKS = "Never clear, drop tasks, or record a status the work has not actually reached.";
+
+interface DispatchItem { agent?: string; task?: string; }
+interface DispatchInput extends DispatchItem {
+  tasks?: DispatchItem[];
+  chain?: (DispatchItem & { parallel?: DispatchItem[] })[];
+}
+
+function wavePlan(path: string) {
+  const headings = new Map<string, { wave: number; name: string }>();
+  let text: string;
+  try { text = readFileSync(path, "utf8"); }
+  catch { return; }
+  let wave: number | undefined;
+  let fence: string | undefined;
+  for (const line of text.split(/\r?\n/)) {
+    const delimiter = /^\s*(`{3,}|~{3,})/.exec(line)?.[1];
+    if (fence) {
+      if (delimiter?.[0] === fence[0] && delimiter.length >= fence.length) fence = undefined;
+      continue;
+    }
+    if (delimiter) { fence = delimiter; continue; }
+    const waveHeading = /^## Wave (\d+)(?:\s|$)/.exec(line);
+    if (waveHeading) wave = Number(waveHeading[1]);
+    const task = /^(### Task \d+:) (.*)$/.exec(line);
+    if (task && wave !== undefined) headings.set(task[1], { wave, name: `W${wave}: ${task[2]}` });
+  }
+  return headings;
+}
+
+function wavesStart(input: DispatchInput, tasks: Task[], cwd: string): Task[] | string | undefined {
+  const waveNumbers = tasks.map(task => /^W(\d+): .+/.exec(task.name)?.[1]);
+  if (!waveNumbers.some(wave => wave !== undefined)) return;
+
+  const items = [input, ...(input.tasks ?? []), ...(input.chain ?? []).flatMap(step => step.parallel ?? [step])];
+  const plans = new Map<string, ReturnType<typeof wavePlan>>();
+  const resolved = new Map<number, number>();
+  const unresolved: string[] = [];
+  for (const item of items) {
+    if (item.agent !== "implementer" || typeof item.task !== "string") continue;
+    const plan = /(?:^|[;\n])[ \t]*planPath:[ \t]*([^;\r\n]+)/.exec(item.task)?.[1].trim();
+    const field = /(?:^|[;\n])[ \t]*(?:anchor:[ \t]*([^;\r\n]+)|anchors:[ \t]*\[([^\]]*)\])/.exec(item.task);
+    if (!plan || !field) continue;
+    const prefixes = (field[1] ?? field[2]).match(/### Task \d+:/g);
+    if (!prefixes) continue;
+    const path = resolve(cwd, plan);
+    if (!plans.has(path)) plans.set(path, wavePlan(path));
+    const headings = plans.get(path);
+    for (const prefix of prefixes) {
+      const heading = headings?.get(prefix);
+      if (!heading) {
+        unresolved.push(`${prefix} expected a wave task in ${path}, found 0 (${headings ? "heading missing" : "plan unreadable"})`);
+        continue;
+      }
+      const matches = tasks.flatMap((task, index) => task.name === heading.name ? [index] : []);
+      if (matches.length === 1) resolved.set(matches[0], heading.wave);
+      else unresolved.push(`${prefix} expected ${JSON.stringify(heading.name)}, found ${matches.length}`);
+    }
+  }
+  if (unresolved.length) return `Unresolved wave tasks: ${unresolved.join("; ")}. Add the missing task with add, or re-init with {name, status}[] keeping every task and its true status.`;
+  if (!resolved.size) return;
+
+  const latestWave = Math.max(...resolved.values());
+  const earlier = tasks.flatMap((task, index) => Number(waveNumbers[index]) < latestWave && (task.status === "pending" || task.status === "in_progress")
+    ? [`${index}: ${task.name} (${task.status})`] : []);
+  if (earlier.length) return `Earlier wave open: ${earlier.join(", ")}. Use plan_tracker({ action: "update", index, status }) with each task's true status, then retry.`;
+
+  const starts = [...resolved.keys()].filter(index => tasks[index].status === "pending");
+  if (!starts.length) return;
+  const starting = new Set(starts);
+  const candidate: Task[] = tasks.map((task, index) => starting.has(index) ? { ...task, status: "in_progress" } : task);
+  const offenders = validateSnapshot(candidate);
+  if (offenders.length) {
+    const pending = offenders.map(index => `${index}: ${candidate[index].name} (pending)`);
+    return `Start order: ${pending.join(", ")}.\n${RULE_LINE}\n${ORDER_FIX}\n${KEEP_TASKS}`;
+  }
+  return candidate;
+}
+
 const snapshotLine = (tasks: Task[]): string => tasks.map((t, i) => `${i} ${t.name}=${t.status}`).join(", ");
 const offenderList = (tasks: Task[], indices: number[]): string => indices.map((i) => `${i} "${tasks[i].name}"`).join(", ");
 const normalizeTask = (t: string | { name: string; status: TaskStatus }): Task => typeof t === "string" ? { name: t, status: "pending" } : { name: t.name, status: t.status };
@@ -204,16 +359,7 @@ export default function (pi: ExtensionAPI) {
   let tasks: Task[] = [];
 
   const reconstructState = (ctx: ExtensionContext) => {
-    tasks = [];
-    for (const entry of ctx.sessionManager.getBranch()) {
-      if (entry.type !== "message") continue;
-      const msg = entry.message;
-      if (msg.role !== "toolResult" || msg.toolName !== "plan_tracker") continue;
-      const details = msg.details as PlanTrackerDetails | undefined;
-      if (details && !details.error) {
-        tasks = details.tasks.map((t) => ({ ...t }));
-      }
-    }
+    tasks = latestPlanSnapshot(ctx.sessionManager.getBranch());
   };
 
   const updateWidget = (ctx: ExtensionContext) => {
@@ -227,11 +373,90 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
+  const batched = new Set<string>();
+  const warned = new Set<string>();
+  const warn = (error: unknown, ctx: ExtensionContext, key?: string) => {
+    const reason = error instanceof Error ? error.message : String(error);
+    key ??= reason;
+    if (ctx.hasUI && !warned.has(key)) {
+      ctx.ui.notify(reason, "warning");
+      warned.add(key);
+    }
+    return reason;
+  };
+
+  const store = (next: Task[], ctx: ExtensionContext) => {
+    if (tasks.length === next.length && next.every((t, i) => t.name === tasks[i].name && t.label === tasks[i].label && t.status === tasks[i].status)) return;
+    const payload = { tasks: next };
+    const serialized = JSON.stringify(payload);
+    const bytes = Buffer.byteLength(serialized, "utf8");
+    if (bytes > MAX_STORED_LIST_BYTES) {
+      if (ctx.hasUI) {
+        const digest = createHash("sha256").update(serialized).digest("hex");
+        warn(`Plan tracker: automatic list update skipped (${bytes} bytes exceeds the ${MAX_STORED_LIST_BYTES}-byte limit).`, ctx, `overflow:${digest}`);
+      }
+      return;
+    }
+    pi.appendEntry(PLAN_TRACKER_SNAPSHOT, payload);
+    tasks = next;
+    updateWidget(ctx);
+  };
+
+  const reconcile = (ctx: ExtensionContext, point: "stop" | "activation") => {
+    if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    try {
+      const ledger = boundLedger(ctx);
+      if (!ledger) return;
+      const projected = projectLedger(ledger.text, ledger.path, tasks);
+      if (markedStop(ctx) || (point === "stop" && latestDispatchBlocked(ctx))) store(projected, ctx);
+    } catch (error) {
+      warn(error, ctx);
+    }
+  };
+  pi.on("agent_settled", (event, ctx) => {
+    if (!event.aborted) reconcile(ctx, "stop");
+  });
+  pi.on("message_end", ({ message }) => {
+    if (message.role !== "assistant") return;
+    batched.clear();
+    const calls = message.content.filter(part => part.type === "toolCall");
+    if (calls.length > 1) for (const call of calls) batched.add(call.id);
+  });
+  pi.on("tool_call", (event, ctx) => {
+    if (Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    const verifyStart = event.toolName === "phase_tracker" && event.input?.action === "start" && event.input?.phase === "verify";
+    if (event.toolName !== "subagent" && !verifyStart) return;
+    try {
+      const ledger = boundLedger(ctx);
+      if (!ledger) {
+        if (event.toolName !== "subagent") return;
+        const next = wavesStart(event.input as DispatchInput, tasks, ctx.cwd);
+        if (typeof next === "string") return { block: true, reason: next };
+        if (next) store(next, ctx);
+        return;
+      }
+      if (verifyStart) {
+        const projected = projectLedger(ledger.text, ledger.path, tasks);
+        if (implementing(ctx)) store(projected, ctx);
+        return;
+      }
+      if (batched.has(event.toolCallId)) return { block: true, reason: "The ledger write must finish first. Issue the dispatch again, alone in its own message." };
+      const started = projectLedger(ledger.text, ledger.path, tasks);
+      const withoutTuple = ledger.text.replace(/^pending: .*(?:\n|$)/m, "");
+      if (withoutTuple !== ledger.text) store(projectLedger(withoutTuple, ledger.path, tasks), ctx);
+      store(started, ctx);
+    } catch (error) {
+      return { block: true, reason: warn(error, ctx) };
+    }
+  });
+
   // Reconstruct state + widget on session events
   for (const event of ["session_start", "session_switch", "session_fork", "session_tree"] as const) {
     pi.on(event, async (_event, ctx) => {
       reconstructState(ctx);
-      updateWidget(ctx);
+      const restored = tasks;
+      reconcile(ctx, "activation");
+      if (tasks === restored) updateWidget(ctx);
     });
   }
 
@@ -257,15 +482,7 @@ export default function (pi: ExtensionAPI) {
             } catch (error) {
               throw new Error(`refresh: cannot read ${path}: ${error instanceof Error ? error.message : String(error)}`);
             }
-            const projected = ledgerTasks(text, path);
-            const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
-            proposed = [
-              ...projected.filter(task => task.status !== "pending"),
-              ...kept.filter(task => task.status !== "pending"),
-              ...projected.filter(task => task.status === "pending"),
-              ...kept.filter(task => task.status === "pending"),
-            ];
-            if (validateSnapshot(proposed).length) throw new Error(`refresh: ${path}: ${RULE_LINE}`);
+            proposed = projectLedger(text, path, tasks);
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             return {
@@ -329,7 +546,7 @@ export default function (pi: ExtensionAPI) {
               } as PlanTrackerDetails,
             };
           }
-          tasks.push(...params.tasks.map((t) => ({ name: normalizeTask(t).name, status: "pending" as TaskStatus })));
+          tasks = tasks.concat(params.tasks.map((t) => ({ name: normalizeTask(t).name, status: "pending" as TaskStatus })));
           updateWidget(ctx);
           return {
             content: [
@@ -396,8 +613,8 @@ export default function (pi: ExtensionAPI) {
               content: [{ type: "text", text: [
                 `Error: cannot set task ${params.index} "${target.name}" to ${params.status}: pending tasks precede it: ${offenderList(tasks, offenders)}.`,
                 RULE_LINE,
-                "Fix first, then retry: update each listed task to in_progress (working on it now), complete, failed, or skipped (not applicable in this run); or, if the list order itself is wrong, re-init with {name, status}[] keeping every task and its true status so the untouched ones trail.",
-                "Never clear, drop tasks, or record a status the work has not actually reached.",
+                ORDER_FIX,
+                KEEP_TASKS,
                 `Current: ${snapshotLine(tasks)}`,
               ].join("\n") }],
               details: { action: "update", tasks: tasks.map((t) => ({ ...t })), error: `pending-suffix violation: ${offenders.join(",")}` } as PlanTrackerDetails,

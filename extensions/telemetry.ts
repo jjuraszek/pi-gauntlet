@@ -22,6 +22,7 @@
   import { checkoutOf } from "./lib/checkout.ts";
   import { CONTEXT_DRAFT_MARKER, nextGauntletEntered } from "./lib/phase-tracker-helpers.ts";
   import { sha256 } from "./lib/plan-check.ts";
+  import { planSnapshot, snapshotTasks, type Task } from "./lib/plan-snapshot.ts";
   import { SUPERSEDED_BY_RE, isPlanPath, isSpecPath, isSupersededByBanner, matchTestStatement, parseSpecLinks, planSpecHeader, recordPathFor, repoRelativeToolPath, skillReadPath, toPosix, truncateCommand } from "./lib/telemetry-paths.ts";
   import { computeJjDiff } from "./lib/telemetry-diff.ts";
   import { COUNTED_USER_PHASES, REVIEWER_AGENTS, countFindings, countStructuredFindings, countOpenGaps, countReopens, insertedText, planTotals, textOf, usageToTokens } from "./lib/telemetry-collect.ts";
@@ -153,7 +154,9 @@
     phases: PhaseMap;
     gauntletEntered: boolean;
     bindings: BindingInput[];
-    lastPlanTasks?: { name?: string; status: string }[];
+    lastPlanTasks?: Task[];
+    planCursor: number;
+    consumedPlanTasks?: Task[];
   }
 
   function bindingInput(tool: string | undefined, input: unknown, details: unknown, brainstorming: boolean, specDirs: readonly string[], planDirs: readonly string[], cwd?: string): BindingInput | undefined {
@@ -184,12 +187,25 @@
   // map and the flow-entry marker; bind candidates are taken only while armed
   // and dropped on reset. Silent: no events are emitted.
   export function replayBranch(entries: Iterable<unknown>, specDirs: readonly string[], planDirs = planDirsFor(specDirs), cwd?: string): ReplayResult {
-    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false, bindings: [] };
+    const out: ReplayResult = { phases: emptyPhases(), gauntletEntered: false, bindings: [], planCursor: 0 };
     const calls = new Map<string, { name: string; args: unknown }>();
+    let nextIndex = 0;
     for (const raw of entries) {
+      nextIndex++;
       const entry = raw as { type?: string; message?: { role?: string; content?: unknown; toolName?: string; toolCallId?: string; isError?: boolean; details?: unknown } };
-      if (entry.type !== "message" || !entry.message) continue;
-      const msg = entry.message;
+      const tasks = planSnapshot(raw as SessionEntry);
+      const msg = entry.type === "message" ? entry.message : undefined;
+      // Tracker results mark the stored-list prefix consumed before Pi persisted the result.
+      if (msg?.role === "toolResult" && (msg.toolName === "plan_tracker" || msg.toolName === "phase_tracker")) {
+        out.planCursor = nextIndex;
+        out.consumedPlanTasks = tasks ?? out.lastPlanTasks;
+      }
+      if (tasks) {
+        out.lastPlanTasks = tasks;
+        if (entry.type === "message") out.phases = afterPlanActivity(out.phases, tasks);
+        continue;
+      }
+      if (!msg) continue;
       if (msg.role === "assistant" && Array.isArray(msg.content)) {
         for (const c of msg.content as { type?: string; id?: string; name?: string; arguments?: unknown }[])
           if (c?.type === "toolCall" && c.id && c.name) calls.set(c.id, { name: c.name, args: c.arguments });
@@ -203,16 +219,10 @@
         out.gauntletEntered = nextGauntletEntered(out.gauntletEntered, d.action ?? "", d.phases.brainstorm.status);
         if (d.action === "reset") {
           out.bindings = [];
-          out.lastPlanTasks = undefined;
+          out.lastPlanTasks = out.consumedPlanTasks = undefined;
         }
         const resumed = d.action === "skip" ? resumeSpecOf(d.phases, specDirs, cwd) : undefined;
         if (out.gauntletEntered && resumed) out.bindings.push({ tool: "resume", path: resumed });
-      } else if (msg.toolName === "plan_tracker") {
-        const d = msg.details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
-        if (d && !d.error && Array.isArray(d.tasks)) {
-          out.lastPlanTasks = d.tasks;
-          out.phases = afterPlanActivity(out.phases, d.tasks);
-        }
       } else if (out.gauntletEntered && out.phases.ship.status !== "complete") {
         const call = msg.toolCallId ? calls.get(msg.toolCallId) : undefined;
         const input = bindingInput(msg.toolName, call?.name === msg.toolName ? call?.args : undefined, msg.details, out.phases.brainstorm.status === "in_progress", specDirs, planDirs, cwd);
@@ -712,12 +722,15 @@
         return;
       }
       const transitions = diffPhases(replay ? emptyPhases() : phases, details.phases, action).filter((t) => !replay || t.name === "brainstorm");
+      const completesImplement = !replay && phases.implement.status === "in_progress" && details.phases.implement.status === "complete";
+      if (record && completesImplement && lastPlanTasks) record.derived.plan = planTotals(lastPlanTasks);
       if (action === "grant_fix_rounds") {
         live().gates.fix_round_grants += 1;
         pushEvent({ kind: "gate", gate: "fix_round_grant", rounds: typeof details.rounds === "number" ? details.rounds : undefined });
         flush();
       }
       for (const t of transitions) {
+        if (completesImplement && t.name === "implement" && t.action === "start") t.action = "complete";
         const model = ctxModel();
         const e = replay ? undefined : pushEvent(
           t.action === "start"
@@ -780,7 +793,8 @@
       const branch = ctx.sessionManager.getBranch();
       if (!sameSession) resumedClose = snap ? lastReadCheckpoint(branch, sessionId) : undefined;
       const replay = replayBranch(branch, settings.specDirs, settings.planDirs, ctx.cwd);
-      lastPlanTasks = replay.lastPlanTasks;
+      planCursor = replay.planCursor;
+      lastPlanTasks = replay.consumedPlanTasks;
       phases = replay.phases;
       gauntletEntered = replay.gauntletEntered;
       readGap = gauntletEntered && sameSession && lostPending;
@@ -823,8 +837,9 @@
       const settings = deps.settings(ctx.cwd);
       const snap = await enabledSettings(ctx, settings);
       if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
-      if (event.toolName === "phase_tracker" && !event.isError) {
-        await applyPhaseDetails(event.details as never, settings);
+      if (event.toolName === "phase_tracker") {
+        consumeStoredLists(ctx, settings);
+        if (!event.isError) await applyPhaseDetails(event.details as never, settings);
         return undefined;
       }
       if (!snap) {
@@ -902,7 +917,8 @@
     let onOtherSpecEdit: (rel: string, event: { input: unknown }, specDirs: string[]) => void;
 
     let amendmentOpen = false;
-    let lastPlanTasks: { name?: string; status: string }[] | undefined;
+    let lastPlanTasks: Task[] | undefined;
+    let planCursor = 0;
     const pendingTest = new Map<string, string>(); // toolCallId -> matched statement
     const pendingWarnings = createPendingWarnings();
 
@@ -992,23 +1008,47 @@
       flush();
     };
 
-    const onPlanTracker = async (details: unknown, settings: SettingsSnapshot) => {
-      const d = details as { tasks?: { name?: string; status: string }[]; error?: string } | undefined;
-      if (!d || d.error || !Array.isArray(d.tasks)) return;
+    const observePlan = (tasks: Task[], settings: SettingsSnapshot, snapshotId?: string) => {
       const previous = lastPlanTasks;
-      lastPlanTasks = d.tasks;
-      const next = afterPlanActivity(phases, d.tasks);
+      lastPlanTasks = tasks;
+      if (!settings.telemetry.enabled || (!record && !canBind())) return;
+      const reopens = countReopens(previous, tasks);
+      if (!reopens) return;
+      const acc = live();
+      if (snapshotId) {
+        if (acc.stored_reopens?.[snapshotId] || record?.accumulators.total?.stored_reopens?.[snapshotId]) return;
+        (acc.stored_reopens ??= {})[snapshotId] = reopens;
+      }
+      acc.gates.task_reopens += reopens;
+      pushEvent({ kind: "gate", gate: "task_reopen" });
+      return reopens;
+    };
+
+    const consumeStoredLists = (ctx: ExtensionContext, settings: SettingsSnapshot) => {
+      const branch = ctx.sessionManager.getBranch();
+      let reopened = false;
+      for (; planCursor < branch.length; planCursor++) {
+        const entry = branch[planCursor];
+        // Explicit lists were consumed at tool_execution_end, before Pi persisted their result.
+        if (entry.type !== "custom") continue;
+        const tasks = planSnapshot(entry);
+        // Pi copies IDs and timestamps into forks, but only checks ID uniqueness within a session.
+        const snapshotId = entry.id ? `${entry.id}:${entry.timestamp}` : undefined;
+        if (tasks && observePlan(tasks, settings, snapshotId)) reopened = true;
+      }
+      if (record && reopened) flush();
+    };
+
+    const onPlanTracker = async (details: unknown, settings: SettingsSnapshot) => {
+      const tasks = snapshotTasks(details);
+      if (!tasks) return;
+      observePlan(tasks, settings);
+      const next = afterPlanActivity(phases, tasks);
       if (!settings.telemetry.enabled || (!record && !canBind())) {
         phases = next;
         return;
       }
-      const reopens = countReopens(previous, d.tasks);
-      if (reopens) {
-        live().gates.task_reopens += reopens;
-        pushEvent({ kind: "gate", gate: "task_reopen" });
-      }
       if (next !== phases) {
-        if (record) record.derived.plan = planTotals(d.tasks);
         await applyPhaseDetails({ action: "complete", phases: next }, settings);
         return;
       }
@@ -1061,12 +1101,14 @@
       return undefined;
     });
     pi.on("tool_execution_end", async (event, ctx) => {
-      if (event.toolName === "plan_tracker") {
+      // A refused phase call can reach execution end without a tool_result hook.
+      if (event.toolName === "plan_tracker" || (event.toolName === "phase_tracker" && event.isError)) {
         if (isSubagentChild()) return;
         lastCtx = ctx;
         const settings = deps.settings(ctx.cwd);
         await enabledSettings(ctx, settings);
         if (!sessionId) sessionId = ctx.sessionManager.getSessionId();
+        consumeStoredLists(ctx, settings);
         if (!event.isError) await onPlanTracker(event.result?.details, settings);
         return;
       }

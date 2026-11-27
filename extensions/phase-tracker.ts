@@ -29,6 +29,7 @@ import {
   settingsErrorWarning,
 } from "./lib/gauntlet-settings.ts";
 import { readSharedSection } from "./lib/overrides.ts";
+import { latestPlanSnapshot, planSnapshot } from "./lib/plan-snapshot.ts";
 import { loadGauntletSettings } from "./lib/gauntlet-settings-loader.ts";
 import { textOf } from "./lib/telemetry-collect.ts";
 import { createPendingWarnings } from "./lib/tool-result-warnings.ts";
@@ -140,24 +141,6 @@ const isImplementerWave = (details: unknown, isError: boolean | undefined, inclu
   const d = details as { results?: { agent?: unknown }[] } | undefined;
   if (!d || !Array.isArray(d.results) || d.results.length === 0) return false;
   return d.results.some((r) => r?.agent === "implementer" || (includeLoop && r?.agent === "loop-implementer"));
-};
-
-const planSnapshot = (entry: SessionEntry): Task[] | undefined => {
-  if (entry.type !== "message" || entry.message.role !== "toolResult" ||
-      entry.message.toolName !== "plan_tracker" || entry.message.isError) return;
-  const details = entry.message.details as { tasks?: Task[]; error?: string } | undefined;
-  if (!details?.error && Array.isArray(details?.tasks)) return details.tasks;
-};
-
-// Latest successful plan_tracker snapshot on the current branch. Shared by the
-// completion backstop and the open-task nudge so both reason about one state;
-// read from session entries, so context pruning cannot hide it.
-const latestPlanSnapshot = (ctx: ExtensionContext): Task[] => {
-  for (const entry of [...ctx.sessionManager.getBranch()].reverse()) {
-    const tasks = planSnapshot(entry);
-    if (tasks) return tasks;
-  }
-  return [];
 };
 
 const unfinishedTaskLines = (tasks: Task[]): string[] =>
@@ -924,7 +907,7 @@ export default function (pi: ExtensionAPI) {
       ) {
         const loaded = loadGauntletSettings(ctx.cwd);
         if (loaded.errors.length === 0 && resolveFlowGuards(loaded.gauntlet).enforce) {
-          const open = unfinishedTaskLines(latestPlanSnapshot(ctx));
+          const open = unfinishedTaskLines(latestPlanSnapshot(ctx.sessionManager.getBranch()));
           if (open.length) pendingWarnings.add(event.toolCallId, openTaskNudge(open));
         }
       }
@@ -1193,13 +1176,19 @@ export default function (pi: ExtensionAPI) {
               } as PhaseTrackerDetails,
             };
           }
+          let unfinished: string[] = [];
+          if (params.phase === "verify" && phases.implement.status === "in_progress") {
+            const tasks = latestPlanSnapshot(ctx.sessionManager.getBranch());
+            applyPlanActivity(tasks);
+            unfinished = unfinishedTaskLines(tasks);
+          }
           const blocked = PHASES.find((p) => p !== params.phase && phases[p].status === "in_progress");
           if (blocked) {
             return {
               content: [
                 {
                   type: "text",
-                  text: `Error: phase "${blocked}" is already in_progress. Complete or skip it first.`,
+                  text: [`Error: phase "${blocked}" is already in_progress. Complete or skip it first.`, ...(unfinished.length ? ["unfinished tasks:", ...unfinished] : [])].join("\n"),
                 },
               ],
               details: {
@@ -1304,7 +1293,7 @@ export default function (pi: ExtensionAPI) {
             (params.phase === "implement" || params.phase === "verify") &&
             resolveFlowGuards(loadGauntletSettings(ctx.cwd).gauntlet).enforce
           ) {
-            const unfinished = unfinishedTaskLines(latestPlanSnapshot(ctx));
+            const unfinished = unfinishedTaskLines(latestPlanSnapshot(ctx.sessionManager.getBranch()));
             if (unfinished.length) {
               return {
                 content: [

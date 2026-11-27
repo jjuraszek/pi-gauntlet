@@ -40,7 +40,7 @@
     "anthropic/claude-opus-5-5": {
       "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
       "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
       "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
       "facts": {
@@ -60,14 +60,16 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the one fact holds in both and the After wording moved nothing. The output contains no authored spec sections (no acceptance rows, Integration entries, or sorting of ticket rows), so this sample shows nothing about whether the Change is delivered. To keep this fact while delivering the Change, the wording should keep the instruction to continue from the tracker result without an ownership or confirmation question, and the case should be checked for whether it actually exercises the ticket-row sorting path rather than returning a bare token.",
-      "wallMs": 5080,
-      "verdict": "unchanged"
+      "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the fact holds in both and the After wording moved nothing in this case. No wording change is needed to keep this fact: as long as the continuation from the tracker result still proceeds without an ownership or confirmation question when all local hand-off requirements are complete, it will keep holding. Note that this sample shows only the receipt token, so it gives no evidence either way about the Integration-sorting or ownership-question behaviour the Change targets.",
+      "wallMs": 3570,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     },
     "github-copilot/gpt-6.1-sol": {
       "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
       "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
-      "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+      "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
       "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
       "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
       "facts": {
@@ -87,10 +89,176 @@
           "label": "intended but unchanged"
         }
       },
-      "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, which contains no question and no request for input or confirmation, so the fact holds in both and nothing in the After wording moved it. Because the outputs are the same, this sample shows no observable effect of the Change at all: neither output contains authored spec sections, sorted ticket rows, or Integration entries, so the workflow-stage-ticket-row behaviors cannot be judged from this text. To keep this fact while delivering the Change, keep the wording that sorts moved rows into Integration without an ownership question or stop when all local hand-off requirements are complete, and check that the case actually triggers the spec-writer sorting path rather than returning only a receipt-like token.",
-      "wallMs": 5183,
-      "verdict": "unchanged"
+      "feedback": "Before and After are the same single token, `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the `question` fact holds in both and the wording change moved nothing on this case. Neither output shows any continuation work either (no pointer read, no next step narrated), so this sample cannot show whether the Change's sorting and ownership-question rules are delivered. To keep this fact while delivering the Change, keep the hand-off continuation free of confirmation prompts and limit the new ownership question to an unmatched group with a surviving acceptance row, as the Change already states.",
+      "wallMs": 4275,
+      "verdict": "unchanged",
+      "judgeModel": "anthropic-fable/claude-fable-5-2",
+      "thinking": "medium"
     }
   },
-  "repoSha": "85a63b9af2ac563feee72683c35a11208aeefbe3"
+  "repoSha": "b5cd0a612cf4644808c22873199bc23477af6f6c",
+  "refresh": {
+    "status": "complete",
+    "identity": {
+      "sample": "handoff-follows-pointer",
+      "kind": "text",
+      "assembly": "headed",
+      "baselineSkillSha": "074aafa4d795c0889a530d96277baa49257145b563fba10e861bffacecca8403",
+      "candidateSkillSha": "ce88fae4fb7f734f9bdf8bd8cd5194f8b92e0166319d6e530988c1fe1164ae9d",
+      "inputSha": "70023fb4ae4b68e83caed11d747793d0dcf2efe6f0b0717c457dbe573f3663e0",
+      "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
+      "models": {
+        "replay": [
+          "anthropic/claude-opus-5-5",
+          "github-copilot/gpt-6.1-sol"
+        ],
+        "judge": "anthropic-fable/claude-fable-5-2"
+      },
+      "thinking": "medium",
+      "outputs": {
+        "baseline": {
+          "anthropic/claude-opus-5-5": {
+            "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+            "payloadSha": "2364e035d02b28f8fb2bf23a2fb14af5d4a75095dffc27430cc916f803ce90a5"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+            "payloadSha": "cb1c42cad03007480de90451828cf71b8cfb740d0556eec07a4f6c6d5d981d57"
+          }
+        },
+        "candidate": {
+          "anthropic/claude-opus-5-5": {
+            "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+            "payloadSha": "2efd1c32d60227fd9aac878799a481d9637a98886f31d2328c85560ed27ed945"
+          },
+          "github-copilot/gpt-6.1-sol": {
+            "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+            "payloadSha": "9a1f5fa9135d4bc0b7a3bc51e18f1b4f6873e3d35a571f3b90725072352e73f3"
+          }
+        }
+      }
+    },
+    "previous": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+        "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "facts": {
+          "question": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "receipt": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "command": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the one fact holds in both and the After wording moved nothing. The output contains no authored spec sections (no acceptance rows, Integration entries, or sorting of ticket rows), so this sample shows nothing about whether the Change is delivered. To keep this fact while delivering the Change, the wording should keep the instruction to continue from the tracker result without an ownership or confirmation question, and the case should be checked for whether it actually exercises the ticket-row sorting path rather than returning a bare token.",
+        "wallMs": 5080,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "460cfa54b6d2b4365f92555d92a2f565511c5c7e143ccc83b67440a9a1f247e4",
+        "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "facts": {
+          "question": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "receipt": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "command": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, which contains no question and no request for input or confirmation, so the fact holds in both and nothing in the After wording moved it. Because the outputs are the same, this sample shows no observable effect of the Change at all: neither output contains authored spec sections, sorted ticket rows, or Integration entries, so the workflow-stage-ticket-row behaviors cannot be judged from this text. To keep this fact while delivering the Change, keep the wording that sorts moved rows into Integration without an ownership question or stop when all local hand-off requirements are complete, and check that the case actually triggers the spec-writer sorting path rather than returning only a receipt-like token.",
+        "wallMs": 5183,
+        "verdict": "unchanged",
+        "judgeModel": null,
+        "thinking": null
+      }
+    },
+    "refreshed": {
+      "anthropic/claude-opus-5-5": {
+        "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
+        "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "facts": {
+          "question": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "receipt": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "command": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the fact holds in both and the After wording moved nothing in this case. No wording change is needed to keep this fact: as long as the continuation from the tracker result still proceeds without an ownership or confirmation question when all local hand-off requirements are complete, it will keep holding. Note that this sample shows only the receipt token, so it gives no evidence either way about the Integration-sorting or ownership-question behaviour the Change targets.",
+        "wallMs": 3570,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      },
+      "github-copilot/gpt-6.1-sol": {
+        "factsSha": "82974892895660293f63f8a8847a8fdf9324ca2ca125e82ab3bd915b5d8fa2f8",
+        "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+        "intentSha": "ee7349269030aae133c318d47b4e79655ff1dc262bfd9b6fc0d3db32f16b4e77",
+        "baselineOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "candidateOutputSha": "4979eb1bd5cc9328c7ece1722e539cff3b20dc5ef90dc1a1e90115898cd167ee",
+        "facts": {
+          "question": {
+            "before": "holds",
+            "after": "holds",
+            "label": "held"
+          },
+          "receipt": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          },
+          "command": {
+            "before": "holds",
+            "after": "holds",
+            "label": "intended but unchanged"
+          }
+        },
+        "feedback": "Before and After are the same single token, `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the `question` fact holds in both and the wording change moved nothing on this case. Neither output shows any continuation work either (no pointer read, no next step narrated), so this sample cannot show whether the Change's sorting and ownership-question rules are delivered. To keep this fact while delivering the Change, keep the hand-off continuation free of confirmation prompts and limit the new ownership question to an unmatched group with a surviving acceptance row, as the Change already states.",
+        "wallMs": 4275,
+        "verdict": "unchanged",
+        "judgeModel": "anthropic-fable/claude-fable-5-2",
+        "thinking": "medium"
+      }
+    }
+  }
 }

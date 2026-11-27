@@ -494,6 +494,7 @@ try {
       R("extensions/lib/checkout.test.ts"),
       R("extensions/lib/overrides.test.ts"),
       R("extensions/lib/plan-check.test.ts"),
+      R("extensions/lib/plan-snapshot.test.ts"),
       R("extensions/lib/phase-tracker-helpers.test.ts"),
       R("extensions/lib/tool-result-warnings.test.ts"),
       R("extensions/plan-tracker.test.ts"),
@@ -565,6 +566,7 @@ try {
 try {
   execFileSync(process.execPath, [R("scripts/stage-skill-lint.test.mjs")], { stdio: "pipe" });
   execFileSync(process.execPath, ["--test",
+    R("scripts/tracker-refresh-instructions.test.mjs"),
     R("scripts/loop-engine-contract.test.mjs"),
     R("scripts/loop-boundary-integration.test.mjs"),
     R("scripts/loop-conformance-grant.test.mjs"),

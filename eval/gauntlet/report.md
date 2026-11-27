@@ -1,25 +1,17 @@
-# eval report: gauntlet (partial run: post-action-sorted)
+# eval report: gauntlet (selected samples only)
 
-for: 26d1c1f3e56ec9aa53ab90ddeed921b06ff3c19296da7ff12b5341e3cd1f9b91
+Each linked report covers both replay models. No other samples were run.
 
-wall: 38s
-
-## Change
-
-Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
-
-Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
-
-## Cells
-
-| sample | model | verdict | judge ms | facts |
-|---|---|---|---|---|
-| post-action-sorted | anthropic/claude-opus-5-5 | unchanged | 6805 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); drain: holds -> holds (held); entry: holds -> holds (held) |
-| post-action-sorted | github-copilot/gpt-6.1-sol | unchanged | 12624 | f1: holds -> holds (intended but unchanged); f2: holds -> holds (intended but unchanged); f3: holds -> holds (intended but unchanged); f4: holds -> holds (intended but unchanged); drain: holds -> holds (held); entry: holds -> holds (held) |
-
-## Feedback
-
-- post-action-sorted / anthropic/claude-opus-5-5: No fact moved on this sample: both outputs copy the two ABC-204 rows character-for-character with their in-scope dispositions and provenance header, add no row and ask no scope-cut question; both keep the release script's changelog-into-PR-body behavior as a Design imperative with a Tests line comparing the generated body to the fixture; both place the DEPLOY_TOKEN step as a single Integration item with the secret-store instruction nested beneath it; both put the scan-time note only in Integration; and neither mentions the queue drain in Acceptance criteria, Design or Tests. The After wording differs only cosmetically (nested lines rendered as sub-bullets, lowercased Integration entries, an added `## Errors and edge cases` placeholder, Design lines closer to the approved design's wording), none of which affects a fact. To keep these holding while delivering the Change, retain the explicit instructions that a script behavior producing pull-request text stays a whole in-scope criterion, that person steps and delivery-note PR text go to Integration with their detail lines nested under the parent entry, and that the ticket's existing Integration entry is carried first with the design's operator commands indented beneath it rather than restated as Design imperatives or Tests lines. One thing to watch: After lowercases and reformats the design's Integration sentences and drops the trailing period, so if a later fact keys on verbatim carriage of those entries, wording that says to copy design-sourced Integration text unchanged would guard against drift.
-- post-action-sorted / github-copilot/gpt-6.1-sol: No fact moved on this case: both outputs keep the two ABC-204 rows verbatim with in-scope dispositions and provenance, put the DEPLOY_TOKEN step and the scan-time note in Integration with their nested lines, keep the release-script changelog behaviour in Design and Tests, and keep the queue drain out of Acceptance criteria, Design and Tests. The closest call is f2 in Before, whose Design carries a line calling the scan-time note 'a delivery obligation'; I read that as a disclaimer rather than an imperative, so it holds, but After is cleaner because it drops the line and Design holds only file-delivered behaviour. To keep that, the wording should say explicitly that Integration items get no mention in Design, not even a disclaimer. Two After drifts are outside these facts but worth tightening: it narrates a 'required classification read' of `skills/shape-ticket/reference/ac-classes.md` although the observations say no read is outstanding, and its Tests section gives the parser-compatibility constraint a 'none:' line where Before proposed a regression test. Wording that says no further read is needed once the reference is in context, and that every Design constraint keeps a proposed test rather than a 'none' fallback, would hold what Before held while still delivering the sorting change.
-
-exit: 0
+| Sample | Candidate must-holds |
+|---|---|
+| [drafted-row-scenarios](results/drafted-row-scenarios/report.md) | All must-holds passed. |
+| [handoff-follows-pointer](results/handoff-follows-pointer/report.md) | All must-holds passed. |
+| [legs-integration-sorted](results/legs-integration-sorted/report.md) | All must-holds passed. |
+| [loop-ledger-amend](results/loop-ledger-amend/report.md) | All must-holds passed. |
+| [ordinary-request-no-run](results/ordinary-request-no-run/report.md) | All must-holds passed. |
+| [post-action-sorted](results/post-action-sorted/report.md) | All must-holds passed. |
+| [pr-body-drafted-row](results/pr-body-drafted-row/report.md) | All must-holds passed. |
+| [ticket-all-rows-sorted](results/ticket-all-rows-sorted/report.md) | All must-holds passed. |
+| [tree-wide-drafted-row](results/tree-wide-drafted-row/report.md) | All must-holds passed. |
+| [workflow-stage-drafted-row](results/workflow-stage-drafted-row/report.md) | All must-holds passed. |
+| [workflow-stage-ticket-row](results/workflow-stage-ticket-row/report.md) | All must-holds passed. |

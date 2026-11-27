@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { test, type TestContext } from "node:test";
+import { mkdtempSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -21,10 +21,14 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
     execute: (...args: any[]) => unknown;
     renderResult: (result: unknown, options: unknown, theme: unknown) => { text?: string };
   }[] = [];
-  const handlers: { event: string; handler: (event: unknown, ctx: unknown) => Promise<void> }[] = [];
+  type Handler = (event: unknown, ctx: unknown) => Promise<{ block: boolean; reason: string } | void>;
+  const handlers: { event: string; handler: Handler }[] = [];
   const pi = {
-    on(event: string, handler: (event: unknown, ctx: unknown) => Promise<void>) {
+    on(event: string, handler: Handler) {
       handlers.push({ event, handler });
+    },
+    appendEntry(customType: string, data: unknown) {
+      branch.push({ type: "custom", customType, data });
     },
     registerTool(tool: any) {
       tools.push(tool);
@@ -32,11 +36,15 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   };
   registerPlanTracker(pi as any);
   let widgetText: string | undefined;
+  const notifications: { message: string; level: string }[] = [];
   const theme = { fg: (_c: string, s: string) => s, bold: (s: string) => s };
   const ctx = {
     cwd,
     hasUI: true,
     ui: {
+      notify(message: string, level: string) {
+        notifications.push({ message, level });
+      },
       setWidget(_id: string, cb?: (tui: unknown, theme: unknown) => { text: string }) {
         widgetText = cb ? cb(undefined, theme).text : undefined;
       },
@@ -45,13 +53,17 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   };
   const call = async (params: Record<string, unknown>): Promise<ToolResult> =>
     (await tools[0].execute("id", params, undefined, undefined, ctx)) as ToolResult;
-  const fire = async (event: string) => {
-    for (const h of handlers) if (h.event === event) await h.handler({}, ctx);
+  const fire = async (event: string, fields: Record<string, unknown> = {}) => {
+    for (const h of handlers) if (h.event === event) {
+      const result = await h.handler({ type: event, ...fields }, ctx);
+      if (result) return result;
+    }
   };
   return {
     call,
     fire,
     tool: () => tools[0],
+    notifications,
     theme,
     widget: () => widgetText,
     parameters: () => tools[0].parameters,
@@ -71,6 +83,14 @@ test("add appends pending tasks and preserves existing statuses", async () => {
     res.details.tasks.map((t) => [t.name, t.status]),
     [["a", "complete"], ["b", "pending"], ["c", "pending"], ["d", "pending"], ["e", "pending"]],
   );
+});
+
+test("clear returns the empty list and reports the number of tasks removed", async () => {
+  const { call } = harness();
+  await call({ action: "init", tasks: ["a"] });
+  const result = await call({ action: "clear" });
+  assert.deepEqual(result.details, { action: "clear", tasks: [] });
+  assert.equal(result.content[0].text, "Plan cleared (1 tasks removed).");
 });
 
 test("add with no active plan creates one", async () => {
@@ -402,6 +422,513 @@ const ledger = (rows: string[], tail = "", pending = "") => [
   "| row | status | attempts | evidence |", "|---|---|---|---|",
   ...rows.map(row => `| ${row} |`), "", "## Decisions", tail,
 ].join("\n");
+
+function mainSession(t: TestContext) {
+  const depth = process.env.PI_SUBAGENT_DEPTH;
+  process.env.PI_SUBAGENT_DEPTH = "0";
+  t.after(() => {
+    if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = depth;
+  });
+}
+
+test("a lone worker dispatch shows the bound ledger row in progress before the worker runs", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-dispatch-");
+  const path = join(dir, "ledger.md");
+  const rows = ["1 | open | 0 |"];
+  writeFileSync(path, ledger(rows, "", "returned: none"));
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  const seed = await h.call({ action: "refresh", path });
+  assert.equal(seed.details.tasks[0].status, "pending");
+  branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: seed.details } });
+
+  writeFileSync(path, ledger(rows, "", "pending: 1 | home | abc1234\nreturned: none"));
+  const input = { agent: "loop-implementer", task: "target: 1" };
+  const dispatch = { type: "toolCall", id: "dispatch", name: "subagent", arguments: input };
+  await h.fire("message_end", { message: { role: "assistant", content: [dispatch, { type: "toolCall", id: "write", name: "bash", arguments: {} }] } });
+  const before = branch.length;
+  assert.match((await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }))?.reason ?? "", /ledger write.*alone/);
+  assert.equal(branch.length, before);
+  await h.fire("message_end", { message: { role: "assistant", content: [dispatch] } });
+  await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input });
+  const expected = [{ name: "row 1", status: "in_progress", label: descriptions[0] }];
+  assert.deepEqual(branch.slice(before), [{
+    type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected },
+  }]);
+  assert.match(h.widget()!, /\u2192/);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
+
+  writeFileSync(path, ledger(rows, "", "pending: seed | home | abc1234\nreturned: none"));
+  const seedDispatch = () => h.fire("tool_call", { toolName: "subagent", input: {} });
+  await seedDispatch();
+  const afterSeed = branch.length;
+  await seedDispatch();
+  assert.equal(branch.length, afterSeed);
+});
+
+test("loop redraw rejects oversized UTF-8 lists without limiting explicit calls", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-overflow-");
+  const path = join(dir, "ledger.md");
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  const name = "\u00e9".repeat(16_384);
+  const carried = { name, status: "pending" };
+  assert.deepEqual((await h.call({ action: "init", tasks: [name] })).details.tasks, [carried]);
+  const widget = h.widget();
+  const dispatch = () => h.fire("tool_call", { toolName: "subagent", input: {} });
+
+  for (const [index, [row, status]] of [["open", "pending"], ["cut", "skipped"]].entries()) {
+    writeFileSync(path, ledger([`1 | ${row} | 0 |`], "", "pending: seed | home | abc1234\nreturned: none"));
+    const projected = [{ name: "row 1", status, label: descriptions[0] }, carried];
+    assert.equal(await dispatch(), undefined);
+    assert.equal(await dispatch(), undefined);
+    assert.equal(branch.length, 1);
+    assert.equal(h.widget(), widget);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, [carried]);
+    assert.equal(h.notifications.length, index + 1);
+    const notice = h.notifications[index];
+    assert.equal(notice.level, "warning");
+    assert.match(notice.message, new RegExp(String(Buffer.byteLength(JSON.stringify({ tasks: projected })))));
+    assert.match(notice.message, /32768/);
+  }
+  assert.deepEqual((await h.call({ action: "refresh", path })).details.tasks, [
+    { name: "row 1", status: "skipped", label: descriptions[0] }, carried,
+  ]);
+  assert.equal(h.notifications.length, 2);
+});
+
+function wavesFixture(t: TestContext, plan = "## Wave 1 - Setup\n### Task 40: First\n### Task 4: Added\n### Task 5: Third\n## Wave 2\n### Task 9: Later\n") {
+  mainSession(t);
+  const dir = mkdtempSync(join(tmpdir(), "plan-waves-"));
+  writeFileSync(join(dir, "plan.md"), plan);
+  return dir;
+}
+
+const waveItem = (field: string, plan = "plan.md") => ({ agent: "implementer", task: `planPath: ${plan}; ${field}; Spec: spec.md` });
+const waveDispatch = (h: ReturnType<typeof harness>, input: unknown) => h.fire("tool_call", { toolName: "subagent", input });
+
+test("waves dispatch starts exact plan tasks across supported carriers", async (t) => {
+  const dir = wavesFixture(t);
+  const first = waveItem("anchor: ### Task 40:");
+  const added = waveItem('anchor: "### Task 4:"');
+  for (const [name, input] of [
+    ["single item with anchor array", waveItem('anchors: ["### Task 40:", "### Task 4:"]')],
+    ["task batch", { tasks: [first, added] }],
+    ["chain", { chain: [first, { parallel: [added] }] }],
+  ] as const) await t.test(name, async () => {
+    const stamp = { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "plan.md" } } };
+    const branch: unknown[] = [stamp];
+    const h = harness(branch, dir);
+    await h.call({ action: "init", tasks: ["W1: First", "W1: Added", "W2: Later"] });
+    assert.equal(await waveDispatch(h, input), undefined);
+    const expected = [
+      { name: "W1: First", status: "in_progress" }, { name: "W1: Added", status: "in_progress" },
+      { name: "W2: Later", status: "pending" },
+    ];
+    assert.deepEqual(branch, [stamp, { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected } }]);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
+  });
+});
+
+test("waves dispatch resolves a zero-padded wave and preserves the manifest title", async (t) => {
+  const dir = wavesFixture(t, "## Wave 01 - Foundation\n### Task 1: Build  \n");
+  const h = harness([], dir);
+  await h.call({ action: "init", tasks: ["W1: Build  "] });
+  assert.equal(await waveDispatch(h, waveItem("anchor: ### Task 1:")), undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, [{ name: "W1: Build  ", status: "in_progress" }]);
+});
+
+test("waves dispatch rejects an aggregate overflow without starting the task", async (t) => {
+  const branch: unknown[] = [];
+  const h = harness(branch, wavesFixture(t));
+  const { details: { tasks } } = await h.call({ action: "init", tasks: ["W1: First", "a".repeat(16_384), "b".repeat(16_384)] });
+  const widget = h.widget();
+  const dispatch = () => waveDispatch(h, waveItem("anchor: ### Task 40:"));
+  assert.equal(await dispatch(), undefined);
+  assert.equal(await dispatch(), undefined);
+  assert.equal(branch.length, 0);
+  assert.equal(h.widget(), widget);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, tasks);
+  const next = [{ ...tasks[0], status: "in_progress" }, ...tasks.slice(1)];
+  assert.equal(h.notifications.length, 1);
+  assert.equal(h.notifications[0].level, "warning");
+  assert.match(h.notifications[0].message, new RegExp(String(Buffer.byteLength(JSON.stringify({ tasks: next })))));
+  assert.match(h.notifications[0].message, /32768/);
+});
+
+test("waves dispatch resolves a task appended by an amendment by name", async (t) => {
+  const branch: unknown[] = [];
+  const h = harness(branch, wavesFixture(t));
+  const original = [{ name: "W1: First", status: "complete" }, { name: "W2: Later", status: "complete" }];
+  await h.call({ action: "init", tasks: original });
+  await h.call({ action: "add", tasks: ["W1: Added"] });
+  assert.equal(await waveDispatch(h, waveItem('anchor: "### Task 4:"')), undefined);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, [...original, { name: "W1: Added", status: "in_progress" }]);
+  assert.equal(branch.length, 1);
+});
+
+test("waves dispatch refuses atomically in resolution, wave, then list order", async (t) => {
+  const dir = wavesFixture(t);
+  const later = waveItem("anchor: ### Task 9:");
+  const first = waveItem("anchor: ### Task 40:");
+  const added = waveItem("anchor: ### Task 4:");
+  const restored = [{ name: "W1: First", status: "in_progress" }, { name: "W2: Later", status: "in_progress" }];
+  const restoredOutOfOrder = [
+    { name: "W1: First", status: "pending" }, { name: "W1: Added", status: "pending" },
+    { name: "W1: Third", status: "in_progress" },
+  ];
+  for (const [name, tasks, input, reason, fix] of [
+    ["missing entry before wave check", ["W1: First", "W2: Later"], { tasks: [later, added] }, /### Task 4: expected "W1: Added", found 0/, /add.*re-init/s],
+    ["ambiguous entry without partial start", ["W1: First", "W1: Added", "W1: Added"], { tasks: [first, added] }, /### Task 4: expected "W1: Added", found 2/, /add.*re-init/s],
+    ["missing exact heading", ["W1: First"], waveItem("anchor: ### Task 0:"), /### Task 0:.*found 0/, /re-init/],
+    ["unreadable plan", ["W1: First"], waveItem("anchor: ### Task 40:", "missing.md"), /### Task 40:.*found 0/, /re-init/],
+    ["earlier pending wave before list order", ["W1: First", "W2: Later"], later, /0: W1: First \(pending\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
+    ["earlier wave still running after restore", restored, later, /0: W1: First \(in_progress\)/, /plan_tracker\(\{ action: "update", index, status \}\)/],
+    ["split wave list order", ["W1: First", "W1: Added"], added, /0: W1: First \(pending\)/, /update each listed task.*re-init/s],
+    ["pending gap before an already-started task after restore", restoredOutOfOrder, first, /^Start order: 1: W1: Added \(pending\)\.\nRule: pending tasks must trail every started or finished task\./, /update each listed task.*re-init/s],
+  ] as const) await t.test(name, async () => {
+    const branch: unknown[] = tasks === restored || tasks === restoredOutOfOrder
+      ? [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]
+      : [];
+    const h = harness(branch, dir);
+    if (branch.length) await h.fire("session_start");
+    else await h.call({ action: "init", tasks });
+    const initial = await h.call({ action: "status" });
+    const entries = branch.slice();
+    const blocked = await waveDispatch(h, input);
+    assert.equal(blocked?.block, true);
+    assert.match(blocked?.reason ?? "", reason);
+    assert.match(blocked?.reason ?? "", fix);
+    assert.deepEqual(branch, entries);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+  });
+});
+
+test("waves dispatch leaves repairs, reviewers, unanchored tasks, other lists and worker sessions alone", async (t) => {
+  const dir = wavesFixture(t);
+  const first = waveItem("anchor: ### Task 40:");
+  const later = waveItem("anchor: ### Task 9:");
+  const started = [{ name: "W1: First", status: "in_progress" }, "W2: Later"];
+  for (const [name, tasks, input, depth] of [
+    ["same-wave repair", started, first, "0"],
+    ["reviewer", started, { ...later, agent: "wave-reviewer" }, "0"],
+    ["unanchored", started, waveItem("Repair the task"), "0"],
+    ["no plan path", started, { ...later, task: "anchor: ### Task 9:" }, "0"],
+    ["not a waves list", ["G1: First"], later, "0"],
+    ["worker session", ["W1: First", "W2: Later"], later, "1"],
+  ] as const) await t.test(name, async () => {
+    process.env.PI_SUBAGENT_DEPTH = depth;
+    const branch: unknown[] = [];
+    const h = harness(branch, dir);
+    const initial = await h.call({ action: "init", tasks });
+    assert.equal(await waveDispatch(h, input), undefined);
+    assert.deepEqual(branch, []);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, initial.details.tasks);
+  });
+});
+
+const assistantText = (text: string) => ({
+  type: "message", message: { role: "assistant", content: [{ type: "text", text }], stopReason: "stop" },
+});
+const workerResult = { type: "message", message: { role: "toolResult", toolName: "subagent", isError: false, details: { results: [] } } };
+const storedPlan = (tasks: ToolResult["details"]["tasks"]) => ({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } });
+
+async function dispatchLoopWorker(h: ReturnType<typeof harness>, branch: unknown[], target: string, id: string) {
+  const input = { agent: "loop-implementer", task: `target: ${target}` };
+  const message = { role: "assistant", content: [{ type: "toolCall", id, name: "subagent", arguments: input }] };
+  branch.push({ type: "message", message });
+  await h.fire("message_end", { message });
+  const before = branch.length;
+  assert.equal(await h.fire("tool_call", { toolCallId: id, toolName: "subagent", input }), undefined);
+  return branch.slice(before);
+}
+
+test("dispatch records the judged return before starting an immediate retry", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-retry-");
+  const path = join(dir, "ledger.md");
+  const first = "1 | home | abc1234";
+  const next = "1 | home | def5678";
+  const failedReturn = ["1 | failed | 1 | check failed", "2 | done | 0 | check passed"];
+  const returnDecisions = "row 1 failed | check failed | retry\nrow 2 done | check passed | none";
+  const firstRow = { name: "row 1", label: descriptions[0] };
+  const otherRow = { name: "row 2", label: descriptions[1] };
+  for (const [name, rows, decisions, otherStatus] of [
+    ["admitted failure", failedReturn, returnDecisions, "complete"],
+    ["numbered repair", ["1 | failed | 1 | iteration 1: duplicate decision", "2 | open | 0 |"], "repair row 1 | duplicate decision | iteration 1", "pending"],
+  ] as const) await t.test(name, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "ledger.md" } } }];
+    const h = harness(branch, dir);
+    writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |"], "", `pending: ${first}\nreturned: none`));
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "dispatch"), [
+      storedPlan([{ ...firstRow, status: "pending" }, { ...otherRow, status: "pending" }]),
+      storedPlan([{ ...firstRow, status: "in_progress" }, { ...otherRow, status: "pending" }]),
+    ]);
+    branch.push(workerResult);
+    writeFileSync(path, ledger([...rows], decisions, `returned: ${first}`) + `\npending: ${next}`);
+    const other = { ...otherRow, status: otherStatus };
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "redispatch"), [
+      storedPlan([{ ...firstRow, status: "failed" }, other]),
+      storedPlan([{ ...firstRow, status: "in_progress" }, other]),
+    ]);
+  });
+});
+
+test("only a marked parent repair can publish statuses after a worker duplicates a decision", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-repair-");
+  const path = join(dir, "ledger.md");
+  const tuple = "1 | home | abc1234";
+  for (const [name, previous] of [
+    ["duplicate retry", "row 1 retry | new input | allowed attempts 2"],
+    ["duplicate repair", "repair row 1 | rejected return | iteration 1"],
+  ]) await t.test(name, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    const h = harness(branch, dir);
+    const first = { name: "row 1", status: "failed", label: descriptions[0] };
+    const other = { name: "row 2", status: "pending", label: descriptions[1] };
+    const dispatched = [{ ...first, status: "in_progress" }, other];
+    writeFileSync(path, ledger(["1 | failed | 1 | old miss", "2 | open | 0 |"], previous, `pending: ${tuple}`));
+    assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "dispatch"), [storedPlan([first, other]), storedPlan(dispatched)]);
+    writeFileSync(path, ledger(["1 | done | 2 | check passed", "2 | done | 0 | check passed"], `${previous}\n${previous}`, `returned: ${tuple}`));
+    branch.push(workerResult);
+    const read = { role: "assistant", content: [{ type: "toolCall", id: "read-ledger", name: "read", arguments: { path } }] };
+    branch.push({ type: "message", message: read });
+    await h.fire("message_end", { message: read });
+    await h.fire("tool_call", { toolCallId: "read-ledger", toolName: "read", input: { path } });
+    branch.push(
+      { type: "message", message: { role: "toolResult", toolName: "read", content: [{ type: "text", text: readFileSync(path, "utf8") }] } },
+      assistantText("I have the worker's result."),
+    );
+    const before = branch.length;
+    await h.fire("agent_settled", { aborted: false });
+    assert.deepEqual(branch.slice(before), [], "unmarked stop stored an unjudged list");
+    const reloaded = harness(branch, dir);
+    await reloaded.fire("session_start");
+    assert.deepEqual(branch.slice(before), [], "reload stored an unjudged list");
+    if (name === "duplicate retry") assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, dispatched);
+
+    writeFileSync(path, ledger(["1 | failed | 2 | repair", "2 | open | 0 |"], `${previous}\nrepair row 1 | rejected return | iteration 2`, `returned: ${tuple}`));
+    branch.push(assistantText("gauntlet: question\nRetry the repaired row?"));
+    await reloaded.fire("agent_settled", { aborted: false });
+    assert.deepEqual(branch.slice(before + 1), [storedPlan([first, other])]);
+  });
+});
+
+test("a marked stop after a rejected seed stores no row changes", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-seed-repair-");
+  const path = join(dir, "ledger.md");
+  const rows = ["1 | open | 0 |"];
+  const tuple = "seed | home | abc1234";
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  writeFileSync(path, ledger(rows, "", `pending: ${tuple}\nreturned: none`));
+  const initial = storedPlan([{ name: "row 1", status: "pending", label: descriptions[0] }]);
+  assert.deepEqual(await dispatchLoopWorker(h, branch, "seed", "seed-dispatch"), [initial]);
+
+  const returned = `returned: ${tuple}`;
+  writeFileSync(path, ledger(["1 | done | 0 | baseline"], "", returned));
+  branch.push(workerResult);
+  writeFileSync(path, ledger(rows, "repair seed | seed miss: missing decision | iteration 1", returned));
+  branch.push(assistantText("gauntlet: question\nRetry the seed?"));
+  const before = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  assert.deepEqual(branch.slice(before), []);
+});
+
+test("a human stop redraws on parent evidence, not on an older blocked dispatch", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-stop-");
+  const path = join(dir, "ledger.md");
+  const blocked = { type: "message", message: { role: "toolResult", toolName: "subagent", isError: true, details: {} } };
+  const row = { name: "row 1", label: descriptions[0] };
+  const completed = [{ ...row, status: "complete" }];
+  const returned = "returned: 1 | home | abc1234";
+  const failedLedger = ledger(["1 | failed | 1 | check failed"], "row 1 failed | worker result | retry", returned);
+  for (const [name, results, text, status] of [
+    ["question after admitted failed return", [workerResult], "gauntlet: question\nRetry?", "failed"],
+    ["gate after admitted failed return", [workerResult], "gauntlet: gate=verify/step-6 recommended=1\r\nChoose.", "failed"],
+    ["marker mentioned after the first line", [workerResult], "Check failed.\ngauntlet: question", undefined],
+    ["blocked dispatch publishes a reopened row", [blocked], "Dispatch blocked.", "pending"],
+    ["older blocked dispatch", [blocked, workerResult], "Check failed.", undefined],
+  ] as const) await t.test(name, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    if (status === "pending") {
+      branch.push(storedPlan(completed));
+      writeFileSync(path, ledger(["1 | open | 1 | reopened by amendment"], "amended | 1 item(s) | Re-bound row", returned));
+    } else {
+      writeFileSync(path, failedLedger);
+    }
+    branch.push(...results, assistantText(text));
+    const before = branch.length;
+    const h = harness(branch, dir);
+    if (status === "pending") {
+      await h.fire("session_start");
+      assert.deepEqual((await h.call({ action: "status" })).details.tasks, completed);
+      assert.equal(branch.length, before);
+    }
+    await h.fire("agent_settled", { aborted: true });
+    assert.equal(branch.length, before);
+    await h.fire("agent_settled", { aborted: false });
+    const expected = status ? [{ ...row, status }] : [];
+    assert.deepEqual(branch.slice(before), status ? [storedPlan(expected)] : []);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
+  });
+});
+
+test("branch activation reconciles a stale list only at a marked stop without a newer worker result", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-activate-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | failed | 1 |"], "repair row 1 | rejected return | iteration 1", "returned: 1 | home | abc1234"));
+  const gate = { name: "G1: check", status: "in_progress" };
+  for (const event of ["session_start", "session_switch", "session_fork", "session_tree"]) {
+    const branch: any[] = [
+      { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+      { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status: "in_progress" }, gate] } },
+      assistantText("gauntlet: question\nRetry?"),
+    ];
+    const returnedBranch = [...branch, workerResult];
+    const reloaded = harness(returnedBranch, dir);
+    await reloaded.fire(event);
+    assert.equal(returnedBranch.length, 4, `${event}: stored a list after a newer worker result`);
+    assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, branch[1].data.tasks, event);
+
+    const h = harness(branch, dir);
+    await h.fire(event);
+    assert.deepEqual(branch.at(-1).data.tasks, [{ name: "row 1", status: "failed", label: descriptions[0] }, gate], event);
+    await h.fire(event);
+    assert.equal(branch.length, 4, event);
+    branch.length = 0;
+    await h.fire(event);
+    assert.equal(branch.length, 0, event);
+    assert.equal(h.widget(), undefined, event);
+  }
+});
+
+test("taking over a bound list leaves a later gatekeep dispatch unbound", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-takeover-");
+  const path = join(dir, "ledger.md");
+  const gatekeepPath = join(dir, "gatekeep.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  writeFileSync(gatekeepPath, ledger(["2 | open | 0 |"], "", "pending: 2 | gatekeep | abc1234"));
+  for (const action of ["init", "clear"] as const) await t.test(action, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    const h = harness(branch, dir);
+    const seed = await h.call({ action: "refresh", path });
+    assert.deepEqual(seed.details.tasks, [{ name: "row 1", status: "pending", label: descriptions[0] }]);
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: seed.details } });
+    const takeover = await h.call(action === "init" ? { action, tasks: ["gather"] } : { action });
+    assert.equal(takeover.details.error, undefined);
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: takeover.details } });
+
+    const input = { agent: "loop-implementer", context: "fresh", async: false, cwd: dir, task: `ledger: ${gatekeepPath}\ntarget: 2` };
+    const message = { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] };
+    branch.push({ type: "message", message });
+    await h.fire("message_end", { message });
+    const before = branch.length;
+    assert.equal(await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }), undefined);
+    assert.deepEqual(branch.slice(before), []);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, action === "init" ? [{ name: "gather", status: "pending" }] : []);
+    assert.deepEqual(h.notifications, []);
+  });
+});
+
+test("a marked restore stop merges ledger rows after init precedes plan_check", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-restore-mixed-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  const branch: unknown[] = [];
+  const h = harness(branch, dir);
+  const gate = { name: "G1: check", status: "in_progress" };
+  const init = await h.call({ action: "init", tasks: [gate] });
+  assert.equal(init.details.error, undefined);
+  branch.push(
+    { type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: init.details } },
+    { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    assistantText("gauntlet: question\nContinue from the restored plan?"),
+  );
+  const before = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  const tasks = [gate, { name: "row 1", status: "pending", label: descriptions[0] }];
+  assert.deepEqual(branch.slice(before), [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, tasks);
+  assert.deepEqual(h.notifications, []);
+});
+
+test("session activation leaves the last snapshot untouched when the bound ledger is deleted", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-missing-ledger-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  const branch: unknown[] = [
+    { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    assistantText("gauntlet: question\nContinue?"),
+  ];
+  const h = harness(branch, dir);
+  const beforeStop = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  const tasks = [{ name: "row 1", status: "pending", label: descriptions[0] }];
+  assert.deepEqual(branch.slice(beforeStop), [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]);
+  unlinkSync(path);
+
+  const reloaded = harness(branch, dir);
+  const beforeActivation = branch.length;
+  await reloaded.fire("session_start");
+  assert.deepEqual(branch.slice(beforeActivation), []);
+  assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, tasks);
+  assert.deepEqual(reloaded.notifications, []);
+});
+
+test("an unprojectable bound ledger preserves the stored list, warns once, and blocks dispatch and verify start", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-restore-verify-");
+  const path = join(dir, "ledger.md");
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  const verify = () => h.fire("tool_call", { toolName: "phase_tracker", input: { action: "start", phase: "verify" } });
+  writeFileSync(path, ledger(["1 | open | 0 |"], "", "returned: none"));
+  assert.equal(await verify(), undefined);
+  assert.equal(branch.length, 1, "verify start without active implement must not store a list");
+
+  const stop = () => h.fire("agent_settled", { aborted: false });
+  branch.push(assistantText("gauntlet: question\nContinue?"));
+  await stop();
+  assert.deepEqual(branch.slice(2), [storedPlan([{ name: "row 1", status: "pending", label: descriptions[0] }])]);
+  const before = structuredClone(branch);
+  const widget = h.widget();
+  assert.ok(widget);
+
+  writeFileSync(path, "# Ledger - loop engine\n");
+  const reason = `refresh: ${path} row table malformed at line 1`;
+  const warnings = [{ message: reason, level: "warning" }];
+  assert.equal(await stop(), undefined);
+  assert.deepEqual(branch, before, "marked stop must not change branch entries");
+  assert.equal(h.widget(), widget, "marked stop must preserve the list");
+  assert.deepEqual(h.notifications, warnings);
+
+  assert.equal(await h.fire("session_switch"), undefined);
+  assert.deepEqual(branch, before, "branch activation must not change branch entries");
+  assert.equal(h.widget(), widget, "branch activation must preserve the list");
+  assert.deepEqual(h.notifications, warnings, "branch activation must not repeat the warning");
+
+  const input = { agent: "loop-implementer", task: "target: 1" };
+  const message = { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] };
+  const entry = { type: "message", message };
+  branch.push(entry);
+  await h.fire("message_end", { message });
+  assert.deepEqual(await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }), { block: true, reason });
+  assert.deepEqual(await verify(), { block: true, reason });
+  assert.deepEqual(branch, [...before, entry]);
+  assert.equal(h.widget(), widget);
+  assert.deepEqual(h.notifications, warnings);
+});
 
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
   const dir = ledgerFixture("plan-refresh-");

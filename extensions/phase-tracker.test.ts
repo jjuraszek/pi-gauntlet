@@ -96,6 +96,7 @@ function harness(options: { hasUI?: boolean; cwd?: string; branch?: unknown[]; i
     modelRegistry: { find: (provider: string, id: string) => options.registry?.[`${provider}/${id}`] },
   };
   const pi = {
+    appendEntry(customType: string, data: unknown) { branch.push({ type: "custom", customType, data }); },
     calls: [] as string[],
     setModelCalls: [] as unknown[],
     thinkingCalls: [] as string[],
@@ -1008,6 +1009,69 @@ test("ledger refresh completes only started implement and keeps failed, in-fligh
   }
 });
 
+test("an unjudged worker return never appears at a stop, reload or abort", async () => {
+  const cwd = tempCwd();
+  execFileSync("git", ["init", "-q", cwd]);
+  writeFileSync(join(cwd, "spec.md"), "## Acceptance criteria\n- [ ] Keep the row visible\n");
+  const path = join(cwd, "ledger.md");
+  const save = (header: string, row: string, decision: string) => writeFileSync(path, [
+    "# Ledger - loop engine", "**Spec:** `spec.md`", header,
+    "| row | status | attempts | evidence |", "|---|---|---|---|", row, "", "## Decisions", decision,
+  ].join("\n"));
+  save("pending: 1 | home | abc1234\nreturned: none", "| 1 | open | 0 | |", "");
+  const branch = implementBranch([{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }]);
+  const h = harness({ cwd, branch });
+  registerPlanTracker(h.pi as any);
+  await h.emit("session_start");
+  await h.emitEvent("tool_call", { toolName: "subagent", toolCallId: "worker", input: { agent: "loop-implementer", task: "target: 1" } });
+  save("returned: 1 | home | abc1234", "| 1 | done | 1 | pass |", "row 1 done | pass | none");
+  branch.push(subagentResult(["loop-implementer"]));
+  const length = branch.length;
+  await h.emitEvent("tool_result", { toolName: "read", input: { path }, content: [{ type: "text", text: readFileSync(path, "utf8") }] });
+  for (const [event, fields] of [["agent_settled", { aborted: false }], ["session_start", {}], ["agent_settled", { aborted: true }]] as const) {
+    await h.emitEvent(event, fields);
+    assert.equal(branch.length, length, event);
+    const tracker = h.tools.find(t => t.name === "plan_tracker")!;
+    const result = await tracker.execute("handoff", { action: "status" }, undefined, undefined, h.ctx) as any;
+    assert.deepEqual(result.details.tasks, [{ name: "row 1", status: "in_progress", label: "Keep the row visible" }], event);
+    await h.emitEvent("tool_execution_end", { toolName: "plan_tracker", result });
+    assert.equal((await phaseCall(h, "status")).details.phases.implement.status, "in_progress", event);
+  }
+});
+
+test("verify start draws the admitted final ledger and completes implement without a tracker call", async () => {
+  const cwd = tempCwd();
+  execFileSync("git", ["init", "-q", cwd]);
+  writeFileSync(join(cwd, "spec.md"), "## Acceptance criteria\n- [ ] Finish work\n");
+  const path = join(cwd, "ledger.md");
+  writeFileSync(path, ["# Ledger - loop engine", "**Spec:** `spec.md`", "returned: 1 | home | abc1234",
+    "| row | status | attempts | evidence |", "|---|---|---|---|", "| 1 | done | 1 | pass |", "", "## Decisions", "row 1 done | pass | none"].join("\n"));
+  const branch = implementBranch([{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status: "in_progress" }] } }]);
+  const h = harness({ cwd, branch });
+  registerPlanTracker(h.pi as any);
+  await h.emit("session_start");
+  const length = branch.length;
+  await h.emitEvent("tool_call", { toolName: "phase_tracker", input: { action: "start", phase: "verify" } });
+  assert.equal(branch.length, length + 1);
+  assert.equal((await phaseCall(h, "status")).details.phases.implement.status, "in_progress");
+  const result = await phaseCall(h, "start", "verify");
+  assert.equal(result.details.phases.implement.status, "complete");
+  assert.equal(result.details.phases.verify.status, "in_progress");
+});
+
+test("verify start refuses an empty or unfinished stored list", async () => {
+  for (const statuses of [[], ["failed"], ["in_progress", "pending"]]) {
+    const tasks = statuses.map((status, i) => ({ name: `task ${i}`, status }));
+    const h = harness({ branch: implementBranch([{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]) });
+    await h.emit("session_start");
+    const result = await phaseCall(h, "start", "verify");
+    const reason = 'Error: phase "implement" is already in_progress. Complete or skip it first.';
+    assert.equal(result.content[0].text, reason + (statuses.includes("pending") ? "\nunfinished tasks:\n0: task 0 (in_progress)\n1: task 1 (pending)" : ""));
+    assert.equal(result.details.phases.implement.status, "in_progress");
+  }
+});
+
 test("cold implement and verify completions ignore unfinished snapshots", async () => {
   for (const phase of ["implement", "verify"] as const) {
     const h = harness({
@@ -1049,6 +1113,21 @@ test("completion backstop rejects unfinished snapshot indices, preserves state, 
   const completed = await completePhase(h, "verify");
   assert.equal(completed.details.error, undefined);
   assert.equal(completed.details.phases.verify.status, "complete");
+});
+
+test("completion checks the stored list ahead of an older explicit list", async () => {
+  for (const phase of ["implement", "verify"] as const) {
+    const h = harness({ branch: [
+      ...resumedBranch({ plan: "complete", implement: phase === "implement" ? "in_progress" : "complete", [phase]: "in_progress" }),
+      subagentResult(["conformance-reviewer"]), taskSnapshot([]),
+      { type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status: "in_progress" }] } },
+    ] });
+    await h.emit("session_start");
+    const rejected = await completePhase(h, phase);
+    assert.equal(rejected.details.error, "unfinished tasks", phase);
+    assert.match(rejected.content[0].text, /0: row 1 \(in_progress\)/);
+    assert.equal(rejected.details.phases[phase].status, "in_progress");
+  }
 });
 
 test("completion backstop uses the latest successful current-branch snapshot", async () => {

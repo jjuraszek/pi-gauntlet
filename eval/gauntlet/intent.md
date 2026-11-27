@@ -1,4 +1,4 @@
-for: 26d1c1f3e56ec9aa53ab90ddeed921b06ff3c19296da7ff12b5341e3cd1f9b91
+for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
 
 ## Change
 Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
@@ -65,7 +65,7 @@ Resolve and display the setting allowance on both loop approval rows, before the
 
 The worker critique applies the council's PR-source predicate and re-source-or-ask correction as its third check. The tool-free worker-critique-pr-source sample adds the full spec-finalization reference locally, drops the unrelated amendment reference, and judges a rendered dispatch from a fixed checkpoint. Preserve every prior fact, accepted variance, target configuration, and frontmatter. Deterministic structural tests do not prove model behavior; the parent runs the full target replay.
 
-Replace only loop-ledger-amend/bypass (holds -> replaced): keep the no-plan-writer and no-plan_check ledger aftermath, commit the reconciled spec/ledger with its audit, then project statuses through the driver's next ledger-path refresh, without task-plan add/update/init. Preserve every other existing expected fact byte-for-byte. The ledger-tracker-recovery sample in gauntlet-resume exercises verify re-bounds: keep verify active, require explicit row-return authorization, close on disk through the loop driver, then rerun the gate. Cuts and re-bounds retain attempts/iterations/cap and do not increment reopens. Parent verify owns this target's full model run and committed records; the worker's deterministic contract test is not model evidence.
+Replace only loop-ledger-amend/bypass (holds -> replaced): keep the no-plan-writer and no-plan_check ledger aftermath, commit the reconciled spec/ledger with its audit, and make no tracker call for the ledger list. Preserve every other existing expected fact byte-for-byte. The ledger-tracker-recovery sample in gauntlet-resume exercises verify re-bounds: keep verify active, require explicit row-return authorization, close on disk through the loop driver, then rerun the gate. Cuts and re-bounds retain attempts/iterations/cap and do not increment reopens. Parent verify owns this target's full model run and committed records; the worker's deterministic contract test is not model evidence.
 
 Publish N>1 committed spec handles in companion-first/home-last preflight and publication passes, with per-repo spec directories, absent/equal/foreign remote observations, retry inventories and branch-preserving cleanup. Re-settle only original-head marked coordinated Legs at the pinned base, preflight every companion before provisioning and preserve all partial worktrees and proven base-sync recovery. The synthetic spec-pr-publish-legs and spec-pr-regate-legs checkpoints require every publication, failure, recovery and home-only approval/shared-amendment fact; spec-pr-regate zero/one-block controls and pr-list-per-pr-attribution retain home-only and ordinary multi-PR behavior. Admission, relatedness and rework instructions remain unchanged. Structural lint RED names the two missing expected files; GREEN proves fixture shape only. Model replay is a separate parent verification gate for brainstorming and spec-gate, with no accepted failure or target configuration change here.
 
@@ -208,7 +208,7 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - design-names-paid-actions/approval: fails -> holds - Treat approval as authorization for named actions without per-step prompts.
 - design-names-paid-actions/bounded: holds -> holds - Keep unnamed production and other-sandbox actions outside approval.
 - design-names-paid-actions/gate: holds -> holds - Wait for design approval without executing the proposed change.
-- loop-ledger-amend/reconcile: holds -> holds - Preserve the shared allowance alongside attempts and iterations through ledger amendments.
+- loop-ledger-amend/reconcile: holds -> holds - Reconcile cuts and re-bounds while preserving attempts, iterations and allowance.
 - loop-ledger-amend/waves-only: fails -> holds - Budget tokens fund waves only; their non-budget remainder alone grants automatic amendments in either engine.
 - worker-critique-pr-source/dispatch: fails -> holds - Dispatch the three-check worker, not council members.
 - worker-critique-pr-source/correction: fails -> holds - Re-source from human input or agreed design, otherwise ask before cutting.
@@ -288,7 +288,6 @@ Require an explicit canonical-primary comparison and full observed ready reports
 - loop-funded-reply/route: fails -> holds - Check both fields before completing and dispatching loop.
 - loop-funded-reply/malformed: fails -> holds - Quote malformed allowance tokens in one clarification and wait without writes.
 - loop-ledger-amend/review: fails -> holds - Option 4 reviews while option 5 grants the same amendment scope as 2.
-- loop-ledger-amend/reconcile: fails -> holds - Reconcile cuts and re-bounds without task-plan machinery.
 - loop-ledger-amend/bypass: fails -> holds - Preserve factual evidence, attempts, iterations, and audit body.
 - loop-ledger-amend/redraw: fails -> holds - Redraw deletes the ledger, resets trackers, and requires approval.
 - grant-budget-reply/funded-value: fails -> holds - Reply 1 --fund-rounds=3 persists the full default grant and funding suffix with waves, then checks HEAD before planning.

@@ -1,0 +1,25 @@
+# eval report: gauntlet (partial run: loop-ledger-amend)
+
+for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
+
+wall: 118s
+
+## Change
+
+Count grouped ticket rows after sorting: moved entries get no AC index, and the companion carries Integration verbatim. Keep one drafted constraint row for several malformed-input scenarios of the same functionality. Ask about an unmatched group only when it has a surviving acceptance row. When acceptance rows survive, check all original group headings for a member match before stopping; a surviving known nonmember row stays `elsewhere: <repo>` even when the matched member's rows all move. When all ticket rows move to Integration, draft acceptance rows from the design without an ownership question or stop. `group-all-rows-sorted` checks both ownership decisions before any write, not the live workflow. Treat the pull request body's `## Integration` block as provenance only during rework scouting, without judging its entries against the diff or sorting them into keeps, changes, or dropped claims.
+
+Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaired ticket. A source-text assertion cannot show whether the writer keeps a whole mixed row while moving only its external clause, or preserves an existing entry's nested lines. Stop at the authored sections; this sample does not test the approval summary or a tracker write.
+
+## Cells
+
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| loop-ledger-amend | anthropic/claude-opus-5-5 | unchanged | 13682 | review: holds -> holds (intended but unchanged); reconcile: holds -> holds (intended but unchanged); bypass: holds -> holds (intended but unchanged); redraw: holds -> holds (intended but unchanged); waves-only: holds -> holds (intended but unchanged) |
+| loop-ledger-amend | github-copilot/gpt-6.1-sol | unchanged | 14705 | review: holds -> holds (intended but unchanged); reconcile: holds -> holds (intended but unchanged); bypass: holds -> holds (intended but unchanged); redraw: holds -> holds (intended but unchanged); waves-only: holds -> holds (intended but unchanged) |
+
+## Feedback
+
+- loop-ledger-amend / anthropic/claude-opus-5-5: No fact moved on this case: both outputs satisfy all five facts. Both route A's row-2 disposition and row-3 re-bound to the human batch and only the factual correction to the reviewer, and both skip sections 2-4 under B's grant while stating that the grant never covers redraws. Both reconcile row 2 to cut with `deferred: #90` and row 3 to open with `reopened by amendment`, preserving attempts 2/3/1, iterations 9 and allowance 4. Both skip plan-writer, plan_check and the task tracker, and commit spec and ledger together with granted rows plus the quoted grant for B. Both stop C for authorization before clearing trackers and deleting the ledger with the plan, resume at step 4, and require a fresh gate. Both decode D with amend permission separate from a waves-only budget. The expected fails -> holds on waves-only does not show here, because Before already says budget-only grants no amends and that the loop ignores the budget. After is slightly more explicit (the per-trace bypass lists, 'the old grant confers nothing at this gate', and the note that a budget-only value still takes sections 2-4 on loop); keep those. To make waves-only robust, consider wording that leads the model to say outright that the budget token never raises the loop allowance or funds loop attempts, since both outputs only imply it with 'ignored'.
+- loop-ledger-amend / github-copilot/gpt-6.1-sol: On this sample no fact moved: both outputs satisfy all five, so the expected fails -> holds moves for review, bypass, redraw and waves-only do not show here because Before already holds them. Both outputs send A's disposition and re-bound to the human and only the evidence-backed factual correction to a fresh reviewer, and both have B auto-apply the prepared recommendations without reviewer or menu. Both reconcile row 2 to cut with `deferred: #90` and row 3 to open with `reopened by amendment`, keeping attempts 2/3/1, iterations 9 and allowance 4. Both commit spec and ledger together with a granted audit and quoted grant sentence for B, with no plan-writer, plan_check or task-plan tracker call. Both treat C as a redraw that stops despite the grant, clears and resets trackers, deletes the ledger with the plan, resumes at step 4 and needs fresh approval. Both decode D with permission separate from a waves-only budget. After is slightly more explicit in two places worth keeping: it names scope neutrality as a condition for the reviewer path in A, and says the loop budget changes neither ledger allowance nor iterations in D. After is thinner in two places: B no longer says a redraw holds the batch (only C covers it), and A/B drop the explicit ledger-driver refresh step and the note that a funding token supplies no loop budget. Restoring those lines would make the review and bypass facts more robust without affecting the Change.
+
+exit: 0

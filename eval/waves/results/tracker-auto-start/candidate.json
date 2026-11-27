@@ -1,0 +1,80 @@
+{
+  "sample": "tracker-auto-start",
+  "arm": "candidate",
+  "skillSha": "2377daf9ceaecac1832e69f11b615cd91d1807d2be16a373f03cf80fdea15758",
+  "inputSha": "d699ebfec201c2bcb3e451d0806997f0633341816888a8cfd2b68fdbedc5cdcc",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave 1 narration: Task 1 (Parse records) and Task 2 (Format dates)\n\nNo tools are run here. Every SHA, path and exit code below is a placeholder.\n\nThe implement phase is already active, so `phase_tracker` is not called again. I assume the phase-level setup has already completed:\n- the pi-cohort preflight\n- the committed-originals check at home\n- `plan_check`\n- `REPORT_DIR` creation\n\nThe `plan_tracker` list from the plan handoff is used as-is. It is never re-initialized, and both tasks stay pending at their positional indices until the wave commits.\n\n## 1. Independence check and base\n\nThe manifest `files` for Task 1 and Task 2 are pairwise-disjoint, so both tasks form one isolated wave.\n\n```bash\ngit -C \"<abs worktree>\" rev-parse HEAD\n```\n→ print `wave 1 base <WAVE_BASE_SHA>` and hold it.\n\n## 2. Dispatch, with no tracker write\n\nBoth implementers go out in one foreground one-step chain:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<abs worktree>\",\n  chain: [{ parallel: [\n    { agent: \"implementer\", as: \"impl_1\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-task1.md\", outputMode: \"file-only\",\n      task: \"planPath: <abs plan>; anchor: ### Task 1:; Spec: <abs home spec>; Leg: <leg>; Rules: <task Rules> + <leg> Rules from home ## Legs, resolved in the owning checkout; SCOPED_TEST_COMMANDS: <Task 1 manifest tests or none>; wording: <abs commit-message.md>; ticket: <held ticket or none>. Return DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED. pi-cohort saves your final report; do not write it yourself.\" },\n    { agent: \"implementer\", as: \"impl_2\", outputSchema: IMPLEMENTER_STATUS_SCHEMA,\n      output: \"<REPORT_DIR>/wave1-task2.md\", outputMode: \"file-only\",\n      task: \"planPath: <abs plan>; anchor: ### Task 2:; Spec: <abs home spec>; Leg: <leg>; Rules: <...>; SCOPED_TEST_COMMANDS: <Task 2 manifest tests or none>; wording: <abs commit-message.md>; ticket: <held ticket or none>. ...\" }\n  ], worktree: true, concurrency: 4,\n     stopOn: { path: \"/status\", in: [\"BLOCKED\", \"NEEDS_CONTEXT\", \"DONE_WITH_CONCERNS\"] } }]\n})\n```\n\n## 3. Read and integrate\n\nBoth structured results are `DONE`, so no report read is needed. Print one observation per task:\n- `wave 1 task 1 DONE report <REPORT_DIR>/wave1-task1.md patch <Artifacts>/worktree-diffs/step-0/task-0-implementer.patch`\n- `wave 1 task 2 DONE report <REPORT_DIR>/wave1-task2.md patch <Artifacts>/worktree-diffs/step-0/task-1-implementer.patch`\n\nAdmit the patches and apply them in plan order:\n```bash\ntest -s \"<Artifacts>/worktree-diffs/step-0/task-0-implementer.patch\"\ntest -s \"<Artifacts>/worktree-diffs/step-0/task-1-implementer.patch\"\ngit -C \"<abs worktree>\" apply --index \"<Artifacts>/worktree-diffs/step-0/task-0-implementer.patch\"   # → wave 1 integrated task 1\ngit -C \"<abs worktree>\" apply --index \"<Artifacts>/worktree-diffs/step-0/task-1-implementer.patch\"   # → wave 1 integrated task 2\n```\n\n## 4. Test gate\n\nRun each command in the wave's union of manifest tests separately, with its log going to a file:\n```bash\n(cd \"<abs worktree>\" && <test i>) > \"<REPORT_DIR>/wave1-gate-<i>.log\" 2>&1\n```\n→ print `wave 1 gate <i> exit 0` for each command.\n\n## 5. Review\n\nStage the integrated tree:\n```bash\ngit -C \"<abs worktree>\" add -A\n```\n\nThen record the review tree with the `fix-delta-tree-shell` block, using `FD_ROOT=\"<abs worktree>\"`. Then dispatch the reviewer:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<abs worktree>\",\n  chain: [{ parallel: [\n    { agent: \"wave-reviewer\", output: \"<REPORT_DIR>/wave1-review1.md\",\n      outputMode: \"file-only\", outputSchema: WAVE_VERDICT_SCHEMA,\n      task: \"planPath: <abs plan>; anchors: [### Task 1:, ### Task 2:]; Spec: <abs home spec>; Leg: <leg>; Rules: <...>; Implementer reports: <REPORT_DIR>/wave1-task1.md, <REPORT_DIR>/wave1-task2.md; BASE_SHA: <WAVE_BASE_SHA>; HEAD_SHA: WORKTREE; SCOPED_TEST_COMMANDS: <wave union>\" }\n  ], stopOn: { path: \"/verdict\", in: [\"FIX_FIRST\", \"REJECT\"] } }]\n})\n```\n→ print `wave 1 review 1 verdict SHIP report <REPORT_DIR>/wave1-review1.md tree <tree sha>`.\n\nIf the `SHIP` verdict carries Minors, read the findings once within the report bound and verify each one. No repair follows either way.\n\n## 6. Wave commit, then tracker\n\nThe commit message comes from the two task headings and the held ticket, for example: `Parse records and format dates` plus the ticket reference in its configured form.\n\n```bash\ngit -C \"<abs worktree>\" reset --soft \"<WAVE_BASE_SHA>\" && git -C \"<abs worktree>\" add -A && git -C \"<abs worktree>\" commit -F -   # message on stdin\n```\n\nOnly after the commit succeeds are both tracker entries marked complete:\n```ts\nplan_tracker({ action: \"update\", index: <Task 1 index>, status: \"complete\" })\nplan_tracker({ action: \"update\", index: <Task 2 index>, status: \"complete\" })\n```\n\nAny manifest `orchestrator` instructions run next, at the completed-wave boundary.\n\n## Order summary\n\n1. Base capture.\n2. Implementer dispatch, with no tracker write.\n3. Patch admission and integration.\n4. Test gate.\n5. Review tree recorded, then review dispatch.\n6. Wave commit.\n7. `plan_tracker` complete for Task 1 and Task 2, together.\n",
+      "words": 634,
+      "wallMs": 23352,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Stopped before dispatch: no absolute owning worktree path or successful preflight observation was supplied. I cannot invent either, so I cannot provide a runnable checkout-bound carrier.\n\nThe required ordering for the stated successful wave is:\n\n1. Capture and print the wave base in the owning checkout.\n2. Dispatch **both implementers together**, foreground (`async: false`), in a fresh-context, single-step parallel chain with isolated worktrees and `IMPLEMENTER_STATUS_SCHEMA`. **No tracker write before dispatch.**\n3. Consume both `DONE` results, admit their nonempty patches, and integrate Task 1 before Task 2.\n4. Run the wave-union test gate, then dispatch one schema-bound foreground integrated wave review.\n5. After the green gate and `SHIP`, commit the wave.\n6. **Only after the successful commit**, mark both existing plan indices `complete` together. Do not reinitialize the tracker.\n\nNo tools were run, and no paths, indices, SHAs, or preflight results were invented.\n",
+      "words": 142,
+      "wallMs": 18249,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5a21007002de4f9d8ee8b4f6223a1047556fa5f3c78ca8ee563df17f6e14b2d3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f97f7d2224c5f0c9065d6d60e2bc5dc71077d0ef3aa81fcfc514bb9ef305ff26",
+      "baselineOutputSha": "cb09f2a4b60466752e7b65eab22b735a3ea6d89b8871cbaddf146263621d63ef",
+      "candidateOutputSha": "43495298b9525170dc0d04515419c18f9d56d24753aabcd91a7acff4daab55b7",
+      "facts": {
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved the dispatch fact by dropping the pre-dispatch `plan_tracker` in_progress fan-out that Before issued for both indices, and by stating outright that the handoff tracker list is used as-is, never re-initialized, and both tasks stay pending until the wave commits; the dispatch section is explicitly labelled 'with no tracker write'. The commit fact is kept in both: each output places the two `status: \"complete\"` updates at the existing plan indices strictly after the successful wave commit, with nothing written at worker return. To keep this stable, retain wording that pairs the two instructions explicitly: dispatch performs no tracker write and no reinitialization, and completion is written for every wave task index only after the wave commit succeeds. Keeping that ordering in a short ordered summary, as After does, helps prevent a reader from reintroducing an in-progress write at dispatch or shifting completion to worker return or integration.",
+      "wallMs": 4835,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5a21007002de4f9d8ee8b4f6223a1047556fa5f3c78ca8ee563df17f6e14b2d3",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "f97f7d2224c5f0c9065d6d60e2bc5dc71077d0ef3aa81fcfc514bb9ef305ff26",
+      "baselineOutputSha": "0f3b982ea1fb06795b80f7e01e99628dfc88c73ffbfbc18a7ba599cbbc0b7afb",
+      "candidateOutputSha": "eba935a75af32bf4673951c9e02d3ccb207c58ccdfbbbab1cc8beb24fe974c10",
+      "facts": {
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "commit": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved the dispatch fact as intended: Before explicitly wrote two in_progress tracker updates ahead of dispatch (while not reinitializing), whereas After states 'No tracker write before dispatch' and 'Do not reinitialize the tracker', dispatching both implementers together. The commit fact is kept in both: each marks both existing plan indices complete only after the successful wave commit, and Before explicitly says worker DONE does not complete a task. One side effect to watch: After opened with 'Stopped before dispatch' because prerequisites were not supplied and collapsed the narration into a terse ordered list with no concrete dispatch or plan_tracker call shapes, where Before still showed the full calls with placeholders. The facts still hold because the ordering and tracker behavior are stated explicitly, but to make this robust, word the prerequisite guard so that a narration-only request still walks through the dispatch call and the two post-commit complete writes (with placeholders for unsupplied paths/indices), and keep the explicit statements that no in-progress writes precede dispatch, the tracker is not reinitialized, and completion follows the wave commit rather than worker return.",
+      "wallMs": 5563,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "b5cd0a612cf4644808c22873199bc23477af6f6c"
+}
