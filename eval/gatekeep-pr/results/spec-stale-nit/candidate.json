@@ -1,0 +1,140 @@
+{
+  "sample": "spec-stale-nit",
+  "arm": "candidate",
+  "skillSha": "5c860b772b683ba66ef9c3ea163fa60da22e265fa64c0aeff3474a4dc80747e6",
+  "inputSha": "cd368f81aba5417b3b4f79b0404c0465f293e5ec4463f647dd7e964c60e724c4",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n**A. Ticket asks for most-recent-use order**\n\nThis PR helps readers find saved recipes quickly by sorting them by most recent use, and it adds a test for that order. You wrote it, and quick lookup is covered, but the spec's sort-by-title requirement is not covered because the spec was not updated.\n\nNothing blocks merging. One smaller point does not block merging: the spec was not updated. The spec says \"Sort saved recipes by title.\" and should say \"Sort saved recipes by most recent use.\" The ticket asks for most-recent-use order, so the spec should follow the code (doc/specs/recipe-search.md). Merging without this edit leaves the spec out of date. Picking fix nits makes that edit.\n\nYou cannot approve your own PR. I recommend merge because every check passed and nothing blocks merging.\n\nPick one:\n1. merge - squash-merge this PR into the base branch with its composed commit message. [recommended]\n2. fix nits - apply the spec edit, review it, push once and watch the checks.\n3. stop - end the run and leave the PR and checkout as they are.\n\nType a number; show evidence prints the full record.\n\n**B. Ticket is silent on sort order**\n\nOne problem blocks merging. The code sorts saved recipes by most recent use, but the spec requires sorting them by title. Title order still gives readers quick lookup, and the ticket does not ask for a different order, so the spec's requirement stands. For example, a reader who opened \"Zucchini bread\" yesterday sees it first, when it should appear after \"Apple pie\".\n\n**C. Ticket read fails and no saved copy exists**\n\nOne problem blocks merging. The code sorts saved recipes by most recent use, but the spec requires sorting them by title. The spec's order stands because the linked ticket could not be read, and nothing shows that switching is necessary. For example, a recently opened \"Zucchini bread\" is listed before \"Apple pie\".\n\n**D. A's ticket, plus an untested branch**\n\nOne problem blocks merging. The new sorting code has a separate path for recipes that have never been opened, and no test exercises it. If that path misplaces those recipes, nothing would catch it, because the existing test covers only recipes that were opened before.\n\nOne smaller point does not block merging: the spec was not updated. The spec says \"Sort saved recipes by title.\" and should say \"Sort saved recipes by most recent use.\", which is what the ticket asks for (doc/specs/recipe-search.md). Merging without this edit leaves the spec out of date.\n\n**E. Fix nits picked from the final menu (pi)**\n\n1. Taking row 2 marks the run as started and records the pick. It snapshots the displayed edit: its finding, doc/specs/recipe-search.md, and the exact wording \"Sort saved recipes by title.\" -> \"Sort saved recipes by most recent use.\"\n2. The run saves this as a one-shot fix-nits selection. Repair accounting starts at twice the configured round limit.\n3. The run writes the derived findings spec and ledger beside the run record. They hold one \"fix nits\" row, and the stored contract is copied into the Scope section verbatim.\n4. A fresh loop-implementer runs in the PR worktree. Its task carries:\n   - the stored contract;\n   - the spec path, labeled as edit target only;\n   - this exact edit as the only authorized spec edit;\n   - the payload limit and scratch path.\n5. The helper commits the exact edit, and admission accepts it.\n6. A fresh wave-reviewer checks the range from the pushed head to HEAD. It receives the path and the exact wording as required work, and it confirms that this is the only scope change.\n7. The run pushes once.\n8. At the pushed head, scope selection runs again. The spec there contains the selected wording, and the whole scope change equals the selected edit. The stored baseline is therefore replaced, and its sort clause now reads \"Sort saved recipes by most recent use.\"\n\n**F. Trail map app with an offline trail index**\n\nNothing blocks merging. One smaller point does not block merging: the spec was not updated. The spec has no clause for keeping a local index of trail names. The proposed Design clause is \"Keep a local index of trail names so hikers can look up trails without a network connection.\" The clause is needed because, without the index, search depends on a connection, and offline lookup is the stated goal. Merging without this edit leaves the spec out of date.\n\n**G. Deliver with nits on D's report**\n\nThe two worker tasks carry these authorized spec edit fields:\n\n- B1 (the untested never-opened branch): `Authorized spec edit: none`\n- N1 (the spec point): `Authorized spec edit: doc/specs/recipe-search.md: \"Sort saved recipes by title.\" -> \"Sort saved recipes by most recent use.\"`\n\nThe pre-push wave-reviewer gets the fix delta from the pushed head to HEAD, along with N1's path and exact old and new wording as required, authorized work. It must compare every spec change in the delta against that snapshot and flag any other scope change. It must also return a resolved or open line for both B1 and N1.\n\n**H. Readback shows an extra spec change**\n\n**Baseline decision:** not adopted. The scope change at the pushed head includes the selected sort edit, but it also rewrites the sign-in row. The whole change therefore does not equal the selected edit, and the prior baseline stays in force.\n\n**Selected point:** the sort point stays open as a smaller point, judged against the prior \"Sort saved recipes by title.\"\n\n**Signed-out search:** this is a blocker. The code rejects signed-out searches, but the contract row says readers can search without signing in, and the ticket explicitly asks for signed-out search. The judgment is to keep the requirement.\n\n**Next repair task:**\n\n- Scope baseline: the in-scope row \"Readers can search without signing in.\" and the Design clause \"Sort saved recipes by title.\", verbatim.\n- Edit target only: doc/specs/recipe-search.md.\n- Authorized spec edit: none.\n",
+      "words": 977,
+      "wallMs": 68780,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=gatekeep-pr/final recommended=1\n\n### A\n\nThis PR sorts saved recipes by most recent use to help readers find them quickly; you are its author. Most-recent-use sorting is tested, but it is not covered by the retained Design requirement because the spec was not updated.\n\nNothing blocks merging, and the checks passed in CI. One smaller point does not block merging: the spec was not updated. Current wording: \"Sort saved recipes by title.\" Proposed wording: \"Sort saved recipes by most recent use.\" The ticket explicitly asks for the proposed behavior. Merging without this edit leaves the spec out of date. Choosing fix nits takes this edit. You cannot approve your own PR.\n\nI recommend merge because the tested behavior matches the ticket and the remaining spec edit does not block merging.\n\nPick one:\n1. merge - squash-merge the PR. [recommended]\n2. fix nits - apply the displayed spec edit, review it, push it, and check readiness again.\n3. stop - leave the checkout and PR unchanged.\n\nType a number; show evidence prints the full record.\n\n### B\n\nOne problem blocks merging: saved recipes are sorted by most recent use instead of by title, as the Design requires. For example, opening \"Zucchini soup\" moves it ahead of \"Apple pie\" rather than preserving alphabetical order.\n\nThe ticket asks for quick lookup but does not settle the sort order. Sorting by title still delivers that goal, so the existing requirement remains in force; the tested alternative does not make this a nonblocking spec correction.\n\n### C\n\nOne problem blocks merging: the code sorts saved recipes by most recent use while the Design requires sorting by title. For example, recently opening \"Zucchini soup\" puts it before \"Apple pie.\"\n\nThe linked ticket could not be read, and no earlier copy is available. The stated goal, \"Change the sort order,\" supplies no separate outcome or evidence that the required order cannot deliver it, so the existing requirement remains in force.\n\n### D\n\nOne problem blocks merging: the new branch for recipes that have never been opened has no test. For example, a newly saved recipe takes that branch, but the existing sort test exercises only previously opened recipes.\n\nOne smaller point does not block merging: the spec was not updated. Current wording: \"Sort saved recipes by title.\" Proposed wording: \"Sort saved recipes by most recent use.\" The ticket explicitly asks for most-recent-use sorting, so this departure merits a spec correction rather than a sorting blocker. Merging without this edit leaves the spec out of date.\n\nBacking that correction does not excuse the independent missing test.\n\n### E\n\nI record the fix-nits pick and mark work started. I snapshot the displayed finding, doc/specs/recipe-search.md, and its exact wording pair; the stored contract still requires title sorting.\n\nI resolve the pi repair budgets, commit-wording reference, and trusted scoped commands. I create the external findings spec and ledger with one fix-nits batch row, then dispatch a fresh `loop-implementer` in the PR worktree with a fresh output path. Its task carries the retained contract, exact authorized edit, scoped-check rules, scratch directory, commit rules, and attributed return-file contract.\n\nThe helper commits the exact edit; admission succeeds and records the source-changing attempt. A fresh `wave-reviewer`, in the same worktree, compares the full unpushed delta against the retained contract and selected wording, requires closure, and rejects any additional scope change.\n\nReview passes and the push succeeds. At the rebound head, scope selection and readback confirm all selected wording and no other scope delta. I adopt the updated scope baseline: most-recent-use sorting is now required, and the selected point closes.\n\n### F\n\nNothing blocks merging. The tested local trail index supplies the promised offline lookup; without it, looking up a trail name requires a network connection.\n\nOne smaller point does not block merging: the spec was not updated. There is no current clause for a local trail index. Proposed Design wording: \"Keep a local trail index so hikers can look up trail names without connectivity.\" With no ticket and no other way to deliver the stated offline outcome, the addition warrants a spec amendment rather than an unsupported-addition blocker. Merging without this edit leaves the spec out of date.\n\n### G\n\n**B1 task — Authorized spec edit:** none.\n\nIts contract retains the stored scope baseline. The worker repairs and tests the never-opened-recipe branch without changing what the spec requires.\n\n**N1 task — Authorized spec edit:** doc/specs/recipe-search.md: \"Sort saved recipes by title.\" -> \"Sort saved recipes by most recent use.\"\n\nOnly this worker receives that exact amendment as authorized work.\n\nThe fresh pre-push reviewer must compare the complete unpushed delta against the stored baseline and this snapshot. It must confirm that the never-opened branch is tested, verify the exact selected spec wording, flag every other scope delta, and supply closure lines for both findings. No worker acts yet.\n\n### H\n\nThe baseline is not adopted: readback contains an additional, unselected scope change. The stored contract remains unchanged, and the selected sorting point stays open and nonblocking despite its exact wording having been delivered.\n\nSigned-out search is a blocking gap. The retained requirement and reread ticket both require it, while the code rejects signed-out searches; the ticket’s support for most-recent-use sorting does not lift that independent blocker.\n\nThe next fresh `loop-implementer` receives:\n\n- **Scope contract:** in-scope requirement, \"Readers can search without signing in.\"; Design requirement, \"Sort saved recipes by title.\"\n- **Spec edit target only:** doc/specs/recipe-search.md. Its current contents do not replace the stored contract.\n- **Authorized spec edit:** none for this signed-out-search finding.\n- **Finding to repair:** restore signed-out search and agreement with its retained requirement, without introducing another contract change.\n\nThe task retains the ordinary scoped-test, scratch, commit, and return-file rules. Dispatch is the stopping point; nothing executes.\n",
+      "words": 934,
+      "wallMs": 34409,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "b3495c6494ee52019f8190c84115c5faf7a5d7a990d5d383c089d9a2caf28594",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "75a6db830a06c1b6b08b340244bf7450ef51a799c31dd255e59a5a2735de9a1b",
+      "baselineOutputSha": "ddbe22ad798bc91d5e75c2ace6489c77374dd3632d8de284a226d2ac7c3e5b22",
+      "candidateOutputSha": "318538bac52ab93608293b0c45d16f7680f46d9140474bee4a6472cb78b96958",
+      "facts": {
+        "backed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "keep": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "handoff": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "addition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "dispatch": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "worker": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved five facts to holding and lost none that Before kept. In A and D the ticket-backed sort change is now a non-blocking \"spec was not updated\" point with both wordings, the stale-spec warning and a merge offer (A), while D still blocks on the untested never-opened branch. F now appears (Before omitted it entirely) and proposes a Design clause without quoting an invented current one. In H the extra sign-in rewrite now prevents adoption, the sort point stays open, signed-out search is a blocker against the prior row, and the repair task gets the prior row and title-sort Design with the spec file as edit target only. B and C still block for the right reasons, and G still gives the blocker no spec edit and has the reviewer flag any other scope change. Handoff was a close call in Before: it adopted only after review, push and readback, but said only that the readback matched the pair, not that it was the sole scope change; After states this explicitly (\"the whole scope change equals the selected edit\"), so keep that sentence. To keep these results, preserve the explicit \"nothing shows that switching is necessary\" reason in C, the \"Merging without this edit leaves the spec out of date\" sentence inside the D and F items, and the \"Authorized spec edit: none\" and \"Edit target only\" labels in G and H. One thing to watch: After's A says the sort-by-title requirement \"is not covered\" in the standing sentence while also saying nothing blocks, which could read as contradictory; consider wording the standing as \"the spec still says title order\" instead.",
+      "wallMs": 37453,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "b3495c6494ee52019f8190c84115c5faf7a5d7a990d5d383c089d9a2caf28594",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "75a6db830a06c1b6b08b340244bf7450ef51a799c31dd255e59a5a2735de9a1b",
+      "baselineOutputSha": "456dc35c5c494cf924dc8e4b1087357d69fd22b76dfb4d3834cd32f245007b0f",
+      "candidateOutputSha": "8bac205a69838f6edddcb3347bb7379d864a254581c1c7c68847a155e82aed5d",
+      "facts": {
+        "backed": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "keep": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "independent": {
+          "before": "fails",
+          "after": "holds",
+          "label": "unplanned improvement"
+        },
+        "handoff": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "addition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "dispatch": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "retained": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "worker": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        }
+      },
+      "feedback": "After moves almost every fact by letting the reread ticket, or the goal's deliverability, decide whether a departure from the Design is a blocker or a stale-spec nit. A and D now show the current and proposed wording with the ticket reason and the stale-spec warning, and D still blocks on the untested never-opened branch. F drafts a Design clause without inventing a current one. E and G authorize the exact wording pair for the nit worker only, and E adopts the baseline only after review, push and readback at the rebound head. H refuses adoption because of the unselected sign-in change, keeps the sort point open and calls signed-out search a blocker against the retained row. On `keep`, Before blocked in B and C but for a different reason (the spec governs regardless of the ticket), so I marked it failing as written; After gives the stated reasons: title sorting still delivers lookup in B, and nothing shows the required order cannot deliver the goal in C. Keep those two sentences. On `worker`, Before already handed the repair task the prior row and Design wording as stored scope, so that fact did not move; After's explicit line 'Its current contents do not replace the stored contract' makes it unambiguous and is worth keeping. One loose end: After prints the `gauntlet: gate=... recommended=1` line above the A heading rather than inside A's report, so place it within the case if other checks read A's report as a unit.",
+      "wallMs": 18013,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "4cf1b813144a001e4fa8373af4d9c90a0414c755"
+}

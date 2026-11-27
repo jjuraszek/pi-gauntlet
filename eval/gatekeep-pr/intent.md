@@ -1,32 +1,21 @@
-for: c2742e76c74da7545a1e8d72267d9f0dc7b36b5a4ddee124a4bb0a104a98ba2f
+for: 275bcbb5dfe1702db8f7018cd7da28be88aeda55445f5179f7cf2995b9ab13ef
 
 ## Change
 
-Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. Keep `differs` for missing or changed ticket rows; neither result changes the judgment.
-
-Report functionality-only coverage in plain-report, both in the opening and in the evidence mapping. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and PR-named steps, including open actions without trusted commands. Keep observation-only clauses out of post steps without promising a later judgment. A spec path named inside the PR body's Integration block is not a contract candidate for the merge gate.
-
-Search once for other authors' open PRs awaiting the viewer's review, even when the viewer's team is asked to review the viewer's own PR. A typed PR still bypasses discovery. Keep a changes-requested PR in discovery when every requester was asked again or the last commit came after all outstanding change requests. The answered sample supplies fixed verdicts and checks which lookups the parent runs, which PRs it lists and routes, and what it says when a lookup fails. A shell test classifies the responses; it cannot show that the parent used the verdict before routing. Show each list in visible reply text with a bold heading. For one typed PR, show the list after the initial PR, viewer and ticket display reads, in the reply carrying the first remaining Gather read (`gh run list`). Mint the run folder, create the continuation record, and initialize the tracker only after that call; reuse all the reads in the rest of Gather. The typed-list-note replay names the paired call outside the visible reply; it checks narrated order, not actual delivery beside a tool call. At first provisioning the single-PR runner or set parent sends the list only when earlier reply text in view lacks it. The list-send-if-missing replay tests whether the writer distinguishes a visible list from a shell result or a pasteable line. Resolve discovered-roster ticket links before the final sort and send the list in the reply carrying the first tool call after the sort. The over-cap and Claude Code rejection replays check the narrated command order and the list's carrier; their tools are off, so they cannot observe actual tool-call delivery or exercise the optional Linear lookup.
-
-For overrides-own-block-only, a verifier runs the shared verification command on an already green head because gatekeep-pr requests local verification. The shape-ticket report suffix has no effect.
-
-Unselected samples, including `merge-landed-message` and `fix-row-return-file`, retain their historical results. They are not coverage for this change.
+Judge a proposed contract change from the reread ticket, or from whether the PR can deliver its goal under the current wording. Never back dropping the intended outcome itself. Show the exact endpoint paths in the two wordings and explain the choice only in the three sentences, without a standing report, tracker IDs or endpoint paths in the explanation. Case G of `action-row-one` checks that the explanation says the existing address can already serve the build version; a deterministic check alone cannot establish that the recommendation explains the consequence. When a linked ticket could not be read and nothing else decides, name the failed read in the third menu sentence or the report item's one reason. `contract-row-judged` simulates ticket reads and stops at the menu: a text assertion alone cannot tell whether the gate separates the intended outcome from a proposed means. `action-row-one` and `consent-contract-change-stop` cover the surrounding menu and consent rules, including that accepting changes the requirement rather than the PR description; `spec-stale-nit` checks whether the first report distinguishes a stale spec from a blocker. The simulated handoffs show what each worker receives: the blocker gets no spec edit and its sibling gets the selected wording. A pushed spec with an extra change cannot replace the stored rows and Design text used to judge and dispatch the next repair. No worker actually runs. Unselected samples retain historical results.
 
 ## Expected to move
-- plain-report/scope: fails -> holds - Describe and map functionality without naming an Integration entry or its status.
-- overrides-own-block-only/verify: fails -> holds - Combine the trusted shared command with the gate's local-verification policy.
 
-- no-arg-discovery-over-cap/f1: fails -> holds - Finish ticket resolution before sorting and send the discovered roster with the batch instructions read before rejecting the set.
-- no-arg-discovery-cc-multi/f1: fails -> holds - Finish ticket resolution before sorting and send the discovered roster with the stop-format instructions read before rejecting the set.
-- no-arg-discovery-zero/f1: fails -> holds - Report an empty review queue in origin using @me when the login is unreadable.
-- no-arg-discovery-single/f1: fails -> holds - Bind the single search to origin, exclude the viewer's own team-requested PR and list the other author's PR.
-- no-arg-discovery-failed/f1: fails -> holds - Name the review-requested query when the result reaches its limit.
-- list-send-if-missing/s1: fails -> holds - Show the typed PR in the reply carrying its first provisioning command when shell output was the only list.
-- list-send-if-missing/s2: fails -> holds - Have the set parent show the linked list when earlier reply text contains only the pasteable line.
-- typed-list-note/e1: fails -> holds - Show the set under a bold heading in typed order before provisioning.
-- typed-list-note/e3: fails -> holds - Pair the single-PR list with the first remaining Gather read, not initialization, and reuse those reads in the rest of Gather.
-- no-arg-discovery-answered/f1: fails -> holds - Look up only the three surviving changes-requested PRs, in numeric order.
-- no-arg-discovery-answered/f2: fails -> holds - List and route the re-requested PR and the PR with a later commit, but not the unanswered one.
-- no-arg-discovery-answered/f3: fails -> holds - Use the first GitHub error line and print no list after a failed lookup.
-- no-arg-discovery-answered/f4: fails -> holds - Stop before listing when a review lookup returns unreadable data.
-- no-arg-discovery-answered/f5: fails -> holds - Stop before listing when a review connection has another page.
+- contract-row-judged/ticket: fails -> holds - Follow the reread over the stale copy even when email delivery still works.
+- contract-row-judged/necessary: fails -> holds - Recommend changing a requirement that makes the intended outcome impossible.
+- contract-row-judged/unknown: fails -> holds - Name the unreadable linked ticket in the displayed Case D recommendation, not just in the fetch narration.
+- contract-row-judged/fallback: fails -> holds - Keep the decisive step-2 copy when the reread fails.
+- contract-row-judged/message: fails -> holds - Explain the pick in three plain sentences without tracker IDs or a second argument elsewhere.
+- action-row-one/contract: fails -> holds - Show only the pending decision in Case G, with the exact endpoints in the wording pair and a separate, path-free explanation of why the existing address can already serve the build version.
+- spec-stale-nit/backed: fails -> holds - Offer merge and show the stale wording beside the ticket-backed change.
+- spec-stale-nit/handoff: fails -> holds - Require the displayed edit and adopt the new wording only after confirming it at the pushed head.
+- spec-stale-nit/addition: fails -> holds - Draft a missing Design clause for an addition the outcome needs.
+- spec-stale-nit/dispatch: fails -> holds - Give each worker only its own selected edits and review the full selection.
+- spec-stale-nit/retained: fails -> holds - Keep the prior baseline and the selected point open after a mixed scope change.
+- spec-stale-nit/worker: fails -> holds - Give the next repair the prior rows and Design, not the live spec as its contract.
+- consent-contract-change-stop/f2: fails -> holds - Show the PR's own promise beside the proposal when there is no spec to quote.

@@ -173,7 +173,7 @@ provisioning, so it never re-reads; step 2 re-reads once after provisioning (`re
         isCrossRepository, mergeable, mergeStateStatus, headRefOid, headRepository, maintainerCanModify, files, additions, deletions, reviewDecision, url, merge_commit }   # pr.url from url; pr.merge_commit = mergeCommit.oid, null while unmerged
 - base_repository: <lowercase nameWithOwner from gh repo view in the resolved base context | unreadable>
 - consent.target: { base_repository, number, baseRefName }
-- scope: <selected scope block from `reference/assessment.md`, including original_intent for source: pr; replace only through Contract decision>
+- scope: <selected scope block from `reference/assessment.md`, including original_intent for source: pr; replace only through Contract decision or after confirming the selected spec edit at the rebound pushed head per `reference/findings.md` `## Drafted payloads`>
 - course: null | assess | deliver | deliver-nits
 - work_started: false | true   # initialize false for a new invocation; never reset inside a run
 - reject_withdrawn: false | true   # initialize false for a new invocation; never reset inside a run
@@ -382,7 +382,7 @@ replaces it; everything the repo file does not name stays baseline. On any
 conflict the repo file wins. Severities the repo file names but does not
 map are fail-safe **blocking**, noted in output.
 
-**Never invent ACs.** AC outcomes (`covered` / `gap` / `deferred per spec` / `deviates per spec` / `elsewhere per spec` per row) are computed in step 5 (`reference/findings.md` `## AC outcomes`), not by the Reviewer - the Reviewer's judging context is the digest's `scope` block: the spec's `in-scope` rows plus its `design` when `source: spec` (a `source: spec` with empty `rows` is judged on `design` plus the stated intent), the PR's stated intent when `source: pr`.
+**Never invent ACs.** AC outcomes (`covered` / `gap` / `spec not updated` / `deferred per spec` / `deviates per spec` / `elsewhere per spec` per row) are computed in step 5 (`reference/findings.md` `## AC outcomes`), not by the Reviewer - the Reviewer's judging context is the digest's `scope` block: the spec's `in-scope` rows plus its `design` when `source: spec` (a `source: spec` with empty `rows` is judged on `design` plus the stated intent), the PR's stated intent when `source: pr`.
 
 **Comment triage:** existing PR review comments and top-level comments,
 each labeled one of: already-addressed, reasonable, judgment-call - except

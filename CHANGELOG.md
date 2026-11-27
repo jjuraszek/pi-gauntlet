@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Gatekeep recommends preserving the requirement when a change would drop the intended outcome, even if the ticket asks for the change. Otherwise, the ticket decides, or if it is absent or silent, the PR's goal determines whether the change is necessary. When that judgment backs the code, the first report lists "the spec was not updated" as a smaller point instead of blocking merge on the mismatch.
+
 ## v9.1.2 - 2026-11-27
 
 - The loop task list updates automatically at dispatch and human stops, including after resume. Waves tasks start on dispatch, and starting verify completes implement when every task is complete or skipped. (#178)

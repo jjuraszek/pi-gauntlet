@@ -1,5 +1,7 @@
 # gatekeep-pr: three menus, a judged row 1, one post-merge pick, and plain-language output
 
+> **Superseded by:** [doc/specs/2026-11-27-gatekeep-judged-contract-recommendation.md](./2026-11-27-gatekeep-judged-contract-recommendation.md) - "D2 Recommendation" pin 1 and the acceptance row "When a contract change is proposed, row 1 is `preserve contract`" only
+
 **Goal:** A gatekeep-pr run shows at most three kinds of menu (action, final, post); row 1 is always the recommendation and follows the assessment instead of a per-menu rule; one post-merge pick runs any combination of follow-up steps and ends the run with a list of what was not run; every report, menu and posted text reads as plain sentences for a reader without the code open. Verification, repair, sync, CI watch and merge mechanics do not change, and the skill directory gets smaller.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

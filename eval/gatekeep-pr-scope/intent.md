@@ -1,6 +1,8 @@
-for: c90090ed9730dbe5d97f89090389b8e2b559be8a964d9db3b458a37f6445a02d
+for: ede2098b72303422879d437a0375fced8b6f717c8c7864125a0f9efd9d41586d
 
 ## Change
+
+Bind this intent to the shared gatekeep-pr assembly now that the gate judges spec-versus-code disagreements from the reread ticket and the PR's goal. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Select no scope model sample for this repair.
 
 Report `matched` when marked Integration entries and acceptance rows account for every live ticket row, even when the acceptance criteria came from the design. With one ticket row absent from both spec sections, report `differs` for that original ticket row only. Omit Integration entries and their statuses from the report, evidence, and menus; retain the informational cross-check and PR-named steps, including open actions without trusted commands. Keep observation-only clauses out of post steps without promising a later judgment.
 
