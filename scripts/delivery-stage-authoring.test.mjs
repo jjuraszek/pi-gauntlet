@@ -9,6 +9,7 @@ import { intentBody } from '../eval/lib/intent.mjs';
 import { lintTarget } from '../eval/lib/lint.mjs';
 import { cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 import { MODELS } from '../eval/lib/models.mjs';
+import { isAssessedCandidate } from './replay-facts.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const read = (path) => readFileSync(resolve(root, path), 'utf8');
@@ -68,16 +69,19 @@ for (const [name, sample] of cases) {
     assert.deepEqual(candidate.models, MODELS);
     assert.deepEqual(baseline.models, MODELS);
     assert.deepEqual(Object.keys(candidate.judge).sort(), [...MODELS.replay].sort());
+    const skillSha = sha256(assemble({ ...target, skillFiles: target.skillFiles.filter((file) => !drop.includes(file.path)) }, read, bundle));
+    const intentSha = sha256(intentBody(read(`${dir}/intent.md`)));
+    const historical = isAssessedCandidate(name, sample, candidate, skillSha, intentSha);
     const identity = {
       kind: target.kind, assembly: target.assembly, thinking: MODELS.thinking,
       inputSha: inputSha(read(`${dir}/replay.md`), text, bundle),
-      skillSha: sha256(assemble({ ...target, skillFiles: target.skillFiles.filter((file) => !drop.includes(file.path)) }, read, bundle)),
+      skillSha: historical ? candidate.skillSha : skillSha,
     };
     for (const model of MODELS.replay) {
       const judged = candidate.judge[model];
       assert.ok(judgmentCurrent(judged, {
         factsSha: sha256(expected), judgePromptSha: sha256(read('eval/judge.md')),
-        intentSha: sha256(intentBody(read(`${dir}/intent.md`))),
+        intentSha: historical ? judged.intentSha : intentSha,
         baselineOutputSha: sha256(baseline.outputs[model].text),
         candidateOutputSha: sha256(candidate.outputs[model].text),
       }), `${model}: stale judgment`);

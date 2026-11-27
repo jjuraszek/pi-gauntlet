@@ -466,9 +466,9 @@ test('findings.md owns the mechanism-only AC contract, drafted doc fixes, and th
   assert.ok(!findings.includes('An undispositioned failing check is never a target of `fix`'), 'failing checks are fixable');
   assert.ok(!findings.includes('reports it as not fixable'), 'not-fixable clause deleted');
   assert.match(findings, /A payload is the smallest in-repo edit that turns the finding green and keeps the behavior the PR promises; it never adds infrastructure, a dependency, or a new module\./);
-  assert.match(findings, /`gap`[^\n]*is a blocker/);
+  assert.match(findings, /^\| `gap` \| `keep` for a departure[^\n]*\| missing behavior as a blocker \| yes \|$/m);
   assert.match(findings, /applied only under a delivery course or a terminal `fix nits` pick/);
-  assert.match(findings, /Draft nit payloads under `deliver-nits` or a terminal `fix nits` pick/);
+  assert.match(findings, /Except for the spec edit below, draft nit payloads under `deliver-nits` or a terminal `fix nits` pick/);
   assert.ok(findings.includes('deferred per spec'));
   assert.ok(!findings.includes('Only the tracker waives'));
   assert.ok(!findings.includes('`impossible`'));
@@ -905,7 +905,7 @@ test('three archetypes own menus and typed dispatch is not row authority', () =>
   assert.match(menus, /add exactly `2 x maxFixRounds` to both caps/);
   assert.match(loop, /every other non-numeric string is a change request/);
   assert.match(loop, /including typed `deliver`/);
-  assert.match(menus, /Render every menu in full: the standing sentence, every available row as `<n>\. <verb> - <consequence>`, then the hint/);
+  assert.match(menus, /Render every menu in full: the standing sentence \(omit it for contract-exception\), every available row as `<n>\. <verb> - <consequence>`, then the hint/);
   assert.match(menus, /Quote a numeric pick only after the rendered menu/);
   assert.match(menus, /Never narrate or summarize a menu/);
   assert.match(menus, /approved_head/);

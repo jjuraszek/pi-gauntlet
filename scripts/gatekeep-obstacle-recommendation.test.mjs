@@ -42,6 +42,27 @@ test('obstacle recommendations rank unavailable progress above authorship and pe
   assert.doesNotMatch(obstacle, /then `stop` `\[recommended\]`/);
 });
 
+test('contract proposals use the contract judgment instead of a fixed preserve recommendation', () => {
+  const menus = read('../skills/gatekeep-pr/reference/menus.md');
+  for (const [text, pin] of [
+    [menus, 'contract-exception recommends `preserve contract`'],
+    [menus, '`preserve contract` `[recommended]`'],
+    [read('../README.md'), 'Contract proposals recommend preserve contract'],
+    [read('../doc/gate-contract.md'), 'Contract proposals favor preserve contract'],
+  ]) assert.ok(!text.includes(pin), `fixed recommendation: ${pin}`);
+  assert.match(menus, /`findings\.md`[ \t]+`## Contract judgment`/);
+  assert.match(read('../skills/gatekeep-pr/reference/findings.md'), /^## Contract judgment$/m);
+});
+
+test('both worker tails apply the authorized spec edit and return exceptions for other changes', () => {
+  const wave = read('../skills/gatekeep-pr/reference/fix-wave.md');
+  for (const [harness, exception] of [['pi', 'contract exception: <why>'], ['Claude Code', 'open - contract exception: <why>']]) {
+    const tail = wave.split(`\n| ${harness} | `)[1]?.split('\n')[0];
+    assert.match(tail, /apply the authorized spec edit exactly as displayed/i);
+    assert.ok(tail.includes(`\`${exception}\` for any other contract-changing fix`), harness);
+  }
+});
+
 test('historical saved replies: actions cover authorship, safe repairs, contract proposals and obstacle progress', () => {
   read(`${root}/samples/${sample}/case.md`);
   const expected = read(`${root}/samples/${sample}/expected.md`);

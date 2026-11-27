@@ -2,7 +2,7 @@
 
 ## Data
 
-Render seven independent action menus in the order below. Use the supplied observations as the completed step-5 assessment for each case. This case overrides replay.md's initial/final simulation: render only the seven reports and action menus, without simulating a pick or running a tool. Label each case outside its report so its gate line remains the report's first line. Keep each recommendation's reason immediately above Pick one. Do not repair, post, push, approve or watch anything.
+Render seven independent action menus in the order below. Use the supplied observations as the completed step-5 assessment for each case. This case overrides replay.md's initial/final simulation: render reports and action menus for A-F, then only the pending decision menu for G, without a report. Label each case outside its output so its gate line remains the first line. Keep each recommendation's reason immediately above Pick one. Do not simulate a pick, run a tool, repair, post, push, approve or watch anything.
 
 Shared record unless a case overrides it: PR 642 in sample/forge-kit, OPEN and non-draft; viewer mira is the human author, WRITE permission; head 9c1e4f2 is pushable; helpers are present; course deliver; maxFixRounds 5. There are zero blockers, zero nits, no drafted replies, no contract proposal and no available body or source repair. Delivers: make health endpoint respond with the build version; Ticket APP-91 OK and README OK. Approve is unavailable on an own PR. The assessment is complete, so switching to assess only reposts the same findings, not new evidence.
 
@@ -12,7 +12,7 @@ The first watch window expired. Mergeability is MERGEABLE. The binding test_unit
 
 ### Case B: BLOCKED without bypass cannot progress
 
-Both binding checks test_unit and build_image are green in run 7001 on the assessed head. Mergeability is BLOCKED after refresh; reviewDecision is REVIEW_REQUIRED. The active ruleset requires an independent review. Viewer has WRITE, no admin or matching bypass actor. No repair, sync, watch or workflow approval can satisfy that rule. A different reviewer has not approved. Deliver remains visible only as a conditional retry after the failed prerequisite changes, never an automatic sync or a current way to change the outcome.
+Both binding checks test_unit and build_image are green in run 7001 on the assessed head. Mergeability is BLOCKED after refresh; reviewDecision is REVIEW_REQUIRED. The active ruleset requires an independent review. Viewer has WRITE, no admin or matching bypass actor. No repair, sync, watch or workflow approval can satisfy that rule. A different reviewer has not approved. Name the missing independent review in the recommendation reason, not just the blocked merge status. Keep deliver visible, but start its consequence with the condition that another reviewer must approve before retrying. Do not promise a retry or sync now.
 
 ### Case C: unchanged prerequisite at the cap cannot progress
 
@@ -32,4 +32,4 @@ Author robin; viewer mira is a requested reviewer with READ and cannot push sour
 
 ### Case G: draft contract proposal
 
-Own PR; checks are green and mergeability is MERGEABLE. The approved spec requires the build version at /health; the PR deliberately returns it at /status, so that requirement is deviates and blocks normal merge. A source-checked contract proposal is drafted at /tmp/gate-contract.md to change the endpoint to /status. No source or body fix, no permission to auto-change the approved spec. The proposal is pending in the retained record. Render contract-exception with preserve contract recommended, plus accept contract change and stop; execute nothing yet.
+Own PR; no linked ticket. Checks are green and mergeability is MERGEABLE. The goal is to serve the build version. The approved spec requires the build version at /health; the PR serves it at /status instead. A source-checked proposal would change the required endpoint to /status. The existing /health handler can return the same build version without changing the spec. The proposal is pending in the retained record. Render the contract-exception menu and wait for a pick.
