@@ -1,6 +1,8 @@
-for: 90fd955da71efa00fac1c3548aed38f706122da1665425a1a4f90f3f1419652c
+for: 267584b578522fa017ed928e15518e80d0ce32385d0f27cba714c63b84b3c223
 
 ## Change
+
+Use choices-list to check that the menu explains choices without internal identifiers and keeps every stand-in disclosure, even past the word limit. Check the proposed Summary bullets in the same replay.
 
 Use digest-from-record-lines to check the single list above the menu. Read a branch's commit bodies oldest first, explain applied corrections alongside choices and keep repeated choices separate. The sample replays supplied records, not a live delivery.
 
@@ -18,6 +20,9 @@ Read the push procedure on identifying a rework subject, before preflight or the
 
 ## Expected to move
 
+- choices-list/register: fails -> holds - Explain each choice and reason in everyday words without internal identifiers, under the word limit.
+- choices-list/disclosure: fails -> holds - Show both stand-ins above the options and in the proposed Summary.
+- choices-list/overflow: fails -> holds - Keep every disclosure even when the stand-ins alone exceed the cap.
 - digest-from-record-lines/digest: fails -> holds - Show each decision and its reason once per body record in the shared list.
 - digest-from-record-lines/source: fails -> holds - Read only feature-range bodies, oldest first.
 - pr-list-push-and-close/reads: fails -> holds - Load the extracted rules before the rework menu and close gate.

@@ -3,9 +3,9 @@
 base: a734d890b0228aacb2ab38a18278394bf77d89b1
 verification: npm test
 checks: commands
-iterations: 7
+iterations: 8
 allowance: 10
-returned: 6 | home | b58c20c2ecb2cf7a70633dd2422e994b7a505125
+returned: 7 | home | 6c95018d396eec624b2c1307003635fe6bad1149
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -15,7 +15,7 @@ returned: 6 | home | b58c20c2ecb2cf7a70633dd2422e994b7a505125
 | 4 | done | 1 | timeout -k 30 60 node --test scripts/loop-engine-contract.test.mjs; 54 passed, 0 failed; both models named the missing input without a menu in stop-needs-no-menu and human-stop-counts; retired-budgets and scaled-cap-grant were inconclusive on legacy wording and reply parsing |
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs scripts/loop-implementer-actions.test.mjs scripts/loop-unreachable-cut.test.mjs; 14 passed, 0 failed; both models asked before buying a proof print or cutting the row in unnamed-action-asks |
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 9 passed, 0 failed; both digest-from-record-lines replies listed two corrections and both identical recommendations with reasons before the options |
-| 7 | open | 0 | |
+| 7 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; both choices-list replies explained the help-page change without internal identifiers in under 180 words and printed all 20 stand-in disclosures in the overflow snapshot |
 | 8 | open | 0 | |
 | 9 | open | 0 | |
 
@@ -27,3 +27,4 @@ row 3 done | Both engines now grant one more attempt at a spent counter when the
 row 4 done | When delivery stalls, both engines name the blocker and the input that would clear it without offering choices. | Reuse stop-needs-no-menu for a missing artifact and human-stop-counts to distinguish a stalled stop from a discard question.
 row 5 done | An unnamed paid or outside-repository action now ends the turn with a question about naming the action or cutting the row, even under amend permission. | Reuse unnamed-action-asks to distinguish the human decision from an automatic missing-prerequisite cut.
 row 6 done | The ship menu lists each recommendation and applied spec correction with its reason, keeping repeated choices separate and leaving out recovery and retries. | Extend the Step 4 decision list in ship.md and its finish-amendment-digest test to include stand-ins.
+row 7 done | The ship menu explains choices in everyday words and shortens the list toward 180 words without dropping reasons or stand-in disclosures. | Reuse ship/decisions.md and the choices-list sample to carry the same stand-in wording into each pull request.

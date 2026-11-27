@@ -7,7 +7,9 @@ import test from 'node:test';
 
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const skill = read('skills/gauntlet/ship/ship.md');
-const digest = skill.split('### Step 4: Present Options')[1].split('**Rework PR subject')[0];
+const step = skill.split('### Step 4: Present Options')[1].split('**Rework PR subject')[0];
+const listFile = step.match(/\[decision list\]\(([^)]+)\)/)[1];
+const digest = `${step}\n${read('skills/gauntlet/ship/' + listFile)}`;
 const command = digest.match(/`(git -C "\$WORKTREE" log [^`]+)`/)?.[1];
 const choice = '- choice | Keep the old cache key | Existing readers still need it';
 const cache = '- cache | Cache lifetime | Cache entries expire after one hour | granted | standing grant | fixture measured 3600 seconds';
@@ -70,6 +72,24 @@ test('the extracted log recipe and selector keep every applied body row and excl
     assert.equal(f.git('rev-parse', 'HEAD'), head);
     assert.equal(f.git('status', '--porcelain'), '');
   });
+});
+
+test('the decision list shortens wording rather than dropping reasons or stand-ins', () => {
+  assert.match(digest, /verdict-report\.md#register/);
+  assert.match(digest, /commit hashes or row, task or finding numbers/);
+  assert.match(digest, /under 180 words, heading included/);
+  assert.match(digest, /each choice and reason/);
+  assert.match(digest, /stand-in lines alone.*cap.*print them all/i);
+  const { outputs } = JSON.parse(read('eval/ship/results/choices-list/candidate.json'));
+  assert.ok(Object.keys(outputs).length > 0);
+  for (const { status, text } of Object.values(outputs)) {
+    assert.equal(status, 'ok');
+    const list = text.match(/What the run decided on its own \(4\):\n(?:- [^\n]+\n?){4}/)?.[0];
+    assert.ok(list && list.split(/\s+/).length < 180);
+    assert.doesNotMatch(list, /a1b2c3d|(?:row|task|finding) \d+|normalize (?:the )?paths? before routing/i);
+    const overflow = text.split('What the run decided on its own (20):')[1];
+    assert.equal(overflow?.match(/^- (?=.*receipts)(?=.*handwritten).+/gim)?.length, 20);
+  }
 });
 
 test('one list maps audit evidence and recommendations without merging equal lines', () => {
