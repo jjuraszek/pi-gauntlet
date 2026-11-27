@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v9.1.2 - 2026-11-27
 
 - The loop task list updates automatically at dispatch and human stops, including after resume. Waves tasks start on dispatch, and starting verify completes implement when every task is complete or skipped. (#178)
 
