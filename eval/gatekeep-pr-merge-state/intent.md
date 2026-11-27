@@ -1,6 +1,8 @@
-for: 2abf501083b43367ca407bec7586b57c6797dec61e734cc1837fc30be05ad1df
+for: 12f15df02d07555a538479d71a93855597c054201fa051df4a95c021df8e7f46
 
 ## Change
+
+Bind this intent to the shared gatekeep-pr assembly now that the gate judges spec-versus-code disagreements from the reread ticket and the PR's goal. Validate assembly and command wiring deterministically only; preserve all saved replies and report verdicts as earlier-revision evidence. Select no merge-state model sample for this repair.
 
 Preserve PR-named steps, including open actions, without routing observation-only clauses to later judgment. No merge-state sample is selected for this wording change; saved replies remain earlier evidence.
 
