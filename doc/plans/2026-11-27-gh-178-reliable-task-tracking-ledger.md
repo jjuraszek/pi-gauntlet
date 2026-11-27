@@ -3,13 +3,13 @@
 base: 7f1bae1e1b90ead0da5bd18083cb83690c72cdf2
 verification: npm test
 checks: commands
-iterations: 0
+iterations: 1
 allowance: 10
-returned: none
+returned: seed | home | 09b77dd6fbd40ee3edbd61989ce0397d99eb4661
 
 | row | status | attempts | evidence |
 |---|---|---|---|
-| 1 | open | 0 | |
+| 1 | open | 0 | timeout -k 30 60 node --experimental-loader ./extensions/test-support/pi-stubs.mjs --test extensions/plan-tracker.test.ts; dispatch left row 1 pending in the seed result instead of storing an in_progress snapshot; 36 passed, 1 failed |
 | 2 | open | 0 | |
 | 3 | open | 0 | |
 | 4 | open | 0 | |
@@ -23,3 +23,4 @@ returned: none
 | 12 | open | 0 | |
 
 ## Decisions
+row 0 done | seeded 1 rows, closed 0 on baseline | row 1

@@ -26,6 +26,9 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
     on(event: string, handler: (event: unknown, ctx: unknown) => Promise<void>) {
       handlers.push({ event, handler });
     },
+    appendEntry(customType: string, data: unknown) {
+      branch.push({ type: "custom", customType, data });
+    },
     registerTool(tool: any) {
       tools.push(tool);
     },
@@ -45,8 +48,8 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   };
   const call = async (params: Record<string, unknown>): Promise<ToolResult> =>
     (await tools[0].execute("id", params, undefined, undefined, ctx)) as ToolResult;
-  const fire = async (event: string) => {
-    for (const h of handlers) if (h.event === event) await h.handler({}, ctx);
+  const fire = async (event: string, fields: Record<string, unknown> = {}) => {
+    for (const h of handlers) if (h.event === event) await h.handler({ type: event, ...fields }, ctx);
   };
   return {
     call,
@@ -402,6 +405,34 @@ const ledger = (rows: string[], tail = "", pending = "") => [
   "| row | status | attempts | evidence |", "|---|---|---|---|",
   ...rows.map(row => `| ${row} |`), "", "## Decisions", tail,
 ].join("\n");
+
+test("a lone worker dispatch shows the bound ledger row in progress before the worker runs", async (t) => {
+  const depth = process.env.PI_SUBAGENT_DEPTH;
+  process.env.PI_SUBAGENT_DEPTH = "0";
+  t.after(() => {
+    if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
+    else process.env.PI_SUBAGENT_DEPTH = depth;
+  });
+  const dir = ledgerFixture("plan-dispatch-");
+  const path = join(dir, "ledger.md");
+  const rows = ["1 | open | 0 |"];
+  writeFileSync(path, ledger(rows, "", "returned: none"));
+  const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+  const h = harness(branch, dir);
+  const seed = await h.call({ action: "refresh", path });
+  assert.equal(seed.details.tasks[0].status, "pending");
+  branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: seed.details } });
+
+  writeFileSync(path, ledger(rows, "", "pending: 1 | home | abc1234\nreturned: none"));
+  const input = { agent: "loop-implementer", task: "target: 1" };
+  await h.fire("message_end", { message: { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] } });
+  await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input });
+  assert.deepEqual(branch.at(-1), {
+    type: "custom", customType: "plan-tracker-snapshot",
+    data: { tasks: [{ name: "row 1", status: "in_progress", label: descriptions[0] }] },
+  });
+  assert.match(h.widget()!, /\u2192/);
+});
 
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
   const dir = ledgerFixture("plan-refresh-");
