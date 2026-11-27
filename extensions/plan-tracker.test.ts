@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test, type TestContext } from "node:test";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -730,6 +730,82 @@ test("branch activation reconciles a stale list only at a marked stop without a 
     assert.equal(branch.length, 0, event);
     assert.equal(h.widget(), undefined, event);
   }
+});
+
+test("taking over a bound list leaves a later gatekeep dispatch unbound", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-takeover-");
+  const path = join(dir, "ledger.md");
+  const gatekeepPath = join(dir, "gatekeep.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  writeFileSync(gatekeepPath, ledger(["2 | open | 0 |"], "", "pending: 2 | gatekeep | abc1234"));
+  for (const action of ["init", "clear"] as const) await t.test(action, async () => {
+    const branch: unknown[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
+    const h = harness(branch, dir);
+    const seed = await h.call({ action: "refresh", path });
+    assert.deepEqual(seed.details.tasks, [{ name: "row 1", status: "pending", label: descriptions[0] }]);
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: seed.details } });
+    const takeover = await h.call(action === "init" ? { action, tasks: ["gather"] } : { action });
+    assert.equal(takeover.details.error, undefined);
+    branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: takeover.details } });
+
+    const input = { agent: "loop-implementer", context: "fresh", async: false, cwd: dir, task: `ledger: ${gatekeepPath}\ntarget: 2` };
+    const message = { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] };
+    branch.push({ type: "message", message });
+    await h.fire("message_end", { message });
+    const before = branch.length;
+    assert.equal(await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }), undefined);
+    assert.deepEqual(branch.slice(before), []);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, action === "init" ? [{ name: "gather", status: "pending" }] : []);
+    assert.deepEqual(h.notifications, []);
+  });
+});
+
+test("a marked restore stop merges ledger rows after init precedes plan_check", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-restore-mixed-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  const branch: unknown[] = [];
+  const h = harness(branch, dir);
+  const gate = { name: "G1: check", status: "in_progress" };
+  const init = await h.call({ action: "init", tasks: [gate] });
+  assert.equal(init.details.error, undefined);
+  branch.push(
+    { type: "message", message: { role: "toolResult", toolName: "plan_tracker", details: init.details } },
+    { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    assistantText("gauntlet: question\nContinue from the restored plan?"),
+  );
+  const before = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  const tasks = [gate, { name: "row 1", status: "pending", label: descriptions[0] }];
+  assert.deepEqual(branch.slice(before), [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, tasks);
+  assert.deepEqual(h.notifications, []);
+});
+
+test("session activation leaves the last snapshot untouched when the bound ledger is deleted", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-missing-ledger-");
+  const path = join(dir, "ledger.md");
+  writeFileSync(path, ledger(["1 | open | 0 |"]));
+  const branch: unknown[] = [
+    { type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } },
+    assistantText("gauntlet: question\nContinue?"),
+  ];
+  const h = harness(branch, dir);
+  const beforeStop = branch.length;
+  await h.fire("agent_settled", { aborted: false });
+  const tasks = [{ name: "row 1", status: "pending", label: descriptions[0] }];
+  assert.deepEqual(branch.slice(beforeStop), [{ type: "custom", customType: "plan-tracker-snapshot", data: { tasks } }]);
+  unlinkSync(path);
+
+  const reloaded = harness(branch, dir);
+  const beforeActivation = branch.length;
+  await reloaded.fire("session_start");
+  assert.deepEqual(branch.slice(beforeActivation), []);
+  assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, tasks);
+  assert.deepEqual(reloaded.notifications, []);
 });
 
 test("verify start without active implement validates the ledger but stores nothing", async (t) => {
