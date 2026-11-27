@@ -33,3 +33,4 @@ row 9 done | The ship menu names each missing input, its stand-in and what remai
 amended | 1 item(s) | Per-gap trail eval sample
 amended | 1 item(s) | Replayed stand-in controls
 amended | 2 item(s) | Stale eval result replays
+amended | 1 item(s) | Stale sample replay count
