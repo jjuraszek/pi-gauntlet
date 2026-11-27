@@ -234,7 +234,7 @@ The message:
    - what the spec requires today (for a `source: pr` proposal, what the PR committed to; for an addition, that the spec does not cover the behavior);
    - what the change gains or costs for the PR's goal, naming the ticket when it decided;
    - the pick and its reason; when D1 was undecided, what could not be determined.
-3. The rows, each with its consequence, and the hint.
+3. The rows, each with its consequence, and the hint. The `accept contract change` row's consequence says what the spec or the PR's stated intent requires after the change; it never describes an edit to the PR description.
 
 No other sentence in the message argues for or against a row: no second lean, no default-keeping statement such as "changing an approved spec is your call", no progress narration. This menu renders no standing sentence; context that bears on the pick goes in the three sentences or a row's consequence, and the rest stays under `show evidence`. The recommended row and its three sentences are retained with the pending proposal, so `show evidence` and a re-render reuse them.
 
@@ -244,7 +244,7 @@ Remove:
 
 Add:
 - `menus.md` `## Recommendation`: the contract-exception rule citing `findings.md` `## Contract judgment`, the three sentences, the no-other-argument rule, and this state's exemption from "exactly one complete recommendation sentence" and from the standing sentence of "Render every menu in full". The one-sentence rule stays word for word for every other menu (`scripts/gatekeep-reject.test.mjs` pins it).
-- `menus.md` `## action`: show both wordings (the PR-owned obligation or the no-clause statement where D3 item 1 says so); offer the recommended contract row, the other contract row, then `stop`, before numbering.
+- `menus.md` `## action`: show both wordings (the PR-owned obligation or the no-clause statement where D3 item 1 says so); offer the recommended contract row, the other contract row, then `stop`, before numbering; word the `accept contract change` consequence as a change to what the spec or the PR's stated intent requires, never as a description edit.
 
 ### D4 Product docs
 
@@ -331,6 +331,7 @@ Eval samples live under `eval/gatekeep-pr/samples/<name>/`; each line names the 
 - After `fix nits`, the orchestrator's handoff carries the exact displayed spec wording as authorized work; on the simulated successful return, review and push no spec-change menu renders, and the baseline is adopted only after the wording is confirmed at the pushed head - sample `spec-stale-nit`, case E (the replay inspects the orchestrator; it executes no worker)
 - Both helper instructions name the authorized spec edit and keep the contract-exception return for any other contract-changing fix - `scripts/gatekeep-obstacle-recommendation.test.mjs` assertions on `fix-wave.md`
 - The contract exception still pauses delivery, offers both contract rows and `stop`, and writes nothing before a pick - sample `consent-contract-change-stop`
+- The `accept contract change` row describes a change to the requirement, never a description edit - sample `consent-contract-change-stop` (fact `f3`)
 - The fixed-row sentences are absent from `menus.md`, `README.md` and `doc/gate-contract.md`, and `menus.md` cites `findings.md` `## Contract judgment` - `scripts/gatekeep-obstacle-recommendation.test.mjs`
 - Reread failure falls back to the step-2 copy - sample `contract-row-judged`, case E (simulated failed fetch, decisive retained copy); case D covers the no-copy branch
 - Verdict reuse on the same head and re-judging on a new head - none: text replay stops at one decision

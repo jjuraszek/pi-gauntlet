@@ -33,3 +33,4 @@ row 7 done | Both replays blocked the sort change when title sorting met the goa
 row 8 done | Both replays kept the untested branch for never-opened recipes as a blocker while listing the stale spec as a smaller point. | nothing new to build on
 row 9 done | Both replays applied the displayed spec edit without another menu and adopted it only after confirming the pushed wording. | Reuse spec-stale-nit case E for the handoff and the worker-tail assertions for both harnesses.
 row 10 done | The product docs now explain when the ticket or PR goal warrants changing the contract instead of always recommending preservation. | Use README.md for the first-report behavior and doc/gate-contract.md for the row 1 rule.
+amended | 1 item(s) | Accept row names the requirement change
