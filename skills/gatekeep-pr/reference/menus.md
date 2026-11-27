@@ -50,7 +50,7 @@ Otherwise choose the available row that settles this PR with the fewest human st
 | Row | Availability | Pick |
 |---|---|---|
 | `deliver` | Helpers, positive maxFixRounds, head_pushable true | Run the persistent delivery course to readiness, obstacle or cap; use `fix-wave.md` accounting. |
-| `deliver with nits` | Delivery available and nits remain | Store deliver-nits; include all current and subsequently minted nits. |
+| `deliver with nits` | Delivery available and nits remain | Store deliver-nits; take the displayed spec edits and all current and later ordinary nits. |
 | `assess` | Initial or obstacle | Post open blockers with locators as one head-pinned review through `post-selection-loop.md` `### Fix wave`; with zero blockers post nothing. Render assess-terminal, without repair or sync; keep C# replies behind reply. |
 | `reject` | Initial or obstacle; `work_started == false`; `reject_withdrawn == false`; at least one open approach blocker; PR `OPEN` | Open the reject menu through `reject.md`. Write nothing. |
 | `approve workflow run` | Held run on assessed head; viewer_permission WRITE, MAINTAIN or ADMIN | Run `gh api --method POST repos/<base-owner>/<base-repo>/actions/runs/<id>/approve`, refresh and watch under the course. |

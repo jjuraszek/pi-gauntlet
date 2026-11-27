@@ -1,4 +1,4 @@
-for: a0ac2a67ee89c9d14f536848e29cb0f4dabc961cabd6c562d2deb0dad0bca17d
+for: 7efc3e8c3d1f5bab16ca2f0b6a3fa06eec0af8665c503289b505a5c853d0cc83
 
 ## Change
 
@@ -11,5 +11,6 @@ Judge a proposed contract change from the reread ticket, or from whether the PR 
 - contract-row-judged/fallback: fails -> holds - Keep the decisive step-2 copy when the reread fails.
 - contract-row-judged/message: fails -> holds - Explain the pick in three sentences without a second argument elsewhere.
 - spec-stale-nit/backed: fails -> holds - Offer merge and show the stale wording beside the ticket-backed change.
+- spec-stale-nit/handoff: fails -> holds - Require the displayed edit and adopt the new wording only after confirming it at the pushed head.
 - spec-stale-nit/addition: fails -> holds - Draft a missing Design clause for an addition the outcome needs.
 - consent-contract-change-stop/f2: fails -> holds - Show the PR's own promise beside the proposal when there is no spec to quote.

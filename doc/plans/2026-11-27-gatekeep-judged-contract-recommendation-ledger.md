@@ -3,9 +3,9 @@
 base: 0aa921924709a632214d4050c42fe7464899862d
 verification: npm test
 checks: commands
-iterations: 5
+iterations: 6
 allowance: 10
-returned: 6 | home | 755e480a712d44a964f20ae5d6471271d868fdf6
+returned: 9 | home | 8c7c662fc12fa8d9ad24eceefed8acc88fcf5fd9
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -17,7 +17,7 @@ returned: 6 | home | 755e480a712d44a964f20ae5d6471271d868fdf6
 | 6 | done | 1 | timeout -k 30 15 jq -e '[.judge[].facts.backed.after, .judge[].facts.addition.after] == ["holds","holds","holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; spec-stale-nit ran 2 baseline replays after shortening an over-cap case, 2 candidate replays and 2 judgments |
 | 7 | done | 0 | timeout -k 30 15 jq -e '[.judge[].facts.keep.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; both replays blocked departures when title sorting met the goal or the reason for changing it was unknown |
 | 8 | done | 0 | timeout -k 30 15 jq -e '[.judge[].facts.independent.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; both replays blocked the untested branch independently of the stale spec |
-| 9 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 15 jq -e '[.judge[].facts.handoff.after] == ["holds","holds"]' eval/gatekeep-pr/results/spec-stale-nit/candidate.json; true; spec-stale-nit ran 2 candidate replays and 2 judgments; both adopted the displayed wording only after confirming the pushed edit |
 | 10 | open | 0 | timeout -k 30 30 node --test scripts/gatekeep-obstacle-recommendation.test.mjs; 2 passed, 1 failed; menus.md still pins the contract-exception recommendation to preserve contract |
 
 ## Decisions
@@ -31,3 +31,4 @@ row 5 done | Both models showed the competing wordings and kept the argument to 
 row 6 done | Both replays offered merge for ticket-backed recipe sorting and proposed a missing clause for offline trail lookup. | Reuse the spec-stale-nit sample to check report severity and its simulated fix nits handoff.
 row 7 done | Both replays blocked the sort change when title sorting met the goal or the reason for switching was unknown. | nothing new to build on
 row 8 done | Both replays kept the untested branch for never-opened recipes as a blocker while listing the stale spec as a smaller point. | nothing new to build on
+row 9 done | Both replays applied the displayed spec edit without another menu and adopted it only after confirming the pushed wording. | Reuse spec-stale-nit case E for the handoff and the worker-tail assertions for both harnesses.
