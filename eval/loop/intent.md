@@ -1,4 +1,4 @@
-for: 61b25b7b61b5df80634f07479d30f7a32f120ac7b812e694f9f89d0e0b8f0f29
+for: 70a64b2775e08c6dd314bbacbd93679960dcaa2163ec89b56480b73d48a2726a
 
 ## Change
 
@@ -16,7 +16,7 @@ After an interrupted return, read the repaired rows from the ledger and continue
 
 Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
 
-Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission.
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission. If the same contradiction returns after the correction, stop before another amendment even when the companion SHA differs.
 
 Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
 

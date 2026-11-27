@@ -83,6 +83,17 @@ test('two file-changing companion failures with the same evidence stop at allowa
   assert.match(readFileSync(new URL('expected.md', sample), 'utf8'), /Snapshot 3.*stops at row 2: 4 of 4.*no third dispatch/);
 });
 
+test('a later companion commit cannot repeat an authorized correction on the same evidence', () => {
+  const sample = new URL('eval/loop/samples/spent-allowance-moving-or-stalled/', root);
+  const continuation = readFileSync(new URL('case.md', sample), 'utf8').split('Now continue snapshot 5')[1].split('\n\n')[0];
+  const cells = [...continuation.matchAll(/`([^`]+); companion ([a-f0-9]+)`/g)];
+  assert.equal(cells.length, 2);
+  assert.equal(cells[0][1], cells[1][1]);
+  assert.notEqual(cells[0][2], cells[1][2]);
+  assert.match(readFileSync(new URL('expected.md', sample), 'utf8'), /repeated-amend:.*stops.*before applying the correction again.*keeps both companion SHAs/);
+  assert.match(stop, /rule 2's admitted worker evidence comparison to both the current evidence and the evidence already auto-resolved on that row.*On a match, stop with `Problem: evidence repeats row <n>`[\s\S]*print `took recommendation: amend/);
+});
+
 test('worker records selective commands and keeps row-scoped TDD evidence valid', () => {
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const token of [
