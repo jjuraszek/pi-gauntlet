@@ -1008,15 +1008,19 @@
       flush();
     };
 
-    const observePlan = (tasks: Task[], settings: SettingsSnapshot) => {
+    const observePlan = (tasks: Task[], settings: SettingsSnapshot, snapshotId?: string) => {
       const previous = lastPlanTasks;
       lastPlanTasks = tasks;
       if (!settings.telemetry.enabled || (!record && !canBind())) return;
       const reopens = countReopens(previous, tasks);
-      if (reopens) {
-        live().gates.task_reopens += reopens;
-        pushEvent({ kind: "gate", gate: "task_reopen" });
+      if (!reopens) return;
+      const acc = live();
+      if (snapshotId) {
+        if (acc.stored_reopens?.[snapshotId] || record?.accumulators.total?.stored_reopens?.[snapshotId]) return;
+        (acc.stored_reopens ??= {})[snapshotId] = reopens;
       }
+      acc.gates.task_reopens += reopens;
+      pushEvent({ kind: "gate", gate: "task_reopen" });
       return reopens;
     };
 
@@ -1028,7 +1032,9 @@
         // Explicit lists were consumed at tool_execution_end, before Pi persisted their result.
         if (entry.type !== "custom") continue;
         const tasks = planSnapshot(entry);
-        if (tasks && observePlan(tasks, settings)) reopened = true;
+        // Pi copies IDs and timestamps into forks, but only checks ID uniqueness within a session.
+        const snapshotId = entry.id ? `${entry.id}:${entry.timestamp}` : undefined;
+        if (tasks && observePlan(tasks, settings, snapshotId)) reopened = true;
       }
       if (record && reopened) flush();
     };

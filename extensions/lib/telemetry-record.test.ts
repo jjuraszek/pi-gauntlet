@@ -33,7 +33,13 @@ test("foldAccumulators sums counts/tokens, maxes peak_context, takes last_sha256
   const a: Accumulators = { ...emptyAccumulators(), amendments: 1, phases: { plan: { tokens: { input: 10, output: 1, cache_read: 0, cache_write: 0, cost: 0.5 }, peak_context: 100, user_messages: 2 } }, spec_writes: { brainstorm: { count: 2, last_sha256: "aa" } }, personas: { implementer: { dispatches: 1, models: ["m1"] } } };
   const b: Accumulators = { ...emptyAccumulators(), amendments: 2, phases: { plan: { tokens: { input: 5, output: 1, cache_read: 2, cache_write: 0, cost: 0.25 }, peak_context: 50, compactions: 1 } }, spec_writes: { brainstorm: { count: 1, last_sha256: "bb" } }, personas: { implementer: { dispatches: 2, models: ["m1", "m2"] } } };
   const c: Accumulators = { ...emptyAccumulators(), gates: { spec_rounds: 1, plan_rounds: 0, fix_round_grants: 0, task_reopens: 0 } };
+  a.gates.task_reopens = 2;
+  a.stored_reopens = { shared: 2 };
+  b.gates.task_reopens = 3;
+  b.stored_reopens = { shared: 2 };
   const ab = foldAccumulators(a, b);
+  assert.equal(ab.gates.task_reopens, 3);
+  assert.deepEqual(ab.stored_reopens, { shared: 2 });
   assert.equal(ab.amendments, 3);
   assert.deepEqual(ab.phases.plan, { tokens: { input: 15, output: 2, cache_read: 2, cache_write: 0, cost: 0.75 }, peak_context: 100, user_messages: 2, compactions: 1 });
   assert.deepEqual(ab.spec_writes.brainstorm, { count: 3, last_sha256: "bb" });

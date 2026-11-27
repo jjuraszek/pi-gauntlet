@@ -5,7 +5,7 @@
   import { after, test } from "node:test";
   import registerTelemetry, { realFs, replayBranch, type Deps, type GitResult } from "./telemetry.ts";
   import { DEFAULT_TELEMETRY_BUCKETS, planDirsFor, resolveFlowGuards } from "./lib/gauntlet-settings.ts";
-  import { emptyAccumulators, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
+  import { capEvents, emptyAccumulators, EVENT_CAP, parseRecord, serializeRecord } from "./lib/telemetry-record.ts";
   import { guardReason } from "./lib/telemetry-ship.ts";
   import { mergeToolResult } from "./test-support/merge-tool-result.mjs";
 
@@ -350,28 +350,31 @@
     assert.equal(replay.phases.implement.status, "in_progress");
   });
 
-  for (const boundary of ["phase status", "refused phase call"]) test(`reload counts an unconsumed stored reopen once across ${boundary}`, async () => {
+  for (const boundary of ["phase status", "refused phase call"]) test(`reload counts a stored reopen once across ${boundary} and sibling branches`, async () => {
     const branch: unknown[] = [];
     const h = harness({ branch });
     const phase = async (recorder: typeof h, action: string, phases: ReturnType<typeof P>) => {
       await recorder.phaseResult(action, phases);
       branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", details: { action, phases } } });
     };
-    const store = (status: string) => branch.push({ type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status }] } });
+    const store = (id: string, status: string) => branch.push({ id, timestamp: "2026-09-17T10:00:00Z", type: "custom", customType: "plan-tracker-snapshot", data: { tasks: [{ name: "row 1", status }] } });
     await phase(h, "start", P({ brainstorm: "in_progress" }));
     await h.writeSpec("doc/specs/a.md");
     branch.push({ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", specPath: "doc/specs/a.md" } } });
     const implementing = P({ brainstorm: "complete", plan: "complete", implement: "in_progress" });
     await phase(h, "start", implementing);
-    store("complete");
+    store("closed", "complete");
     await phase(h, "status", implementing);
-    store("failed");
+    store("reopened", "failed");
+    const sharedPrefixLength = branch.length;
     await h.emit("session_shutdown", {});
 
-    for (const activation of ["before consumption", "after consumption"]) {
+    for (const activation of ["before consumption", "after consumption", "on a sibling branch"]) {
+      if (activation === "on a sibling branch") branch.splice(sharedPrefixLength);
       const reloaded = harness({ branch });
       reloaded.ctx.cwd = h.root;
       await reloaded.emit("session_start", { reason: "resume" });
+      const expectedEvents = activation === "on a sibling branch" ? 0 : 1;
       if (activation === "before consumption" && boundary === "refused phase call") {
         await reloaded.emit("tool_execution_end", { toolName: "phase_tracker", isError: true, result: { content: [], details: {} } });
         branch.push({ type: "message", message: { role: "toolResult", toolName: "phase_tracker", isError: true, details: {} } });
@@ -380,8 +383,15 @@
       }
       const rec = reloaded.readRecord();
       assert.equal(rec.derived.gates.task_reopens, 1, activation);
-      assert.equal(rec.events.filter(e => e.kind === "gate" && e.gate === "task_reopen").length, 1, activation);
+      assert.equal(rec.events.filter(e => e.kind === "gate" && e.gate === "task_reopen").length, expectedEvents, activation);
       await reloaded.emit("session_shutdown", {});
+      if (activation === "after consumption") {
+        const capped = reloaded.readRecord();
+        const filler = { kind: "config_change" as const, phase: "implement" as const, session: "s1", ts: "2026-09-17T10:01:00Z" };
+        capped.events = capEvents([...capped.events, ...Array(EVENT_CAP).fill(filler)]).events;
+        assert.ok(!capped.events.some(e => e.kind === "gate" && e.gate === "task_reopen"));
+        writeFileSync(reloaded.recordPath(), serializeRecord(capped));
+      }
     }
   });
 

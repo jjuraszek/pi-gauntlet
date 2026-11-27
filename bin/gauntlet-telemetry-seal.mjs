@@ -466,6 +466,12 @@ function foldAccumulators(a, b) {
     out.spec_writes[k] = { count: (x?.count ?? 0) + (y?.count ?? 0), last_sha256: y?.last_sha256 ?? x?.last_sha256 ?? "" };
   }
   for (const g of Object.keys(out.gates)) out.gates[g] = a.gates[g] + b.gates[g];
+  if (a.stored_reopens || b.stored_reopens) {
+    out.stored_reopens = { ...b.stored_reopens, ...a.stored_reopens };
+    for (const [id, count] of Object.entries(b.stored_reopens ?? {})) {
+      if (a.stored_reopens?.[id]) out.gates.task_reopens -= count;
+    }
+  }
   out.conformance_loops = a.conformance_loops + b.conformance_loops;
   out.conformance_open_gaps = b.conformance_open_gaps ?? a.conformance_open_gaps;
   out.amendments = a.amendments + b.amendments;
