@@ -15,9 +15,11 @@ test('only ledger consent edits and batch preparation load the loop stop procedu
 test('delegated amendment hard stops link the escalation rules', () => {
   const text = read('skills/gauntlet/implement/waves/implement-amendments.md');
   const target = '(./escalation.md#escalation-and-funding)';
-  for (const site of ['A nonempty `redraws` array [stops]', 'malformed -> [stop]']) {
-    assert.ok(text.includes(site + target), site);
-  }
+  for (const site of [
+    `A nonempty \`redraws\` array [stops]${target}`,
+    `malformed -> [stop]${target}`,
+    `On a changed problem statement or a component added, removed or re-bounded, follow the [escalation rules]${target} before stopping.`,
+  ]) assert.ok(text.includes(site), site);
 });
 
 test('Amend-prepare contracts require the completion guard no-edit sentence', () => {
