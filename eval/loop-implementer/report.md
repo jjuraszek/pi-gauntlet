@@ -4,6 +4,8 @@ for: 9cbb02052a07a8ad2988616c59e7430acda2d9e36909252b01b81599b6664bfa
 
 wall by sample: stand-in-built: 50s, stand-in-not-buildable: 28s, silence-bound-and-unreachable: 35s
 
+Saved rows for samples that add the commit-message reference to their bundles predate the commit-body wording change and were not rerun.
+
 ## Change
 
 Compare missing inputs with and without a known format. Check the stand-in and closing commit line in stand-in-built, the unreachable return in stand-in-not-buildable, and preserve the credential boundary in silence-bound-and-unreachable. These are simulated worker returns.

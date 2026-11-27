@@ -1,8 +1,10 @@
 # eval report: plan (partial run: post-action-no-task)
 
-for: ad358530f60a6d0ef22620b1d646bb1b5cd90119b2c2d59f5237f928d9d3fd18
+for: 593c1b3eb72622cc1ee1fd85a4f570a350708bf9553a5730620c2558d3dc1459
 
-wall: 72s
+wall: 34s
+
+Saved rows for other samples predate the commit-body wording change and were not rerun.
 
 ## Change
 
@@ -22,14 +24,21 @@ The post-action-no-task replay checks that Integration entries have no task or c
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| post-action-no-task | anthropic/claude-opus-5-5 | unchanged | 9677 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
-| post-action-no-task | github-copilot/gpt-6.1-sol | regressed | 9915 | entries: holds -> holds (held); mixed-row: holds -> fails (regression); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
+| post-action-no-task | anthropic/claude-opus-5-5 | unchanged | 9955 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
+| post-action-no-task | github-copilot/gpt-6.1-sol | unchanged | 5928 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
 
 ## Feedback
 
-- post-action-no-task / anthropic/claude-opus-5-5: No fact moved on this sample: all four hold in both outputs. The expected citation move (fails -> holds) is not visible here, because Before already places `release-audit --live` exactly once, on the `Excluded citation (not work, not an acceptance condition):` line inside Task 1, which owns § "Acceptance criteria" L8-L9, and keeps it out of steps, Tests and table cells; After does the same. Both outputs leave every Integration entry (L12-L18, including tagging) without a coverage row or task, keep the literal `EMPTY` in Task 1's tests, implementation and coverage row without mentioning the import sandbox or the live audit as proof, and give Design L4 and L5 each a row and an owning task. To keep these facts, preserve the contract wording that puts the external command only in the owning task's excluded-citation line and bars Integration entries from the table and tasks. Outside the listed facts, After dropped the top-level Files section, the baseline provenance paragraph and the `Modify:` lines for the edited test files (while still staging them with `git add`), and it also dropped the stray `PLAN WRITTEN` status line that Before emitted against the case instruction; if the first three are unintended, check the moved test-file ownership and baseline wording in the contract.
-- post-action-no-task / github-copilot/gpt-6.1-sol: The expected citation move (fails -> holds) does not show in this pair: Before already places `release-audit --live` exactly once, on the Excluded citation line inside Task 1 and nowhere in steps, Tests or table cells, and After does the same. What did move is mixed-row, which regressed: After's coverage row for § "Acceptance criteria" L8-L9 reads "Scanner reports `EMPTY` for input with no records; import sandbox venue", which pulls the venue into the requirement cell, whereas Before's row stated only the `EMPTY` literal. The likely cause is the instruction to cite the requirement "through its indented disposition line" being read as a cue to summarise that line's content rather than only to extend the anchor range. To keep what Before kept, have the contract say that the disposition line widens the anchor (L8-L9) only, and that the requirement (short) cell and the task's steps and Tests carry just the functional literal. It should also say that an unrecognized disposition such as a venue, like the external command, is never restated in a table cell, step or test; the command appears only on the owning task's Excluded citation line and the venue appears nowhere outside the anchor range. Entries and design held in both outputs: neither has an Integration row or task, and both give L4 and L5 a coverage row and an owning task.
+- post-action-no-task / anthropic/claude-opus-5-5: No fact moved between the two outputs: all four hold in both. The expected citation move (fails -> holds) does not show in this pair, because Before already cites `release-audit --live` exactly once, on the `Excluded citation (not work, not an acceptance condition):` line in Task 1, which owns Acceptance criteria L8-L9, and keeps it out of steps, Tests and table cells; After does the same. Both outputs leave every Integration entry (L12-L18) without a coverage row or task, keep the `EMPTY` literal in Task 1's tests, implementation and coverage row without the import sandbox or live audit as requirement or proof, and give Design L4 and L5 each a row and an implementing task. To keep these facts, the contract wording should continue to state three things explicitly: Integration entries get no row and no task; a mixed row keeps only its functional literal in the assigned work; and the external command appears once, only on the owning task's excluded-citation line. Two differences fall outside the listed facts: After drops Before's trailing `PLAN WRITTEN` status line, which the case asked to omit, and After lists the edited test files only under `Test:` where Before also listed them under `Modify:`, so check that against the contract's ownership wording for an edited test file.
+- post-action-no-task / github-copilot/gpt-6.1-sol: No fact moved between Before and After on this sample: both plans omit every Integration entry from the coverage table and tasks (no tagging, queue drain, login or cutover work), both table and task the literal `EMPTY` for a no-record input under Task 1 without drawing the import sandbox or the live audit into steps, Tests or proof, both place `release-audit --live` exactly once on the `Excluded citation (not work, not an acceptance condition):` line inside the task that owns Acceptance criteria L8-L9, and both give Design L4 and L5 a coverage row with an implementation owner. The expected citation move (fails -> holds) is therefore not visible here, because Before already satisfied it; the moved contract wording preserved the behavior rather than producing it. The only differences are incidental: After drops the backticks around the spec path in the task Spec lines, reorders the Files header, uses an isolated temporary changelog in the release test, and leaves the commit message to be composed on stdin instead of inlining a heredoc. None of these touch the facts. To keep them stable, retain the contract's explicit rules that Integration entries get neither a row nor a task, that a mixed row keeps only the functional literal in the assigned work, and that the external command is cited once on the excluded-citation line of the owning task and nowhere in steps, Tests or table cells.
 
-On this branch, the earlier post-action-no-task replay for github-copilot/gpt-6.1-sol regressed on mixed-row and reproduced on confirmation; the sample was replayed fresh once afterward.
+## Earlier wording attempt (superseded)
 
-exit: 1
+| sample | model | verdict | judge ms | facts |
+|---|---|---|---|---|
+| post-action-no-task | anthropic/claude-opus-5-5 | unchanged | 8833 | entries: holds -> holds (held); mixed-row: holds -> holds (held); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
+| post-action-no-task | github-copilot/gpt-6.1-sol | inconclusive | 11256 | entries: holds -> holds (held); mixed-row: holds -> fails (regression); citation: holds -> holds (intended but unchanged); design: holds -> holds (held) |
+
+The first wording put `venue: import sandbox` in the requirement cell on the primary Copilot replay but not on confirmation. The current comparison above uses the second wording.
+
+exit: 0

@@ -2,6 +2,8 @@
 
 for: 135bc63b6e4e279519ae3a11f93792e92a761984de1f7ee220dc8234af4d91e8 (latest partial run)
 
+The saved rows below predate the commit-body wording change and were not rerun.
+
 ## Cells
 
 | sample | model | verdict | judge ms | facts |

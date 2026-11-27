@@ -227,6 +227,8 @@ for: 16d08b6bbaa5dd65196f43162774e13d12dffc63b71656e81fc784a0dab24d7e
 
 wall: 76s
 
+The saved rows below predate the commit-body wording change and were not rerun.
+
 ## Integrated coverage
 
 The `for:` above records the assembly at run time. The later edit to the after-all-tasks pointer defers closure at the conformance cap to step 6. No waves replay covers that edit; the rows below record the earlier comparison only.

@@ -25,6 +25,8 @@ wall: 28s
 
 This report is historical. The shared commit wording now records stand-ins; no resume sample was rerun for that change.
 
+The saved rows below predate the commit-body wording change and were not rerun.
+
 ## Change
 
 Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.

@@ -23,19 +23,21 @@ For worker dispatches, resolve this file to an absolute path relative to the ins
 
 ## Body
 
-Leave the body empty or write whole sentences saying what changed and why. Keep `pending:` lines, `iteration:` lines, ledger rows and decision lines out of it. Preserve the spec commit's council audit and the amendment commit's audit rows. On worker, wave and repair commits, record each recommendation taken between in-spec alternatives once in the body:
+Leave the body empty or write whole sentences saying what changed and why. Keep `pending:` lines, `iteration:` lines, ledger rows and decision lines out of it. Preserve the spec commit's council audit and the amendment commit's audit rows.
+
+Use the two line formats and their field rules only in the body of an implementation worker, wave or verification-repair commit. Do not apply them to specs, plans, tables or any other artifact. In that commit body, record each recommendation taken between in-spec alternatives once:
 
 ```text
 - choice | <what the run chose> | <why>
 ```
 
-On a row or wave commit, record each row or task closed on a stand-in separately, even when the lines match:
+Write one stand-in line in the row or wave commit body for each closure on a stand-in, even when the lines match:
 
 ```text
 - stand-in | <missing data> | <what stood in>
 ```
 
-Follow the [Register rules](../chase-bug/reference/verdict-report.md#register): use everyday words, no commit hashes or row, task or finding numbers. Keep each cell on one physical line without a pipe. Record distinct choices even when their wording matches. Never duplicate an amendment audit or record a recovered step or extra attempt as a choice. Allow Git trailers such as `Co-authored-by:`.
+Follow the [Register rules](../chase-bug/reference/verdict-report.md#register) for these commit-body records: use everyday words, no commit hashes or row, task or finding numbers. In a `choice` or `stand-in` commit-body line, write each of its two fields without a newline or pipe. Record distinct choices even when their wording matches. Never duplicate an amendment audit or record a recovered step or extra attempt as a choice. Allow Git trailers such as `Co-authored-by:`.
 
 ## Landed message
 
