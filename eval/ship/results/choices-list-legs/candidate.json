@@ -1,0 +1,80 @@
+{
+  "sample": "choices-list-legs",
+  "arm": "candidate",
+  "skillSha": "85053274750802e79316c04ff6956597bb7271e5bcee64ef4ca38299af2b3bba",
+  "inputSha": "61c33df8cea3481cb5e1ab81041950ef6331eb7e1162dd659868c15f63fa6bf3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "```\ngauntlet: gate=ship/step-4\nClosure / conformance: CONFORMS\n\nWhat the run decided on its own (3):\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n- Receipts now show the shop's name above the total - customers could not tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n\nImplementation complete. What would you like to do?\n\n1. Push and create a Pull Request\n2. Push and create a draft Pull Request\n3. Squash-merge to <base-branch> (no PR, no surviving branch)\n4. Keep the branch as-is (I'll handle it later)\n5. Discard this work\n\nWhich option?\n```\n\n---\n\n**printer** (companion PR)\n\n```markdown\n## Summary\n- <what changed in the printer, from its acceptance rows>\n- Receipts print the shop's name above the total, so customers can tell which shop issued them\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n```\n\n**till** (home PR)\n\n```markdown\n## Summary\n- <what changed in the till, from its acceptance rows>\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n```\n",
+      "words": 212,
+      "wallMs": 13337,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=ship/step-4\n\nClosure / conformance: CONFORMS\nwhole-diff minors: not recorded\n\nWhat the run decided on its own (3):\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n- Receipts show the shop name above the total - customers could not tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n\n---\n\n**Till PR**\n\n## Summary\n- Monday's till totals were not available, so two handwritten totals stood in; this is not proven on the data the ticket meant.\n\n**Printer PR**\n\n## Summary\n- Show the shop name above the total so customers can tell which shop issued the receipt.\n- The shop's paper receipt was not available, so a typed receipt stood in; this is not proven on the data the ticket meant.\n",
+      "words": 146,
+      "wallMs": 13141,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5e51560c27a1b63cd5c16f95259ddae1bdf400c44b1ed54e820d0bd959ba2cfb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
+      "baselineOutputSha": "f921c583bcc86c759e55164f8f7c3a04673091677d4c61d890f749f045caa650",
+      "candidateOutputSha": "b7c43dd039caf20afcb9969e4ac1a63f5bf5646ca5d68d97580992b3143c9660",
+      "facts": {
+        "home-list": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "bodies": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved home-list by adding a single three-entry list above the menu: the till stand-in comes first, then the printer's shop-name choice with its reason, then the printer's paper-receipt stand-in, and each stand-in line names the missing input, its replacement and the lack of proof on the intended data. Before showed no list at all, arguing that the records lacked amendment-audit fields. After moved bodies because each Summary now carries its own repository's disclosure sentence word for word from the home list and nothing from the other repository; Before only paraphrased the stand-ins and had no list to copy from. Before kept neither fact, so nothing regressed. Two points in After are still worth tightening. Each Summary opens with an unfilled placeholder bullet (\"<what changed in the till, from its acceptance rows>\"), so the wording should tell the model to write a concrete bullet from the material it has, or omit the bullet, rather than emit a template slot. The list header \"What the run decided on its own\" also sits awkwardly over stand-in disclosures, which are not decisions; a header that covers both choices and stand-ins would read better while still keeping the stand-in sentences copied verbatim into only the receiving repository's Summary.",
+      "wallMs": 8904,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5e51560c27a1b63cd5c16f95259ddae1bdf400c44b1ed54e820d0bd959ba2cfb",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
+      "baselineOutputSha": "a3281b942848bf15d47e555ee920f5f6d547de4149bfa5056f2ff6521b62b2cc",
+      "candidateOutputSha": "4c6610790a06d18174130d04aff189b9938fd3e5bb52db7b262749704435f1b1",
+      "facts": {
+        "home-list": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "bodies": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved both facts in the intended direction: it emits a single pre-menu list of three entries in the right order (till stand-in, printer choice with reason, printer stand-in), each stand-in naming the missing input, its replacement and the lack of proof, and each Summary repeats only its own repository's disclosure word-for-word with no cross-leak; Before had no list at all and refused to draft either Summary. Two things to tighten so these facts stay held: After dropped the 'Implementation complete. What would you like to do?' line and the ordinary options that Before showed, so the list is only implicitly 'above the menu' - keep wording that requires the list to be placed directly above the ship prompt/options rather than replacing them; and the heading 'What the run decided on its own' sits oddly over stand-in disclosures, so consider wording that labels the list as covering both choices and stand-ins. Also keep the instruction that the Summary disclosure bullet be copied verbatim from the home list and restricted to the receiving repository's own feature range, since that is exactly what makes 'bodies' hold here.",
+      "wallMs": 5852,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1"
+}

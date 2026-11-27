@@ -2,6 +2,8 @@ for: ff2e92f4a5c40777a56035422a72cf3057ce9581fcff19f6b39593531a33a4e4
 
 ## Change
 
+Check stand-in disclosures in proposed PR bodies. The choices-list-legs sample compares the shared menu to each repository's Summary. The stand-in-linked-and-rework-body sample follows one disclosure into an existing draft and a reworked PR. These are text replays, not live PR edits.
+
 Use choices-list to check that the menu explains choices without internal identifiers and keeps every stand-in disclosure, even past the word limit. Check the proposed Summary bullets in the same replay.
 
 Use digest-from-record-lines to check the single list above the menu. Read a branch's commit bodies oldest first, explain applied corrections alongside choices and keep repeated choices separate. The sample replays supplied records, not a live delivery.
@@ -20,6 +22,11 @@ Read the push procedure on identifying a rework subject, before preflight or the
 
 ## Expected to move
 
+- choices-list-legs/home-list: fails -> holds - Collect every feature range into one home list.
+- choices-list-legs/bodies: fails -> holds - Copy only the receiving PR's own disclosures.
+- stand-in-linked-and-rework-body/sole-entry: fails -> holds - Show the disclosure even without another decision.
+- stand-in-linked-and-rework-body/linked: fails -> holds - Put the disclosure in the draft in the Integration edit.
+- stand-in-linked-and-rework-body/rework: fails -> holds - Append the disclosure inside Rework.
 - choices-list/register: fails -> holds - Explain each choice and reason in everyday words without internal identifiers, under the word limit.
 - choices-list/disclosure: fails -> holds - Show both stand-ins above the options and in the proposed Summary.
 - choices-list/overflow: fails -> holds - Keep every disclosure even when the stand-ins alone exceed the cap.

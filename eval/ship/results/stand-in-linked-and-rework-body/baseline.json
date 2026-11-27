@@ -1,0 +1,34 @@
+{
+  "sample": "stand-in-linked-and-rework-body",
+  "arm": "baseline",
+  "skillSha": "43e3ce3ead1f10b30e3d8770a2c0376736e24fe09a1019fa0c95aa72615f70fc",
+  "inputSha": "b56b09d774d370ee8f644b19883733cd936c1c3ab72223489e6847f38ebcfed3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## A. Step 4: the list before the menu\n\nNothing is rendered here. The amendment digest is left out.\n\nThe only body line in the range is `- stand-in | the Monday order sheet | three handwritten orders`. It has three fields and no kind field, so it does not match `^- [^|]+ \\| [^|]+ \\| [^|]+ \\| (auto-apply|granted) \\| `. That gives N = 0, and the `Amendments auto-applied (N):` block is omitted. The Step 4 message goes from `gauntlet: gate=ship/step-4` (and the closure summary) straight to the menu.\n\n## B. Header-linked push: body sent\n\n```markdown\n## Summary\n- Print the orders by date.\n\n## Integration\n\nAsk Lee to check the printout.\n\n## Notes\nKeep  both  spaces.\n```\n\n**Body edits: 1.** One `gh pr edit <N> -R <owner/repo> --body-file -` replaces only the Integration block. All other bytes stay as they were, including `Keep  both  spaces.` The `gh pr ready` call that row 1 makes is not a body edit.\n\n## C. PR-subject row 1: resulting body\n\n```markdown\nKeep  both  spaces.\n\n## Rework\n\nBefore: 1111111111111111111111111111111111111111 (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nSpec: doc/specs/order.md at 2222222\nKeeps: printing orders\nChanges: date order\nDropped claims: none\nVerification: scoped - test-orders; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads: none\n```\n\n- There is no `Absorbs:` line because only one PR is involved.\n- There is no \"supersedes\" line because no original claim was dropped.\n- Neither the spec nor the body has an Integration block, so the Integration edit is skipped.\n",
+      "words": 229,
+      "wallMs": 13692,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\n\nNo amendment list is rendered: the supplied line is not a complete amendment audit row.\n\n### B\n\n```markdown\n## Summary\n- Print the orders by date.\n\n## Integration\n\nAsk Lee to check the printout.\n\n## Notes\nKeep  both  spaces.\n```\n\nBody edits: **1**\n\n### C\n\n```markdown\nKeep  both  spaces.\n\n## Rework\n\nBefore: 1111111111111111111111111111111111111111 (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nSpec: doc/specs/order.md at 2222222\nKeeps: printing orders\nChanges: date order\nDropped claims: none\nVerification: scoped - test-orders; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads: none\n```\n",
+      "words": 84,
+      "wallMs": 10953,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1"
+}

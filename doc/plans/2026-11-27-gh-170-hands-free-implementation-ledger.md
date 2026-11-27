@@ -3,9 +3,9 @@
 base: a734d890b0228aacb2ab38a18278394bf77d89b1
 verification: npm test
 checks: commands
-iterations: 9
+iterations: 10
 allowance: 10
-returned: 8 | home | f9600ee4f3a62d5ab4a1fb589e8421932ef4e397
+returned: 9 | home | e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -17,7 +17,7 @@ returned: 8 | home | f9600ee4f3a62d5ab4a1fb589e8421932ef4e397
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 9 passed, 0 failed; both digest-from-record-lines replies listed two corrections and both identical recommendations with reasons before the options |
 | 7 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; both choices-list replies explained the help-page change without internal identifiers in under 180 words and printed all 20 stand-in disclosures in the overflow snapshot |
 | 8 | done | 1 | timeout -k 30 30 node --test scripts/loop-implementer-actions.test.mjs; 8 passed, 0 failed; both models built and reported the CSV, routed input without a format by permission and kept missing credentials unreachable; one control missed anchor identity and one missed the owned-session fact pinned by loop-implementer-process.test.mjs |
-| 9 | open | 0 | |
+| 9 | done | 1 | timeout -k 30 60 node --test scripts/finish-landed-message.test.mjs; 12 passed, 0 failed; both selected ship replays showed each PR's own disclosure in the menu's wording, including a stand-in listed alone |
 
 ## Decisions
 row 0 done | seeded 1 rows, closed 0 on baseline | row 1
@@ -29,3 +29,4 @@ row 5 done | An unnamed paid or outside-repository action now ends the turn with
 row 6 done | The ship menu lists each recommendation and applied spec correction with its reason, keeping repeated choices separate and leaving out recovery and retries. | Extend the Step 4 decision list in ship.md and its finish-amendment-digest test to include stand-ins.
 row 7 done | The ship menu explains choices in everyday words and shortens the list toward 180 words without dropping reasons or stand-in disclosures. | Reuse ship/decisions.md and the choices-list sample to carry the same stand-in wording into each pull request.
 row 8 done | Both engines test against a stand-in when the named input is missing and the repository shows its format; without a format they take the amendment route. | Read the stand-in lines from row and wave commits to disclose which input each stand-in replaced.
+row 9 done | The ship menu names each missing input, its stand-in and what remains unproven; each affected pull request repeats its own disclosure verbatim. | Reuse choices-list-legs and stand-in-linked-and-rework-body to check disclosure placement across new and existing pull requests.

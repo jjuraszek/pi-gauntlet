@@ -1,0 +1,2 @@
+- home-list: judged: One list at home contains three entries before the menu, home's missing till totals first, then the printer's choice and reason and its missing paper receipt. Each disclosure names the missing input, its replacement and the lack of proof on the intended input.
+- bodies: judged: The till Summary repeats its till disclosure verbatim and contains no printer disclosure. The printer Summary repeats its paper receipt disclosure verbatim and contains no till disclosure.

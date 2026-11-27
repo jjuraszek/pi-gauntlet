@@ -1,0 +1,90 @@
+{
+  "sample": "stand-in-linked-and-rework-body",
+  "arm": "candidate",
+  "skillSha": "883592bfe156594794c5f5a61e0043ef8c42c0c26c1a0a6014ef6e6c7b2e37a2",
+  "inputSha": "b56b09d774d370ee8f644b19883733cd936c1c3ab72223489e6847f38ebcfed3",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## A. Decisions list above the Step 4 menu\n\n```\nWhat the run decided on its own (1):\n- The Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\n```\n\n## B. Header-linked route: body sent after the push\n\n```markdown\n## Summary\n- Print the orders by date.\n- The Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\n\n## Integration\n\nAsk Lee to check the printout.\n\n## Notes\nKeep  both  spaces.\n```\n\nNumber of body edits: **1**. The Integration replacement and the stand-in bullet go in the same `gh pr edit --body-file -`. Everything else stays byte-for-byte, including the double spaces.\n\n## C. PR-subject route: resulting description\n\n```markdown\nKeep  both  spaces.\n\n## Rework\n\nBefore: 1111111111111111111111111111111111111111 (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nSpec: doc/specs/order.md at 2222222\nKeeps: printing orders\nChanges: date order\nDropped claims: none\n- The Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\nVerification: scoped - test-orders; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads: none\n```\n",
+      "words": 189,
+      "wallMs": 11435,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### A\n\nWhat the run decided on its own (1):\n- the Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\n\n### B\n\nBody edits: 1\n\n```markdown\n## Summary\n- Print the orders by date.\n- the Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\n\n## Integration\n\nAsk Lee to check the printout.\n\n## Notes\nKeep  both  spaces.\n```\n\n### C\n\n```markdown\nKeep  both  spaces.\n\n## Rework\n\nBefore: 1111111111111111111111111111111111111111 (local ref `refs/gauntlet/pre-rework/pr-12` in the rework checkout)\nSpec: doc/specs/order.md at 2222222\nKeeps: printing orders\nChanges: date order\nDropped claims: none\n- the Monday order sheet was not available, so three handwritten orders stood in; this is not proven on the data the ticket meant.\nVerification: scoped - test-orders; CI on this push holds the full run. Telemetry: whole PR against main.\nThreads: none\n```\n",
+      "words": 146,
+      "wallMs": 10758,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "51e43248a6a8cae6bb5d746b653bf900616b2fb04836ccf8093581a58fdf1833",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
+      "baselineOutputSha": "9edcc84f39c8ae09862c765e7b900eff20c816d779807bb4d9f80d6a011f3ca1",
+      "candidateOutputSha": "c29e4ccd73a338ea7f190c960880786c3c8bf8b70183f9154888147c652c7826",
+      "facts": {
+        "sole-entry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "linked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rework": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and nothing Before satisfied was lost. In Before, the three-field stand-in line did not match the amendment pattern, so A rendered no list and the disclosure never reached the B or C bodies. In After, A shows a decisions heading with count one and a single plain-language line naming the missing Monday order sheet, the three handwritten orders and the lack of proof on the intended data. B carries that identical line as a Summary bullet in the same single edit that replaces the Integration instruction, with the original Summary bullet, the Notes text and the double spaces intact and no Rework block. C keeps `Keep  both  spaces.` unchanged and puts the same line inside the appended Rework block, with no separate Summary. To keep this stable, keep the wording explicit that a stand-in record counts as a decision even when it is the only entry, that the disclosure sentence is reused verbatim across the list, the Summary and the Rework block, and that on the linked route it rides in the same body edit as the Integration replacement. One loose end: in C the disclosure sits as a bare bullet between `Dropped claims:` and `Verification:`; a fixed position or label for it inside Rework would make the placement less likely to drift outside the block.",
+      "wallMs": 7965,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "51e43248a6a8cae6bb5d746b653bf900616b2fb04836ccf8093581a58fdf1833",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "89a39e50e0e10456189971b9b93b7aa25c6e4176735c38e478dfad7e5cf4d8c4",
+      "baselineOutputSha": "1d03b0464011aee3961d61feccfc6f1c3d901cc762f8460991910489c9194144",
+      "candidateOutputSha": "53ad7f3356138a7706d963e374406bdbd309a539e756fdd5674ba4bc342484ac",
+      "facts": {
+        "sole-entry": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "linked": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "rework": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "All three facts moved from fails to holds, and nothing that Before kept was lost. In A, After renders the decisions heading with count one and a single line naming the missing Monday order sheet, the three handwritten orders and the lack of proof on the intended data, where Before refused to render any list. In B, After adds the disclosure line as a Summary bullet in the same single edit that replaces the Integration instruction with the printout text; the original Summary bullet, the Notes heading and the double-spaced 'Keep  both  spaces.' survive, and no Rework block appears. Before made only the Integration replacement. In C, After keeps the original description byte-for-byte and places the disclosure inside the appended Rework block, with no separate Summary. Before omitted it entirely. To keep these results stable, keep wording that says the disclosure must be shown even when it is the only entry, that it goes into the Summary within the same edit as the Integration sync on a linked draft, and that on rework it is placed only inside the Rework block. You might also specify where in the Rework block the line sits (it currently lands as a bare bullet between 'Dropped claims' and 'Verification' with no label), since an unlabelled bullet amid key-value lines could drift in position or be read as part of 'Dropped claims' in other runs.",
+      "wallMs": 6189,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "e138da68e6ad3fdbd16fa5fa40710a56f3f0d7d1"
+}
