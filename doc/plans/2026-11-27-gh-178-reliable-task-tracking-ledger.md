@@ -36,3 +36,4 @@ row 7 done | Session start, switch, fork and tree restore the branch's newest li
 row 6 done | Starting verify redraws the admitted ledger and completes implement only when the newest list is nonempty and every task is complete or skipped. | Use the verify-start fixture in phase-tracker.test.ts to exercise both trackers without an explicit list update.
 row 11 done | Sealed loop telemetry reports the final task totals at implement completion without a tracker call after the seed. | Reuse the sealed loop fixture in telemetry.test.ts to check stored list transitions, reopen counts and phase event order.
 row 12 done | The loop driver seeds the task list once, and neither dispatch, amendment nor restore asks the main session to refresh it. | Run scripts/tracker-refresh-instructions.test.mjs to catch another ledger refresh instruction in skills or personas.
+amended | 1 item(s) | Stored list byte limit
