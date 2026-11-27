@@ -2,7 +2,7 @@
  * Plan Tracker Extension
  *
  * A native pi tool for tracking plan progress.
- * State is stored in tool result details for proper branching support.
+ * Explicit calls keep state in result details; dispatches store a branch entry.
  * Shows a persistent TUI widget above the editor.
  */
 
@@ -162,6 +162,41 @@ function ledgerTasks(text: string, path: string): Task[] {
   });
 }
 
+function boundLedger(ctx: ExtensionContext): { path: string; text: string } | undefined {
+  const branch = ctx.sessionManager.getBranch();
+  for (let i = branch.length - 1; i >= 0; i--) {
+    const entry = branch[i];
+    if (entry.type !== "message") continue;
+    const msg = entry.message;
+    if (msg.role !== "toolResult" || msg.isError) continue;
+    const details = msg.details as { action?: string; error?: string; status?: string; planPath?: string } | undefined;
+    if (!details || details.error) continue;
+    if (msg.toolName === "plan_tracker" && (details.action === "init" || details.action === "clear")) return;
+    if (msg.toolName !== "plan_check" || details.status !== "pass" || !details.planPath) continue;
+    const path = resolve(ctx.cwd, details.planPath);
+    try {
+      const text = readFileSync(path, "utf8");
+      if (text.split("\n", 1)[0] === "# Ledger - loop engine") return { text, path };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    return;
+  }
+}
+
+function projectLedger(text: string, path: string, tasks: Task[]): Task[] {
+  const projected = ledgerTasks(text, path);
+  const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
+  const merged = [
+    ...projected.filter(task => task.status !== "pending"),
+    ...kept.filter(task => task.status !== "pending"),
+    ...projected.filter(task => task.status === "pending"),
+    ...kept.filter(task => task.status === "pending"),
+  ];
+  if (validateSnapshot(merged).length) throw new Error(`refresh: ${path}: ${RULE_LINE}`);
+  return merged;
+}
+
 const RULE_LINE = "Rule: pending tasks must trail every started or finished task.";
 const snapshotLine = (tasks: Task[]): string => tasks.map((t, i) => `${i} ${t.name}=${t.status}`).join(", ");
 const offenderList = (tasks: Task[], indices: number[]): string => indices.map((i) => `${i} "${tasks[i].name}"`).join(", ");
@@ -227,6 +262,41 @@ export default function (pi: ExtensionAPI) {
     }
   };
 
+  const store = (next: Task[], ctx: ExtensionContext) => {
+    if (tasks.length === next.length && next.every((t, i) => t.name === tasks[i].name && t.label === tasks[i].label && t.status === tasks[i].status)) return;
+    pi.appendEntry("plan-tracker-snapshot", { tasks: next });
+    tasks = next;
+    updateWidget(ctx);
+  };
+
+  const batched = new Set<string>();
+  const warned = new Set<string>();
+  pi.on("message_end", ({ message }) => {
+    if (message.role !== "assistant") return;
+    batched.clear();
+    const calls = message.content.filter(part => part.type === "toolCall");
+    if (calls.length > 1) for (const call of calls) batched.add(call.id);
+  });
+  pi.on("tool_call", (event, ctx) => {
+    if (event.toolName !== "subagent" || Number(process.env.PI_SUBAGENT_DEPTH) > 0) return;
+    try {
+      const ledger = boundLedger(ctx);
+      if (!ledger) return;
+      if (batched.has(event.toolCallId)) return { block: true, reason: "The ledger write must finish first. Issue the dispatch again, alone in its own message." };
+      const started = projectLedger(ledger.text, ledger.path, tasks);
+      const withoutTuple = ledger.text.replace(/^pending: .*\n/m, "");
+      if (withoutTuple !== ledger.text) store(projectLedger(withoutTuple, ledger.path, tasks), ctx);
+      store(started, ctx);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      if (ctx.hasUI && !warned.has(reason)) {
+        ctx.ui.notify(reason, "warning");
+        warned.add(reason);
+      }
+      return { block: true, reason };
+    }
+  });
+
   // Reconstruct state + widget on session events
   for (const event of ["session_start", "session_switch", "session_fork", "session_tree"] as const) {
     pi.on(event, async (_event, ctx) => {
@@ -257,15 +327,7 @@ export default function (pi: ExtensionAPI) {
             } catch (error) {
               throw new Error(`refresh: cannot read ${path}: ${error instanceof Error ? error.message : String(error)}`);
             }
-            const projected = ledgerTasks(text, path);
-            const kept = tasks.filter(task => !/^row \d+(?: \(\S+\))?$/.test(task.name));
-            proposed = [
-              ...projected.filter(task => task.status !== "pending"),
-              ...kept.filter(task => task.status !== "pending"),
-              ...projected.filter(task => task.status === "pending"),
-              ...kept.filter(task => task.status === "pending"),
-            ];
-            if (validateSnapshot(proposed).length) throw new Error(`refresh: ${path}: ${RULE_LINE}`);
+            proposed = projectLedger(text, path, tasks);
           } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
             return {
@@ -329,7 +391,7 @@ export default function (pi: ExtensionAPI) {
               } as PlanTrackerDetails,
             };
           }
-          tasks.push(...params.tasks.map((t) => ({ name: normalizeTask(t).name, status: "pending" as TaskStatus })));
+          tasks = tasks.concat(params.tasks.map((t) => ({ name: normalizeTask(t).name, status: "pending" as TaskStatus })));
           updateWidget(ctx);
           return {
             content: [

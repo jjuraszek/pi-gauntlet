@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test, type TestContext } from "node:test";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -21,9 +21,10 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
     execute: (...args: any[]) => unknown;
     renderResult: (result: unknown, options: unknown, theme: unknown) => { text?: string };
   }[] = [];
-  const handlers: { event: string; handler: (event: unknown, ctx: unknown) => Promise<void> }[] = [];
+  type Handler = (event: unknown, ctx: unknown) => Promise<{ block: boolean; reason: string } | void>;
+  const handlers: { event: string; handler: Handler }[] = [];
   const pi = {
-    on(event: string, handler: (event: unknown, ctx: unknown) => Promise<void>) {
+    on(event: string, handler: Handler) {
       handlers.push({ event, handler });
     },
     appendEntry(customType: string, data: unknown) {
@@ -49,7 +50,10 @@ function harness(branch: unknown[] = [], cwd = process.cwd()) {
   const call = async (params: Record<string, unknown>): Promise<ToolResult> =>
     (await tools[0].execute("id", params, undefined, undefined, ctx)) as ToolResult;
   const fire = async (event: string, fields: Record<string, unknown> = {}) => {
-    for (const h of handlers) if (h.event === event) await h.handler({ type: event, ...fields }, ctx);
+    for (const h of handlers) if (h.event === event) {
+      const result = await h.handler({ type: event, ...fields }, ctx);
+      if (result) return result;
+    }
   };
   return {
     call,
@@ -74,6 +78,14 @@ test("add appends pending tasks and preserves existing statuses", async () => {
     res.details.tasks.map((t) => [t.name, t.status]),
     [["a", "complete"], ["b", "pending"], ["c", "pending"], ["d", "pending"], ["e", "pending"]],
   );
+});
+
+test("clear returns the empty list and reports the number of tasks removed", async () => {
+  const { call } = harness();
+  await call({ action: "init", tasks: ["a"] });
+  const result = await call({ action: "clear" });
+  assert.deepEqual(result.details, { action: "clear", tasks: [] });
+  assert.equal(result.content[0].text, "Plan cleared (1 tasks removed).");
 });
 
 test("add with no active plan creates one", async () => {
@@ -406,13 +418,17 @@ const ledger = (rows: string[], tail = "", pending = "") => [
   ...rows.map(row => `| ${row} |`), "", "## Decisions", tail,
 ].join("\n");
 
-test("a lone worker dispatch shows the bound ledger row in progress before the worker runs", async (t) => {
+function mainSession(t: TestContext) {
   const depth = process.env.PI_SUBAGENT_DEPTH;
   process.env.PI_SUBAGENT_DEPTH = "0";
   t.after(() => {
     if (depth === undefined) delete process.env.PI_SUBAGENT_DEPTH;
     else process.env.PI_SUBAGENT_DEPTH = depth;
   });
+}
+
+test("a lone worker dispatch shows the bound ledger row in progress before the worker runs", async (t) => {
+  mainSession(t);
   const dir = ledgerFixture("plan-dispatch-");
   const path = join(dir, "ledger.md");
   const rows = ["1 | open | 0 |"];
@@ -425,13 +441,37 @@ test("a lone worker dispatch shows the bound ledger row in progress before the w
 
   writeFileSync(path, ledger(rows, "", "pending: 1 | home | abc1234\nreturned: none"));
   const input = { agent: "loop-implementer", task: "target: 1" };
-  await h.fire("message_end", { message: { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] } });
+  const dispatch = { type: "toolCall", id: "dispatch", name: "subagent", arguments: input };
+  await h.fire("message_end", { message: { role: "assistant", content: [dispatch, { type: "toolCall", id: "write", name: "bash", arguments: {} }] } });
+  const before = branch.length;
+  assert.match((await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }))?.reason ?? "", /ledger write.*alone/);
+  assert.equal(branch.length, before);
+  await h.fire("message_end", { message: { role: "assistant", content: [dispatch] } });
   await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input });
+  const expected = [{ name: "row 1", status: "in_progress", label: descriptions[0] }];
   assert.deepEqual(branch.at(-1), {
-    type: "custom", customType: "plan-tracker-snapshot",
-    data: { tasks: [{ name: "row 1", status: "in_progress", label: descriptions[0] }] },
+    type: "custom", customType: "plan-tracker-snapshot", data: { tasks: expected },
   });
   assert.match(h.widget()!, /\u2192/);
+  assert.deepEqual((await h.call({ action: "status" })).details.tasks, expected);
+});
+
+test("dispatch records the admitted return before starting an immediate retry", async (t) => {
+  mainSession(t);
+  const dir = ledgerFixture("plan-retry-");
+  const path = join(dir, "ledger.md");
+  const branch: any[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: "ledger.md" } } }];
+  const h = harness(branch, dir);
+  const tuple = "pending: 1 | home | abc1234";
+  writeFileSync(path, ledger(["1 | open | 0 |", "2 | open | 0 |"], "", tuple));
+  const dispatch = () => h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
+  await dispatch();
+  const before = branch.length;
+  writeFileSync(path, ledger(["1 | failed | 1 | check failed", "2 | done | 0 | check passed"], "row 1 failed | check failed | retry\nrow 2 done | check passed | none", tuple));
+  await dispatch();
+  assert.deepEqual(branch.slice(before).map(entry => entry.data.tasks.map((task: { status: string }) => task.status)), [
+    ["failed", "complete"], ["in_progress", "complete"],
+  ]);
 });
 
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
