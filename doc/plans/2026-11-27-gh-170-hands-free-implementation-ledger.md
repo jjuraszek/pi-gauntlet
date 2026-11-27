@@ -3,9 +3,9 @@
 base: a734d890b0228aacb2ab38a18278394bf77d89b1
 verification: npm test
 checks: commands
-iterations: 8
+iterations: 9
 allowance: 10
-returned: 7 | home | 6c95018d396eec624b2c1307003635fe6bad1149
+returned: 8 | home | f9600ee4f3a62d5ab4a1fb589e8421932ef4e397
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -16,7 +16,7 @@ returned: 7 | home | 6c95018d396eec624b2c1307003635fe6bad1149
 | 5 | done | 1 | timeout -k 30 30 node --test scripts/loop-dirty-tree-stop.test.mjs scripts/loop-implementer-actions.test.mjs scripts/loop-unreachable-cut.test.mjs; 14 passed, 0 failed; both models asked before buying a proof print or cutting the row in unnamed-action-asks |
 | 6 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 9 passed, 0 failed; both digest-from-record-lines replies listed two corrections and both identical recommendations with reasons before the options |
 | 7 | done | 1 | timeout -k 30 60 node --test scripts/finish-amendment-digest.test.mjs; 10 passed, 0 failed; both choices-list replies explained the help-page change without internal identifiers in under 180 words and printed all 20 stand-in disclosures in the overflow snapshot |
-| 8 | open | 0 | |
+| 8 | done | 1 | timeout -k 30 30 node --test scripts/loop-implementer-actions.test.mjs; 8 passed, 0 failed; both models built and reported the CSV, routed input without a format by permission and kept missing credentials unreachable; one control missed anchor identity and one missed the owned-session fact pinned by loop-implementer-process.test.mjs |
 | 9 | open | 0 | |
 
 ## Decisions
@@ -28,3 +28,4 @@ row 4 done | When delivery stalls, both engines name the blocker and the input t
 row 5 done | An unnamed paid or outside-repository action now ends the turn with a question about naming the action or cutting the row, even under amend permission. | Reuse unnamed-action-asks to distinguish the human decision from an automatic missing-prerequisite cut.
 row 6 done | The ship menu lists each recommendation and applied spec correction with its reason, keeping repeated choices separate and leaving out recovery and retries. | Extend the Step 4 decision list in ship.md and its finish-amendment-digest test to include stand-ins.
 row 7 done | The ship menu explains choices in everyday words and shortens the list toward 180 words without dropping reasons or stand-in disclosures. | Reuse ship/decisions.md and the choices-list sample to carry the same stand-in wording into each pull request.
+row 8 done | Both engines test against a stand-in when the named input is missing and the repository shows its format; without a format they take the amendment route. | Read the stand-in lines from row and wave commits to disclose which input each stand-in replaced.

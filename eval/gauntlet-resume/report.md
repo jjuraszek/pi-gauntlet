@@ -23,6 +23,8 @@ for: 1bde0b9d65d9b6b011b3846f66169ef782a79c21dd5fef07b835193e787cdcd1
 
 wall: 28s
 
+This report is historical. The shared commit wording now records stand-ins; no resume sample was rerun for that change.
+
 ## Change
 
 Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.

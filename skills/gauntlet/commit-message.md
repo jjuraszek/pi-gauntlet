@@ -29,6 +29,12 @@ Leave the body empty or write whole sentences saying what changed and why. Keep 
 - choice | <what the run chose> | <why>
 ```
 
+On a row or wave commit, record each row or task closed on a stand-in separately, even when the lines match:
+
+```text
+- stand-in | <missing data> | <what stood in>
+```
+
 Follow the [Register rules](../chase-bug/reference/verdict-report.md#register): use everyday words, no commit hashes or row, task or finding numbers. Keep each cell on one physical line without a pipe. Record distinct choices even when their wording matches. Never duplicate an amendment audit or record a recovered step or extra attempt as a choice. Allow Git trailers such as `Co-authored-by:`.
 
 ## Landed message

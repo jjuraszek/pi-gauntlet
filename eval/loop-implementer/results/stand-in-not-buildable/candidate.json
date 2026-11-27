@@ -1,0 +1,70 @@
+{
+  "sample": "stand-in-not-buildable",
+  "arm": "candidate",
+  "skillSha": "9cbb02052a07a8ad2988616c59e7430acda2d9e36909252b01b81599b6664bfa",
+  "inputSha": "94ce59b357c2a055f06bccfef546dd90b6e5a8780b346c91ae63dd2480d5ba7b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "## Trace: loop implementer, importer row (target row 3)\n\nAssumed task fields for this replay: `iteration: 2`, `spec: /repo/doc/plans/importer/spec.md`, `ledger: /repo/doc/plans/importer/ledger.md`, `base: 4f1c9e2a7b3d5e6f8091a2b3c4d5e6f708192a3b`, `target: 3`, `previous decision: none`, `hint: none`, `wording: /repo/doc/plans/wording.md`, `ticket: none`.\n\n1. **Read the spec in full.** `timeout -k 30 60 cat /repo/doc/plans/importer/spec.md`\n   - Row 3 requires the importer to load Monday's instrument export.\n   - The spec gives no encoding, field list or format for that export.\n\n2. **Read the ledger.** `timeout -k 30 60 cat /repo/doc/plans/importer/ledger.md`\n   - Saved the `pending:` line byte-for-byte, along with the bumped `iterations: 3`.\n   - Row 3 is `open`, with `attempts` 0.\n   - `## Decisions` contains no `row 3`, `retry` or `escalated` lines.\n\n3. **Read the wording file.** `timeout -k 30 60 cat /repo/doc/plans/wording.md`\n   - This gives the loop-worker commit rules. No ticket is supplied.\n\n4. **Check the diff since base.** `timeout -k 30 60 git diff --stat 4f1c9e2a7b3d5e6f8091a2b3c4d5e6f708192a3b`\n   - No files touched by row 3 have changed.\n\n5. **Look for any way to build a stand-in for the input data.**\n   - `timeout -k 30 60 git ls-files` and `timeout -k 30 60 git grep -n -i instrument`\n   - Found only `test/instrument.test.mjs`, which loads the export path.\n   - There is no export, parser, schema, fixture or documented example in the checkout, the spec material or the ticket material.\n   - Result: I cannot build a stand-in.\n     - The row does not show the format, so a hand-built file would only be invented.\n     - The export exists only at the instrument lab.\n     - This is the missing-prerequisite case: the target fails with an `unreachable:` result, and I make no further attempt in this session.\n\n6. **Run the row's targeted check.** `timeout -k 30 120 node --test test/instrument.test.mjs`\n   - Exit code 1: 0 tests passed and 1 failed, with `instrument export missing`.\n\n7. **Edit row 3's cells in the ledger.**\n   - `status`: `failed`\n   - `attempts`: `1`\n   - `evidence`: `timeout -k 30 120 node --test test/instrument.test.mjs; unreachable: Monday's instrument export (encoding, fields and format undocumented, no parser, schema or fixture) - instrument lab; 0 passed, 1 failed: instrument export missing`\n\n8. **Append the decision line to `## Decisions`.** The line is identical to the final reply below.\n\n9. **Edit the header.** Replaced the saved `pending:` line with `returned:`, byte-for-byte, changing only the field name. Removed `pending:`.\n\n10. **Extras: none.** The target is not `done`, so no further rows are considered.\n\n11. **Stage the ledger.** `timeout -k 30 60 git add /repo/doc/plans/importer/ledger.md`\n\n12. **Commit.** `timeout -k 30 60 git commit -m \"Record the missing instrument export blocking the importer\"`\n    - The message follows the loop-worker source rule from the wording file, with no ticket.\n    - The body has no stand-in or choice lines.\n\n13. **Confirm a clean tree.** `timeout -k 30 60 git status --porcelain`\n    - Output is empty.\n\nStopping here; the driver is not simulated.\n\nFinal reply:\nrow 3 failed | Ran the importer check, which fails because Monday's instrument export is absent and its format is undocumented, so no stand-in could be built. | Do not invent a stand-in format; rerun test/instrument.test.mjs once the instrument lab supplies the export or a fixture or schema showing its format.\n",
+      "words": 495,
+      "wallMs": 16056,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Simulated tool trace\n\n1. **Starting state:** Spec, ledger, checkout and ticket material have already been read. The target row number is not supplied here; `n` below denotes that existing row.\n\n2. **Input check:**\n   ```sh\n   timeout -k 30 60 node --test test/instrument.test.mjs\n   ```\n   Observed failure:\n   ```text\n   instrument export missing\n   ```\n\n3. **Prerequisite finding:** Monday’s export is available only from the instrument lab. No parser, schema, fixture or example establishes its format, so a supported stand-in cannot be built. Do not invent a format or attempt an external retrieval.\n\n4. **Record the target row’s mutable cells:**\n   - `status`: `failed`\n   - `attempts`: existing value + 1\n   - `evidence`:\n     ```text\n     timeout -k 30 60 node --test test/instrument.test.mjs; unreachable: Monday's instrument export and its format are missing - instrument lab; instrument export missing\n     ```\n\n5. **Append the decision below to `## Decisions`, then stop without another implementation or check.**\n\nFinal reply:\nrow <n> failed | Monday's instrument export is missing, and no available material establishes its format. | Retry with the instrument lab's export or format documentation; do not invent an unsupported fixture.\n",
+      "words": 167,
+      "wallMs": 23546,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "5ba831d9772dac82490a86c63b2f85754833543dc0d94bcb43caf4e72d9ea178",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5a5455180f2055be74659340f8935afc585a6adeba46a540a145a35acdce8179",
+      "baselineOutputSha": "2c82dc54f92ce2e58f1ac6646eace11df40866b11731bcbbf463775c9f3b02bd",
+      "candidateOutputSha": "4d2a44138a501473ca2e5c05d1feb2e43733b8a7ccdc63a3e3cf63e2d78ff631",
+      "facts": {
+        "unreachable": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The fact holds in both outputs: each marks row 3 failed, writes evidence that leads with the test command and has `unreachable:` as its first result naming Monday's instrument export and the instrument lab, refuses to invent a format or build a stand-in, and claims no closure. The After wording did not move this fact; its explicit stand-in buildability step (step 5) and the commit note that the body has no stand-in or choice lines reinforce it. To keep it stable, retain the wording that ties an unknown format to the missing-prerequisite case with the `unreachable:` result placed directly after the command and before the pass/fail counts, and keep the stand-in path conditioned on the format being shown by a parser, schema, fixture or documented example so the worker does not fabricate one when none exists.",
+      "wallMs": 4530,
+      "verdict": "unchanged"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "5ba831d9772dac82490a86c63b2f85754833543dc0d94bcb43caf4e72d9ea178",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5a5455180f2055be74659340f8935afc585a6adeba46a540a145a35acdce8179",
+      "baselineOutputSha": "4729beca0c38471001eed3cd5c864c9fa282b4a65d2efc328379522ec4616f36",
+      "candidateOutputSha": "23854cf876a6ce5e72ca6ee2bc806f1bdbbf4bd83311b1df04b408462bf22b38",
+      "facts": {
+        "unreachable": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording did not move the unreachable fact: both outputs mark the row failed, give evidence that opens with the test command and whose first result is `unreachable:` naming the missing Monday instrument export and the instrument lab, invent no format, build no stand-in and claim no closure. After's evidence adds 'and its format' to the unreachable clause and its text explicitly says a supported stand-in cannot be built, which is consistent with the Change's known-format versus unknown-format distinction and does no harm here. To keep this fact safe, keep the wording that ties stand-ins strictly to a format established by a parser, schema, fixture or documented example, and keep the evidence order as command, then `unreachable:` with the missing input and its owner, then the observed failure text; avoid any phrasing that lets the 'format documentation' retry hint be read as permission to guess a format or that pushes the `unreachable:` result behind other results.",
+      "wallMs": 4422,
+      "verdict": "unchanged"
+    }
+  },
+  "repoSha": "f9600ee4f3a62d5ab4a1fb589e8421932ef4e397"
+}

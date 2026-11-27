@@ -1,0 +1,1 @@
+- unreachable: judged: Marks the row failed with command-first evidence whose first result is `unreachable:` naming the missing instrument export and instrument lab; invents no format, builds no stand-in and claims no closure.

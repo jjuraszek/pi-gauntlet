@@ -1,6 +1,8 @@
-for: d6a60c49eb77b45d36f925a40d1f8133bbe5758d8eb5a44ac640fc9ec374a13e
+for: c9fe93ee16f55b2e2f890d286f2c9cb2ce9ca3352af56f94341821a97c852d24
 
 ## Change
+
+Check the delegated amendment path for unavailable row input after lookup fails and no format supports a stand-in. Replay both grant states, not live amendments.
 
 Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces. At a spent counter, distinguish a converging re-review or a changed assertion from a stalled round; these snapshots replay instructions, not live repairs.
 
@@ -21,6 +23,8 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- stand-in-not-buildable/disposition: fails -> holds - Route the cut by amend permission.
+- stand-in-not-buildable/route: fails -> holds - Bypass ordinary decisions and stalled stop notes.
 - stop-needs-no-menu/stalled: fails -> holds - Name the missing input instead of offering choices.
 - stop-needs-no-menu/fact: fails -> holds - Name the missing input instead of offering choices.
 - reject-stop/protocol: fails -> holds - Name the missing input instead of offering choices.

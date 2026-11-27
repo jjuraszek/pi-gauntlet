@@ -1,0 +1,34 @@
+{
+  "sample": "stand-in-not-buildable",
+  "arm": "baseline",
+  "skillSha": "89eb76aa7103050792694e76edabd1fbb4140659854ff32ffa54ad4bba43902d",
+  "inputSha": "94ce59b357c2a055f06bccfef546dd90b6e5a8780b346c91ae63dd2480d5ba7b",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "**Simulated trace (synthetic snapshot; task values are assumed placeholders)**\n\nAssumed task inputs:\n- `iteration: 2`\n- `spec: <cwd>/doc/plans/importer.md`\n- `ledger: <cwd>/doc/plans/importer.ledger.md`\n- `base: 3f9c2a1`\n- `target: 3`\n- `previous decision: none`\n- `hint: none`\n- `wording: <cwd>/doc/wording.md`\n- `ticket: LAB-142`\n- `scratch: none`\n\n1. `timeout -k 30 30 git -C <cwd> rev-parse --path-format=absolute --git-dir`\n   - Result: `<cwd>/.git`\n   - Then: `timeout -k 30 30 mkdir -p <cwd>/.git/gauntlet/tmp`. This becomes SCRATCH.\n2. Read the spec, then the ledger, then the wording file.\n   - Saved from the ledger: the `pending:` tuple, exactly as written.\n   - Saved from the ledger: `iterations: 3`.\n   - Row 3, the importer, names Monday's instrument export.\n   - The ledger has no earlier `row 3` decision lines and no `retry` or `escalated` lines.\n3. `timeout -k 30 30 git diff --stat 3f9c2a1`\n   - The importer files are unchanged.\n   - `timeout -k 30 30 git diff 3f9c2a1 -- src/instrument.mjs test/instrument.test.mjs` shows no hunks.\n4. Input check:\n   - No export file exists in the checkout.\n   - Nothing defines the export's encoding, fields or format. There is no parser, schema, fixture or documented example.\n   - Only the instrument lab holds the export.\n   - The export is a concrete prerequisite that no permitted attempt in this checkout can supply.\n   - Inventing a format or fabricating a fixture would mean implementing against a guess, so I won't do either.\n5. `timeout -k 30 120 node --test test/instrument.test.mjs`\n   - Exit status: nonzero.\n   - Output: `instrument export missing`.\n   - This is the row's only attempt this session. I make no further attempt.\n6. Ledger edit for row 3, mutable cells only:\n   - `status`: `open` → `failed`\n   - `attempts`: `0` → `1`\n   - `evidence`: `timeout -k 30 120 node --test test/instrument.test.mjs; unreachable: Monday's instrument export (no encoding, fields, format, parser, schema, fixture or example in checkout) - instrument lab; 1 failed: instrument export missing`\n7. No extras are taken, because the target is `failed`.\n8. Appended the decision line below to `## Decisions`.\n9. Ledger header changes:\n   - Copied the saved `pending:` line byte-for-byte to `returned:`, keeping the full SHA unchanged.\n   - Removed `pending:`.\n10. Commit and clean-tree check:\n    - `timeout -k 30 30 git add doc/plans/importer.ledger.md`\n    - `timeout -k 30 30 git commit -m \"<loop-worker message per wording file, ticket LAB-142>\"`\n    - `timeout -k 30 30 git status --porcelain` returns empty.\n11. Stop. The driver is not simulated.\n\nFinal reply:\nrow 3 failed | Ran the importer check, which fails because Monday's instrument export is absent and nothing in the checkout defines its encoding, fields or format. | Do not guess the format or fabricate a fixture; get the export or a documented sample from the instrument lab, add it as a fixture, then implement the parser.\n",
+      "words": 409,
+      "wallMs": 15876,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Simulated tool trace\n\n1. **Previously completed reads:** spec, ledger, checkout, and commit-wording/ticket material, as stated in the snapshot. The target row number and prior attempt count are not supplied; `<n>` and `a` below denote those existing values.\n\n2. **Input check:** Monday’s instrument export is absent. No parser, schema, fixture, or documented example establishes its format. Only the instrument lab can supply this prerequisite. Do not invent a fixture or infer an import format.\n\n3. **Selective check — supplied failure, not rerun:**\n   ```sh\n   timeout -k 30 60 node --test test/instrument.test.mjs\n   ```\n   Observed result: nonzero exit, `instrument export missing`.\n\n4. **Update only the target row’s mutable cells:**\n\n   | Row | status | attempts | evidence |\n   |---|---|---|---|\n   | `<n>` | failed | `a + 1` | timeout -k 30 60 node --test test/instrument.test.mjs; unreachable: Monday's instrument export is missing - instrument lab; instrument export missing |\n\n5. **Decision to append:** record the missing prerequisite and direct the next attempt to obtain the real export rather than fabricate its format. Stop here; no further check, implementation, or driver action is simulated.\n\nFinal reply:\nrow <n> failed | The importer check failed because Monday's instrument export is missing. | Obtain the export from the instrument lab before retrying; do not invent its format or fabricate a fixture.\n",
+      "words": 196,
+      "wallMs": 22341,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "f9600ee4f3a62d5ab4a1fb589e8421932ef4e397"
+}

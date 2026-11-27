@@ -1,6 +1,8 @@
-for: aaa78ff736433bba7d093d87a4f31f8cadfcf9115cef12f7d513d44ea81aaad5
+for: 2493a153facffc7339b264345140b71778645e709ee516a4c17f9e6ffabf7316
 
 ## Change
+
+The worker builds a stand-in when it knows the missing input's format. The loop-implementer samples cover the distinction; this driver was not replayed.
 
 Select unnamed-action-asks to test whether the driver mistakes permission to amend the spec for permission to cut a row that needs an unnamed purchase. The replay stops at the user's question, without a live order or edit.
 

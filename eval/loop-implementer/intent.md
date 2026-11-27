@@ -1,6 +1,8 @@
-for: fa5593883523d7e95e7b8949870ffd57612d68cf58f6543251f76adc6fef4263
+for: 9cbb02052a07a8ad2988616c59e7430acda2d9e36909252b01b81599b6664bfa
 
 ## Change
+
+Compare missing inputs with and without a known format. Check the stand-in and closing commit line in stand-in-built, the unreachable return in stand-in-not-buildable, and preserve the credential boundary in silence-bound-and-unreachable. These are simulated worker returns.
 
 The worker marks an unnamed paid or outside-repository action separately from a missing prerequisite. The loop's unnamed-action-asks replay covers the driver response; the worker's marker is checked by the local action contract test.
 
@@ -15,6 +17,8 @@ Read dispatched wording and ticket inputs for loop worker messages. Keep home at
 The loop driver's seed-dispositions replay includes this persona and checks that no Integration entry becomes worker work. The standalone persona replies below are retained evidence from their earlier revision, not a replay of the new boundary.
 
 ## Expected to move
+- stand-in-built/local: fails -> holds - Test against the parser's format without waiting for the original.
+- stand-in-built/disclosure: fails -> holds - Carry the stand-in into the closing commit.
 - reading-picked/reading: fails -> holds - Choose a reading instead of asking the user.
 - reading-picked/choice: fails -> holds - Preserve the choice and its reason in the row commit.
 - mixed-migration-row/live-available: fails -> holds - Leave the live obligation outside the worker's actions even with credentials.

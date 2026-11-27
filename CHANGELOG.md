@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Test with a small stand-in when the named input is missing but the repository shows its format, instead of stopping or dropping the work. (#170)
+
 - Show what the run chose and why above the ship options, including spec corrections in the same list. (#170)
 
 - Ask whether to name an unapproved paid or outside-repository action in the spec or cut the affected row, even with permission to amend. (#170)

@@ -2,6 +2,8 @@
 
 For a `NEEDS_CONTEXT`/`BLOCKED` fact ask, dispatch a delegated answer/evidence child to search the locations documented by the spec, plan, or repo: one bounded lookup per location in documented order, stopping at the first hit. Record each lookup and result, including earlier misses; consume the compact answer/evidence and re-dispatch with the found result. Keep source reads delegated; use the bounded direct-report read rule in waves.md for child reports. On an interruption before the result, use [Recovery](./waves.md#recovery) to repeat an identified read-only lookup once with its retained payload; stop on an unsafe retry, a second failure or another delegated failure.
 
+When lookup exhausts the sources for missing row input with no buildable stand-in, take the delegated amendment route in Implementer Status instead of emitting this note.
+
 Emit when no escalation model resolves, the escalated dispatch errors, a round stalls under the progress test (see `waves.md` "The Wave Loop"), or a `NEEDS_CONTEXT`/`BLOCKED` fact ask exhausts documented locations, needs credentials for a remaining location, or lacks its named lookup tool; an unavailable `gauntlet_setting` tool also ends in this stop note. Inline in the reply; the turn ends; phase stays `implement`, the task stays `in_progress`; no further tasks start. Emit one note per stalled task, after the current batch returns.
 
 ## Template

@@ -1,0 +1,80 @@
+{
+  "sample": "stand-in-not-buildable",
+  "arm": "candidate",
+  "skillSha": "0ff2b751ae3421cacaaaf6278831aaa6eb8f48ba6f805c92b9df1e2114d74f3d",
+  "inputSha": "d9b049b324e530d073c35625e6c7ae0863cc80f29d8c4ca557feb5109eac3b91",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Wave task NEEDS_CONTEXT on missing row input: next route, item and disposition\n\n## Shared start (A and B)\n\n**Observation.** Print this immediately after the return:\n\n```text\nwave <w> task <n> NEEDS_CONTEXT report <REPORT_DIR>/wave<w>-task<n>.md patch none\n```\n\n**Route.** The row input is missing, there is no buildable stand-in, and lookup has exhausted the documented locations.\n\n- Per Implementer Status, a lookup miss on missing row input goes to **[delegated amendments](./implement-amendments.md)**.\n- It does not go to the takeable-decision ladder or a stop note.\n\nThe structured `question` already holds the evidence, so I do not read the saved report. Task `<n>` stays `in_progress`, the phase stays `implement`, and no sibling or other task is dispatched. No `failed[n]` charge applies, because this is not a ladder-answered re-dispatch.\n\n**Item.** Prepare one cut carrying `deviates: unreachable in this checkout - Monday's instrument export`. This cut is the explicit exception to the \"row add/remove is a redraw\" rule.\n\n**Step 1: prepare (read-only).** Dispatch one foreground one-step carrier in the owning checkout:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<owning checkout>\",\n  chain: [{ parallel: [\n    { agent: \"plan-writer\", output: \"<REPORT_DIR>/wave<w>-amend-prepare.md\",\n      outputMode: \"file-only\", outputSchema: PREPARE_SCHEMA,\n      task: `Amend-prepare: worktree <abs owning checkout>; spec <abs home spec>; plan <abs plan>; plan contract <abs plan contract>.\nEvidence: task <n> (anchor \"### Task <n>:\") NEEDS_CONTEXT question: <structured question verbatim>.\nSearched: checkout - no hit; spec-supplied material - no hit; ticket-supplied material - no hit.\nNo input and no stand-in format exist. Prepare exactly one cut of the affected acceptance row, marked \"deviates: unreachable in this checkout - Monday's instrument export\", recommended \"accept\". Return items and redraws arrays (empty arrays included); keep this cut in items, not redraws.\nDo not edit any file.` }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\n**Step 2: check redraws, then read the grant.**\n\n- If `redraws` is nonempty, hold the batch at the redraw gate and stop. Do not dispatch any further plan-writer.\n- If `redraws` is empty, read the current `**Amend-grant:**` through the delegated answer/evidence carrier. The parent does not open the spec.\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<owning checkout>\",\n  chain: [{ parallel: [\n    { agent: \"delegate\", output: \"<REPORT_DIR>/wave<w>-grant.md\",\n      outputMode: \"file-only\", outputSchema: ANSWER_SCHEMA,\n      task: \"Read the current **Amend-grant:** line in <abs home spec> and decode its Value per amendment-surface.md#standing-grants: amend permission present, absent/none, or malformed (quote it). Do not edit any file.\" }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\nIf the grant is malformed, stop and quote it.\n\n## Snapshot A: amend permission present\n\n**Disposition.** Apply the recommended `accept` cut in this same turn, with no menu, reviewer or confirmation.\n\nFirst collect the in-flight paths:\n\n```bash\ngit -C \"<owning checkout>\" status --porcelain\n```\n\nThen dispatch the apply:\n\n```ts\nsubagent({ async: false, context: \"fresh\", cwd: \"<owning checkout>\",\n  chain: [{ parallel: [\n    { agent: \"plan-writer\", output: \"<REPORT_DIR>/wave<w>-amend-apply.md\",\n      outputMode: \"file-only\", outputSchema: APPLY_SCHEMA,\n      task: `Amend-apply: <prepared item verbatim: evidence / recommended: accept / location / edit>\nAmend: <existing Amend: entry>\nIn-flight: <paths from status --porcelain, staged repairs included>\nPaths: worktree <abs owning checkout>; spec <abs home spec>; plan <abs plan>; plan contract <abs plan contract>.\nRead both committed originals first via git -C \"<abs home worktree>\" show HEAD:<home-relative spec> and HEAD:<home-relative plan>; edit only the named section and affected task entry/coverage/anchors; historical Baseline policy.` }\n  ], stopOn: { path: \"/status\", in: [\"BLOCKED\"] } }]\n})\n```\n\n**Stop here.** The apply result has not been observed yet. Once it returns `passed: true`, the next steps would be:\n\n1. Run parent `plan_check`.\n2. Reconcile the tracker.\n3. Print `amended the spec: <title> - cut unreachable row`.\n4. Make one `amend:` commit.\n\n## Snapshot B: no permission (absent or none)\n\n**Disposition.** Show the existing human amendment menu for the same prepared item. Apply nothing, and end the turn on the question.\n\n```text\ngauntlet: question\nTask <n> needs Monday's instrument export for its acceptance row. Neither the export nor any format for a stand-in exists in the checkout, the spec material or the ticket material.\n\nAmendment: cut that row from the spec, marked \"deviates: unreachable in this checkout - Monday's instrument export\".\n  accept - cut the row as above and continue the wave\n  redraw - supply the export (or its format) and keep the row\n\nRecommendation: accept\n```\n\nThe task stays `in_progress` and no further dispatch is made until the human answers.\n",
+      "words": 666,
+      "wallMs": 27526,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "**Route in both snapshots:** delegated amendment, not the takeable-decision ladder or another implementation attempt. The lookup is exhausted and no stand-in can be built.\n\n**Proposed item:** cut the affected row as unreachable, recording:\n`deviates: unreachable in this checkout - Monday's instrument export and a format for a stand-in are unavailable`\n\nThis is the permitted unreachable-input cut, not permission to redesign the row.\n\nThe carriers below are templates using retained absolute path bindings; no paths, preparation results, or command results have been supplied or invented. `PREPARE_SCHEMA` and `APPLY_SCHEMA` are the unchanged supplied schemas.\n\n### Shared next step: prepare the amendment\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: OWNING_CHECKOUT,\n  chain: [{\n    parallel: [{\n      agent: \"plan-writer\",\n      output: `${REPORT_DIR}/unreachable-input-prepare.md`,\n      outputMode: \"file-only\",\n      outputSchema: PREPARE_SCHEMA,\n      task: `Amend-prepare:\nWorktree: ${OWNING_CHECKOUT}\nSpec: ${SPEC_PATH}\nplanPath: ${PLAN_PATH}\nPlan contract: ${PLAN_CONTRACT_PATH}\nAffected anchor: ${TASK_ANCHOR}\n\nDo not edit any file.\n\nEvidence: The implementer returned NEEDS_CONTEXT because the row requires\nMonday's instrument export, and neither that input nor a format for a\nstand-in is available. The delegated lookup exhausted the checkout and\nmaterial supplied with the spec and ticket, without a hit.\n\nPrepare the permitted unreachable-input cut:\ndeviates: unreachable in this checkout - Monday's instrument export and a format for a stand-in are unavailable\n\nReturn items and redraws using the supplied schema. Limit proposed plan\nchanges to the affected entries and coverage. Do not redesign the row.`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\nConsume structured `redraws` first. Any redraw stops the batch. Otherwise use the prepared items verbatim and the current grant decoded through the delegated answer/evidence carrier. Do not open the preparation report to obtain either.\n\n### Snapshot A — amend permission\n\n**Disposition:** apply the recommended prepared cut under that permission, without another implementation dispatch or approval prompt.\n\nBefore applying, collect the actual in-flight paths:\n\n```bash\ngit -C \"$OWNING_CHECKOUT\" status --porcelain\n```\n\nThen, only after successful preparation with no redraws and confirmed amend permission:\n\n```js\nsubagent({\n  async: false,\n  context: \"fresh\",\n  cwd: OWNING_CHECKOUT,\n  chain: [{\n    parallel: [{\n      agent: \"plan-writer\",\n      output: `${REPORT_DIR}/unreachable-input-apply.md`,\n      outputMode: \"file-only\",\n      outputSchema: APPLY_SCHEMA,\n      task: `Amend-apply:\nWorktree: ${OWNING_CHECKOUT}\nSpec: ${SPEC_PATH}\nplanPath: ${PLAN_PATH}\nPlan contract: ${PLAN_CONTRACT_PATH}\nwording: ${COMMIT_MESSAGE_PATH}\nticket: ${BOUND_TICKET_OR_NONE}\nAmend: ${EXISTING_AMEND_ENTRY}\nIn-flight: ${ACTUAL_STATUS_OUTPUT}\n\nGranted items, verbatim:\n${JSON.stringify(PREPARED_ITEMS)}\n\nApply their recommended choices only. Read both committed home plan/spec\noriginals through home-relative git show before editing. Preserve in-flight\nwork, unaffected task identities, wave order, state and evidence. Follow the\nimplement-only Baseline policy and return the unchanged APPLY_SCHEMA.`\n    }],\n    stopOn: { path: \"/status\", in: [\"BLOCKED\"] }\n  }]\n})\n```\n\n**Stop at this apply dispatch.** No apply result, reconciliation, commit, or task replay is asserted.\n\n### Snapshot B — no amend permission\n\n**Disposition:** do not apply or replay the task. Present the prepared unreachable-cut amendment for human approval; keep the task `in_progress`.\n\nThe question, once preparation confirms the permitted cut without redraws, is:\n\n> Monday's instrument export and a format for a stand-in are unavailable, and the documented sources have been exhausted. May I amend the approved spec and affected plan entries to cut this unreachable row?\n>\n> Recommendation: approve the unreachable-row cut.\n\n**Stop at that question.** Do not treat exhausted lookup as consent.\n",
+      "words": 487,
+      "wallMs": 32538,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "33dddb9ee960bcd08e9fb02786ac359f53b2d7bb6090f1527bf78674f5130edc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9e64da269999819ed4fea1fd2ebb490bd6ebe3f38431e43452e983368ab68a29",
+      "baselineOutputSha": "916ebccdc8bdcfdc0d42d87f1af3df234fe042ab3134ae0f7963df37a7df06e6",
+      "candidateOutputSha": "e3f1f7b0aaeb5b17c226b6fff0aa634bb041569470613881a9f63d418e0138ca",
+      "facts": {
+        "disposition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved both facts by sending the lookup miss on missing row input straight to delegated amendments. It forms exactly one cut item marked \"deviates: unreachable in this checkout - Monday's instrument export\", dispatches Amend-apply in A (with the Amend: entry, in-flight paths and committed-originals read that make the cut audited), and in B shows the amendment menu and applies nothing. It also says outright that the route is not the takeable-decision ladder or a stop note and builds no stand-in. Before failed both: it classified the ask as a fact ask outside the grant, emitted an ordinary stop note with a fix-options menu in both snapshots, and offered a stand-in fixture as an option. Before held neither fact, so there is nothing to preserve, but three wordings in After are worth tightening so the result stays stable. First, keep the explicit sentence that this cut is the exception to the \"row add/remove is a redraw\" rule and belongs in items, not redraws; without it the Step 2 redraw gate could pull replays back to a stop. Second, B's menu labels supplying the export as \"redraw\" and uses the \"gauntlet: question\" header; make it unmistakably the amendment menu for the prepared item so it cannot be read as a stalled stop note. Third, in A, state that the cut is applied under the grant and recorded (Amend: entry, \"amended the spec\" line, amend: commit) rather than \"taken\" as a recommendation, so it is not confused with a takeable decision.",
+      "wallMs": 10993,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "33dddb9ee960bcd08e9fb02786ac359f53b2d7bb6090f1527bf78674f5130edc",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "9e64da269999819ed4fea1fd2ebb490bd6ebe3f38431e43452e983368ab68a29",
+      "baselineOutputSha": "cee7c34c1355005c4e1f6032c255ea2fe928828c30cca684ccc89141bd2c15ba",
+      "candidateOutputSha": "8fc16d7c7384bde205a6ce69d3feec428bb8f78cfb41b3f283116a91fe11658a",
+      "facts": {
+        "disposition": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "route": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Before sends both snapshots to an ordinary stopped-task question with fix options (supply the export, or amend), forms no amendment item, and applies nothing in A, so both facts fail there. After moves both: it names the delegated amendment route explicitly, rejects the takeable-decision ladder and a stand-in, forms one item with the recorded line `deviates: unreachable in this checkout - Monday's instrument export and a format for a stand-in are unavailable`, dispatches the apply under the grant in A, and in B asks for approval without applying. The disposition fact holds only narrowly in two places. In B the amendment is shown as a prose yes/no question with a recommendation rather than a recognisable amendment menu listing the item and its choices. In both snapshots the apply or question sits behind a prepare dispatch that has not yet run, so the item is a template rather than a prepared item. To make this robust, the wording should say that with no grant the prepared item is rendered in the standard amendment menu format (item, disposition line, choices, recommendation) and nothing is applied, and that with a grant the cut is applied with the `deviates:` line as its audit record. Keep the explicit statements that an exhausted lookup is not consent, that no stand-in format may be invented, and that the task stays `in_progress`, since those keep the route fact holding.",
+      "wallMs": 12785,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "f9600ee4f3a62d5ab4a1fb589e8421932ef4e397"
+}
