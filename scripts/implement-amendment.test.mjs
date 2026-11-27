@@ -12,6 +12,14 @@ test('only ledger consent edits and batch preparation load the loop stop procedu
   assert.match(read('skills/gauntlet/implement/loop/unreachable-returns.md'), /At the start of the amendment, reuse the full procedure of \[`human-stop\.md`\]\(human-stop\.md\) only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting\. Stop on an unreadable file naming its path; never reconstruct it\. Form one amend item/);
 });
 
+test('delegated amendment hard stops link the escalation rules', () => {
+  const text = read('skills/gauntlet/implement/waves/implement-amendments.md');
+  const target = '(./escalation.md#escalation-and-funding)';
+  for (const site of ['A nonempty `redraws` array [stops]', 'malformed -> [stop]']) {
+    assert.ok(text.includes(site + target), site);
+  }
+});
+
 test('Amend-prepare contracts require the completion guard no-edit sentence', () => {
   for (const path of [
     'skills/gauntlet/implement/waves/implement-amendments.md',
