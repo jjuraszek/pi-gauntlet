@@ -628,7 +628,7 @@ test("dispatch records the admitted return before starting an immediate retry", 
   const before = branch.length;
   writeFileSync(path, ledger(["1 | failed | 1 | check failed", "2 | done | 0 | check passed"], "row 1 failed | check failed | retry\nrow 2 done | check passed | none", tuple));
   await dispatch();
-  assert.deepEqual(branch.slice(before).map(entry => entry.data.tasks.map((task: { status: string }) => task.status)), [
+  assert.deepEqual(branch.slice(before).filter(entry => entry.customType === "plan-tracker-snapshot").map(entry => entry.data.tasks.map((task: { status: string }) => task.status)), [
     ["failed", "complete"], ["in_progress", "complete"],
   ]);
 });
@@ -638,22 +638,36 @@ test("a repair stop shows the repaired target without publishing the rejected ex
   const dir = ledgerFixture("plan-repair-");
   const path = join(dir, "ledger.md");
   const open = ["1 | open | 0 |", "2 | open | 0 |"];
-  for (const target of ["1", "seed"]) {
+  for (const [name, target, previous, unjudged] of [
+    ["old retry", "1", "row 1 retry | new input | allowed attempts 2", ""],
+    ["old repair", "seed", "repair seed | seed miss | iteration 1", ""],
+    ["worker decision", "1", "", "row 2 done | rejected extra | none"],
+  ]) {
     const tuple = `${target} | home | abc1234`;
+    const decisions = (next: string) => [previous, next].filter(Boolean).join("\n");
     const branch: any[] = [{ type: "message", message: { role: "toolResult", toolName: "plan_check", details: { status: "pass", planPath: path } } }];
     const h = harness(branch, dir);
-    writeFileSync(path, ledger(open, "", `pending: ${tuple}`));
-    await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
-    const before = branch.length;
-    writeFileSync(path, ledger(["1 | done | 1 |", "2 | done | 0 |"], "row 2 done | rejected extra | none", `returned: ${tuple}`));
-    await h.fire("agent_settled", { aborted: false });
-    assert.equal(branch.length, before);
     const numbered = target === "1";
-    const repair = numbered ? "repair row 1" : "repair seed";
-    writeFileSync(path, ledger(numbered ? ["1 | failed | 1 | repair", open[1]] : open, `${repair} | rejected return | iteration 1`, `returned: ${tuple}`));
+    const retry = numbered && Boolean(previous);
+    const attempts = Number(numbered) + Number(retry);
+    writeFileSync(path, ledger(retry ? ["1 | failed | 1 | check failed", open[1]] : open, previous, `iterations: 2\npending: ${tuple}`));
+    await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input: {} });
+    const dispatched = (await h.call({ action: "status" })).details.tasks;
+    assert.deepEqual(dispatched.map(task => task.status), [numbered ? "in_progress" : "pending", "pending"], name);
+    const before = branch.length;
+    writeFileSync(path, ledger([`1 | done | ${attempts} | check passed`, "2 | done | 0 | check passed"], decisions(unjudged), `iterations: 2\nreturned: ${tuple}`));
     await h.fire("agent_settled", { aborted: false });
-    assert.deepEqual(branch.at(-1).data.tasks.map((task: { status: string }) => task.status), [numbered ? "failed" : "pending", "pending"]);
-    assert.equal(branch.length, before + Number(numbered));
+    assert.equal(branch.length, before, `${name}: stop stored an unjudged list`);
+    assert.deepEqual((await h.call({ action: "status" })).details.tasks, dispatched, name);
+    const reloaded = harness(branch, dir);
+    await reloaded.fire("session_start");
+    assert.equal(branch.length, before, `${name}: reload stored an unjudged list`);
+    assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks, dispatched, name);
+    const repair = numbered ? "repair row 1" : "repair seed";
+    writeFileSync(path, ledger(numbered ? [`1 | failed | ${attempts} | repair`, open[1]] : open, decisions(`${repair} | rejected return | iteration 2`), `iterations: 2\nreturned: ${tuple}`));
+    await reloaded.fire("agent_settled", { aborted: false });
+    assert.deepEqual((await reloaded.call({ action: "status" })).details.tasks.map(task => task.status), [numbered ? "failed" : "pending", "pending"], name);
+    assert.equal(branch.length, before + Number(numbered), name);
   }
 });
 
