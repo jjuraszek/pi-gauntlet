@@ -1,6 +1,10 @@
 # eval report: gatekeep-pr (selected samples only)
 
-No replay was run on the merged prompt.
+Only `plain-report` ran on the merged instructions. The other samples retain their historical results.
+
+| Sample | Outcome |
+|---|---|
+| [plain-report](results/plain-report/report.md) | On the first merged replay, anthropic/claude-opus-5-5 missed `standing` by reporting the running required check without saying merge had to wait for it; the confirmation held that fact, and both models held every fact on the second replay. |
 
 ## Earlier main replay: spec-stale-nit
 
@@ -74,7 +78,7 @@ exit: 0
 
 ## Earlier PR replay: plain-report after the commit-body wording change
 
-This evidence predates the merged prompt. No replay ran on the merged prompt.
+This evidence predates the merged prompt; the table at the top reports the merged replay.
 
 for: f0ef39ea892df20ae120cb4cb6d320ab65db21581fa06d587287382f3715ef5f
 
