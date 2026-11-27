@@ -6,7 +6,6 @@ checks: commands
 iterations: 5
 allowance: 10
 returned: 5 | home | 530821b490fb3f5da5ca1e1ea5003c12602117d4
-pending: verify | home | da254f9244f0fbb7b9a369aded4000eec068937d
 
 | row | status | attempts | evidence |
 |---|---|---|---|
@@ -32,3 +31,4 @@ row 7 done | Verified that ordinary loop and wave runs retain all five rules the
 row 8 done | Updated the compaction, funded-round and decision-ladder links and checked the gate owners for moved rules. | Use the gate and procedure references test to detect retired paths and anchors.
 row 9 done | Verified that the finish, loop and wave tests still check the moved rules in their new files. | nothing new to build on
 amended | 1 item(s) | Pinned eval samples
+repair verification | home 7243f64 | iteration 5
