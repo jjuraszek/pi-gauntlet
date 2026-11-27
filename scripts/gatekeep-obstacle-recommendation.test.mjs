@@ -50,7 +50,7 @@ test('contract proposals use the contract judgment instead of a fixed preserve r
     [read('../README.md'), 'Contract proposals recommend preserve contract'],
     [read('../doc/gate-contract.md'), 'Contract proposals favor preserve contract'],
   ]) assert.ok(!text.includes(pin), `fixed recommendation: ${pin}`);
-  assert.match(menus, /Contract judgment/);
+  assert.match(menus, /`findings\.md`[ \t]+`## Contract judgment`/);
   assert.match(read('../skills/gatekeep-pr/reference/findings.md'), /^## Contract judgment$/m);
 });
 
