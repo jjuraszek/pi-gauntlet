@@ -877,7 +877,7 @@ test("session activation leaves the last snapshot untouched when the bound ledge
   assert.deepEqual(reloaded.notifications, []);
 });
 
-test("verify start without active implement validates the ledger but stores nothing", async (t) => {
+test("an unprojectable bound ledger preserves the stored list, warns once, and blocks dispatch and verify start", async (t) => {
   mainSession(t);
   const dir = ledgerFixture("plan-restore-verify-");
   const path = join(dir, "ledger.md");
@@ -886,12 +886,39 @@ test("verify start without active implement validates the ledger but stores noth
   const verify = () => h.fire("tool_call", { toolName: "phase_tracker", input: { action: "start", phase: "verify" } });
   writeFileSync(path, ledger(["1 | open | 0 |"], "", "returned: none"));
   assert.equal(await verify(), undefined);
-  assert.equal(branch.length, 1);
+  assert.equal(branch.length, 1, "verify start without active implement must not store a list");
+
+  const stop = () => h.fire("agent_settled", { aborted: false });
+  branch.push(assistantText("gauntlet: question\nContinue?"));
+  await stop();
+  assert.deepEqual(branch.slice(2), [storedPlan([{ name: "row 1", status: "pending", label: descriptions[0] }])]);
+  const before = structuredClone(branch);
+  const widget = h.widget();
+  assert.ok(widget);
+
   writeFileSync(path, "# Ledger - loop engine\n");
-  const rejection = await verify();
-  assert.equal(rejection?.block, true);
-  assert.match(rejection.reason, /row table malformed/);
-  assert.equal(branch.length, 1);
+  const reason = `refresh: ${path} row table malformed at line 1`;
+  const warnings = [{ message: reason, level: "warning" }];
+  assert.equal(await stop(), undefined);
+  assert.deepEqual(branch, before, "marked stop must not change branch entries");
+  assert.equal(h.widget(), widget, "marked stop must preserve the list");
+  assert.deepEqual(h.notifications, warnings);
+
+  assert.equal(await h.fire("session_switch"), undefined);
+  assert.deepEqual(branch, before, "branch activation must not change branch entries");
+  assert.equal(h.widget(), widget, "branch activation must preserve the list");
+  assert.deepEqual(h.notifications, warnings, "branch activation must not repeat the warning");
+
+  const input = { agent: "loop-implementer", task: "target: 1" };
+  const message = { role: "assistant", content: [{ type: "toolCall", id: "dispatch", name: "subagent", arguments: input }] };
+  const entry = { type: "message", message };
+  branch.push(entry);
+  await h.fire("message_end", { message });
+  assert.deepEqual(await h.fire("tool_call", { toolCallId: "dispatch", toolName: "subagent", input }), { block: true, reason });
+  assert.deepEqual(await verify(), { block: true, reason });
+  assert.deepEqual(branch, [...before, entry]);
+  assert.equal(h.widget(), widget);
+  assert.deepEqual(h.notifications, warnings);
 });
 
 test("refresh projects ledger states, numeric pending targets and live leg mappings", async () => {
