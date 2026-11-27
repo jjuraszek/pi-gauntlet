@@ -253,7 +253,7 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
   const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
-  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
+  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
   assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
   assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);
   assert.match(entry, /Capture.*ordered leg membership.*checkout paths.*Rules/);
@@ -439,7 +439,11 @@ test('gate output stays in session logs through repair, conformance and finish',
   assert.match(gate, /Use the executing checkout's `LOG_DIR` for every run and rerun: retain one session directory per checkout minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
   assert.match(gate, /Print `gate <i> exit <code> <log path>`\. Keep no other output except the bounded failure excerpt/);
   assert.match(after, /mint `LOG_DIR=\$\(mktemp -d "\$SCRATCH\/gates\.XXXXXX"\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
-  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines with `tail -n 20`; this bounded excerpt is the driver's only log read/);
+  const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
+  assert.match(holds, /Never read the spec, source files, test output or logs inside the implement loop\. Never diagnose a failure's cause/);
+  assert.match(holds, /Read no logs except the bounded failure excerpt in After the loop step 1 for the repair comparison and stalled stop/);
+  assert.match(after, /On every gate failure capture `tail -n 20` of its log before a repair dispatch or rerun can overwrite it/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting the same bounded excerpt/);
   assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
   assert.match(after, /absolute spec path, failing command, checkout, exit code and log path, never pasted output/);
   assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);

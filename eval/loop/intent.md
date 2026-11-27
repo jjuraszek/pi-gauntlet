@@ -1,6 +1,8 @@
-for: 2493a153facffc7339b264345140b71778645e709ee516a4c17f9e6ffabf7316
+for: 0719c960dd9555e3345edc7993616e9c765833d8a1b8724d32b79f9a05b79551
 
 ## Change
+
+Capture the bounded failure excerpt before a verification repair and reuse it at the stalled stop, without reading logs for diagnosis. Select verify-repair-count to check whether the driver continues when the failing assertion changes at the same gate and exit code. The replay supplies the before and after observations; it does not read or overwrite live logs.
 
 The worker builds a stand-in when it knows the missing input's format. The loop-implementer samples cover the distinction; this driver was not replayed.
 
