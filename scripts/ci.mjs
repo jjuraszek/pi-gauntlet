@@ -494,6 +494,7 @@ try {
       R("extensions/lib/checkout.test.ts"),
       R("extensions/lib/overrides.test.ts"),
       R("extensions/lib/plan-check.test.ts"),
+      R("extensions/lib/plan-snapshot.test.ts"),
       R("extensions/lib/phase-tracker-helpers.test.ts"),
       R("extensions/lib/tool-result-warnings.test.ts"),
       R("extensions/plan-tracker.test.ts"),
