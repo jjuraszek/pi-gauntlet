@@ -1,5 +1,5 @@
 - backed: judged: In A the report lists "the spec was not updated" as a smaller point, shows the current title-sort wording and proposed most-recent-use wording, explains that the ticket asks for the new order, warns that merging without the edit leaves the spec stale, and offers merge.
 - keep: judged: In B the report treats the sort departure as a blocker because the goal is deliverable while sorting by title. In C it blocks because nothing establishes that the sort change is necessary.
-- independent: judged: D reports the stale spec as a smaller point but still blocks merging on the untested branch for never-opened recipes.
+- independent: judged: D reports the stale spec as a smaller point and says in that item that merging without the edit leaves the spec out of date, but still blocks merging on the untested branch for never-opened recipes.
 - handoff: judged: In E the handoff authorizes and requires the exact displayed old-to-new wording, no second contract-choice menu appears, and the gate adopts the new baseline only after review, push and confirmation of that sole scope change at the rebound head, not upon admission.
 - addition: judged: F reports a nonblocking smaller point that the spec has no clause for the local trail index and proposes a Design clause for it, because offline lookup fails without it. It quotes no invented current clause.
