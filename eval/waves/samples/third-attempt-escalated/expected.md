@@ -2,3 +2,4 @@
 - outcome: judged: DONE enters ordinary test and wave review wave gates; failed escalation is spent, but its named spec correction enters the granted amendment route. Error/none and more-attempt results stop without a fourth unnamed repair.
 - recovery: judged: Recovers only the exact task/site announcement; matching history is spent and missing task history is spent even with a sibling line, retry or new grant. No second escalation is dispatched.
 - hard-stops: judged: Settings failure stops and reports; undefined implModel stops with a note. Budget-only header still permits execution escalation but never authorizes spec edits.
+- reads: judged: Reads escalation.md before resolving and dispatching the escalated round.

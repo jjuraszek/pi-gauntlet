@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
 bundle+: skills/gauntlet/SKILL.md
 bundle+: skills/gauntlet/amendment-surface.md
 # Evidence-backed drafted row correction

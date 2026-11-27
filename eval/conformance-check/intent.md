@@ -1,4 +1,4 @@
-for: d5a67bfdd8ac036f31e7fc5bfa8259d0145a6ed4d846fe2fab4026c39ab721f8
+for: 51f540d937ae7fbc7a472bc28cfa802d1eab23610f3c93fcd6766ab2bc84503a
 
 ## Change
 Start proactive cap-exhaustion escalation with the step-6 gate marker and ask for additional funding, including Convergence exhaustion; keep verification incomplete. Carried-open menus put their marker before item 1; clean closure uses the Step 4 marker before summaries.

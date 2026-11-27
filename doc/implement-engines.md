@@ -62,7 +62,7 @@ Verdict-bearing dispatches use one-step chains with per-task `outputMode: "file-
 
 A manifest `orchestrator` instruction runs once after its wave's commit and before the next dispatch, using coordination actions only. Requests to change the plan or spec go through delegated amendment preparation and apply, preserving human approval or standing-grant gates; the primary does not edit those documents. An instruction with no permitted coordination action stops the run.
 
-Compaction and resume recover static state with `plan_check({ planPath })` and `plan_tracker({ action: "status" })`. In-flight state comes only from the primary's transcript lines: `wave <w> base <sha>`, `wave <w> task <n> <status|verdict> <value> report <path> patch <path>`, `wave <w> review <k> tree <path>`, and `funded round <k> of <N> for task <n>`. An in-progress wave without its required lines stops with a note naming the missing evidence, rather than reopening reports, guessing integration state, or resetting a repair budget.
+Compaction and resume recover static state with `plan_check({ planPath })` and `plan_tracker({ action: "status" })`. In-flight state comes only from the primary's transcript lines listed under [Recovery](../skills/gauntlet/implement/waves/chain-recovery.md#recovery), including `wave <w> review <k> verdict <value> report <path> tree <sha>`. An in-progress wave without its required lines stops with a note naming the missing evidence, rather than reopening reports, guessing integration state, or resetting a repair budget.
 
 ## Verification and finish
 

@@ -26,8 +26,27 @@ buildSync({
 });
 const { createStructuredOutputRuntime, readStructuredOutput, blockedLine, expectsImplementationMutation } = await import(pathToFileURL(runtimePath));
 
+const recovery = read('skills/gauntlet/implement/waves/chain-recovery.md').split('\n## Chain stopped or failed\n')[1].split('\n## Recovery\n')[0];
 const capture = value => JSON.stringify({ status: 'success', value });
 const single = { status: 'NEEDS_CONTEXT', reasoning: 'r', question: 'q', anchor: '### Task 5:' };
+
+test('ordinary waves keep the observation rules but not the four conditional procedures', () => {
+  for (const [heading, file, rule] of [
+    ['Chain stopped or failed', 'chain-recovery', 'List captures once with'],
+    ['Recovery', 'chain-recovery', 'Recover dynamic state only from the observations below.'],
+    ['Escalation and funding', 'escalation', 'Once per task per wave; spends independently of funding.'],
+    ['Rebuild', 'escalation', 'The rebuilt task rejoins its original wave'],
+  ]) {
+    const pointer = skill.split(`\n### ${heading}\n`)[1].trimStart().split('\n')[0];
+    assert.ok(pointer.startsWith('At '), heading);
+    assert.ok(pointer.endsWith(`reuse the full procedure of \`${file}.md\` only if it is still available in the current context; otherwise read it in full now with \`read\` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it.`), heading);
+    assert.equal(skill.includes(rule), false, heading);
+    assert.ok(read(`skills/gauntlet/implement/waves/${file}.md`).split(`\n## ${heading}\n`)[1].split('\n## ')[0].includes(rule), heading);
+  }
+  assert.match(skill, /Print each observation immediately after the operation returns; invent no path, result or SHA\.\n\n1\. \*\*Independence check/);
+  assert.match(skill, /without requiring amend permission\.\n\nThe `TRAJECTORY:` block and `stop-note\.md` grammar bind to the single `wave-reviewer` line\./);
+  assert.match(skill, /## Prerequisites\n\n- The worktree path is known/);
+});
 
 test('real capture reader validates statuses, exactly one identity and conditional fields', () => {
   const runtime = createStructuredOutputRuntime(implementerSchema, scratch);
@@ -76,7 +95,6 @@ test('implementer disables only the mutation guard and reports blocked without t
 });
 
 test('the actual sequential diagnosis carrier names a read-only delegate and returns captured JSON', () => {
-  const recovery = skill.split('### Chain stopped or failed')[1].split('### Recovery')[0];
   const code = recovery.match(/```ts\n([\s\S]*?)\n```/)[1];
   const carrier = runInNewContext(code, { subagent: value => value, DIAGNOSIS_SCHEMA: schema('DIAGNOSIS_SCHEMA') });
   const step = carrier.chain[0];
@@ -93,7 +111,6 @@ test('the actual sequential diagnosis carrier names a read-only delegate and ret
 });
 
 test('recovery reconciles missing siblings before diagnosis with bounded identity-matched reads', () => {
-  const recovery = skill.split('### Chain stopped or failed')[1].split('### Recovery')[0];
   const holds = skill.split('## Orchestrator holds')[1].split('## Continuous Execution')[0];
   for (const token of ['every dispatched task', '## Outputs', '## Stop', 'ls <Artifacts>/structured-output/*/output.json', 'limit: 300', 'value.anchor', 'value.anchors', 'as a set', 'question', 'concerns', 'closing brace', 'plan index order', 'once for every task', 'both paths']) assert.ok(recovery.includes(token), token);
   assert.ok(recovery.indexOf('ls <Artifacts>') < recovery.indexOf('agent: "delegate"'));
@@ -102,6 +119,48 @@ test('recovery reconciles missing siblings before diagnosis with bounded identit
   assert.match(holds, /capture[^\n]*limit: 300[^\n]*no offset/i);
   assert.match(holds, /Never dispatch `scout`, `delegate` or another child to relay reports/);
   assert.match(skill, /capture[^\n]*second source after result text/);
+});
+
+test('each exceptional wave entry reaches its procedure before acting', () => {
+  const line = text => skill.split('\n').find(l => l.includes(text)) ?? '';
+  for (const [site, anchor] of [
+    ['For a dispatched task missing', 'chain-stopped-or-failed'], ['identity-matched capture as the second', 'chain-stopped-or-failed'],
+    ['missing prior review-tree transcript', 'recovery'], ['Repair delta fails `git apply', 'rebuild'], ['the human may ask for one', 'rebuild'],
+    ['`TRAJECTORY: CONVERGING` or `DIVERGING`', 'escalation-and-funding'], ['3. after 2 failed attempts', 'escalation-and-funding'],
+    ['An escalated round fails with', 'escalation-and-funding'], ['second overflow', 'escalation-and-funding'], ['Stop for redraws', 'escalation-and-funding'],
+    ['when `implModel` is `undefined`', 'escalation-and-funding'], ['nonempty initial patch that fails', 'escalation-and-funding'],
+    ['`REJECT` ->', 'escalation-and-funding'], ['or the round cap:', 'escalation-and-funding'],
+  ]) assert.ok(line(site).includes(`](#${anchor})`), site);
+  for (const status of ['BLOCKED', 'NEEDS_CONTEXT']) assert.match(line(`| \`${status}\` |`), /amendment route.*lookup handling.*For decisions.*#escalation-and-funding/);
+  assert.match(line('**Read and integrate.**'), /`BLOCKED` \/ `NEEDS_CONTEXT` -> \[Implementer Status\]\(#implementer-status\)/);
+  assert.match(recovery, /waves\.md#implementer-status.*only on the takeable-decision branch.*escalation\.md#escalation-and-funding/);
+  assert.match(read('skills/gauntlet-resume/SKILL.md'), /\| implement with task plan \|[^\n]*waves\.md#recovery[^\n]*the task loop/);
+  assert.match(line('reuse the full procedure of `chain-recovery.md`'), /dispatch error or a failed task.*no structured result in `## Outputs` or `## Stop`/);
+  assert.match(line('At session resume'), /before any dispatch.*re-review finds no prior review-tree transcript line/);
+  const escalation = line('At the first escalated');
+  assert.match(escalation, /first escalated or funded round before dispatch.*takeable-decision branch.*`BLOCKED` or `NEEDS_CONTEXT`.*hard stop before the stop action/);
+  assert.ok(escalation.includes(read('skills/gauntlet/implement/waves/escalation.md').match(/Hard stops:\*\* (.*)\./)[1]));
+  assert.match(line('At the start of a rebuild'), /reuse the full procedure of `escalation\.md`/);
+});
+
+test('gate and procedure references point to the current owners', () => {
+  const docs = read('doc/gate-contract.md');
+  for (const gate of ['implement/human-stop', 'implement/discard-authorization']) {
+    assert.ok(docs.includes(`| ${gate} | question | skills/gauntlet/implement/loop/human-stop.md | # Human stop |`));
+  }
+  assert.ok(docs.includes('| ship/pr-subject-row-1 | gate | skills/gauntlet/ship/pr-branch-push.md | # PR-subject row 1: Push to the PR branch |'));
+  for (const [file, target] of [
+    ['README.md', 'skills/gauntlet/ship/pr-branch-push.md'],
+    ['doc/implement-engines.md', '../skills/gauntlet/implement/loop/human-stop.md'],
+    ['doc/implement-engines.md', '../skills/gauntlet/implement/waves/chain-recovery.md#recovery'],
+    ['skills/gauntlet/amendment-surface.md', 'implement/waves/escalation.md#escalation-and-funding'],
+    ['skills/gauntlet/implement/waves/stop-note.md', './escalation.md#escalation-and-funding'],
+  ]) assert.ok(read(file).includes(`](${target})`), file + ': ' + target);
+  const retired = ['driver-holds', 'empty-child-stagnation', 'prerequisites'].map(n => n + '.md').concat([
+    ['waves.md', 'escalation-and-funding'], ['loop.md', 'human-stop'], ['ship.md', 'pr-subject-row-1-push-to-the-pr-branch'],
+  ].map(parts => parts.join('#')));
+  const hits = spawnSync('git', ['grep', '-IlF', ...retired.flatMap(token => ['-e', token]), '--', '.', ':!CHANGELOG.md', ':!doc/specs', ':!eval/*/results/*'], { cwd: root, encoding: 'utf8' });
+  assert.equal(hits.status, 1, hits.stdout + hits.stderr);
 });
 
 test('initial missing and empty patches fail admission while nonempty apply failures still stop', () => {

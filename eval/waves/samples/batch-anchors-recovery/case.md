@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/escalation.md
 bundle-: skills/gauntlet/implement/waves/wave-reviewer-prompt.md
 bundle-: skills/gauntlet/implement/happy-path-run.md
 bundle-: skills/gauntlet/implement/waves/implement-amendments.md

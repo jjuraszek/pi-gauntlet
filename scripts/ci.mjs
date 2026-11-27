@@ -247,7 +247,7 @@ const tokenChecks = [
   // #27 gate removal / amendment path
   ["skills/gauntlet/SKILL.md", "## Amending an approved spec", true],
   ["skills/gauntlet/plan/plan.md", "#amending-an-approved-spec", true],
-  ["skills/gauntlet/implement/waves/prerequisites.md", "#amending-an-approved-spec", true],
+  ["skills/gauntlet/implement/waves/waves.md", "#amending-an-approved-spec", true],
   ["skills/gauntlet/ship/ship.md", "#amending-an-approved-spec", true],
   ["skills/gauntlet/SKILL.md", "Ask once whether the design replaces", false],
   ["skills/gauntlet/SKILL.md", "get approval after each", false],

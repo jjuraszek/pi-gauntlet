@@ -1,3 +1,5 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
+
 # Shared wave repair spends both task ledgers
 
 In /workspace/project, a two-task code wave contains task 3 owning src/frame.ts and task 4 owning src/envelope.ts, both in_progress. Header: `**Amend-grant:** fund 1 fix rounds`. Both tasks have entered the wave repair loop, spent zero,. Task 3 already used its review-3 convergence exception; Earlier wave reviews changed no ledger. Integrated wave review and the one escalated repair still show FIX_FIRST, TRAJECTORY: DIVERGING, integrated wave repair. The findings are attributed separately to each owner; each task gets one implementer repair on the integrated tree. escalationLoop resolves implModel to <configured-impl-model>; scoped union is `node --test frame.test.mjs` and `node --test envelope.test.mjs`. Reports and payloads are available verbatim.

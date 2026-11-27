@@ -37,7 +37,7 @@ const amendments = loadReference('implement-amendments');
 
 test('integrated wave contract uses implementers then one post-gate wave review', () => {
   assert.doesNotMatch(wave, /agent: "(?:spec-reviewer|code-reviewer)"|SPEC_VERDICT_SCHEMA|CODE_VERDICT_SCHEMA/);
-  for (const token of ['WAVE_VERDICT_SCHEMA', 'repair-base-shell', 'rebuild: task <n> - delta apply failed', 'failed[n]', 'converged[n]', 'escalated[n]', '4 + N', 'Compact report: findings and footer only, at most 150 lines']) assert.ok(skill.includes(token), token);
+  for (const token of ['WAVE_VERDICT_SCHEMA', 'repair-base-shell', 'failed[n]', 'converged[n]', 'escalated[n]', '4 + N', 'Compact report: findings and footer only, at most 150 lines']) assert.ok(skill.includes(token), token);
   assert.ok(wave.indexOf('**Test gate.**') < wave.indexOf('**Review.**'));
   assert.ok(wave.includes('<REPORT_DIR>/wave<w>-gate-<i>.log'));
   assert.ok(skill.includes('mktemp "$SCRATCH/fix-delta-index.XXXXXX"'));
@@ -340,9 +340,10 @@ test('repair snapshot commits the integrated tree and exports only repair delta'
 });
 
 test('rebuild restores base-owned Delete paths without touching siblings or passing empty path lists', () => {
-  const rebuild = skill.split('### Rebuild')[1].split('### Escalation')[0];
+  const rebuild = loadReference('escalation').split('\n## Rebuild\n')[1];
+  assert.ok(rebuild.includes('rebuild: task <n> - delta apply failed'));
   for (const token of ['trailing `:N[-M]` stripped', '`Delete` paths', 'ls-tree -r --name-only "$WAVE_BASE_SHA" -- <Delete paths>', 'Skip a command with no paths']) assert.ok(rebuild.includes(token), token);
-  assert.match(wave, /deduplicated and excluding every `Create` path/);
+  assert.match(rebuild, /deduplicated and excluding every `Create` path/);
   assert.match(skill, /only Test\/Test may share a path/);
   assert.ok(Buffer.byteLength(skill) < 50000);
   const commands = Object.fromEntries(['rm', 'ls-tree', 'restore'].map(command => [command, rebuild.match(new RegExp('`(git -C <worktree> ' + command + '[^`]+)`'))[1]]));

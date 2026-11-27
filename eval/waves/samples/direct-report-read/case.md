@@ -1,3 +1,4 @@
+bundle-: skills/gauntlet/implement/waves/chain-recovery.md
 bundle-: skills/gauntlet/implement/happy-path-run.md
 bundle-: skills/gauntlet/implement/waves/implement-amendments.md
 bundle-: skills/gauntlet/implement/waves/implementer-prompt.md

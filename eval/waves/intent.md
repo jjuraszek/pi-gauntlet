@@ -1,8 +1,8 @@
-for: 5bcdd1815a231604757db957513ecca36e3d0dfcb356fcca5d59d345bc2b8791
+for: 6d85975b43776188b844480dd7eedfff3834c278cb5875bea593a1d9fd2bc5b8
 
 ## Change
 
-Extract wave prerequisites to their required reference without changing their instructions. Include that reference in the replay assembly. Validate wiring and size deterministically only; preserve saved replies and report verdicts as earlier-revision evidence. No model replay or judgment runs in this repair.
+Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces.
 
 Compose committed-originals and accepted-wave messages through the shared commit-message reference using held spec metadata and manifest headings. Preserve scoped entry staging, delegated source reads, isolated reset semantics and completion after the wave commit. Keep wave-commit-wording/boundary passing.
 Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
@@ -13,6 +13,10 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+
+- chain-stop-blocked/reads: fails -> holds - Read recovery before reconciling a missing result, escalation before the ladder, and neither for lookup alone.
+- third-attempt-escalated/reads: fails -> holds - Read escalation before starting the escalated round.
+- clean-wave-skips-failure-rules/reads: fails -> holds - Complete an ordinary repair and wave commit without reading either conditional file.
 
 - wave-commit-wording/plan: fails -> holds - Compose the initial commit from the shared plan recipe.
 - wave-commit-wording/wave: fails -> holds - Compose the accepted wave subject from its task headings.

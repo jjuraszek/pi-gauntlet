@@ -8,7 +8,7 @@ export const STAGE_FILES = runFiles(
   "brainstorm/gatherer", "brainstorm/opening-message", "brainstorm/pr-subject", "brainstorm/spec-finalization", "brainstorm/spec-pr", "brainstorm/superseding", "brainstorm/ticket-acceptance",
   "plan/open-questions", "plan/plan-contract", "plan/plan",
   "implement/happy-path-run", "implement/loop/coordinated-legs", "implement/loop/human-stop", "implement/loop/interrupted-recovery", "implement/loop/loop", "implement/loop/unreachable-returns",
-  "implement/waves/dispatch-contract", "implement/waves/implement-amendments", "implement/waves/implementer-prompt", "implement/waves/prerequisites", "implement/waves/stop-note", "implement/waves/wave-reviewer-prompt", "implement/waves/waves",
+  "implement/waves/chain-recovery", "implement/waves/dispatch-contract", "implement/waves/escalation", "implement/waves/implement-amendments", "implement/waves/implementer-prompt", "implement/waves/stop-note", "implement/waves/wave-reviewer-prompt", "implement/waves/waves",
   "ship/disposition-protocol", "ship/legs", "ship/pr-branch-push", "ship/ship", "ship/spec-pr", "ship/verification-set",
 );
 

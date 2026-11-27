@@ -198,7 +198,7 @@ After a successful restore, print the closing line, then on its own line exactly
 | approved spec with `**Engine:** loop`, no ledger | [Loop](../gauntlet/implement/loop/loop.md#entry) | Entry steps 1-5 per `reference/reconstruction.md` "Spec without plan"; a restored plan-stage brief makes no second arming call |
 | plan with task engine | [Plan](../gauntlet/plan/plan.md) | skip its `start plan` call (already in_progress) |
 | implement with a ledger | [Loop](../gauntlet/implement/loop/loop.md#before-each-dispatch) | `Before each dispatch`; reuse the ledger per `reference/restore-loop.md` step 9 |
-| implement with task plan | [Waves](../gauntlet/implement/waves/waves.md) | re-validate `<task>` first (re-run its `Tests:`), then the task loop from the first non-complete task |
+| implement with task plan | [Waves](../gauntlet/implement/waves/waves.md) | re-validate `<task>` first (re-run its `Tests:`), then follow [Recovery](../gauntlet/implement/waves/waves.md#recovery) before the task loop from the first non-complete task |
 | verify with `Ledger:` (including ship-stage ledger briefs restored at verify) | [Loop gates](../gauntlet/implement/loop/loop.md#after-the-loop) | `After the loop` step 1 per `reference/restore-loop.md` step 9; never start implement |
 | verify without `Ledger:` | [Verify](../gauntlet/verify/verify.md) | full conformance gate; nothing carried over |
 

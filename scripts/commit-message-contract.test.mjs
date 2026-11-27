@@ -359,8 +359,8 @@ test('plan task, plan handoff and wave commit sites delegate wording without tem
   const plan = read('skills/gauntlet/plan/plan.md');
   const contract = read('skills/gauntlet/plan/plan-contract.md');
   const wave = read('skills/gauntlet/implement/waves/waves.md');
-  const prerequisites = read('skills/gauntlet/implement/waves/prerequisites.md');
-  assert.match(wave, /Read \[wave prerequisites\]\(\.\/prerequisites\.md\) at its absolute path now; stop if unreadable/);
+  const prerequisites = wave.split('## Prerequisites')[1].split('## Fix delta')[0];
+  assert.match(prerequisites, /Read \[Subject, Body and Word sources\]/);
   for (const text of [plan, contract, wave, prerequisites]) assert.doesNotMatch(text, /commit -m "plan:|<imperative subject> \(ref/);
   assert.match(contract.slice(contract.indexOf('**Step 6: Commit**'), contract.indexOf('## Spec anchors')), /commit-message\.md/);
   assert.match(plan.slice(plan.indexOf('## Execution Handoff')), /commit-message\.md/);
