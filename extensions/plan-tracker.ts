@@ -442,7 +442,7 @@ export default function (pi: ExtensionAPI) {
       }
       if (batched.has(event.toolCallId)) return { block: true, reason: "The ledger write must finish first. Issue the dispatch again, alone in its own message." };
       const started = projectLedger(ledger.text, ledger.path, tasks);
-      const withoutTuple = ledger.text.replace(/^pending: .*\n/m, "");
+      const withoutTuple = ledger.text.replace(/^pending: .*(?:\n|$)/m, "");
       if (withoutTuple !== ledger.text) store(projectLedger(withoutTuple, ledger.path, tasks), ctx);
       store(started, ctx);
     } catch (error) {

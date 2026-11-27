@@ -660,7 +660,7 @@ test("dispatch records the judged return before starting an immediate retry", as
       storedPlan([{ ...firstRow, status: "in_progress" }, { ...otherRow, status: "pending" }]),
     ]);
     branch.push(workerResult);
-    writeFileSync(path, ledger([...rows], decisions, `pending: ${next}\nreturned: ${first}`));
+    writeFileSync(path, ledger([...rows], decisions, `returned: ${first}`) + `\npending: ${next}`);
     const other = { ...otherRow, status: otherStatus };
     assert.deepEqual(await dispatchLoopWorker(h, branch, "1", "redispatch"), [
       storedPlan([{ ...firstRow, status: "failed" }, other]),
