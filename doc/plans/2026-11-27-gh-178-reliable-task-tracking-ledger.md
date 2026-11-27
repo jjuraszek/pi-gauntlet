@@ -37,3 +37,4 @@ row 6 done | Starting verify redraws the admitted ledger and completes implement
 row 11 done | Sealed loop telemetry reports the final task totals at implement completion without a tracker call after the seed. | Reuse the sealed loop fixture in telemetry.test.ts to check stored list transitions, reopen counts and phase event order.
 row 12 done | The loop driver seeds the task list once, and neither dispatch, amendment nor restore asks the main session to refresh it. | Run scripts/tracker-refresh-instructions.test.mjs to catch another ledger refresh instruction in skills or personas.
 amended | 1 item(s) | Stored list byte limit
+amended | 1 item(s) | Stop marker as admission evidence
