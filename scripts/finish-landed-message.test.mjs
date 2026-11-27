@@ -122,8 +122,8 @@ test('the isolated commit command preserves each message through a quoted stdin 
 test('existing and companion PR bodies carry the stand-ins from their own menu entries', () => {
   const linked = read('skills/gauntlet/ship/spec-pr.md').split('## Push rows 1/2')[1];
   assert.match(linked, /stand-in bullets.*same edit/i);
-  const rework = skill.split('```markdown\n## Rework\n')[1].split('```')[0];
-  assert.match(rework, /one bullet per stand-in in this PR's range, in the list's wording/);
+  const rework = read('skills/gauntlet/ship/pr-branch-push.md').split('```markdown\n## Rework\n')[1].split('```')[0];
+  assert.match(rework, /^Dropped claims: .*\n<one bullet per stand-in in this PR's range, in the list's wording>$/m);
   assert.match(read('skills/gauntlet/ship/legs.md'), /each member's own stand-in bullets/);
 });
 
