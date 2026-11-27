@@ -35,3 +35,4 @@ amended | 1 item(s) | Replayed stand-in controls
 amended | 2 item(s) | Stale eval result replays
 amended | 1 item(s) | Stale sample replay count
 amended | 2 item(s) | Long decisions list
+amended | 1 item(s) | Stale overflow sentence in the ship list design

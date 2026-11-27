@@ -118,7 +118,7 @@ Three rules, used below by name:
 
 Chosen reading of ticket rows 3 and 4: "the engine's existing stagnation check" is the stall test of D2, built only from signals the engines already compute; "attempt allowance" covers all seven counters in D2, including the verify-phase ones.
 
-Chosen reading of ticket rows 7 and 9, approved in design round 2: a stand-in line is never dropped or collapsed to meet row 7's 180-word cap, and stand-in lines that alone pass the cap are all printed (D5); the conformance check reads row 7 with this precedence. Row 7 keeps its `in-scope` disposition; only the user's answer to the cut question changes it (Open questions). The user answered it at the ship gate: row 7 now carries `deviates:` for ordinary-choice overflow, and D5 states the rule.
+Chosen reading of ticket rows 7 and 9, approved in design round 2: a stand-in line is never dropped or collapsed to meet row 7's 180-word cap, and stand-in lines that alone pass the cap are all printed (D5); the conformance check reads row 7 with this precedence. Row 7 carries `deviates:` for ordinary-choice overflow, the user's answer at the ship gate; D5 states the rule.
 
 ### D1 - No ask inside the budget
 
@@ -241,7 +241,7 @@ What the run decided on its own (N):
 
 - Order: commit order within a checkout, oldest first. Omit the block when N = 0. A stand-in line renders even when it is the only line.
 - Register: ship restates a line that carries a commit hash or a row, task or finding number without it.
-- Cap: the block, heading included, targets under 180 words. When shortened ordinary choices and their reasons still exceed it, the cap yields: every choice keeps its line and its reason, and nothing is dropped or combined. Over the cap, ship shortens the wording of lines while each keeps its choice and its reason, and each stand-in line keeps its missing data, its stand-in and the not-proven clause. No line, reason or stand-in is dropped or collapsed. Stand-in lines that alone pass the cap are all printed (approved in design round 2). A block that ordinary choice lines keep over the cap after shortening has no rule here: that case is the user's scope decision (Open questions), and this spec claims no cap that holds for every run.
+- Cap: the block, heading included, targets under 180 words. When shortened ordinary choices and their reasons still exceed it, the cap yields: every choice keeps its line and its reason, and nothing is dropped or combined. Over the cap, ship shortens the wording of lines while each keeps its choice and its reason, and each stand-in line keeps its missing data, its stand-in and the not-proven clause. No line, reason or stand-in is dropped or collapsed. Stand-in lines that alone pass the cap are all printed (approved in design round 2).
 - Add: each stand-in line, in the list's wording, in every pull request body the run proposes or edits, limited to the stand-ins recorded in that pull request's own range. Option 1 template and every body written from it, companion bodies included: a `## Summary` bullet. Header-linked route (`skills/gauntlet/ship/spec-pr.md`): written in the same reconcile edit as the Integration block, the one exception to "Preserve the home PR body byte-for-byte outside its Integration block". Rework route: inside the appended `## Rework` block.
 - Unchanged: Step 3.5, the menu rows, the first-line marker.
 
