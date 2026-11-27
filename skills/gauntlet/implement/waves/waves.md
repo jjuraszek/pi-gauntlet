@@ -170,7 +170,7 @@ The redirected `diff --binary --cached` writes a file and loads nothing into the
 | `REJECT` or `anchorUnreadable` on a reviewer | - | [hard stop](#escalation-and-funding) with the stop note |
 | Wave reaches `4 + N` re-reviews (`N` = the largest funded grant among the wave's tasks, 0 without a token) | spent | apply the same spent-counter test before another round |
 
-**Spent-counter test.** At this spent counter take one more round when the last round moved, and stop when it stalled; when the round before is not recoverable, take one round. For a completed re-review, only `TRAJECTORY: CONVERGING` moves, even with one finding at the same location; missing or malformed trajectory stalls. Without a re-review (dispatch error, non-`DONE`, red gate or empty delta), stall on an empty delta or the same whitespace-normalized failing command plus assertion as the prior round. Otherwise print `extra round for task <n>: <what moved>` and repeat the funded-round payload (`model: <implModel>`, same tree, same anchors). Recheck after every extra round; never add funding or another escalation.
+**Spent-counter test.** At this spent counter take one more round when the last round moved, and [stop when it stalled](#escalation-and-funding); when the round before is not recoverable, take one round. For a completed re-review, only `TRAJECTORY: CONVERGING` moves, even with one finding at the same location; missing or malformed trajectory stalls. Without a re-review (dispatch error, non-`DONE`, red gate or empty delta), stall on an empty delta or the same whitespace-normalized failing command plus assertion as the prior round. Otherwise print `extra round for task <n>: <what moved>` and repeat the funded-round payload (`model: <implModel>`, same tree, same anchors). Recheck after every extra round; never add funding or another escalation.
 
 Execution escalation to `implModel` is available whenever `failed[n]` reaches 2, independently of any `**Amend-grant:**` value; funding only adds rounds after the escalated round. Follow this table after two failed attempts, without requiring amend permission.
 
@@ -265,7 +265,7 @@ Use the transition table as the only attempt counter; count each failed operatio
 
 1. **Attempt 1:** dispatch a NEW fix subagent on the same tree with error-output paths, the original task anchors, and specific instructions about what went wrong.
 2. **Attempt 2:** if attempt 1 also fails, dispatch one more on the same tree with a simplified scope or different approach.
-3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round. Keep `in_progress` pending the human decision; completion requires the wave commit. See [Escalation and funding](#escalation-and-funding).
+3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round. Keep `in_progress` until the wave commits or emits its stop note. A stop leaves the task `in_progress`; completion requires the wave commit. See [Escalation and funding](#escalation-and-funding).
 
 **NEVER:**
 

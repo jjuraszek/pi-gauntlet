@@ -127,11 +127,15 @@ test('each exceptional wave entry reaches its procedure before acting', () => {
     ['For a dispatched task missing', 'chain-stopped-or-failed'], ['identity-matched capture as the second', 'chain-stopped-or-failed'],
     ['missing prior review-tree transcript', 'recovery'], ['Repair delta fails `git apply', 'rebuild'], ['the human may ask for one', 'rebuild'],
     ['`TRAJECTORY: CONVERGING` or `DIVERGING`', 'escalation-and-funding'], ['3. after 2 failed attempts', 'escalation-and-funding'],
-    ['An escalated round fails with', 'escalation-and-funding'], ['second overflow', 'escalation-and-funding'], ['Stop for redraws', 'escalation-and-funding'],
+    ['reaches its [stop note]', 'escalation-and-funding'], ['second overflow', 'escalation-and-funding'],
     ['when `implModel` is `undefined`', 'escalation-and-funding'], ['nonempty initial patch that fails', 'escalation-and-funding'],
-    ['`REJECT` ->', 'escalation-and-funding'], ['or the round cap:', 'escalation-and-funding'],
+    ['`REJECT` ->', 'escalation-and-funding'], ['**Spent-counter test.**', 'escalation-and-funding'],
     ['Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`', 'escalation-and-funding'], ['Funded round fails the same way', 'escalation-and-funding'],
   ]) assert.ok(line(site).includes(`](#${anchor})`), site);
+  for (const event of ['Escalated round fails', 'Wave reaches `4 + N`']) assert.match(line(event), /spent-counter test/);
+  assert.match(read('skills/gauntlet/implement/waves/implement-amendments.md'), /nonempty `redraws` array \[stops\]\(\.\/escalation\.md#escalation-and-funding\)/);
+  assert.match(recovery, /Use Recovery for an interrupted diagnosis; stop on other delegated failures/);
+  assert.match(read('skills/gauntlet/implement/waves/chain-recovery.md'), /Redispatch in the same turn only when .*interrupted step wrote nothing to the owning checkout/);
   for (const status of ['BLOCKED', 'NEEDS_CONTEXT']) assert.match(line(`| \`${status}\` |`), /amendment route.*lookup handling.*For decisions.*#escalation-and-funding/);
   assert.match(line('**Read and integrate.**'), /`BLOCKED` \/ `NEEDS_CONTEXT` -> \[Implementer Status\]\(#implementer-status\)/);
   assert.match(recovery, /waves\.md#implementer-status.*only on the takeable-decision branch.*escalation\.md#escalation-and-funding/);
