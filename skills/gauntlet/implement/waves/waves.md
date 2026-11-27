@@ -163,11 +163,11 @@ The redirected `diff --binary --cached` writes a file and loads nothing into the
 | Repair delta fails `git apply --index` | +1 | [rebuild](#rebuild) |
 | Review 1 `FIX_FIRST` (no `TRAJECTORY:` line) | +1 for each attributed task | repair |
 | Re-review `FIX_FIRST`, `TRAJECTORY: CONVERGING` or `DIVERGING` | +1 for each attributed task | repair while `failed[n] < 2`; else [escalation](#escalation-and-funding) |
-| Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`, or a missing/malformed line | sets `failed[n] = 2` for each attributed task | escalation now (ordinary rounds), no convergence exception; never re-dispatch the review merely to obtain the line; stop immediately on a funded re-review |
+| Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`, or a missing/malformed line | sets `failed[n] = 2` for each attributed task | escalation now (ordinary rounds), no convergence exception; never re-dispatch the review merely to obtain the line; [stop immediately](#escalation-and-funding) on a funded re-review |
 | `failed[n] == 2` reached by a `CONVERGING` re-review whose line lacks `max severity Critical`, `converged[n]` unset | sets `converged[n]` | one extra ordinary repair, then re-review; a further `FIX_FIRST` escalates whatever the trajectory |
 | `failed[n] == 2` (or `> 2` after the convergence exception), `escalated[n]` unset | sets `escalated[n]` | escalated round with `model: <implModel>` |
 | Escalated round fails (dispatch error, non-`DONE`, red gate, empty delta, or attributed `FIX_FIRST`) | spent | funded round while the task's ledger has one left, else stop note |
-| Funded round fails the same way | spends one | next funded round while one remains, else stop note; `STAGNANT` stops regardless |
+| Funded round fails the same way | spends one | next funded round while one remains, else stop note; [`STAGNANT`](#escalation-and-funding) stops regardless |
 | Gate green and review or re-review `SHIP` | - | step 7 |
 | `REJECT`, `anchorUnreadable` on a reviewer, or the round cap: more than `4 + N` re-reviews in one wave (`N` = the largest funded grant among the wave's tasks, 0 without a token) | - | [hard stop](#escalation-and-funding) with the stop note |
 

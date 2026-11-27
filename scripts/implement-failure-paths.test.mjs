@@ -130,6 +130,7 @@ test('each exceptional wave entry reaches its procedure before acting', () => {
     ['An escalated round fails with', 'escalation-and-funding'], ['second overflow', 'escalation-and-funding'], ['Stop for redraws', 'escalation-and-funding'],
     ['when `implModel` is `undefined`', 'escalation-and-funding'], ['nonempty initial patch that fails', 'escalation-and-funding'],
     ['`REJECT` ->', 'escalation-and-funding'], ['or the round cap:', 'escalation-and-funding'],
+    ['Re-review `FIX_FIRST`, `TRAJECTORY: STAGNANT`', 'escalation-and-funding'], ['Funded round fails the same way', 'escalation-and-funding'],
   ]) assert.ok(line(site).includes(`](#${anchor})`), site);
   for (const status of ['BLOCKED', 'NEEDS_CONTEXT']) assert.match(line(`| \`${status}\` |`), /amendment route.*lookup handling.*For decisions.*#escalation-and-funding/);
   assert.match(line('**Read and integrate.**'), /`BLOCKED` \/ `NEEDS_CONTEXT` -> \[Implementer Status\]\(#implementer-status\)/);
