@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v9.1.4 - 2026-11-28
 
 - Test with a small stand-in when the named input is missing but the repository shows its format, instead of stopping or dropping the work. The ship menu and affected pull request say what stood in and what the run has not proven on the intended input. (#170)
 
