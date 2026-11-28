@@ -1,11 +1,8 @@
 # eval report: gauntlet (partial run: handoff-follows-pointer)
 
-for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
+for: ddcbb009f7f1e1c9d3bb8b1185445141ea426e3415665e4d69479a9a0be23470
 
-wall: 5s
-
-refresh: complete; sample: handoff-follows-pointer; models: anthropic/claude-opus-5-5, github-copilot/gpt-6.1-sol
-audit: [candidate.json](candidate.json)
+wall: 4s
 
 ## Change
 
@@ -17,12 +14,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 3570 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
-| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 4275 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| handoff-follows-pointer | anthropic/claude-opus-5-5 | unchanged | 3379 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
+| handoff-follows-pointer | github-copilot/gpt-6.1-sol | unchanged | 3449 | question: holds -> holds (held); receipt: holds -> holds (intended but unchanged); command: holds -> holds (intended but unchanged) |
 
 ## Feedback
 
-- handoff-follows-pointer / anthropic/claude-opus-5-5: Before and After are the identical single token `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the fact holds in both and the After wording moved nothing in this case. No wording change is needed to keep this fact: as long as the continuation from the tracker result still proceeds without an ownership or confirmation question when all local hand-off requirements are complete, it will keep holding. Note that this sample shows only the receipt token, so it gives no evidence either way about the Integration-sorting or ownership-question behaviour the Change targets.
-- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Before and After are the same single token, `PINE-GLASS-7Q3M`, and neither asks the person for input or confirmation, so the `question` fact holds in both and the wording change moved nothing on this case. Neither output shows any continuation work either (no pointer read, no next step narrated), so this sample cannot show whether the Change's sorting and ownership-question rules are delivered. To keep this fact while delivering the Change, keep the hand-off continuation free of confirmation prompts and limit the new ownership question to an unmatched group with a surviving acceptance row, as the Change already states.
+- handoff-follows-pointer / anthropic/claude-opus-5-5: Both Before and After consist solely of the token 'PINE-GLASS-7Q3M', with no question or request for confirmation directed at the person, so the 'question' fact holds in both and the wording change moved nothing for this case. Note that neither output shows any substantive continuation of the run (no receipt read, no next step narrated), so this sample gives no evidence about the Change itself; to keep this fact holding, continue to have the hand-off continuation proceed without asking the person for input once local hand-off requirements are complete.
+- handoff-follows-pointer / github-copilot/gpt-6.1-sol: Both outputs are the identical single token `PINE-GLASS-7Q3M`, which contains no question or request for confirmation, so the fact holds in Before and After alike and the wording change moved nothing on this case. Note that neither output shows any actual continuation of the run (no tracker result handling or hand-off steps), so this case offers no evidence about the Change itself; to keep the fact holding, the After wording should continue to avoid introducing ownership or confirmation prompts when all local hand-off requirements are already complete.
 
 exit: 0

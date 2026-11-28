@@ -380,7 +380,7 @@ test("SDD assembly keeps completion and runner with candidate late read", () => 
   assert.ok(candidate.includes("## After All Tasks Complete"));
   assert.ok(candidate.includes("Happy path: <abs path to $HP_DIR/summary.txt> (<outcome>)"));
   assert.ok(candidate.includes("<!-- happy-path-shell -->"));
-  assert.ok(candidate.includes("## When a Subagent Fails") && candidate.includes("after 2 failed attempts the transition table's escalated round runs; STOP only when that round and any funded round are spent. Keep `in_progress` pending the human decision; completion requires the wave commit."));
+  assert.ok(candidate.includes("## When a Subagent Fails") && candidate.includes("after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round. Keep `in_progress` until the wave commits or emits its stop note."));
   assert.ok(candidate.includes("../happy-path-run.md` at its absolute path"));
   assert.ok(candidate.includes("On an unreadable reference, stop with a blocking error"));
 });

@@ -100,7 +100,8 @@ test('verification repairs reserve and consume the shared allowance across legs 
   assert.match(companion, /Route `pending: verify` through.*After the loop step 1/);
   assert.match(restoreLoop, /For `pending: verify`, use After the loop step 1's repair contract/);
   for (const token of [
-    'repairs < allowance', 'Count `repairs` as `repair verification` lines in the home ledger',
+    'repairs < allowance', 'current failing test names or assertion lines match',
+    'ignore timings', 'Never decide from gate index and exit code alone', 'Count `repairs` as `repair verification` lines in the home ledger',
     'plus one for a `pending: verify` tuple on disk',
     'pending: verify | <repo> | <HEAD>', 'on disk before dispatch',
     'repairs: <k> of <allowance>', 'no per-row retry increments',

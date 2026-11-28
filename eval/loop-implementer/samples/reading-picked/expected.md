@@ -1,0 +1,2 @@
+- reading: judged: Implements the kind-specific label when Design recommends it and the smaller generic label otherwise, without asking or failing the row for a decision.
+- choice: judged: Each row commit body contains one `- choice | what | why` line describing its selected label and the reason for it, without row or task numbers.

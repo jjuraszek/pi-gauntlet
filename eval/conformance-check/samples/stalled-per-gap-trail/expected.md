@@ -1,0 +1,4 @@
+- gate-first: mechanical: matches /^gauntlet: gate=verify\/step-6(?:\r?\n|$)/
+- per-gap-rounds: judged: Under Problem:, gives both verdicts for each identified gap (G1 R1 PARTIAL and R2 MISSING; G2 R1 MISSING and R2 PARTIAL). An overall GAPS sequence or only the latest per-gap verdicts do not satisfy this fact.
+- needs-no-menu: judged: Uses Needs: to state the input needed to proceed; does not render a funding menu or options.
+- remains-incomplete: judged: Stops without granting or dispatching a round, completing verification, or entering ship.

@@ -140,7 +140,7 @@ Mirrors `implement/waves/waves.md`'s wave loop and reuses its
 `plan_tracker` progress surface. Runs entirely inside the gate — it invokes
 **no** phase-transition `phase_tracker` calls (`start`/`complete`/`skip`/`reset`
 - `phase_tracker({ phase: "implement" })` errors while verify is `in_progress`;
-the only `phase_tracker` call inside the loop is the human-approval
+the only `phase_tracker` call inside the loop is the cap grant
 `grant_fix_rounds` in step 6) and does **not** enter SDD's phase machinery.
 Only the fan-out/integrate/review shape and `plan_tracker` are reused. Every execution dispatch is foreground with top-level `async: false`, including retries and prose-described dispatches; an unexpected async handle is a configuration failure: stop and report, never poll or relaunch. `forceTopLevelAsync` is incompatible; see [pi-cohort dispatch configuration](https://github.com/jjuraszek/pi-cohort/blob/main/doc/configuration.md).
 
@@ -173,7 +173,7 @@ Per round:
    the successes, then retry the failure with fresh context including the
    integrated changes. Every re-run or retry inside this loop is itself a
    one-task `tasks` wave (never a lone `agent: "implementer"`) and counts as a
-   wave against `maxFixRounds`. A `BLOCKED`/`NEEDS_CONTEXT` return surfaces to the user.
+   wave against `maxFixRounds`. Route a cited spec defect through the amendment surface; otherwise treat `BLOCKED` or `NEEDS_CONTEXT` as a failed agent and use the same counted fresh-context retry.
 4. **Scoped tests** on the integrated tree: for a ledger, run the complete gate set per Ledger subjects above. Otherwise run the round's `SCOPED_TEST_COMMANDS` union as `(cd "<conformance-worktree>" && <command>)`. A failure re-enters the failure-handling rules above.
 5. **Re-audit**: Happy-path re-run first, when the prior audit received a happy-path input: if `$HP_DIR` no longer exists (finish-time `fix-now` in a resumed session), re-derive the row per step 3.1 from the overrides table, then re-run the step-3 procedure when `git -C "<worktree>" diff --name-only <audited-base>..HEAD` contains a path inside that row's `Paths` or an open gap's `evidence:` cites the summary path, else pass `not run - no prior transcript`. Otherwise re-run the step-3 procedure into a fresh `$HP_DIR` when either (a) `git -C "<worktree>" diff --name-only <head from current summary.txt>..HEAD` contains a path inside the current row's `Paths` (the summary's `head:` line is the diff base, so changes from skipped rounds accumulate into the next comparison); (b) an open gap's `evidence:` cites the summary path. Otherwise pass the previous summary unchanged. When the re-run's outcome differs from the previous one, extend this re-audit's scope to every row whose `evidence:` cites the summary. Rounds touching only paths outside every row never re-run. Then foreground re-dispatch `conformance-reviewer` with `async: false`, `cwd` = the conformance worktree, over the fixes **plus** the
    regression guard (any prior-`DELIVERED` requirement whose `evidence` file
@@ -186,35 +186,19 @@ Per round:
    that omits `model:` when `closureReview.model` is set, and warns (non-blocking)
    on one whose model differs. Mark every `Gn` the re-audit reports `DELIVERED`
    `complete`; open ones stay `in_progress`.
-6. **Converge or continue**: verdict `CONFORMS` -> Convergence below. Under the loop engine with amend permission, apply the loop driver's After the loop step 3 funding up to the ledger allowance before this ask; ask the human only when it declines. Start the message with `gauntlet: gate=verify/step-6` alone on the first output line, followed by a newline before the human escalation text, including Convergence cap exhaustion. Read and apply [menu-layout](menu-layout.md); ask for explicit funding of additional rounds. Emit this proactively, independent of any runtime guard error. Keep verification incomplete; emit no done or stuck line here or at intermediate closure. Open gaps
-   within the cap → re-partition (per the rule above) and start the next
-   round. Cap (`gauntlet_setting({ key: "closureReview" }).maxFixRounds`,
-   default `5`, floors negatives at `0`, normalizes missing or non-integer values to `5`) reached
-   with an open `fix` gap or repair item → **escalate to the human** with the per-gap
-   round-by-round verdict trail. Escalation is the sole non-completing
-   terminal state — no silent re-loop, no auto-ship. If the human explicitly
-   approves N more rounds, record `phase_tracker({ action: "grant_fix_rounds",
-   rounds: N, reason: "<their words>" })` and re-enter step 2; without that
-   approval, escalation stays terminal. Inside a brainstorming-entered flow
-   the phase tracker enforces both rules at
-   tool-call time: a lone `agent: "implementer"` dispatch is blocked, and the
-   wave after the cap is blocked (`closureReview.enforce: false` disables).
+6. **Converge or continue**: verdict `CONFORMS` -> Convergence below. Open fix gaps within the cap: re-partition and start the next round. At a positive `closureReview.maxFixRounds` cap, use the same test for both engines, with or without amend permission. At this spent counter take one more round when the last round moved, and stop when it stalled; when the round before is not recoverable, take one round. A gap newly `DELIVERED`, a failing command newly passing, or a Critical or Moderate finding gone means progress. While moving, when the block is live call `phase_tracker({ action: "grant_fix_rounds", rounds: 1, reason: "<what the last round closed>" })`; when `closureReview.enforce` is false continue without a call. Never probe or grant again while credits remain. Recheck after each round. When stalled, or on an error reply, stop. Start the message with `gauntlet: gate=verify/step-6` alone on the first line, as defined in [menu-layout](menu-layout.md). Give each gap's verdict for each round under `Problem:` and the input needed to proceed under `Needs:`; no menu. Keep verify incomplete. If the human explicitly approves N more rounds, record `phase_tracker({ action: "grant_fix_rounds", rounds: N, reason: "<their words>" })` and re-enter step 2; otherwise the stalled cap is terminal.
 
 **Convergence** - run after R0 `CONFORMS` and after every `CONFORMS` re-audit. Keep `r0-head` at the captured entry HEAD (the R0 dispatch or finish-time `fix-now` entry); keep `audited-base` at the last audit's HEAD SHA. Never reconstruct the boundary from a subject.
 
 a. For a ledger, run the complete gate set per Ledger subjects above. Otherwise: Run the full plan-header `Verification` set once as `(cd "<conformance-worktree>" && <command>)` (ad-hoc: the project's canonical test command). After R0 `CONFORMS` with no round run, the pre-R0 run of the applicable set counts.
 b. Dispatch `wave-reviewer` directly (foreground, `async: false`, `cwd` = the conformance worktree, `SCOPED_TEST_COMMANDS: none`) over `git diff <r0-head>..HEAD`; never via `requesting-review.md`. An empty diff is nothing to review - no dispatch. Before selecting repairs, use only the verify-before-acting stance from [receiving-review.md](receiving-review.md): check each finding against b's assigned diff, cite the contrary hunk in the review outcome and select no edit for a disproved claim.
-c. Repair items = every failing command from a + every Critical/Moderate finding from b (the re-audit is their origin check). None → write the closure block; done. Any at the cap → escalate per step 6 with the test/CR trail (an explicit human approval re-enters via `grant_fix_rounds`, as step 6 describes). Any under the cap → re-enter step 2 as a one-task `tasks` wave: one `implementer` whose task is every repair item verbatim (ownership boundary = the files in `git diff <r0-head>..HEAD`, the CR findings' `touched-files`, and the files each failing command's output names, `SCOPED_TEST_COMMANDS: none`, no `Gn` tracker task, no gap selection), integrate as one repair commit through the shared Convergence repair row, re-audit, then Convergence again. That wave counts against `maxFixRounds`. Later Convergence CRs keep the same `<r0-head>..HEAD` range.
+c. Repair items = every failing command from a + every Critical/Moderate finding from b (the re-audit is their origin check). None → write the closure block; done. Any at the cap: apply the step 6 progress test to the test/CR trail; when moving, run one more repair wave as below. Any under the cap → re-enter step 2 as a one-task `tasks` wave: one `implementer` whose task is every repair item verbatim (ownership boundary = the files in `git diff <r0-head>..HEAD`, the CR findings' `touched-files`, and the files each failing command's output names, `SCOPED_TEST_COMMANDS: none`, no `Gn` tracker task, no gap selection), integrate as one repair commit through the shared Convergence repair row, re-audit, then Convergence again. That wave counts against `maxFixRounds`. Later Convergence CRs keep the same `<r0-head>..HEAD` range.
 
 Keep a Convergence repair out of the `auto-applied fix commits` index: it is not a gap fix and has no `revert conformance fix Gn` action at the finish gate.
 
 **`maxFixRounds: 0`**: skip this loop entirely; every `recommended: fix` gap is
 carried OPEN to the finish gate per the precondition-unavailable
-carry-OPEN rule in the partition step above. The load-bearing distinction here
-is opted-out vs. exhausted: `maxFixRounds: 0` means the user opted out of
-auto-fix, so treat `fix` gaps like any other deferred gap — unlike a cap > 0
-that is *exhausted*, which escalates mid-verify because the loop tried and
-could not converge.
+carry-OPEN rule in the partition step above. For a positive cap, follow step 6.
 
 ## Concern decomposition
 
@@ -341,10 +325,9 @@ Emit this block in the verify completion summary. It is the durable handoff
 context was pruned. Verify completes when every gap is either fixed
 (`CONFORMS`) or carried OPEN as a deferred gap - `accept`/`rescope`,
 or a `recommended: fix` gap carried OPEN per the precondition-unavailable
-carry-OPEN rule in the partition step above (the loop never started). Escalation - a started
-positive-cap loop that exhausted its rounds or blocked/failed with an open `fix`
-gap - is the one non-completing terminal state; the precondition-unavailable
-carried-open `fix` state is valid closure inventory, not escalation.
+carry-OPEN rule in the partition step above (the loop never started). Route open
+fix gaps at the cap through step 6. Keep verify incomplete on a step 6 stop or
+when a started fix loop blocks or fails.
 
 ### Handoff sentinel and freshness anchor - every handoff
 

@@ -1,0 +1,2 @@
+- review: judged: Prints extra round for task 3 naming the review progress and takes one same-tree repair on implModel with the same anchors even though a finding stayed at frame.ts:21 and the wave hit the cap. No funding request or second escalation.
+- gate: judged: With no completed re-review, takes one extra repair for the changed assertion and nonempty delta, without inventing a trajectory. Rechecks movement after the extra round.

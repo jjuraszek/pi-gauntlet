@@ -1,3 +1,4 @@
-- one-round: judged: Runs exactly one funded fix with configured implModel, current-tree repair context, async false, scoped tests and wave review re-review; does not grant another escalation or convergence exception.
+- one-round: judged: Runs exactly one funded fix with configured implModel, current-tree repair context, async false, scoped tests and wave review re-review; stops because the completed re-review is DIVERGING at the spent counter, not merely because the token is spent.
 - spent-line: judged: Stops with budget: 1 of 1 spent after Problem: and before the file finding.
 - no-complete: judged: Leaves task in_progress with no wave commit or task completion.
+- dispatch-error: judged: In the independent snapshot, routes the escalated dispatch error to the one remaining funded repair on the retained tree and configured implModel, without a stop note or a human question.

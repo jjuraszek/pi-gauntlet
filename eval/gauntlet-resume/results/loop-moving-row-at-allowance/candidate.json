@@ -1,0 +1,70 @@
+{
+  "sample": "loop-moving-row-at-allowance",
+  "arm": "candidate",
+  "skillSha": "ad5117386b2603306b9836de4393f705c37e6d9299b6b464f426cf7fbfb1c167",
+  "inputSha": "179d410cf56ba6a4053f1cd8af05eedc892447079089d1de9f87346da376762e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next action: one more ordinary attempt on row 2, without a grant\n\nRestoration is already done, so I continue at the loop driver's **Before each dispatch**.\n\n## 1. Pre-dispatch ledger checks\n\nThese read the ledger and change nothing.\n\n- The ledger has a `checks:` line.\n- It has exactly one `returned:` line.\n- It has an `allowance:` line and no `cap:` line.\n- There is no `pending:` tuple.\n- Row 2's failure was already routed through Unreachable returns at admission. Its evidence has no `unreachable:` marker.\n\n## 2. Ordered table\n\n- **Rule 1 does not apply.** Row 2 is still `failed`.\n- **Rule 2 applies.** Row 2 has used 4 attempts against an effective allowance of 4 (header allowance plus zero retry decisions). The question is whether the last round moved or stalled. The row has not stalled:\n  - Rule 3 does not hold, because both of the last two child commits changed parser code outside the ledger.\n  - The normalized evidence cell differs between those two commits: `expected header FF` became `expected length 3`.\n  - Neither attempt was an `interrupted -` repair.\n  - No unresolved spec-versus-code contradiction exists.\n\nSo the row gets one extra attempt with no grant. I write no retry decision, leave the header allowance unchanged, and make no commit. I print:\n\n```\nextra attempt for row 2: evidence moved from \"expected header FF\" to \"expected length 3\"\n```\n\n- **Rule 4 picks the target.** There is no human retry target. The still-failed row named by the previous decision is row 2, so row 2 is the target.\n- **Escalation check:** a durable `row 2 escalated` decision exists, so escalation is spent. I make no `escalationLoop` settings call, append no second marker, and omit the model override.\n\n## 3. Dispatch (home)\n\n1. I record `HEAD_BEFORE`: `git -C \"<worktree>\" rev-parse HEAD`.\n2. I save the ledger before changing it and keep the current count as `i` (the ledger's `iterations:` value).\n3. I write `iterations: <i+1>` and `pending: 2 | home | <HEAD_BEFORE sha>` to the ledger on disk, and commit nothing.\n4. I refresh the tracker: `plan_tracker({ action: \"refresh\", path: \"<absolute ledger path>\" })`.\n5. I resolve the scratch folder with `CHECKOUT=<worktree>` and create the output file: `mktemp \"$SCRATCH/loop-out.XXXXXX\"`, giving `<out path>`.\n6. I dispatch the worker:\n\n```\nsubagent({ agent: \"loop-implementer\", context: \"fresh\", async: false,\n  cwd: \"<absolute worktree>\", output: \"<out path>\", outputMode: \"file-only\",\n  acceptance: { level: \"none\", reason: \"the parent validates the ledger and the commit\" },\n  task: \"iteration: <i>\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <ledger base SHA>\\ntarget: 2\\nprevious decision: <row 2's latest failed decision line, recommending checking length>\\nhint: none\\nwording: <absolute commit-message.md path>\\nticket: <ticket or none>\\nscratch: <absolute SCRATCH>\" })\n```\n\nThe call has no `model` field.\n\n## 4. Counter handling after the return\n\n**Admission requirements:**\n- The child returns DONE.\n- The worktree is clean.\n- `HEAD_BEFORE..HEAD` contains exactly 1 commit.\n- The ledger at HEAD has `iterations: <i+1>`.\n- The tuple has moved to `returned: 2 | home | <sha>`, and no `pending:` line remains.\n- Row 2 changed to `done` or `failed`, its attempts went from 4 to 5, and its evidence is not empty.\n\n**Counters:** attempts keep counting past the allowance, so row 2 can show 5 of 4. I never reset or reduce attempts. Iterations rise only through the bump above.\n\n**Next pass:**\n- If row 2 is `done`, rule 1 exits to **After the loop**.\n- If row 2 is still `failed`, rule 2 runs again at 5 of 4. If the evidence moved again, the row gets another extra attempt. If the evidence cell repeats, or rule 3 holds, I stop at **Stopped on row 2** with the retry, `rows +N`, Amend and Stop options.\n- A dispatch error, a non-DONE return, a dirty tree or a wrong commit count goes through Interrupted recovery instead.\n",
+      "words": 595,
+      "wallMs": 21159,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "Paths, SHAs, and the current iteration count were not supplied; angle-bracketed values below refer to those existing run values.\n\n1. Print:\n   ```text\n   extra attempt for row 2: evidence changed from expected header FF to expected length 3\n   ```\n   Rule 2 permits another attempt because the last round moved. Both child commits changed parser code, so the no-change stop does not apply. Do not ask for a retry grant or raise allowance.\n\n2. Read `<absolute loop skill directory>/empty-child-stagnation.md`, as required before dispatch.\n\n3. Run:\n   ```text\n   git -C \"<absolute home worktree>\" rev-parse HEAD\n   ```\n   Retain the result as `HEAD_BEFORE`. Save the ledger’s unchanged before-image and retain its current `iterations:` as `i`.\n\n4. Write only the dispatch accounting to `<absolute ledger path>`:\n   ```text\n   iterations: <i + 1>\n   pending: 2 | home | <HEAD_BEFORE>\n   ```\n   Leave row 2 at `failed`, attempts `4`; preserve allowance, `returned:`, and all decisions. Make no bookkeeping commit.\n\n5. Call:\n   ```text\n   plan_tracker({ action: \"refresh\", path: <absolute ledger path> })\n   ```\n\n6. Read `<absolute gauntlet skill directory>/return-file.md` at **Scratch folder**, with `CHECKOUT` set to the home worktree, and resolve `SCRATCH` using that recipe. Run:\n   ```bash\n   mktemp \"$SCRATCH/loop-out.XXXXXX\"\n   ```\n   Retain the returned absolute path as `OUTPUT`.\n\n7. Print, substituting the actual counts:\n   ```text\n   Dispatch row 2: task iteration <i>; ledger consumed count <i + 1>.\n   ```\n\n8. Call:\n   ```text\n   subagent({\n     agent: \"loop-implementer\",\n     context: \"fresh\",\n     async: false,\n     cwd: <absolute home worktree>,\n     output: <OUTPUT>,\n     outputMode: \"file-only\",\n     acceptance: {\n       level: \"none\",\n       reason: \"the parent validates the ledger and the commit\"\n     },\n     task: \"iteration: <i>\\nspec: <absolute spec path>\\nledger: <absolute ledger path>\\nbase: <ledger base SHA>\\ntarget: 2\\nprevious decision: <verbatim latest conforming row 2 failed decision>\\nhint: none\\nwording: <absolute commit-message.md path>\\nticket: <held ticket reference or none>\\nscratch: <absolute SCRATCH>\"\n   })\n   ```\n\n   **Omit `model`**: row 2’s escalated round is already spent. Do not resolve another escalation model or append another escalation marker. The latest decision already carries the recommendation to check length; do not turn it into an invented human hint.\n\nThe child must increment row 2’s attempts from **4 to 5** in its return. Admission must validate the consumed iteration as **`i + 1`**, not the task’s pre-bump `i`. The effective allowance remains **4**; exceeding it here neither resets counters nor spends another escalation.\n",
+      "words": 347,
+      "wallMs": 22754,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "0f337c1ff7440bf29ac2580b7117b15cdd18fed1a9003b9f6262cc16af04bd78",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7c7c2628066c13cada54b6c504a975d8c4d3f1aa9b505c2cce2db74d45f88c1c",
+      "baselineOutputSha": "fbd3bb38a9fa68e1e070d987f68517560ecfb37e67e868b42b718ad6c0d9c2ca",
+      "candidateOutputSha": "14d7f760232c8ae20dec49f45ee803d24461e60384d83094a6e7246f715df427",
+      "facts": {
+        "moving": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The spent-counter progress test in After moved the fact: After applies rule 2 at 4 of 4, compares the last two rounds, finds the evidence changed from expected header FF to expected length 3, prints the extra-attempt line for row 2, and dispatches loop-implementer with no grant, no retry decision, no allowance change, no attempt reset and no model override because the escalated marker is already spent. Before treated 4 >= 4 as an unconditional human stop and dispatched nothing, so the fact failed there. Before kept no fact that After lost, so nothing needs restoring. To keep this stable, keep the wording explicit that the changed-evidence comparison is part of rule 2 itself, that the extra attempt writes no retry decision and leaves the header allowance untouched, and that a spent escalation means the model override is omitted. One small thing to tighten: After prints the extra-attempt line with its own phrasing of the moved evidence; if the driver has an exact output format for that line, state it verbatim in the wording so the printed line does not drift.",
+      "wallMs": 5124,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "0f337c1ff7440bf29ac2580b7117b15cdd18fed1a9003b9f6262cc16af04bd78",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "7c7c2628066c13cada54b6c504a975d8c4d3f1aa9b505c2cce2db74d45f88c1c",
+      "baselineOutputSha": "98cb9a8ad8c2538abdc11a153e9a65ec0475edb20918f12cc6ad32242a72b960",
+      "candidateOutputSha": "56e6181abee55fd13917767fd54bd092972a283cdd4d46bba5767daae8ce9ae6",
+      "facts": {
+        "moving": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "After moved the fact by applying rule 2 at the spent counter: it prints `extra attempt for row 2: evidence changed from expected header FF to expected length 3`, dispatches the loop-implementer directly without a retry grant, `rows +N` or human stop, keeps the effective allowance at 4, leaves attempts un-reset (the child moves 4 to 5), and omits `model` because the escalated round is already spent. Before instead stopped with a `gauntlet: question`, offered retry/rows options and declared the allowance stop takes precedence over stagnation checks, so the fact failed there. To keep this result, retain wording that makes the spent-counter progress test run before the allowance stop, and that states explicitly that a moved round neither resets attempts, raises allowance, nor re-spends escalation. The After output hedges on unsupplied paths and SHAs with angle-bracket placeholders; that does not affect the fact, but if the wording can say the placeholders stand for existing run values without implying live reads were performed, it stays consistent with the Change's note that snapshots replay instructions, not live repairs.",
+      "wallMs": 5033,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "c06b07493d236894bf32dc40f8362437e124ccf6"
+}

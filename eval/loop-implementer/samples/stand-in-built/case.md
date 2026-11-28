@@ -1,0 +1,3 @@
+bundle+: skills/gauntlet/commit-message.md
+
+Replay the worker at the input check, after the required reads. The row says to import the count from Monday's stock file. The worker checked the checkout, spec and ticket material: the named file is absent. The spec says nothing about its availability. The parser reads a CSV header `sku,count` and a data row. The selective check is `node --test test/import-count.test.mjs`; before the importer change it reads no count; after the change it reads the number from the file. Give the test input, test and edit order, row outcome and commit body. Stop at the commit.

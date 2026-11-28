@@ -44,7 +44,7 @@ test('boundary integration samples keep explicit ownership and allowance counter
   assert.deepEqual(lintTarget(new URL('eval/loop', root).pathname), []);
   const recovery = read('skills/gauntlet/implement/loop/interrupted-recovery.md');
   for (const [sample, tokens, decision] of [
-    ['seed-interrupted-count', ['seed: 1 of 1', 'rows +N', 'attempts 0'], 'repair seed | seed interrupted: <reason> | iteration <consumed>'],
+    ['seed-interrupted-count', ['redispatches because the two repair reasons differ', 'seed: 5 of 4 and Needs', 'rows +2 raises allowance to 6', 'attempts 0', 'dispatches one more seed because it has no previous repair reason for comparison'], 'repair seed | seed interrupted: <reason> | iteration <consumed>'],
     ['companion-interrupted-recovery', ['repo-b', 'pending:', 'Missing provenance'], 'repair row <n> | interrupted - <reason> | iteration <consumed>'],
     ['exit-repair-capability', ['timeout -k 30', 'jobs', 'repairs: 4 of 4', 'without a proof demand or human turn']],
     ['tracker-verify', ['repairs: 4 of 4', 'second repair']],

@@ -1,8 +1,8 @@
 # eval report: gauntlet (partial run: ticket-all-rows-sorted)
 
-for: 3191f38ab378b94b1d2b9a3ae80c903ca709ebdda14ab2e3f63e6706a8d8f696
+for: ddcbb009f7f1e1c9d3bb8b1185445141ea426e3415665e4d69479a9a0be23470
 
-wall: 9s
+wall: 16s
 
 ## Change
 
@@ -14,12 +14,12 @@ Select workflow-stage-ticket-row to check how the spec writer sorts an unrepaire
 
 | sample | model | verdict | judge ms | facts |
 |---|---|---|---|---|
-| ticket-all-rows-sorted | anthropic/claude-opus-5-5 | unchanged | 3485 | drafted: holds -> holds (held); provenance: holds -> holds (held); moved: holds -> holds (held) |
-| ticket-all-rows-sorted | github-copilot/gpt-6.1-sol | unchanged | 3724 | drafted: holds -> holds (held); provenance: holds -> holds (held); moved: holds -> holds (held) |
+| ticket-all-rows-sorted | anthropic/claude-opus-5-5 | unchanged | 6584 | drafted: holds -> holds (held); provenance: holds -> holds (held); moved: holds -> holds (held) |
+| ticket-all-rows-sorted | github-copilot/gpt-6.1-sol | unchanged | 4071 | drafted: holds -> holds (held); provenance: holds -> holds (held); moved: holds -> holds (held) |
 
 ## Feedback
 
-- ticket-all-rows-sorted / anthropic/claude-opus-5-5: Both outputs satisfy the fact: each Acceptance criteria section drafts a single unchecked `- [ ]` row marked in-scope stating that the importer names the missing required header, uses the drafted-from-design header rather than a ticket-rows-verbatim header, and places the cutover row only under Integration as a person step, not as an acceptance row. After did not move the fact; its differences are cosmetic (it drops the `id` fixture example and the trailing placement note, and stops cleanly at the authored sections, which matches the requested stop). To keep this stable, retain the wording that when all ticket rows move to Integration the acceptance rows are drafted from the design under the drafted header with no ownership question, and keep moved rows out of the Acceptance criteria section entirely.
-- ticket-all-rows-sorted / github-copilot/gpt-6.1-sol: Both outputs draft a single unchecked in-scope acceptance row stating that the importer names the missing required header, place the cutover row only under Integration (marked as a person step), and use the drafted-from-design header rather than a ticket-rows-verbatim header, so the fact holds in both. After's row drops Before's concrete `id` example but still states the observable diagnostic ('reports the missing column by name'), which is enough for the fact. To keep this stable, retain wording that makes the all-rows-moved branch draft acceptance rows from the design's observable behavior under the drafted-from-design header, with no cutover row and no ownership question; consider encouraging the row to cite the design's concrete fixture (e.g. the omitted `id` header) so the diagnostic stays clearly tied to the committed design.
+- ticket-all-rows-sorted / anthropic/claude-opus-5-5: The fact did not move: both outputs draft one unchecked in-scope row saying the import names the missing required column, both keep the cutover row out of Acceptance criteria (it sits in Integration with its person-step marker), and both use the drafted-from-design header rather than a ticket-rows-verbatim one. After differs in two ways. It appends an `id` example sentence to the row, which is harmless here but edges toward putting the fixture proof in the acceptance row; keep the row to the observable behaviour and leave the fixture to Tests. It also adds trailing placement and sorting notes after the authored sections; these do not break the fact, but the continuation asked only for the sections, so wording such as 'emit only the authored sections, with no rationale or placement commentary' would keep the output tight. The all-rows-move-to-Integration behaviour (draft from the design, no ownership question, no stop) is delivered in After and was already present in Before.
+- ticket-all-rows-sorted / github-copilot/gpt-6.1-sol: Both outputs satisfy `drafted`: each Acceptance criteria section has a single unchecked, in-scope row stating that the importer names the missing required header, has no cutover row (the cutover appears only under Integration), and uses a drafted-from-design lead-in instead of a ticket-rows-verbatim header. The only difference in After is the added clause tying the row to the local fixture ("including `id` when the fixture omits the `id` header"); this does not move the fact, but it folds a test fixture detail into the observable outcome. To keep the fact safely held, keep the wording that when all ticket rows move to Integration the acceptance rows are drafted from the design with no ownership question or stop, and consider saying that fixture specifics belong in Tests rather than in the drafted row, so the row stays a plain statement of the design's observable diagnostic.
 
 exit: 0

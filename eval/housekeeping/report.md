@@ -4,6 +4,8 @@ for: 84c473acaabe97403eb60ee62b9c23b7496765acd8a7c0981d738e5078535363
 
 wall: 36s
 
+The saved rows below predate the commit-body wording change and were not rerun.
+
 ## Deterministic fold check
 
 `timeout -k 30 120 node --test scripts/routine-commit-message.test.mjs` passes 23 checks. The extracted amend command failed the raw-message assertion on trailing spaces and blank lines with `--no-edit` alone; `--cleanup=verbatim` preserves those bytes, original parents and the pre-fold tree. The other checks pin routine callers' word sources, execute the spec heredoc, retain amendment audit fixtures and inspect saved message examples.

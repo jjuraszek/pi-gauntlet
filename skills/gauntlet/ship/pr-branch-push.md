@@ -22,6 +22,7 @@ Spec: <spec path> at <HEAD7>
 Keeps: <from the record>
 Changes: <from the record>
 Dropped claims: <none | one "No longer true: <claim>" line per dropped claim>
+<one bullet per stand-in in this PR's range, in the list's wording>
 Verification: scoped - <commands>; CI on this push holds the full run. Telemetry: whole PR against <baseRefName>.
 Threads:
 #<N>:

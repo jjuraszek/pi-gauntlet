@@ -1,5 +1,21 @@
 # Coordinated finish
 
+## Decisions above the ship menu
+
+After the home range, read companions in `## Legs` order. For each present worktree, use the Step 4 log recipe with that worktree and its own base. For a missing worktree with a validated receipt, use the receipt's `attempted-head` (the feature SHA, not the primary's `HEAD` or the squash SHA): `git -C "<companion primary>" log "<base-branch>..<attempted-head>" --format=%b --reverse`. Use that companion's confirmed PR base or the branch it squashed into. On failure, stop before the menu and name the companion and unreadable range as the blocker. Keep the recovered records attributed to that companion for its PR body.
+
+At Step 4, print one list at home above the options, including on the home-only path. Use one entry per matching line, including repeats, in the order read. Leave out recovered steps and extra attempts. Omit the block when N = 0.
+
+```
+What the run decided on its own (N):
+- <what> - <why>
+- <missing data> was not available, so <what stood in> stood in; this is not proven on the data the ticket meant.
+```
+
+For an amendment, render `<title>: <what changed>` and use the evidence cell as the reason; for `none`, use the fifth cell instead. For a choice, use its two cells as facts, not as copy. Render a stand-in even when it is the only entry.
+
+Use [everyday words](../../chase-bug/reference/verdict-report.md#register). Write both halves for the person who reported the problem: say what they can now do and why it mattered. Replace implementation terms with that effect: "open the same order on a second click", not "deduplicate requests". Restate entries without commit hashes or row, task or finding numbers. Aim for under 180 words, heading included. Shorten wording, keeping each choice and reason and each disclosure's missing data, replacement and lack of proof. Never drop or combine entries. When stand-in lines alone exceed the cap, print them all.
+
 ## Activation and authority
 
 Read the home spec's `## Legs` once at Step 1. Use the membership, portable identifiers, scope validation and [Locate a leg tree](../legs.md#locate-a-leg-tree) rules in the leg grammar. Resolve selected primaries from home's declared siblings; keep the session's home worktree and locate companions by recorded branch, regardless of a brief path or `home:`. Validate branch, repository identity and each companion's full `**Home:**` tuple before acting. Admit a missing delivered worktree only through a validated receipt below.
@@ -64,7 +80,7 @@ For PR, draft and squash:
 3. Collect complete companion results, including validated skips. Capture the spec path and evidence before the home plan strip. Run home's strip-and-seal block with repeated `--leg <repo>=<sha|pr-url>`, one per companion. Never seal partial results. Compare collected `{ repo, sha }` or `{ repo, pr }` entries with an existing seal's `legs:` set; differences stop naming stored and collected results. Retain all receipts when the bin fails and print its output. Never write companion `.pi/gauntlet/telemetry/`.
 4. Deliver home through the selected existing recipe after successful sealing, without running a second seal lacking the companion arguments. For [PR-subject row 1](pr-branch-push.md) retain the whole-PR base and all body-edit/closure rules. Write home's receipt, including post-squash failures. Run cleanup only for squash, after successful post-squash verification.
 
-Read [../commit-message.md](../commit-message.md) at each leg's delivery: compose its PR title and squash message through the Landed message and ticket rules. End each companion squash with `Home: <repo> <shared branch>`, without a spec path. Apply the [PR body Integration block](ship.md#option-1-push-and-create-pr) to each member's new or existing PR using that member's own spec file. For a receipt-proven PR without its worktree, read that file at its validated head in the member primary. Keep `Home: <repo> <shared branch> <home spec path>` in each companion PR body and respect that leg's PR body style. List every companion PR URL in the home PR body (including the existing home PR's rework block), and every companion squash SHA in home's squash message.
+Read [../commit-message.md](../commit-message.md) at each leg's delivery: compose its PR title and squash message through the Landed message and ticket rules. End each companion squash with `Home: <repo> <shared branch>`, without a spec path. Use each member's own stand-in bullets from the home menu, copied verbatim into its PR body at the place named by its delivery route (`## Summary` for a companion). Apply the [PR body Integration block](ship.md#option-1-push-and-create-pr) to each member's new or existing PR using that member's own spec file. For a receipt-proven PR without its worktree, read that file at its validated head in the member primary. Keep `Home: <repo> <shared branch> <home spec path>` in each companion PR body and respect that leg's PR body style. List every companion PR URL in the home PR body (including the existing home PR's rework block), and every companion squash SHA in home's squash message.
 
 On the first delivery, verification or seal failure, stop fan-out and preserve delivered work and receipts. Print actual results, including validated skips, in member order:
 

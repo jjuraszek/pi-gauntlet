@@ -295,7 +295,7 @@ const tokenChecks = [
   ["skills/gauntlet/amendment-surface.md", "or: no plan yet", false],
   ["skills/gauntlet/ship/disposition-protocol.md", "Reviewer:", true],
   ["agents/spec-council-member.md", "Mode: amendment-review", true],
-  ["skills/gauntlet/ship/ship.md", "Amendments auto-applied", true],
+  ["skills/gauntlet/ship/ship.md", "What the run decided on its own (N):", true],
   // #41 ticket ACs carried verbatim into the spec
   ["skills/gauntlet/brainstorm/ticket-acceptance.md", "## Acceptance criteria", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "**Ticket contract present.**", true],
@@ -325,7 +325,7 @@ const tokenChecks = [
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`1 --amends-stop` | approve; persist `none`; engine `waves`", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`2 --amends-stop` | approve; persist `none`; engine `loop`", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "`--fund-rounds=N`: fund up to N extra fix rounds per task after its escalated round", true],
-  ["skills/gauntlet/brainstorm/spec-finalization.md", "`--allowance=N`: attempts per row before the loop stops and asks (default: <n>)", true],
+  ["skills/gauntlet/brainstorm/spec-finalization.md", "`--allowance=N`: attempts per row before the loop stops a row that has stopped making progress (default: <n>)", true],
   ["skills/gauntlet/brainstorm/spec-finalization.md", "Approve to proceed", false],
   ["skills/gauntlet/amendment-surface.md", "The gate grants on a `1` or `2` approval without `--amends-stop`", true],
   ["skills/gauntlet/amendment-surface.md", "is an invalid reply and never a grant", true],
@@ -543,10 +543,10 @@ try {
 
 // ---- executable skill examples --------------------------------------------
 try {
-  execFileSync(process.execPath, ["--test", R("scripts/finish-verification.test.mjs")], { stdio: "pipe" });
-  ok("finish verification skip checks pass real Git fixtures");
+  execFileSync(process.execPath, ["--test", R("scripts/finish-verification.test.mjs"), R("scripts/finish-amendment-digest.test.mjs"), R("scripts/finish-landed-message.test.mjs")], { stdio: "pipe" });
+  ok("finish verification, ship menu and landed message checks pass");
 } catch (e) {
-  fail(`finish verification skip checks failed:\n    ${String(e.stdout || e.stderr || e).split("\n").slice(0, 30).join("\n    ")}`);
+  fail(`finish verification, ship menu or landed message checks failed:\n    ${String(e.stdout || e.stderr || e).trimEnd().replaceAll("\n", "\n    ")}`);
 }
 
 try {

@@ -1,0 +1,3 @@
+- taken: judged: With or without amend permission prints took recommendation for task 3, answers with the existing helper and redispatches the retained worker payload without a question.
+- choice: judged: Keeps the chosen helper and its reason for the wave commit.
+- exceptions: judged: Asks before discard, redraw or the unnamed purchase; does not take those options automatically.

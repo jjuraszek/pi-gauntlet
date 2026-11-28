@@ -1,14 +1,31 @@
-for: 6a099150775b5ff06474a688f58c8d0d00589bcdd9cda1a8bd99640e85aa92bd
+for: 70a64b2775e08c6dd314bbacbd93679960dcaa2163ec89b56480b73d48a2726a
 
 ## Change
+
+Defer closure at the conformance cap to step 6. The conformance-grant replay checks that closing one gap at the cap earns another round while a stalled round leaves verify incomplete.
+
+Capture the bounded failure excerpt before a verification repair and reuse it at the stalled stop, without reading logs for diagnosis. Select verify-repair-count to check whether the driver continues when the failing assertion changes at the same gate and exit code. The replay supplies the before and after observations; it does not read or overwrite live logs.
+
+The worker builds a stand-in when it knows the missing input's format. The loop-implementer samples cover the distinction; this driver was not replayed.
+
+Select unnamed-action-asks to test whether the driver mistakes permission to amend the spec for permission to cut a row that needs an unnamed purchase. The replay stops at the user's question, without a live order or edit.
 
 Load the human stop procedure before a stop or ledger amendment, not for clean dispatch or interrupted-return recovery. The clean-dispatch and human-stop-counts samples test narrated reads on supplied observations, not live traces.
 
 After an interrupted return, read the repaired rows from the ledger and continue without a tracker call, including on resume. Seed the list once. At subsequent dispatches and stops, rely on automatic projection. Read status before using a task index across a dispatch or stop.
 
+Render the blocker and the input that would clear it. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
+
+Use the spent-allowance-moving-or-stalled snapshots to distinguish a below-allowance failure from a spent row whose contradiction has a named correction. Only the latter takes the amendment surface, following approval's permission. If the same contradiction returns after the correction, stop before another amendment even when the companion SHA differs.
+
+Retry a failed row below allowance and dispatch a row reopened during verify without seeking a second authorization. The two selected replays narrate routing, not live execution.
+
+
 Select seed-dispositions to check the initial state of an approved row with an unrecognized disposition. Its duplicate-id criterion gets the same open row as an unmarked criterion. The replay checks the driver's interpretation, not a live dispatch.
 
 The worker's action boundary is covered by loop-implementer/mixed-migration-row. No driver sample was rerun for that change.
+
+Compare the last two rounds at a spent counter. The selected snapshots distinguish a changed assertion or converging review from a repeated failure; they replay instructions, not live repairs.
 
 ## Earlier comparisons
 
@@ -25,6 +42,35 @@ The seed-dispositions replay indexes only acceptance criteria and assigns no Int
 
 ## Expected to move
 - human-stop-counts/reads: fails -> holds - Read the stop procedure before each stop, but only the interrupted recovery procedure for the two recovered returns.
+- unnamed-action-asks/asks: fails -> holds - Ask whether to name the purchase or cut the row.
+- unnamed-action-asks/waits: fails -> holds - Leave the action and the row untouched until the user answers.
+- spent-allowance-moving-or-stalled/stalled: fails -> holds - Stop on repeated worker evidence despite differing companion SHAs and name the missing input instead of offering choices.
+- human-stop-counts/row-stops: fails -> holds - Name the missing input instead of offering choices.
+- human-stop-counts/exit-stop: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/retry: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/boundaries: fails -> holds - Name the missing input instead of offering choices.
+- row-budget-actions/missing: fails -> holds - Name the missing input instead of offering choices.
+- retired-budgets/exhaustion: fails -> holds - Name the missing input instead of offering choices.
+- scaled-cap-grant/stop: fails -> holds - Name the missing input instead of offering choices.
+- exit-verification-escalates/repair: fails -> holds - Name the missing input instead of offering choices.
+- exit-repair-capability/missing: fails -> holds - Name the missing input instead of offering choices.
+- exit-repair-capability/spent: fails -> holds - Name the missing input instead of offering choices.
+- gate-set-failure/tail: fails -> holds - Name the missing input instead of offering choices.
+- verify-repair-count/exhaustion: fails -> holds - Name the missing input instead of offering choices.
+- verify-repair-count/failed-cleanup: fails -> holds - Name the missing input instead of offering choices.
+- cap-and-exit-verification/contract: fails -> holds - Name the missing input instead of offering choices.
+- stagnation-and-retry/contract: fails -> holds - Name the missing input instead of offering choices.
+- spent-allowance-moving-or-stalled/moving: fails -> holds - Use the spent-counter progress test for this snapshot.
+- spent-allowance-moving-or-stalled/interrupted: fails -> holds - Use the spent-counter progress test for this snapshot.
+- verify-repair-count/movement: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/funding: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/controls: fails -> holds - Use the spent-counter progress test for this snapshot.
+- conformance-grant/stalled: fails -> holds - Use the spent-counter progress test for this snapshot.
+- seed-interrupted-count/one: fails -> holds - Use the spent-counter progress test for this snapshot.
+- seed-interrupted-count/exhaustion: fails -> holds - Use the spent-counter progress test for this snapshot.
+- spent-allowance-moving-or-stalled/contradiction: fails -> holds - Apply the authorized correction, or ask through the amendment menu without a grant.
+- spent-allowance-moving-or-stalled/below: fails -> holds - Do not turn a worker's requested spec call into a below-allowance stop.
+- verify-repair-count/reopened: fails -> holds - Approval of the amendment authorizes the reopened row's return.
 - unreachable-cut/default-row: fails -> holds - Route the defaulted row's unreachable marker through the same amendment as an explicitly in-scope row.
 - seed-dispositions/entries: fails -> holds - Leave all six Integration entries out of the ledger and worker assignments.
 

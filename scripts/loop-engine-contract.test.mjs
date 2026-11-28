@@ -66,6 +66,34 @@ test('driver dispatch matches fresh persona and durable ledger contract', () => 
   assert.deepEqual(lintStageFiles(root.pathname, [file]), []);
 });
 
+test('two file-changing companion failures with the same evidence stop at allowance', () => {
+  const loop = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+  const admission = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
+  const rule = loop.split('\n| 2 |')[1].split('\n')[0];
+  assert.match(rule, /attempts >= effective allowance.*admitted worker evidence matches.*exclude only the parent-added `; companion <sha>` suffix.*On a stall take ## Human stop/);
+  assert.match(admission, /append `; companion <sha>` to each nonempty evidence cell/);
+
+  const sample = new URL('eval/loop/samples/spent-allowance-moving-or-stalled/', root);
+  const scenario = readFileSync(new URL('case.md', sample), 'utf8').split('Independent snapshot 3:')[1];
+  const records = [...scenario.matchAll(/`([^`]+); companion ([a-f0-9]+)`/g)];
+  assert.equal(records.length, 2);
+  assert.equal(records[0][1], records[1][1]);
+  assert.notEqual(records[0][2], records[1][2]);
+  assert.match(scenario, /both changed parser code/i);
+  assert.match(readFileSync(new URL('expected.md', sample), 'utf8'), /Snapshot 3.*stops at row 2: 4 of 4.*no third dispatch/);
+});
+
+test('a later companion commit cannot repeat an authorized correction on the same evidence', () => {
+  const sample = new URL('eval/loop/samples/spent-allowance-moving-or-stalled/', root);
+  const continuation = readFileSync(new URL('case.md', sample), 'utf8').split('Now continue snapshot 5')[1].split('\n\n')[0];
+  const cells = [...continuation.matchAll(/`([^`]+); companion ([a-f0-9]+)`/g)];
+  assert.equal(cells.length, 2);
+  assert.equal(cells[0][1], cells[1][1]);
+  assert.notEqual(cells[0][2], cells[1][2]);
+  assert.match(readFileSync(new URL('expected.md', sample), 'utf8'), /repeated-amend:.*stops.*before applying the correction again.*keeps both companion SHAs/);
+  assert.match(stop, /rule 2's admitted worker evidence comparison to both the current evidence and the evidence already auto-resolved on that row.*On a match, stop with `Problem: evidence repeats row <n>`[\s\S]*print `took recommendation: amend/);
+});
+
 test('worker records selective commands and keeps row-scoped TDD evidence valid', () => {
   const persona = readFileSync(new URL('agents/loop-implementer.md', root), 'utf8');
   for (const token of [
@@ -131,7 +159,7 @@ test('effective allowance counts retries rather than historical ceilings or othe
     'Ignore every other decision and grant',
     'every coordinated entry, regardless of leg', 'allowance 4 and two retries',
     'raising the shared header to 7 makes it 9', 'an unretried row gets 7',
-    'already at or above its effective allowance is exhausted', 'Never reset or reduce attempts',
+    'attempts keep counting past allowance', 'Never reset or reduce attempts',
   ]) assert.ok(before.includes(token), token);
   assert.doesNotMatch(before, /Set row allowance to 3 \+ funded|Recover spent funding|latest .*retry.*when larger/);
 });
@@ -139,7 +167,7 @@ test('effective allowance counts retries rather than historical ceilings or othe
 test('threshold escalation uses the held setting and resolved model with or without amend permission', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const before = driver.split('## Before each dispatch')[1].split('## Dispatch')[0];
-  assert.match(before, /attempts >= effective allowance \| Human stop with or without amend permission/);
+  assert.match(before, /attempts >= effective allowance \| [^\n]+Stop only when the row stalled/);
   assert.match(before, /Select target by the priority below, then apply the escalation threshold check/);
   for (const token of [
     'For a numbered target with no durable `row <n> escalated` decision',
@@ -159,7 +187,7 @@ test('threshold escalation uses the held setting and resolved model with or with
     'row <n> escalated | implModel round | allowed attempts <effective allowance>',
     'commit with the shared Escalation sentence', 'escalated round for row <n>', 'model: <implModel>',
     'normal loop-implementer target, bump and validation path',
-    'At allowance 1, escalate the first and only allowed attempt',
+    'At allowance 1, escalate the first attempt',
     'within the effective allowance, never an extra attempt',
     'starts no new empty-child or validation-miss window',
   ]) assert.ok(before.includes(token), token);
@@ -189,7 +217,7 @@ test('spent row escalation survives grants, resume and rejected returns', () => 
     'including spent escalation', 'attempts = saved attempts +1',
     'repair row <n> | interrupted - <reason> | iteration <consumed>',
     'commit with the shared Row repair sentence and return to the ordered table in the same turn',
-    'rule 2 stops a repaired row at allowance', 'Recovery itself is unconditional',
+    'rule 2 tests the repaired row for a stall at allowance', 'Recovery itself is unconditional',
   ]) assert.ok(recovery.includes(token), token);
   assert.doesNotMatch(driver, /Boundary rejection never increments attempts/);
 });
@@ -198,7 +226,7 @@ test('automatic exit verification repair uses the ledger allowance with or witho
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const gate = driver.split('\n## After the loop\n')[1].split('\n1. ')[1].split('\n2. ')[0];
   for (const token of ['repair verification | <repo> <child sha7> | iteration <consumed>', 'exactly one commit', 'all ledger rows, attempts, mapping, allowance, `returned:` and prior decisions unchanged', 'Rerun the failing checkout\'s gate pairs once', 'gate set', 'Commit verification-produced tracked changes', 'repairs < allowance']) assert.ok(gate.includes(token), token);
-  for (const token of ['Recommendation: none - evidence repeats row <n>', 'took recommendation: amend for row <n>']) assert.ok(stop.includes(token), token);
+  for (const token of ['Problem: evidence repeats row <n>', 'took recommendation: amend for row <n>']) assert.ok(stop.includes(token), token);
   assert.ok(driver.includes('budget-only'));
   for (const token of [
     'with or without amend permission', 'never consult amend permission or gate on iterations',
@@ -214,7 +242,7 @@ test('automatic exit verification repair uses the ledger allowance with or witho
     'A new failure in any leg returns to the repair-count check', 'Never spend verify-phase credits',
   ]) assert.ok(gate.includes(token), token);
   assert.doesNotMatch(gate, /With amend permission|iterations < cap|at cap stop|With no permission/);
-  assert.match(gate, /On failure at `repairs >= allowance`.*amend or stop only/);
+  assert.match(gate, /On failure at `repairs >= allowance`.*print `Needs:`/);
   assert.match(driver, /Omit the model override except on an escalated round/);
   for (const token of [
     'Count `repairs` as `repair verification` lines in the home ledger plus one for a `pending: verify` tuple on disk',
@@ -253,7 +281,7 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const entry = driver.split('\n## Entry\n')[1].split('\n## Driver holds\n')[0];
   const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
-  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'last 20 lines', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
+  for (const token of ['ledger', 'one file reference', 'status --porcelain', 'rev-list --count', 'rev-parse', "log -G'^returned: ' --format=%H <base>..HEAD -- <ledger path>", 'ledger snapshots via `git show <sha>:<ledger path>`', 'absolute paths', 'overrides', 'source files', 'test output', 'logs', 'Never diagnose', 'rows by status', 'iterations', 'allowance', 'last decision', 'decoded amendment grant', "each leg's checkout path"]) assert.ok(holds.includes(token), token);
   assert.match(entry, /At seed and at an authorized restore, before entering the dispatch loop, read the spec in full/);
   assert.match(entry, /Decode `\*\*Amend-grant:\*\*`.*Value decoding/);
   assert.match(entry, /Capture.*ordered leg membership.*checkout paths.*Rules/);
@@ -272,10 +300,10 @@ test('driver holds capture grant and leg paths outside the dispatch loop', () =>
 test('loop stop sites route through the human stop pointer; automatic recovery does not', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   const lines = driver.split('\n');
-  for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed', 'stop with `Stopped: row <n> reopened']) {
+  for (const site of ['With dirty status', 'Unresolved row attempts >=', '`start verify` is refused at rule 1', 'before dispatch with `Problem: escalationLoop.implModel', 'render `Stopped on seed`', 'On a missing line', 'Missing settings/model stops', 'render `Stopped: verification failed']) {
     assert.match(lines.find(line => line.includes(site)), /human stop/i, site);
   }
-  for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', "take the reference's step-6 stop"]) {
+  for (const site of ['Stop on an unavailable settings tool.', 'unresolved or ambiguous entrypoint', 'cannot resolve escalation threshold', 'Stop with findings as a configuration error', 'ledger has no returned: line', 'IN FULL now with read at its absolute path; stop on an unreadable reference', 'Stop on an unreadable reference; do not reconstruct it.', 'At a conformance cap follow the shared step 6']) {
     const matches = lines.filter(line => line.includes(site));
     assert.ok(matches.length, site);
     for (const line of matches) assert.doesNotMatch(line, /Human stop|human-stop\.md/, site);
@@ -375,19 +403,19 @@ test('verify owns the gate set, bounded repair and authorized ledger re-bound', 
   const reference = readFileSync(new URL('skills/gauntlet/implement/loop/coordinated-legs.md', root), 'utf8');
   const after = driver.split('\n## After the loop\n')[1];
   const gate = after.split('\n1. ')[1].split('\n2. ')[0];
-  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'with or without amend permission', 'escalationLoop.implModel', 'repair verification | <repo> <child sha7> | iteration <consumed>', 'exactly one commit', 'all ledger rows, attempts, mapping, allowance, `returned:` and prior decisions unchanged', 'failing checkout', 'verify active and implement complete', 'amend or stop only', 'no `Retry with hint` or `rows +N`']) assert.ok(gate.includes(token), token);
-  assert.match(stop, /Implement-phase stops only: leave implement active/);
-  assert.match(stop, /Offer retry and `rows \+N` only at row stops.*alongside Amend and Stop/);
-  assert.match(stop, /verification-failure stop keeps amend\/stop only/);
+  for (const token of ['gate set', 'Commit verification-produced tracked changes', 'with or without amend permission', 'escalationLoop.implModel', 'repair verification | <repo> <child sha7> | iteration <consumed>', 'exactly one commit', 'all ledger rows, attempts, mapping, allowance, `returned:` and prior decisions unchanged', 'failing checkout', 'verify active and implement complete', 'print `Needs:`', 'accept only an amendment request without offering replies']) assert.ok(gate.includes(token), token);
+  assert.match(stop, /Leave implement active for implementation stops/);
+  assert.match(stop, /Accept retry and `rows \+N` only at row stops.*or seed exhaustion/);
+  assert.match(stop, /verification-failure stop accepts only an amendment request/);
   const expected = readFileSync(new URL('eval/loop/samples/cap-and-exit-verification/expected.md', root), 'utf8');
   assert.match(expected, /Closed rows run the gate set at verify step 1; option 4 automatically repairs twice within allowance2 without amend permission or an iteration cap check/);
   assert.match(expected, /^- contract: judged: .*verify step 1/m);
   assert.match(after, /Gn tasks.*same tracker/);
-  assert.match(after, /Without amend permission, stop with `Stopped: row <n> reopened by amendment during verify`/);
-  assert.match(after, /Under amend permission, continue without a second authorization/);
+  const reopened = after.split('`reopened by amendment`')[1];
+  assert.match(reopened, /with or without amend permission/i, 'an approved amendment authorizes returning the reopened row to implementation');
   assert.match(after.split('\n3. ')[1].split('\n4. ')[0], /During verify, dispatch the reopened row as a one-task `tasks` call.*same `## Dispatch` fields.*no `worktree:`.*closure guard counts it as one fix round against the conformance cap/);
-  assert.match(after, /including exhausted-row rule 2/);
-  assert.match(after, /authorize the row's return to ledger implementation or stop/);
+  assert.match(after, /including rule 2/);
+  assert.doesNotMatch(reopened, /Stopped: row <n> reopened|authorize the row's return to ledger implementation or stop/);
   assert.match(after, /Dispatch.*Validate the return.*verify still active.*no phase reset/);
   assert.match(after, /close on disk.*rerun step 1/);
   assert.doesNotMatch(driver + reference, /## Exit verification|Reuse the passing exit run|without plan_tracker initialization or lifecycle updates/);
@@ -437,9 +465,13 @@ test('gate output stays in session logs through repair, conformance and finish',
   const gate = driver.split('\n## Gate set\n')[1].split('\n## After the loop\n')[0];
   const after = driver.split('\n## After the loop\n')[1];
   assert.match(gate, /Use the executing checkout's `LOG_DIR` for every run and rerun: retain one session directory per checkout minted at verify step 0, or the child's own temporary directory per the conformance ledger-subject override/);
-  assert.match(gate, /Print `gate <i> exit <code> <log path>` and keep nothing else from output/);
+  assert.match(gate, /Print `gate <i> exit <code> <log path>`\. Keep no other output except the bounded failure excerpt/);
   assert.match(after, /mint `LOG_DIR=\$\(mktemp -d "\$SCRATCH\/gates\.XXXXXX"\)` once for this verify session; a resumed session mints a new one at its first gate-set site/);
-  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting at most the last 20 lines with `tail -n 20`; this human-stop excerpt is the driver's only log read/);
+  const holds = driver.split('\n## Driver holds\n')[1].split('\n## Before each dispatch\n')[0];
+  assert.match(holds, /Never read the spec, source files, test output or logs inside the implement loop\. Never diagnose a failure's cause/);
+  assert.match(holds, /Read no logs except the bounded failure excerpt in After the loop step 1 for the repair comparison and stalled stop/);
+  assert.match(after, /On every gate failure capture `tail -n 20` of its log before a repair dispatch or rerun can overwrite it/);
+  assert.match(after, /`Problem:` naming `gate <i> exit <code> <log path>` and quoting the same bounded excerpt/);
   assert.match(after, /Rerun the failing checkout's gate pairs once using ## Gate set's log redirection and fail-fast rule/);
   assert.match(after, /absolute spec path, failing command, checkout, exit code and log path, never pasted output/);
   assert.match(conformance, /Reuse the executing skill's session `LOG_DIR`; on a resumed session mint it once at the first gate-set site/);
@@ -658,9 +690,9 @@ test('row budget replies preserve counters and reject malformed grants without w
     'On the first and every later invalid reply, keep the same stop open with no writes, commit or dispatch',
     'preserve allowance, decisions, iterations and all attempts',
   ]) assert.ok(raise.includes(token), token);
-  assert.match(stop, /Offer retry and `rows \+N` only at row stops \(allowance or missing-model\) or seed exhaustion, alongside Amend and Stop/);
+  assert.match(stop, /Accept retry and `rows \+N` only at row stops \(allowance or missing-model\) or seed exhaustion/);
   assert.match(stop, /The dirty-tree stop with no dispatch pending keeps discard authorization only/);
-  assert.match(stop, /verification-failure stop keeps amend\/stop only/);
+  assert.match(stop, /verification-failure stop accepts only an amendment request/);
   assert.match(stop, /Raising allowance resets neither window/);
   assert.match(stop, /Use \[Before each dispatch\]\(loop\.md#before-each-dispatch\)'s window rule for retry and admitted amendments/);
   assert.match(stop, /Retry, `rows \+N` and redraw wait for the human/);
@@ -669,7 +701,25 @@ test('row budget replies preserve counters and reject malformed grants without w
   assert.doesNotMatch(replies, /cap \+N|loop funding/);
 });
 
-test('human stop counts cover every boundary without widening its menu', () => {
+test('stalled stops name the input that unblocks delivery without offering choices', () => {
+  const waves = readFileSync(new URL('skills/gauntlet/implement/waves/stop-note.md', root), 'utf8');
+  const notes = [...waves.matchAll(/```\n(gauntlet: question[\s\S]*?)\n```/g)];
+  assert.equal(notes.length, 2, 'template and example');
+  for (const note of notes) {
+    assert.match(note[1], /Problem:[\s\S]+\nNeeds: [^\n]+$/);
+    assert.doesNotMatch(note[1], /Fix options:|Pick one|Recommendation:/);
+  }
+  const loop = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
+  assert.match(stop, /Apply \[menu-layout\]\(\.\.\/\.\.\/menu-layout\.md\) only to a question with choices/);
+  assert.match(stop, /For row stops, quote the evidence cell and last decision line verbatim under `Problem:`/);
+  assert.match(stop, /For a stalled whole-diff review, use `Stopped on whole-diff review\.` and quote the final review report's residual findings under `Problem:`/);
+  assert.match(stop, /After `Problem:` print `Needs: <the input that unblocks delivery>`/);
+  assert.match(stop, /At stalled and no-way-forward stops print no options or recommendation/);
+  assert.doesNotMatch(stop, /^\| Stop \||End every stop with `Recommendation:/m);
+  assert.doesNotMatch(loop, /the retry\/`rows \+N` menu/);
+});
+
+test('human stop counts cover every boundary while preserving accepted replies', () => {
   const driver = readFileSync(new URL('skills/gauntlet/implement/loop/loop.md', root), 'utf8');
   for (const token of [
     'At every human stop, including allowance, missing-model, dirty-tree and exit-verification stops',
@@ -679,12 +729,12 @@ test('human stop counts cover every boundary without widening its menu', () => {
     'keep retry increments in `## Decisions`, never a new table column',
     'Render repaired row cells after recovery, never unadmitted child results',
     'With no open or failed rows, omit row lines but retain the preservation sentence',
-    'Offer retry and `rows +N` only at row stops (allowance or missing-model)',
+    'Accept retry and `rows +N` only at row stops (allowance or missing-model)',
     'The dirty-tree stop with no dispatch pending keeps discard authorization only, never budget offers',
-    'verification-failure stop keeps amend/stop only',
+    'verification-failure stop accepts only an amendment request',
   ]) assert.ok(stop.includes(token), token);
   assert.match(stop, /Start the message with `gauntlet: question` at every human stop/);
-  assert.match(stop, /For verify stops use the menus in \[After the loop\]\(loop\.md#after-the-loop\), retaining verify active/);
+  assert.match(stop, /For verify stops follow \[After the loop\]\(loop\.md#after-the-loop\), retaining verify active/);
   assert.match(driver, /\| row \| status \| attempts \| evidence \|/);
 });
 
@@ -812,7 +862,7 @@ test('configuration-allowance: documented gate and entry behavior matches instru
   const loopRow = gate.split('\n2 - loop engine:')[1]?.split('\n3 - council explanation:')[0];
   assert.ok(loopRow, 'approval row 2 renders the loop engine');
   assert.ok(loopRow.includes('`--amends-stop`'), 'loop row offers amendment review opt-out');
-  assert.ok(loopRow.includes('`--allowance=N`: attempts per row before the loop stops and asks (default: <n>)'), 'loop row renders its resolved allowance');
+  assert.ok(loopRow.includes('`--allowance=N`: attempts per row before the loop stops a row that has stopped making progress (default: <n>)'), 'loop row renders its resolved allowance');
   assert.doesNotMatch(loopRow, /--fund-rounds/);
   for (const [name, text] of [['approval gate', gate], ['loop entry', driver]]) {
     if (!text.includes('run allowance: <n>')) missing.push(`${name} omits the literal run allowance carrier`);

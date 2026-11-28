@@ -1,5 +1,7 @@
 # Spec approval gate: four rows, per-engine flags, one recommended row
 
+> **Superseded by:** [doc/specs/2026-11-27-gh-170-hands-free-implementation.md](./2026-11-27-gh-170-hands-free-implementation.md) - the description text of the `--fund-rounds=N` and `--allowance=N` flag lines only
+
 **Goal:** Replace the six-row spec approval gate with four one-sentence rows (plan engine, loop engine, council explanation, draft PR), make auto-applied amendments the default with `--amends-stop` as the opt-out, move budgets to `--fund-rounds=N` and `--allowance=N` listed under the engine that accepts them, and tag exactly one row `[recommended]` from the session's context usage and the shape of the acceptance rows.
 **Amend-grant:** every later spec amendment in this flow (corrected facts, paths, verification lines, and scope, acceptance-criteria, or public-contract edits alike) applies without asking; only a redraw (changed problem statement, component added, removed, or re-bounded) still stops for you, and the grant never stands in for a spec approval.
 **Engine:** loop

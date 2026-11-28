@@ -10,12 +10,12 @@ import { isAssessedCandidate } from './replay-facts.mjs';
 import { readRecord, cellReusable, judgmentCurrent } from '../eval/lib/records.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-// The saved baseline replies used the pre-move tree, even after main advances.
-const base = '590bb884eaaff246d10e169cf0fcff70cba9a732';
-for (const [target, sample] of [
-  ['gauntlet', 'handoff-follows-pointer'],
-  ['gauntlet', 'ordinary-request-no-run'],
-  ['gatekeep-pr', 'overrides-own-block-only'],
+// Reconstruct each recorded baseline even after main advances.
+const gauntletBase = 'c8e0ba7f7cf517e7054e41bd87f1175de05212e4';
+for (const [target, sample, base] of [
+  ['gauntlet', 'handoff-follows-pointer', gauntletBase],
+  ['gauntlet', 'ordinary-request-no-run', gauntletBase],
+  ['gatekeep-pr', 'overrides-own-block-only', '590bb884eaaff246d10e169cf0fcff70cba9a732'],
 ]) test(`${target}/${sample}: both candidate models meet every must-hold`, () => {
   const prep = prepareTarget({ root, target, sample, base });
   assert.ok(prep.plans, prep.message);

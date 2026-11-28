@@ -1,0 +1,2 @@
+- disposition: judged: Forms one delegated amendment item for Monday's export with the unreachable-in-this-checkout disposition, applying an audited cut in A and showing the amendment menu without applying a cut in B.
+- route: judged: Does not turn the missing input into a takeable decision, an ordinary stalled stop note, or a fabricated fixture.

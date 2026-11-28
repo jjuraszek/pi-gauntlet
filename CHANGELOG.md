@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- Test with a small stand-in when the named input is missing but the repository shows its format, instead of stopping or dropping the work. The ship menu and affected pull request say what stood in and what the run has not proven on the intended input. (#170)
+
+- Show what the run chose and why above the ship options, including spec corrections in the same list. (#170)
+
+- Ask whether to name an unapproved paid or outside-repository action in the spec or cut the affected row, even with permission to amend. (#170)
+
+- Name the blocker and the input needed when implementation or verification stalls, instead of offering a menu. (#170)
+
+- Keep repairing past an attempt allowance or review cap while the failure changes or the review converges. A repeated failure at the limit still stops. (#170)
+
+- Take recommended choices inside the approved spec without asking, and record each choice and its reason in the worker or wave commit. (#170)
+
+- Resume recoverable wave interruptions and return rows reopened by approved amendments to implementation without a second question. (#170)
+
 ## v9.1.3 - 2026-11-27
 
 - Gatekeep recommends preserving the requirement when a change would drop the intended outcome, even if the ticket asks for the change. Otherwise, the ticket decides, or if it is absent or silent, the PR's goal determines whether the change is necessary. When that judgment backs the code, the first report lists "the spec was not updated" as a smaller point instead of blocking merge on the mismatch.

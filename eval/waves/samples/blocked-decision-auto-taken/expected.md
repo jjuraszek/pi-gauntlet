@@ -1,4 +1,4 @@
 - taken: judged: Prints took recommendation: a for task 3 and actually re-dispatches with use bounded parser for task 3, worker evidence, same current tree/task/spec anchors/status/scoped commands, without a human stop.
 - attempts: judged: Counts the taken re-dispatch against ordinary attempts and retains review gates and in_progress until accepted wave commit.
-- repeated: judged: Normalizes whitespace and stops the continuation with Recommendation: none - evidence repeats task 3 rather than reapplying a or creating an evidence file.
-- controls: judged: None, budget-only, absent grant and more-attempt recommendations do not authorize an automatic decision or execution escalation; the dirty boundary stops before any grant dispatch. The Recommendation: none control renders a stop note ending in Recommendation: none - <why>.
+- repeated: judged: Normalizes whitespace and stops the continuation because the evidence repeats, rather than reapplying a or creating an evidence file.
+- controls: judged: The budget-only and absent-grant cases both take the in-spec bounded parser recommendation and hold the choice and reason for the wave commit. No recommendation yields a stop, extra attempts follow the round rules rather than the choice ladder, and a dirty boundary stops before dispatch.

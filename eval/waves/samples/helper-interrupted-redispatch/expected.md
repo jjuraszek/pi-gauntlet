@@ -1,0 +1,3 @@
+- helper: judged: Repeats the read-only Amend-prepare: with its retained payload in the same turn without asking; a second failure stops without recursion.
+- worker: judged: Re-dispatches only the identified isolated task through the dispatch-error row, charges failed[3] once and preserves accepted siblings.
+- unknown: judged: Stops rather than retrying or inferring integration in either ambiguous case.

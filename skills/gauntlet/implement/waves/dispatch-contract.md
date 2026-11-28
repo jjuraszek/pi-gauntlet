@@ -31,7 +31,7 @@ subagent({ async: false, context: "fresh", cwd: "<owning checkout>",
 })
 ```
 
-For answer/evidence, preparation and apply results, retain their approved schemas without adding a status field. Use carrier-only `stopOn: { path: "/status", in: ["BLOCKED"] }`: an absent pointer does not match, but the presence of stopOn exposes successful `## Outputs` JSON. Save each report under `REPORT_DIR`. Give delegated source lookups the question, source artifact paths, owning checkout, and documented lookup ordering; let the child read source, provenance, task contents or current grants. Consume only `answer` and `evidence`. A delegated failure stops; never recursively diagnose delegated failures.
+For answer/evidence, preparation and apply results, retain their approved schemas without adding a status field. Use carrier-only `stopOn: { path: "/status", in: ["BLOCKED"] }`: an absent pointer does not match, but the presence of stopOn exposes successful `## Outputs` JSON. Save each report under `REPORT_DIR`. Give delegated source lookups the question, source artifact paths, owning checkout, and documented lookup ordering; let the child read source, provenance, task contents or current grants. Consume only `answer` and `evidence`. Use [Recovery](./waves.md#recovery) for a helper interrupted before its result: repeat its retained read-only payload once when the observations establish a safe retry. Otherwise stop; never recursively diagnose delegated failures.
 
 ## Anchored payload
 

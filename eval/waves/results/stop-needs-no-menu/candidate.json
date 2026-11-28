@@ -1,0 +1,80 @@
+{
+  "sample": "stop-needs-no-menu",
+  "arm": "candidate",
+  "skillSha": "176aa9b0ac31c69ea1701d73546b4614d3fbbb9eeaf0eea5681e98e125634f63",
+  "inputSha": "0daad4f9869886982cc5fe50177c2a176861bf1b6e9d96005a29a21429a6ca09",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "These are two independent stop notes, one per replay. In both, the turn ends, the phase stays `implement`, the task stays `in_progress`, and no further tasks start. Neither note has a `budget:` line because no budget token exists. Neither ends with a menu, because both tasks are stalled or have no way forward.\n\n**Replay 1 (task 3)**\n\n```\ngauntlet: question\nStopped on task 3 (validate frame lengths); escalated round on <implModel> did not resolve it.\n\nProblem: The task must reject frames that are too long, but no maximum frame length has been approved, so the check has no limit to enforce.\n  frame.ts:21 - No approved maximum frame length\n\nNeeds: The largest frame length the system should accept, so the check can reject anything longer.\n```\n\n**Replay 2 (task 7)**\n\n```\ngauntlet: question\nStopped on task 7 (compare the export to the signed acceptance receipt).\n\nProblem: The export cannot be compared because the signed acceptance receipt was not found in any documented location, and no other source is documented.\nSearched: plan attachments - receipt not found\nSearched: ticket attachments - receipt not found\n\nNeeds: The signed acceptance receipt itself, so the export can be checked against it.\n```\n",
+      "words": 190,
+      "wallMs": 8940,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "```text\ngauntlet: question\nStopped on task 3 (validate frame lengths); the escalated repair did not resolve it.\n\nProblem: Frame-length validation remains blocked because no maximum frame length is approved.\n  frame.ts:21 - \"No approved maximum frame length\"\n\nNeeds: An approved maximum frame length to enforce.\n```\n\n```text\ngauntlet: question\nStopped on task 7 (compare the export to a signed acceptance receipt).\n\nProblem: The signed acceptance receipt is missing, and all documented lookup locations are exhausted.\nSearched: plan attachments - no signed acceptance receipt found\nSearched: ticket attachments - no signed acceptance receipt found\n\nNeeds: The signed acceptance receipt itself.\n```\n",
+      "words": 94,
+      "wallMs": 11899,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "f9a048ddeb5a576c96cbc52bed33de88000a03b7801b94ced0cdf6f8d007bca4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4ffed10558a6f988c0cda480c00a67126fce5d1bcb3573146f79b8d7e4b3c12d",
+      "baselineOutputSha": "3d822b0290b04664bff67b6da36c4bf1cab282fda8037ecfb7a89d636bcc3699",
+      "candidateOutputSha": "53353ae78b94445c9d9e969ed23c451d8010bdd041fe8eb5ac3ee8b240f7d287",
+      "facts": {
+        "stalled": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "fact": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both facts moved in the intended direction because After replaces the 'Fix options / Pick one / Recommendation' block with a single Needs line: task 3 now starts with `gauntlet: question`, carries the frame.ts:21 finding text 'No approved maximum frame length' under Problem, and Needs names the maximum frame length to accept; task 7 keeps Problem, the two Searched lines in order (plan attachments, then ticket attachments), and a Needs naming the signed acceptance receipt itself, with no where-to-find-it question, options or Recommendation footer. Before failed both only because of the options menu and Recommendation footer; it kept nothing that After lost. Two small things to keep stable: After dropped the quotation marks around the finding text in the task 3 note, so if 'quotes' is read strictly the wording should say to reproduce the finding verbatim in quotation marks; and the preamble phrase 'Neither ends with a menu' is fine outside the note but should stay out of the rendered note itself. Keep the Needs line phrased as a statement of the missing input (approved maximum, the signed receipt) rather than a question, and keep the instruction that Searched lines appear in lookup order.",
+      "wallMs": 6096,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "f9a048ddeb5a576c96cbc52bed33de88000a03b7801b94ced0cdf6f8d007bca4",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "4ffed10558a6f988c0cda480c00a67126fce5d1bcb3573146f79b8d7e4b3c12d",
+      "baselineOutputSha": "05650c980ac74ca1fb975d7969bb3e756fbb76859726f37cb5d7c43149966414",
+      "candidateOutputSha": "479bfa950f5ffb72d84ed29dc63350596ca6778933d7f884559db68ae4fa5a3e",
+      "facts": {
+        "stalled": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "fact": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both facts moved from fails to holds as intended. Before had no Needs line in either stop and instead rendered Fix options, a 'Pick one' prompt and a Recommendation footer; After replaces those with a single Needs line naming the missing input (the approved maximum frame length for task 3, the signed acceptance receipt itself for task 7), while keeping the gauntlet: question opener, the quoted frame.ts:21 finding under Problem, and the two Searched lines in plan-then-ticket order. Nothing Before held was lost. To keep this stable, keep the wording that makes Needs a statement of the missing input rather than a question or a choice, keep the residual finding quoted verbatim with its file:line, and keep the Searched lines in lookup order; avoid any phrasing that could invite a Stop offer, a 'where can I find it' question, or a trailing recommendation on stalled or missing-input stops.",
+      "wallMs": 4655,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "feb6f53f988b518d3fc00470e2fe2fa9c54b4d13"
+}

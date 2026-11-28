@@ -119,13 +119,23 @@ test('the isolated commit command preserves each message through a quoted stdin 
   });
 });
 
+test('existing and companion PR bodies carry the stand-ins from their own menu entries', () => {
+  const linked = read('skills/gauntlet/ship/spec-pr.md').split('## Push rows 1/2')[1];
+  assert.match(linked, /stand-in bullets.*same edit/i);
+  const rework = read('skills/gauntlet/ship/pr-branch-push.md').split('```markdown\n## Rework\n')[1].split('```')[0];
+  assert.match(rework, /^Dropped claims: .*\n<one bullet per stand-in in this PR's range, in the list's wording>$/m);
+  assert.match(read('skills/gauntlet/ship/legs.md'), /each member's own stand-in bullets/);
+});
+
 test('the isolated PR command passes the same subject and keeps the project body for normal and draft PRs', async t => {
   const command = pr.match(/`(\(cd [^`]*gh pr create [^`]+\))`/)?.[1];
   assert.ok(command, 'select only gh pr create, without push, strip, seal or cleanup');
   const template = pr.match(/```markdown\n(## Summary[\s\S]*?)\n```/)[1];
   const integration = '## Integration\n\n~~~text\nEOF\nEnd of receipt\n~~~';
-  const body = template.replace("<spec's Integration block when present>", integration).replace('\n\n<disposition appendix when applicable>', '');
-  assert.equal(body, `## Summary\n<2-3 bullets of what changed>\n\n## Test Plan\n- [ ] <verification steps>\n\n${integration}`);
+  const disclosure = '- Monday receipts were missing; handwritten receipts stood in. The change is not proven on the Monday receipts.';
+  const body = template.replace('<one bullet per stand-in in this PR\'s range, in the list\'s wording>', disclosure)
+    .replace("<spec's Integration block when present>", integration).replace('\n\n<disposition appendix when applicable>', '');
+  assert.equal(body, `## Summary\n<2-3 bullets of what changed>\n${disclosure}\n\n## Test Plan\n- [ ] <verification steps>\n\n${integration}`);
   for (const draft of [false, true]) await t.test(draft ? 'draft' : 'normal', () => {
     const cwd = mkdtempSync(join(tmpdir(), 'finish title '));
     const env = { PATH: process.env.PATH };

@@ -1,6 +1,16 @@
-for: 51f540d937ae7fbc7a472bc28cfa802d1eab23610f3c93fcd6766ab2bc84503a
+for: 93f8f9928f8e877917885c7660daab522f64cbb38742cc539d1cc04e92a76049
 
 ## Change
+
+Defer closure at the conformance cap to step 6. The stalled-per-gap-trail replay checks the stalled stop, not the moving grant or caller routing.
+
+At a stalled conformance cap, report every gap's verdict in every round under `Problem:`. Keep the first-line gate marker, name the unblocking input under `Needs:` without a funding menu, and leave verification incomplete. The stalled-per-gap-trail sample covers only this response.
+
+The shared ship menu lists applied corrections alongside recommendations. The ship replay covers this change; no conformance sample was rerun.
+
+The shared instructions continue past a spent allowance while the last round moved. The loop, waves and resume samples cover that behavior; no sample of this target was rerun.
+
+## Earlier comparisons
 Start proactive cap-exhaustion escalation with the step-6 gate marker and ask for additional funding, including Convergence exhaustion; keep verification incomplete. Carried-open menus put their marker before item 1; clean closure uses the Step 4 marker before summaries.
 
 Replace carried-open token menus with numbered decision briefs: place the unresolved problem immediately after the gate marker, letter available named options with consequences, and show either a lettered recommendation or No recommendation - pick one. Bare 1 applies recommendations and re-asks unanswered no-recommendation items by number. Continuation cases replay only the next response: no-recommendation-reask stops at the focused re-ask, and no-recommendation-execute continues after the custom answer through execution scheduling and the re-audit barrier. Follow-up wording fixes keep the Custom line numberless, pluralize the count, include the re-ask clause in the reply instruction, echo custom free text verbatim in Recorded, and make the zero-gap CONFORMS fall-through render Step 4's menu in full, options included, without stopping at Step 4's question line. In in-scope-gap, f4 now pins the clarify-before-execute and decide-everything-first properties. The re-audit barrier's render-level mention left the menu because Custom shows a one-line consequence by design; its behavior coverage moves to no-recommendation-execute, which requires re-auditing the updated state before any CONFORMS claim or Step 4 menu. The execute-order barrier remains required. The lettered-pick fix preserves named dispositions on recommended: none items: a letter selects the shown option, while only free text records custom(<text>).
@@ -10,6 +20,9 @@ All existing samples (deferred-with-ref, deviates, directional-dependency, elsew
 Retain fresh conformance before the coordinated finish menu and preserve existing disposition facts.
 
 ## Expected to move
+- stalled-per-gap-trail/per-gap-rounds: fails -> holds - The stalled stop puts the complete gap-by-round trail under Problem, not just the overall audit verdicts.
+- stalled-per-gap-trail/needs-no-menu: fails -> holds - The stalled stop names the required input under Needs instead of rendering funding options.
+
 - gate-line-first/gate-first: fails -> holds - Cap exhaustion opens the funding gate independently of runtime errors.
 
 - deferred-with-ref/f1: holds -> holds - Settled deferrals still produce no decisions under the new assembly.

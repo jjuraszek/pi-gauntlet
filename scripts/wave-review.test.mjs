@@ -123,7 +123,30 @@ test('planning and wave dispatch bind task roots and Rules to admitted legs', ()
 
 test('subagent failure guidance retains the two-attempt ladder', () => {
   const failure = skill.split('## When a Subagent Fails')[1].split('## After All Tasks Complete')[0];
-  for (const token of ['1. **Attempt 1:**', '2. **Attempt 2:**', "3. after 2 failed attempts the transition table's escalated round runs; STOP only when that round and any funded round are spent."]) assert.ok(failure.includes(token), token);
+  for (const token of ['1. **Attempt 1:**', '2. **Attempt 2:**', "3. after 2 failed attempts the transition table's escalated round runs; apply the transition table's spent-counter test after the last round."]) assert.ok(failure.includes(token), token);
+});
+
+test('an escalated dispatch error takes a remaining funded round before the stop note', () => {
+  assert.match(wave, /^\| Escalated round fails \(dispatch error,[^\n]*\| spent \| funded round while the task's ledger has one left, else apply the spent-counter test/m);
+  const stopNote = loadReference('stop-note');
+  const trigger = stopNote.match(/^Emit when .+$/m)?.[0];
+  assert.match(trigger, /\[transition table\]\(\.\/waves\.md#the-wave-loop\)/);
+  assert.doesNotMatch(trigger, /dispatch error/);
+  assert.match(stopNote, /`Problem:`[^\n]*dispatch error/);
+});
+
+test('a stalled whole-diff review stops in verify without a task header', () => {
+  const request = readFileSync(new URL('../skills/gauntlet/requesting-review.md', import.meta.url), 'utf8');
+  const note = loadReference('stop-note');
+  assert.match(request, /implement\/waves\/stop-note\.md#whole-diff-review/);
+  const review = note.split('## Whole-diff review\n')[1]?.split('\n## ')[0] ?? '';
+  assert.match(review, /keep `verify` active/i);
+  assert.match(review, /`gauntlet: question`.*`Stopped on whole-diff review\.`/);
+  assert.match(review, /residual findings under `Problem:`.*input under `Needs:`.*no options/i);
+  assert.doesNotMatch(review, /Stopped on task|`in_progress`/);
+  const implementation = note.split('## Implementation task\n')[1] ?? '';
+  assert.match(implementation, /phase stays `implement`, the task stays `in_progress`/);
+  assert.match(implementation, /Stopped on task <n> \(<title>\)/);
 });
 
 const quote = value => `'${value.replaceAll("'", "'\\''")}'`;

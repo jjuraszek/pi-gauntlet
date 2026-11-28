@@ -1,0 +1,104 @@
+{
+  "sample": "stalled-per-gap-trail",
+  "arm": "candidate",
+  "skillSha": "f2f1eb23affcbbb86947bcd9c9d42f19d1711e13c05c761528a600606e915e8d",
+  "inputSha": "b5cfc0672b4f393ad3e29136b5364a8569623692ca29baeaa47182f01bf438b1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=verify/step-6\n\nProblem: The conformance fix loop has used its cap (`closureReview.maxFixRounds: 2`) and the last round made no progress. No gap became `DELIVERED`. No failing command started passing, because every scoped command passed in both rounds. No Critical or Moderate finding cleared, because there were none. Per-round verdicts for each open gap:\n- G1 - CSV header: R1 `PARTIAL` (wrong header), then R2 `MISSING` (header removed). This gap regressed.\n- G2 - JSON export: R1 `MISSING` (no JSON export), then R2 `PARTIAL` (empty JSON export). This gap is still not delivered.\n\nBoth gaps still recommend `fix`. Verify stays incomplete. No closure block was written and the workflow has not moved to ship.\n\nNeeds: Your explicit approval of a specific number of additional fix rounds, in your own words. Approval is recorded with `grant_fix_rounds` and resumes the loop at step 2. Without it, this stalled cap is terminal. If you approve, it would help to also give guidance on two points:\n- G1 - CSV header: the exact header the requirement expects.\n- G2 - JSON export: what a correctly populated JSON export must contain.\n",
+      "words": 177,
+      "wallMs": 7485,
+      "mechanical": {
+        "gate-first": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=verify/step-6\n\nProblem:\n- G1 — CSV header: R1 PARTIAL (wrong header) → R2 MISSING (header removed).\n- G2 — JSON export: R1 MISSING (no JSON export) → R2 PARTIAL (empty JSON export).\n- The two-round cap is reached and progress has stalled: neither gap became DELIVERED, no failing command became passing, and no Critical/Moderate finding was resolved. Verify remains incomplete.\n\nNeeds:\nExplicit approval for N additional fix rounds before remediation can continue.\n",
+      "words": 66,
+      "wallMs": 6560,
+      "mechanical": {
+        "gate-first": "holds"
+      }
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "a92d77a1fb3a7761e2dc357ede677a27e4fa7a27cb3ad66064764b9123c06715",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "264819474b1a844509e9aff9a0283d26fed02a9ebdb3e004fe3f1025cd95a5a1",
+      "baselineOutputSha": "94adbe365dbb7007eb9c05178cfa1f60465910ea2bd79ceb86da47803af7aa99",
+      "candidateOutputSha": "eb345be580a1c1c1d0a4d33cab8f96b4f740f4f83e94a94d3688a2d0708d4b96",
+      "facts": {
+        "per-gap-rounds": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "needs-no-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "remains-incomplete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "After moved per-gap-rounds by adding an explicit `Problem:` label and listing each gap's R1 and R2 verdicts beneath it (G1 PARTIAL then MISSING; G2 MISSING then PARTIAL); Before had the same trail but in an unlabeled table with no `Problem:` section, so it failed the fact as written. After moved needs-no-menu by replacing the numbered 'Decision needed' options and reply instructions with a `Needs:` paragraph naming the single unblocking input (explicit approval of a specific number of additional rounds). remains-incomplete held in both: neither output grants or dispatches a round, and both state verification is incomplete with no move to closure or ship. To keep these stable, keep the per-gap verdict bullets physically inside the `Problem:` block (the trailing 'Both gaps still recommend fix. Verify stays incomplete...' paragraph sits between the bullets and `Needs:` and could be reworded to drift the trail outside Problem), and keep `Needs:` phrased as one required input: the optional two-bullet guidance list is close to option-like structure, so wording should make clear these are supplementary details rather than choices, and avoid any lettered or numbered alternatives or a suggested round count. Mentioning `grant_fix_rounds` as what would record an approval is fine as long as it stays conditional and is never presented as already invoked.",
+      "wallMs": 6611,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "a92d77a1fb3a7761e2dc357ede677a27e4fa7a27cb3ad66064764b9123c06715",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "264819474b1a844509e9aff9a0283d26fed02a9ebdb3e004fe3f1025cd95a5a1",
+      "baselineOutputSha": "3dfc70e81cb27d11e77039f3bcd1e45855dba283635f9cb3b5b01032d236c73d",
+      "candidateOutputSha": "18ce3159ddb955ef17acd2afef4419999f509f979fcc98efb2455ab5a27833a5",
+      "facts": {
+        "per-gap-rounds": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "needs-no-menu": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "remains-incomplete": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        },
+        "gate-first": {
+          "before": "holds",
+          "after": "holds",
+          "label": "held"
+        }
+      },
+      "feedback": "The After wording moved per-gap-rounds by placing the full gap-by-round trail (G1 R1 PARTIAL -> R2 MISSING; G2 R1 MISSING -> R2 PARTIAL) under an explicit `Problem:` label; Before had the same verdicts in a table but no `Problem:` section, so the fact as written failed there. It moved needs-no-menu by adding a `Needs:` label that names the unblocking input (explicit approval for N additional fix rounds) with no options; Before had no `Needs:` section and posed an inline approval question with an example reply instead. remains-incomplete held in both: each stops without granting or dispatching a round, and After still says 'Verify remains incomplete' while keeping the first-line gate marker. To keep all three, retain the labelled `Problem:`/`Needs:` structure, the per-round verdicts for every gap, and the explicit incomplete statement. Two small risks to guard against: the stall bullet's 'no failing command became passing, and no Critical/Moderate finding was resolved' is slightly at odds with a case where all commands passed and there were no findings, so consider wording it as 'all scoped commands passed and there are no code-review findings, but neither gap reached DELIVERED'; and keep `Needs:` as a single stated input rather than letting 'N additional fix rounds' grow into enumerated choices or example replies, which would read as a funding menu. Before also noted that both gaps still recommend fix and that no closure or ship step will run; adding one such line under `Problem:` would preserve that context without affecting any fact.",
+      "wallMs": 7050,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "076bbad07db910baacb4c5fe56ef4374c773cc0a"
+}

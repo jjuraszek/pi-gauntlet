@@ -24,6 +24,10 @@ test('admitted target evidence routes before budget and dispatch without driver 
     'Leave malformed markers on the ordinary failed-attempt path',
     '| Otherwise | Return to the ordered table. |',
   ]) assert.ok(section.includes(token), token);
+  const unnamed = section.split('\n').find(line => line.startsWith('| Matches `^unreachable: unnamed action '));
+  assert.ok(unnamed && section.indexOf(unnamed) < section.indexOf('| Matches `^unreachable: .+'), 'route unnamed actions before ordinary cuts');
+  assert.match(unnamed, /human batch before any write or dispatch, with or without amend permission/);
+  assert.match(unnamed, /name the action in the spec or cut the row/);
   assert.doesNotMatch(section, /bound spent:|action counts|authorization bounds|raise an action's bound/);
   assert.match(driver, /Capture the decoded grant, row dispositions,/);
   assert.match(stop, /refresh the held row dispositions, membership, checkout paths and Rules/);

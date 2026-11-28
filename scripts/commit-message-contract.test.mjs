@@ -144,7 +144,7 @@ test('amendment batches and chosen spec dispositions use the shared message reci
 
 test('finish composes landed messages and reads amendment records without subject filters', () => {
   const finish = read('skills/gauntlet/ship/ship.md');
-  const digest = finish.split('**Amendment digest (both variants).**')[1].split('**Rework PR subject')[0];
+  const digest = finish.split('**Decisions above every menu.**')[1].split('**Rework PR subject')[0];
   assert.match(digest, /--format=%b/);
   assert.doesNotMatch(digest, /--grep|--extended-regexp/);
   assert.match(finish, /--title "\$LANDED_SUBJECT"/);
@@ -173,6 +173,9 @@ for (const [targetName, sample] of [
   ['loop-implementer', 'home-plain-commit'],
   ['loop-implementer', 'companion-return-file'],
   ['loop', 'returned-line-admission'],
+  ['loop-implementer', 'reading-picked'],
+  ['waves', 'blocked-decision-auto-taken'],
+  ['waves', 'worker-decision-taken'],
 ]) {
   test(`historical saved replies: ${targetName}/${sample} preserves completed message replies`, () => {
     const dir = `eval/${targetName}`;
@@ -211,6 +214,12 @@ for (const [targetName, sample] of [
 test('loop worker and dispatcher carry wording and ledger-held home attribution', () => {
   const worker = read('agents/loop-implementer.md');
   const driver = read('skills/gauntlet/implement/loop/loop.md');
+  assert.ok(read(reference).includes('- choice | <what the run chose> | <why>'));
+  assert.match(worker, /Design states wins.*smaller change/);
+  assert.match(worker, /one `choice` line per reading/);
+  const waveCommit = read('skills/gauntlet/implement/waves/waves.md').split('7. **Commit.**')[1].split('\n')[0];
+  assert.match(waveCommit, /one `choice` line per recommendation/);
+  assert.match(driver, /no reading inside the approved spec resolves.*amendment surface/);
   assert.match(worker, /wording:.*absolute path/);
   assert.match(worker, /ticket:/);
   assert.match(worker, /return:.*absolute path/);

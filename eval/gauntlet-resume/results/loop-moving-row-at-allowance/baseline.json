@@ -1,0 +1,34 @@
+{
+  "sample": "loop-moving-row-at-allowance",
+  "arm": "baseline",
+  "skillSha": "9d08661efa294808c59c00a3bc68d6bf0bb79a9438cac9caa0a725c783526972",
+  "inputSha": "179d410cf56ba6a4053f1cd8af05eedc892447079089d1de9f87346da376762e",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Next action: human stop on row 2 (rule 2, allowance exhausted)\n\n## Why it stops instead of dispatching\n\nThe driver is at `## Before each dispatch` with implement active. Only home is involved.\n\n1. **Header checks.** Read the ledger at its absolute path. The `checks:` line is present, there is exactly one `returned:` line, and `allowance:` is present with no `cap:`, so the ordered table runs.\n2. **Rule 1** does not apply, because row 2 is `failed`.\n3. **Rule 2** applies. Row 2's effective allowance is the header allowance plus one per `row 2 retry` decision, which is 4 here. Its attempts are 4, and 4 ≥ 4, so this is a human stop.\n4. **Rule 3** does not run. Rule 2 comes first, and rule 3 would not fire anyway:\n   - Both window commits changed parser code, so this is not empty-child stagnation.\n   - There are no `repair row 2` validation misses.\n\nAs a result, nothing is dispatched on this turn:\n- No `loop-implementer` subagent call.\n- No `mktemp` output file.\n- No iterations bump and no `pending:` tuple.\n- No commit and no tracker write.\n\n**Model:** none is resolved. `escalationLoop` is not read, because the `row 2 escalated` marker is already on disk. Any later authorized attempt omits the `model` override.\n\n**Counters:** attempts stay at 4, iterations stay at their current value, the header allowance stays unchanged, and `returned:` stays unchanged.\n\n## Printed stop (first output line alone, no preamble)\n\n```\ngauntlet: question\nStopped on row 2\nrow 2: 4 of 4\nPreserve every row's attempts.\nescalated round spent\nProblem: <row 2 evidence cell, verbatim - ending with the \"expected length 3\" failure>; last decision: <latest `row 2 failed | ... | ...` line, verbatim, recommending checking length>\nOptions:\n- retry 2 | <hint>  - one more attempt on row 2 (effective allowance 4 -> 5)\n- rows +N           - raise the shared allowance by N for every row\n- Amend             - change the spec through the amendment surface\n- Stop              - keep implement active, branch unchanged\nRecommendation: retry 2 | check the expected length (3) - the last two attempts made real parser progress (expected header FF -> expected length 3) and the latest decision names the length check\n```\n\nThe `Problem:` line attributes the failure to the evidence only and adds no investigation. The stop waits for the human, even under amend permission, because retry is never auto-taken.\n\n## On the human's reply\n\n**`retry 2 | <hint>`**\n1. Append `row 2 retry | <hint> | allowed attempts 5`.\n2. Commit with the subject `Grant acceptance row 2 one more attempt`.\n3. Refresh.\n4. Return to the ordered table. Row 2's effective allowance is now 5, and rule 2 clears.\n\nThen dispatch:\n1. Save the ledger and `HEAD_BEFORE`.\n2. Send `iteration: i` and write `iterations: i + 1` plus `pending: 2 | home | <HEAD>`, then refresh.\n3. Create the output file with `mktemp \"$SCRATCH/loop-out.XXXXXX\"`.\n4. Dispatch the subagent: `loop-implementer` with `context: \"fresh\"`, `async: false`, `outputMode: \"file-only\"`, `target: 2`, `hint: <hint>`, `previous decision: <the latest row 2 failed line>`, `wording` and `ticket` as held, and **no `model`**.\n\n**`rows +N`**\n1. Append `rows +N | <words>` and raise the header allowance by N.\n2. Commit once with the subject `Raise the attempt allowance by N`. Iterations and attempts stay unchanged.\n3. Return to the ordered table and dispatch as above, still with no model override.\n\n**Malformed reply** (for example `rows +0`)\n- Print the accepted forms once: `retry <n> | <hint>` and `rows +N`.\n- Keep the stop open and write nothing.\n\n**Stop**\n- Implement stays active and the branch is preserved.\n",
+      "words": 562,
+      "wallMs": 19783,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: question\n\nStopped on row 2\nrow 2: 4 of 4\nPreserve every row's attempts.\nescalated round spent\n\nProblem: evidence is “expected length 3”; the latest failed decision recommends checking length. The full decision line was not supplied, so it cannot be quoted verbatim.\n\n- `retry 2 | <hint>` — authorize one more attempt for row 2.\n- `rows +N` — raise the shared allowance.\n- Amend — enter the spec amendment process.\n- Stop — preserve the current state.\n\nNo tool calls or dispatch. No model is selected or output file created; iterations, attempts, allowance and decisions remain unchanged. The allowance stop takes precedence over stagnation checks. Spent escalation remains spent; any later authorized attempt omits the model override.\n\nRecommendation: none - checking length does not name an authorized amendment, and another attempt requires your selection.\n",
+      "words": 127,
+      "wallMs": 14962,
+      "mechanical": {}
+    }
+  },
+  "repoSha": "c06b07493d236894bf32dc40f8362437e124ccf6"
+}

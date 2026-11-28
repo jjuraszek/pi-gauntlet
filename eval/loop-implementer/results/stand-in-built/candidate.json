@@ -1,0 +1,80 @@
+{
+  "sample": "stand-in-built",
+  "arm": "candidate",
+  "skillSha": "ccba64321096912ec3f8e3b3e9ff2cfecdebc8647b449db3131da9ad3a528f22",
+  "inputSha": "c96781c941ba0d6d7659e3ba661476fe7bd176991bd15629452d495457ed02c6",
+  "kind": "text",
+  "assembly": "concat",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "# Simulated loop-implementer trace: Monday's stock-count import\n\n**Assumed task values for this snapshot** (synthetic; the scenario does not give them):\n- target: `3`\n- base: `<base>`\n- task iteration: `4` (ledger bumped to 5)\n- ticket: `none`\n- wording: the supplied commit-messages file\n- spec: `/repo/doc/specs/stock-import.md`\n- ledger: `/repo/doc/plans/stock-import-ledger.md`\n\nThe required reads are already done: spec, then ledger, then the row-3 decisions, then the diff scoped to row 3's files. Saved before editing:\n- `pending: <dispatch tuple, full SHA>`\n- `iterations: 5`\n\n## Trace\n\n**1. Input check (already observed)**\n- Row 3 says to import the count from Monday's stock file.\n- That file is not in the checkout, the spec or the ticket material, and the spec says nothing about whether it will exist.\n- The row and the existing parser together show the format: a CSV header `sku,count` and one data row.\n- This matches the step-5 table row \"cannot obtain the row's input data, format shown\". So I build the smallest hand-built stand-in and work test-first.\n- It does not match the \"missing prerequisite\" row. No `unreachable:` is recorded, I do not ask the driver and I do not cut the row.\n\n**2. Test input: create `test/fixtures/monday-stock.csv`**\n```\nsku,count\nA-100,42\n```\n\n**3. Test first: create `test/import-count.test.mjs`**\n```js\nimport { test } from 'node:test';\nimport assert from 'node:assert/strict';\nimport { importCount } from '../src/import-count.mjs';\n\ntest('imports the count from the stock file', async () => {\n  const count = await importCount(new URL('./fixtures/monday-stock.csv', import.meta.url));\n  assert.equal(count, 42);\n});\n```\n\n**4. RED**\n```\ntimeout -k 30 120 node --test test/import-count.test.mjs\n```\nObserved: 0 passed, 1 failed (`undefined !== 42`). The importer reads no count, which is the row's stated reason. The command selects a test file, so it would exit nonzero if the file were missing.\n\n**5. GREEN: edit `src/import-count.mjs`**\n`importCount` now:\n- reads the file,\n- hands it to the existing parser for the `sku,count` header,\n- returns `Number(row.count)` from the data row.\n\nThis is the smallest change that passes. No in-spec alternatives came up, so there is no `choice` line.\n\n**6. Rerun the check**\n```\ntimeout -k 30 120 node --test test/import-count.test.mjs\n```\nObserved: 1 passed, 0 failed.\n\n**7. Ledger row 3 cells**\n- status: `done`\n- attempts: `1` → `2`\n- evidence: `timeout -k 30 120 node --test test/import-count.test.mjs; 1 passed; 0 failed; stand-in test/fixtures/monday-stock.csv for absent Monday stock file`\n\n**8. Extras and ledger bookkeeping**\n- No other open rows in this leg touch these files, so there are no extras.\n- Appended the row-3 decision line to `## Decisions`.\n- Replaced the `pending:` line with `returned:`, copied byte-for-byte with only the field name changed and the SHA untouched.\n\n**9. Stage explicitly**\n```\ntimeout -k 30 60 git add test/fixtures/monday-stock.csv test/import-count.test.mjs src/import-count.mjs doc/plans/stock-import-ledger.md\n```\n\n**10. Commit**\nThe subject comes from the row (loop-worker word source). The ticket is `none`, so there is no reference. The body has one stand-in line.\n```\ntimeout -k 30 60 git commit -m \"Import the stock count from Monday's stock file\" -m \"- stand-in | Monday's stock file | a hand-built CSV with header sku,count and one data row\"\n```\nStopped at the commit, as instructed.\n\n## Final reply:\nrow 3 done | Imported the stock count from a sku,count CSV, built test-first against a hand-built stand-in for Monday's absent stock file. | Reuse importCount in src/import-count.mjs and the fixture test/fixtures/monday-stock.csv through test/import-count.test.mjs.\n",
+      "words": 505,
+      "wallMs": 21606,
+      "mechanical": {}
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "### Simulated trace\n\nThe replay starts after the required spec, ledger, wording and rules reads. The named stock file is absent from the checkout and supplied spec/ticket material. The parser’s `sku,count` format is known, so use a hand-built stand-in rather than fail for missing data.\n\nThe snapshot omits concrete dispatch values and the importer’s path/interface. Below, `$BASE`, `$LEDGER`, `$IMPORTER` and `n` denote those existing values; the existing importer invocation is retained.\n\n1. **Preflight and prepare checkout-local scratch.**\n\n   ```sh\n   timeout -k 30 10 bash -c 'command -v python3; command -v timeout'\n   ```\n   Observation: both facilities are available.\n\n   ```sh\n   timeout -k 30 10 bash -c 'SCRATCH=\"$(git rev-parse --path-format=absolute --git-dir)/gauntlet/tmp\" || exit; mkdir -p \"$SCRATCH\"'\n   ```\n   Observation: scratch creation succeeds.\n\n2. **Inspect the scoped changes and relevant code.**\n\n   ```sh\n   timeout -k 30 30 git diff --stat \"$BASE\"\n   timeout -k 30 30 git diff \"$BASE\" -- \"$IMPORTER\" test/import-count.test.mjs\n   timeout -k 30 10 cat \"$IMPORTER\" test/import-count.test.mjs\n   ```\n\n   Read the importer’s existing CSV-parser call and the test’s existing invocation. Preserve any test from an earlier attempt. The observed importer currently returns no count.\n\n3. **Write the stand-in and strengthen the selective test before changing the importer.**\n\n   Create `test/fixtures/monday-stock.csv` with exactly:\n\n   ```csv\n   sku,count\n   SKU-1,17\n   ```\n\n   In `test/import-count.test.mjs`, invoke the existing importer with that fixture and assert that the returned count is numeric `17`:\n\n   ```js\n   assert.equal(actualCount, 17);\n   ```\n\n   The fixture is explicitly synthetic; it does not claim to reproduce Monday’s actual inventory.\n\n4. **RED — run the row’s check.**\n\n   ```sh\n   timeout -k 30 60 node --test test/import-count.test.mjs\n   ```\n\n   Observation: exit 1; the count assertion fails because the actual value is `undefined`, not `17`. This establishes the missing import behavior, not a fixture-availability failure.\n\n5. **GREEN — make the smallest importer edit.**\n\n   Keep the existing CSV parser and file-reading path. Read the parsed data row’s `count` field, convert it to a number, and return it through the importer’s existing count result. Add no fallback constant or production reference to the synthetic fixture.\n\n   ```sh\n   timeout -k 30 60 node --test test/import-count.test.mjs\n   ```\n\n   Observation: exit 0; the selective test passes and returns numeric `17` from the file.\n\n6. **Record the target result.**\n\n   Preserve the consumed `iterations:` count. Set the target’s mutable cells to:\n\n   ```text\n   status: done\n   attempts: previous attempts + 1\n   evidence: timeout -k 30 60 node --test test/import-count.test.mjs; passed; numeric count read from CSV stand-in\n   ```\n\n   Copy the saved `pending:` tuple byte-for-byte to `returned:`, changing only the field name, and remove `pending:`.\n\n   Append to `## Decisions`:\n\n   ```text\n   row <n> done | Imported the numeric count from the CSV and passed the selective fixture check. | Reuse test/fixtures/monday-stock.csv and test/import-count.test.mjs to check count imports.\n   ```\n\n   No extra rows are taken.\n\n7. **Stage explicitly and commit once.**\n\n   `$TICKET_SUFFIX` is the supplied ticket’s wording-compliant suffix, or empty for `ticket: none`; no ticket is inferred.\n\n   ```sh\n   timeout -k 30 30 git add -- \"$IMPORTER\" test/import-count.test.mjs test/fixtures/monday-stock.csv \"$LEDGER\"\n   timeout -k 30 60 git commit -m \"Import the count from Monday's stock file${TICKET_SUFFIX}\" -m \"- stand-in | Monday's stock file was not supplied | A hand-built CSV with sku,count and one data row\"\n   ```\n\n   Observation: the single commit succeeds. Its body contains the stand-in record, not dispatch attribution or ledger accounting.\n\n   ```sh\n   timeout -k 30 10 git status --porcelain\n   ```\n\n   Observation: empty output; the committed working tree is clean. No subsequent work is performed.\n\nFinal reply:\nrow <n> done | Imported the numeric count from the CSV and passed the selective fixture check. | Reuse test/fixtures/monday-stock.csv and test/import-count.test.mjs to check count imports.\n",
+      "words": 550,
+      "wallMs": 39611,
+      "mechanical": {}
+    }
+  },
+  "judge": {
+    "anthropic/claude-opus-5-5": {
+      "factsSha": "4af0f68e2f3a24ac6e0903179d52003ede3d86c3e5cac02e8053332cebea6c30",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5a5455180f2055be74659340f8935afc585a6adeba46a540a145a35acdce8179",
+      "baselineOutputSha": "05426bb024340de172dc9168d400d3956dfd27ddc2881352b68b38f78013be17",
+      "candidateOutputSha": "b5385448379994931c62d52ab155ca2838982732c0499b40c934979cd3695449",
+      "facts": {
+        "local": {
+          "before": "holds",
+          "after": "holds",
+          "label": "intended but unchanged"
+        },
+        "disclosure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "The After wording moved disclosure: the step-5 table row \"cannot obtain the row's input data, format shown\" led the worker to call the fixture a stand-in and to put exactly one `- stand-in | Monday's stock file | a hand-built CSV with header sku,count and one data row` line in the commit body, where Before only mentioned the fixture in prose. The local fact did not move, because Before already satisfied it as written: it hand-built a `sku,count` fixture, ran the failing check before the importer edit, passed it, and marked the row done without asking or cutting. Before got there by a different route, treating Monday's file as an external obligation rather than a stand-in case, so the expected fails -> holds on local is not visible in this case. To keep both facts, keep the explicit table row that separates \"format shown\" from \"missing prerequisite\" and the requirement of one stand-in line in the closing commit body. Consider requiring the line to say the original is absent and to give the stand-in's path (e.g. `test/fixtures/monday-stock.csv`), since After's line names the missing file only in the middle field and describes the CSV without its path. Note also that After's fixture name `monday-stock.csv` could be mistaken for the real file, so wording that asks for a visibly synthetic fixture name would protect the disclosure.",
+      "wallMs": 9142,
+      "verdict": "improved"
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "factsSha": "4af0f68e2f3a24ac6e0903179d52003ede3d86c3e5cac02e8053332cebea6c30",
+      "judgePromptSha": "98afd04762bd79e1e708f1220d6bbafdccf404d3884351cad193ff5e490009b9",
+      "intentSha": "5a5455180f2055be74659340f8935afc585a6adeba46a540a145a35acdce8179",
+      "baselineOutputSha": "d84fb62e055e57f74799e4807f0477e0bbae3602482a0a45aaa0710c9def537e",
+      "candidateOutputSha": "68fc8a718dcb54399dac7c87dded121f38ef5bada2b5ab76b1eefa77fb607467",
+      "facts": {
+        "local": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        },
+        "disclosure": {
+          "before": "fails",
+          "after": "holds",
+          "label": "intended change"
+        }
+      },
+      "feedback": "Both facts moved as intended. The After wording led the worker to treat a known parser format as sufficient to build a stand-in: it hand-wrote a minimal `sku,count` CSV with one data row, ran `node --test test/import-count.test.mjs` to a failing assertion (undefined vs 17) before touching the importer, made the edit, re-ran to a pass, and closed the row as done without asking or cutting it; Before instead refused to build a fixture, marked the row failed/unreachable and left the commit body empty. The commit body in After carries a single `- stand-in | Monday's stock file was not supplied | A hand-built CSV with sku,count and one data row` line, which names the absent Monday file and the synthetic CSV, so disclosure holds. Before kept neither fact, so nothing was lost. To make this sturdier, keep the wording that ties the stand-in to a known format and requires the failing check before the importer edit, and consider asking the third cell of the stand-in line to name the fixture path and state it is synthetic (e.g. `synthetic test/fixtures/monday-stock.csv, sku,count + one row`), since the current line describes the stand-in only generically and a stricter reader might want the artifact identified explicitly.",
+      "wallMs": 5709,
+      "verdict": "improved"
+    }
+  },
+  "repoSha": "5075bf260f84945c8d2714d46640f0de7b391f65"
+}

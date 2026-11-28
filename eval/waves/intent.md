@@ -1,10 +1,20 @@
-for: 2377daf9ceaecac1832e69f11b615cd91d1807d2be16a373f03cf80fdea15758
+for: 9cfde14b95732ed4ec9b4f7de69f1e929808630c1037a11038890724dd952645
 
 ## Change
 
-Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces.
+Use the wave transition table to route an escalated dispatch error. The `budget-exhausted` replay checks that one remaining funded round runs without a human question, while a stalled round still emits the stop note. The deterministic contract test checks the routing text but cannot show which instruction the driver follows.
+
+Check the delegated amendment path for unavailable row input after lookup fails and no format supports a stand-in. Replay both grant states, not live amendments.
+
+Read chain recovery and escalation only at their triggers; run clean waves, ordinary repairs and successful lookups without either file. Keep prerequisites in the wave driver. The selected samples test narrated procedure reads, not live traces. At a spent counter, distinguish a converging re-review or a changed assertion from a stalled round; these snapshots replay instructions, not live repairs.
+
+Render the blocker and the input that would clear it. A stalled whole-diff review names the review, not a task, and keeps verification active. These selected text replays distinguish a stalled stop from an authorization question; they do not perform repairs.
+
+Use blocked-decision-auto-taken and worker-decision-taken to check that permission to change the spec does not gate an in-spec repair. Hold each recommendation and its reason for the accepted wave commit.
 
 Dispatch a wave without marking each task in progress. Keep task completion after the wave commit.
+
+Repeat an identified, unwritten interrupted dispatch in the same turn; take recommended in-spec worker decisions with or without amend permission. The selected replays check routing rather than real recovery or commit creation.
 
 Compose committed-originals and accepted-wave messages through the shared commit-message reference using held spec metadata and manifest headings. Preserve scoped entry staging, delegated source reads, isolated reset semantics and completion after the wave commit. Keep wave-commit-wording/boundary passing.
 Rebuild Delete ownership from the wave base: strip path line annotations, remove Create paths first, and restore deduplicated Modify/Test plus Delete paths printed by the restricted base-tree listing, excluding Create paths. Skip empty commands and preserve siblings. The rebuild-delete-paths sample covers this behavior change; its report is partial coverage.
@@ -15,11 +25,26 @@ Localize implement amendments to affected entries and historical evidence, prese
 Replace per-task spec and per-wave code review with one post-gate integrated wave review. Read unresolved child reports directly once at limit 300 with one compact retry; retain delegated source/spec/plan reads. Repair on the current integrated tree, using committed clean snapshots and delta-only apply for isolated waves, direct edits in-place. Rebuild only after repair delta apply failure; preserve siblings and original wave base. Fold escalation, convergence, funding and transcript-only recovery into one transition table. These are behavior-changing instructions; parent verification owns model results.
 
 ## Expected to move
+- budget-exhausted/dispatch-error: fails -> holds - Dispatch the remaining funded round instead of treating the escalated dispatch error as an independent stop.
+- stand-in-not-buildable/disposition: fails -> holds - Route the cut by amend permission.
+- stand-in-not-buildable/route: fails -> holds - Bypass ordinary decisions and stalled stop notes.
+- stop-needs-no-menu/stalled: fails -> holds - Name the missing input instead of offering choices.
+- stop-needs-no-menu/fact: fails -> holds - Name the missing input instead of offering choices.
+- reject-stop/protocol: fails -> holds - Name the missing input instead of offering choices.
+- extra-round-while-converging/review: fails -> holds - Use the spent-counter progress test for this snapshot.
+- extra-round-while-converging/gate: fails -> holds - Use the spent-counter progress test for this snapshot.
+- review-third-fix-round/moving: fails -> holds - Use the spent-counter progress test for this snapshot.
+- review-third-fix-round/stalled: fails -> holds - Use the spent-counter progress test for this snapshot.
+- blocked-decision-auto-taken/controls: fails -> holds - Take the in-spec choice even with no amendment grant.
 
 - chain-stop-blocked/reads: fails -> holds - Read recovery before reconciling a missing result, escalation before the ladder, and neither for lookup alone.
 - third-attempt-escalated/reads: fails -> holds - Read escalation before starting the escalated round.
 - clean-wave-skips-failure-rules/reads: fails -> holds - Complete an ordinary repair and wave commit without reading either conditional file.
 - tracker-auto-start/dispatch: fails -> holds - Starting the workers needs no tracker writes.
+- helper-interrupted-redispatch/helper: fails -> holds - Re-dispatch the read-only helper once.
+- helper-interrupted-redispatch/worker: fails -> holds - Charge the interrupted isolated task and retain accepted siblings.
+- worker-decision-taken/taken: fails -> holds - Take the in-spec recommendation without waiting for permission.
+- worker-decision-taken/choice: fails -> holds - Hold the choice for the wave commit.
 
 - wave-commit-wording/plan: fails -> holds - Compose the initial commit from the shared plan recipe.
 - wave-commit-wording/wave: fails -> holds - Compose the accepted wave subject from its task headings.

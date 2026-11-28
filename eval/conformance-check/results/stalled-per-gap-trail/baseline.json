@@ -1,0 +1,38 @@
+{
+  "sample": "stalled-per-gap-trail",
+  "arm": "baseline",
+  "skillSha": "3858e5a4a3aaf22bd5cb33c6ce9c6ed359691ec0023343cd9c7d9ff8061c19c8",
+  "inputSha": "b5cfc0672b4f393ad3e29136b5364a8569623692ca29baeaa47182f01bf438b1",
+  "kind": "text",
+  "assembly": "headed",
+  "thinking": "medium",
+  "models": {
+    "replay": [
+      "anthropic/claude-opus-5-5",
+      "github-copilot/gpt-6.1-sol"
+    ],
+    "judge": "anthropic-fable/claude-fable-5-2",
+    "thinking": "medium"
+  },
+  "outputs": {
+    "anthropic/claude-opus-5-5": {
+      "status": "ok",
+      "text": "gauntlet: gate=verify/step-6\n\n**Conformance fix loop stopped: round cap reached (2 of 2), 2 gaps still open**\n\nVerification is **not complete**. The fix loop in the conformance worktree used both funded rounds (`closureReview.maxFixRounds: 2`), and both `fix` gaps are still open. Scoped tests passed in both rounds, and there are no code-review findings. No further rounds will run unless you approve them.\n\n**Verdict trail by gap**\n\n| Round | Overall | G1 - CSV header | G2 - JSON export |\n|---|---|---|---|\n| R1 | GAPS | PARTIAL: wrong header | MISSING: no JSON export |\n| R2 | GAPS | MISSING: header removed | PARTIAL: empty JSON export |\n\n- **G1 - CSV header** got worse. It went from PARTIAL in R1 to MISSING in R2. The R2 fix removed the header instead of correcting it. The gap is still `recommended: fix`.\n- **G2 - JSON export** improved but is not delivered. It went from MISSING in R1 to PARTIAL in R2. The export now exists but writes empty output. The gap is still `recommended: fix`.\n\n**Decision needed: fund more fix rounds?**\n\n1. **Approve N more fix rounds (recommended: 2).** The loop resumes at step 2 for G1 - CSV header and G2 - JSON export. Each round re-partitions, re-audits, and adds a regression guard against the header removal. I record your approval with `phase_tracker({ action: \"grant_fix_rounds\", rounds: N, reason: \"<your words>\" })` before the next wave.\n2. **Do not fund more rounds.** The escalation stays terminal. Verification stays incomplete, and nothing proceeds to closure or ship.\n\nReply `1` to approve 2 rounds, or `1 N` for a different count. Reply `2` to stop here. You can add a reason in your own words, and it will be recorded with the grant.\n",
+      "words": 267,
+      "wallMs": 10472,
+      "mechanical": {
+        "gate-first": "holds"
+      }
+    },
+    "github-copilot/gpt-6.1-sol": {
+      "status": "ok",
+      "text": "gauntlet: gate=verify/step-6\n\nThe conformance fix loop reached its cap of **2 rounds** with both gaps still open.\n\n| Gap | R1 | R2 |\n|---|---|---|\n| **G1 — CSV header** | PARTIAL — wrong header | MISSING — header removed |\n| **G2 — JSON export** | MISSING — no JSON export | PARTIAL — empty JSON export |\n\nBoth gaps still recommend **fix**. All scoped commands passed in both rounds, and there are no code-review findings, but requirement coverage has not converged.\n\n**Explicit approval is required to fund additional rounds.** How many additional fix rounds do you approve? Reply, for example, `Approve 1 additional round`.\n\nVerification remains incomplete. No further round, closure, or shipping step will run without approval.\n",
+      "words": 101,
+      "wallMs": 10574,
+      "mechanical": {
+        "gate-first": "holds"
+      }
+    }
+  },
+  "repoSha": "81c217098f1e02385aca83a1271cb6433b65615a"
+}

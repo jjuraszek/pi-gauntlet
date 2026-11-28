@@ -4,3 +4,5 @@ The implementation worktree is /workspace/project, phase implement, task 3 "Vali
 The header is exactly `**Amend-grant:** fund 1 fix rounds`.
 The ordinary wave review loop reached review 3 with FIX_FIRST, TRAJECTORY: DIVERGING (2 -> 3, max severity Moderate). The one escalated fix and its wave review re-review have already run; wave review remains FIX_FIRST, TRAJECTORY: DIVERGING (3 -> 3, max severity Moderate), finding `src/frame.ts:21 - missing length guard`. No funded round has been dispatched.
 After the single funded fix, fixed wave review is FIX_FIRST, TRAJECTORY: DIVERGING (3 -> 3, max severity Moderate), same length-guard finding. Show dispatch and review then the parent's stop note through turn end.
+
+Independent snapshot: the same task and grant follow two ordinary failures, but the escalated dispatch instead returns `error: worker unavailable` before a worker result or re-review. The repair tree and dispatch identity are known, no writes occurred, and one funded round remains. Show the next action only; no result for that round is supplied.

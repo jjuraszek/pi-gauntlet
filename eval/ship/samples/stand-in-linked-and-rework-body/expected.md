@@ -1,0 +1,3 @@
+- sole-entry: judged: A shows the decisions heading with count one and a single line naming the missing Monday order sheet, the three handwritten orders and the lack of proof on the intended sheet.
+- linked: judged: One body edit in B includes that exact line as a Summary bullet and replaces the obsolete Integration instruction. Original Summary and Notes text and spacing survive, with no Rework block.
+- rework: judged: C retains the original description unchanged and includes the same line inside the appended Rework block, not in a separate Summary or outside that block.

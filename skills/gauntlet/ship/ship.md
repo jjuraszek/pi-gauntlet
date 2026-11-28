@@ -149,13 +149,9 @@ Three tiers, increasing cost — name the tier when a revert is requested:
 A **heavy** revert is not a menu toggle — say so explicitly to the user before proceeding, and do not present it as equivalent-effort to the light tier. The council audit that lets the human identify revert candidates lives in the `brainstorming` spec commit message body (not a committed spec section).
 
 ### Step 4: Present Options
-Start the message with `gauntlet: gate=ship/step-4` alone on the first output line, followed by a newline before any closure summary or amendment digest. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../menu-layout.md). **Amendment digest (both variants).** Before the options, read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b` for body-only output (`--format=%B` includes subjects). Take lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| ` from complete amendment audit rows (`handle | title | what | kind | reviewer | evidence`). Select by these body records, never by subject; commits without matching rows contribute nothing. Render, then the options:
-```
-Amendments auto-applied (N):
-- <title> - <what changed>
-```
+Start the message with `gauntlet: gate=ship/step-4` alone on the first output line, followed by a newline before any closure summary or list of decisions. Emit exactly one marker and no `recommended=`; preserve the full subject-specific menu, including on return from `fix minors`. Read and apply [menu-layout](../menu-layout.md).
 
-Omit the block when N = 0.
+**Decisions above every menu.** Read `git -C "$WORKTREE" log <base-branch>..HEAD --format=%b --reverse` in the home checkout, then read companion ranges per the [decision list](legs.md#decisions-above-the-ship-menu). Select by these body records, never by subject; commits without matching rows contribute nothing. Take complete amendment audit lines matching `^- [^|]+ \| [^|]+ \| [^|]+ \| (auto-apply|granted) \| `, choices matching `^- choice \| [^|]+ \| .+$` and disclosures matching `^- stand-in \| [^|]+ \| .+$`. Apply the [decision list](legs.md#decisions-above-the-ship-menu) rule to render `What the run decided on its own (N):` above the options.
 
 **Rework PR subject - preflight and six-row menu.** At identification of a PR-rework subject, before preflight, the menu, any outcome report or any push gate, reuse the full procedure of `pr-branch-push.md` only if it is still available in the current context; otherwise read it in full now with `read` at its absolute path before acting. Stop on an unreadable file naming its path; never reconstruct it. Read the record form: `Rework base:` selects rebase mode. Only `Base:` in `merge:` form selects merge mode. A rebase record without `Rework base:` (`sync: unresolved` or an `unresolved`/`pending` member) stops before the menu: `rework sync incomplete for PR #<home>: no Rework base recorded; finish Task 1 first.` Fetch origin with `git -C "$WORKTREE" fetch origin`; stop on failure. Run proofs with `git -C "$WORKTREE"`; every exit other than 0 or 1 is a command error: stop with its output.
 | Mode | Proof and decision |
@@ -260,6 +256,7 @@ Resolve `SCRATCH` for the observed worktree through [scratch folder](../return-f
 ```markdown
 ## Summary
 <2-3 bullets of what changed>
+<one bullet per stand-in in this PR's range, in the list's wording>
 
 ## Test Plan
 - [ ] <verification steps>
@@ -271,7 +268,7 @@ Resolve `SCRATCH` for the observed worktree through [scratch folder](../return-f
 
 For a ledger, render `Verification: scoped - <commands>; CI on this push holds the full run` as the last `## Summary` bullet, listing that PR's gate commands; keep `## Test Plan`. Keep the `Telemetry: whole PR against <baseRefName>.` suffix rework-only; print no verification line on squash or discard.
 
-**PR body Integration block.** Copy the leg's spec section headed `## Integration` verbatim, including nested text, up to the next peer or higher heading or end of file. In a new PR place it after `## Test Plan`, before any disposition appendix; omit the block when absent. For an existing PR read its body fresh without trimming and compare that block alone. Add a missing block, replace a differing block or remove a stale one when absent from the spec; preserve every other byte. Leave one current copy. Skip the Integration edit when the blocks match or neither exists. On a body read or write failure limited to Integration synchronization, report once in one line that the PR body's Integration block is not in sync and name the leg's spec path and its `## Integration` section as the source for repair. Keep the checkout for repair, make no claim that the copy succeeded, and continue the next step (readiness, push reporting or companion reconciliation). Keep Integration out of squash messages.
+**PR body Integration block.** Copy the leg's spec section headed `## Integration` verbatim, including nested text, up to the next peer or higher heading or end of file. In a new PR place it after `## Test Plan`, before any disposition appendix; omit the block when absent. For an existing PR read its body fresh without trimming and compare that block alone. Add a missing block, replace a differing block or remove a stale one when absent from the spec; preserve the text outside the block except for this route's required PR body edits. Leave one current copy. Skip the Integration edit when the blocks match or neither exists. On a body read or write failure limited to Integration synchronization, report once in one line that the PR body's Integration block is not in sync and name the leg's spec path and its `## Integration` section as the source for repair. Keep the checkout for repair, make no claim that the copy succeeded, and continue the next step (readiness, push reporting or companion reconciliation). Keep Integration out of squash messages.
 
 When the spec's `## Acceptance criteria` has `deferred:` or `elsewhere:` rows, append this disposition appendix with those rows verbatim. Keep this disposition appendix out of Option 3's landed message.
 
